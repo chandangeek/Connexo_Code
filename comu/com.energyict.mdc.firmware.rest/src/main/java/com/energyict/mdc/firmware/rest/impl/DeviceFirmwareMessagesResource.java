@@ -13,6 +13,7 @@ import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
@@ -256,7 +257,7 @@ public class DeviceFirmwareMessagesResource {
                         .withMessageTitle(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE, actionName)
                         .withMessageBody(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY, actionName)
                         .supplier());
-        launchFirmwareCheck(device, ComTaskExecution::scheduleNow);
+        device.runStatusInformationTask(ComTaskExecution::scheduleNow);
         return Response.ok().build();
     }
 
@@ -273,40 +274,12 @@ public class DeviceFirmwareMessagesResource {
                         .withMessageTitle(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE, actionName)
                         .withMessageBody(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY, actionName)
                         .supplier());
-        launchFirmwareCheck(device, ComTaskExecution::runNow);
-        return Response.ok().build();
-    }
-
-    private void launchFirmwareCheck(Device device, Consumer<ComTaskExecution> requestedActionOnExec) {
-        Optional<ComTaskExecution> firmwareCheckExecution = device.getComTaskExecutions()
-                .stream()
-                .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
-                .findFirst();
-        if (!firmwareCheckExecution.isPresent()) {
-            firmwareCheckExecution = createFirmwareCheckExecution(device);
-        }
-        if (!firmwareCheckExecution.isPresent()) {
+        try {
+            device.runStatusInformationTask(ComTaskExecution::runNow);
+        } catch (NoStatusInformationTaskException e) {
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_CHECK_TASK_IS_NOT_ACTIVE);
         }
-        requestedActionOnExec.accept(firmwareCheckExecution.get());
-    }
-
-
-    private Optional<ComTaskExecution> createFirmwareCheckExecution(Device device) {
-        Optional<ComTaskEnablement> firmwareCheckEnablementRef = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device).getComTaskEnablementToCheckTheFirmwareVersion();
-        if (firmwareCheckEnablementRef.isPresent()) {
-            ComTaskEnablement firmwareCheckEnablement = firmwareCheckEnablementRef.get();
-            ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> firmwareCheckExecutionBuilder = device.newAdHocComTaskExecution(firmwareCheckEnablement);
-            if (firmwareCheckEnablement.hasPartialConnectionTask()) {
-                device.getConnectionTasks().stream()
-                        .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == firmwareCheckEnablement.getPartialConnectionTask().get().getId())
-                        .forEach(firmwareCheckExecutionBuilder::connectionTask);
-            }
-            ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = firmwareCheckExecutionBuilder.add();
-            device.save();
-            return Optional.of(manuallyScheduledComTaskExecution);
-        }
-        return Optional.empty();
+        return Response.ok().build();
     }
 
     private boolean isDeviceFirmwareUpgradeAllowed(FirmwareManagementDeviceUtils helper) {
