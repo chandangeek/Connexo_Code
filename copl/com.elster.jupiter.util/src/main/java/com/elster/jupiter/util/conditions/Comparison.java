@@ -30,7 +30,7 @@ public final class Comparison extends Leaf {
 	}
 
 	public Object[] getValues() {
-		return values;
+		return Arrays.copyOf(values, values.length);
 	}
 	
 	public String getText(String fieldText) {
