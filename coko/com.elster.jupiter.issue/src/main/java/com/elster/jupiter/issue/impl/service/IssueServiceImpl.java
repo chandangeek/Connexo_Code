@@ -54,12 +54,10 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.inject.AbstractModule;
@@ -90,13 +88,13 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue",
-    service = {IssueService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class},
+        service = {IssueService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
     property = {"name=" + IssueService.COMPONENT_NAME,
                 "osgi.command.scope=issue",
                 "osgi.command.function=rebuildAssignmentRules",
                 "osgi.command.function=loadAssignmentRuleFromFile"},
     immediate = true)
-public class IssueServiceImpl implements IssueService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+public class IssueServiceImpl implements IssueService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile QueryService queryService;
@@ -187,7 +185,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         issueCreationService = dataModel.getInstance(IssueCreationService.class);
         issueActionService = dataModel.getInstance(IssueActionService.class);
         issueAssignmentService = dataModel.getInstance(IssueAssignmentService.class);
-        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference
@@ -323,7 +321,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public List<IssueProvider> getIssueProviders() {
-        return issueProviders;
+        return Collections.unmodifiableList(this.issueProviders);
     }
 
     @Override
@@ -396,17 +394,17 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public IssueType createIssueType(String key, TranslationKey translationKey) {
+    public IssueType createIssueType(String key, TranslationKey translationKey, String prefix) {
         if(findIssueType(key).isPresent()){
             throw new NotUniqueKeyException(thesaurus, key);
         }
         IssueTypeImpl issueType = dataModel.getInstance(IssueTypeImpl.class);
-        issueType.init(key, translationKey).save();
+        issueType.init(key, translationKey, prefix).save();
         return issueType;
     }
 
     private <T extends Entity> Optional<T> find(Class<T> clazz, Object... key) {
-        return queryService.wrap(dataModel.query(clazz)).get(key);
+        return dataModel.mapper(clazz).getOptional(key);
     }
 
     @Override
@@ -423,17 +421,15 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     @Override
-    public int countOpenDataCollectionIssues(String mRID) {
-        Optional<IssueType> issueType = findIssueType("datacollection");
-        if (issueType.isPresent()) {
-            Condition condition = Where.where("reason.issueType").isEqualTo(issueType.get())
-                    .and(where("device.mRID").isEqualTo(mRID));
-            List<OpenIssue> issues = dataModel.query(OpenIssue.class, IssueReason.class, EndDevice.class)
-                    .select(condition);
-            return issues.size();
-        } else {
-            return 0;
-        }
+    public Finder<OpenIssue> findOpenIssuesForDevices(List<String> mRID) {
+        Condition condition = ListOperator.IN.contains("device.mRID", mRID);
+        return DefaultFinder.of(OpenIssue.class, condition, dataModel, IssueReason.class, EndDevice.class);
+    }
+
+    @Override
+    public Finder<OpenIssue> findOpenIssuesForDevice(String mRID) {
+        Condition condition = where("device.mRID").isEqualTo(mRID);
+        return DefaultFinder.of(OpenIssue.class, condition, dataModel, IssueReason.class, EndDevice.class);
     }
 
     @Override
@@ -449,28 +445,6 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Override
     public IssueCreationService getIssueCreationService() {
         return issueCreationService;
-    }
-
-    @Override
-    public String getModuleName() {
-        return IssueService.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES.getKey(), Privileges.RESOURCE_ISSUES_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_ISSUE, Privileges.Constants.COMMENT_ISSUE,
-                        Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.ASSIGN_ISSUE,
-                        Privileges.Constants.ACTION_ISSUE
-                        )));
-        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES_CONFIGURATION.getKey(), Privileges.RESOURCE_ISSUES_CONFIGURATION_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_CREATION_RULE,
-                        Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_ASSIGNMENT_RULE
-                )));
-        return resources;
     }
 
     public void rebuildAssignmentRules() {
@@ -496,7 +470,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public List<IssueCreationValidator> getIssueCreationValidators() {
-        return issueCreationValidators;
+        return Collections.unmodifiableList(this.issueCreationValidators);
     }
 
     @Override
@@ -545,6 +519,16 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     private Condition buildConditionFromFilter(IssueFilter filter) {
         Condition condition = Condition.TRUE;
+        //filter by issue id
+        if (filter.getIssueId().isPresent()) {
+            String[] issueIdPart = filter.getIssueId().get().split("-");
+            if (issueIdPart.length == 2) {
+                condition = condition.and(where("id").isEqualTo(getNumericValueOrZero(issueIdPart[1])))
+                        .and(where("reason.issueType.prefix").isEqualTo(issueIdPart[0].toUpperCase()));
+            } else {
+                condition = condition.and(where("id").isEqualTo(0));
+            }
+        }
         //filter by assignee
         if (!filter.getAssignees().isEmpty()) {
             condition = condition.and(where("user").in(filter.getAssignees()));
@@ -581,5 +565,13 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
             condition = condition.and(dueDateCondition);
         }
         return condition;
+    }
+
+    private long getNumericValueOrZero(String id) {
+        try {
+            return Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

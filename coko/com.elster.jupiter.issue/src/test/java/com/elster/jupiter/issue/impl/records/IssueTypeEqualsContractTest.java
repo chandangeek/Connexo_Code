@@ -23,7 +23,7 @@ public class IssueTypeEqualsContractTest extends EqualsContractTest {
     protected Object getInstanceA() {
         if (issueType == null) {
             issueType = new IssueTypeImpl(dataModel, thesaurus);
-            issueType.init("key", null);
+            issueType.init("key", null, "TST");
         }
         return issueType;
     }
@@ -31,14 +31,14 @@ public class IssueTypeEqualsContractTest extends EqualsContractTest {
     @Override
     protected Object getInstanceEqualToA() {
         IssueTypeImpl issueType = new IssueTypeImpl(dataModel, thesaurus);
-        issueType.init("key", null);
+        issueType.init("key", null, "TST");
         return issueType;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         IssueTypeImpl issueType = new IssueTypeImpl(dataModel, thesaurus);
-        issueType.init("another key", null);
+        issueType.init("another key", null, "TST");
         return Collections.singletonList(issueType);
     }
 

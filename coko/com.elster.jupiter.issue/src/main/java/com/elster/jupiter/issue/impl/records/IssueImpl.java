@@ -2,7 +2,14 @@ package com.elster.jupiter.issue.impl.records;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.AssigneeType;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueComment;
+import com.elster.jupiter.issue.share.entity.IssueForAssign;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
@@ -41,11 +48,22 @@ public class IssueImpl extends EntityImpl implements Issue {
     private volatile IssueService issueService;
     private volatile IssueAssignmentService issueAssignmentService;
 
+    private static final String DEFAULT_ISSUE_PREFIX = "ISU";
+
     @Inject
     public IssueImpl(DataModel dataModel, IssueService issueService){
         super(dataModel);
         this.issueService = issueService;
         this.issueAssignmentService = issueService.getIssueAssignmentService();
+    }
+
+    @Override
+    public String getIssueId() {
+        String prefix = DEFAULT_ISSUE_PREFIX;
+        if (this.reason.isPresent()) {
+            prefix = this.reason.get().getIssueType().getPrefix();
+        }
+        return prefix + "-" + this.getId();
     }
 
     @Override
@@ -138,14 +156,14 @@ public class IssueImpl extends EntityImpl implements Issue {
         this.user.set(user);
     }
 
-    protected void resetAssignee(){
+    protected void resetAssignee() {
         assigneeType = null;
         setUser(null);
     }
 
     @Override
-    public Optional<IssueComment> addComment(String body, User author){
-        if (!is(body).emptyOrOnlyWhiteSpace() && author != null){
+    public Optional<IssueComment> addComment(String body, User author) {
+        if (!is(body).emptyOrOnlyWhiteSpace() && author != null) {
             IssueCommentImpl comment = getDataModel().getInstance(IssueCommentImpl.class);
             comment.init(getId(), body, author).save();
             return Optional.of(IssueComment.class.cast(comment));
@@ -171,13 +189,13 @@ public class IssueImpl extends EntityImpl implements Issue {
     }
 
     @Override
-    public void autoAssign(){
+    public void autoAssign() {
         IssueForAssign wrapper = new IssueForAssignImpl(this);
         issueAssignmentService.assignIssue(Collections.singletonList(wrapper));
     }
 
     @Override
-    public Optional<UsagePoint> getUsagePoint(){
+    public Optional<UsagePoint> getUsagePoint() {
         EndDevice endDevice = getDevice();
         if (endDevice != null && Meter.class.isInstance(endDevice)) {
             Meter meter = Meter.class.cast(endDevice);
@@ -193,3 +211,4 @@ public class IssueImpl extends EntityImpl implements Issue {
         return issueService;
     }
 }
+
