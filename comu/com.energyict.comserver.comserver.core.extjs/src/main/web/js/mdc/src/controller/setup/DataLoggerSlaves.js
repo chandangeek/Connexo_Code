@@ -387,6 +387,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                             slaveDeviceModel.yearOfCertification = formRecord.get('yearOfCertification');
                             slaveDeviceModel.batch = formRecord.get('batch');
                             slaveDeviceModel.shipmentDate = wizard.down('#deviceAdd #deviceAddShipmentDate').getValue().getTime();
+                            if (me.wizardInformation.minimalLinkingDate < slaveDeviceModel.shipmentDate) {
+                                me.wizardInformation.minimalLinkingDate = slaveDeviceModel.shipmentDate;
+                            }
                             slaveDeviceModel.version = formRecord.get('version');
 
                             me.wizardInformation.slaveMRID = formRecord.get('mRID');

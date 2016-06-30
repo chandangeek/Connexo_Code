@@ -98,9 +98,11 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
 
             } else {
                 me.add({
-                    xtype: 'container',
-                    margin: '10 0 0 20',
-                    html: "<a style='font-size: 12pt'>" + Uni.I18n.translate('deviceCommunicationTopology.communicationTopologyTitleHasNoSlaves', 'MDC', 'This gateway has no slaves') + "</a>"
+                    xtype: 'form',
+                    items: {
+                        xtype: 'uni-form-empty-message',
+                        text: Uni.I18n.translate('deviceCommunicationTopology.communicationTopologyTitleHasNoSlaves', 'MDC', 'This gateway has no slaves')
+                    }
                 });
             }
 
@@ -150,7 +152,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                 }
             } else {
                 me.addItemToForm(masterContainer, Uni.I18n.translate('general.na', 'MDC', 'N/A'));
-                me.addItemToForm(masterContainer, Uni.I18n.translate('deviceCommunicationTopology.isDirectlyAddressed', 'MDC', 'The device is directly addressable.<br/>It is not possible to set master device.'), null, 'span',
+                me.addItemToForm(masterContainer, Uni.I18n.translate('deviceCommunicationTopology.isDirectlyAddressed', 'MDC', 'This device is directly addressable.<br/>It is not possible to set master device.'), null, 'span',
                     {
                         top: '2em !important',
                         fontStyle: 'italic',
@@ -169,7 +171,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                 }
             } else {
                 me.addItemToForm(slavesContainer, Uni.I18n.translate('general.na', 'MDC', 'N/A'));
-                me.addItemToForm(slavesContainer, Uni.I18n.translate('deviceCommunicationTopology.isNotGateway', 'MDC', 'The device is not a gateway.<br/>It has no slaves.'), null, 'span',
+                me.addItemToForm(slavesContainer, Uni.I18n.translate('deviceCommunicationTopology.isNotGateway', 'MDC', 'This device has no gateway functionality.<br/>It is not possible to link gateway slaves.'), null, 'span',
                     {
                         top: '2em !important',
                         fontStyle: 'italic',

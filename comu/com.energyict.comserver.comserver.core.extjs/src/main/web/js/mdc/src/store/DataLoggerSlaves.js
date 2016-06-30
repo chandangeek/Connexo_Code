@@ -7,6 +7,10 @@ Ext.define('Mdc.store.DataLoggerSlaves', {
 
     model: 'Mdc.model.Device',
     storeId: 'DataLoggerSlaves',
+    sorters: [{
+        property: 'mRID',
+        direction: 'ASC'
+    }],
 
     proxy: {
         type: 'rest',
