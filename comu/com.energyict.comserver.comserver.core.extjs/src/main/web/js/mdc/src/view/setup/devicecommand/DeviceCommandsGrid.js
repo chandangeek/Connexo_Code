@@ -57,7 +57,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created By'),
+                header: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created by'),
                 dataIndex: 'user',
                 renderer: function (val) {
                     return val ? Ext.String.htmlEncode(val) : '-'
