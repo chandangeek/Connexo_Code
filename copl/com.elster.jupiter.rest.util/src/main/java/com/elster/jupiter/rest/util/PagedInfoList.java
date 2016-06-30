@@ -1,6 +1,7 @@
 package com.elster.jupiter.rest.util;
 
 import com.elster.jupiter.domain.util.QueryParameters;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -9,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,7 +33,7 @@ public class PagedInfoList {
 
     private PagedInfoList(String jsonListName, List<?> infos, int total) {
         this.jsonListName = jsonListName;
-        this.infos = infos;
+        this.infos = Collections.unmodifiableList(infos);
         this.total = total;
     }
 
@@ -88,8 +90,9 @@ public class PagedInfoList {
             int endIndex = infos.size();
             if(queryParameters.getLimit().isPresent()) {
                 endIndex = queryParameters.getStart().get()+queryParameters.getLimit().get();
-                if( endIndex > infos.size())
+                if (endIndex > infos.size()) {
                     endIndex = infos.size();
+                }
             }
             infos = infos.subList(startIndex, endIndex);
         }
