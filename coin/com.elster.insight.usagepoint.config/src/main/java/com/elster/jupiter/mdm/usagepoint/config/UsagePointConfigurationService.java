@@ -1,24 +1,16 @@
 package com.elster.jupiter.mdm.usagepoint.config;
 
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
-import java.util.Optional;
 
 @ProviderType
 public interface UsagePointConfigurationService {
 
     String COMPONENTNAME = "UPC";
-
-    void link(UsagePoint up, MetrologyConfiguration mc);
-
-    Boolean unlink(UsagePoint up, MetrologyConfiguration mc);
-
-    Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up);
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
