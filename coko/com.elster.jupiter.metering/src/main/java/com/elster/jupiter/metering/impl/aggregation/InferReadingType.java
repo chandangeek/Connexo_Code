@@ -193,7 +193,7 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
      *
      * @see CheckEnforceReadingTypeImpl
      */
-    private class EnforceReadingType implements ServerExpressionNode.Visitor<Void> {
+    private final class EnforceReadingType implements ServerExpressionNode.Visitor<Void> {
         private final VirtualReadingType readingType;
 
         private EnforceReadingType(VirtualReadingType readingType) {
@@ -271,7 +271,7 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
      *
      * @see CheckEnforceReadingTypeImpl
      */
-    private class EnforceIntervalMultiplierAndCommodity implements ServerExpressionNode.Visitor<Void> {
+    private final class EnforceIntervalMultiplierAndCommodity implements ServerExpressionNode.Visitor<Void> {
         private final IntervalLength intervalLength;
         private final MetricMultiplier multiplier;
         private final Commodity commodity;
