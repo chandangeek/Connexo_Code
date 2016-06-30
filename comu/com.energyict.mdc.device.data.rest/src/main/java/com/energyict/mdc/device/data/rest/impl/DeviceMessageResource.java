@@ -37,7 +37,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -58,16 +57,14 @@ public class DeviceMessageResource {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final ExceptionFactory exceptionFactory;
-    private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
 
     @Inject
-    public DeviceMessageResource(ResourceHelper resourceHelper, DeviceMessageInfoFactory deviceMessageInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceMessageSpecificationService deviceMessageSpecificationService, ExceptionFactory exceptionFactory, DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory) {
+    public DeviceMessageResource(ResourceHelper resourceHelper, DeviceMessageInfoFactory deviceMessageInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceMessageSpecificationService deviceMessageSpecificationService, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceMessageInfoFactory = deviceMessageInfoFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.exceptionFactory = exceptionFactory;
-        this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
     }
 
     @GET @Transactional
@@ -119,7 +116,7 @@ public class DeviceMessageResource {
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId).setReleaseDate(deviceMessageInfo.releaseDate);
         DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_SPEC));
 
-        if (deviceMessageInfo.properties !=null) {
+        if (deviceMessageInfo.properties != null) {
             try {
                 for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
                     Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, deviceMessageInfo.properties);
@@ -151,8 +148,8 @@ public class DeviceMessageResource {
             deviceMessage.revoke();
         }
         deviceMessage.save();
-        deviceMessage = resourceHelper.findDeviceMessageOrThrowException(deviceMessageId);
-        return deviceMessageInfoFactory.asInfo(deviceMessage, uriInfo);
+        DeviceMessage reloaded = resourceHelper.findDeviceMessageOrThrowException(deviceMessageId);
+        return deviceMessageInfoFactory.asInfo(reloaded, uriInfo);
     }
 
     private boolean hasCommandsWithPrivileges (Device device) {

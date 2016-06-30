@@ -600,12 +600,12 @@ public class DeviceResource {
                 .forEach(category -> {
                     List<DeviceMessageSpecInfo> deviceMessageSpecs =
                             device
-                                    .getDeviceConfiguration()
-                                    .getEnabledAndAuthorizedDeviceMessageSpecsIn(category)
-                                    .stream()
-                                    .sorted(Comparator.comparing(DeviceMessageSpec::getName))
-                                    .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
-                                    .collect(Collectors.toList());
+                                .getDeviceConfiguration()
+                                .getEnabledAndAuthorizedDeviceMessageSpecsIn(category)
+                                .stream()
+                                .sorted(Comparator.comparing(DeviceMessageSpec::getName))
+                                .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
+                                .collect(Collectors.toList());
                     if (!deviceMessageSpecs.isEmpty()) {
                         DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
                         info.deviceMessageSpecs = deviceMessageSpecs;
