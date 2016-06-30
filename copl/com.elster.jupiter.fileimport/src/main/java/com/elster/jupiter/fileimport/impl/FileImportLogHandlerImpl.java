@@ -1,11 +1,15 @@
 package com.elster.jupiter.fileimport.impl;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 
 public class FileImportLogHandlerImpl extends Handler implements FileImportLogHandler {
+
+    private List<LogRecord> logRecords = new ArrayList<LogRecord>();
 
     private FileImportOccurrenceImpl fileImport;
 
@@ -20,12 +24,21 @@ public class FileImportLogHandlerImpl extends Handler implements FileImportLogHa
 
     @Override
     public void publish(LogRecord record) {
-        fileImport.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
+        logRecords.add(record);
+        //fileImport.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
     }
 
     @Override
     public void flush() {
 
+    }
+
+    @Override
+    public void saveLogEntries() {
+        for (LogRecord record : logRecords) {
+            fileImport.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
+        }
+        logRecords = new ArrayList<>();
     }
 
     @Override

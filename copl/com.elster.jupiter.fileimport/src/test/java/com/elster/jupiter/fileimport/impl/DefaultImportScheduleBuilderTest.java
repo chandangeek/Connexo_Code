@@ -8,18 +8,11 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
@@ -28,6 +21,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -43,6 +43,7 @@ public class DefaultImportScheduleBuilderTest {
     private Path SUCCESS_DIRECTORY;
     private Path FAILURE_DIRECTORY;
     private Path BASE_PATH;
+
     @Mock
     private DestinationSpec destination;
     @Mock
@@ -55,18 +56,14 @@ public class DefaultImportScheduleBuilderTest {
     private DataModel dataModel;
     @Mock
     private ScheduleExpressionParser scheduleExpressionParser;
-
     @Mock
     private FileImporterFactory fileImporterFactory;
-
     @Mock
     private FileNameCollisionResolver nameResolver;
     @Mock
     private FileUtils fileUtils;
     @Mock
     private Thesaurus thesaurus;
-    @Mock
-    private JsonService jsonService;
     @Mock
     private ValidatorFactory validatorFactory;
     @Mock
@@ -90,12 +87,7 @@ public class DefaultImportScheduleBuilderTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.<ConstraintViolation<Object>>emptySet());
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(
-                new ImportScheduleImpl(dataModel, fileImportService, messageService, eventService, scheduleExpressionParser, nameResolver, fileUtils, jsonService, thesaurus, testFileSystem));
-    }
-
-    @After
-    public void tearDown() {
-
+                new ImportScheduleImpl(dataModel, fileImportService, messageService, eventService, scheduleExpressionParser, nameResolver, fileUtils, thesaurus, testFileSystem));
     }
 
     @Test
