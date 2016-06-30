@@ -33,16 +33,12 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_DEC";
-    public static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_MTR_USAGEPOINT_DEC";
-    public static final String COMPONENT_NAME = "DEC_PROD";
-
-    public UsagePointDecentProdCustomPropertySet() {
-        super();
-    }
+    public static final String TABLE_NAME = "DEC_CPS_MTR_USAGEPOINT_DEC";
+    private static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_MTR_USAGEPOINT_DEC";
+    public static final String COMPONENT_NAME = "DEC";
 
     public UsagePointDecentProdCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
+        super();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -139,7 +135,12 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
     private static class UsagePointDecentrProdPS implements PersistenceSupport<UsagePoint, UsagePointDecentProdDomExt> {
         private Thesaurus thesaurus;
 
-        private UsagePointDecentrProdPS(Thesaurus thesaurus) {
+        @Override
+        public String application() {
+            return "Example";
+        }
+
+        UsagePointDecentrProdPS(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

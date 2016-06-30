@@ -121,7 +121,12 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
     private static class UsagePointSettlPersistSupp implements PersistenceSupport<UsagePoint, UsagePointSettlementDomExt> {
         private Thesaurus thesaurus;
 
-        private UsagePointSettlPersistSupp(Thesaurus thesaurus) {
+        @Override
+        public String application() {
+            return "Example";
+        }
+
+        UsagePointSettlPersistSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

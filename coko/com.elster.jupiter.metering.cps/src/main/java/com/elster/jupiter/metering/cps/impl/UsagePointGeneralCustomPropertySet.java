@@ -29,7 +29,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
 
     public static final String TABLE_NAME = "MTC_CPS_USAGEPOINT_GENER";
     public static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_USAGEPOINT_GENER";
-    public static final String COMPONENT_NAME = "GENER";
+    public static final String COMPONENT_NAME = "GEN";
 
     public UsagePointGeneralCustomPropertySet() {
         super();
@@ -114,6 +114,17 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
     }
 
     private class UsagePointGeneralPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointGeneralDomainExtension> {
+        private Thesaurus thesaurus;
+
+        @Override
+        public String application() {
+            return "Example";
+        }
+
+        public UsagePointGeneralPersistenceSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public String componentName() {
             return COMPONENT_NAME;

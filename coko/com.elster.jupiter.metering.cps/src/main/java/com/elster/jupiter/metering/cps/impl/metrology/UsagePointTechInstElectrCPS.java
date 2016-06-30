@@ -30,16 +30,12 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_T_INS";
-    public static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_T_INS";
-    public static final String COMPONENT_NAME = "MTR_T_INS";
-
-    public UsagePointTechInstElectrCPS() {
-        super();
-    }
+    public static final String TABLE_NAME = "MIS_CPS_MTR_USAGEPOINT_T_INS";
+    private static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_T_INS";
+    public static final String COMPONENT_NAME = "MIS";
 
     public UsagePointTechInstElectrCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
+        super();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -117,7 +113,12 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
 
         private Thesaurus thesaurus;
 
-        private UsagePointTechInstElectyPerSupp(Thesaurus thesaurus) {
+        @Override
+        public String application() {
+            return "Example";
+        }
+
+        UsagePointTechInstElectyPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

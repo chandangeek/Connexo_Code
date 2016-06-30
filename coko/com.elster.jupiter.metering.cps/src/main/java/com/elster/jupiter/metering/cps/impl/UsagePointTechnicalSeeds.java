@@ -17,7 +17,7 @@ public enum UsagePointTechnicalSeeds {
     COMPONENT_NAME {
         @Override
         public String get() {
-            return "MTC";
+            return "TEH";
         }
     };
 

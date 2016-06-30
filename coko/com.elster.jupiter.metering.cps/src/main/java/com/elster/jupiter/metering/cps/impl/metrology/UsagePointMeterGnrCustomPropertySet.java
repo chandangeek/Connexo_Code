@@ -30,7 +30,7 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
 
     public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_MET_GEN";
     public static final String FK_CPS_DEVICE_MTR_GEN = "FK_CPS_MTR_USAGEPOINT_MET_GEN";
-    public static final String COMPONENT_NAME = "MET_GEN";
+    public static final String COMPONENT_NAME = "MET";
 
     public UsagePointMeterGnrCustomPropertySet() {
         super();
@@ -110,6 +110,10 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
     private static class UsagePointMtrGeneralPersistSupp implements PersistenceSupport<UsagePoint, UsagePointMeterGnrDomainExtension> {
         private Thesaurus thesaurus;
 
+        @Override
+        public String application() {
+            return "Example";
+        }
 
         UsagePointMtrGeneralPersistSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
