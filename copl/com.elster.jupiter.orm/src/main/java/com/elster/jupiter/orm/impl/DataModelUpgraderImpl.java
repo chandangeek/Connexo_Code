@@ -8,16 +8,17 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.schema.ExistingConstraint;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
+import com.elster.jupiter.util.streams.Functions;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -38,11 +39,11 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
     private interface State {
         Context createContext(DataModelImpl dataModel);
 
-        void handleSqlStatements(Context context, List<String> sqlStatements);
+        void handleDifferences(Context context, List<Difference> differences);
 
         TableDdlGenerator ddlGenerator(TableImpl<?> table, Version version);
 
-        String removeTable(TableImpl<?> table);
+        Optional<Difference> removeTable(TableImpl<?> table);
 
         Stream<TableImpl<?>> dropCandidates(DataModelImpl dataModel);
 
@@ -63,15 +64,21 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         }
 
         @Override
-        public void handleSqlStatements(Context context, List<String> sqlStatements) {
-            for (String each : sqlStatements) {
-                try {
-                    context.getStatement().execute(each);
-                } catch (SQLException sqe) {
-                    throw new UnderlyingSQLFailedException(sqe);
-                }
+        public void handleDifferences(Context context, List<Difference> differences) {
+            differences.stream()
+                    .map(Difference::ddl)
+                    .flatMap(List::stream)
+                    .forEach(each -> execute(context, each));
+        }
+
+        private void execute(Context context, String each) {
+            try {
+                context.getStatement().execute(each);
+            } catch (SQLException sqe) {
+                throw new UnderlyingSQLFailedException(sqe);
             }
         }
+
 
         @Override
         public TableDdlGenerator ddlGenerator(TableImpl<?> table, Version version) {
@@ -85,9 +92,9 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         }
 
         @Override
-        public String removeTable(TableImpl<?> table) {
+        public Optional<Difference> removeTable(TableImpl<?> table) {
             // let it live
-            return null;
+            return Optional.empty();
         }
 
     }
@@ -136,7 +143,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         }
 
         @Override
-        public void handleSqlStatements(Context context, List<String> sqlStatements) {
+        public void handleDifferences(Context context, List<Difference> differences) {
             // TODO
         }
 
@@ -152,8 +159,10 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         }
 
         @Override
-        public String removeTable(TableImpl<?> table) {
-            return "drop table " + table.getName().toUpperCase() + " cascade constraints";
+        public Optional<Difference> removeTable(TableImpl<?> table) {
+            return DifferenceImpl.builder("Table " + table.getName() + " : Removed table")
+                    .add("drop table " + table.getName().toUpperCase() + " cascade constraints")
+                    .build();
         }
 
     }
@@ -174,7 +183,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         DataModelImpl current = getCurrentDataModel((DataModelImpl) dataModel, version);
         try (Context context = state.createContext(current)) {
             List<Difference> allDdl = determineDdl(current, (DataModelImpl) dataModel, version, context);
-            state.handleSqlStatements(context, allDdl);
+            state.handleDifferences(context, allDdl);
         }
     }
 
@@ -237,7 +246,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
                 .collect(Collectors.toList());
     }
 
-    private Stream<String> dropTableDdl(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version) {
+    private Stream<Difference> dropTableDdl(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version) {
         Set<TableImpl<?>> stillExist = toDataModel.getTables()
                 .stream()
                 .map(table -> findFromTable(fromDataModel, table, version))
@@ -246,7 +255,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         return state.dropCandidates(fromDataModel)
                 .filter(not(stillExist::contains))
                 .map(state::removeTable)
-                .filter(Objects::nonNull);
+                .flatMap(Functions.asStream());
     }
 
     private Stream<Difference> upgradeDdl(DataModelImpl fromDataModel, DataModelImpl toDataModel, Version version, Context context) {
@@ -271,7 +280,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         if (fromTable != null) {
             return upgradeTable(toTable, fromTable, version, context);
         } else {
-            return createTable(toTable, version);
+            return Collections.singletonList(createTable(toTable, version));
         }
     }
 
@@ -285,11 +294,13 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
                 .orElse(null);
     }
 
-    private List<String> createTable(TableImpl<?> toTable, Version version) throws SQLException {
-        return toTable.getDdl(version);
+    private Difference createTable(TableImpl<?> table, Version version) throws SQLException {
+        DifferenceImpl.DifferenceBuilder difference = DifferenceImpl.builder("Table " + table.getName() + " : Added table");
+        table.getDdl(version).forEach(difference::add);
+        return difference.build().get();
     }
 
-    private List<String> upgradeTable(TableImpl<?> toTable, TableImpl<?> fromTable, Version version, Context context) throws
+    private List<Difference> upgradeTable(TableImpl<?> toTable, TableImpl<?> fromTable, Version version, Context context) throws
             SQLException {
         List<Difference> upgradeDdl = state.ddlGenerator(fromTable, version).upgradeDdl(toTable);
         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
@@ -297,7 +308,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
                 long sequenceValue = getLastSequenceValue(context, sequenceColumn.getQualifiedSequenceName());
                 long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(context, sequenceColumn) : 0;
                 if (maxColumnValue > sequenceValue) {
-                    upgradeDdl.addAll(state.ddlGenerator(toTable, version)
+                    upgradeDdl.add(state.ddlGenerator(toTable, version)
                             .upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
                 }
             }

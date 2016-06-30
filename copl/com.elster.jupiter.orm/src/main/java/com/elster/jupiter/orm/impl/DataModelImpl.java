@@ -51,6 +51,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Currying.perform;
+
 
 public class DataModelImpl implements DataModel {
 
@@ -203,22 +205,22 @@ public class DataModelImpl implements DataModel {
                 if (toTable.isAutoInstall()) {
                     TableImpl<?> fromTable = getTable(toTable.getName());
                     if (fromTable != null) {
-                        List<String> upgradeDdl = TableDdlGenerator.cautious(fromTable, fromTable.getDataModel()
+                        List<Difference> upgradeDdl = TableDdlGenerator.cautious(fromTable, fromTable.getDataModel()
                                 .getSqlDialect(), version).upgradeDdl(toTable);
                         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
                             if (sequenceColumn.getQualifiedSequenceName() != null) {
                                 long sequenceValue = getLastSequenceValue(statement, sequenceColumn.getQualifiedSequenceName());
                                 long maxColumnValue = fromTable.getColumn(sequenceColumn.getName()) != null ? maxColumnValue(sequenceColumn, statement) : 0;
                                 if (maxColumnValue > sequenceValue) {
-                                    upgradeDdl.addAll(TableDdlGenerator.cautious(toTable, toTable.getDataModel()
-                                            .getSqlDialect(), version).upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
+                                    upgradeDdl.add(TableDdlGenerator.cautious(toTable, toTable.getDataModel()
+                                            .getSqlDialect(), version)
+                                            .upgradeSequenceDdl(sequenceColumn, maxColumnValue + 1));
                                 }
                             }
                         }
                         executeSqlStatements(statement, upgradeDdl);
                     } else {
-                        List<String> ddl = toTable.getDdl();
-                        executeSqlStatements(statement, ddl);
+                        toTable.getDdl().forEach(perform(this::executeSqlStatement).on(statement));
                     }
                 }
 
@@ -250,13 +252,18 @@ public class DataModelImpl implements DataModel {
         }
     }
 
-    private void executeSqlStatements(Statement statement, List<String> sqlStatements) throws SQLException {
-        for (String each : sqlStatements) {
-            try {
-                statement.execute(each);
-            } catch (SQLException sqe) {
-                throw new SQLException("SQL error while executing '" + each + "' : " + sqe.getMessage(), sqe);
-            }
+    private void executeSqlStatements(Statement statement, List<Difference> differences) throws SQLException {
+        differences.stream()
+                .map(Difference::ddl)
+                .flatMap(List::stream)
+                .forEach(perform(this::executeSqlStatement).on(statement));
+    }
+
+    private void executeSqlStatement(Statement statement, String sqlStatement) {
+        try {
+            statement.execute(sqlStatement);
+        } catch (SQLException sqe) {
+            throw new UnderlyingSQLFailedException(sqe);
         }
     }
 
