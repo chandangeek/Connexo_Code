@@ -8,8 +8,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
@@ -17,12 +21,14 @@ import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessag
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
+import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -34,7 +40,7 @@ import static com.elster.jupiter.messaging.DestinationSpec.whereCorrelationId;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:42)
  */
-public class Installer implements FullInstaller {
+public class Installer implements FullInstaller, PrivilegesProvider {
 
     public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_NAME = "COMSCHED_RECALCULATOR";
     public static final String COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME = "Recalculate communication schedules";
@@ -43,13 +49,15 @@ public class Installer implements FullInstaller {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
+    private final UserService userService;
     private final EventService eventService;
     private final MessageService messageService;
 
     @Inject
-    Installer(DataModel dataModel, EventService eventService, MessageService messageService) {
+    public Installer(DataModel dataModel, UserService userService, EventService eventService, MessageService messageService) {
         super();
         this.dataModel = dataModel;
+        this.userService = userService;
         this.eventService = eventService;
         this.messageService = messageService;
     }
@@ -63,19 +71,39 @@ public class Installer implements FullInstaller {
                 logger
         );
         doTry(
-                "",
+                "Create message handlers",
                 this::createMessageHandlers,
                 logger
         );
         doTry(
-                "",
+                "Create event subscribers",
                 this::addJupiterEventSubscribers,
                 logger
         );
         doTry(
-                "",
+                "Create master data",
                 this::createMasterData,
                 logger
+        );
+        userService.addModulePrivileges(this);
+    }
+
+    @Override
+    public String getModuleName() {
+        return DeviceDataServices.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<ResourceDefinition> getModuleResources() {
+
+        return Arrays.asList(
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES.getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE, Privileges.Constants.VIEW_DEVICE, Privileges.Constants.REMOVE_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_DATA.getKey(), Privileges.RESOURCE_DEVICE_DATA_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_COMMUNICATIONS.getKey(), Privileges.RESOURCE_DEVICE_COMMUNICATIONS_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_GROUPS.getKey(), Privileges.RESOURCE_DEVICE_GROUPS_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_INVENTORY_MANAGEMENT.getKey(), Privileges.RESOURCE_INVENTORY_MANAGEMENT_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.IMPORT_INVENTORY_MANAGEMENT, Privileges.Constants.REVOKE_INVENTORY_MANAGEMENT)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DATA_COLLECTION_KPI.getKey(), Privileges.RESOURCE_DATA_COLLECTION_KPI_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI, Privileges.Constants.VIEW_DATA_COLLECTION_KPI)),
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES.getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS))
         );
 
     }

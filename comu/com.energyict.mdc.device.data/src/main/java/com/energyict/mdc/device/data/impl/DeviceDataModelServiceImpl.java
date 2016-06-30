@@ -23,8 +23,6 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -100,9 +98,9 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-09-30 (17:33)
  */
-@Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
+@Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
 @LiteralSql
-public class DeviceDataModelServiceImpl implements DeviceDataModelService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
+public class DeviceDataModelServiceImpl implements DeviceDataModelService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -400,6 +398,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         return this.messagingService;
     }
 
+    @Override
+    public ValidationService validationService() {
+        return this.validationService;
+    }
+
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
@@ -506,7 +509,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     public void activate(BundleContext bundleContext) {
         this.createRealServices();
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(DeviceDataServices.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceDataServices.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
         this.registerRealServices(bundleContext);
     }
 
@@ -707,26 +710,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         } else {
             return EnumSet.complementOf(EnumSet.copyOf(taskStatuses));
         }
-    }
-
-    @Override
-    public String getModuleName() {
-        return DeviceDataServices.COMPONENT_NAME;
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-
-        return Arrays.asList(
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES.getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE, Privileges.Constants.VIEW_DEVICE, Privileges.Constants.REMOVE_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_DATA.getKey(), Privileges.RESOURCE_DEVICE_DATA_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_COMMUNICATIONS.getKey(), Privileges.RESOURCE_DEVICE_COMMUNICATIONS_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_GROUPS.getKey(), Privileges.RESOURCE_DEVICE_GROUPS_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_INVENTORY_MANAGEMENT.getKey(), Privileges.RESOURCE_INVENTORY_MANAGEMENT_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.IMPORT_INVENTORY_MANAGEMENT, Privileges.Constants.REVOKE_INVENTORY_MANAGEMENT)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DATA_COLLECTION_KPI.getKey(), Privileges.RESOURCE_DATA_COLLECTION_KPI_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI, Privileges.Constants.VIEW_DATA_COLLECTION_KPI)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES.getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Arrays.asList(Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS))
-        );
-
     }
 
 }

@@ -43,7 +43,7 @@ public class OverruledAttributesValidator implements ConstraintValidator<ValidOv
                         context.disableDefaultConstraintViolation();
                         context.
                                 buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.OVERFLOW_INCREASED + "}").
-                                addPropertyNode("overruledOverflow").
+                                addPropertyNode("overruledOverflowValue").
                                 addConstraintViolation();
                     }
                 }
