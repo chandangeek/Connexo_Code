@@ -39,6 +39,7 @@ import java.nio.file.Path;
 import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -49,7 +50,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
 @UniqueCaseInsensitive(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
-public class AppServerImpl implements AppServer {
+class AppServerImpl implements AppServer {
     // Application server name should be less then 25 characters due to DB constrains (including "APPSERVER_" prefix)
     private static final int APP_SERVER_NAME_SIZE = 14;
     private static final String APP_SERVER = "AppServer";
@@ -77,10 +78,15 @@ public class AppServerImpl implements AppServer {
     private List<SubscriberExecutionSpecImpl> executionSpecs;
 
     private List<ImportScheduleOnAppServerImpl> importSchedulesOnAppServer;
-    //audit columns
+
+    //audit columns: all managed by ORM
+    @SuppressWarnings("unused")
     private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
+    @SuppressWarnings("unused")
     private String userName;
 
     @Inject
@@ -141,19 +147,18 @@ public class AppServerImpl implements AppServer {
         if (executionSpecs == null) {
             executionSpecs = getSubscriberExecutionSpecFactory().find("appServer", this);
         }
-        return executionSpecs;
+        return Collections.unmodifiableList(executionSpecs);
     }
 
     @Override
     public List<ImportScheduleOnAppServerImpl> getImportSchedulesOnAppServer() {
         if (importSchedulesOnAppServer == null) {
-            List<ImportScheduleOnAppServerImpl> list = getImportScheduleOnAppServerFactory().find("appServer", this);
             importSchedulesOnAppServer = getImportScheduleOnAppServerFactory().find("appServer", this)
                     .stream()
                     .filter(importService -> importService.getAppServer().getName().equals(this.getName()))
                     .collect(toList());
         }
-        return importSchedulesOnAppServer;
+        return Collections.unmodifiableList(importSchedulesOnAppServer);
     }
 
     @Override
@@ -225,7 +230,7 @@ public class AppServerImpl implements AppServer {
     @Override
     public void removeImportDirectory() {
         dataModel.mapper(ImportFolderForAppServer.class)
-                .getOptional(getName()).ifPresent(ifas -> ifas.delete());
+                .getOptional(getName()).ifPresent(ImportFolderForAppServer::delete);
     }
 
     @Override
@@ -334,9 +339,7 @@ public class AppServerImpl implements AppServer {
 
     private void removeMessageQueue() {
         messageService.getDestinationSpec(AppService.ALL_SERVERS)
-                .ifPresent(allServersTopic -> {
-                    allServersTopic.unSubscribe(AppServerImpl.this.messagingName());
-                });
+                .ifPresent(allServersTopic -> allServersTopic.unSubscribe(AppServerImpl.this.messagingName()));
 
         messageService.getDestinationSpec(AppServerImpl.this.messagingName())
                 .ifPresent(DestinationSpec::delete);
