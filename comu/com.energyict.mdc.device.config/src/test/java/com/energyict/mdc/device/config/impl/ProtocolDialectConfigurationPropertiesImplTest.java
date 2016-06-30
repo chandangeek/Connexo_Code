@@ -406,6 +406,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 propertySpec = mock(PropertySpec.class);
                 when(propertySpec.getName()).thenReturn(MY_PROPERTY);
                 persistenceSupport = mock(PersistenceSupport.class);
+                when(persistenceSupport.application()).thenReturn("Example");
+                when(persistenceSupport.componentName()).thenReturn("DDD");
                 when(persistenceSupport.tableName()).thenReturn("TST_MYPROPS");
                 when(persistenceSupport.domainColumnName()).thenReturn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.databaseName());
                 when(persistenceSupport.domainFieldName()).thenReturn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.javaName());
