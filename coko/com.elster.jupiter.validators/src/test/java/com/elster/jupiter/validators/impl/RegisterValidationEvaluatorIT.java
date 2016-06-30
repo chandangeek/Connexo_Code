@@ -20,7 +20,6 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -45,6 +44,7 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -177,7 +177,7 @@ public class RegisterValidationEvaluatorIT {
                     .create();
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
-                public List<ValidationRuleSet> resolve(ChannelsContainer channelsContainer) {
+                public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
                     return Arrays.asList(mdcValidationRuleSet, mdmValidationRuleSet);
                 }
 
