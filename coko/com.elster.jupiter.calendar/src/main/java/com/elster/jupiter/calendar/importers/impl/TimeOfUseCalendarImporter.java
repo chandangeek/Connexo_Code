@@ -49,13 +49,7 @@ public class TimeOfUseCalendarImporter implements FileImporter {
             markFailure(fileImportOccurrence);
         } catch (ConstraintViolationException e) {
             new ExceptionLogFormatter(context.getThesaurus(), fileImportOccurrence.getLogger()).log(e);
-            markFailure(fileImportOccurrence);
-        } catch (Exception e) {
-            logImportFailed(fileImportOccurrence, e);
-            markFailure(fileImportOccurrence);
-        } catch (Throwable e) {
-            logImportFailed(fileImportOccurrence, e);
-            markFailure(fileImportOccurrence);
+            throw new RuntimeException(context.getThesaurus().getFormat(TranslationKeys.CALENDAR_IMPORT_FAILED).format());
         }
     }
 
