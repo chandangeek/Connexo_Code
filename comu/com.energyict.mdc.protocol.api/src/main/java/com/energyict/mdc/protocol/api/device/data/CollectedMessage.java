@@ -32,8 +32,7 @@ public interface CollectedMessage extends CollectedData {
     public DeviceMessageStatus getNewDeviceMessageStatus();
 
     /**
-     * Set the {@link DeviceMessageStatus status} the DeviceMessage should have after it has been forwarded to the device<br/>
-     * Note that at the same time the current time will be used as 'sent date' for the CollectedMessage
+     * Set the {@link DeviceMessageStatus status} the DeviceMessage should have after it has been forwarded to the device
      */
     public void setNewDeviceMessageStatus(DeviceMessageStatus deviceMessageStatus);
 
