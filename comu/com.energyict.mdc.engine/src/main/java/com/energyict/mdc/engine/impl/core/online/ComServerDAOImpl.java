@@ -778,6 +778,14 @@ public class ComServerDAOImpl implements ComServerDAO {
         loadProfileUpdater.update();
     }
 
+    @Override
+    public void cleanupOutdatedComTaskExecutionTriggers() {
+        this.executeTransaction(() -> {
+            getDeviceDataService().deleteOutdatedComTaskExecutionTriggers();
+            return null;
+        });
+    }
+
     private Instant now() {
         return this.serviceProvider.clock().instant();
     }

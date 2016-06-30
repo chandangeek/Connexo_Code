@@ -15,11 +15,12 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ScheduledComPortFactory;
-import com.energyict.mdc.engine.impl.monitor.*;
-import com.energyict.mdc.engine.monitor.ComServerMonitor;
-import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -28,8 +29,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -174,9 +176,10 @@ public class RunningComServerImplTest {
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread timeOutMonitorThread = this.mockedThread();
+        Thread cleanupProcessThread = this.mockedThread();
         Thread changesMonitorThread = this.mockedThread();
         Thread shutdownHookTread = this.mockedThread();
-        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
+        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, cleanupProcessThread, changesMonitorThread, shutdownHookTread);
         List<RemoteComServer> noRemoteComServers = new ArrayList<>(0);
         when(this.engineConfigurationService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(noRemoteComServers);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
@@ -190,9 +193,10 @@ public class RunningComServerImplTest {
         runningComServer.start();
 
         // Asserts
-        verify(threadFactory, times(3)).newThread(any(Runnable.class));
+        verify(threadFactory, times(4)).newThread(any(Runnable.class));
         verify(changesMonitorThread).start();
         verify(timeOutMonitorThread).start();
+        verify(cleanupProcessThread).start();
         verify(cleanupDuringStartup).releaseInterruptedTasks();
         verify(this.engineConfigurationService).findRemoteComServersForOnlineComServer(comServer);
         verify(this.embeddedWebServerFactory, never()).findOrCreateRemoteQueryWebServer(runningComServer);
@@ -213,9 +217,10 @@ public class RunningComServerImplTest {
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread timeOutMonitorThread = this.mockedThread();
+        Thread cleanupProcessThread = this.mockedThread();
         Thread changesMonitorThread = this.mockedThread();
         Thread shutdownHookTread = this.mockedThread();
-        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
+        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, cleanupProcessThread, changesMonitorThread, shutdownHookTread);
         RemoteComServer remoteComServer = mock(RemoteComServer.class);
         when(this.engineConfigurationService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(Arrays.asList(remoteComServer));
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
@@ -231,9 +236,10 @@ public class RunningComServerImplTest {
         runningComServer.start();
 
         // Asserts
-        verify(threadFactory, times(3)).newThread(any(Runnable.class));
+        verify(threadFactory, times(4)).newThread(any(Runnable.class));
         verify(changesMonitorThread).start();
         verify(timeOutMonitorThread).start();
+        verify(cleanupProcessThread).start();
         verify(cleanupDuringStartup).releaseInterruptedTasks();
         verify(this.embeddedWebServerFactory).findOrCreateRemoteQueryWebServer(runningComServer);
         verify(queryWebServer).start();
@@ -253,9 +259,10 @@ public class RunningComServerImplTest {
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread timeOutMonitorThread = this.mockedThread();
+        Thread cleanupProcessThread = this.mockedThread();
         Thread changesMonitorThread = this.mockedThread();
         Thread shutdownHookTread = this.mockedThread();
-        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
+        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, cleanupProcessThread, changesMonitorThread, shutdownHookTread);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
@@ -269,6 +276,7 @@ public class RunningComServerImplTest {
         // Asserts
         verify(changesMonitorThread, times(1)).interrupt();
         verify(timeOutMonitorThread, times(1)).interrupt();
+        verify(cleanupProcessThread, times(1)).interrupt();
     }
 
     @Test
@@ -286,9 +294,10 @@ public class RunningComServerImplTest {
         ComPortListenerFactory comPortListenerFactory = mock(ComPortListenerFactory.class);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread timeOutMonitorThread = this.mockedThread();
+        Thread cleanupProcessThread = this.mockedThread();
         Thread changesMonitorThread = this.mockedThread();
         Thread shutdownHookTread = this.mockedThread();
-        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
+        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, cleanupProcessThread, changesMonitorThread, shutdownHookTread);
         RemoteComServer remoteComServer = mock(RemoteComServer.class);
         when(this.engineConfigurationService.findRemoteComServersForOnlineComServer(comServer)).thenReturn(Arrays.asList(remoteComServer));
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
@@ -307,6 +316,7 @@ public class RunningComServerImplTest {
         // Asserts
         verify(changesMonitorThread, times(1)).interrupt();
         verify(timeOutMonitorThread, times(1)).interrupt();
+        verify(cleanupProcessThread, times(1)).interrupt();
         verify(queryWebServer, times(1)).shutdown();
     }
 
@@ -340,9 +350,10 @@ public class RunningComServerImplTest {
         when(comPortListenerFactory.newFor(any(InboundComPort.class))).thenReturn(comPortListener);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread timeOutMonitorThread = this.mockedThread();
+        Thread cleanupProcessThread = this.mockedThread();
         Thread changesMonitorThread = this.mockedThread();
         Thread shutdownHookTread = this.mockedThread();
-        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
+        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, cleanupProcessThread, changesMonitorThread, shutdownHookTread);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
@@ -354,9 +365,9 @@ public class RunningComServerImplTest {
         runningComServer.start();
 
         // Asserts
-        verify(threadFactory, times(3)).newThread(any(Runnable.class));
+        verify(threadFactory, times(4)).newThread(any(Runnable.class));
         verify(changesMonitorThread, times(1)).start();
-        verify(timeOutMonitorThread, times(1)).start();
+        verify(cleanupProcessThread, times(1)).start();
         verify(scheduledComPort, times(1)).start();
         verify(comPortListener, times(1)).start();
         verify(cleanupDuringStartup, times(1)).releaseInterruptedTasks();
@@ -379,9 +390,10 @@ public class RunningComServerImplTest {
         when(comPortListenerFactory.newFor(any(InboundComPort.class))).thenReturn(comPortListener);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread timeOutMonitorThread = this.mockedThread();
+        Thread cleanupProcessThread = this.mockedThread();
         Thread changesMonitorThread = this.mockedThread();
         Thread shutdownHookTread = this.mockedThread();
-        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
+        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, cleanupProcessThread, changesMonitorThread, shutdownHookTread);
         CleanupDuringStartup cleanupDuringStartup = mock(CleanupDuringStartup.class);
         doThrow(SQLException.class).when(cleanupDuringStartup).releaseInterruptedTasks();
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
@@ -394,6 +406,7 @@ public class RunningComServerImplTest {
         verify(threadFactory, never()).newThread(any(Runnable.class));
         verify(changesMonitorThread, never()).start();
         verify(timeOutMonitorThread, never()).start();
+        verify(cleanupProcessThread, never()).start();
         verify(scheduledComPort, never()).start();
         verify(comPortListener, never()).start();
         assertThat(runningComServer.getStatus()).isEqualTo(ServerProcessStatus.SHUTDOWN);
@@ -431,9 +444,10 @@ public class RunningComServerImplTest {
         when(comPortListenerFactory.newFor(any(InboundComPort.class))).thenReturn(comPortListener);
         ThreadFactory threadFactory = mock(ThreadFactory.class);
         Thread timeOutMonitorThread = this.mockedThread();
+        Thread cleanupProcessThread = this.mockedThread();
         Thread changesMonitorThread = this.mockedThread();
         Thread shutdownHookTread = this.mockedThread();
-        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, changesMonitorThread, shutdownHookTread);
+        when(threadFactory.newThread(any(Runnable.class))).thenReturn(timeOutMonitorThread, cleanupProcessThread, changesMonitorThread, shutdownHookTread);
         EmbeddedWebServer eventWebServer = mock(EmbeddedWebServer.class);
         when(this.embeddedWebServerFactory.findOrCreateEventWebServer(comServer)).thenReturn(eventWebServer);
 
@@ -450,6 +464,7 @@ public class RunningComServerImplTest {
         // Asserts
         verify(changesMonitorThread, times(1)).interrupt();
         verify(timeOutMonitorThread, times(1)).interrupt();
+        verify(cleanupProcessThread, times(1)).interrupt();
         verify(scheduledComPort, times(1)).shutdown();
         verify(comPortListener, times(1)).shutdown();
     }
