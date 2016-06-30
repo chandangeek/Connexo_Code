@@ -101,6 +101,16 @@ public class MetrologyConfigurationResource {
         return metrologyConfigurationInfoFactory.asDetailedInfo(metrologyConfiguration);
     }
 
+    @GET
+    @Path("/{id}/deliverables")
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getMetrologyConfigurationDeliverables(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.getMetrologyConfigOrThrowException(id);
+        List<ReadingTypeDeliverablesInfo> deliverables =  metrologyConfiguration.getDeliverables().stream().map(metrologyConfigurationInfoFactory::asInfo).collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
