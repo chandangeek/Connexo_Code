@@ -1,9 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.MetrologyContractChannelsContainer;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
 
@@ -23,16 +21,15 @@ public class MetrologyContractValidationRuleSetResolver implements ValidationRul
     }
 
     @Override
-    public List<ValidationRuleSet> resolve(ChannelsContainer channelsContainer) {
-        if (channelsContainer instanceof MetrologyContractChannelsContainer) {
-            MetrologyContract metrologyContract = ((MetrologyContractChannelsContainer) channelsContainer).getMetrologyContract();
-            return this.usagePointConfigurationService.getValidationRuleSets(metrologyContract);
+    public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
+        if (validationContext.getMetrologyContract().isPresent()) {
+            return this.usagePointConfigurationService.getValidationRuleSets(validationContext.getMetrologyContract().get());
         }
         return Collections.emptyList();
     }
 
     @Override
     public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
-        return this.isValidationRuleSetInUse(ruleset);
+        return this.usagePointConfigurationService.isValidationRuleSetInUse(ruleset);
     }
 }
