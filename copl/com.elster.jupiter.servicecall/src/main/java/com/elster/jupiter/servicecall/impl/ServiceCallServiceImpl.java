@@ -75,7 +75,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
 @LiteralSql
-public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
+public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
     static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
     static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
@@ -95,6 +95,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     @Inject
     public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService) {
+        this();
         setFiniteStateMachineService(finiteStateMachineService);
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -218,7 +219,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     @Activate
     public void activate() {
         dataModel.register(getModule());
-        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
@@ -335,9 +336,6 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     @Override
     public DestinationSpec getServiceCallQueue() {
-        if (!dataModel.isInstalled()) {
-            throw new IllegalStateException();
-        }
         return messageService.getDestinationSpec(SERIVCE_CALLS_DESTINATION_NAME).get();
     }
 

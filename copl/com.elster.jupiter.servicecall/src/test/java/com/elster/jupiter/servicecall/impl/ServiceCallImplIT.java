@@ -523,6 +523,11 @@ public class ServiceCallImplIT {
         public PersistenceSupport<ServiceCall, MyPersistentExtension> getPersistenceSupport() {
             return new PersistenceSupport<ServiceCall, MyPersistentExtension>() {
                 @Override
+                public String application() {
+                    return "Example";
+                }
+
+                @Override
                 public String componentName() {
                     return "CST";
                 }
