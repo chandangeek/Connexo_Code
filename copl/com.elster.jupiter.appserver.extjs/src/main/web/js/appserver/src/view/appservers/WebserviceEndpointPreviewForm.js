@@ -31,7 +31,7 @@ Ext.define('Apr.view.appservers.WebserviceEndpointPreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.url', 'APR', 'Url'),
-                name: 'url'
+                name: 'previewUrl'
             },
             {
                 xtype: 'displayfield',
