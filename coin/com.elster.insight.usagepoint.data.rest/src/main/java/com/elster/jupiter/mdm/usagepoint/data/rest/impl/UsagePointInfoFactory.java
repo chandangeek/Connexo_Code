@@ -35,6 +35,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.util.HasName;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -42,6 +43,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
+import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -136,8 +138,23 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.license = license;
     }
 
+
     @Override
-    public UsagePointInfo from(UsagePoint usagePoint) {
+    // for search only - so only populate fields that will be used/shown !!!
+    public UsagePointSearchInfo from(UsagePoint usagePoint) {
+        UsagePointSearchInfo info = new UsagePointSearchInfo();
+        info.id = usagePoint.getId();
+        info.mRID = usagePoint.getMRID();
+        info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
+        info.displayMetrologyConfiguration = usagePoint.getMetrologyConfiguration().map(HasName::getName).orElse(null);
+        info.displayType = this.getUsagePointDisplayType(usagePoint);
+        info.displayConnectionState = usagePoint.getConnectionState().getName();
+        info.geoCoordinates = usagePoint.getGeoCoordinates().map(GeoCoordinates::toString).orElse(null);
+        info.location = usagePoint.getLocation().map(Location::toString).orElse(null);
+        return info;
+    }
+
+    public UsagePointInfo fullInfoFrom(UsagePoint usagePoint) {
         UsagePointInfo info = new UsagePointInfo();
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
@@ -334,11 +351,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         usagePoint.getMetrologyConfiguration()
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
                 .map(UsagePointMetrologyConfiguration.class::cast)
-                .ifPresent(metrologyConfiguration -> {
-                    metrologyConfiguration.getMeterRoles()
-                            .stream()
-                            .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole)));
-                });
+                .ifPresent(metrologyConfiguration -> metrologyConfiguration.getMeterRoles()
+                        .stream()
+                        .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole))));
 
         Map<MeterRole, MeterActivation> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(usagePoint.getInstallationTime())
                 .stream()
@@ -361,8 +376,12 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                         meterActivationInfo.meter.watsGoingOnMeterStatus = getWatsGoingOnMeterStatus(meter, auth);
                         meterActivationInfo.meterRole.activationTime = meterActivationForMeterRole.getStart();
                         meterActivationInfo.id = meterActivationForMeterRole.getId();
+                        meterActivationInfo.meter.url = meter.getHeadEndInterface()
+                                .map(he -> he.getURLForEndDevice(meter)
+                                        .map(URL::toString)
+                                        .orElse(null))
+                                .orElse(null);
                     }
-
                     return meterActivationInfo;
                 })
                 .collect(Collectors.toList());

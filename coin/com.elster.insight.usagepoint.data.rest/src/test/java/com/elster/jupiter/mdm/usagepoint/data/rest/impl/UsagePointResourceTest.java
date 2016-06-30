@@ -23,6 +23,7 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -406,11 +407,14 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyConfiguration.getMeterRoles()).thenReturn(Arrays.asList(meterRole1, meterRole2));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
 
+        HeadEndInterface headEndInterface =mock(HeadEndInterface.class);
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(1L);
         when(meter.getMRID()).thenReturn("meter1");
         when(meter.getName()).thenReturn("meter1");
+        when(meter.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
         when(meter.getVersion()).thenReturn(1L);
+        when(headEndInterface.getURLForEndDevice(meter)).thenReturn(Optional.empty());
 
         MeterActivation meterActivation = mock(MeterActivation.class);
         when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole1));

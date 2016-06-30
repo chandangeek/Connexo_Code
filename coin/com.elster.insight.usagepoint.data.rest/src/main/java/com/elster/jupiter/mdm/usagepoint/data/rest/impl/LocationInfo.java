@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.rest.util.properties.StringValidationRules;
 import com.elster.jupiter.validation.rest.BasicPropertyTypes;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,7 +37,7 @@ public class LocationInfo {
         this.locationId = locationId;
 
         List<String> lst = meteringService.getFormattedLocationMembers(locationId).stream()
-                .flatMap(l -> l.stream())
+                .flatMap(Collection::stream)
                 .map(loc -> loc == null ? "" : loc)
                 .collect(Collectors.toList());
         unformattedLocationValue = lst.stream().collect(Collectors.joining(", "));
@@ -49,20 +50,19 @@ public class LocationInfo {
                 .collect(Collectors.joining(", "));
 
         locationValue = meteringService.getFormattedLocationMembers(locationId).stream()
-                .flatMap(l -> l.stream())
+                .flatMap(Collection::stream)
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(", "));
 
         List<String> templateElementsNames = meteringService.getLocationTemplate().getTemplateElementsNames().stream()
-                .filter(m -> !m.equalsIgnoreCase("locale")).collect(Collectors.toList());
+                .filter(m -> !"locale".equalsIgnoreCase(m)).collect(Collectors.toList());
         PropertyInfo[] infoProperties = new PropertyInfo[templateElementsNames.size()];
         List<String> locationList = meteringService.getFormattedLocationMembers(locationId).stream()
-                .flatMap(l -> l.stream()).collect(Collectors.toList());
+                .flatMap(Collection::stream).collect(Collectors.toList());
 
         for (int i = 0; i < templateElementsNames.size(); i++) {
-            boolean isMandatory = false;
             String field = templateElementsNames.get(i);
-            isMandatory = meteringService.getLocationTemplate().getTemplateMembers().stream()
+            boolean isMandatory = meteringService.getLocationTemplate().getTemplateMembers().stream()
                     .filter(member -> member.getName().equalsIgnoreCase(field))
                     .collect(Collectors.toList()).
                             get(0).isMandatory();
@@ -78,4 +78,5 @@ public class LocationInfo {
         }
         properties = infoProperties;
     }
+
 }
