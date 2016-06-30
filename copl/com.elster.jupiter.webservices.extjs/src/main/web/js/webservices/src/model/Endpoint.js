@@ -11,6 +11,7 @@ Ext.define('Wss.model.Endpoint', {
         {name: 'name', type: 'string'},
         {name: 'webServiceName', type: 'string'},
         {name: 'url', type: 'string'},
+        {name: 'previewUrl', type: 'string'},
         {name: 'logLevel', type: 'auto'},
         {name: 'tracing', type: 'boolean'},
         {name: 'traceFile', type: 'string'},

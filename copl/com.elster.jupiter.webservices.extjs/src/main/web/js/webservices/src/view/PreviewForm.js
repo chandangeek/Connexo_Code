@@ -60,7 +60,25 @@ Ext.define('Wss.view.PreviewForm', {
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.url', 'WSS', 'Url'),
-                    name: 'url'
+                    name: 'url',
+                    itemId: 'pathField'
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.url', 'WSS', 'Url'),
+                    name: 'previewUrl',
+                    hidden: true,
+                    renderer: function (value) {
+                        if(Ext.isEmpty(value)) {
+                            this.hide();
+                            this.up().down('#pathField').show();
+                            return '-';
+                        } else {
+                            this.up().down('#pathField').hide();
+                            this.show();
+                            return value;
+                        }
+                    }
                 },
                 {
                     xtype: 'displayfield',
