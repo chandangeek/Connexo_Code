@@ -5,8 +5,11 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.orm.UnderlyingIOException;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageFile;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.MinimalDeviceTypeInMemoryBootstrapModule;
 import com.energyict.mdc.device.config.exceptions.DuplicateDeviceMessageFileException;
@@ -14,6 +17,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.common.base.Strings;
@@ -88,6 +92,10 @@ public class DeviceMessageFileImplIT {
     @BeforeClass
     public static void setUp() {
         inMemoryBootstrapModule.activate();
+        try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
+            inMemoryBootstrapModule.getDeviceConfigurationService();
+            context.commit();
+        }
     }
 
     @AfterClass
@@ -514,10 +522,46 @@ public class DeviceMessageFileImplIT {
         assertThat(reloaded.getDeviceMessageFiles()).isEmpty();
     }
 
+    @Test
+    @Transactional
+    public void disableFileManagementDeletesAllFileManagementRelatedEnablements() {
+        DeviceLifeCycle defaultDeviceLifeCycle = inMemoryBootstrapModule.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle().get();
+        DeviceConfigurationService deviceConfigurationService = inMemoryBootstrapModule.getDeviceConfigurationService();
+        DeviceType deviceType = deviceConfigurationService
+                .newDeviceTypeBuilder(DeviceMessageFileImplIT.class.getSimpleName(), this.deviceProtocolPluggableClass, defaultDeviceLifeCycle)
+                .enableFileManagement()
+                .create();
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("WithFileSupport").add();
+        DeviceMessageId.fileManagementRelated()
+            .stream()
+            .forEach(deviceMessageId ->
+                    deviceConfiguration
+                            .createDeviceMessageEnablement(deviceMessageId)
+                            .addUserActions(
+                                    DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1,
+                                    DeviceMessageUserAction.EXECUTEDEVICEMESSAGE2,
+                                    DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3,
+                                    DeviceMessageUserAction.EXECUTEDEVICEMESSAGE4)
+                            .build());
+        assertThat(deviceConfiguration.getDeviceMessageEnablements()).isNotEmpty();
+
+        when(this.filePart.toString()).thenReturn("First");
+        DeviceMessageFile first = deviceType.addDeviceMessageFile(this.path);
+        when(this.filePart.toString()).thenReturn("Second");
+        DeviceMessageFile second = deviceType.addDeviceMessageFile(this.path);
+
+        // Business method
+        deviceType.disableFileManagement();
+
+        // Asserts
+        DeviceConfiguration reloaded = deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId()).get();
+        assertThat(reloaded.getDeviceMessageEnablements()).isEmpty();
+    }
+
     private class DeviceMessageFileContentReader implements Consumer<InputStream> {
         private String read;
 
-        public String whatWasRead() {
+        String whatWasRead() {
             return read;
         }
 

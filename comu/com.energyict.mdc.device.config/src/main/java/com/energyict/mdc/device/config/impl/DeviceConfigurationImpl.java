@@ -1272,9 +1272,8 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                     .getDeviceProtocolPluggableClass()
                     .getDeviceProtocol()
                     .getSupportedMessages();
-
         EnumSet<DeviceMessageId> enabledDeviceMessageIds = EnumSet.noneOf(DeviceMessageId.class);
-        this.getDeviceMessageEnablements()
+        this.deviceMessageEnablements
             .stream()
             .map(DeviceMessageEnablement::getDeviceMessageId)
             .forEach(enabledDeviceMessageIds::add);
@@ -1285,6 +1284,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                         .filter(deviceMessageSpec -> this.isAuthorized(deviceMessageSpec.getId())) // limit to device message specs whom the user is authorized to
                         .map(this::replaceDeviceMessageFileValueFactories)
                         .collect(Collectors.toList());
+    }
+
+    @Override
+    public void fileManagementDisabled() {
+        Set<DeviceMessageId> fileManagementRelated = DeviceMessageId.fileManagementRelated();
+        this.deviceMessageEnablements.removeAll(
+                this.deviceMessageEnablements
+                        .stream()
+                        .filter(enablement -> fileManagementRelated.contains(enablement.getDeviceMessageId()))
+                        .collect(Collectors.toList()));
     }
 
     private DeviceMessageSpec replaceDeviceMessageFileValueFactories(DeviceMessageSpec spec) {
@@ -1546,9 +1555,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public DeviceMessageEnablement build() {
             DeviceConfigurationImpl.this.addDeviceMessageEnablement(underConstruction);
-            if (DeviceConfigurationImpl.this.getId() > 0) {
-                getDataModel().touch(DeviceConfigurationImpl.this);
-            }
             return underConstruction;
         }
     }
