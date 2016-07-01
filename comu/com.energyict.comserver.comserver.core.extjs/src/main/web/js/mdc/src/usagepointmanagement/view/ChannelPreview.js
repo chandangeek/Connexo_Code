@@ -1,6 +1,9 @@
 Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
     extend: 'Ext.form.Panel',
     alias: 'widget.usage-point-channel-preview',
+    requires: [
+        'Uni.form.field.ReadingTypeDisplay'
+    ],
     defaults: {
         xtype: 'displayfield',
         labelWidth: 200
@@ -13,6 +16,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
 
         me.items = [
             {
+                xtype: 'reading-type-displayfield',
                 itemId: 'readingType-field',
                 fieldLabel: Uni.I18n.translate('general.readingType', 'MDC', 'Reading type'),
                 name: 'readingType'
