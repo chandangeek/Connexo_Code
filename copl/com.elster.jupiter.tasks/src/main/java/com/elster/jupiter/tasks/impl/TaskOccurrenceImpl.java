@@ -23,6 +23,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 class TaskOccurrenceImpl implements TaskOccurrence {
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private long recurrentTaskId;
     private RecurrentTask recurrentTask;
@@ -101,8 +102,12 @@ class TaskOccurrenceImpl implements TaskOccurrence {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         TaskOccurrenceImpl that = (TaskOccurrenceImpl) o;
 
