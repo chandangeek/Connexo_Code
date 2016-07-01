@@ -60,11 +60,13 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String geoCoordinates;
     public Instant shipmentDate;
     public List<DataLoggerSlaveDeviceInfo> dataLoggerSlaveDevices;
+    public Boolean hasValidationRules;
+    public Boolean hasEstimationRules;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueRetriever issueRetriever, Thesaurus thesaurus, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
+    public static DeviceInfo from(Device device) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
@@ -74,10 +76,27 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
         deviceInfo.deviceConfigurationId = deviceConfiguration.getId();
         deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
+        deviceInfo.version = device.getVersion();
+        deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
+        deviceInfo.hasEstimationRules = !deviceConfiguration.getEstimationRuleSets().isEmpty();
+        deviceInfo.hasValidationRules = !deviceConfiguration.getValidationRuleSets().isEmpty();
+        return deviceInfo;
+    }
+
+    public static DeviceInfo from(Device device, String location, String geoCoordinates) {
+        DeviceInfo deviceInfo = from(device);
+        deviceInfo.location = location;
+        deviceInfo.geoCoordinates = geoCoordinates;
+        return deviceInfo;
+    }
+
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueRetriever issueRetriever, Thesaurus thesaurus, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+        DeviceInfo deviceInfo = from(device, location, geoCoordinates);
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().map(HasId::getId).orElse(0L);
         deviceInfo.yearOfCertification = device.getYearOfCertification();
         deviceInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
-
         Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
         if (physicalGateway.isPresent()) {
             deviceInfo.masterDeviceId = physicalGateway.get().getId();
@@ -87,7 +106,6 @@ public class DeviceInfo extends DeviceVersionInfo {
         if (device.getDeviceType().isDataloggerSlave()) {
             topologyService.findCurrentDataloggerReference(device, clock.instant()).ifPresent(dataLoggerReference -> deviceInfo.dataloggermRID = dataLoggerReference.getGateway().getmRID());
         }
-
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;
         deviceInfo.nbrOfDataCollectionIssues = issueRetriever.numberOfDataCollectionIssues(device);
@@ -111,50 +129,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.estimationStatus = new DeviceEstimationStatusInfo(device);
         State deviceState = device.getState();
         deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, null, deviceState);
-        deviceInfo.version = device.getVersion();
-        deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         deviceInfo.dataLoggerSlaveDevices = dataLoggerSlaveDeviceInfoFactory.from(device);
-        if (geoCoordinates != null) {
-            deviceInfo.geoCoordinates = geoCoordinates;
-        }
-        if (location != null) {
-            deviceInfo.location = location;
-        }
-        deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
-        return deviceInfo;
-    }
-
-    public static DeviceInfo from(Device device, String location, String geoCoordinates) {
-        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.id = device.getId();
-        deviceInfo.mRID = device.getmRID();
-        deviceInfo.serialNumber = device.getSerialNumber();
-        deviceInfo.deviceTypeId = device.getDeviceType().getId();
-        deviceInfo.deviceTypeName = device.getDeviceType().getName();
-        deviceInfo.deviceConfigurationId = deviceConfiguration.getId();
-        deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
-        deviceInfo.version = device.getVersion();
-        deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
-        deviceInfo.location = location;
-        deviceInfo.geoCoordinates = geoCoordinates;
-        deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
-        return deviceInfo;
-    }
-
-    public static DeviceInfo from(Device device) {
-        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        DeviceInfo deviceInfo = new DeviceInfo();
-        deviceInfo.id = device.getId();
-        deviceInfo.mRID = device.getmRID();
-        deviceInfo.serialNumber = device.getSerialNumber();
-        deviceInfo.deviceTypeId = device.getDeviceType().getId();
-        deviceInfo.deviceTypeName = device.getDeviceType().getName();
-        deviceInfo.deviceConfigurationId = deviceConfiguration.getId();
-        deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
-        deviceInfo.version = device.getVersion();
-        deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
-        deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
         return deviceInfo;
     }
 }
