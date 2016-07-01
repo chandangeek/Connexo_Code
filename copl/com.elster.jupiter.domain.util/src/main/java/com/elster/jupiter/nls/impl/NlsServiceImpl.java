@@ -84,7 +84,7 @@ public class NlsServiceImpl implements NlsService {
                 bind(NlsService.class).toInstance(NlsServiceImpl.this);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, NlsInstaller.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, NlsInstaller.class, Collections.emptyMap());
         installed = true; // upgradeService either installed, was up to date, or threw an Exception because upgrade was needed; in any case if we get here installed is true
     }
 
