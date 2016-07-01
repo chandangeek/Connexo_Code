@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
 
 public class UsagePointChannelInfoFactory {
@@ -50,32 +50,29 @@ public class UsagePointChannelInfoFactory {
 
         info.deviceChannels = new ArrayList<>();
 
-        List<Channel> matchedChannels = new ArrayList<>();
+        ReadingTypeDeliverable readingTypeDeliverable = metrologyConfiguration.getDeliverables().stream()
+                .filter(deliverable -> deliverable.getReadingType().equals(readingType))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Mismatch between channels configuration and reading type deliverable"));
+        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+        readingTypeDeliverable.getFormula().getExpressionNode().accept(requirementChecker);
+
+
         usagePoint.getMeterActivations().stream().forEach(meterActivation -> {
-            ReadingTypeDeliverable readingTypeDeliverable = metrologyConfiguration.getDeliverables().stream()
-                    .filter(deliverable -> deliverable.getReadingType().equals(readingType))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Mismatch between channels configuration and reading type deliverable"));
-            ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
-            readingTypeDeliverable.getFormula().getExpressionNode().accept(requirementChecker);
+            UsagePointDeviceChannelInfo deviceChannelInfo = new UsagePointDeviceChannelInfo();
+            deviceChannelInfo.mRID = meterActivation.getMeter().get().getMRID();
+            deviceChannelInfo.from = meterActivation.getStart().toEpochMilli();
+            deviceChannelInfo.until = meterActivation.getEnd() != null ? meterActivation.getEnd().toEpochMilli() : null;
             requirementChecker.getReadingTypeRequirements().stream()
                     .flatMap(readingTypeRequirement -> readingTypeRequirement.getMatchingChannelsFor(meterActivation.getChannelsContainer()).stream())
-                    .forEach(channel1 -> {
-                        usagePoint.getCurrentMeterActivations().stream().forEach(currentMeterActivation -> {
-                            UsagePointDeviceChannelInfo deviceChannelInfo = new UsagePointDeviceChannelInfo();
-                            deviceChannelInfo.mRID = meterActivation.getMeter().get().getMRID();
-                            deviceChannelInfo.from = currentMeterActivation.getStart().toEpochMilli();
-                            if (currentMeterActivation.equals(meterActivation)) {
-                                deviceChannelInfo.from = currentMeterActivation.getStart().toEpochMilli();
-                            } else {
-                                deviceChannelInfo.from = meterActivation.getStart().toEpochMilli();
-                                deviceChannelInfo.until = meterActivation.getEnd().toEpochMilli();
-                            }
-                            deviceChannelInfo.channel = new IdWithNameInfo(channel.getId(), channel.getMainReadingType().getFullAliasName());
-                            info.deviceChannels.add(deviceChannelInfo);
-                        });
+                    .forEach(ch -> {
+                        deviceChannelInfo.channel = new IdWithNameInfo(channel.getId(), channel.getMainReadingType().getFullAliasName());
                     });
+            info.deviceChannels.add(deviceChannelInfo);
+
         });
+
+        Collections.reverse(info.deviceChannels);
 
         return info;
     }
