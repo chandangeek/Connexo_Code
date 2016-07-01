@@ -57,7 +57,6 @@ public class UsagePointChannelInfoFactory {
         ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
         readingTypeDeliverable.getFormula().getExpressionNode().accept(requirementChecker);
 
-
         usagePoint.getMeterActivations().stream().forEach(meterActivation -> {
             UsagePointDeviceChannelInfo deviceChannelInfo = new UsagePointDeviceChannelInfo();
             deviceChannelInfo.mRID = meterActivation.getMeter().get().getMRID();
@@ -69,7 +68,6 @@ public class UsagePointChannelInfoFactory {
                         deviceChannelInfo.channel = new IdWithNameInfo(channel.getId(), channel.getMainReadingType().getFullAliasName());
                     });
             info.deviceChannels.add(deviceChannelInfo);
-
         });
 
         Collections.reverse(info.deviceChannels);
