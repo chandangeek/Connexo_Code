@@ -43,7 +43,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -1408,7 +1407,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 loadProfileReading.setChannelData(mdcChannel, meterReading);
-                loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
+                loadProfileReading.setReadingQualities(mdcChannel, meterReading.getReadingQualities());
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
 
@@ -1435,16 +1434,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return meterHasData;
-    }
-
-    private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
-        List<ProfileStatus.Flag> flags = new ArrayList<>();
-        for (ProfileStatus.Flag flag : ProfileStatus.Flag.values()) {
-            if (profileStatus.get(flag)) {
-                flags.add(flag);
-            }
-        }
-        return flags;
     }
 
     /**
