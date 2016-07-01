@@ -422,24 +422,20 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             loadProfileConfigStore = me.getStore('Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration');
 
         wizard.setLoading();
+        me.wizardInformation.channelAvailabilityDates = [];  // key = channel id, value is the availability date
         loadProfileConfigStore.getProxy().setUrl(me.wizardInformation.slaveDeviceTypeId, me.wizardInformation.slaveDeviceConfigurationId);
         loadProfileConfigStore.load({
             callback: function (loadProfileConfigRecords) {
                 var channelRecords = [];
                 Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
-                    if (dataLoggerSlaveDeviceRecord.id === 0) { // the container of the unlinked channels
-                        if (dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos){
-                            Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos, function(dataLoggerSlaveChannelInfoRecord){
-                                channelRecords.push(dataLoggerSlaveChannelInfoRecord.dataLoggerChannel);
-                                if ( !Ext.isEmpty(dataLoggerSlaveChannelInfoRecord.availabilityDate) && dataLoggerSlaveChannelInfoRecord.availabilityDate !== 0) {
-                                    if ( Ext.isEmpty(me.wizardInformation.minimalLinkingDate) ||
-                                         me.wizardInformation.minimalLinkingDate < dataLoggerSlaveChannelInfoRecord.availabilityDate ) {
-                                        me.wizardInformation.minimalLinkingDate = dataLoggerSlaveChannelInfoRecord.availabilityDate;
-                                        me.wizardInformation.noData = false;
-                                    }
-                                }
-                            }, me);
-                        }
+                    if (dataLoggerSlaveDeviceRecord.id === 0 && dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos) { // the yet unlinked channels
+                        Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveChannelInfos, function(dataLoggerSlaveChannelInfoRecord){
+                            channelRecords.push(dataLoggerSlaveChannelInfoRecord.dataLoggerChannel);
+                            if ( !Ext.isEmpty(dataLoggerSlaveChannelInfoRecord.availabilityDate) && dataLoggerSlaveChannelInfoRecord.availabilityDate !== 0) {
+                                me.wizardInformation.channelAvailabilityDates[dataLoggerSlaveChannelInfoRecord.dataLoggerChannel.id] =
+                                    dataLoggerSlaveChannelInfoRecord.availabilityDate;
+                            }
+                        }, me);
                     }
                 }, me);
                 me.wizardInformation.loadProfileConfigRecords = loadProfileConfigRecords;
@@ -464,6 +460,12 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             errorsFound = false,
             channelsMapped = {},
             mappedChannels = [],
+            indicateErrorsFound = function() {
+                if (!errorsFound) {
+                    errorsFound = true;
+                    step2ErrorMsg.show();
+                }
+            },
             endMethod = function() {
                 step2ErrorMsg.hide();
                 if (Ext.isFunction(callback)) {
@@ -479,17 +481,11 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 break;
             }
             if (Ext.isEmpty(channelCombo.getValue())) {
-                if (!errorsFound) {
-                    errorsFound = true;
-                    step2ErrorMsg.show();
-                }
+                indicateErrorsFound();
                 channelCombo.markInvalid(Uni.I18n.translate('general.requiredField', 'MDC', 'This field is required'));
             } else {
                 if (channelCombo.getValue() in channelsMapped) {
-                    if (!errorsFound) {
-                        errorsFound = true;
-                        step2ErrorMsg.show();
-                    }
+                    indicateErrorsFound();
                     channelCombo.markInvalid(Uni.I18n.translate('general.channelAlreadyMapped', 'MDC', 'This field must be unique'));
                     channelsMapped[channelCombo.getValue()].markInvalid(Uni.I18n.translate('general.channelAlreadyMapped', 'MDC', 'This field must be unique'));
                 } else {
@@ -501,6 +497,16 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         if (!errorsFound) {
             me.wizardInformation.mappedChannels = mappedChannels;
+
+            Ext.Array.forEach(Object.keys(channelsMapped), function(channelId) {
+                if (channelId in me.wizardInformation.channelAvailabilityDates) {
+                    var availabilityDate = me.wizardInformation.channelAvailabilityDates[channelId];
+                    if ( Ext.isEmpty(me.wizardInformation.minimalLinkingDate) || me.wizardInformation.minimalLinkingDate < availabilityDate ) {
+                        me.wizardInformation.minimalLinkingDate = availabilityDate;
+                        me.wizardInformation.noData = false;
+                    }
+                }
+            }, me);
 
             var slaveDeviceModel = me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length-1];
             slaveDeviceModel.dataLoggerSlaveChannelInfos = [];
@@ -532,25 +538,21 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             registerConfigStore = me.getStore('Mdc.store.RegisterConfigsOfDeviceConfig');
 
         wizard.setLoading();
+        me.wizardInformation.registerAvailabilityDates = [];  // key = register id, value is the availability date
         registerConfigStore.getProxy().setExtraParam('deviceType', me.wizardInformation.slaveDeviceTypeId);
         registerConfigStore.getProxy().setExtraParam('deviceConfig', me.wizardInformation.slaveDeviceConfigurationId);
         registerConfigStore.load({
             callback: function (registerConfigRecords) {
                 var registerRecords = [];
                 Ext.Array.forEach(me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices'), function(dataLoggerSlaveDeviceRecord){
-                    if (dataLoggerSlaveDeviceRecord.id === 0) { // the container of the unlinked registers
-                        if (dataLoggerSlaveDeviceRecord.dataLoggerSlaveRegisterInfos){
-                            Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveRegisterInfos, function(dataLoggerSlaveRegisterInfoRecord){
-                                registerRecords.push(dataLoggerSlaveRegisterInfoRecord.dataLoggerRegister);
-                                if ( !Ext.isEmpty(dataLoggerSlaveRegisterInfoRecord.availabilityDate) && dataLoggerSlaveRegisterInfoRecord.availabilityDate !== 0) {
-                                    if ( Ext.isEmpty(me.wizardInformation.minimalLinkingDate) ||
-                                         me.wizardInformation.minimalLinkingDate < dataLoggerSlaveRegisterInfoRecord.availabilityDate ) {
-                                        me.wizardInformation.minimalLinkingDate = dataLoggerSlaveRegisterInfoRecord.availabilityDate;
-                                        me.wizardInformation.noData = false;
-                                    }
-                                }
-                            }, me);
-                        }
+                    if (dataLoggerSlaveDeviceRecord.id === 0 && dataLoggerSlaveDeviceRecord.dataLoggerSlaveRegisterInfos) { // yet unlinked registers
+                        Ext.Array.forEach(dataLoggerSlaveDeviceRecord.dataLoggerSlaveRegisterInfos, function(dataLoggerSlaveRegisterInfoRecord){
+                            registerRecords.push(dataLoggerSlaveRegisterInfoRecord.dataLoggerRegister);
+                            if ( !Ext.isEmpty(dataLoggerSlaveRegisterInfoRecord.availabilityDate) && dataLoggerSlaveRegisterInfoRecord.availabilityDate !== 0) {
+                                me.wizardInformation.registerAvailabilityDates[dataLoggerSlaveRegisterInfoRecord.dataLoggerRegister.id] =
+                                    dataLoggerSlaveRegisterInfoRecord.availabilityDate;
+                            }
+                        }, me);
                     }
                 }, me);
                 me.wizardInformation.registerConfigRecords = registerConfigRecords;
@@ -575,6 +577,12 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             errorsFound = false,
             registersMapped = {},
             mappedRegisters = [],
+            indicateErrorsFound = function() {
+                if (!errorsFound) {
+                    errorsFound = true;
+                    step3ErrorMsg.show();
+                }
+            },
             endMethod = function() {
                 step3ErrorMsg.hide();
                 if (Ext.isFunction(callback)) {
@@ -590,17 +598,11 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 break;
             }
             if (Ext.isEmpty(registerCombo.getValue())) {
-                if (!errorsFound) {
-                    errorsFound = true;
-                    step3ErrorMsg.show();
-                }
+                indicateErrorsFound();
                 registerCombo.markInvalid(Uni.I18n.translate('general.requiredField', 'MDC', 'This field is required'));
             } else {
                 if (registerCombo.getValue() in registersMapped) {
-                    if (!errorsFound) {
-                        errorsFound = true;
-                        step3ErrorMsg.show();
-                    }
+                    indicateErrorsFound();
                     registerCombo.markInvalid(Uni.I18n.translate('general.registerAlreadyMapped', 'MDC', 'This field must be unique'));
                     registersMapped[registerCombo.getValue()].markInvalid(Uni.I18n.translate('general.registerAlreadyMapped', 'MDC', 'This field must be unique'));
                 } else {
@@ -612,6 +614,17 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         if (!errorsFound) {
             me.wizardInformation.mappedRegisters = mappedRegisters;
+
+            Ext.Array.forEach(Object.keys(registersMapped), function(registerId) {
+                if (registerId in me.wizardInformation.registerAvailabilityDates) {
+                    var availabilityDate = me.wizardInformation.registerAvailabilityDates[registerId];
+                    if ( Ext.isEmpty(me.wizardInformation.minimalLinkingDate) || me.wizardInformation.minimalLinkingDate < availabilityDate ) {
+                        me.wizardInformation.minimalLinkingDate = availabilityDate;
+                        me.wizardInformation.noData = false;
+                    }
+                }
+            }, me);
+
             var slaveDeviceModel = me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length-1];
             slaveDeviceModel.dataLoggerSlaveRegisterInfos = [];
             counter = 0;
