@@ -7,8 +7,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.util.units.Quantity;
-
 
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -58,7 +56,8 @@ public class ServiceOperationDomainExtension implements PersistentDomainExtensio
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.energyict.mdc.device.data.impl.MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callback;
     private Boolean loadLimitEnabled;
-    private Quantity loadLimit;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.energyict.mdc.device.data.impl.MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String loadLimit;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.energyict.mdc.device.data.impl.MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String destinationSpecName;
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.energyict.mdc.device.data.impl.MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -128,11 +127,11 @@ public class ServiceOperationDomainExtension implements PersistentDomainExtensio
         this.loadLimitEnabled = loadLimitEnabled;
     }
 
-    public Quantity getLoadLimit() {
+    public String getLoadLimit() {
         return loadLimit;
     }
 
-    public void setLoadLimit(Quantity loadLimit) {
+    public void setLoadLimit(String loadLimit) {
         this.loadLimit = loadLimit;
     }
 
@@ -171,7 +170,7 @@ public class ServiceOperationDomainExtension implements PersistentDomainExtensio
         this.setStatusInformationTaskTryCount((Integer) propertyValues.getProperty(FieldNames.STATUS_INFORMATION_TASK_TRY_COUNT.javaName()));
         this.setCallback((String) propertyValues.getProperty(FieldNames.CALLBACK.javaName()));
         this.setLoadLimitEnabled((Boolean) propertyValues.getProperty(FieldNames.LOAD_LIMIT_ENABLED.javaName()));
-        this.setLoadLimit((Quantity) propertyValues.getProperty(FieldNames.LOAD_LIMIT.javaName()));
+        this.setLoadLimit((String) propertyValues.getProperty(FieldNames.LOAD_LIMIT.javaName()));
         this.setDestinationSpecName((String) propertyValues.getProperty(FieldNames.DESTINATION_SPEC_NAME.javaName()));
         this.setCompletionMessage((String) propertyValues.getProperty(FieldNames.COMPLETION_MESSAGE.javaName()));
 
