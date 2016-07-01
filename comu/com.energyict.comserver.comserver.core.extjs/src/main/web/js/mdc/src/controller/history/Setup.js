@@ -2238,7 +2238,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 callback: me.checkInsightRedirect
                             },
                             channels: {
-                                title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
+                                title: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
                                 privileges: Mdc.privileges.UsagePoint.canView(),
                                 route: 'channels',
                                 controller: 'Mdc.usagepointmanagement.controller.ViewChannelsList',
