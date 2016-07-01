@@ -338,10 +338,11 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{mRID}/metrologyconfigurationversion/{versionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public UsagePointInfo  getMetrologyConfigurationVersion(@PathParam("mRID") String mRID, @PathParam("versionId") Long versionId) {
-        UsagePointInfo usagePointInfo = new UsagePointInfo(fetchUsagePoint(mRID), clock);
-        usagePointInfo.metrologyConfigurationVersion = metrologyConfigurationInfoFactory.asInfo(fetchUsagePointVersion(versionId));
-        return usagePointInfo;
+    public EffectiveMetrologyConfigurationOnUsagePointInfo  getMetrologyConfigurationVersion(@PathParam("mRID") String mRID, @PathParam("versionId") Long versionId) {
+//        UsagePointInfo usagePointInfo = new UsagePointInfo(fetchUsagePoint(mRID), clock);
+//        usagePointInfo.metrologyConfigurationVersion = metrologyConfigurationInfoFactory.asInfo(fetchUsagePointVersion(versionId));
+//        return usagePointInfo;
+        return metrologyConfigurationInfoFactory.asInfo(fetchUsagePointVersion(versionId));
     }
 
     @PUT
@@ -355,8 +356,9 @@ public class UsagePointResource {
         Instant start = info.metrologyConfigurationVersion.start != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.start) : null;
         Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end) : null;
 
+        UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
         try {
-            usagePoint.updateWithInterval(version, start, end);
+            usagePoint.updateWithInterval(version, metrologyConfiguration, start, end);
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
         } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMerologyConfigurationEndDate ex) {
