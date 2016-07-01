@@ -494,9 +494,8 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void updateWithInterval(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationVersion, Instant start, Instant end) {
+    public void updateWithInterval(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationVersion, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
         Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
-        UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationVersion.getMetrologyConfiguration();
         Long startTime = start.toEpochMilli();
         Long endTime = end != null ? end.toEpochMilli() : null;
         Instant startTimeOfCurrent = this.getCurrentEffectiveMetrologyConfiguration()
