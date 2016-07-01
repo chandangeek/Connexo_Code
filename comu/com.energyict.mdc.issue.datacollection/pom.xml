@@ -279,6 +279,11 @@
             <artifactId>calendar</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>appserver</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
