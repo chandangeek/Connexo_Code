@@ -49,7 +49,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                         Ext.Array.each(value, function (deviceChannel, index) {
                             var device = canViewDevices
                                     ? '<a href="'
-                                + me.router.getRote('devices/device').buildUrl({
+                                + me.router.getRoute('devices/device').buildUrl({
                                     mRID: deviceChannel.mRID
                                 })
                                 + '">'
@@ -58,7 +58,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                                     : deviceChannel.mRID,
                                 channel = !Ext.isEmpty(deviceChannel.channel.id)
                                     ? '<a href="'
-                                + me.router.getRote('devices/device/channels').buildUrl({
+                                + me.router.getRoute('devices/device/channels').buildUrl({
                                     mRID: deviceChannel.mRID,
                                     channelId: deviceChannel.channel.id
                                 })
