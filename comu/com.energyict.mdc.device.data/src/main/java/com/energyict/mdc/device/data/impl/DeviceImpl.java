@@ -964,7 +964,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         validateMetrologyConfigRequirements(destinationDeviceConfiguration);
     }
 
-    private void validateMetrologyConfigRequirements(DeviceConfiguration destinationDeviceConfiguration) {
+    void validateMetrologyConfigRequirements(DeviceConfiguration destinationDeviceConfiguration) {
         this.getCurrentMeterActivation()
                 .ifPresent(meterActivation -> meterActivation.getUsagePoint()
                         .ifPresent(usagePoint -> {
