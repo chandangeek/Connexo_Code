@@ -46,6 +46,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Setup', {
                                 },
                                 previewComponent: {
                                     xtype: 'deviceregisterreportpreview-numerical',
+                                    router: me.router,
                                     unitOfMeasureCollected: me.unitOfMeasureCollected,
                                     unitOfMeasureCalculated: me.unitOfMeasureCalculated,
                                     multiplier: me.multiplier

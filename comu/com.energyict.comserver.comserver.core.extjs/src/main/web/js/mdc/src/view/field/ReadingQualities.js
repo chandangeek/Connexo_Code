@@ -40,25 +40,24 @@ Ext.define('Mdc.view.field.ReadingQualities', {
 
     renderer : function(value, field) {
         if (value.isConfirmed) {
-            return this.getConfirmed(value.confirmedInApp);
+            return this.getConfirmed(value.confirmedInApps);
         } else if (!Ext.isEmpty(value.validationRules)) {
-            return this.getValidationRules(value);
+            return this.getValidationRules(value.validationRules);
         } else if (value.estimatedByRule) {
-            return this.getEstimatedByRule(value);
+            return this.getEstimatedByRule(value.estimatedByRule);
         } else {
             field.hide();
         }
     },
 
-    getConfirmed: function(application) {
-        return application
-            ? Uni.I18n.translate('general.confirmed', 'MDC', 'Confirmed')
-            : Uni.I18n.translate('general.confirmedIn', 'MDC', 'Confirmed in {0}', [application.name]);
+    getConfirmed: function(apps) {
+        return apps && apps.length
+            ? Uni.I18n.translate('general.confirmedIn', 'MDC', 'Confirmed in {0}', [application.name]) //TODO: fold applications
+            : Uni.I18n.translate('general.confirmed', 'MDC', 'Confirmed')
     },
 
-    getEstimatedByRule: function(value) {
+    getEstimatedByRule: function(estimatedRule) {
         var me = this,
-            estimatedRule = value.estimatedByRule,
             application = estimatedRule.application,
             url = me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({
                 ruleSetId: estimatedRule.ruleSetId,
