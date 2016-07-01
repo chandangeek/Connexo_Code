@@ -16,6 +16,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -35,9 +36,6 @@ public class StateTransitionChangeEventTopicHandlerTest {
     private FiniteStateMachineService stateMachineService;
     @Mock
     private MeteringService meteringService;
-    //    todo: uncomment after CXO-2243 will be resolved
-//    @Mock
-//    private Query endDeviceQuery;
     @Mock
     private LocalEvent localEvent;
     @Mock
@@ -56,24 +54,18 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.event.getNewState()).thenReturn(this.state);
         when(this.meteringService.findEndDevice(MISSING_END_DEVICE_MRID)).thenReturn(Optional.<EndDevice>empty());
         when(this.meteringService.findEndDevice(END_DEVICE_MRID)).thenReturn(Optional.of(this.endDevice));
-//    todo: uncomment after CXO-2243 will be resolved
-//        when(this.meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
-//        when(this.endDeviceQuery.select(any())).thenReturn(Collections.singletonList(endDevice));
         when(this.endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(this.endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
     }
 
-//   todo: uncomment after CXP-2243 fixed
-// @Test
-//    public void handlerAttemptsToFindTheEndDevice() {
-//        // Business method
-//        this.getTestInstance().handle(this.localEvent);
-//
-//        // Assert
-////    todo: uncomment after CXO-2243 will be resolved
-////        verify(this.endDeviceQuery).select(any());
-//        verify(this.meteringService).findEndDevice(anyString());
-//    }
+    @Test
+    public void handlerAttemptsToFindTheEndDevice() {
+        // Business method
+        this.getTestInstance().handle(this.localEvent);
+
+        // Asserts
+        verify(this.meteringService).findEndDevice(anyString());
+    }
 
     @Test
     public void handlerDelegatesToTheEndDeviceWithEffectiveTimestampFromEvent() {
