@@ -90,7 +90,7 @@ public interface MeteringService {
 
     Optional<UsagePoint> findUsagePoint(String mRID);
 
-    Optional<EffectiveMetrologyConfigurationOnUsagePoint> findUsagePointVersion(long id);
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> findEffectiveMetrologyConfigurationOnUsagePointById(long id);
 
     Query<EndDevice> getEndDeviceQuery();
 

@@ -294,7 +294,7 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
     }
 
     @Override
-    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> findUsagePointVersion(long id) {
+    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> findEffectiveMetrologyConfigurationOnUsagePointById(long id) {
         return dataModel.mapper(EffectiveMetrologyConfigurationOnUsagePoint.class).getOptional(id);
     }
 
@@ -527,13 +527,13 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
             }
         });
 
-        if (upgradeService.isInstalled(identifier(COMPONENTNAME), version(10, 2))) {
+        if (upgradeService.isInstalled(identifier("Pulse",COMPONENTNAME), version(10, 2))) {
             getLocationTemplateFromDB().ifPresent(template -> {
                 locationTemplate = template;
                 locationTemplateMembers = ImmutableList.copyOf((template.getTemplateMembers()));
             });
         }
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+        upgradeService.register(identifier("Pulse",COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
     }
