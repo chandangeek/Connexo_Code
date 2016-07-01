@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 showTimeAttribute: false,
                 makeLink: function (record) {
                     return me.router.getRoute('devices/device/channels/channeldata').buildUrl({
-                        mRID: me.mRID,
+                        mRID: encodeURIComponent(me.mRID),
                         channelId: record.getId()
                     });
                 }
@@ -56,7 +56,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                         if (Ext.isEmpty(value)) {
                             return '-';
                         }
-                        var href = me.router.getRoute('devices/device/channels').buildUrl({mRID: value});
+                        var href = me.router.getRoute('devices/device/channels').buildUrl({mRID: encodeURIComponent(value)});
                         return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                     }
                 }

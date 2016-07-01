@@ -60,7 +60,8 @@ Ext.define('Mdc.model.Register', {
                     Uni.DateTime.formatDateTimeLong(new Date(data.detailedValidationInfo.lastChecked)) : '';
             }
         },
-        {name: 'mRID', type: 'string'}
+        {name: 'mRID', type: 'string'},
+        {name: 'dataloggerSlavemRID', type: 'string'}
     ],
     proxy: {
         type: 'rest',

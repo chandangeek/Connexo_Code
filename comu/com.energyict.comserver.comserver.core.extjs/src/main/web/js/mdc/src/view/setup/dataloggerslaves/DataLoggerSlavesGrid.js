@@ -17,7 +17,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
                 header: Uni.I18n.translate('general.mRID', 'MDC', 'MRID'),
                 dataIndex: 'mRID',
                 renderer: function (value, meta, record) {
-                    var href = me.router.getRoute('devices/device').buildUrl({mRID: record.get('mRID')});
+                    var href = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(record.get('mRID'))});
                     return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                 },
                 getSortParam: function() { Ext.emptyFn }, // We don't want a sort icon in the header

@@ -201,7 +201,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     previewRegisterConfiguration: function (record) {
         var me = this,
             type = record.get('type'),
-            widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {router: me.getController('Uni.controller.history.Router')}),
+            widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {
+                router: me.getController('Uni.controller.history.Router'),
+                showDataLoggerSlaveField: me.getDeviceRegisterConfigurationGrid().showDataLoggerSlaveColumn
+            }),
             form = widget.down('#deviceRegisterConfigurationPreviewForm'),
             previewContainer = me.getDeviceRegisterConfigurationSetup().down('#previewComponentContainer'),
             multiplierField = widget.down('[name=multiplier]'),
@@ -283,7 +286,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                     config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {
                                         mRID: encodeURIComponent(mRID),
                                         registerId: registerId,
-                                        router: me.getController('Uni.controller.history.Router')
+                                        router: me.getController('Uni.controller.history.Router'),
+                                        showDataLoggerSlaveField: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')
                                     }),
                                     form = config.down('#deviceRegisterConfigurationDetailForm'),
                                     multiplierField = form.down('[name=multiplier]'),

@@ -29,7 +29,7 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
                         dataIndex: 'mRID',
                         flex: 1,
                         renderer: function (value, meta, record) {
-                            var href = me.router.getRoute('devices/device').buildUrl({mRID: record.get('mRID')});
+                            var href = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(record.get('mRID'))});
                             return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                         }
                     },

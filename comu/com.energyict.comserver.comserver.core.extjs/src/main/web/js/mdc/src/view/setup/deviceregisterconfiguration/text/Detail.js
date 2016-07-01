@@ -8,6 +8,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
         'Uni.form.field.ReadingTypeDisplay',
         'Uni.form.field.ObisDisplay'
     ],
+    showDataLoggerSlaveField: false,
 
     initComponent: function () {
         var me = this;
@@ -54,6 +55,18 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
                                                 fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
                                                 name: 'calculatedReadingType',
                                                 hidden: true
+                                            },
+                                            {
+                                                fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                                                name: 'dataloggerSlavemRID',
+                                                hidden: !me.showDataLoggerSlaveField,
+                                                renderer: function(value) {
+                                                    if (Ext.isEmpty(value)) {
+                                                        return '-';
+                                                    }
+                                                    var href = me.router.getRoute('devices/device/registers').buildUrl({mRID: encodeURIComponent(value)});
+                                                    return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
+                                                }
                                             },
                                             {
                                                 xtype: 'obis-displayfield',

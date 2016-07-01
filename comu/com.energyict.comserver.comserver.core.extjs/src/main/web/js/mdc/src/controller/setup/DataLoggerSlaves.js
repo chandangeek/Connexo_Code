@@ -723,7 +723,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         switch (item.action) {
             case 'unlinkSlave':
                 Ext.widget('dataloggerslave-unlink-window', {
-                    title: Uni.I18n.translate('general.unlinkX', 'MDC', "Unlink '{0}'?", menu.record.get('mRID')),
+                    title: Uni.I18n.translate('general.unlinkX', 'MDC', "Unlink '{0}'?", menu.record.get('mRID'), false),
                     dataLoggerSlaveRecord: menu.record
                 }).show();
                 break;
