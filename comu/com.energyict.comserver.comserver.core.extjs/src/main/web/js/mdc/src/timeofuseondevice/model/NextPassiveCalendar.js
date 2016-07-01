@@ -6,6 +6,8 @@ Ext.define('Mdc.timeofuseondevice.model.NextPassiveCalendar', {
         {name: 'releaseDate', type: 'number'},
         {name: 'activationDate', type: 'number'},
         {name: 'status', type: 'string'},
+        {name: 'willBePickedUpByPlannedComtask', type: 'boolean'},
+        {name: 'willBePickedUpByComtask', type: 'boolean'},
         {
             name: 'releaseDateDisplayField',
             type: 'string',
