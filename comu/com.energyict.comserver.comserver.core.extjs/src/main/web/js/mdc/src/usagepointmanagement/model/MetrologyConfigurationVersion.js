@@ -2,7 +2,7 @@ Ext.define('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion', {
     extend: 'Ext.data.Model',
     requires: [],
     fields: [
-        // {name: 'id', type: 'number', useNull: true},
+        {name: 'id', type: 'number', useNull: true},
         // {name: 'name', type: 'string', useNull: true},
         {name: 'start', type: 'number', useNull: true},
         {name: 'end', type: 'number', useNull: true},
@@ -32,5 +32,16 @@ Ext.define('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion', {
                 return record.metrologyConfiguration.name;
             }
         }
-    ]
+    ],
+    proxy: {
+        type: 'rest',
+        urlTpl: '/api/mtr/usagepoints/{mRID}/metrologyconfigurationversion',
+        timeout: 240000,
+        reader: {
+            type: 'json'
+        },
+        setUrl: function (mRID) {
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
+        }
+    }
 });

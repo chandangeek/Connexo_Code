@@ -24,7 +24,7 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
             'metrology-configuration-history-tab metrology-configuration-history-grid': {
                 select: this.selectVersion
             },
-            'add-metrology-configuration-version #usage-point-add-button': {
+            'add-metrology-configuration-version #usage-point-add-edit-button': {
                 click: this.addMetrologyConfigurationVersion
             }
         });
@@ -98,7 +98,7 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
             actionMenu.setMenuItems(record);
             preview.down('metrology-configuration-versions-action-menu').setMenuItems(record);
         }
-        
+
         preview.fillReadings(record);
         Ext.resumeLayouts(true);
     },
@@ -123,34 +123,76 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                 pageMainContent.setLoading(false);
             }
         });
-        
+
     },
 
-    addMetrologyConfigurationVersion: function(btn){
+    showEditVersion: function (mRID, id) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            usagePointModel = me.getModel('Mdc.usagepointmanagement.model.UsagePoint'),
+            versionRecord = me.getModel('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion'),
+            usagePointWithVersionModel = me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
+            availableConfigs = me.getStore('Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations'),
+            widget = Ext.widget('add-metrology-configuration-version', {router: router, edit: true}),
+
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+        pageMainContent.setLoading(true);
+
+        usagePointModel.load(mRID, {
+            success: function (usagePoint) {
+                me.usagePoint = usagePoint;
+                versionRecord.getProxy().setUrl(usagePoint.get('mRID'));
+                versionRecord.load(id, {
+                    success: function (record) {
+                        availableConfigs.getProxy().setUrl(usagePoint.get('mRID'));
+                        availableConfigs.load({
+                            callback: function () {
+                                me.getApplication().fireEvent('changecontentevent', widget);
+                                widget.loadRecordToForm(record);
+                                console.log(record);
+                                me.versionRecord = record;
+                                pageMainContent.setLoading(false);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+    },
+
+    addMetrologyConfigurationVersion: function (btn) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             versionForm = me.getAddVersionPanel().down('#add-version-form'),
-            versionRecord = Ext.create('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion'),
+            versionRecord = me.versionRecord ? me.versionRecord : Ext.create('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion'),
             configCombo = versionForm.down('#mc-combo'),
+            usagePointWithVersionModel = me.versionRecord
+                ? me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion')
+                : Ext.create('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
             metrologyConfig = configCombo.findRecordByValue(configCombo.getValue());
+        //TODO: make PUT method for edit
+        // console.log(versionRecord);
+        // usagePointWithVersionModel.phantom = false;
         versionForm.down('#form-errors').hide();
         versionForm.getForm().clearInvalid();
         versionForm.updateRecord(versionRecord);
-        if(metrologyConfig){
+        if (metrologyConfig) {
             versionRecord.set('metrologyConfiguration', metrologyConfig.getData());
-            me.usagePoint.set('metrologyConfigurationVersion', versionRecord.getData());
-            Ext.Ajax.request({
-                url: Ext.String.format("/api/mtr/usagepoints/{0}/metrologyconfigurationversion",me.usagePoint.get('mRID')),
-                method: 'PUT',
-                jsonData: me.usagePoint.getRecordData(),
+            // me.usagePoint.set('metrologyConfigurationVersion', versionRecord.getData());
+            usagePointWithVersionModel.set(me.usagePoint.getRecordData());
+            usagePointWithVersionModel.set('metrologyConfigurationVersion', versionRecord.getData());
+            usagePointWithVersionModel.getProxy().setUrl(me.usagePoint.get('mRID'));
+            console.log(usagePointWithVersionModel);
+            usagePointWithVersionModel.save({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.version.added', 'MDC', "Metrology configuration version added"));
                     router.getRoute('usagepoints/usagepoint/history').forward();
                 },
-                failure: function (response, request) {
-                    if (response.status == 400) {
-                        if (!Ext.isEmpty(response.responseText)) {
-                            var json = Ext.decode(response.responseText, true);
+                failure: function (record, operation) {
+                    if (operation.response.status == 400) {
+                        if (!Ext.isEmpty(operation.response.responseText)) {
+                            var json = Ext.decode(operation.response.responseText, true);
                             if (json && json.errors) {
                                 versionForm.down('#form-errors').show();
                                 versionForm.getForm().markInvalid(json.errors);
@@ -158,7 +200,27 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                         }
                     }
                 }
-            })
+            });
+            // Ext.Ajax.request({
+            //     url: Ext.String.format("/api/mtr/usagepoints/{0}/metrologyconfigurationversion",me.usagePoint.get('mRID')),
+            //     method: 'POST',
+            //     jsonData: me.usagePoint.getRecordData(),
+            //     success: function () {
+            //         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.version.added', 'MDC', "Metrology configuration version added"));
+            //         router.getRoute('usagepoints/usagepoint/history').forward();
+            //     },
+            //     failure: function (response, request) {
+            //         if (response.status == 400) {
+            //             if (!Ext.isEmpty(response.responseText)) {
+            //                 var json = Ext.decode(response.responseText, true);
+            //                 if (json && json.errors) {
+            //                     versionForm.down('#form-errors').show();
+            //                     versionForm.getForm().markInvalid(json.errors);
+            //                 }
+            //             }
+            //         }
+            //     }
+            // })
         } else {
             versionForm.down('#form-errors').show();
             versionForm.down('#mc-combo').markInvalid(Uni.I18n.translate('readingtypesmanagment.bulk.thisfieldisrequired', 'MDC', 'This field is required'));

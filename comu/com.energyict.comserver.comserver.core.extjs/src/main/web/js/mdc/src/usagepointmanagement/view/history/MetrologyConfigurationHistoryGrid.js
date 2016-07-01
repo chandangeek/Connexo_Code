@@ -57,6 +57,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryG
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 menu: {
                     xtype: 'metrology-configuration-versions-action-menu',
+                    // router: me.router,
                     itemId: 'metrology-configuration-versions-action-menu-id'
                 },
                 flex: 1

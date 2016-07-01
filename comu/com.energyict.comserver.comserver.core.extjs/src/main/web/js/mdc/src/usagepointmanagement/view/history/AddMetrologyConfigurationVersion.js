@@ -6,6 +6,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
         'Uni.util.FormErrorMessage',
         'Mdc.usagepointmanagement.view.InstallationTimeField'
     ],
+    edit: false,
 
     initComponent: function () {
         var me = this;
@@ -13,7 +14,9 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
             {
                 ui: 'large',
                 xtype: 'panel',
-                title: Uni.I18n.translate('usagePoint.addMetrologyConfigurationVersion', 'MDC', 'Add metrology configuration versions'),
+                title: me.edit
+                    ? Uni.I18n.translate('usagePoint.editMetrologyConfigurationVersion', 'MDC', 'Edit metrology configuration versions')
+                    : Uni.I18n.translate('usagePoint.addMetrologyConfigurationVersion', 'MDC', 'Add metrology configuration versions'),
                 items: [
                     {
                         xtype: 'form',
@@ -81,10 +84,13 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
                                 },
                                 items: [
                                     {
-                                        text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                                        text: me.edit
+                                            ? Uni.I18n.translate('general.save', 'MDC', 'Save')
+                                            : Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                         xtype: 'button',
                                         ui: 'action',
-                                        itemId: 'usage-point-add-button'
+                                        itemId: 'usage-point-add-edit-button',
+                                        action: me.edit ? 'edit' : 'add'
                                     },
                                     {
                                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
@@ -105,7 +111,15 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
         me.callParent(arguments);
 
         var currentDate = new Date();
-        currentDate.setHours(0,0,0,0);
+        currentDate.setHours(0, 0, 0, 0);
         me.down('#start-time-date').setValue(currentDate);
+    },
+
+    loadRecordToForm: function (record) {
+        this.down('#add-version-form').loadRecord(record);
+        this.down('#mc-combo').setValue(record.get('metrologyConfiguration').id);
+        if (record.get('end')) {
+            this.down('installationtimefield').setValue({"installation-time": false});
+        }
     }
 });

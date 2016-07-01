@@ -14,18 +14,15 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
                 itemId: 'action-menu-item-mc-edit',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.edit', 'MDC', 'Edit'),
-                tooltip: Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Last version only can be modified')
-                // disabled: true,
+                tooltip: Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Last version only can be modified'),
 
-                // href: me.router.getRoute('usagepoints/view/history').buildUrl()
+                // href: me.router.getRoute('usagepoints/view/history/editmetrologyconfigurationversion').buildUrl()
             },
             {
                 itemId: 'action-menu-item-mc-remove',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.remove', 'MDC', 'Remove'),
                 tooltip: Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Last version only can be removed')
-                // disabled: true
-                // href: me.router.getRoute('usagepoints/view/history').buildUrl()
             }
         ];
 
@@ -36,8 +33,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
         var me = this;
 
         if(record){
-            me.down('#action-menu-item-mc-edit').setDisabled(record.index);
-            me.down('#action-menu-item-mc-remove').setDisabled(record.index);
+            me.down('#action-menu-item-mc-edit').setDisabled(!record.get('editable'));
+            me.down('#action-menu-item-mc-remove').setDisabled(!record.get('editable') || record.get('current'));
         }
     }
 });
