@@ -105,4 +105,5 @@ com.elster.jupiter.location.template.mandatoryfields =#adma,#loc,#styp,#snam,#sn
 # com.elster.jupiter.bpm.url=http://localhost:8081/flow
 # com.elster.jupiter.yellowfin.url=http://localhost:8081/facts
 # com.elster.jupiter.yellowfin.externalurl=https://hostname/facts
+# upgrade=true
 
