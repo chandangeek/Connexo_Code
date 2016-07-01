@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
@@ -10,7 +9,6 @@ import com.elster.jupiter.metering.MeteringService;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -19,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
