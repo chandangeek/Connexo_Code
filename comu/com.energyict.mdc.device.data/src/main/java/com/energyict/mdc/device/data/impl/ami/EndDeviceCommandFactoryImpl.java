@@ -28,12 +28,11 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.inject.Inject;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -52,6 +51,7 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationK
     public EndDeviceCommandFactoryImpl() {
     }
 
+    @Inject
     public EndDeviceCommandFactoryImpl(MeteringService meteringService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, NlsService nlsService, Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.meteringService = meteringService;
         this.deviceService = deviceService;
@@ -90,9 +90,8 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationK
 
     @Activate
     public void activate() {
-        System.out.println("Activatiing Head End Command Factory");
+        System.out.println("Activating Head End Command Factory");
     }
-
 
     @Override
     public EndDeviceCommand createCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, Instant activationDate, Quantity limit) {
@@ -127,7 +126,6 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationK
         return endDeviceCommand;
     }
 
-
     @Override
     public EndDeviceCommand createArmCommand(EndDevice endDevice, boolean armForOpen, Instant activationDate) {
         EndDeviceCommand endDeviceCommand;
@@ -152,11 +150,9 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationK
         return endDeviceCommand;
     }
 
-
     @Override
     public EndDeviceCommand createConnectCommand(EndDevice endDevice, Instant activationDate) {
         String commandName = EndDeviceCommandImpl.EndDeviceCommandType.CONNECT.getName();
-        Map<String, Object> attributes = new HashMap<>();
         List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
 
         deviceMessageIds.add(activationDate != null ? DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_CLOSE);
@@ -221,7 +217,7 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationK
             if (typ.getEndDeviceControlTypeMRID().startsWith(String.valueOf(endDeviceType) + ".")
                     || typ.getEndDeviceControlTypeMRID().startsWith("0.")) {
                 meteringService.getEndDeviceControlType(typ.getEndDeviceControlTypeMRID())
-                        .ifPresent(found -> controlTypes.add(found));
+                        .ifPresent(controlTypes::add);
             }
         });
         return controlTypes.stream()
@@ -250,7 +246,6 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationK
         }
     }
 
-
     @Override
     public String getComponentName() {
         return DeviceDataServices.COMPONENT_NAME;
@@ -264,7 +259,7 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationK
     @Override
     public List<TranslationKey> getKeys() {
         //TBD
-        List<TranslationKey> keys = new ArrayList<>();
-        return keys;
+        return new ArrayList<>();
     }
+
 }
