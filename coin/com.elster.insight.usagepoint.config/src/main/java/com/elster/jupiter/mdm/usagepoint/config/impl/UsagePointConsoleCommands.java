@@ -118,7 +118,11 @@ public class UsagePointConsoleCommands {
                                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
                                 .map(UsagePointMetrologyConfiguration.class::cast)
                                 .orElseThrow(() -> new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found."));
-                        usagePointConfigurationService.link(up, mc);
+                        if (mc instanceof UsagePointMetrologyConfiguration) {
+                            up.apply((UsagePointMetrologyConfiguration) mc);
+                        } else {
+                            throw new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found.");
+                        }
                     });
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,52 +162,52 @@ public class UsagePointConsoleCommands {
 
     @Descriptor("Create a usage point")
     public void createUsagePoint(@Descriptor("System id (usually 2)") long amrSystemId,
-            @Descriptor("Meter ID") String mrId,
-            @Descriptor("UsagePoint ID") String upId,
-            @Descriptor("Name") String name) {
+                                 @Descriptor("Meter ID") String mrId,
+                                 @Descriptor("UsagePoint ID") String upId,
+                                 @Descriptor("Name") String name) {
         transactionService.builder()
-        .principal(() -> "console")
-        .run(() -> {
-            AmrSystem amrSystem = meteringService
-                    .findAmrSystem(amrSystemId)
-                    .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-            Meter meter = amrSystem
-                    .findMeter(mrId)
-                    .orElseThrow(() -> new IllegalArgumentException("Usage Point not created : Meter not found " + mrId));
-            ServiceCategory category = meteringService
-                    .getServiceCategory(ServiceKind.ELECTRICITY)
-                    .orElseThrow(() -> new IllegalArgumentException("Could not get service"));
-            UsagePointBuilder builder = category.newUsagePoint(upId, this.clock.instant());
-            UsagePoint up = builder.withName(name).withIsSdp(true).withIsVirtual(false).create();
-            up.newElectricityDetailBuilder(Instant.now())
-                    .withGrounded(YesNoAnswer.YES)
-                    .withPhaseCode(PhaseCode.UNKNOWN).create();
-            meter.activate(up, Instant.parse("2014-01-01T08:00:00Z"));
-            meter.update();
-            up.update();
-            System.out.println("Usage point " + up.getId() + " created with name: " + name);
-        });
+                .principal(() -> "console")
+                .run(() -> {
+                    AmrSystem amrSystem = meteringService
+                            .findAmrSystem(amrSystemId)
+                            .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
+                    Meter meter = amrSystem
+                            .findMeter(mrId)
+                            .orElseThrow(() -> new IllegalArgumentException("Usage Point not created : Meter not found " + mrId));
+                    ServiceCategory category = meteringService
+                            .getServiceCategory(ServiceKind.ELECTRICITY)
+                            .orElseThrow(() -> new IllegalArgumentException("Could not get service"));
+                    UsagePointBuilder builder = category.newUsagePoint(upId, this.clock.instant());
+                    UsagePoint up = builder.withName(name).withIsSdp(true).withIsVirtual(false).create();
+                    up.newElectricityDetailBuilder(Instant.now())
+                            .withGrounded(YesNoAnswer.YES)
+                            .withPhaseCode(PhaseCode.UNKNOWN).create();
+                    meter.activate(up, Instant.parse("2014-01-01T08:00:00Z"));
+                    meter.update();
+                    up.update();
+                    System.out.println("Usage point " + up.getId() + " created with name: " + name);
+                });
     }
 
     @Descriptor("Save a register reading")
     public void saveRegister(@Descriptor("System id (usually 2)") long amrSystemId,
-            @Descriptor("EA_MS Meter ID") String amrid,
-            @Descriptor("timestamp (2015-05-14T10:15:30Z)") String timestamp,
-            @Descriptor("CIM code") String cim,
-            @Descriptor("Value") double value) {
+                             @Descriptor("EA_MS Meter ID") String amrid,
+                             @Descriptor("timestamp (2015-05-14T10:15:30Z)") String timestamp,
+                             @Descriptor("CIM code") String cim,
+                             @Descriptor("Value") double value) {
         try {
             transactionService.builder()
-            .principal(() -> "console")
-            .run(() -> {
-                AmrSystem amrSystem = meteringService
-                        .findAmrSystem(amrSystemId)
-                        .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-                Meter meter = amrSystem
-                        .findMeter(amrid)
-                        .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
-                meter.store(createReading(cim, BigDecimal.valueOf(value), Instant.parse(timestamp)));
-                System.out.println("Save register for ID: " + meter.getId());
-            });
+                    .principal(() -> "console")
+                    .run(() -> {
+                        AmrSystem amrSystem = meteringService
+                                .findAmrSystem(amrSystemId)
+                                .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
+                        Meter meter = amrSystem
+                                .findMeter(amrid)
+                                .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
+                        meter.store(createReading(cim, BigDecimal.valueOf(value), Instant.parse(timestamp)));
+                        System.out.println("Save register for ID: " + meter.getId());
+                    });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -211,24 +215,24 @@ public class UsagePointConsoleCommands {
 
     @Descriptor("Save an LP readings")
     public void saveLP(@Descriptor("System id (usually 2)") long amrSystemId,
-            @Descriptor("EA_MS Meter ID") String amrid,
-            @Descriptor("timestamp (2015-05-14T10:15:30Z)") String timestamp,
-            @Descriptor("CIM code") String cim,
-            @Descriptor("Interval in minutes") int minutes,
-            @Descriptor("Comma separated Values") String values) {
+                       @Descriptor("EA_MS Meter ID") String amrid,
+                       @Descriptor("timestamp (2015-05-14T10:15:30Z)") String timestamp,
+                       @Descriptor("CIM code") String cim,
+                       @Descriptor("Interval in minutes") int minutes,
+                       @Descriptor("Comma separated Values") String values) {
         try {
             transactionService.builder()
-            .principal(() -> "console")
-            .run(() -> {
-                AmrSystem amrSystem = meteringService
-                        .findAmrSystem(amrSystemId)
-                        .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-                Meter meter = amrSystem
-                        .findMeter(amrid)
-                        .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
-                meter.store(createLPReading(cim, values, Instant.parse(timestamp), minutes));
-                System.out.println("Save LP for ID: " + meter.getId());
-            });
+                    .principal(() -> "console")
+                    .run(() -> {
+                        AmrSystem amrSystem = meteringService
+                                .findAmrSystem(amrSystemId)
+                                .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
+                        Meter meter = amrSystem
+                                .findMeter(amrid)
+                                .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
+                        meter.store(createLPReading(cim, values, Instant.parse(timestamp), minutes));
+                        System.out.println("Save LP for ID: " + meter.getId());
+                    });
         } catch (Exception e) {
             e.printStackTrace();
         }

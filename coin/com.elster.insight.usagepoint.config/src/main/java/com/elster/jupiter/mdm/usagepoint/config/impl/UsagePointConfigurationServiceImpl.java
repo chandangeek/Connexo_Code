@@ -24,6 +24,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -45,7 +46,6 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -108,11 +108,10 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public void activate() {
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier(UsagePointConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+        upgradeService.register(InstallIdentifier.identifier("Insight", UsagePointConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
     }
-
 
 
     @Reference
@@ -158,6 +157,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Reference(target = "(com.elster.jupiter.checklist=Insight)")
+    public void setCheckList(UpgradeCheckList upgradeCheckList) {
+        // just explicitly depend
+    }
+
     DataModel getDataModel() {
         return dataModel;
     }
@@ -182,11 +186,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Override
     public void link(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
         usagePoint.apply(metrologyConfiguration, this.clock.instant());
-    }
-
-    @Override
-    public Optional<UsagePointMetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint usagePoint) {
-        return usagePoint.getMetrologyConfiguration();
     }
 
     @Override
@@ -259,7 +258,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                                 .map(ReadingTypeDeliverable::getFormula)
                                 .map(Formula::getExpressionNode)
                                 .forEach(expressionNode -> expressionNode.accept(requirementChecker));
-                        for (ReadingTypeRequirement readingTypeRequirement: requirementChecker.getReadingTypeRequirements()) {
+                        for (ReadingTypeRequirement readingTypeRequirement : requirementChecker.getReadingTypeRequirements()) {
                             if (readingTypeRequirement instanceof FullySpecifiedReadingTypeRequirement && ruleSetReadingTypes.contains(((FullySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingType())) {
                                 return true;
                             } else if (readingTypeRequirement instanceof PartiallySpecifiedReadingTypeRequirement) {
