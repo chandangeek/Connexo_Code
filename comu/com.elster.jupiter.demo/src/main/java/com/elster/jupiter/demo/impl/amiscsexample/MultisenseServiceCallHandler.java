@@ -164,7 +164,6 @@ public class MultisenseServiceCallHandler implements ServiceCallHandler {
                 domainExtension.setLoadLimit(extensionFor.getLoadLimit());
                 // domainExtension.setNrOfUnconfirmedDeviceCommands(...)
 
-
                 ServiceCall childServiceCall = serviceCall.newChildCall(serviceCallType.get())
                         .extendedWith(domainExtension)
                         .targetObject(device)

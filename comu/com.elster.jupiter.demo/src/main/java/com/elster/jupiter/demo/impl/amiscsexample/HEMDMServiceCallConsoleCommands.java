@@ -12,7 +12,6 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.device.data.DeviceService;
 
 import org.osgi.service.component.annotations.Activate;
@@ -20,7 +19,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -40,7 +38,6 @@ public class HEMDMServiceCallConsoleCommands {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile MeteringService meteringService;
-
 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
@@ -81,7 +78,6 @@ public class HEMDMServiceCallConsoleCommands {
     public void deactivate() {
     }
 
-
     //TODO: add date
     public void disconnect() {
         System.out.println("Usage: disconnect <mrid>");
@@ -113,9 +109,9 @@ public class HEMDMServiceCallConsoleCommands {
             domainExtension.setActivationDate(Instant.now());
             domainExtension.setBreakerStatus(BreakerStatus.DISCONNECTED);
             domainExtension.setLoadLimitEnabled(true);
-            domainExtension.setLoadLimit(Quantity.create(BigDecimal.TEN, "KW"));
+            domainExtension.setLoadLimit("10 kW");
             ServiceCall serviceCall;
-            if(meter.isPresent()){
+            if (meter.isPresent()) {
                 serviceCall = serviceCallType.newServiceCall()
                         .origin("Gogo")
                         .extendedWith(domainExtension)
@@ -123,7 +119,7 @@ public class HEMDMServiceCallConsoleCommands {
                         .create();
                 serviceCall.requestTransition(DefaultState.PENDING);
                 context.commit();
-            }else{
+            } else {
                 serviceCall = serviceCallType.newServiceCall()
                         .origin("Multisense")
                         .extendedWith(domainExtension)
