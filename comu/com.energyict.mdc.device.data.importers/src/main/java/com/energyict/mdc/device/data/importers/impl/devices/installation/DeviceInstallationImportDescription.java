@@ -49,11 +49,9 @@ public class DeviceInstallationImportDescription implements FileImportDescriptio
         context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                 .sorted((t1,t2)->Integer.compare(t1.getRanking(),t2.getRanking()))
                 .map(TemplateField::getName)
-                .forEach(s-> {
-                    fields.add(CommonField.withParser(stringParser)
-                            .withSetter(record::addLocation)
-                            .build());
-                });
+                .forEach(s-> fields.add(CommonField.withParser(stringParser)
+                        .withSetter(record::addLocation)
+                        .build()));
         fields.add(CommonField.withParser(stringParser)
                 .withSetter(record::setMasterDeviceMrid)
                 .build());
