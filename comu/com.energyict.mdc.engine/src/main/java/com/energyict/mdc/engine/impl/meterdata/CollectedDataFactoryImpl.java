@@ -27,7 +27,9 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import java.time.Clock;
 import java.util.List;
 
 /**
@@ -38,6 +40,13 @@ import java.util.List;
 @Component(name = "com.energyict.mdc.engine.meterdata.collector", service = {CollectedDataFactory.class})
 @SuppressWarnings("unused")
 public class CollectedDataFactoryImpl implements CollectedDataFactory {
+
+    private volatile Clock clock;
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 
     @Override
     public CollectedLoadProfile createCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier) {
@@ -81,17 +90,23 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
 
     @Override
     public CollectedMessage createCollectedMessageWithLoadProfileData(MessageIdentifier messageIdentifier, CollectedLoadProfile collectedLoadProfile) {
-        return new DeviceProtocolMessageWithCollectedLoadProfileData(messageIdentifier, collectedLoadProfile);
+        DeviceProtocolMessageWithCollectedLoadProfileData collectedMessage = new DeviceProtocolMessageWithCollectedLoadProfileData(messageIdentifier, collectedLoadProfile);
+        collectedMessage.setSentDate(clock.instant());
+        return collectedMessage;
     }
 
     @Override
     public CollectedMessage createCollectedMessageWithRegisterData(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, List<CollectedRegister> collectedRegisters) {
-        return new DeviceProtocolMessageWithCollectedRegisterData(deviceIdentifier, messageIdentifier, collectedRegisters);
+        DeviceProtocolMessageWithCollectedRegisterData collectedMessage = new DeviceProtocolMessageWithCollectedRegisterData(deviceIdentifier, messageIdentifier, collectedRegisters);
+        collectedMessage.setSentDate(clock.instant());
+        return collectedMessage;
     }
 
     @Override
     public CollectedMessage createCollectedMessageTopology(MessageIdentifier messageIdentifier, CollectedTopology collectedTopology) {
-        return new DeviceProtocolMessageWithCollectedTopology(messageIdentifier, collectedTopology);
+        DeviceProtocolMessageWithCollectedTopology collectedMessage = new DeviceProtocolMessageWithCollectedTopology(messageIdentifier, collectedTopology);
+        collectedMessage.setSentDate(clock.instant());
+        return collectedMessage;
     }
 
     @Override
@@ -109,7 +124,9 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
 
     @Override
     public CollectedMessage createCollectedMessage (MessageIdentifier deviceIdentifier) {
-        return new DeviceProtocolMessage(deviceIdentifier);
+        DeviceProtocolMessage deviceProtocolMessage = new DeviceProtocolMessage(deviceIdentifier);
+        deviceProtocolMessage.setSentDate(clock.instant());
+        return deviceProtocolMessage;
     }
 
     @Override

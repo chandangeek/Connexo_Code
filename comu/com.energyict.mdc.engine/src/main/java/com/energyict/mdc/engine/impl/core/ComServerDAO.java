@@ -386,9 +386,10 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *
      * @param messageIdentifier the messageIdentifier
      * @param newDeviceMessageStatus the status to update the message to
+     * @param sentDate the date&time the message was sent to the device - if this message was not yet sent to the device, this could be null
      * @param protocolInformation the protocolInformation to add to the DeviceMessage
      */
-    void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, String protocolInformation);
+    void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation);
 
     /**
      * Tests if the ComTaskExecution that is uniquely identified

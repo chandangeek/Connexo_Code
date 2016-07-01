@@ -505,8 +505,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final String protocolInformation) {
+    public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final Instant sentDate, final String protocolInformation) {
         DeviceMessage deviceMessage = messageIdentifier.getDeviceMessage();
+        deviceMessage.setSentDate(sentDate);
         deviceMessage.setProtocolInformation(protocolInformation);
         deviceMessage.updateDeviceMessageStatus(newDeviceMessageStatus);
     }

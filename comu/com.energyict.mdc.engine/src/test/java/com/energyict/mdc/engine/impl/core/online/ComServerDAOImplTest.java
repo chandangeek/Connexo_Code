@@ -31,6 +31,9 @@ import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import com.google.common.collect.Range;
 
@@ -602,4 +605,22 @@ public class ComServerDAOImplTest {
         verify(this.calendarSupport).updateCalendars(collectedCalendar);
     }
 
+    @Test
+    public void updateDeviceMessageInformationTest() {
+        MessageIdentifier messageIdentifier = mock(MessageIdentifier.class);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(messageIdentifier.getDeviceMessage()).thenReturn(deviceMessage);
+
+        DeviceMessageStatus deviceMessageStatus = DeviceMessageStatus.CONFIRMED;
+        Instant sentDate = Instant.now();
+        String protocolInfo = "protocolInfo";
+
+        // business method
+        this.comServerDAO.updateDeviceMessageInformation(messageIdentifier, deviceMessageStatus, sentDate, protocolInfo);
+
+        // asserts
+        verify(deviceMessage).setSentDate(sentDate);
+        verify(deviceMessage).setProtocolInformation(protocolInfo);
+        verify(deviceMessage).updateDeviceMessageStatus(deviceMessageStatus);
+    }
 }
