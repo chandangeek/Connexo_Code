@@ -183,7 +183,6 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(UsagePointChannelInfoFactory.class).to(UsagePointChannelInfoFactory.class);
-            bind(UsagePointDeviceChannelInfoFactory.class).to(UsagePointDeviceChannelInfoFactory.class);
         }
     }
 }

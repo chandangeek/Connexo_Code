@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TimeDuration;
 
 import javax.inject.Inject;
@@ -18,14 +19,11 @@ import java.util.Optional;
 
 public class UsagePointChannelInfoFactory {
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
-    private final UsagePointDeviceChannelInfoFactory deviceChannelInfoFactory;
     private final int SECONDS_PER_MINUTE = 60;
 
     @Inject
-    public UsagePointChannelInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory,
-                                        UsagePointDeviceChannelInfoFactory deviceChannelInfoFactory) {
+    public UsagePointChannelInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.readingTypeInfoFactory = readingTypeInfoFactory;
-        this.deviceChannelInfoFactory = deviceChannelInfoFactory;
     }
 
     UsagePointChannelInfo from(Channel channel, UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
@@ -63,14 +61,20 @@ public class UsagePointChannelInfoFactory {
             requirementChecker.getReadingTypeRequirements().stream()
                     .flatMap(readingTypeRequirement -> readingTypeRequirement.getMatchingChannelsFor(meterActivation.getChannelsContainer()).stream())
                     .forEach(channel1 -> {
-                        matchedChannels.add(channel);
+                        usagePoint.getCurrentMeterActivations().stream().forEach(currentMeterActivation -> {
+                            UsagePointDeviceChannelInfo deviceChannelInfo = new UsagePointDeviceChannelInfo();
+                            deviceChannelInfo.mRID = meterActivation.getMeter().get().getMRID();
+                            deviceChannelInfo.from = currentMeterActivation.getStart().toEpochMilli();
+                            if (currentMeterActivation.equals(meterActivation)) {
+                                deviceChannelInfo.from = currentMeterActivation.getStart().toEpochMilli();
+                            } else {
+                                deviceChannelInfo.from = meterActivation.getStart().toEpochMilli();
+                                deviceChannelInfo.until = meterActivation.getEnd().toEpochMilli();
+                            }
+                            deviceChannelInfo.channel = new IdWithNameInfo(channel.getId(), channel.getMainReadingType().getFullAliasName());
+                            info.deviceChannels.add(deviceChannelInfo);
+                        });
                     });
-        });
-
-        usagePoint.getCurrentMeterActivations().stream().forEach(meterActivation -> {
-            matchedChannels.stream().forEach(channel1 -> {
-                info.deviceChannels.add(deviceChannelInfoFactory.from(meterActivation, channel1));
-            });
         });
 
         return info;
