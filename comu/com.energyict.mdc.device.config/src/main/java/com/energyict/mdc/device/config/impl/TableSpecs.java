@@ -649,9 +649,19 @@ public enum TableSpecs {
             table.map(DeviceConfValidationRuleSetUsageImpl.class);
             table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
             Column validationRuleSetIdColumn =
-                    table.column("VALIDATIONRULESETID").type("number").notNull().conversion(NUMBER2LONG).map("validationRuleSetId").add();
+                    table.column("VALIDATIONRULESETID")
+                            .number()
+                            .notNull()
+                            .conversion(NUMBER2LONG)
+                            .map("validationRuleSetId")
+                            .add();
             Column deviceConfigurationIdColumn =
-                    table.column("DEVICECONFIGID").type("number").notNull().conversion(NUMBER2LONG).map("deviceConfigurationId").add();
+                    table.column("DEVICECONFIGID")
+                            .number()
+                            .notNull()
+                            .conversion(NUMBER2LONG)
+                            .map("deviceConfigurationId")
+                            .add();
 
             table.primaryKey("DTC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, deviceConfigurationIdColumn).add();
             table.foreignKey("DTC_FK_RULESET").references(ValidationRuleSet.class).onDelete(RESTRICT).map("validationRuleSet").on(validationRuleSetIdColumn).add();
@@ -666,9 +676,22 @@ public enum TableSpecs {
             Table<DeviceConfigurationEstimationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfigurationEstimationRuleSetUsage.class);
             table.map(DeviceConfigurationEstimationRuleSetUsageImpl.class);
             table.setJournalTableName(name() + "JRNL");
-            Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column deviceConfigurationColumn = table.column("DEVICECONFIG").type("number").notNull().conversion(NUMBER2LONG).add();
-            table.column("POSITION").number().notNull().conversion(NUMBER2INT).map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.POSITION.fieldName()).add();
+            Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column deviceConfigurationColumn = table.column("DEVICECONFIG")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            table.column("POSITION")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INT)
+                    .map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.POSITION.fieldName())
+                    .add();
             table.addAuditColumns();
 
             table.primaryKey("DTC_PK_ESTRULESETUSAGE").on(estimationRuleSetColumn, deviceConfigurationColumn).add();
