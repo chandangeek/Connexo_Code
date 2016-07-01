@@ -1,6 +1,15 @@
 Ext.define('Mdc.service.Search', {
     extend: 'Uni.service.Search',
 
+    init: function () {
+        var me = this;
+        me.defaultColumns = {
+            'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName', 'state', 'location'],
+            'com.elster.jupiter.metering.UsagePoint': ['mRID', 'displayServiceCategory', 'displayMetrologyConfiguration']
+        };
+        me.callParent(arguments);
+    },
+
     createColumnDefinitionFromModel: function (field) {
         var me = this,
             column = this.callParent(arguments);
