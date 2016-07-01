@@ -84,7 +84,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(name = "com.elster.jupiter.appserver", service = {AppService.class, Subscriber.class, TopicHandler.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
-public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyProvider, TopicHandler {
+public final class AppServiceImpl implements IAppService, Subscriber, TranslationKeyProvider, TopicHandler {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
@@ -282,10 +282,10 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
 
     private void reconfigure() {
         reconfigureImportSchedules();
-        reconfigureWebServices();
+
     }
 
-    private void reconfigureWebServices() {
+    private void reconfigureEndPoints() {
         Optional<AppServer> appServer = this.getAppServer();
         if (appServer.isPresent()) {
             List<EndPointConfiguration> runningButUnsupportedEndPoints = webServicesService.getPublishedEndPoints();
@@ -306,6 +306,43 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
                             .getName() + " on application server " + appServer.get().getName();
                     LOGGER.info(msg);
                     endPointConfiguration.log(LogLevel.FINE, msg);
+                    webServicesService.publishEndPoint(endPointConfiguration);
+                }
+            }
+        }
+    }
+
+    void reconfigureEndPoint(String name) {
+        Optional<AppServer> appServer = this.getAppServer();
+        if (appServer.isPresent()) {
+            Optional<EndPointConfiguration> endPointConfigurationOption = endPointConfigurationService.getEndPointConfiguration(name);
+            if (endPointConfigurationOption.isPresent()) {
+                EndPointConfiguration endPointConfiguration = endPointConfigurationOption.get();
+                Optional<EndPointConfiguration> supported = appServer.get()
+                        .supportedEndPoints()
+                        .stream()
+                        .filter(epc -> epc.getName().equals(name))
+                        .findFirst();
+                boolean shouldBePublished = endPointConfiguration.isActive() && appServer.get()
+                        .isActive() && supported.isPresent();
+                boolean published = webServicesService.isPublished(endPointConfiguration);
+                if (published && !shouldBePublished) {
+                    String msg = "Stopping WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
+                            .getName() + " on application server " + appServer.get().getName();
+                    LOGGER.info(msg);
+                    endPointConfiguration.log(LogLevel.FINE, msg);
+                    webServicesService.removeEndPoint(endPointConfiguration);
+                } else if (!published && shouldBePublished) {
+                    String msg = "Publishing WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
+                            .getName() + " on application server " + appServer.get().getName();
+                    LOGGER.info(msg);
+                    endPointConfiguration.log(LogLevel.FINE, msg);
+                    webServicesService.publishEndPoint(endPointConfiguration);
+                } else if (published) { //
+                    String msg = "Restarting WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
+                            .getName() + " on application server " + appServer.get().getName();
+                    LOGGER.info(msg);
+                    webServicesService.removeEndPoint(endPointConfiguration);
                     webServicesService.publishEndPoint(endPointConfiguration);
                 }
             }
@@ -598,8 +635,14 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
                         stopAppServer();
                         deleteServerQueues(currentAppServer);
                     } else {
-                        reconfigure();
+                        reconfigureImportSchedules();
                     }
+                    break;
+                case ENDPOINT_CHANGED:
+                    String endpointName = command.getProperties().getProperty("endpoint");
+                    findAppServer(appServer.getName()).ifPresent(x -> AppServiceImpl.this.reconfigureEndPoint(endpointName));
+                    break;
+
                 default:
             }
             commandListeners.forEach(listener -> listener.notify(command));
