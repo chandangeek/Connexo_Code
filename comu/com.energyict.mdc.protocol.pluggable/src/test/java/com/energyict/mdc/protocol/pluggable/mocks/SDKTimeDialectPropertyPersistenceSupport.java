@@ -20,6 +20,10 @@ import java.util.stream.Stream;
  * @since 2015-11-30 (12:43)
  */
 class SDKTimeDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKTimeDialectProperties> {
+    @Override
+    public String application() {
+        return "Example";
+    }
 
     @Override
     public String domainFieldName() {
