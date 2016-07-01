@@ -210,6 +210,11 @@ public class UsagePointCommandCustomPropertySet implements CustomPropertySet<Ser
                     .notNull()
                     .add();
         }
+
+        @Override
+        public String application() {
+            return "Pulse";
+        }
     }
 
 }
