@@ -6,12 +6,9 @@ import com.elster.jupiter.calendar.rest.CalendarInfo;
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -21,6 +18,7 @@ import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.ListPager;
@@ -40,7 +38,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
-import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -49,15 +46,12 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.swing.text.html.Option;
-import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -74,11 +68,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.security.SignedObject;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -90,8 +81,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -225,7 +214,6 @@ public class DeviceTypeResource {
                 .orElse(null);
     }
 
-
     private ChangeDeviceLifeCycleInfo getChangeDeviceLifeCycleFailInfo(IncompatibleDeviceLifeCycleChangeException lifeCycleChangeError, DeviceLifeCycle currentDeviceLifeCycle, DeviceLifeCycle targetDeviceLifeCycle) {
         ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
         info.success = false;
@@ -295,10 +283,10 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
-        boolean isLinked = filter.getBoolean("linked");
+        boolean isNotLinked = !filter.getBoolean("linked");
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<RegisteredCustomPropertySet> registeredCustomPropertySets;
-        if (!isLinked) {
+        if (isNotLinked) {
             registeredCustomPropertySets = resourceHelper.findAllCustomPropertySetsByDomain(Device.class)
                     .stream()
                     .filter(f -> !deviceType.getCustomPropertySets()
@@ -531,12 +519,9 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public List<RegisterTypeOnDeviceTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-
         linkRegisterTypeToDeviceType(deviceType, rmId);
-
-        deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-
-        return asInfoList(deviceType, deviceType.getRegisterTypes());
+        DeviceType reloaded = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        return asInfoList(reloaded, reloaded.getRegisterTypes());
     }
 
     @DELETE
@@ -724,8 +709,7 @@ public class DeviceTypeResource {
             Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType, false);
             Set<ProtocolSupportedCalendarOptions> newAllowedOptions = info.allowedOptions.stream()
                     .map(allowedOption -> ProtocolSupportedCalendarOptions.from((String) allowedOption.id))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Functions.asStream())
                     .filter(supportedCalendarOptions::contains)
                     .collect(Collectors.toSet());
             TimeOfUseOptions options = timeOfUseOptions.orElseGet(() -> deviceConfigurationService.newTimeOfUseOptions(deviceType));
@@ -736,7 +720,6 @@ public class DeviceTypeResource {
         }
         return Response.ok(getTimeOfUseOptions(deviceType)).build();
     }
-
 
     private TimeOfUseOptionsInfo getTimeOfUseOptions(DeviceType deviceType) {
         TimeOfUseOptionsInfo timeOfUseOptionsInfo = new TimeOfUseOptionsInfo();
@@ -763,7 +746,6 @@ public class DeviceTypeResource {
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
         return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
     }
-
 
     private void updateRegisterTypeAssociations(DeviceType deviceType, List<RegisterTypeInfo> newRegisterTypeInfos) {
         Set<Long> newRegisterTypeIds = asIdz(newRegisterTypeInfos);
@@ -850,8 +832,7 @@ public class DeviceTypeResource {
         if (allowedCalendar.isGhost()) {
             return new AllowedCalendarInfo(allowedCalendar);
         } else {
-            return new AllowedCalendarInfo(allowedCalendar, calendarInfoFactory.summaryFromCalendar(allowedCalendar.getCalendar()
-                    .get()));
+            return new AllowedCalendarInfo(allowedCalendar, calendarInfoFactory.summaryFromCalendar(allowedCalendar.getCalendar().get()));
         }
     }
 
