@@ -38,7 +38,7 @@ public enum TableSpecs {
         	Table<SubscriberExecutionSpecImpl> table = dataModel.addTable(name(), SubscriberExecutionSpecImpl.class);
             table.map(SubscriberExecutionSpecImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.column("THREADCOUNT").type("NUMBER").notNull().conversion(NUMBER2INT).map("threadCount").add();
+            table.column("THREADCOUNT").number().notNull().conversion(NUMBER2INT).map("threadCount").add();
             table.column("SUBSCRIBERSPEC").varChar(NAME_LENGTH).notNull().map("subscriberSpecName").add();
             table.column("DESTINATIONSPEC").varChar(NAME_LENGTH).notNull().map("destinationSpecName").add();
             Column appServerColumn = table.column("APPSERVER").varChar(NAME_LENGTH).notNull().map("appServerName").add();
@@ -53,7 +53,7 @@ public enum TableSpecs {
         	Table<ImportScheduleOnAppServer> table = dataModel.addTable(name(), ImportScheduleOnAppServer.class);
             table.map(ImportScheduleOnAppServerImpl.class);
             Column appServerColumn = table.column("APPSERVER").varChar(NAME_LENGTH).notNull().map("appServerName").add();
-            Column importScheduleColumn = table.column("IMPORTSCHEDULE").type("number").notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
+            Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
             table.foreignKey("APS_FKIMPORTSCHEDULEAPPSERVER").references(APS_APPSERVER.name()).onDelete(DeleteRule.CASCADE).map("appServer").on(appServerColumn).add();
             table.primaryKey("APS_PK_IMPORTSCHEDULEONSERVER").on(appServerColumn, importScheduleColumn).add();
         }
@@ -99,7 +99,6 @@ public enum TableSpecs {
                     .add();
         }
     };
-
 
     abstract void addTo(DataModel dataModel);
 
