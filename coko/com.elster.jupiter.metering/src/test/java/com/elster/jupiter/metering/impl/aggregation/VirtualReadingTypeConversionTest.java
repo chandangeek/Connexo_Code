@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
@@ -22,7 +23,7 @@ public class VirtualReadingTypeConversionTest {
 
     @Test
     public void withSameIntervalLength() {
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
         VirtualReadingType withIntervalLength = readingType.withIntervalLength(IntervalLength.MINUTE15);
@@ -35,7 +36,7 @@ public class VirtualReadingTypeConversionTest {
 
     @Test
     public void withSmallerIntervalLength() {
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.DAY1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.DAY1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
         VirtualReadingType withIntervalLength = readingType.withIntervalLength(IntervalLength.MINUTE15);
@@ -52,7 +53,7 @@ public class VirtualReadingTypeConversionTest {
 
     @Test
     public void withBiggerIntervalLength() {
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
         VirtualReadingType withIntervalLength = readingType.withIntervalLength(IntervalLength.DAY1);
@@ -93,7 +94,7 @@ public class VirtualReadingTypeConversionTest {
 
     @Test
     public void withSameMultiplier() {
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
         VirtualReadingType withMultiplier = readingType.withMetricMultiplier(MetricMultiplier.ZERO);
@@ -106,7 +107,7 @@ public class VirtualReadingTypeConversionTest {
 
     @Test
     public void withSmallerMultiplier() {
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.DAY1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.DAY1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
         VirtualReadingType withMultiplier = readingType.withMetricMultiplier(MetricMultiplier.MILLI);
@@ -123,7 +124,7 @@ public class VirtualReadingTypeConversionTest {
 
     @Test
     public void withBiggerMultiplier() {
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
         VirtualReadingType withMultiplier = readingType.withMetricMultiplier(MetricMultiplier.KILO);
@@ -164,7 +165,7 @@ public class VirtualReadingTypeConversionTest {
 
     @Test
     public void withSameUnit() {
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
         VirtualReadingType withUnit = readingType.withUnit(ReadingTypeUnit.WATTHOUR);
@@ -177,7 +178,7 @@ public class VirtualReadingTypeConversionTest {
 
     @Test
     public void withOtherUnit() {
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.LITRE, Commodity.POTABLEWATER);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.LITRE, Accumulation.BULKQUANTITY, Commodity.POTABLEWATER);
 
         // Business method
         VirtualReadingType withUnit = readingType.withUnit(ReadingTypeUnit.CUBICMETER);
@@ -218,7 +219,7 @@ public class VirtualReadingTypeConversionTest {
 
     @Test
     public void withSameCommodity() {
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
         VirtualReadingType withUnit = readingType.withCommondity(Commodity.ELECTRICITY_PRIMARY_METERED);
@@ -231,7 +232,7 @@ public class VirtualReadingTypeConversionTest {
 
     @Test
     public void withOtherCommodity() {
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
 
         // Business method
         VirtualReadingType withUnit = readingType.withCommondity(Commodity.ELECTRICITY_SECONDARY_METERED);

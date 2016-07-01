@@ -1,12 +1,12 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
@@ -45,7 +45,7 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private MeterActivation meterActivation;
+    private MeterActivationSet meterActivationSet;
     @Mock
     private VirtualFactory virtualFactory;
     @Mock
@@ -66,12 +66,12 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         VirtualReadingTypeRequirement virtualReadingTypeRequirement = mock(VirtualReadingTypeRequirement.class);
         when(this.virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(this.requirement), any(ReadingTypeDeliverable.class), any(VirtualReadingType.class))).thenReturn(virtualReadingTypeRequirement);
         when(virtualReadingTypeRequirement.getPreferredChannel()).thenReturn(this.preferredChannel);
-        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType readingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(virtualReadingTypeRequirement.getSourceReadingType()).thenReturn(readingType);
         when(this.meteringService.getMultiplierType(MultiplierType.StandardType.CT)).thenReturn(this.ctMultiplierType);
         when(this.meteringService.getMultiplierType(MultiplierType.StandardType.VT)).thenReturn(this.vtMultiplierType);
         when(this.meteringService.getMultiplierType(MultiplierType.StandardType.Transformer)).thenReturn(this.transformerMultiplierType);
-        when(this.meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(this.meterActivationSet.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
     }
 
     @Test
@@ -173,7 +173,7 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     @Test
     public void noReplacementOfDeliverables() {
         ApplyCurrentAndOrVoltageTransformer testInstance = this.getTestInstance();
-        ReadingTypeDeliverableForMeterActivation deliverable = mock(ReadingTypeDeliverableForMeterActivation.class);
+        ReadingTypeDeliverableForMeterActivationSet deliverable = mock(ReadingTypeDeliverableForMeterActivationSet.class);
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
@@ -202,7 +202,7 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(readingType.getCommodity()).thenReturn(Commodity.NOTAPPLICABLE);
         when(this.requirement.getReadingType()).thenReturn(readingType);
         when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
-        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivationSet);
         when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
 
         // Business method
@@ -225,7 +225,7 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.requirement.getReadingType()).thenReturn(readingType);
         when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
-        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivationSet);
         when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
 
         // Business method
@@ -248,7 +248,7 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
         when(this.requirement.getReadingType()).thenReturn(readingType);
         when(this.readingTypeDeliverable.getReadingType()).thenReturn(readingType);
-        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivationSet);
         when(this.preferredChannel.getMainReadingType()).thenReturn(readingType);
 
         // Business method
@@ -279,8 +279,8 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(voltSecondaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
         when(this.requirement.getReadingType()).thenReturn(voltSecondaryMetered);
         when(this.preferredChannel.getMainReadingType()).thenReturn(voltSecondaryMetered);
-        when(this.meterActivation.getMultiplier(this.vtMultiplierType)).thenReturn(Optional.empty());
-        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.vtMultiplierType)).thenReturn(Optional.empty());
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivationSet);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitVirtualRequirement(node);
@@ -310,8 +310,8 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(ampereSecondaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
         when(this.requirement.getReadingType()).thenReturn(ampereSecondaryMetered);
         when(this.preferredChannel.getMainReadingType()).thenReturn(ampereSecondaryMetered);
-        when(this.meterActivation.getMultiplier(this.ctMultiplierType)).thenReturn(Optional.empty());
-        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.ctMultiplierType)).thenReturn(Optional.empty());
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivationSet);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitVirtualRequirement(node);
@@ -341,10 +341,10 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(kWhSecondaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
         when(this.requirement.getReadingType()).thenReturn(kWhSecondaryMetered);
         when(this.preferredChannel.getMainReadingType()).thenReturn(kWhSecondaryMetered);
-        when(this.meterActivation.getMultiplier(this.transformerMultiplierType)).thenReturn(Optional.empty());
-        when(this.meterActivation.getMultiplier(this.vtMultiplierType)).thenReturn(Optional.of(BigDecimal.TEN));
-        when(this.meterActivation.getMultiplier(this.ctMultiplierType)).thenReturn(Optional.empty());
-        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.transformerMultiplierType)).thenReturn(Optional.empty());
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.vtMultiplierType)).thenReturn(Optional.of(BigDecimal.TEN));
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.ctMultiplierType)).thenReturn(Optional.empty());
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivationSet);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitVirtualRequirement(node);
@@ -374,10 +374,10 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(kWhSecondaryMetered.getCommodity()).thenReturn(Commodity.ELECTRICITY_SECONDARY_METERED);
         when(this.requirement.getReadingType()).thenReturn(kWhSecondaryMetered);
         when(this.preferredChannel.getMainReadingType()).thenReturn(kWhSecondaryMetered);
-        when(this.meterActivation.getMultiplier(this.transformerMultiplierType)).thenReturn(Optional.empty());
-        when(this.meterActivation.getMultiplier(this.vtMultiplierType)).thenReturn(Optional.empty());
-        when(this.meterActivation.getMultiplier(this.ctMultiplierType)).thenReturn(Optional.of(BigDecimal.TEN));
-        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.transformerMultiplierType)).thenReturn(Optional.empty());
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.vtMultiplierType)).thenReturn(Optional.empty());
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.ctMultiplierType)).thenReturn(Optional.of(BigDecimal.TEN));
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivationSet);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitVirtualRequirement(node);
@@ -408,10 +408,10 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(this.requirement.getReadingType()).thenReturn(kWhSecondaryMetered);
         when(this.preferredChannel.getMainReadingType()).thenReturn(kWhSecondaryMetered);
         BigDecimal multiplierValue = BigDecimal.valueOf(123L);
-        when(this.meterActivation.getMultiplier(this.transformerMultiplierType)).thenReturn(Optional.of(multiplierValue));
-        when(this.meterActivation.getMultiplier(this.vtMultiplierType)).thenReturn(Optional.empty());
-        when(this.meterActivation.getMultiplier(this.ctMultiplierType)).thenReturn(Optional.empty());
-        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.transformerMultiplierType)).thenReturn(Optional.of(multiplierValue));
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.vtMultiplierType)).thenReturn(Optional.empty());
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.ctMultiplierType)).thenReturn(Optional.empty());
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivationSet);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitVirtualRequirement(node);
@@ -424,8 +424,8 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         NumericalConstantNode multiplierNode = (NumericalConstantNode) operationNode.getLeftOperand();
         assertThat(multiplierNode.getValue()).isEqualByComparingTo(multiplierValue);
         assertThat(operationNode.getRightOperand()).isSameAs(node);
-        verify(this.meterActivation, never()).getMultiplier(this.vtMultiplierType);
-        verify(this.meterActivation, never()).getMultiplier(this.ctMultiplierType);
+        verify(this.meterActivationSet, never()).getMultiplier(this.requirement, this.vtMultiplierType);
+        verify(this.meterActivationSet, never()).getMultiplier(this.requirement, this.ctMultiplierType);
     }
 
     @Test
@@ -451,10 +451,10 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
         when(this.preferredChannel.getMainReadingType()).thenReturn(kWhSecondaryMetered);
         BigDecimal ctMultiplierValue = BigDecimal.valueOf(123L);
         BigDecimal vtMultiplierValue = BigDecimal.valueOf(456L);
-        when(this.meterActivation.getMultiplier(this.transformerMultiplierType)).thenReturn(Optional.empty());
-        when(this.meterActivation.getMultiplier(this.vtMultiplierType)).thenReturn(Optional.of(vtMultiplierValue));
-        when(this.meterActivation.getMultiplier(this.ctMultiplierType)).thenReturn(Optional.of(ctMultiplierValue));
-        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivation);
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.transformerMultiplierType)).thenReturn(Optional.empty());
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.vtMultiplierType)).thenReturn(Optional.of(vtMultiplierValue));
+        when(this.meterActivationSet.getMultiplier(this.requirement, this.ctMultiplierType)).thenReturn(Optional.of(ctMultiplierValue));
+        VirtualRequirementNode node = new VirtualRequirementNode(Formula.Mode.AUTO, this.virtualFactory, this.requirement, this.readingTypeDeliverable, this.meterActivationSet);
 
         // Business method
         ServerExpressionNode replacement = testInstance.visitVirtualRequirement(node);
@@ -473,7 +473,7 @@ public class ApplyCurrentAndOrVoltageTransformerTest {
     }
 
     private ApplyCurrentAndOrVoltageTransformer getTestInstance() {
-        return new ApplyCurrentAndOrVoltageTransformer(this.meteringService, this.meterActivation);
+        return new ApplyCurrentAndOrVoltageTransformer(this.meteringService, this.meterActivationSet);
     }
 
 }

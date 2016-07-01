@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.Formula;
@@ -10,6 +11,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -68,6 +70,11 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
 
     public ExpressionNodeBuilder requirement(ReadingTypeRequirementNode existingNode) {
         return () -> ((ServerExpressionNode) existingNode);
+    }
+
+    @Override
+    public ExpressionNodeBuilder property(RegisteredCustomPropertySet customPropertySet, PropertySpec propertySpec) {
+        return () -> new CustomPropertyNodeImpl(propertySpec, customPropertySet);
     }
 
     @Override

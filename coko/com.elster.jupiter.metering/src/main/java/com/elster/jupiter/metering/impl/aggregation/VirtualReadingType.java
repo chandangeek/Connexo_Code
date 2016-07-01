@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
@@ -38,19 +39,20 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     private final IntervalLength intervalLength;
     private final MetricMultiplier unitMultiplier;
     private final ReadingTypeUnit unit;
+    private final Accumulation accumulation;
     private final Commodity commodity;
     private final Marker marker;
 
     static VirtualReadingType from(ReadingType readingType) {
-        return from(IntervalLength.from(readingType), readingType.getMultiplier(), readingType.getUnit(), readingType.getCommodity());
+        return from(IntervalLength.from(readingType), readingType.getMultiplier(), readingType.getUnit(), readingType.getAccumulation(), readingType.getCommodity());
     }
 
-    static VirtualReadingType from(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Commodity commodity) {
-        return new VirtualReadingType(intervalLength, unitMultiplier, unit, commodity, null);
+    static VirtualReadingType from(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Accumulation accumulation, Commodity commodity) {
+        return new VirtualReadingType(intervalLength, unitMultiplier, unit, accumulation, commodity, null);
     }
 
-    static VirtualReadingType from(IntervalLength intervalLength, Dimension dimension, Commodity commodity) {
-        return from(intervalLength, MetricMultiplier.ZERO, readingTypeUnitFrom(dimension, commodity), commodity);
+    static VirtualReadingType from(IntervalLength intervalLength, Dimension dimension, Accumulation accumulation, Commodity commodity) {
+        return from(intervalLength, MetricMultiplier.ZERO, readingTypeUnitFrom(dimension, commodity), accumulation, commodity);
     }
 
     private static ReadingTypeUnit readingTypeUnitFrom(Dimension dimension, Commodity commodity) {
@@ -77,17 +79,18 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     static VirtualReadingType notSupported() {
-        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, null, Marker.UNSUPPORTED);
+        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, null, null, Marker.UNSUPPORTED);
     }
 
     static VirtualReadingType dontCare() {
-        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, null, Marker.DONTCARE);
+        return new VirtualReadingType(IntervalLength.NOT_SUPPORTED, MetricMultiplier.ZERO, ReadingTypeUnit.NOTAPPLICABLE, null, null, Marker.DONTCARE);
     }
 
-    private VirtualReadingType(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Commodity commodity, Marker marker) {
+    private VirtualReadingType(IntervalLength intervalLength, MetricMultiplier unitMultiplier, ReadingTypeUnit unit, Accumulation accumulation, Commodity commodity, Marker marker) {
         this.intervalLength = intervalLength;
         this.unitMultiplier = unitMultiplier;
         this.unit = unit;
+        this.accumulation = accumulation;
         this.commodity = commodity;
         this.marker = marker;
     }
@@ -146,12 +149,16 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         return this.commodity != null && this.commodity.equals(Commodity.ELECTRICITY_SECONDARY_METERED);
     }
 
+    boolean isRegular() {
+        return !this.intervalLength.equals(IntervalLength.NOT_SUPPORTED);
+    }
+
     IntervalLength getIntervalLength() {
         return intervalLength;
     }
 
     VirtualReadingType withIntervalLength(IntervalLength intervalLength) {
-        return new VirtualReadingType(intervalLength, this.unitMultiplier, this.unit, this.commodity, this.marker);
+        return new VirtualReadingType(intervalLength, this.unitMultiplier, this.unit, this.accumulation, this.commodity, this.marker);
     }
 
     MetricMultiplier getUnitMultiplier() {
@@ -159,7 +166,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     VirtualReadingType withMetricMultiplier(MetricMultiplier unitMultiplier) {
-        return new VirtualReadingType(this.intervalLength, unitMultiplier, this.unit, this.commodity, this.marker);
+        return new VirtualReadingType(this.intervalLength, unitMultiplier, this.unit, this.accumulation, this.commodity, this.marker);
     }
 
     Dimension getDimension() {
@@ -171,7 +178,11 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     VirtualReadingType withUnit(ReadingTypeUnit unit) {
-        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, unit, this.commodity, this.marker);
+        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, unit, this.accumulation, this.commodity, this.marker);
+    }
+
+    Accumulation getAccumulation() {
+        return accumulation;
     }
 
     Commodity getCommodity() {
@@ -179,7 +190,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     }
 
     VirtualReadingType withCommondity(Commodity commondity) {
-        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, this.unit, commondity, this.marker);
+        return new VirtualReadingType(this.intervalLength, this.unitMultiplier, this.unit, this.accumulation, commondity, this.marker);
     }
 
     VirtualReadingType withDimension(Dimension dimension) {
@@ -311,7 +322,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
                 marker == that.marker;
     }
 
-    public boolean equalsIgnoreCommodity(Object o) {
+    boolean equalsIgnoreCommodity(Object o) {
         if (this == o) {
             return true;
         }

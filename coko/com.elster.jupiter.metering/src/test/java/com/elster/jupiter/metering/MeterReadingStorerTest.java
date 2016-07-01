@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MeterReadingStorerTest {
     private static final String EVENTTYPECODE = "3.7.12.242";
     public static final Clock clock = Clock.system(ZoneId.of("Europe/Athens"));
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule(clock, "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withClockAndReadingTypes(clock, "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
 
     @BeforeClass
     public static void beforeClass() {

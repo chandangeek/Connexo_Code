@@ -18,7 +18,16 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PublisherImpl;
+
 import com.google.common.collect.ImmutableList;
+import org.osgi.service.event.Event;
+
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -28,13 +37,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.service.event.Event;
-
-import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -47,7 +49,7 @@ import static org.mockito.Mockito.when;
 public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
     private static final long END_DEVICE_ID = 185L;
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     private EndDeviceEventRecordImpl instanceA;
 
