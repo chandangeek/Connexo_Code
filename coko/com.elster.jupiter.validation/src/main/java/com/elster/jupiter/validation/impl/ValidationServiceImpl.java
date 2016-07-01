@@ -151,7 +151,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 bind(MessageService.class).toInstance(messageService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 Version.version(10, 2), UpgraderV10_2.class
         ));
     }
