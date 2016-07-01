@@ -39,6 +39,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.validation.DataValidationAssociationProvider;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
@@ -106,6 +107,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     private volatile QueryService queryService;
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
+    private List<DataValidationAssociationProvider> dataValidationAssociationProviders = new CopyOnWriteArrayList<>();
 
     private volatile KpiService kpiService;
 
@@ -720,7 +722,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 sqlBuilder.append("SELECT * FROM MTR_READINGQUALITY mrq ");
                 sqlBuilder.append("  LEFT JOIN MTR_CHANNEL mc ON mrq.CHANNELID = mc.id");
                 sqlBuilder.append("  LEFT JOIN MTR_METERACTIVATION MA ON mc.meteractivationid = ma.id");
-                sqlBuilder.append(" WHERE (mrq.type = '3.5.258' OR mrq.type = '3.5.259')");
+                sqlBuilder.append(" WHERE (mrq.type = '2.5.258' OR mrq.type = '2.5.259')");
                 sqlBuilder.append("   AND mrq.actual='Y' AND MA.meterid = med.id)");
 
                 if (start.isPresent() && limit.isPresent()) {
@@ -787,5 +789,20 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
     private void registerDataValidationReportService(BundleContext bundleContext) {
         this.serviceRegistrations.add(bundleContext.registerService(DataValidationReportService.class, this.dataValidationReportService, null));
+    }
+
+    @Reference(name = "ZDataValidation", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addDataValidationAssociationProvider(DataValidationAssociationProvider provider) {
+        dataValidationAssociationProviders.add(provider);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeDataValidationAssociationProvider(DataValidationAssociationProvider provider) {
+        dataValidationAssociationProviders.remove(provider);
+    }
+
+    @Override
+    public List<DataValidationAssociationProvider> getDataValidationAssociatinProviders(){
+        return this.dataValidationAssociationProviders;
     }
 }

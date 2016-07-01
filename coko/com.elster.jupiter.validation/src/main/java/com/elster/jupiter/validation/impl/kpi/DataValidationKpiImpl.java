@@ -111,15 +111,15 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         builder.interval(this.frequency);
         deviceGroup.get().getMembers(Instant.now()).stream()
                 .forEach(device -> {
-                    this.dataValidationKpi.set(builder.member().named(Fields.SUSPECT.fieldName() + device.getMRID()).add().create());
-                    this.dataValidationKpi.set(builder.member().named(Fields.REGISTER.fieldName() + device.getMRID()).add().create());
-                    this.dataValidationKpi.set(builder.member().named(Fields.CHANNELS.fieldName() + device.getMRID()).add().create());
+                    builder.member()
+                            .named(Fields.SUSPECT.fieldName() + device.getMRID()).add();
+                    builder.member()
+                            .named(Fields.REGISTER.fieldName() + device.getMRID()).add();
+                    builder.member()
+                            .named(Fields.CHANNELS.fieldName() + device.getMRID()).add();
                 });
+        dataValidationKpi.set(builder.create());
 
-//        this.dataValidationKpi.set(builder.member()
-//                .named(MonitoredValidationStatus.SUSPECT.name())
-//                .add()
-//                .create());
     }
 
     public boolean hasDeviceGroup() {

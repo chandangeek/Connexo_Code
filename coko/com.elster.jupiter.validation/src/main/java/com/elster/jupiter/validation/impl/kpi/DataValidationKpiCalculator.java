@@ -4,8 +4,11 @@ import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class DataValidationKpiCalculator implements DataManagementKpiCalculator {
@@ -25,12 +28,43 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
     @Override
     public void calculateAndStore() {
         //FixMe will be implemented in next story CXO-1611;
+        Map<String, BigDecimal> registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpi.getDeviceGroup());
+        Map<String, BigDecimal> channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpi.getDeviceGroup());
+        Map<String, BigDecimal> suspects = aggregateSuspects(registerSuspects, channelsSuspects);
         dataValidationKpi.getDataValidationKpi().getMembers().stream()
                 .forEach(member -> {
-                    member.score(timestamp, new BigDecimal(100));
-                    member.score(timestamp, new BigDecimal(101));
+                    if (registerSuspects.get(member.getName()) != null && (registerSuspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
+                        member.score(timestamp, registerSuspects.get(member.getName()));
+                    }
+                    if (channelsSuspects.get(member.getName()) != null && (channelsSuspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
+                        member.score(timestamp, channelsSuspects.get(member.getName()));
+                    }
+                    if (suspects.get(member.getName()) != null && (suspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
+                        member.score(timestamp, suspects.get(member.getName()));
+                    }
                 });
         logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!");
 
     }
+
+    private Map<String, BigDecimal> aggregateSuspects(Map<String, BigDecimal> registerSuspects, Map<String, BigDecimal> channelsSuspects){
+        return Stream.concat(
+                registerSuspects.keySet()
+                        .stream()
+                        .filter(register -> registerSuspects.get(register).compareTo(new BigDecimal(0)) == 1)
+                        .map(s -> s.replace(DataValidationKpiImpl.Fields.REGISTER.fieldName(), "")),
+                channelsSuspects.keySet()
+                        .stream()
+                        .filter(channel -> channelsSuspects.get(channel).compareTo(new BigDecimal(0)) == 1)
+                        .map(s -> s.replace(DataValidationKpiImpl.Fields.CHANNELS.fieldName(), "")))
+                .distinct()
+                .map(suspect -> DataValidationKpiImpl.Fields.SUSPECT.fieldName() + suspect)
+                .collect(Collectors.toMap(suspect -> suspect,
+                        s -> registerSuspects.get(s.replace(DataValidationKpiImpl.Fields.SUSPECT.fieldName(), DataValidationKpiImpl.Fields.REGISTER
+                                .fieldName()))
+                                .add(channelsSuspects.get(s.replace(DataValidationKpiImpl.Fields.SUSPECT.fieldName(), DataValidationKpiImpl.Fields.CHANNELS
+                                        .fieldName())))
+                ));
+    }
+
 }

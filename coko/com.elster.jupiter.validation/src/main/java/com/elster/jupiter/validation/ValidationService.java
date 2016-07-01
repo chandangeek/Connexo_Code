@@ -136,4 +136,6 @@ public interface ValidationService {
     DataModel dataModel();
 
     KpiService kpiService();
+
+    List<DataValidationAssociationProvider> getDataValidationAssociatinProviders();
 }
