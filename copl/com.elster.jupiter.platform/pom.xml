@@ -340,14 +340,20 @@
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
-                <artifactId>soap.whiteboard</artifactId>
-                <version>1.2.0${revision}</version>
+                <artifactId>soap.currency.converter</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>soap.currency.converter.client</artifactId>
+                <version>1.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>soap.whiteboard.cxf</artifactId>
-                <version>1.2.0${revision}</version>
+                <version>2.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -439,6 +445,18 @@
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>util</artifactId>
                 <version>2.1.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>webservices.extjs</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>webservices.rest</artifactId>
+                <version>1.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -704,8 +722,7 @@
                 <module>../com.elster.jupiter.servicecall.extjs</module>
                 <module>../com.elster.jupiter.servicecall.rest</module>
                 <module>../com.elster.jupiter.servicecalltype.extjs</module>
-                <module>../com.elster.jupiter.soap.whiteboard</module>
-                <module>../com.elster.jupiter.soap.whiteboard.cxf</module>
+                <module>../com.elster.jupiter.soap.whiteboard.cxf</module> <!--To be merged into soap.whiteboard -->
                 <module>../com.elster.jupiter.system</module>
                 <!-- todo rename to license -->
                 <module>../com.elster.jupiter.systemadmin</module>
@@ -722,6 +739,8 @@
                 <module>../com.elster.jupiter.users.extjs</module>
                 <module>../com.elster.jupiter.users.rest</module>
                 <module>../com.elster.jupiter.util</module>
+                <module>../com.elster.jupiter.webservices.extjs</module>
+                <module>../com.elster.jupiter.webservices.rest</module>
                 <module>../com.elster.jupiter.yellowfin</module>
                 <module>../com.elster.jupiter.yellowfin.app</module>
                 <module>../com.elster.jupiter.yellowfin.installer</module>
@@ -736,6 +755,8 @@
                 <module>../com.elster.jupiter.devtools.rest</module>
                 <module>../com.elster.jupiter.bootstrap.h2</module>
                 <module>../com.elster.jupiter.messaging.h2</module>
+                <module>../com.elster.jupiter.soap.currency.convertor</module>
+                <module>../com.elster.jupiter.soap.currency.convertor.client</module>
             </modules>
         </profile>
     </profiles>
