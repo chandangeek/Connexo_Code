@@ -38,7 +38,7 @@ public class MdmAppInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("DMA"), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Insight","DMA"), dataModel, Installer.class, Collections.emptyMap());
     }
 
     static class Installer implements FullInstaller {
