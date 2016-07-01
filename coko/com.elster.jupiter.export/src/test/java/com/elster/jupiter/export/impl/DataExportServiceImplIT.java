@@ -134,8 +134,6 @@ public class DataExportServiceImplIT {
     @Mock
     private BundleContext bundleContext;
     @Mock
-    private UserService userService;
-    @Mock
     private EventAdmin eventAdmin;
     @Mock
     private ValidatorFactory validatorFactory;

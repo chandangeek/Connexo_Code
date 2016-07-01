@@ -236,7 +236,6 @@ public class ExportTaskImplIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-//        when(userService.findGroup(anyString())).thenReturn(Optional.of(group));
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
