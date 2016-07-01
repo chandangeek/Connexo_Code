@@ -13,7 +13,7 @@ Ext.define('Ddv.Application', {
 
     controllers: [
         'Ddv.controller.Main',
-        'Ddv.controller.ValidationOverview'
+        'Ddv.controller.Validations'
     ],
 
     stores: [
