@@ -7,7 +7,10 @@ import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.TopologyService;
+
+import com.google.common.collect.Range;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
@@ -43,7 +46,7 @@ public class ChannelInfo {
     public VersionInfo<String> parent;
     public Boolean useMultiplier;
     public BigDecimal multiplier;
-    public String dataloggermRID; // only available when we are a dataloggerslave
+    public String dataloggerSlavemRID;
 
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
@@ -71,8 +74,9 @@ public class ChannelInfo {
         info.useMultiplier = channel.getChannelSpec().isUseMultiplier();
         info.multiplier = channel.getMultiplier(clock.instant()).orElseGet(() -> null);
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
-        if (device.getDeviceType().isDataloggerSlave()) {
-            topologyService.findCurrentDataloggerReference(device, clock.instant()).ifPresent(dataLoggerReference -> info.dataloggermRID = dataLoggerReference.getGateway().getmRID());
+        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsages(channel, Range.atLeast(clock.instant()));
+        if (!dataLoggerChannelUsages.isEmpty()) {
+            info.dataloggerSlavemRID = dataLoggerChannelUsages.get(0).getDataLoggerReference().getOrigin().getmRID();
         }
         return info;
     }

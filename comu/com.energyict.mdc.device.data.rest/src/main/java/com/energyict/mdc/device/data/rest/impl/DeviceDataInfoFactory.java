@@ -310,8 +310,9 @@ public class DeviceDataInfoFactory {
         registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         Optional<? extends Reading> lastReading = register.getLastReading();
         lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false));
-        if (device.getDeviceType().isDataloggerSlave()) {
-            topologyService.findCurrentDataloggerReference(device, clock.instant()).ifPresent(dataLoggerReference -> registerInfo.dataloggermRID = dataLoggerReference.getGateway().getmRID());
+        Optional<Register> slaveRegister = topologyService.getSlaveRegister(register, clock.instant());
+        if (slaveRegister.isPresent()) {
+            registerInfo.dataloggerSlavemRID = slaveRegister.get().getDevice().getmRID();
         }
     }
 

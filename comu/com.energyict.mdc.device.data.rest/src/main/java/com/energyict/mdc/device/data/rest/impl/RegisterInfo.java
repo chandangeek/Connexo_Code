@@ -41,7 +41,7 @@ public abstract class RegisterInfo {
     public String mRID;
     public long version;
     public VersionInfo<Long> parent;
-    public String dataloggermRID; // only available when we are a dataloggerslave
+    public String dataloggerSlavemRID;
 
     public RegisterInfo() {}
 
