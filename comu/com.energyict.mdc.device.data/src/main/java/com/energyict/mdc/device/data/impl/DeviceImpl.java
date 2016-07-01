@@ -1436,31 +1436,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return meterHasData;
     }
 
-    @Override
-    public void setProtocolProperty(String name, Object value) {
-        Optional<PropertySpec> optionalPropertySpec = getPropertySpecForProperty(name);
-        if (optionalPropertySpec.isPresent()) {
-            String propertyValue = optionalPropertySpec.get().getValueFactory().toStringValue(value);
-            boolean notUpdated = !updatePropertyIfExists(name, propertyValue);
-            if (notUpdated) {
-                addDeviceProperty(optionalPropertySpec, propertyValue);
-            }
-            if (getId() > 0) {
-                dataModel.touch(this);
-            }
-        } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass()
-                    .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
-        }
-    }
-
-    @Override
-    public void
-    setSecurityProperties(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
-        dirtySecurityProperties.put(securityPropertySet, typedProperties);
-        //Don't persist yet, need to be validated (done in the save step of this device)
-    }
-
     /**
      * Creates a map of LoadProfileReadings (k,v -> timestamp of end of interval, placeholder for readings) (without a reading value),
      * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
