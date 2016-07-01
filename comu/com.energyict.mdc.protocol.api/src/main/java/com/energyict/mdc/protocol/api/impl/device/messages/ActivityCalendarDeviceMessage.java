@@ -44,7 +44,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.empty();
+            return Optional.of(ProtocolSupportedCalendarOptions.WRITE_CONTRACTS_FROM_XML_USERFILE);
         }
     },
     ACTIVITY_CALENDER_SEND(DeviceMessageId.ACTIVITY_CALENDER_SEND, "Send activity calendar") {
