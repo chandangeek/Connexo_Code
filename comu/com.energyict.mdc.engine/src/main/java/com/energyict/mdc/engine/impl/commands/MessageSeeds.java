@@ -1,8 +1,7 @@
 package com.energyict.mdc.engine.impl.commands;
 
-import com.energyict.mdc.engine.EngineService;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.engine.EngineService;
 
 import java.util.logging.Level;
 
@@ -65,6 +64,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICEPROTOCOL_PROTOCOL_ISSUE(5049, "deviceprotocol.protocol.issue", "An error occurred during the execution of the protocol: {0}"),
     DEVICEPROTOCOL_LEGACY_ISSUE(5050, "deviceprotocol.legacy.issue", "An error occurred during the execution of a legacy protocol, see following stacktrace: {0}"),
     LOADPROFILE_NOT_SUPPORTED(5051, "loadProfileXnotsupported", "Load profile with OBIS code '{0}' is not supported by the device"),
+    MESSAGE_NO_LONGER_VALID(5052, "messageNoLongerValid", "The message is no longer valid (see message below):"),
+    CALENDAR_NO_LONGER_ALLOWED(5053, "calendarNoLongerAllowed", "The calendar(s) ''{0}'' is or are no longer allowed by device type ''{1}''"),
     ;
 
     private final int number;
