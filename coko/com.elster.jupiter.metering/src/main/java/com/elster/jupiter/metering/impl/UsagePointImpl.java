@@ -34,6 +34,7 @@ import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -50,6 +51,7 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -420,12 +422,12 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration() {
+    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration() {
         return this.getMetrologyConfiguration(this.clock.instant());
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
+    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when)
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
     }
@@ -435,7 +437,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
+    public List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
         return this.metrologyConfiguration
                 .effective(period)
                 .stream()
@@ -444,12 +446,12 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void apply(MetrologyConfiguration metrologyConfiguration) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration) {
         this.apply(metrologyConfiguration, this.clock.instant());
     }
 
     @Override
-    public void apply(MetrologyConfiguration metrologyConfiguration, Instant when) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
         this.removeMetrologyConfiguration(when);
         this.metrologyConfiguration.add(
                 this.dataModel
@@ -810,6 +812,7 @@ public class UsagePointImpl implements UsagePoint {
     public void adopt(MeterActivationImpl meterActivation) {
         meterActivations.stream()
                 .filter(activation -> activation.getId() != meterActivation.getId())
+                .filter(activation -> this.sameMeterRole(activation, meterActivation))
                 .reduce((m1, m2) -> m2)
                 .ifPresent(last -> {
                     if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
@@ -830,6 +833,20 @@ public class UsagePointImpl implements UsagePoint {
             ((MeterImpl) existing).adopt(meterActivation);
         }
         meterActivations.add(meterActivation);
+    }
+
+    private boolean sameMeterRole(MeterActivation ma1, MeterActivation ma2) {
+        return this.sameMeterRole(ma1.getMeterRole(), ma2.getMeterRole());
+    }
+
+    private boolean sameMeterRole(Optional<MeterRole> r1, Optional<MeterRole> r2) {
+        if (r1.isPresent() && r2.isPresent()) {
+            return Checks.is(r1.get()).equalTo(r2.get());
+        } else if (!r1.isPresent() && !r2.isPresent()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void refreshMeterActivations() {

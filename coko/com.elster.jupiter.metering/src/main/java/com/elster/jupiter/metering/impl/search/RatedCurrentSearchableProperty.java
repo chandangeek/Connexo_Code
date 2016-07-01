@@ -87,7 +87,8 @@ class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
                 .specForValuesOf(new QuantityValueFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_RATEDCURRENT)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(BigDecimal.ZERO, 0, "A"),
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "A"),
                         Quantity.create(BigDecimal.ZERO, 3, "A"),
                         Quantity.create(BigDecimal.ZERO, 6, "A"))
                 .finish();

@@ -1,10 +1,12 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -36,6 +38,7 @@ public interface ServerFormulaBuilder extends FormulaBuilder {
     ExpressionNodeBuilder squareRoot(ExpressionNodeBuilder term);
     ExpressionNodeBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable);
     ExpressionNodeBuilder requirement(ReadingTypeRequirement value);
+    ExpressionNodeBuilder property(RegisteredCustomPropertySet customPropertySet, PropertySpec propertySpec);
     Formula build();
 
     ServerFormulaBuilder init(ExpressionNodeBuilder nodeBuilder);

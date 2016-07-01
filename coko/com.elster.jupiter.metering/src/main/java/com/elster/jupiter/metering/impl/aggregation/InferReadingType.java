@@ -60,6 +60,11 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
     }
 
     @Override
+    public VirtualReadingType visitProperty(CustomPropertyNode property) {
+        return VirtualReadingType.dontCare();
+    }
+
+    @Override
     public VirtualReadingType visitNull(NullNode nullNode) {
         return VirtualReadingType.dontCare();
     }
@@ -112,7 +117,7 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
             return this.enforceReadingType(children, this.requestedReadingType);
         } else {
             if (preferredReadingTypes.stream().anyMatch(VirtualReadingType::isUnsupported)) {
-                throw unsupportedOperationExceptionSupplier.get();
+                throw new UnsupportedOperationException("At least one of the expression nodes represents an unsupported reading type");
             }
             if (preferredReadingTypes.size() == 1) {
                 // All child nodes are fine with the same reading type, simply enforce that one
@@ -224,6 +229,11 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
         }
 
         @Override
+        public Void visitProperty(CustomPropertyNode property) {
+            return null;
+        }
+
+        @Override
         public Void visitNull(NullNode nullNode) {
             return null;
         }
@@ -302,6 +312,11 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
 
         @Override
         public Void visitConstant(StringConstantNode constant) {
+            return null;
+        }
+
+        @Override
+        public Void visitProperty(CustomPropertyNode property) {
             return null;
         }
 

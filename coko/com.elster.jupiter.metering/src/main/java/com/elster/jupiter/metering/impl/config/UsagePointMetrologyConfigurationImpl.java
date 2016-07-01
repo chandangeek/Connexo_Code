@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
@@ -19,7 +21,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
+class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
     public static final String TYPE_IDENTIFIER = "U";
 
     private final UsagePointRequirementsSearchDomain searchDomain;
@@ -29,8 +31,8 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
     private List<UsagePointRequirement> usagePointRequirements = new ArrayList<>();
 
     @Inject
-    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, UsagePointRequirementsSearchDomain searchDomain) {
-        super(metrologyConfigurationService, eventService);
+    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain) {
+        super(metrologyConfigurationService, eventService, customPropertySetService);
         this.searchDomain = searchDomain;
     }
 
@@ -103,7 +105,12 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
 
     @Override
     public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name) {
-        return new UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(getMetrologyConfigurationService(), this, name);
+        throw new UnsupportedOperationException(MessageSeeds.Constants.REQUIRED);
+    }
+
+    @Override
+    public MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name, MeterRole role) {
+        return new UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(getMetrologyConfigurationService(), this, name, role);
     }
 
     @Override

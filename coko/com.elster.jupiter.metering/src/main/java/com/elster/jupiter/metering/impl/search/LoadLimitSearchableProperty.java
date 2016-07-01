@@ -89,7 +89,8 @@ class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
                 .specForValuesOf(new QuantityValueFactory())
                 .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_LOADLIMIT)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(BigDecimal.ZERO, 0, "W"),
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "W"),
                         Quantity.create(BigDecimal.ZERO, 3, "W"),
                         Quantity.create(BigDecimal.ZERO, 6, "W"),
                         Quantity.create(BigDecimal.ZERO, 9, "W"),

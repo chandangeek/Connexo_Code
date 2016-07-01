@@ -4,13 +4,22 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.NullNode;
+import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -45,6 +54,7 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
+    @SuppressWarnings("unused")
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
@@ -145,26 +155,6 @@ public class MetrologyContractImpl implements MetrologyContract {
         return Long.hashCode(this.id);
     }
 
-    private static class StatusImpl implements Status {
-        private final Thesaurus thesaurus;
-        private final MetrologyContractStatusKey statusKey;
-
-        public StatusImpl(Thesaurus thesaurus, MetrologyContractStatusKey statusKey) {
-            this.thesaurus = thesaurus;
-            this.statusKey = statusKey;
-        }
-
-        @Override
-        public String getKey() {
-            return this.statusKey.name();
-        }
-
-        @Override
-        public String getName() {
-            return this.thesaurus.getFormat(this.statusKey.getTranslation()).format();
-        }
-    }
-
     MetrologyContractStatusKey getMetrologyContractStatusKey(UsagePoint usagePoint) {
         if (this.metrologyConfiguration.isPresent() && this.metrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
             UsagePointMetrologyConfiguration configuration = (UsagePointMetrologyConfiguration) this.metrologyConfiguration.get();
@@ -197,6 +187,26 @@ public class MetrologyContractImpl implements MetrologyContract {
         return MetrologyContractStatusKey.UNKNOWN;
     }
 
+    private static class StatusImpl implements Status {
+        private final Thesaurus thesaurus;
+        private final MetrologyContractStatusKey statusKey;
+
+        private StatusImpl(Thesaurus thesaurus, MetrologyContractStatusKey statusKey) {
+            this.thesaurus = thesaurus;
+            this.statusKey = statusKey;
+        }
+
+        @Override
+        public String getKey() {
+            return this.statusKey.name();
+        }
+
+        @Override
+        public String getName() {
+            return this.thesaurus.getFormat(this.statusKey.getTranslation()).format();
+        }
+    }
+
     enum MetrologyContractStatusKey {
         COMPLETE(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_COMPLETE),
         INCOMPLETE(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_INCOMPLETE),
@@ -213,4 +223,47 @@ public class MetrologyContractImpl implements MetrologyContract {
         }
     }
 
+    private static class ReadingTypeRequirementChecker implements ExpressionNode.Visitor<ReadingTypeRequirementChecker> {
+        private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
+
+        @Override
+        public ReadingTypeRequirementChecker visitConstant(ConstantNode constant) {
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitProperty(CustomPropertyNode property) {
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitRequirement(ReadingTypeRequirementNode requirement) {
+            this.readingTypeRequirements.add(requirement.getReadingTypeRequirement());
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitOperation(OperationNode operationNode) {
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitFunctionCall(FunctionCallNode functionCall) {
+            return this;
+        }
+
+        @Override
+        public ReadingTypeRequirementChecker visitNull(NullNode nullNode) {
+            return this;
+        }
+
+        public List<ReadingTypeRequirement> getReadingTypeRequirements() {
+            return this.readingTypeRequirements;
+        }
+    }
 }

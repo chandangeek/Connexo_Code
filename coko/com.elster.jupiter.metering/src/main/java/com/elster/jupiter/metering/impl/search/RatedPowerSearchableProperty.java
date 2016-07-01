@@ -86,7 +86,8 @@ class RatedPowerSearchableProperty implements SearchableUsagePointProperty {
                 .specForValuesOf(new QuantityValueFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_RATEDPOWER)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(BigDecimal.ZERO, 0, "W"),
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "W"),
                         Quantity.create(BigDecimal.ZERO, 3, "W"),
                         Quantity.create(BigDecimal.ZERO, 6, "W"),
                         Quantity.create(BigDecimal.ZERO, 9, "W"),

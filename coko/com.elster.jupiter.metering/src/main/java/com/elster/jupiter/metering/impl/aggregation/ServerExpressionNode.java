@@ -9,12 +9,13 @@ import com.elster.jupiter.metering.config.ExpressionNode;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (09:44)
  */
-public interface ServerExpressionNode {
+interface ServerExpressionNode {
 
     interface Visitor<T> {
         T visitNull(NullNode nullNode);
         T visitConstant(NumericalConstantNode constant);
         T visitConstant(StringConstantNode constant);
+        T visitProperty(CustomPropertyNode property);
         T visitSqlFragment(SqlFragmentNode variable);
         T visitVirtualRequirement(VirtualRequirementNode requirement);
         T visitVirtualDeliverable(VirtualDeliverableNode deliverable);
@@ -26,6 +27,6 @@ public interface ServerExpressionNode {
 
     <T> T accept(Visitor<T> visitor);
 
-    public IntermediateDimension getIntermediateDimension();
+    IntermediateDimension getIntermediateDimension();
 
 }

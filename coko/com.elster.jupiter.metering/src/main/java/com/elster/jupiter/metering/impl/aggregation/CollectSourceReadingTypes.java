@@ -15,7 +15,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-05-03 (15:12)
  */
-public class CollectSourceReadingTypes implements ServerExpressionNode.Visitor<VirtualReadingType> {
+class CollectSourceReadingTypes implements ServerExpressionNode.Visitor<VirtualReadingType> {
     private final Set<VirtualReadingType> readingTypes = new HashSet<>();
 
     public Set<VirtualReadingType> getReadingTypes() {
@@ -36,6 +36,12 @@ public class CollectSourceReadingTypes implements ServerExpressionNode.Visitor<V
 
     @Override
     public VirtualReadingType visitConstant(StringConstantNode constant) {
+        // This node does not have a preferred reading type so don't add one to the set
+        return null;
+    }
+
+    @Override
+    public VirtualReadingType visitProperty(CustomPropertyNode property) {
         // This node does not have a preferred reading type so don't add one to the set
         return null;
     }
