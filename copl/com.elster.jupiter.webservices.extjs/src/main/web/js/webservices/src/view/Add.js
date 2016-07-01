@@ -229,7 +229,6 @@ Ext.define('Wss.view.Add', {
                 name: 'tracing',
                 fieldLabel: Uni.I18n.translate('endPointAdd.traceRequests', 'WSS', 'Trace requests'),
                 itemId: 'traceCheck',
-                required: true,
                 listeners: {
                     change: function (checkbox, newValue, oldValue) {
                         var traceFileField = checkbox.up('form').down('#traceFile');
@@ -251,8 +250,7 @@ Ext.define('Wss.view.Add', {
             {
                 xtype: 'checkbox',
                 name: 'httpCompression',
-                fieldLabel: Uni.I18n.translate('endPointAdd.httpCompression', 'WSS', 'HTTP compression'),
-                required: true
+                fieldLabel: Uni.I18n.translate('endPointAdd.httpCompression', 'WSS', 'HTTP compression')
             }
         );
         if(type==='SOAP'){
@@ -260,8 +258,7 @@ Ext.define('Wss.view.Add', {
                 {
                     xtype: 'checkbox',
                     name: 'schemaValidation',
-                    fieldLabel: Uni.I18n.translate('endPointAdd.schemeValidation', 'WSS', 'Scheme validation'),
-                    required: true
+                    fieldLabel: Uni.I18n.translate('endPointAdd.schemeValidation', 'WSS', 'Scheme validation')
                 }
             )
         }
