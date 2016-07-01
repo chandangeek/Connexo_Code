@@ -66,6 +66,18 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     name: 'lastValueTimestamp_formatted'
                                 },
                                 {
+                                    fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                                    name: 'dataloggerSlavemRID',
+                                    hidden: Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger'),
+                                    renderer: function(value) {
+                                        if (Ext.isEmpty(value)) {
+                                            return '-';
+                                        }
+                                        var href = me.router.getRoute('devices/device/channels').buildUrl({mRID: value});
+                                        return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
+                                    }
+                                },
+                                {
                                     fieldLabel: Uni.I18n.translate('channelConfig.overflowValue', 'MDC', 'Overflow value'),
                                     name: 'overruledOverflowValue'
                                 },
