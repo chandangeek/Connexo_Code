@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDev
     private final DeviceIdentifier<?> deviceIdentifier;
     private List<CollectedRegister> collectedRegisters;
 
+    private Instant sentDate;
     private DeviceMessageStatus deviceMessageStatus;
     private String deviceProtocolInformation;
 
@@ -46,6 +48,14 @@ public class DeviceProtocolMessageWithCollectedRegisterData extends CollectedDev
         return this.deviceMessageIdentifier;
     }
 
+    @Override
+    public Instant getSentDate() {
+        return sentDate;
+    }
+
+    public void setSentDate(Instant sentDate) {
+        this.sentDate = sentDate;
+    }
 
     @Override
     public DeviceMessageStatus getNewDeviceMessageStatus () {
