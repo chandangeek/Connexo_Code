@@ -69,18 +69,19 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
         StateTransitionChangeEvent event = (StateTransitionChangeEvent) localEvent.getSource();
         String mRID = event.getSourceId();
         try {
-//              need for correct 'Remove' state transition
-            Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
-            Condition condition = where("mRID").isEqualTo(mRID);
-            endDeviceQuery.select(condition)
-                    .stream()
-                    .findFirst()
-                    .ifPresent(d -> this.handle(event, (ServerEndDevice) d));
+//            Commented due to CXO-2243
+////              need for correct 'Remove' state transition
+//            Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
+//            Condition condition = where("mRID").isEqualTo(mRID);
+//            endDeviceQuery.select(condition)
+//                    .stream()
+//                    .findFirst()
+//                    .ifPresent(d -> this.handle(event, (ServerEndDevice) d));
 //            todo: Remove it. The old version, device state did not transite to "Removed" state in Insight
-//            this.meteringService
-//                    .findEndDevice(mRID)
-//                    .map(ServerEndDevice.class::cast)
-//                    .ifPresent(d -> this.handle(event, d));
+            this.meteringService
+                    .findEndDevice(mRID)
+                    .map(ServerEndDevice.class::cast)
+                    .ifPresent(d -> this.handle(event, d));
         }
         catch (NumberFormatException e) {
             this.logger.fine(() -> "Unable to parse end device id '" + mRID + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
