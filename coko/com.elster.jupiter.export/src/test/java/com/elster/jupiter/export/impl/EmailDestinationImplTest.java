@@ -13,16 +13,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -35,17 +29,29 @@ import java.time.Clock;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyVararg;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EmailDestinationImplTest {
 
-    public static final String DATA1 = "line 1";
-    public static final String DATA2 = "line 2";
-    public static final String DATA3 = "line 3";
-    public static final String DATA4 = "line 4";
-    public static final String SUBJECT = "subject";
+    private static final String DATA1 = "line 1";
+    private static final String DATA2 = "line 2";
+    private static final String DATA3 = "line 3";
+    private static final String DATA4 = "line 4";
+    private static final String SUBJECT = "subject";
 
     private Clock clock = Clock.systemDefaultZone();
 
