@@ -71,6 +71,7 @@ public class DataLoggerSlaveDeviceInfoFactoryTest extends DeviceDataRestApplicat
     public void fromTest() {
         Device dataLogger = mockDataLogger();
         Instant now = Instant.now();
+        when(clock.instant()).thenReturn(now);
 
         when(topologyService.getSlaveChannel(eq(dataLoggerChannel1), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.availabilityDate(eq(dataLoggerChannel1))).thenReturn(Optional.of(Instant.EPOCH));
@@ -143,7 +144,7 @@ public class DataLoggerSlaveDeviceInfoFactoryTest extends DeviceDataRestApplicat
         when(channelWithBulkAndCalculatedDelta.getId()).thenReturn(channelId);
         when(channelWithBulkAndCalculatedDelta.getChannelSpec()).thenReturn(channelSpec);
         when(channelWithBulkAndCalculatedDelta.getReadingType()).thenReturn(collectedReadingType);
-        when(channelWithBulkAndCalculatedDelta.getCalculatedReadingType(clock.instant())).thenReturn(Optional.of(calculatedReadingType));
+        when(channelWithBulkAndCalculatedDelta.getCalculatedReadingType(any(Instant.class))).thenReturn(Optional.of(calculatedReadingType));
         when(channelWithBulkAndCalculatedDelta.getMultiplier(any(Instant.class))).thenReturn(multiplier);
         when(channelWithBulkAndCalculatedDelta.getInterval()).thenReturn(TimeDuration.minutes(15));
         when(channelWithBulkAndCalculatedDelta.getLastReading()).thenReturn(Optional.empty());

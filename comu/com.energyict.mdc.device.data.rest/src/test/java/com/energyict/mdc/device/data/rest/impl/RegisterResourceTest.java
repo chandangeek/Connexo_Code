@@ -70,7 +70,6 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
     private ObisCode registerSpecObisCode = ObisCode.fromString("1.0.1.8.0.255");
 
 
-
     @Before
     public void setUpStubs() {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
@@ -85,6 +84,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(clock.instant()).thenReturn(NOW);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceType.isDataloggerSlave()).thenReturn(false);
+        when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     public CustomPropertySet mockCustomPropertySet() {

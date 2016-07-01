@@ -23,6 +23,7 @@ import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
@@ -48,6 +49,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -70,6 +72,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.NumericalRegister;
+import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.NumericalRegisterImpl;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
@@ -164,6 +167,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(issueService.findOpenIssuesForDevice(any(String.class))).thenReturn(issueFinder);
         when(batchService.findBatch(any(Device.class))).thenReturn(Optional.empty());
         when(topologyService.findCurrentDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.findDataLoggerChannelUsages(any(Channel.class), any(Range.class))).thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -1342,6 +1347,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testLinkFirstSlaveToDataLogger() {
+        when(clock.instant()).thenReturn(NOW);
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
@@ -1640,6 +1646,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testLinkNewSlavesToDataLogger() {
+        when(clock.instant()).thenReturn(NOW);
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
@@ -1700,6 +1707,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testLinkSlaveTwice() {
+        when(clock.instant()).thenReturn(NOW);
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
@@ -1753,6 +1761,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testUnlinkedWhenDataLoggerChannelUnlinked() {
+        when(clock.instant()).thenReturn(NOW);
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
@@ -1875,6 +1884,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testLinkFirstSlaveThroughChannelsAndRegistersToDataLogger() {
+        when(clock.instant()).thenReturn(NOW);
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
 
         when(meteringService.findDeviceLocation(dataLogger.getmRID())).thenReturn(Optional.empty());
@@ -2072,6 +2082,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testUnLinkSlave() {
+        when(clock.instant()).thenReturn(NOW);
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
@@ -2662,5 +2673,79 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Response response = target("/devices/").request().post(Entity.json(deviceInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(cimLifecycleDates, times(1)).setReceivedDate(shipmentDate);
+    }
+
+    @Test
+    public void getWithEstimationRulesTest() {
+        Instant shipmentDate = Instant.ofEpochMilli(1467019262000L);
+        long deviceConfigId = 12L;
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        EstimationRuleSet mockedEstimationRuleSet = mock(EstimationRuleSet.class);
+        when(deviceConfiguration.getEstimationRuleSets()).thenReturn(Arrays.asList(mockedEstimationRuleSet));
+        when(deviceConfiguration.getValidationRuleSets()).thenReturn(Collections.emptyList());
+        when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));
+        Device device = mock(Device.class, RETURNS_DEEP_STUBS);
+        when(deviceService.findByUniqueMrid("theDevice")).thenReturn(Optional.of(device));
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
+        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
+        when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
+        when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
+        String mrid = "mrid";
+        when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.mRID = mrid;
+        deviceInfo.deviceConfigurationId = deviceConfigId;
+        deviceInfo.serialNumber = "MySerialNumber";
+        deviceInfo.yearOfCertification = 1970;
+        deviceInfo.shipmentDate = shipmentDate;
+        when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.of(shipmentDate));
+        Map<String, Object> response = target("/devices/theDevice/").request().get(Map.class);
+        assertThat(response).contains(MapEntry.entry("hasEstimationRules", true));
+        assertThat(response).contains(MapEntry.entry("hasValidationRules", false));
+    }
+
+    @Test
+    public void getWithValidationRulesTest() {
+        Instant shipmentDate = Instant.ofEpochMilli(1467019262000L);
+        long deviceConfigId = 12L;
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        ValidationRuleSet mockedValidationRuleSet = mock(ValidationRuleSet.class);
+        when(deviceConfiguration.getEstimationRuleSets()).thenReturn(Collections.emptyList());
+        when(deviceConfiguration.getValidationRuleSets()).thenReturn(Collections.singletonList(mockedValidationRuleSet));
+        when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));
+        Device device = mock(Device.class, RETURNS_DEEP_STUBS);
+        when(deviceService.findByUniqueMrid("theDevice")).thenReturn(Optional.of(device));
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.empty());
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
+        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
+        when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
+        when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
+        String mrid = "mrid";
+        when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.mRID = mrid;
+        deviceInfo.deviceConfigurationId = deviceConfigId;
+        deviceInfo.serialNumber = "MySerialNumber";
+        deviceInfo.yearOfCertification = 1970;
+        deviceInfo.shipmentDate = shipmentDate;
+        when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.of(shipmentDate));
+        Map<String, Object> response = target("/devices/theDevice/").request().get(Map.class);
+        assertThat(response).contains(MapEntry.entry("hasEstimationRules", false));
+        assertThat(response).contains(MapEntry.entry("hasValidationRules", true));
     }
 }
