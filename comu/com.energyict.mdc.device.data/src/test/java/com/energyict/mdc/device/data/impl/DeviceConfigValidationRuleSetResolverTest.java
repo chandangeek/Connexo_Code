@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
@@ -46,10 +47,13 @@ public class DeviceConfigValidationRuleSetResolverTest {
     private DeviceConfiguration deviceConfiguration;
     @Mock
     private ValidationRuleSet ruleSet;
+    @Mock
+    private ValidationContext validationContext;
 
     @Before
     public void setUp() throws Exception {
-        when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
+        when(validationContext.getMeter()).thenReturn(Optional.of(meter));
+        when(validationContext.getChannelsContainer()).thenReturn(channelsContainer);
         when(meter.getAmrSystem()).thenReturn(amrSystem);
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
 
@@ -65,7 +69,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(channelsContainer);
+        List<ValidationRuleSet> setList = resolver.resolve(validationContext);
         assertThat(setList).containsExactly(ruleSet);
     }
 
@@ -75,7 +79,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(channelsContainer);
+        List<ValidationRuleSet> setList = resolver.resolve(validationContext);
         assertThat(setList).isEmpty();
     }
 
@@ -85,17 +89,17 @@ public class DeviceConfigValidationRuleSetResolverTest {
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(channelsContainer);
+        List<ValidationRuleSet> setList = resolver.resolve(validationContext);
         assertThat(setList).isEmpty();
     }
 
     @Test
     public void testNoMeter() {
-        when(channelsContainer.getMeter()).thenReturn(Optional.<Meter>empty());
+        when(validationContext.getMeter()).thenReturn(Optional.<Meter>empty());
         DeviceConfigValidationRuleSetResolver resolver = new DeviceConfigValidationRuleSetResolver();
         resolver.setDeviceService(deviceService);
 
-        List<ValidationRuleSet> setList = resolver.resolve(channelsContainer);
+        List<ValidationRuleSet> setList = resolver.resolve(validationContext);
         assertThat(setList).isEmpty();
     }
 }
