@@ -295,16 +295,16 @@ public class UsagePointResource {
                 metrologyConfigurationService
                         .findAllMetrologyConfigurations()
                         .stream()
-                        .filter(metrologyConfiguration ->
-                                metrologyConfiguration instanceof UsagePointMetrologyConfiguration
-                                        && metrologyConfiguration.isActive()
-                                        && metrologyConfiguration.getServiceCategory().equals(serviceCategory))
+                        .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                        .filter(mc -> mc.isActive())
+                        .filter(mc -> mc.getServiceCategory().equals(serviceCategory))
                         .map(UsagePointMetrologyConfiguration.class::cast)
                         .collect(Collectors.toList());
         List<MetrologyConfigurationInfo> metrologyConfigurationsInfos = ListPager.of(allMetrologyConfigurations).from(queryParameters).find()
                 .stream()
                 .map(metrologyConfigurationInfoFactory::asShortInfo)
                 .collect(Collectors.toList());
+
         return PagedInfoList.fromPagedList("metrologyConfigurations", metrologyConfigurationsInfos, queryParameters);
     }
 
@@ -338,8 +338,10 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{mRID}/metrologyconfigurationversion/{versionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public EffectiveMetrologyConfigurationOnUsagePointInfo getMetrologyConfigurationVersion(@PathParam("mRID") String mRID, @PathParam("versionId") Long versionId) {
-        return metrologyConfigurationInfoFactory.asInfo(fetchUsagePointVersion(versionId));
+    public UsagePointInfo  getMetrologyConfigurationVersion(@PathParam("mRID") String mRID, @PathParam("versionId") Long versionId) {
+        UsagePointInfo usagePointInfo = new UsagePointInfo(fetchUsagePoint(mRID), clock);
+        usagePointInfo.metrologyConfigurationVersion = metrologyConfigurationInfoFactory.asInfo(fetchUsagePointVersion(versionId));
+        return usagePointInfo;
     }
 
     @PUT
@@ -420,7 +422,7 @@ public class UsagePointResource {
     }
 
     private EffectiveMetrologyConfigurationOnUsagePoint fetchUsagePointVersion(long id) {
-        return meteringService.findUsagePointVersion(id)
+        return meteringService.findEffectiveMetrologyConfigurationOnUsagePointById(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
