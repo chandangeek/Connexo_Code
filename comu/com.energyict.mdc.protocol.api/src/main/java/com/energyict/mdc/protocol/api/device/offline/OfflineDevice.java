@@ -4,8 +4,8 @@ import com.energyict.mdc.common.Offline;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import java.util.List;
 import java.util.TimeZone;
@@ -24,34 +24,34 @@ public interface OfflineDevice extends Offline {
      *
      * @return the ID
      */
-    public long getId();
+    long getId();
 
     /**
      * Get the device TimeZone.
      * @return the device TimeZone
      */
-    public TimeZone getTimeZone();
+    TimeZone getTimeZone();
 
     /**
      * Returns the SerialNumber of the device.
      *
      * @return the SerialNumber
      */
-    public String getSerialNumber();
+    String getSerialNumber();
 
     /**
      * Get all the properties of an device and his {@link DeviceProtocolPluggableClass}.
      *
      * @return all properties
      */
-    public TypedProperties getAllProperties();
+    TypedProperties getAllProperties();
 
     /**
      * Get a list of all the slave devices of this device in their {@link Offline} representation.
      *
      * @return a list of slave devices
      */
-    public List<OfflineDevice> getAllSlaveDevices();
+    List<OfflineDevice> getAllSlaveDevices();
 
     /**
      * Get a list of {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice}.<br/>
@@ -60,7 +60,7 @@ public interface OfflineDevice extends Offline {
      *
      * @return a list of {@link OfflineLoadProfile offlineLoadProfiles}
      */
-    public List<OfflineLoadProfile> getMasterOfflineLoadProfiles();
+    List<OfflineLoadProfile> getMasterOfflineLoadProfiles();
 
     /**
      * Get a list of <b>ALL</b> {@link OfflineLoadProfile offlineLoadProfiles} which are owned by this {@link OfflineDevice} <b>AND</b>
@@ -68,7 +68,7 @@ public interface OfflineDevice extends Offline {
      *
      * @return a list of {@link OfflineLoadProfile offlineLoadProfiles}
      */
-    public List<OfflineLoadProfile> getAllOfflineLoadProfiles();
+    List<OfflineLoadProfile> getAllOfflineLoadProfiles();
 
     /**
      * Get a list of all offlineLoadProfiles which are valid for the given device MRID
@@ -76,14 +76,14 @@ public interface OfflineDevice extends Offline {
      * @param mrid the mrid of the device
      * @return a list of offlineLoadProfiles
      */
-    public List<OfflineLoadProfile> getAllOfflineLoadProfilesForMRID(String mrid);
+    List<OfflineLoadProfile> getAllOfflineLoadProfilesForMRID(String mrid);
 
     /**
      * Get a list of <b>ALL</b> {@link OfflineLogBook offlineLoagBooks} which are owned by this {@link OfflineDevice}.
      *
      * @return a list of {@link OfflineLogBook offlineLoagBooks}
      */
-    public List<OfflineLogBook> getAllOfflineLogBooks();
+    List<OfflineLogBook> getAllOfflineLogBooks();
 
     /**
      * Get a list of all offlineLogBooks which are valid for the given device MRDi
@@ -91,14 +91,14 @@ public interface OfflineDevice extends Offline {
      * @param mrdi the mrid of the device
      * @return a list of offlineLogBooks
      */
-    public List<OfflineLogBook> getAllOfflineLogBooksForMRID(String mrdi);
+    List<OfflineLogBook> getAllOfflineLogBooksForMRID(String mrdi);
 
     /**
      * Get a list of <b>ALL</b> {@link OfflineRegister}s which are configured on this {@link OfflineDevice}.
      *
      * @return a list of OfflineRegister
      */
-    public List<OfflineRegister> getAllRegisters();
+    List<OfflineRegister> getAllRegisters();
 
     /**
      * Get a list of {@link OfflineRegister}s which are configured on this {@link OfflineDevice}
@@ -108,37 +108,48 @@ public interface OfflineDevice extends Offline {
      * @param mrid the mrid of the device
      * @return a list of {@link OfflineRegister}s filtered according to the given RegisterGroup
      */
-    public List<OfflineRegister> getRegistersForRegisterGroupAndMRID(List<Long> registerGroupIds, String mrid);
+    List<OfflineRegister> getRegistersForRegisterGroupAndMRID(List<Long> registerGroupIds, String mrid);
 
     /**
      * Get the list of all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}s.
      *
      * @return the list of pending messages
      */
-    public List<OfflineDeviceMessage> getAllPendingDeviceMessages();
+    List<OfflineDeviceMessage> getAllPendingDeviceMessages();
+
+    /**
+     * Get the list of all {@link DeviceMessageStatus#PENDING pending} {@link OfflineDeviceMessage}s
+     * that are for some reason no longer valid to be sent to the device.
+     *
+     * @return the list of pending messages that have become invalid since creation
+     */
+    List<OfflineDeviceMessage> getAllInvalidPendingDeviceMessages();
 
     /**
      * Get the list of all {@link DeviceMessageStatus#SENT sent} {@link OfflineDeviceMessage}s.
      *
      * @return the list of sent messages
      */
-    public List<OfflineDeviceMessage> getAllSentDeviceMessages();
+    List<OfflineDeviceMessage> getAllSentDeviceMessages();
 
     /**
      * Returns the {@link DeviceProtocolPluggableClass} configured for this device.
      *
      * @return The DeviceProtocolPluggableClass
      */
-    public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
+    DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
 
     /**
      * Get the {@link DeviceProtocolCache} linked to this Device.
      *
      * @return the used DeviceProtocolCache
      */
-    public DeviceProtocolCache getDeviceProtocolCache();
+    DeviceProtocolCache getDeviceProtocolCache();
 
-    public DeviceIdentifier<?> getDeviceIdentifier();
+    DeviceIdentifier<?> getDeviceIdentifier();
 
-    public List<OfflineRegister> getAllRegistersForMRID(String mrid);
+    List<OfflineRegister> getAllRegistersForMRID(String mrid);
+
+    List<OfflineCalendar> getCalendars();
+
 }

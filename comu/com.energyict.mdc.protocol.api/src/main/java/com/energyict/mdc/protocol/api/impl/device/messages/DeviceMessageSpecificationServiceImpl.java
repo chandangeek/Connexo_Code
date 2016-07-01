@@ -68,16 +68,27 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         this.thesaurus = nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
-    @Override
-    public List<DeviceMessageCategory> filteredCategoriesForUserSelection() {
-        EnumSet<DeviceMessageCategories> excluded =
-                EnumSet.of(
+    private EnumSet<DeviceMessageCategories> filteredCategories() {
+        return EnumSet.of(
                         DeviceMessageCategories.ACTIVITY_CALENDAR,
                         DeviceMessageCategories.FIRMWARE,
                         DeviceMessageCategories.ADVANCED_TEST,
                         DeviceMessageCategories.CHANNEL_CONFIGURATION,
                         DeviceMessageCategories.EIWEB_PARAMETERS);
+    }
+
+    @Override
+    public List<DeviceMessageCategory> filteredCategoriesForUserSelection() {
+        EnumSet<DeviceMessageCategories> excluded = this.filteredCategories();
         EnumSet<DeviceMessageCategories> included = EnumSet.complementOf(excluded);
+        return included.stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DeviceMessageCategory> filteredCategoriesForComTaskDefinition() {
+        EnumSet<DeviceMessageCategories> excluded = this.filteredCategories();
+        EnumSet<DeviceMessageCategories> included = EnumSet.complementOf(excluded);
+        included.add(DeviceMessageCategories.ACTIVITY_CALENDAR);
         return included.stream().map(DeviceMessageCategoryImpl::new).collect(Collectors.toList());
     }
 
@@ -209,6 +220,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         Stream.of(MBusSetupDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(ZigBeeConfigurationDeviceMessageAttributes.values()).forEach(keys::add);
         Stream.of(TrackingCategory.values()).forEach(keys::add);
+        Stream.of(ActivityCalendarType.values()).forEach(keys::add);
         return keys;
     }
 

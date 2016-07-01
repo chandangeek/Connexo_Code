@@ -22,4 +22,5 @@ public interface OfflineDeviceContext {
     boolean needsSentMessages();
 
     boolean needsFirmwareVersions();
+
 }

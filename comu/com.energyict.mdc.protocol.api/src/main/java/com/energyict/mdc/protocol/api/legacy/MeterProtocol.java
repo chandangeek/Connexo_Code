@@ -187,6 +187,30 @@ public interface MeterProtocol extends Pluggable, CachingProtocol, DeviceDescrip
     }
 
     /**
+     * Gets the name of the active calendar that is currently configured on the device.
+     * Note: if the {@link MeterProtocol} doesn't support calendar functionality,
+     * then {@link Optional#empty()} should be returned.
+     *
+     * @return The name of the active calendar
+     * @throws IOException
+     */
+    default Optional<String> getActiveCalendarName() throws IOException {
+        return Optional.empty();
+    }
+
+    /**
+     * Gets the name of the passive calendar that is currently configured on the device.
+     * Note: if the {@link MeterProtocol} doesn't support calendar functionality,
+     * then {@link Optional#empty()} should be returned.
+     *
+     * @return The name of the passive calendar
+     * @throws IOException
+     */
+    default Optional<String> getPassiveCalendarName() throws IOException {
+        return Optional.empty();
+    }
+
+    /**
      * <p>
      * Fetches profile data from the device.
      * </p><p>
