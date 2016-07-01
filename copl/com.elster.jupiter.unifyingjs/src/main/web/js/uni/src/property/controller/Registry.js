@@ -44,7 +44,8 @@ Ext.define('Uni.property.controller.Registry', {
         'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
         'Uni.property.view.property.ObisCode',
         'Uni.property.view.property.ObisCodeCombo',
-        'Uni.property.view.property.Quantity'
+        'Uni.property.view.property.Quantity',
+        'Uni.property.view.property.ReadingQualities'
     ],
 
     /**
@@ -84,7 +85,8 @@ Ext.define('Uni.property.controller.Registry', {
         IDWITHNAME: 'Uni.property.view.property.Reference',
         DEVICECONFIGURATIONLIST: 'Uni.property.view.property.deviceconfigurations.DeviceConfigurations',
         SELECTIONGRID: 'Uni.property.view.property.SelectionGrid',
-        QUANTITY: 'Uni.property.view.property.Quantity'
+        QUANTITY: 'Uni.property.view.property.Quantity',
+        LISTREADINGQUALITY: 'Uni.property.view.property.ReadingQualities'
     },
 
 // store must be registered on some ctrl (not in the responsibility of this class: move later?)

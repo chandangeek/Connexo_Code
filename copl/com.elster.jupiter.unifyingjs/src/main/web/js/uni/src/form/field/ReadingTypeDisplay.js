@@ -133,7 +133,8 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
 
         var me = this,
             assembledName = value.fullAliasName,
-            icon = '<span class="uni-icon-info-small" style="cursor: pointer; display: inline-block; width: 16px; height: 16px; float: left;" data-qtip="' + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Click for more information') + '"></span>';
+            icon = '<span class="icon-info" style="cursor:pointer; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                + Uni.I18n.translate('readingType.tooltip', 'UNI', 'Click for more information') + '"></span>';
 
         setTimeout(function () {
             var parent,
@@ -144,7 +145,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
                     parent = view.getCell(record, me);
 
                     if (Ext.isDefined(parent)) {
-                        iconEl = parent.down('.uni-icon-info-small');
+                        iconEl = parent.down('.icon-info');
                     }
                 } catch (ex) {
                     // Fails for some reason sometimes.
@@ -153,7 +154,7 @@ Ext.define('Uni.form.field.ReadingTypeDisplay', {
                 parent = field.getEl();
 
                 if (Ext.isDefined(parent)) {
-                    iconEl = parent.down('.uni-icon-info-small');
+                    iconEl = parent.down('.icon-info');
                 }
             }
 
