@@ -3,11 +3,12 @@ package com.elster.jupiter.mdm.usagepoint.data.impl;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.MetrologyContractChannelsContainer;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,8 +34,11 @@ public class MetrologyContractValidationRuleSetResolverTest {
     @Test
     public void testEmptyRuleSetsForSimpleChannelContainer() {
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        ValidationContext validationContext = mock(ValidationContext.class);
+        when(validationContext.getChannelsContainer()).thenReturn(channelsContainer);
+        when(validationContext.getMetrologyContract()).thenReturn(Optional.empty());
 
-        List<ValidationRuleSet> validationRuleSets = testInstance().resolve(channelsContainer);
+        List<ValidationRuleSet> validationRuleSets = testInstance().resolve(validationContext);
 
         assertThat(validationRuleSets).isEmpty();
     }
@@ -42,12 +46,15 @@ public class MetrologyContractValidationRuleSetResolverTest {
     @Test
     public void testCorrectRuleSetsForMetrologyContractChannelsContainer() {
         MetrologyContract metrologyContract = mock(MetrologyContract.class);
-        MetrologyContractChannelsContainer channelsContainer = mock(MetrologyContractChannelsContainer.class);
-        when(channelsContainer.getMetrologyContract()).thenReturn(metrologyContract);
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        ValidationContext validationContext = mock(ValidationContext.class);
+        when(validationContext.getChannelsContainer()).thenReturn(channelsContainer);
+        when(validationContext.getMetrologyContract()).thenReturn(Optional.of(metrologyContract));
+
         List<ValidationRuleSet> validationRuleSets = Collections.singletonList(mock(ValidationRuleSet.class));
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(validationRuleSets);
 
-        List<ValidationRuleSet> resolvedValidationRuleSets = testInstance().resolve(channelsContainer);
+        List<ValidationRuleSet> resolvedValidationRuleSets = testInstance().resolve(validationContext);
 
         assertThat(resolvedValidationRuleSets).isNotEmpty();
     }
