@@ -280,38 +280,6 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
         servedImportSchedules.add(importSchedule);
     }
 
-    private void reconfigure() {
-        reconfigureImportSchedules();
-
-    }
-
-    private void reconfigureEndPoints() {
-        Optional<AppServer> appServer = this.getAppServer();
-        if (appServer.isPresent()) {
-            List<EndPointConfiguration> runningButUnsupportedEndPoints = webServicesService.getPublishedEndPoints();
-            runningButUnsupportedEndPoints.removeAll(appServer.get().supportedEndPoints());
-            runningButUnsupportedEndPoints.stream().forEach(webServicesService::removeEndPoint);
-
-            for (EndPointConfiguration endPointConfiguration : appServer.get().supportedEndPoints()) {
-                boolean published = webServicesService.isPublished(endPointConfiguration);
-                boolean shouldBePublished = endPointConfiguration.isActive() && appServer.get().isActive();
-                if (published && !shouldBePublished) {
-                    String msg = "Stopping WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
-                            .getName() + " on application server " + appServer.get().getName();
-                    LOGGER.info(msg);
-                    endPointConfiguration.log(LogLevel.FINE, msg);
-                    webServicesService.removeEndPoint(endPointConfiguration);
-                } else if (!published && shouldBePublished) {
-                    String msg = "Publishing WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
-                            .getName() + " on application server " + appServer.get().getName();
-                    LOGGER.info(msg);
-                    endPointConfiguration.log(LogLevel.FINE, msg);
-                    webServicesService.publishEndPoint(endPointConfiguration);
-                }
-            }
-        }
-    }
-
     void reconfigureEndPoint(String name) {
         Optional<AppServer> appServer = this.getAppServer();
         if (appServer.isPresent()) {
@@ -342,8 +310,21 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
                     String msg = "Restarting WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
                             .getName() + " on application server " + appServer.get().getName();
                     LOGGER.info(msg);
+                    endPointConfiguration.log(LogLevel.FINE, msg);
                     webServicesService.removeEndPoint(endPointConfiguration);
                     webServicesService.publishEndPoint(endPointConfiguration);
+                }
+            } else {
+                Optional<EndPointConfiguration> endPointConfiguration = webServicesService.getPublishedEndPoints()
+                        .stream()
+                        .filter(epc -> epc.getName().equals(name)).findFirst();
+                if (endPointConfiguration.isPresent()) {
+                    webServicesService.removeEndPoint(endPointConfiguration.get());
+                    String msg = "Stopping WebService " + endPointConfiguration.get()
+                            .getWebServiceName() + " with config " + endPointConfiguration.get()
+                            .getName() + " on application server " + appServer.get().getName();
+                    LOGGER.info(msg);
+                    endPointConfiguration.get().log(LogLevel.FINE, msg);
                 }
             }
         }
