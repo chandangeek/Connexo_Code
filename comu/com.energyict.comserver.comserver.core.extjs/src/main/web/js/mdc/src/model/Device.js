@@ -33,6 +33,8 @@ Ext.define('Mdc.model.Device', {
         {name: 'hasLoadProfiles', type: 'boolean'},
         {name: 'hasLogBooks', type: 'boolean'},
         {name: 'hasRegisters', type: 'boolean'},
+        {name: 'hasValidationRules', type: 'boolean'},
+        {name: 'hasEstimationRules', type: 'boolean'},
         {name: 'usagePoint', type: 'string', useNull: true},
         {name: 'serviceCategory', type: 'string', useNull: true},
         {name: 'version', type: 'number', useNull: true},

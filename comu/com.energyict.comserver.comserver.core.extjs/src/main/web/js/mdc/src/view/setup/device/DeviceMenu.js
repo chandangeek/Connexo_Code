@@ -104,7 +104,8 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
             );
         }
 
-        if (me.device.get('hasLoadProfiles') || me.device.get('hasRegisters')) {
+        if ( (me.device.get('hasValidationRules') || me.device.get('hasEstimationRules')) &&
+             (me.device.get('hasLoadProfiles') || me.device.get('hasRegisters')) ) {
             me.menuItems.push(
                 {
                     title: Uni.I18n.translate('device.readingQuality', 'MDC', 'Reading quality'),
@@ -113,19 +114,22 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                             text: Uni.I18n.translate('devicemenu.dataValidation', 'MDC', 'Validation configuration'),
                             itemId: 'dataValidationLink',
                             privileges: Cfg.privileges.Validation.fineTuneValidation,
-                            href: '#/devices/' + encodeURIComponent(mRID) + '/datavalidation'
+                            href: '#/devices/' + encodeURIComponent(mRID) + '/datavalidation',
+                            showCondition: me.device.get('hasValidationRules')
                         },
                         {
                             text: Uni.I18n.translate('devicemenu.validationResults', 'MDC', 'Validation results'),
                             itemId: 'validationResultsLink',
                             hidden: !Uni.Auth.hasAnyPrivilege(['privilege.administrate.validationConfiguration', 'privilege.view.validationConfiguration', 'privilege.view.fineTuneValidationConfiguration']),
-                            href: '#/devices/' + encodeURIComponent(mRID) + '/validationresults/data'
+                            href: '#/devices/' + encodeURIComponent(mRID) + '/validationresults/data',
+                            showCondition: me.device.get('hasValidationRules')
                         },
                         {
                             text: Uni.I18n.translate('general.dataEstimation', 'MDC', 'Data estimation'),
                             itemId: 'dataEstimationLink',
                             href: '#/devices/' + encodeURIComponent(mRID) + '/dataestimation',
-                            privileges: Mdc.privileges.DeviceConfigurationEstimations.view
+                            privileges: Mdc.privileges.DeviceConfigurationEstimations.view,
+                            showCondition: me.device.get('hasEstimationRules')
                         }
                     ]
                 }
