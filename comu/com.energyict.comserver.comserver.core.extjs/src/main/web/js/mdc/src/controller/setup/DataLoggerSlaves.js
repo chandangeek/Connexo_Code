@@ -750,8 +750,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             success: function (record) {
                 message = Ext.String.format(
                     Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.success', 'MDC', "Slave '{0}' has been linked to data logger '{1}'."),
-                    me.getSlaveMRID(),
-                    me.wizardInformation.dataLogger.get('mRID')
+                    Ext.String.htmlEncode(me.getSlaveMRID()),
+                    Ext.String.htmlEncode(me.wizardInformation.dataLogger.get('mRID'))
                 );
                 Ext.suspendLayouts();
                 infoMessagePanel.update(message);
@@ -763,8 +763,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 message = Ext.String.format(
                     Uni.I18n.translate('general.slaveXLinkedToDataLoggerY.noSuccess', 'MDC',
                         "Slave '{0}' has not been linked to data logger '{1}' due to a failure. Please try again.",
-                        me.getSlaveMRID(),
-                        me.wizardInformation.dataLogger.get('mRID')
+                        Ext.String.htmlEncode(me.getSlaveMRID()),
+                        Ext.String.htmlEncode(me.wizardInformation.dataLogger.get('mRID'))
                     )
                 );
                 Ext.suspendLayouts();

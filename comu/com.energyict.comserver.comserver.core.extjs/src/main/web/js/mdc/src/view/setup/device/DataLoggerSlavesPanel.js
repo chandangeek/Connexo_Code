@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
             slavesCount = slaveStore.getCount(),
             grid = {
                 xtype: 'gridpanel',
-                margin: '5 0 0 0',
+                margin: '5 6 0 6',
                 itemId: 'mdc-recent-slaves-grid',
                 viewConfig: {
                     disableSelection: true,
@@ -53,22 +53,24 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
                     }
                 ]
             },
-            showAllSlavesLink = {
+            manageSlavesLink = {
                 xtype: 'container',
-                html: '<a href="' + me.router.getRoute('devices/device/dataloggerslaves').buildUrl({mRID: me.router.arguments.mRID}) + '">' + Uni.I18n.translate('general.showAllDataLoggerSlaves', 'MDC', 'Show all data logger slaves') + '</a>'
+                margin: '0 0 0 7',
+                html: '<a href="' + me.router.getRoute('devices/device/dataloggerslaves').buildUrl({mRID: me.router.arguments.mRID}) + '">' + Uni.I18n.translate('general.manageDataLoggerSlaves', 'MDC', 'Manage data logger slaves') + '</a>'
             };
 
         me.removeAll();
         if (slavesCount) {
-            me.add(grid, showAllSlavesLink);
+            me.add(grid, manageSlavesLink);
         } else {
             me.add({
                 xtype: 'form',
                 items: {
                     xtype: 'uni-form-empty-message',
+                    margin: '7 0 15 7',
                     text: Uni.I18n.translate('general.dataLogger.noSlaves', 'MDC', 'This data logger has no data logger slaves.')
                 }
-            });
+            }, manageSlavesLink);
         }
     }
 });

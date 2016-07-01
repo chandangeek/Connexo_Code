@@ -24,7 +24,7 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
             },
             {
                 xtype: 'button',
-                text: Uni.I18n.translate('deviceGeneralInformation.viewMoreLinkText', 'MDC', 'More attributes'),
+                text: Uni.I18n.translate('deviceGeneralInformation.manageLinkText', 'MDC', 'Manage device attributes'),
                 ui: 'link',
                 itemId: 'view-more-general-information-link',
                 handler: function() {

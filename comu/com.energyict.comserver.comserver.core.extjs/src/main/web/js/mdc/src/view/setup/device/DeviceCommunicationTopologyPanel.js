@@ -38,7 +38,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
         var me = this,
             slavesStore = device.slaveDevices(),
             slavesCount = slavesStore.getCount(),
-            showFullTopologyLink, slavesContainer,
+            manageTopologyLink, slavesContainer,
             masterContainer, form, grid;
 
         me.device = device;
@@ -48,7 +48,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
 
             grid = {
                 xtype: 'gridpanel',
-                margin: '5 0 0 0',
+                margin: '5 6 0 6',
                 itemId: 'communication-topology-grid',
                 viewConfig: {
                     disableSelection: true,
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                         dataIndex: 'mRID',
                         flex: 1,
                         renderer: function (value, meta, record) {
-                            var href = me.router.getRoute('devices/device').buildUrl({mRID: record.get('mRID')});
+                            var href = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(record.get('mRID'))});
                             return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                         }
                     },
@@ -85,15 +85,16 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                 ]
             };
 
-            showFullTopologyLink = {
+            manageTopologyLink = {
                 xtype: 'container',
-                html: '<a href="' + me.router.getRoute('devices/device/topology').buildUrl({mRID: me.router.arguments.mRID}) + '">' + Uni.I18n.translate('deviceCommunicationTopology.showFullCommunicationTopology', 'MDC', 'Show full communication topology') + '</a>'
+                margin: '0 0 0 7',
+                html: '<a href="' + me.router.getRoute('devices/device/topology').buildUrl({mRID: me.router.arguments.mRID}) + '">' + Uni.I18n.translate('deviceCommunicationTopology.manageLinkText', 'MDC', 'Manage communication topology') + '</a>'
             };
 
-            me.setTitle(Uni.I18n.translate('deviceCommunicationTopology.communicationTopologyTitleRecentlyAdded', 'MDC', 'Communication topology: most recently added'));
+            me.setTitle(Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'));
 
             if (slavesCount) {
-                me.add(grid, showFullTopologyLink);
+                me.add(grid, manageTopologyLink);
                 me.down('#communication-topology-grid').reconfigure(slavesStore);
 
             } else {
@@ -101,9 +102,10 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                     xtype: 'form',
                     items: {
                         xtype: 'uni-form-empty-message',
+                        margin: '7 0 15 10',
                         text: Uni.I18n.translate('deviceCommunicationTopology.communicationTopologyTitleHasNoSlaves', 'MDC', 'This gateway has no slaves')
                     }
-                });
+                }, manageTopologyLink);
             }
 
         } else {
