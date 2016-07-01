@@ -1,4 +1,4 @@
-Ext.define('Mdc.usagepointmanagement.store.MeterActivations', {
+Ext.define('Mdc.usagepointmanagement.store.Channels', {
     extend: 'Ext.data.Store',
     model: 'Mdc.usagepointmanagement.model.Channel',
     proxy: {
