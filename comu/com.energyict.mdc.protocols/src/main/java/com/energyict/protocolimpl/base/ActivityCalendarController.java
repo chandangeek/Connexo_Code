@@ -58,4 +58,13 @@ public interface ActivityCalendarController {
      * @throws IOException if a reading error occurred
      */
     String getCalendarName() throws IOException;
+
+    /**
+     * Get the name of the current <u>Passive</u> Calendar
+     *
+     * @return the name of the current <u>Passive</u> Calendar
+     * @throws IOException if a reading error occurred
+     */
+    String getPassiveCalendarName() throws IOException;
+
 }

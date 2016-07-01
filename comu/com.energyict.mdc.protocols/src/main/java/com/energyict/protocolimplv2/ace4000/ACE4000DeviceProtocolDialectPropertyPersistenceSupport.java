@@ -22,6 +22,10 @@ import java.util.stream.Stream;
  * @since 2015-11-26 (11:47)
  */
 public class ACE4000DeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, ACE4000DeviceProtocolDialectProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String domainFieldName() {

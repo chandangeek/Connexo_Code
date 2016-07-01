@@ -22,6 +22,10 @@ import java.util.stream.Stream;
  * @since 2015-11-27 (09:37)
  */
 class SDKTopologyTaskDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKTopologyTaskDialectProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String domainFieldName() {

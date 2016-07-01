@@ -100,14 +100,16 @@ public class LoggingConfigurationTable extends AbstractTable {
 	}
 
 	protected void parse(int value, int id) throws IOException  {
-		if (value == 0)
+		if (value == 0) {
 			return;
+		}
 		ChannelInfo info =
 			new ChannelInfo(id, "Instromet_" + (id + 1) + "_" + value, getUnit(value));
 		if (wrapValues.size() >= (id + 1)) {
 			BigDecimal wrapValue = (BigDecimal) wrapValues.get(id);
-			if (!BigDecimal.ZERO.equals(wrapValue))
+			if (!BigDecimal.ZERO.equals(wrapValue)) {
 				info.setCumulativeWrapValue(wrapValue);
+			}
 			//System.out.println("wrap value: " + wrapValue);
 		}
 		channelInfos.add(info);

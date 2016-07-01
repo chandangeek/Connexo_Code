@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -112,7 +113,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * @param outputStream byte stream to send data to the device
      * @param timeZone     the device's timezone
      * @param logger       used to provide feedback to the collection system
-     * @throws java.io.IOException Thrown when an exception happens
+     * @throws IOException Thrown when an exception happens
      */
     public void init(InputStream inputStream, OutputStream outputStream, TimeZone timeZone, Logger logger) throws IOException {
         super.init(inputStream, outputStream, timeZone, logger);
@@ -127,7 +128,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * it is up to the implementer to decide if any additional implementation is needed
      * </p>
      *
-     * @throws java.io.IOException <br>
+     * @throws IOException <br>
      */
     public void connect() throws IOException {
         getLogger().info("call abstract method doConnect()");
@@ -141,7 +142,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * The implementer should not close the inputStream and outputStream. This
      * is the responsibility of the collection system
      *
-     * @throws java.io.IOException thrown in case of an exception
+     * @throws IOException thrown in case of an exception
      */
     public void disconnect() throws IOException {
         getLogger().info("call abstract method doDisConnect()");
@@ -174,8 +175,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * Get the firmware version of the meter
      *
      * @return the version of the meter firmware
-     *         </p>
-     * @throws java.io.IOException Thrown in case of an exception
+     * @throws IOException Thrown in case of an exception
      */
     public String getFirmwareVersion() throws IOException {
         getLogger().info("call getFirmwareVersion()");
@@ -183,11 +183,25 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
         return "SDK MultipleLoadProfile Sample firmware version";
     }
 
+    @Override
+    public Optional<String> getActiveCalendarName() throws IOException {
+        getLogger().info("call getActiveCalendarName()");
+        getLogger().info("--> report the name of the active calendar here");
+        return Optional.of("SDK MultipleLoadProfile Sample active Calendar");
+    }
+
+    @Override
+    public Optional<String> getPassiveCalendarName() throws IOException {
+        getLogger().info("call getPassiveCalendarName()");
+        getLogger().info("--> report the name of the passive calendar here");
+        return Optional.of("SDK MultipleLoadProfile Sample passive Calendar");
+    }
+
     /**
      * Get the SerialNumber of the device
      *
      * @return the serialNumber of the device
-     * @throws java.io.IOException thrown in case of an exception
+     * @throws IOException thrown in case of an exception
      */
     public String getMeterSerialNumber() throws IOException {
         return MeterSerialNumber;
@@ -197,7 +211,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * <p></p>
      *
      * @return the current device time
-     * @throws java.io.IOException <br>
+     * @throws IOException <br>
      */
     public Date getTime() throws IOException {
         getLogger().info("call getTime() (if time is different from system time taken into account the properties, setTime will be called) ");
@@ -212,7 +226,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * </p>
      *
      * @param newMeterTime the time to set in the meter
-     * @throws java.io.IOException Thrown in case of an exception
+     * @throws IOException Thrown in case of an exception
      */
     public void setTime(Date newMeterTime) throws IOException {
         getLogger().info("call setTime() (this method is called automatically when needed)");
@@ -242,7 +256,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      *
      * @param loadProfiles a list of {@link LoadProfileReader}s which have to be read
      * @return a list of {@link com.energyict.mdc.protocol.api.device.data.ProfileData}s containing interval records
-     * @throws java.io.IOException if a communication or parsing error occurred
+     * @throws IOException if a communication or parsing error occurred
      */
     public List<ProfileData> getLoadProfileData(List<LoadProfileReader> loadProfiles) throws IOException {
         return getSMartMeterProfile().getLoadProfileData(loadProfiles);
@@ -255,7 +269,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      *
      * @param register the Register to request RegisterInfo for
      * @return RegisterInfo about the ObisCode
-     * @throws java.io.IOException Thrown in case of an exception
+     * @throws IOException Thrown in case of an exception
      */
     public RegisterInfo translateRegister(Register register) throws IOException {
         return getRegisterFactory().translateRegister(register);
@@ -267,7 +281,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      *
      * @param registers The ObisCode for which to request a RegisterValue
      * @return RegisterValue object for an ObisCode
-     * @throws java.io.IOException Thrown in case of an exception
+     * @throws IOException Thrown in case of an exception
      */
     public List<RegisterValue> readRegisters(List<Register> registers) throws IOException {
         return getRegisterFactory().readRegisters(registers);
@@ -362,7 +376,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      * perform the message.
      *
      * @param messageEntries a list of {@link MessageEntry}s
-     * @throws java.io.IOException if a logical error occurs
+     * @throws IOException if a logical error occurs
      */
     public void applyMessages(final List messageEntries) throws IOException {
         //TODO implement proper functionality.
@@ -373,7 +387,7 @@ public class SDKSmartMeterProtocol extends AbstractSmartMeterProtocol implements
      *
      * @param messageEntry a definition of which message needs to be sent
      * @return a state of the message which was just sent
-     * @throws java.io.IOException if a logical error occurs
+     * @throws IOException if a logical error occurs
      */
     public MessageResult queryMessage(final MessageEntry messageEntry) {
         MessageResult result = MessageResult.createFailed(messageEntry);

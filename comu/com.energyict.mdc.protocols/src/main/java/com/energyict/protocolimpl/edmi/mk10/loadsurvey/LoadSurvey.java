@@ -54,19 +54,19 @@ public class LoadSurvey {
 	}
 
 	public String toString() {
-		StringBuffer strBuff = new StringBuffer();
+		StringBuilder strBuff = new StringBuilder();
 		strBuff.append("LoadSurvey:" + LF);
-		strBuff.append("  registerId=0x" + Integer.toHexString(getRegisterId()) + LF);
-		strBuff.append("  nrOfChannels=" + nrOfChannels + LF);
-		strBuff.append("  profileInterval=" + getProfileInterval() + LF);
-		strBuff.append("  nrOfEntries=" + getNrOfEntries() + LF);
-		strBuff.append("  firstEntry=" + getFirstEntry() + LF);
-		strBuff.append("  lastEntry=" + getLastEntry() + LF);
-		strBuff.append("  entryWidth=" + getEntryWidth() + LF);
-		strBuff.append("  storedEntries=" + getStoredEntries() + LF);
-		strBuff.append("  startTime=" + getStartTime() + LF);
+		strBuff.append("  registerId=0x").append(Integer.toHexString(getRegisterId())).append(LF);
+		strBuff.append("  nrOfChannels=").append(nrOfChannels).append(LF);
+		strBuff.append("  profileInterval=").append(getProfileInterval()).append(LF);
+		strBuff.append("  nrOfEntries=").append(getNrOfEntries()).append(LF);
+		strBuff.append("  firstEntry=").append(getFirstEntry()).append(LF);
+		strBuff.append("  lastEntry=").append(getLastEntry()).append(LF);
+		strBuff.append("  entryWidth=").append(getEntryWidth()).append(LF);
+		strBuff.append("  storedEntries=").append(getStoredEntries()).append(LF);
+		strBuff.append("  startTime=").append(getStartTime()).append(LF);
 		for (int channel = 0; channel < getLoadSurveyChannels().length; channel++) {
-			strBuff.append("channel " + channel + ": " + getLoadSurveyChannels()[channel]);
+			strBuff.append("channel ").append(channel).append(": ").append(getLoadSurveyChannels()[channel]);
 		}
 		return strBuff.toString();
 	}
@@ -136,8 +136,7 @@ public class LoadSurvey {
 	}
 
 	public LoadSurveyData readFile(Date from) throws IOException {
-		LoadSurveyData lsd = new LoadSurveyData(this,from);
-		return lsd;
+		return new LoadSurveyData(this,from);
 	}
 
 	public long getFirstEntry() {
@@ -236,10 +235,6 @@ public class LoadSurvey {
 		this.startTime = startTime;
 	}
 
-    /**
-     * Getter for the total record size.
-     * @return
-     */
     public int getRecordSize() {
         int size = 0;
         if (loadSurveyChannels != null) {

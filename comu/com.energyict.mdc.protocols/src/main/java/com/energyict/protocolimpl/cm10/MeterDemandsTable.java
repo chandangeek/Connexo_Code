@@ -75,10 +75,11 @@ public class MeterDemandsTable {
 		int size = intervalDatas.size();
 		for (int i = (size - 1); i >= 0; i--) {
 			IntervalData intervalData = (IntervalData) intervalDatas.get(i);
-			if ((intervalData.getProtocolStatus() & IntervalStateBits.MISSING) > 0)
+			if ((intervalData.getProtocolStatus() & IntervalStateBits.MISSING) > 0) {
 				count++;
-			else
+			} else {
 				return count;
+			}
 		}
 		return count;
 	}

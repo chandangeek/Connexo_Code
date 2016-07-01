@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.as220.emeter;
 
+import com.energyict.mdc.protocol.api.ProtocolException;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -12,9 +14,9 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
-import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.AS220;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -299,13 +301,13 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
         getActivityCalendar().writeActivatePassiveCalendarTime(new OctetString(convertUnixToGMTDateTime(activationDate.getTimeInMillis()).getBEREncodedByteArray(), 0));
     }
 
-    /**
-     * Get the name of the current <u>Active</u> Calendar
-     *
-     * @return the name of the current <u>Active</u> Calendar
-     */
+    @Override
     public String getCalendarName() throws IOException {
         return getActivityCalendar().readCalendarNameActive().stringValue();
+    }
+
+    public String getPassiveCalendarName() throws IOException {
+        return getActivityCalendar().readCalendarNamePassive().stringValue();
     }
 
     /**
@@ -313,12 +315,12 @@ public class AS220ActivityCalendarController implements ActivityCalendarControll
      *
      * @return the current local {@link com.energyict.dlms.cosem.ActivityCalendar}
      */
-    private ActivityCalendar getActivityCalendar() throws IOException {
+    private ActivityCalendar getActivityCalendar() throws ProtocolException {
         return this.as220.getCosemObjectFactory().getActivityCalendar(this.as220.getMeterConfig().getActivityCalendar().getObisCode());
     }
 
 
-    private SpecialDaysTable getSpecialDayTable() throws IOException {
+    private SpecialDaysTable getSpecialDayTable() throws ProtocolException {
         return this.as220.getCosemObjectFactory().getSpecialDaysTable(this.as220.getMeterConfig().getSpecialDaysTable().getObisCode());
     }
 

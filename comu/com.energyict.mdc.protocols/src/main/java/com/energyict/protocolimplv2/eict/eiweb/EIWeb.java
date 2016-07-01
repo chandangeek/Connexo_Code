@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -271,6 +272,11 @@ public class EIWeb implements DeviceProtocol {
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
         return collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        return this.collectedDataFactory.createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
     }
 
 }

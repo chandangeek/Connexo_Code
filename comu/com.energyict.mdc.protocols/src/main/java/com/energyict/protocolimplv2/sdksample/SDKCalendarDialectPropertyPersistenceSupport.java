@@ -1,4 +1,4 @@
-package com.energyict.protocols.mdc.protocoltasks;
+package com.energyict.protocolimplv2.sdksample;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
@@ -16,12 +16,13 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link EDPSerialDeviceProtocolDialect}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link SDKCalendarProtocolDialect}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-26 (17:34)
+ * @since 2016-06-17 (12:45)
  */
-public class EDPDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, EDPDeviceProtocolDialectProperties> {
+class SDKCalendarDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKCalendarDialectProperties> {
+
     @Override
     public String application() {
         return "MultiSense";
@@ -39,17 +40,17 @@ public class EDPDeviceProtocolDialectPropertyPersistenceSupport implements Persi
 
     @Override
     public String tableName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_EDP_DIALECT";
+        return DeviceProtocolService.COMPONENT_NAME + "_SDKCALENDAR_DIALECT";
     }
 
     @Override
     public String domainForeignKeyName() {
-        return "FK_EDP_DIALECT_PROPS";
+        return "FK_SDKCALENDAR_DIALECT_PROPS";
     }
 
     @Override
     public String componentName() {
-        return CustomPropertySetComponentName.P07.name();
+        return CustomPropertySetComponentName.P01.name();
     }
 
     @Override
@@ -58,8 +59,8 @@ public class EDPDeviceProtocolDialectPropertyPersistenceSupport implements Persi
     }
 
     @Override
-    public Class<EDPDeviceProtocolDialectProperties> persistenceClass() {
-        return EDPDeviceProtocolDialectProperties.class;
+    public Class<SDKCalendarDialectProperties> persistenceClass() {
+        return SDKCalendarDialectProperties.class;
     }
 
     @Override
@@ -71,10 +72,7 @@ public class EDPDeviceProtocolDialectPropertyPersistenceSupport implements Persi
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(EDPDeviceProtocolDialectProperties.ActualFields.values())
-            .forEach(field -> field.addTo(table));
-        Stream
-            .of(EDPDeviceProtocolDialectProperties.EDPFields.values())
+            .of(SDKCalendarDialectProperties.ActualFields.values())
             .forEach(field -> field.addTo(table));
     }
 

@@ -20,6 +20,10 @@ import java.util.stream.Stream;
  * @since 2015-11-19 (16:32)
  */
 public class GarnetSecuritySupportPersistenceSupport extends CommonBaseDeviceSecuritySupport<GarnetSecurityProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {

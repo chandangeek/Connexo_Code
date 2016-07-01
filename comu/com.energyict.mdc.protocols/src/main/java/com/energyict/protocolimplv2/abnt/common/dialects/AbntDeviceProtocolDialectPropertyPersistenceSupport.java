@@ -22,6 +22,10 @@ import java.util.stream.Stream;
  * @since 2015-11-26 (11:47)
  */
 public class AbntDeviceProtocolDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, AbntDeviceProtocolDialectProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String domainFieldName() {

@@ -22,6 +22,7 @@ public enum DeviceProtocolDialectName implements TranslationKey {
     SDK_SAMPLE_TIME_DEVICE_PROTOCOL("SDKTimeDialect", "SDK dialect for time testing"),
     SDK_SAMPLE_TOPOLOGY("SDKTopologyDialect", "SDK dialect for topology testing"),
     SDK_SAMPLE_FIRMWARE("SDKFirmwareDialect", "SDK dialect for firmware testing"),
+    SDK_SAMPLE_CALENDAR("SDKCalendarDialect", "SDK dialect for calendar testing"),
     SDK_SAMPLE_BREAKER("SDKBreakerDialect", "SDK dialect for breaker testing"),
     ACE4000_DEVICE_PROTOCOL("ACE4000GprsDialect", "ACE 4000"),
     GARNET_TCP("GarnetTcpDialect", "Garnet TCP"),

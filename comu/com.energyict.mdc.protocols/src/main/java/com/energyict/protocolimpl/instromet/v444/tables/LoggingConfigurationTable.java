@@ -37,8 +37,9 @@ public class LoggingConfigurationTable extends AbstractTable {
 			new ChannelInfo(id, "Instromet_" + (id + 1) + "_" + name, unit);
 		if (wrapValues.size() >= (id + 1)) {
 			BigDecimal wrapValue = (BigDecimal) wrapValues.get(id);
-			if (!BigDecimal.ZERO.equals(wrapValue))
+			if (!BigDecimal.ZERO.equals(wrapValue)) {
 				info.setCumulativeWrapValue(wrapValue);
+			}
 			//System.out.println("wrap value: " + wrapValue);
 		}
 		channelInfos.add(info);

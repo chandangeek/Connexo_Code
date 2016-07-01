@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.dlms.common;
 
+import com.energyict.mdc.common.ObisCode;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -13,11 +15,10 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
-import com.energyict.protocolimpl.generic.ParseUtils;
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
 import com.energyict.protocolimpl.dlms.idis.IDISMessageHandler;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.apache.commons.logging.Log;
@@ -85,8 +86,8 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
     private static final int indexDDayOfMonth = 3;
     private static final int indexDDayOfWeek = 4;
     private static final byte[] initialSpecialDayDateArray = new byte[]{(byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff};
-    private static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.0.255");
-    private static final ObisCode SPECIAL_DAYS_TABLE_OBISCODE = ObisCode.fromString("0.0.11.0.0.255");
+    public static final ObisCode ACTIVITY_CALENDAR_OBISCODE = ObisCode.fromString("0.0.13.0.0.255");
+    public static final ObisCode SPECIAL_DAYS_TABLE_OBISCODE = ObisCode.fromString("0.0.11.0.0.255");
 
     private CosemObjectFactory cosemObjectFactory;
     private TimeZone timeZone;
@@ -314,7 +315,7 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
      * Write a given name to the Calendar
      */
     public void writeCalendarName(String name) throws IOException {
-        if (name != null && name.length() > 0) {
+        if (name != null && !name.isEmpty()) {
             passiveCalendarName = OctetString.fromString(name);
         }
         getActivityCalendar().writeCalendarNamePassive(this.passiveCalendarName);
@@ -358,13 +359,14 @@ public class DLMSActivityCalendarController implements ActivityCalendarControlle
         }
     }
 
-    /**
-     * Get the name of the current <u>Active</u> Calendar
-     *
-     * @return the name of the current <u>Active</u> Calendar
-     */
+    @Override
     public String getCalendarName() throws IOException {
         return getActivityCalendar().readCalendarNameActive().stringValue();
+    }
+
+    @Override
+    public String getPassiveCalendarName() throws IOException {
+        return getActivityCalendar().readCalendarNamePassive().stringValue();
     }
 
     /**

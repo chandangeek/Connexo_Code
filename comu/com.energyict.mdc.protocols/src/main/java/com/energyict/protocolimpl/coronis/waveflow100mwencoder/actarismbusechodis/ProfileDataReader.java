@@ -12,7 +12,6 @@ import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.ActarisMBusI
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderDataloggingTable;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.EncoderUnitInfo.EncoderUnitType;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.InternalData;
-import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.MBusGenericHeader;
 import com.energyict.protocolimpl.coronis.waveflow100mwencoder.core.WaveFlow100mW;
 
 import java.io.IOException;
@@ -33,7 +32,7 @@ public class ProfileDataReader {
         this.waveFlow100mW = waveFlow100mW;
     }
 
-    final ProfileData getProfileData(Date lastReading, int portId, boolean includeEvents) throws UnsupportedException, IOException {
+    final ProfileData getProfileData(Date lastReading, int portId, boolean includeEvents) throws IOException {
 
         ProfileData profileData = new ProfileData();
 
@@ -55,7 +54,7 @@ public class ProfileDataReader {
         EncoderDataloggingTable encoderDataloggingTable;
 
         // create channelinfos
-        List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
         if ((portId == 0) || (portId == 1)) {
             // only 1 channel
             encoderDataloggingTable = waveFlow100mW.getRadioCommandFactory().readEncoderDataloggingTable(portId == 0 ? true : false, portId == 1 ? true : false, nrOfIntervals, 0);
@@ -106,7 +105,7 @@ public class ProfileDataReader {
                 } else {
                     bd = BigDecimal.ZERO;
                 }
-                List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
+                List<IntervalValue> intervalValues = new ArrayList<>();
                 intervalValues.add(new IntervalValue(bd, 0, 0));
                 intervalDatas.add(new IntervalData(calendar.getTime(), 0, 0, 0, intervalValues));
                 calendar.add(Calendar.SECOND, -1 * waveFlow100mW.getProfileInterval());
@@ -132,7 +131,7 @@ public class ProfileDataReader {
                 } else {
                     bdB = BigDecimal.ZERO;
                 }
-                List<IntervalValue> intervalValues = new ArrayList<IntervalValue>();
+                List<IntervalValue> intervalValues = new ArrayList<>();
                 intervalValues.add(new IntervalValue(bdA, 0, 0));
                 intervalValues.add(new IntervalValue(bdB, 0, 0));
                 intervalDatas.add(new IntervalData(calendar.getTime(), 0, 0, 0, intervalValues));
@@ -152,14 +151,14 @@ public class ProfileDataReader {
     }
 
     private List<MeterEvent> buildMeterEvents() throws IOException {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         meterEvents.addAll(buildMeterSpecificEvents());
         meterEvents.addAll(buildApplicationStatusEvents());
         return meterEvents;
     }
 
     private List<MeterEvent> buildApplicationStatusEvents() throws IOException {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         if (waveFlow100mW.getCachedGenericHeader() != null) {
 
             /*
@@ -182,7 +181,7 @@ public class ProfileDataReader {
                bit0 Meter internal alarm on port A: Hydraulic sensor out of order
                */
 
-            int applicationStatus = ((MBusGenericHeader) waveFlow100mW.getCachedGenericHeader()).getApplicationStatus();
+            int applicationStatus = waveFlow100mW.getCachedGenericHeader().getApplicationStatus();
 
             if ((applicationStatus & 0x01) == 0x01) {
                 meterEvents.add(new MeterEvent(new Date(), MeterEvent.OTHER, getDeviceCode(0), "Meter internal alarm. Hydrolic sensor out of order Port A"));
@@ -232,7 +231,7 @@ public class ProfileDataReader {
      * Check the alarm code of the connected meter (included in its internal data) and create the proper events
      */
     private List<MeterEvent> buildMeterSpecificEvents() throws IOException {
-        List<MeterEvent> meterEvents = new ArrayList<MeterEvent>();
+        List<MeterEvent> meterEvents = new ArrayList<>();
         for (InternalData internalData : waveFlow100mW.readInternalDatas()) {
             if (internalData != null) {
                 ActarisMBusInternalData actarisMBusInternalData = (ActarisMBusInternalData) internalData;

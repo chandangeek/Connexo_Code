@@ -34,9 +34,11 @@ import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.protocolimpl.dlms.common.AbstractSmartDlmsProtocol;
+import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.messaging.IskraMx372Messaging;
 
@@ -48,6 +50,7 @@ import java.time.Clock;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -400,6 +403,28 @@ public class IskraMx372 extends AbstractSmartDlmsProtocol implements ProtocolLin
             }
         }
         return null;
+    }
+
+    @Override
+    public Optional<String> getActiveCalendarName() throws IOException {
+        ActivityCalendar activityCalendar = this.getDlmsSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        String calendarName = activityCalendar.readCalendarNameActive().stringValue();
+        if (calendarName != null && !calendarName.isEmpty()) {
+            return Optional.of(calendarName);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<String> getPassiveCalendarName() throws IOException {
+        ActivityCalendar activityCalendar = this.getDlmsSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        String calendarName = activityCalendar.readCalendarNamePassive().stringValue();
+        if (calendarName != null && !calendarName.isEmpty()) {
+            return Optional.of(calendarName);
+        } else {
+            return Optional.empty();
+        }
     }
 
 }
