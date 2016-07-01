@@ -2,7 +2,9 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.config.ExpressionNode;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,32 +19,40 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void> {
+class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void> {
 
-    private final String joinPrefix;
     private String sourceTableName;
+    private Collection<JoinClause> joinClauses = new ArrayList<>();
     private Set<String> joinTableNames = new HashSet<>();
 
-    public JoinClausesForExpressionNode(String joinPrefix, String sourceTableName) {
+    JoinClausesForExpressionNode(String sourceTableName) {
         super();
-        this.joinPrefix = joinPrefix;
         this.sourceTableName = sourceTableName;
     }
 
-    public List<String> joinClauses() {
-        return this.joinTableNames
+    List<String> joinClauses() {
+        return this.joinClauses
                 .stream()
-                .map(this::toJoinClause)
+                .map(each -> each.joinWith(" JOIN ", this.sourceTableName))
                 .collect(Collectors.toList());
     }
 
-    private String toJoinClause(String joinTableName) {
-        return this.joinPrefix + joinTableName + " ON " + joinTableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName() + " = " + this.sourceTableName + "." + SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName();
+    private void visitTimeSeries(String tableName) {
+        if (!this.sourceTableName.equals(tableName)) {
+            this.add(new TimeSeriesJoinClause(tableName));
+        }
     }
 
-    private void visitTableName(String tableName) {
+    private void visitCustomProperty(String tableName) {
         if (!this.sourceTableName.equals(tableName)) {
-            this.joinTableNames.add(tableName);
+            this.add(new PropertiesJoinClause(tableName));
+        }
+    }
+
+    private void add(JoinClause joinClause) {
+        if (!this.joinTableNames.contains(joinClause.tableName())) {
+            this.joinClauses.add(joinClause);
+            this.joinTableNames.add(joinClause.tableName());
         }
     }
 
@@ -53,6 +63,12 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
 
     @Override
     public Void visitConstant(StringConstantNode constant) {
+        return null;
+    }
+
+    @Override
+    public Void visitProperty(CustomPropertyNode property) {
+        this.visitCustomProperty(property.sqlName());
         return null;
     }
 
@@ -68,13 +84,13 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
 
     @Override
     public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        this.visitTableName(deliverable.sqlName());
+        this.visitTimeSeries(deliverable.sqlName());
         return null;
     }
 
     @Override
     public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
-        this.visitTableName(requirement.sqlName());
+        this.visitTimeSeries(requirement.sqlName());
         return null;
     }
 
@@ -87,8 +103,8 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
     @Override
     public Void visitOperation(OperationNode operationNode) {
         this.visitAll(Arrays.asList(
-                        operationNode.getLeftOperand(),
-                        operationNode.getRightOperand()));
+                operationNode.getLeftOperand(),
+                operationNode.getRightOperand()));
         return null;
     }
 
@@ -106,6 +122,57 @@ public class JoinClausesForExpressionNode implements ServerExpressionNode.Visito
     @Override
     public Void visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
         return aggregationNode.getAggregatedExpression().accept(this);
+    }
+
+    private String timestampFrom(String tableName) {
+        return this.fullyQualified(tableName, SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName());
+    }
+
+    private String fullyQualified(String tableName, String columnName) {
+        return tableName + "." + columnName;
+    }
+
+    private interface JoinClause {
+        String tableName();
+
+        String joinWith(String prefix, String joinTableName);
+    }
+
+    private class TimeSeriesJoinClause implements JoinClause {
+        private final String tableName;
+
+        private TimeSeriesJoinClause(String tableName) {
+            this.tableName = tableName;
+        }
+
+        @Override
+        public String tableName() {
+            return this.tableName;
+        }
+
+        @Override
+        public String joinWith(String prefix, String joinTableName) {
+            return prefix + this.tableName + " ON " + timestampFrom(this.tableName) + " = " + timestampFrom(joinTableName);
+        }
+    }
+
+    private class PropertiesJoinClause implements JoinClause {
+        private final String tableName;
+
+        private PropertiesJoinClause(String tableName) {
+            this.tableName = tableName;
+        }
+
+        @Override
+        public String tableName() {
+            return this.tableName;
+        }
+
+        @Override
+        public String joinWith(String prefix, String joinTableName) {
+            return prefix + this.tableName + " ON " + fullyQualified(this.tableName, "starttime") + " < " + timestampFrom(joinTableName)
+                    + " AND " + timestampFrom(joinTableName) + " <= " + fullyQualified(this.tableName, "endtime");
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.Formula;
@@ -10,6 +11,7 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -68,6 +70,11 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
 
     public ExpressionNodeBuilder requirement(ReadingTypeRequirementNode existingNode) {
         return () -> ((ServerExpressionNode) existingNode);
+    }
+
+    @Override
+    public ExpressionNodeBuilder property(RegisteredCustomPropertySet customPropertySet, PropertySpec propertySpec) {
+        return () -> new CustomPropertyNodeImpl(propertySpec, customPropertySet);
     }
 
     @Override
@@ -132,7 +139,7 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
 
     @Override
     public ExpressionNodeBuilder plus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2) {
-        return () -> new OperationNodeImpl(Operator.PLUS,  term1.create(),  term2.create(), thesaurus);
+        return () -> new OperationNodeImpl(Operator.PLUS, term1.create(), term2.create(), thesaurus);
     }
 
     @Override
@@ -152,7 +159,7 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
 
     @Override
     public ExpressionNodeBuilder multiply(ExpressionNodeBuilder multiplier, ExpressionNodeBuilder multiplicand) {
-        return () -> new OperationNodeImpl(Operator.MULTIPLY,  multiplier.create(), multiplicand.create(), thesaurus);
+        return () -> new OperationNodeImpl(Operator.MULTIPLY, multiplier.create(), multiplicand.create(), thesaurus);
     }
 
     @Override
@@ -176,12 +183,12 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
             }
         }
         return () -> new FunctionCallNodeImpl(
-                        terms.stream()
-                            .map(ExpressionNodeBuilder::create)
-                            .collect(Collectors.toList()),
-                        function,
-                        aggregationLevel,
-                        thesaurus);
+                terms.stream()
+                        .map(ExpressionNodeBuilder::create)
+                        .collect(Collectors.toList()),
+                function,
+                aggregationLevel,
+                thesaurus);
     }
 
     private void validateUseOfFunctions(Function function) {

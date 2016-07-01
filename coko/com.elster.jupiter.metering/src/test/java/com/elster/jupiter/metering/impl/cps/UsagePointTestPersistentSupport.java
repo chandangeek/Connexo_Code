@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -11,6 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class UsagePointTestPersistentSupport implements PersistenceSupport<UsagePoint, UsagePointTestPersistentDomainExtension> {
+    @Override
+    public String application() {
+        return "Example";
+    }
 
     @Override
     public String componentName() {

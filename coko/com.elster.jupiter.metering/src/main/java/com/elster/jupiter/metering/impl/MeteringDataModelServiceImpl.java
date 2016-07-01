@@ -171,7 +171,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 this.eventService, this.queryService, this.messageService, this.jsonService, this.upgradeService);
         this.meteringService.defineLocationTemplates(bundleContext); // This call has effect on resulting table spec!
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
-            this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService);
+            this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.customPropertySetService);
         }
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.metrologyConfigurationService, this.clock, this.licenseService);
@@ -211,7 +211,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     }
 
     private void installDataModel() {
-        this.upgradeService.register(identifier(COMPONENT_NAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+        this.upgradeService.register(identifier("Pulse", MeteringDataModelService.COMPONENT_NAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
         this.meteringService.readLocationTemplatesFromDatabase();

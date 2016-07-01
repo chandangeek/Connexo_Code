@@ -36,6 +36,16 @@ import java.util.Optional;
 interface ClauseAwareSqlBuilder {
 
     /**
+     * Tests if a with clause with the specified name already exists.
+     * It will only exist after a previous call to {@link #with(String, Optional, String...)}
+     * with that name.
+     *
+     * @param alias The name of the with clause
+     * @return A flag that indicates if a with clause with that name already exists
+     */
+    boolean withExists(String alias);
+
+    /**
      * Returns a SqlBuilder that will be included in the overall
      * SQL statement being built as a "WITH" clause.
      * Multiple with clauses are supported, the first call will
@@ -45,7 +55,7 @@ interface ClauseAwareSqlBuilder {
      *
      * @param alias The name of the with clause
      * @param columnAliasNames An optional list of aliases for the name of the columns that are selected
-     *                         by the sql of the with clause
+     * by the sql of the with clause
      * @return The SqlBuilder
      */
     SqlBuilder with(String alias, Optional<String> comment, String... columnAliasNames);

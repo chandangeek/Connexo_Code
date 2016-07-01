@@ -100,7 +100,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     public String toString() {
         return toStringHelper(this)
                 .add("usagePoint", this.usagePoint)
-                .add("metrologyConfiguration", this.metrologyConfiguration)
+                .add("configuration", this.metrologyConfiguration)
                 .toString();
     }
 }

@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the methods that apply a {@link MetrologyConfiguration}
+ * Tests the methods that apply a {@link UsagePointMetrologyConfiguration}
  * to a {@link UsagePoint} like:
  * <ul>
  * <li>{@link UsagePoint#apply(UsagePointMetrologyConfiguration)}</li>
@@ -36,12 +35,11 @@ import static org.mockito.Mockito.when;
  * <li>{@link UsagePoint#getMetrologyConfiguration()}</li>
  * <li>{@link UsagePoint#getMetrologyConfiguration(Instant)}</li>
  * </ul>
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ApplyMetrologyConfigurationToUsagePointTest {
     private static Clock clock = mock(Clock.class);
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule(clock);
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withClock(clock);
 
     @BeforeClass
     public static void setUp() {
@@ -81,7 +79,7 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             up = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
             upId = up.getId();
-            MetrologyConfiguration mc = service.newUsagePointMetrologyConfiguration("Residential", serviceCategory).create();
+            UsagePointMetrologyConfiguration mc = service.newUsagePointMetrologyConfiguration("Residential", serviceCategory).create();
             mcId = mc.getId();
             context.commit();
         }
@@ -94,7 +92,8 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
                     .map(UsagePointMetrologyConfiguration.class::cast);
             assertThat(usagePoint).isPresent();
             assertThat(mc).isPresent();
-            usagePoint.get().apply(mc.get());
+            assertThat(mc.get()).isInstanceOf(UsagePointMetrologyConfiguration.class);
+            usagePoint.get().apply((UsagePointMetrologyConfiguration) mc.get());
             context.commit();
         }
         MeteringService mtrService = getMeteringService();
@@ -143,4 +142,5 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
         assertThat(febConfiguration).isPresent();
         assertThat(febConfiguration.get().getId()).isEqualTo(mc2Id);
     }
+
 }

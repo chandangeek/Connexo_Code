@@ -28,10 +28,10 @@ import java.util.Comparator;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-03 (08:34)
  */
-public class VirtualReadingTypeRelativeComparator implements Comparator<VirtualReadingType> {
+class VirtualReadingTypeRelativeComparator implements Comparator<VirtualReadingType> {
     private final VirtualReadingType target;
 
-    public VirtualReadingTypeRelativeComparator(VirtualReadingType target) {
+    VirtualReadingTypeRelativeComparator(VirtualReadingType target) {
         this.target = target;
     }
 
@@ -156,7 +156,7 @@ public class VirtualReadingTypeRelativeComparator implements Comparator<VirtualR
 
     private boolean sameUnitAndMultiplierAsTarget(VirtualReadingType other) {
         return this.sameUnitAsTarget(other)
-            && other.getUnitMultiplier().equals(this.target.getUnitMultiplier());
+                && other.getUnitMultiplier().equals(this.target.getUnitMultiplier());
     }
 
     private boolean bothSameUnitAsTarget(VirtualReadingType x, VirtualReadingType y) {

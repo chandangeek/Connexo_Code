@@ -11,7 +11,7 @@ import java.util.Comparator;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (13:45)
  */
-public class TemporalAmountComparator implements Comparator<TemporalAmount> {
+class TemporalAmountComparator implements Comparator<TemporalAmount> {
 
     @Override
     public int compare(TemporalAmount ta1, TemporalAmount ta2) {
@@ -20,28 +20,23 @@ public class TemporalAmountComparator implements Comparator<TemporalAmount> {
             if (ta2 instanceof Duration) {
                 Duration d2 = (Duration) ta2;
                 return d1.compareTo(d2);
-            }
-            else {
+            } else {
                 // ta2 must be a Period which is always bigger than a Duration
                 return -1;
             }
-        }
-        else {
+        } else {
             // ta1 must be a Period
             Period p1 = (Period) ta1;
             if (ta2 instanceof Period) {
                 Period p2 = (Period) ta2;
                 if (p1.equals(p2)) {
                     return 0;
-                }
-                else if (p1.minus(p2).isNegative()) {
+                } else if (p1.minus(p2).isNegative()) {
                     return -1;
-                }
-                else {
+                } else {
                     return 1;
                 }
-            }
-            else {
+            } else {
                 // ta2 must be a Duration, which is always smaller than a Period
                 return 1;
             }

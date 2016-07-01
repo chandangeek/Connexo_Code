@@ -16,12 +16,12 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (12:41)
  */
-public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFragment> {
+class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFragment> {
 
     private final Formula.Mode mode;
     private boolean unitConversionActive = false;
 
-    public ExpressionNodeToSql(Formula.Mode mode) {
+    ExpressionNodeToSql(Formula.Mode mode) {
         this.mode = mode;
     }
 
@@ -41,6 +41,13 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
     public SqlFragment visitConstant(StringConstantNode constant) {
         SqlBuilder fragment = new SqlBuilder();
         fragment.addObject(constant.getValue());
+        return fragment;
+    }
+
+    @Override
+    public SqlFragment visitProperty(CustomPropertyNode property) {
+        SqlBuilder fragment = new SqlBuilder();
+        fragment.append(property.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
         return fragment;
     }
 
@@ -123,8 +130,8 @@ public class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFrag
         aggregationNode
                 .getFunction()
                 .appendTo(
-                    fragment,
-                    Collections.singletonList(aggregationNode.getAggregatedExpression().accept(this)));
+                        fragment,
+                        Collections.singletonList(aggregationNode.getAggregatedExpression().accept(this)));
         return fragment;
     }
 

@@ -162,7 +162,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType2 = inMemoryBootstrapModule.getMeteringService().getReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", ""));
-        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("RTR").withMeterRole(meterRole).withReadingType(readingType2);
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("RTR", meterRole).withReadingType(readingType2);
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("RTD", readingType, Formula.Mode.AUTO);
         ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
         MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);

@@ -9,14 +9,13 @@ import java.util.Objects;
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor} interface
  * and returns a SQL construct (as String) that provides the UTC timestamp for the visited
- * {@link ExpressionNode}
- * or <code>0</code> if the ExpressionNode cannot provide a UTC timestamp.
+ * {@link ExpressionNode} or <code>0</code> if the ExpressionNode cannot provide a UTC timestamp.
  * A {@link NumericalConstantNode} is a good example of that.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor<String> {
+class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor<String> {
 
     @Override
     public String visitConstant(NumericalConstantNode constant) {
@@ -26,6 +25,15 @@ public class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor
     @Override
     public String visitConstant(StringConstantNode constant) {
         return null;
+    }
+
+    @Override
+    public String visitProperty(CustomPropertyNode property) {
+        if (property.getCustomPropertySet().isVersioned()) {
+            return property.sqlName() + ".timestamp";
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -56,8 +64,8 @@ public class TimeStampFromExpressionNode implements ServerExpressionNode.Visitor
     @Override
     public String visitOperation(OperationNode operationNode) {
         return this.findFirst(Arrays.asList(
-                        operationNode.getLeftOperand(),
-                        operationNode.getRightOperand()));
+                operationNode.getLeftOperand(),
+                operationNode.getRightOperand()));
     }
 
     @Override

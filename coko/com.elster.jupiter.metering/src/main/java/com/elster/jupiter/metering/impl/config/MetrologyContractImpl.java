@@ -47,6 +47,7 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
+    @SuppressWarnings("unused")
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
@@ -163,26 +164,6 @@ public class MetrologyContractImpl implements MetrologyContract {
         return Long.hashCode(this.id);
     }
 
-    private static class StatusImpl implements Status {
-        private final Thesaurus thesaurus;
-        private final MetrologyContractStatusKey statusKey;
-
-        public StatusImpl(Thesaurus thesaurus, MetrologyContractStatusKey statusKey) {
-            this.thesaurus = thesaurus;
-            this.statusKey = statusKey;
-        }
-
-        @Override
-        public String getKey() {
-            return this.statusKey.name();
-        }
-
-        @Override
-        public String getName() {
-            return this.thesaurus.getFormat(this.statusKey.getTranslation()).format();
-        }
-    }
-
     MetrologyContractStatusKey getMetrologyContractStatusKey(UsagePoint usagePoint) {
         if (this.metrologyConfiguration.isPresent() && this.metrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
             UsagePointMetrologyConfiguration configuration = (UsagePointMetrologyConfiguration) this.metrologyConfiguration.get();
@@ -215,6 +196,26 @@ public class MetrologyContractImpl implements MetrologyContract {
         return MetrologyContractStatusKey.UNKNOWN;
     }
 
+    private static class StatusImpl implements Status {
+        private final Thesaurus thesaurus;
+        private final MetrologyContractStatusKey statusKey;
+
+        private StatusImpl(Thesaurus thesaurus, MetrologyContractStatusKey statusKey) {
+            this.thesaurus = thesaurus;
+            this.statusKey = statusKey;
+        }
+
+        @Override
+        public String getKey() {
+            return this.statusKey.name();
+        }
+
+        @Override
+        public String getName() {
+            return this.thesaurus.getFormat(this.statusKey.getTranslation()).format();
+        }
+    }
+
     enum MetrologyContractStatusKey {
         COMPLETE(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_COMPLETE),
         INCOMPLETE(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_INCOMPLETE),
@@ -230,5 +231,4 @@ public class MetrologyContractImpl implements MetrologyContract {
             return this.statusTranslation;
         }
     }
-
 }

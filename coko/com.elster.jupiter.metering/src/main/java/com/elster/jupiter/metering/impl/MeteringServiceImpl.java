@@ -11,7 +11,6 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.GeoCoordinates;
@@ -329,7 +328,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
      * This method highly depends on dataModel, so call it after database installation
      */
     public final void readLocationTemplatesFromDatabase() {
-        if (upgradeService.isInstalled(identifier(MeteringDataModelService.COMPONENT_NAME), version(10, 2))) {
+        if (upgradeService.isInstalled(identifier("Pulse", MeteringDataModelService.COMPONENT_NAME), version(10, 2))) {
             getLocationTemplateFromDB().ifPresent(template -> {
                 locationTemplate = template;
                 locationTemplateMembers = ImmutableList.copyOf((template.getTemplateMembers()));
@@ -618,7 +617,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
             formattedLocation = locationTemplate.getTemplateMembers()
                     .stream()
                     .sorted((m1, m2) -> Integer.compare(m1.getRanking(), m2.getRanking()))
-                    .filter(m -> !m.getName().equalsIgnoreCase("locale"))
+                    .filter(m -> !"locale".equalsIgnoreCase(m.getName()))
                     .collect(() -> {
                                 List<List<String>> list = new ArrayList<>();
                                 list.add(new ArrayList<>());

@@ -84,7 +84,7 @@ public class CalculatedReadingRecordTest {
         CalculatedReadingRecord testInstance = this.testInstance();
         when(this.resultSet.getString(1)).thenReturn(FIFTEEN_MINS_NET_CONSUMPTION_MRID);
         BigDecimal expectedValue = BigDecimal.TEN;
-        Quantity expectedQuantity = Quantity.create(expectedValue, 3,  "Wh");
+        Quantity expectedQuantity = Quantity.create(expectedValue, 3, "Wh");
         when(this.resultSet.getBigDecimal(2)).thenReturn(expectedValue);
         Timestamp jan1st2016 = Timestamp.from(JAN_1_2016_UTC);
         Instant expectedIntervalStart = JAN_1_2016_UTC.minus(Duration.ofMinutes(15));
@@ -246,6 +246,30 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getTimeStamp()).isEqualTo(recent);
         assertThat(merged.getProcessStatus()).isEqualTo(expectedProcessStatus);
         assertThat(merged.getCount()).isEqualTo(200L);
+    }
+
+    @Test
+    public void testAtTimestamp() throws SQLException {
+        String readingTypeMRID = "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        IReadingType readingType = mock(IReadingType.class);
+        when(readingType.getMRID()).thenReturn(readingTypeMRID);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        Instant may1st2016 = Instant.ofEpochMilli(1462053600000L);
+        Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
+        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 3L, 1L, may1st2016);
+        r1.setReadingType(readingType);
+        r1.setUsagePoint(usagePoint);
+
+        // Business method
+        CalculatedReadingRecord may = r1.atTimeStamp(june1st2016);
+
+        // Asserts
+        assertThat(may.getReadingType()).isEqualTo(readingType);
+        assertThat(may.getValue()).isEqualTo(BigDecimal.valueOf(97L));
+        assertThat(may.getTimeStamp()).isEqualTo(june1st2016);
     }
 
     private CalculatedReadingRecord testInstance() {

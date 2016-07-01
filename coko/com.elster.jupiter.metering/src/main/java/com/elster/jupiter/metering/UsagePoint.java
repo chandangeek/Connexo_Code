@@ -130,7 +130,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     void setGeoCoordinates(GeoCoordinates geoCoordinates);
 
     /**
-     * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
+     * Applies the specified {@link UsagePointMetrologyConfiguration} to this UsagePoint
      * from this point in time onward.
      *
      * @param metrologyConfiguration The UsagePointMetrologyConfiguration
@@ -204,6 +204,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      */
     List<MeterActivation> getMeterActivations(Instant when);
 
+    List<MeterActivation> getMeterActivations();
+
     /**
      * Returns collection which contains effective meter activations per meter role.
      */
@@ -250,10 +252,4 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     }
 
     ZoneId getZoneId();
-
-    // TODO delete start (methods from ReadingContainer) =============================================================
-
-    // TODO delete end ===============================================================================================
-
-    List<? extends MeterActivation> getMeterActivations();
 }

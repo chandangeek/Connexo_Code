@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomPropertySetExtension {
+class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomPropertySetExtension {
     private final Clock clock;
     private final CustomPropertySetService customPropertySetService;
     private final Thesaurus thesaurus;
@@ -36,10 +36,11 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
     private List<UsagePointPropertySet> allProperties;
 
     @Inject
-    public UsagePointCustomPropertySetExtensionImpl(Clock clock,
-                                                    CustomPropertySetService customPropertySetService,
-                                                    Thesaurus thesaurus,
-                                                    UsagePointImpl usagePoint) {
+    UsagePointCustomPropertySetExtensionImpl(
+            Clock clock,
+            CustomPropertySetService customPropertySetService,
+            Thesaurus thesaurus,
+            UsagePointImpl usagePoint) {
         this.clock = clock;
         this.customPropertySetService = customPropertySetService;
         this.thesaurus = thesaurus;
@@ -109,11 +110,11 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
         return (UsagePointVersionedPropertySet) property;
     }
 
-    public class UsagePointPropertySetImpl implements UsagePointPropertySet {
+    class UsagePointPropertySetImpl implements UsagePointPropertySet {
 
         private final RegisteredCustomPropertySet delegate;
 
-        public UsagePointPropertySetImpl(RegisteredCustomPropertySet rcps) {
+        UsagePointPropertySetImpl(RegisteredCustomPropertySet rcps) {
             if (!UsagePoint.class.isAssignableFrom(rcps.getCustomPropertySet().getDomainClass())) {
                 throw UsagePointCustomPropertySetValuesManageException
                         .badDomainType(thesaurus, rcps.getCustomPropertySet().getName());
@@ -196,9 +197,9 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
         }
     }
 
-    public class UsagePointVersionedPropertySetImpl extends UsagePointPropertySetImpl implements UsagePointVersionedPropertySet {
+    class UsagePointVersionedPropertySetImpl extends UsagePointPropertySetImpl implements UsagePointVersionedPropertySet {
 
-        public UsagePointVersionedPropertySetImpl(RegisteredCustomPropertySet rcps) {
+        UsagePointVersionedPropertySetImpl(RegisteredCustomPropertySet rcps) {
             super(rcps);
             if (!getCustomPropertySet().isVersioned()) {
                 throw UsagePointCustomPropertySetValuesManageException
@@ -258,7 +259,7 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
                 return getCurrentIntervalWithActiveVersion(versionIntervals, now);
             }
             // no active version right now
-            return getCurrentIntervalNoActiveVersion(versionIntervals, now);
+            return getCurrentIntervalNoActiveVersion(versionIntervals);
         }
 
         private Range<Instant> getCurrentIntervalWithActiveVersion(List<Range<Instant>> versionIntervals, Instant currentTime) {
@@ -270,7 +271,7 @@ public class UsagePointCustomPropertySetExtensionImpl implements UsagePointCusto
             return currentVersionRange.hasUpperBound() ? Range.closedOpen(currentTime, currentVersionRange.upperEndpoint()) : Range.atLeast(currentTime);
         }
 
-        private Range<Instant> getCurrentIntervalNoActiveVersion(List<Range<Instant>> versionIntervals, Instant currentTime) {
+        private Range<Instant> getCurrentIntervalNoActiveVersion(List<Range<Instant>> versionIntervals) {
             // do we have versions?
             if (!versionIntervals.isEmpty()) {
                 Range<Instant> latestVersion = versionIntervals.get(0);
