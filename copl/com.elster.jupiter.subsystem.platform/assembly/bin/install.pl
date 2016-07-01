@@ -173,8 +173,8 @@ sub read_config {
         check_java8();
         print "Please enter the hostname (leave empty to use the system variable): ";
         chomp($HOST_NAME=<STDIN>);
-        while ("$CONNEXO_ADMIN_PASSWORD" eq "") {
-            print "Please enter the admin password: ";
+        while (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
+            print "Please enter the admin password (different from \"admin\"): ";
             chomp($CONNEXO_ADMIN_PASSWORD=<STDIN>);
         }
 						    
@@ -254,8 +254,8 @@ sub read_config {
     if ("$HOST_NAME" eq "") {
         $HOST_NAME=hostname;
     }
-    if ("$CONNEXO_ADMIN_PASSWORD" eq "") {
-        print "Please provide an admin password\n";
+    if (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
+        print "Please provide an admin password (different from \"admin\")\n";
         exit (0);
     }
     $CONNEXO_URL="http://$HOST_NAME:$CONNEXO_HTTP_PORT";
