@@ -249,6 +249,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        this.thesaurus = thesaurus.join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
