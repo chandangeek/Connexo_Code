@@ -7,15 +7,7 @@ Ext.define('Idv.controller.history.Workspace', {
     previousPath: '',
     currentPath: null,
 
-    routeConfig: {
-        "workspace/datavalidationoverview": {
-            title: Uni.I18n.translate('validation.validationOverview.title', 'IDV', 'Validation overview'),
-            route: 'workspace/datavalidationoverview',
-            controller: 'Ddv.controller.ValidationOverview',
-            action: 'showOverview',
-            filter: 'Ddv.model.ValidationOverviewFilter'
-        }
-    },
+    routeConfig: null,
 
     init: function () {
         var router = this.getController('Uni.controller.history.Router');
