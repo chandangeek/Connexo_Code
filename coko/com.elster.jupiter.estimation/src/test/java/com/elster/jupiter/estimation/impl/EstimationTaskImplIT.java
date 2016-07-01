@@ -33,6 +33,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.RelativeDate;
@@ -196,6 +197,7 @@ public class EstimationTaskImplIT {
                     new TaskModule(),
                     new MeteringGroupsModule(),
                     new SearchModule(),
+                    new WebServicesModule(),
                     new AppServiceModule(),
                     new DataVaultModule(),
                     new CustomPropertySetsModule(),
