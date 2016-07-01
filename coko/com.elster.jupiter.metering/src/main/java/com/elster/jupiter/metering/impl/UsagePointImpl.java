@@ -480,7 +480,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ConnectionState getConnectionState() {
-        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState).orElseThrow(IllegalStateException::new);
+        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState).orElse(ConnectionState.UNDER_CONSTRUCTION);
     }
 
     @Override
