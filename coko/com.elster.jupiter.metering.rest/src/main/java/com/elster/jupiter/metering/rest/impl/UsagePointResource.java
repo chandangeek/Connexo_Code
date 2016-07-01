@@ -8,6 +8,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -60,6 +62,7 @@ public class UsagePointResource {
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final ServiceCallService serviceCallService;
     private final ExceptionFactory exceptionFactory;
+    private final UsagePointChannelInfoFactory usagePointChannelInfoFactory;
 
     @Inject
     public UsagePointResource(
@@ -68,13 +71,15 @@ public class UsagePointResource {
             Clock clock,
             ConcurrentModificationExceptionFactory conflictFactory,
             UsagePointInfoFactory usagePointInfoFactory,
-            ExceptionFactory exceptionFactory) {
+            ExceptionFactory exceptionFactory,
+            UsagePointChannelInfoFactory usagePointChannelInfoFactory) {
         this.meteringService = meteringService;
         this.clock = clock;
         this.conflictFactory = conflictFactory;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.serviceCallService = serviceCallService;
         this.exceptionFactory = exceptionFactory;
+        this.usagePointChannelInfoFactory = usagePointChannelInfoFactory;
     }
 
     @GET
@@ -240,6 +245,27 @@ public class UsagePointResource {
             return Response.accepted().build();
         }
         throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+
+    @GET
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
+    @Path("/{mRID}/channels")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public PagedInfoList getChannels(@PathParam("mRID") String mRID, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
+        List<UsagePointChannelInfo> channelInfos = new ArrayList<>();
+        UsagePoint usagePoint = fetchUsagePoint(mRID);
+        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().orElse(null);
+        if (metrologyConfiguration != null) {
+            List<MetrologyContract> contracts = metrologyConfiguration.getMetrologyConfiguration().getContracts();
+            contracts.stream().forEach(metrologyContract -> {
+                metrologyConfiguration.getChannelsContainer(metrologyContract).orElse(null).getChannels().stream().forEach(channel -> {
+                    channelInfos.add(usagePointChannelInfoFactory.from(channel, usagePoint, metrologyConfiguration.getMetrologyConfiguration()));
+                });
+            });
+        }
+
+        return PagedInfoList.fromPagedList("channels", channelInfos, queryParameters);
     }
 
     private ReadingInfos doGetReadingTypeReadings(String mRID, String rtMrid, Range<Instant> range) {
