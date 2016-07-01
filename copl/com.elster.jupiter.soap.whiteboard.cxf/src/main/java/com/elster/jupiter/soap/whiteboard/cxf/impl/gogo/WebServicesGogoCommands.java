@@ -163,7 +163,7 @@ public class WebServicesGogoCommands {
         String name = String.join(" ", nameParts);
         Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(name);
         if (!endPointConfiguration.isPresent()) {
-            System.err.println("Nu such end point configuration");
+            System.err.println("No such end point configuration");
             return;
         }
         System.out.println("Log level      : " + endPointConfiguration.get().getLogLevel());
@@ -179,7 +179,7 @@ public class WebServicesGogoCommands {
         DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.FULL)
                 .withLocale(Locale.getDefault())
                 .withZone(ZoneId.systemDefault());
-        for (EndPointLog log : endPointConfiguration.get().getLogs().find()) {
+        for (EndPointLog log : endPointConfiguration.get().getLogs().sorted("timestamp", true).find()) {
             System.out.println(String.format("%s\t %s", formatter.format(log.getTime()), log.getMessage()));
             if (log.getStackTrace() != null) {
                 System.out.println("\t" + log.getStackTrace());

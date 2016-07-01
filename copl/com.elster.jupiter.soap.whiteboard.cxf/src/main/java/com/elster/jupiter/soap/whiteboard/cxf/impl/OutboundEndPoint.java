@@ -1,15 +1,19 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.apache.cxf.annotations.SchemaValidation;
+import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.feature.validation.SchemaValidationFeature;
+import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
+import org.apache.cxf.transport.http.HTTPConduit;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -34,7 +38,7 @@ public final class OutboundEndPoint implements ManagedEndpoint {
     private final String logDirectory;
 
     private OutboundEndPointProvider endPointProvider;
-    private EndPointConfiguration endPointConfiguration;
+    private OutboundEndPointConfiguration endPointConfiguration;
     private ServiceRegistration<?> serviceRegistration;
 
     @Inject
@@ -73,10 +77,20 @@ public final class OutboundEndPoint implements ManagedEndpoint {
             }
             Service service = Service.create(new URL(endPointConfiguration.getUrl()), endPointProvider.get()
                     .getServiceName());
+            Object port = service.getPort(endPointProvider.getService(), features.toArray(new WebServiceFeature[features
+                    .size()]));
+            if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
+                Client client = ClientProxy.getClient(port);
+                HTTPConduit httpConduit = (HTTPConduit) client.getConduit();
+                AuthorizationPolicy authorization = httpConduit.getAuthorization();
+                authorization.setUserName(endPointConfiguration.getUsername());
+                authorization.setPassword(endPointConfiguration.getPassword());
+//                authorization.setAuthorization("BASIC"); // not required
+                httpConduit.setAuthorization(authorization); // still required?
+            }
             serviceRegistration = bundleContext.registerService(
                     endPointProvider.getService(),
-                    service.getPort(endPointProvider.getService(),
-                            features.toArray(new WebServiceFeature[features.size()])),
+                    port,
                     null);
         } catch (MalformedURLException e) {
             endPointConfiguration.log("Failed to publish endpoint", e);

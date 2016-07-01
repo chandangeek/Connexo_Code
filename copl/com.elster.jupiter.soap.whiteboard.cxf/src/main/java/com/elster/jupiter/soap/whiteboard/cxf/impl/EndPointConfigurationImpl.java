@@ -19,7 +19,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
@@ -41,7 +40,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private String name;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    protected String url;
+    private String url;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String webServiceName;

@@ -60,7 +60,9 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Inject // For test purposes only
-    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService, UpgradeService upgradeService, BundleContext bundleContext, EventService eventService, UserService userService, NlsService nlsService, TransactionService transactionService) {
+    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService,
+                                  UpgradeService upgradeService, BundleContext bundleContext, EventService eventService,
+                                  UserService userService, NlsService nlsService, TransactionService transactionService) {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
@@ -231,6 +233,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Deactivate
     public void stop(BundleContext bundleContext) {
         endpoints.values().stream().forEach(ManagedEndpoint::stop);
+        endpoints.clear();
     }
 
     private Module getModule(String logDirectory) {

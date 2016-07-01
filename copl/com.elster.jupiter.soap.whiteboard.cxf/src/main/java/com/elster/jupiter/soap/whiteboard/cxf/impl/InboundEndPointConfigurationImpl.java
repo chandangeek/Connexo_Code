@@ -6,7 +6,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.users.Group;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.time.Clock;
 import java.util.Optional;
 
@@ -40,9 +39,9 @@ public final class InboundEndPointConfigurationImpl extends EndPointConfiguratio
     @Override
     public void setUrl(String url) {
         if (url != null && !url.startsWith("/")) {
-            this.url = "/" + url;
+            super.setUrl("/" + url);
         } else {
-            this.url = url;
+            super.setUrl(url);
         }
     }
 }
