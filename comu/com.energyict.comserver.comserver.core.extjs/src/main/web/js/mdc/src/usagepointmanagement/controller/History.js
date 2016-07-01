@@ -3,6 +3,7 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
     requires: [
         'Mdc.usagepointmanagement.model.UsagePoint',
         'Mdc.usagepointmanagement.model.MetrologyConfigurationVersion',
+        'Mdc.usagepointmanagement.model.UsagePointWithVersion',
         'Ext.container.Container'
     ],
     stores: [
