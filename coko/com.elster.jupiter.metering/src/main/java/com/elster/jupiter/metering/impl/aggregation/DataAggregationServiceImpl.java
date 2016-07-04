@@ -94,7 +94,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
         Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new HashMap<>();
         this.getMeterActivationSets(usagePoint, clippedPeriod)
-            .forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
+                .forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
         if (deliverablesPerMeterActivation.isEmpty()) {
             return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap());
         } else {
@@ -150,7 +150,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         contract
             .getDeliverables()
             .stream()
-            .forEach(deliverable -> this.prepare(usagePoint, meterActivationSet, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
+                .forEach(deliverable -> this.prepare(usagePoint, meterActivationSet, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
     }
 
     /**
@@ -188,9 +188,9 @@ public class DataAggregationServiceImpl implements DataAggregationService {
                     .from(
                         deliverable.getFormula().getMode(),
                         deliverable,
-                        meterActivationSet,
+                            meterActivationSet,
                         period,
-                        virtualFactory.sequenceNumber(),
+                            virtualFactory.sequenceNumber(),
                         withMultipliers,
                         readingType));
     }

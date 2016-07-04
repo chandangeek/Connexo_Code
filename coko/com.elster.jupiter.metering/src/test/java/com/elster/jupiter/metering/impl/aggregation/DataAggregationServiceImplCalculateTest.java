@@ -274,7 +274,7 @@ public class DataAggregationServiceImplCalculateTest {
                 .from(
                     eq(Formula.Mode.AUTO),
                     eq(netConsumption),
-                    any(MeterActivationSet.class),
+                        any(MeterActivationSet.class),
                     eq(aggregationPeriod),
                     anyInt(),
                     any(ServerExpressionNode.class),
@@ -389,7 +389,7 @@ public class DataAggregationServiceImplCalculateTest {
                 .from(
                     eq(Formula.Mode.AUTO),
                     eq(netConsumption),
-                    any(MeterActivationSet.class),
+                        any(MeterActivationSet.class),
                     eq(aggregationPeriod),
                     anyInt(),
                     any(ServerExpressionNode.class),
@@ -524,7 +524,7 @@ public class DataAggregationServiceImplCalculateTest {
                 .from(
                     eq(Formula.Mode.AUTO),
                     eq(netConsumption),
-                    any(MeterActivationSet.class),
+                        any(MeterActivationSet.class),
                     eq(aggregationPeriod),
                     anyInt(),
                     any(ServerExpressionNode.class),

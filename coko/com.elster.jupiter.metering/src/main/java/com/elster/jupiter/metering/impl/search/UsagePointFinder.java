@@ -37,7 +37,7 @@ public class UsagePointFinder implements Finder<UsagePoint> {
         this.meteringService = meteringService;
         this.finder = DefaultFinder
                 .of(UsagePoint.class, toCondition(conditions), meteringService.getDataModel(),
-                            EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class, ServiceCategory.class, UsagePointConnectionState.class)
+                        EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class, UsagePointDetail.class, ServiceCategory.class, UsagePointConnectionState.class)
                 .defaultSortColumn("mRID");
     }
 

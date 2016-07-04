@@ -28,7 +28,7 @@ import java.time.Instant;
 import java.util.List;
 
 
-abstract class AbstractSearchableUsagePointProperty implements SearchableUsagePointProperty, Visitor, ValueBinder  {
+abstract class AbstractSearchableUsagePointProperty implements SearchableUsagePointProperty, Visitor, ValueBinder {
 
     private SqlBuilder underConstruction = new SqlBuilder();
     private String columnName;

@@ -38,7 +38,6 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -72,7 +71,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -490,7 +488,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setConnectionState(ConnectionState connectionState, Instant effective) {
-        if(!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
+        if (!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
             if (!this.connectionState.effective(Range.all()).isEmpty()) {
                 this.closeCurrentConnectionState(effective);
             }
@@ -499,7 +497,7 @@ public class UsagePointImpl implements UsagePoint {
         }
     }
 
-    private void closeCurrentConnectionState(Instant now){
+    private void closeCurrentConnectionState(Instant now) {
         UsagePointConnectionState currentState = this.connectionState.effective(now).get();
         currentState.close(now);
         this.dataModel.update(currentState);

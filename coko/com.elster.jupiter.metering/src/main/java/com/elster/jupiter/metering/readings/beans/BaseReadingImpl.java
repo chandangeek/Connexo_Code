@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.readings.beans;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -82,7 +83,7 @@ public abstract class BaseReadingImpl implements BaseReading {
     }
 
     public void addQuality(ReadingQuality readingQuality) {
-    	readingQualities.add(readingQuality);
+        readingQualities.add(readingQuality);
     }
 
     public void addQuality(String typeCode) {
@@ -90,7 +91,7 @@ public abstract class BaseReadingImpl implements BaseReading {
     }
 
     public void addQuality(ReadingQualityType readingQualityType) {
-    	addQuality(readingQualityType.getCode());
+        addQuality(readingQualityType.getCode());
     }
 
     public List<? extends ReadingQuality> getReadingQualities() {

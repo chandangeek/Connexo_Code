@@ -89,7 +89,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
                     MessageFormat.format(
                         "Preferred reading type for requirement ''{0}'' in meter activation {1} for the calculation of deliverable ''{2}'' : {3}",
                         this.requirement.getName() + "-" + this.requirementReadingTypeForLogging(),
-                        this.meterActivationSet.getRange(),
+                            this.meterActivationSet.getRange(),
                         this.deliverable.getName() + "-" + targetReadingType,
                         preferredReadingType.get().toString()));
             return preferredReadingType.get();

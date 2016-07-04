@@ -742,20 +742,20 @@ public class DataAggregationServiceImplCalculateIT {
     /**
      * Tests the case with multiple meter roles:
      * Metrology configuration
-     *    roles:
-     *       {@link DefaultMeterRole#CONSUMPTION} & {@link DefaultMeterRole#PRODUCTION}
-     *    requirements:
-     *       A- ::= any Wh with flow = forward (aka consumption)
-     *       A+ ::= any Wh with flow = reverse (aka production)
-     *    deliverables:
-     *       netConsumption (15m kWh) ::= A- + A+
+     * roles:
+     * {@link DefaultMeterRole#CONSUMPTION} & {@link DefaultMeterRole#PRODUCTION}
+     * requirements:
+     * A- ::= any Wh with flow = forward (aka consumption)
+     * A+ ::= any Wh with flow = reverse (aka production)
+     * deliverables:
+     * netConsumption (15m kWh) ::= A- + A+
      * Device:
-     *    meter activations for consumption
-     *       Jan 1st 2016 -> forever
-     *           A- -> 15 min kWh
-     *    meter activations for production
-     *       Jan 1st 2016 -> forever
-     *           A+ -> 15 min kWh
+     * meter activations for consumption
+     * Jan 1st 2016 -> forever
+     * A- -> 15 min kWh
+     * meter activations for production
+     * Jan 1st 2016 -> forever
+     * A+ -> 15 min kWh
      * In other words, simple sum of 2 requirements that are provided
      * by exactly one matching channel for all meter roles.
      */
@@ -786,9 +786,9 @@ public class DataAggregationServiceImplCalculateIT {
         ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
-                    builder.plus(
-                        builder.requirement(production),
-                        builder.requirement(consumption)));
+                        builder.plus(
+                                builder.requirement(production),
+                                builder.requirement(consumption)));
 
         this.netConsumptionDeliverableId = netConsumption.getId();
         System.out.println("simplestNetConsumptionOfProsumerWithMultipleMeterActivations::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
@@ -810,21 +810,21 @@ public class DataAggregationServiceImplCalculateIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + this.consumptionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + this.consumptionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(this.consumptionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + this.productionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + this.productionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(this.productionWithClauseBuilder1.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder1.getText())
                     .matches("SELECT -1, rid" + this.productionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.timestamp,.*");

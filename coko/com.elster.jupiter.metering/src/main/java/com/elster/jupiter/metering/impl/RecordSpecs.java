@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 
@@ -36,7 +35,7 @@ public enum RecordSpecs {
 		private Object[] toArray(BaseReading reading, ProcessStatus status) {
 			Object[] result = new Object[3];
 			result[0] = status.getBits();
-			result[1] = 0L;			////The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
+			result[1] = 0L;            ////The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
 			result[2] = reading.getValue();
 			return result;
 		}
@@ -74,7 +73,7 @@ public enum RecordSpecs {
 			}
 			Object[] result = new Object[4];
 			result[0] = status.getBits();
-			result[1] = 0L;			//The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
+			result[1] = 0L;            //The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
 			result[2 + slotIndex] = reading.getValue();
 			return result;
 		}
@@ -107,7 +106,7 @@ public enum RecordSpecs {
 			}
 			Object[] result = new Object[8];
 			result[0] = status.getBits();
-			result[1] = 0L;			//The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
+			result[1] = 0L;            //The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
 			result[2 + slotIndex] = reading.getValue();
 			return result;
 		}
@@ -271,9 +270,9 @@ public enum RecordSpecs {
             }
             Object[] result = new Object[4];
             result[0] = status.getBits();
-			result[1] = 0L;			//The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
-            result[2 + slotIndex] = reading.getValue();
-            return result;
+			result[1] = 0L;            //The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
+			result[2 + slotIndex] = reading.getValue();
+			return result;
         }
 
         @Override

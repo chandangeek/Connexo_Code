@@ -384,19 +384,22 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                         any(Optional.class),
                         anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
-            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName().toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
+            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
+                    .toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
             verify(clauseAwareSqlBuilder)
                     .with(
                         matches("rod" + this.netConsumptionDeliverableId + ".*1"),
                         any(Optional.class),
                         anyVararg());
             String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
-            assertThat(netConsumptionSql).matches(".*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "_1\\.value \\* cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_1\\.value.*");
+            assertThat(netConsumptionSql).matches(".*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "_1\\.value \\* cps" + this.customPropertySetId + "_" + AntennaFields.POWER
+                    .javaName() + "_1\\.value.*");
             // Assert that the with clauses for both properties are joined on the utc timestamp
             assertThat(netConsumptionSql)
                     .matches("SELECT.*FROM\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_1\\s*JOIN.*");
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "_1\\s*ON\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "\\_1.starttime < cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_1.timestamp.*");
+                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "_1\\s*ON\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "\\_1.starttime < cps" + this.customPropertySetId + "_" + AntennaFields.POWER
+                            .javaName() + "_1.timestamp.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
@@ -479,14 +482,16 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                         any(Optional.class),
                         anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
-            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName().toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
+            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
+                    .toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
             verify(clauseAwareSqlBuilder)
                     .with(
                         matches("rod" + this.netConsumptionDeliverableId + ".*1"),
                         any(Optional.class),
                         anyVararg());
             String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
-            assertThat(netConsumptionSql).matches(".*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value \\+ cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_1\\.value.*");
+            assertThat(netConsumptionSql).matches(".*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value \\+ cps" + this.customPropertySetId + "_" + AntennaFields.POWER
+                    .javaName() + "_1\\.value.*");
             // Assert that the with clauses for both properties are joined on the utc timestamp
             assertThat(netConsumptionSql)
                     .matches("SELECT.*FROM\\s*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\s*JOIN.*");

@@ -4,15 +4,15 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectionState;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
 import java.util.Objects;
 
-public class UsagePointConnectionStateImpl implements UsagePointConnectionState{
+public class UsagePointConnectionStateImpl implements UsagePointConnectionState {
 
     @IsPresent
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
@@ -33,7 +33,7 @@ public class UsagePointConnectionStateImpl implements UsagePointConnectionState{
     public UsagePointConnectionStateImpl() {
     }
 
-    public UsagePointConnectionStateImpl initialize(Interval interval, UsagePoint usagePoint, ConnectionState state){
+    public UsagePointConnectionStateImpl initialize(Interval interval, UsagePoint usagePoint, ConnectionState state) {
         this.usagePoint.set(Objects.requireNonNull(usagePoint));
         this.connectionState = Objects.requireNonNull(state);
         this.interval = Objects.requireNonNull(interval);

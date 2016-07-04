@@ -53,8 +53,8 @@ class DeliverableValidator implements ConstraintValidator<ValidDeliverable, Read
                         throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS);
                     }
                 }
-                if (   formula.getMode().equals(Formula.Mode.AUTO)
-                    && !UnitConversionSupport.isValidForAggregation(readingType)) {
+                if (formula.getMode().equals(Formula.Mode.AUTO)
+                        && !UnitConversionSupport.isValidForAggregation(readingType)) {
                     throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_IN_DELIVERABLE);
                 }
             }

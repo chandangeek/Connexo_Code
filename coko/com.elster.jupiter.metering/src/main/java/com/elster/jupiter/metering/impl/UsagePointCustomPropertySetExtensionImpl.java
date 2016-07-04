@@ -37,10 +37,10 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
 
     @Inject
     UsagePointCustomPropertySetExtensionImpl(
-                    Clock clock,
-                    CustomPropertySetService customPropertySetService,
-                    Thesaurus thesaurus,
-                    UsagePointImpl usagePoint) {
+            Clock clock,
+            CustomPropertySetService customPropertySetService,
+            Thesaurus thesaurus,
+            UsagePointImpl usagePoint) {
         this.clock = clock;
         this.customPropertySetService = customPropertySetService;
         this.thesaurus = thesaurus;
