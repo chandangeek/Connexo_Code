@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.Finder;
@@ -357,7 +358,7 @@ public class IssueDataValidationServiceTest {
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now));
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(10, ChronoUnit.MINUTES)));
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(30, ChronoUnit.MINUTES)));
-        newMeter.store(meterReading);
+        newMeter.store(QualityCodeSystem.MDC, meterReading);
 
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
@@ -481,7 +482,7 @@ public class IssueDataValidationServiceTest {
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(30, ChronoUnit.MINUTES)));
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(50, ChronoUnit.MINUTES)));
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(55, ChronoUnit.MINUTES)));
-        newMeter.store(meterReading);//[now, now+10min, now+30min, now+50min, now+55min]
+        newMeter.store(QualityCodeSystem.MDC, meterReading);//[now, now+10min, now+30min, now+50min, now+55min]
 
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
