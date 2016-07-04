@@ -10,6 +10,8 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -21,11 +23,13 @@ import java.util.Optional;
 
 public class UsagePointChannelInfoFactory {
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
+    private final DeviceService deviceService;
     private final int SECONDS_PER_MINUTE = 60;
 
     @Inject
-    public UsagePointChannelInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory) {
+    public UsagePointChannelInfoFactory(ReadingTypeInfoFactory readingTypeInfoFactory, DeviceService deviceService) {
         this.readingTypeInfoFactory = readingTypeInfoFactory;
+        this.deviceService = deviceService;
     }
 
     UsagePointChannelInfo from(Channel channel, UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
@@ -61,13 +65,21 @@ public class UsagePointChannelInfoFactory {
 
         usagePoint.getMeterActivations().stream().forEach(meterActivation -> {
             UsagePointDeviceChannelInfo deviceChannelInfo = new UsagePointDeviceChannelInfo();
-            deviceChannelInfo.mRID = meterActivation.getMeter().get().getMRID();
+            String mrid = meterActivation.getMeter().get().getMRID();
+            Device device = deviceService.findByUniqueMrid(mrid)
+                    .orElseThrow(() -> new IllegalArgumentException("Device " + mrid + " not found"));
+            deviceChannelInfo.mRID = mrid;
             deviceChannelInfo.from = meterActivation.getStart().toEpochMilli();
             deviceChannelInfo.until = meterActivation.getEnd() != null ? meterActivation.getEnd().toEpochMilli() : null;
             requirementChecker.getReadingTypeRequirements().stream()
                     .flatMap(readingTypeRequirement -> readingTypeRequirement.getMatchingChannelsFor(meterActivation.getChannelsContainer()).stream())
                     .forEach(ch -> {
-                        deviceChannelInfo.channel = new IdWithNameInfo(ch.getId(), ch.getMainReadingType().getFullAliasName());
+                        ReadingType mainReadingType = ch.getMainReadingType();
+                        com.energyict.mdc.device.data.Channel channelOnDevice = device.getChannels().stream()
+                                .filter(deviceChannel -> ch.getReadingTypes().contains(deviceChannel.getReadingType()))
+                                .findFirst()
+                                .orElse(null);
+                        deviceChannelInfo.channel = new IdWithNameInfo(channelOnDevice != null ? channelOnDevice.getId() : null, mainReadingType.getFullAliasName());
                     });
             info.deviceChannels.add(deviceChannelInfo);
         });
