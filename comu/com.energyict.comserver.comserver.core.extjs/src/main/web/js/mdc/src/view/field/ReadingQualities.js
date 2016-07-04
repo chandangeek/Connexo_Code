@@ -52,7 +52,7 @@ Ext.define('Mdc.view.field.ReadingQualities', {
 
     getConfirmed: function(apps) {
         return apps && apps.length
-            ? Uni.I18n.translate('general.confirmedIn', 'MDC', 'Confirmed in {0}', [application.name]) //TODO: fold applications
+            ? Uni.I18n.translate('general.confirmedIn', 'MDC', 'Confirmed in {0}', _.pluck(apps, 'name').join(', '))
             : Uni.I18n.translate('general.confirmed', 'MDC', 'Confirmed')
     },
 
