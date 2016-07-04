@@ -65,7 +65,7 @@ public class DeviceAttributesInfoFactory {
         if (location.isPresent()) {
             List<List<String>> formattedLocationMembers = location.get().format();
             formattedLocationMembers.stream().skip(1).forEach(list ->
-                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(list.indexOf(member), "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
@@ -78,7 +78,7 @@ public class DeviceAttributesInfoFactory {
         info.geoCoordinates.displayValue = coordinatesInfo;
         fillAvailableAndEditable(info.geoCoordinates, DeviceAttribute.GEOCOORDINATES, state);
 
-        EditLocationInfo editLocationInfo = new EditLocationInfo(meteringService,locationService, thesaurus, device);
+        EditLocationInfo editLocationInfo = new EditLocationInfo(meteringService, locationService, thesaurus, device);
         info.location = new DeviceAttributeInfo();
         info.location.displayValue = editLocationInfo;
         fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);

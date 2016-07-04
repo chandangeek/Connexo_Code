@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.data.Device;
 
 public class CoordinatesInfo {
@@ -18,15 +17,19 @@ public class CoordinatesInfo {
     public CoordinatesInfo(Device device) {
         device.getSpatialCoordinates().ifPresent(deviceGeoCoordinates -> {
             coordinatesDisplay = deviceGeoCoordinates.toString();
-            spatialCoordinates = deviceGeoCoordinates.toString();
+            spatialCoordinates = String.format("%s:%s:%s", deviceGeoCoordinates.getLatitude().getValue().toString(),
+                    deviceGeoCoordinates.getLongitude().getValue().toString(),
+                    deviceGeoCoordinates.getElevation().getValue().toString());
         });
         device.getUsagePoint().ifPresent(usagePoint -> {
             usagePoint.getSpatialCoordinates().ifPresent(usagePointGeoCoordinates -> {
-                if((spatialCoordinates != null) && (usagePointGeoCoordinates.equals(device.getSpatialCoordinates()))){
+                if ((spatialCoordinates != null) && (usagePointGeoCoordinates.equals(device.getSpatialCoordinates()))) {
                     isInherited = true;
                 }
                 usagePointCoordinatesDisplay = usagePointGeoCoordinates.toString();
-                usagePointSpatialCoordinates = usagePointGeoCoordinates.toString();
+                usagePointSpatialCoordinates = String.format("%s:%s:%s", usagePointGeoCoordinates.getLatitude().getValue().toString(),
+                        usagePointGeoCoordinates.getLongitude().getValue().toString(),
+                        usagePointGeoCoordinates.getElevation().getValue().toString());
             });
         });
     }

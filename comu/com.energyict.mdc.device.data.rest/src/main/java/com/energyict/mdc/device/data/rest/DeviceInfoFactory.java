@@ -104,7 +104,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         if (location.isPresent()) {
             List<List<String>> formattedLocationMembers = location.get().format();
             formattedLocationMembers.stream().skip(1).forEach(list ->
-                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(list.indexOf(member), "\\r\\n" + member)));
             formattedLocation = formattedLocationMembers.stream()
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
@@ -153,7 +153,5 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private PropertyDescriptionInfo createDescription(String propertyName, Class<?> aClass) {
         return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(DeviceSearchModelTranslationKeys.Keys.PREFIX + propertyName, propertyName));
     }
-
-
 
 }

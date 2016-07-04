@@ -55,21 +55,20 @@ public class EditLocationInfo {
         List<String> unformattedList = new ArrayList<>();
         Optional<Location> location = locationService.findLocationById(locationId);
         if (location.isPresent()) {
-            List<List<String>> locationMembers = location.get().format();
-            locationMembers.stream()
+            location.get().format().stream()
                     .flatMap(Collection::stream)
                     .map(element -> element == null ? "" : element)
                     .forEach(unformattedList::add);
             unformattedLocationValue = unformattedList.stream().collect(Collectors.joining(", "));
 
-            List<List<String>> formattedLocationMembers = locationMembers;
+            List<List<String>> formattedLocationMembers = location.get().format();
             formattedLocationMembers.stream().skip(1).forEach(list ->
-                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
+                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(list.indexOf(member), "\\r\\n" + member)));
             formattedLocationValue = formattedLocationMembers.stream()
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
 
-            locationValue = locationMembers.stream()
+            locationValue = location.get().format().stream()
                     .flatMap(Collection::stream)
                     .filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
@@ -84,7 +83,7 @@ public class EditLocationInfo {
                     .flatMap(Collection::stream).collect(Collectors.toList());
         }
         for (int i = 0; i < templateElementsNames.size(); i++) {
-            Boolean isMandatory = false;
+            boolean isMandatory;
             String field = templateElementsNames.get(i);
             isMandatory = meteringService.getLocationTemplate().getTemplateMembers().stream()
                     .filter(member -> member.getName().equalsIgnoreCase(field))
