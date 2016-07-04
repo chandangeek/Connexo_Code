@@ -1,6 +1,7 @@
 package com.elster.jupiter.util;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 /**
  * Checks holds methods that start fluent API for checks on Objects.
@@ -19,4 +20,9 @@ public enum Checks {
     public static BigDecimalChecker is(BigDecimal bigDecimal) {
         return new BigDecimalChecker(bigDecimal);
     }
+
+    public static <T> OptionalChecker<T> is(Optional<T> optional) {
+        return new OptionalChecker<>(optional);
+    }
+
 }
