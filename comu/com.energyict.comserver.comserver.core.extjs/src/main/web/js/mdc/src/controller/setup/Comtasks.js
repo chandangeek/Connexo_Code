@@ -489,7 +489,7 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                         );
                     }
                     previewForm.addAttribute(
-                        Uni.I18n.translate('comtask.meter.events.from.status.flag','MDC','Meter events from status flag'),
+                        Uni.I18n.translate('comtask.meter.events.from.reading.qualities', 'MDC', 'Meter events from reading qualities'),
                         createMeterEvents ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No')
                     );
                     previewForm.addAttribute(
@@ -916,11 +916,11 @@ Ext.define('Mdc.controller.setup.Comtasks', {
     },
 
     setTooltips: function () {
-        var iconIntervals = Ext.ComponentQuery.query('#radioIntervals')[0].getEl().down('img'),
+        var iconIntervals = Ext.ComponentQuery.query('#radioIntervals')[0].getEl().down('span[class=icon-info]'),
             textIntervals = Uni.I18n.translate('comtask.tooltip.textIntervals', 'MDC', 'If the clock difference between the clock in the meter and the clock of the communication server is equal to or bigger than the minimum clock difference, the intervals will be marked as bad time'),
-            iconEvents = Ext.ComponentQuery.query('#radioEvents')[0].getEl().down('img'),
-            textEvents = Uni.I18n.translate('comtask.tooltip.textEvents', 'MDC', 'When data with a status flag comes in, meter events will be created'),
-            iconFail = Ext.ComponentQuery.query('#radioFail')[0].getEl().down('img'),
+            iconEvents = Ext.ComponentQuery.query('#radioEvents')[0].getEl().down('span[class=icon-info]'),
+            textEvents = Uni.I18n.translate('comtask.tooltip.textEvents', 'MDC', 'When data with a reading quality comes in, meter events will be created'),
+            iconFail = Ext.ComponentQuery.query('#radioFail')[0].getEl().down('span[class=icon-info]'),
             textFail = Uni.I18n.translate('comtask.tooltip.textFail', 'MDC', 'A profile configuration defines how a load profile of that configuration looks like. When the profile configuration doesn\'t match the load profile, a failure occurs');
 
         iconIntervals.tooltip = Ext.create('Ext.tip.ToolTip', { target: iconIntervals, html: Ext.String.htmlEncode(textIntervals) });

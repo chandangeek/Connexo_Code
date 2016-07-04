@@ -63,8 +63,9 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationOverview', {
                 renderer: function (value) {
                     var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The moment when the last interval was checked in the validation process.');
                     return value
-                        ? Ext.String.htmlEncode(value) + '<span style="margin: 0 0 0 10px; width: 16px; height: 16px" class="uni-icon-info-small" data-qtip="' + tooltip + '"></span>'
-                        : '';
+                        ? '<span style="display:inline-block; float:left; margin-right:7px;" >' + Ext.String.htmlEncode(value) + '</span>'+
+                          '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.String.htmlEncode(tooltip) + '"></span>'
+                        : '-';
                 }
             }
         ];

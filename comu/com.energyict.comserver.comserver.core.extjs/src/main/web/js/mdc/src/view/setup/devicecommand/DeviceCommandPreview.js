@@ -32,6 +32,8 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreview', {
             xtype: 'deviceCommandPreviewForm'
         },
         {
+            xtype: 'displayfield',
+            margins: '7 0 10 0',
             itemId: 'previewPropertiesHeader'
         },
         {
@@ -43,9 +45,6 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreview', {
                     xtype: 'property-form',
                     isEdit: false,
                     defaults: {
-                        xtype: 'container',
-                        layout: 'form',
-                        resetButtonHidden: true,
                         labelWidth: 200,
                         columnWidth: 0.5
                     }

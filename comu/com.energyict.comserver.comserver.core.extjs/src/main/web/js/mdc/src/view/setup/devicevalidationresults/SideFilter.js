@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.SideFilter', {
             {
                 xtype: 'fieldcontainer',
                 itemId: 'fco-date-container',
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
+                fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
                 labelAlign: 'top',
                 defaults: {
                     width: '100%'

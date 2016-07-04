@@ -19,7 +19,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
             xtype: 'radiogroup',
             itemId: 'radioIntervals',
             fieldLabel: Uni.I18n.translate('comtask.mark.intervals.as.bad.time','MDC','Mark intervals as bad time'),
-            afterLabelTextTpl: '<img src="../sky/build/resources/images/shared/icon-info-small.png" style="padding-left: 7px">',
+            afterLabelTextTpl: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px; margin-left:7px;"></span>',
             labelWidth: 300,
             width: 500,
             defaults: {
@@ -71,8 +71,8 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
         {
             xtype: 'radiogroup',
             itemId: 'radioEvents',
-            fieldLabel: Uni.I18n.translate('comtask.meter.events.from.status.flag','MDC','Meter events from status flag'),
-            afterLabelTextTpl: '<img src="../sky/build/resources/images/shared/icon-info-small.png" style="padding-left: 7px">',
+            fieldLabel: Uni.I18n.translate('comtask.meter.events.from.reading.qualities', 'MDC', 'Meter events from reading qualities'),
+            afterLabelTextTpl: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px; margin-left:7px;"></span>',
             labelWidth: 300,
             width: 500,
             defaults: {
@@ -88,7 +88,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
             xtype: 'radiogroup',
             itemId: 'radioFail',
             fieldLabel: Uni.I18n.translate('comtask.fail.profile.configuration.doesnt.match','MDC',"Fail if profile configuration doesn't match"),
-            afterLabelTextTpl: '<img src="../sky/build/resources/images/shared/icon-info-small.png" style="padding-left: 7px">',
+            afterLabelTextTpl: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px; margin-left:7px;"></span>',
             labelWidth: 300,
             width: 500,
             defaults: {

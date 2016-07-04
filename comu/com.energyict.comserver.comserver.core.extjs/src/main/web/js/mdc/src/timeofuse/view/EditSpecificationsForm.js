@@ -31,6 +31,7 @@ Ext.define('Mdc.timeofuse.view.EditSpecificationsForm', {
                     },
                     {
                         xtype: 'fieldcontainer',
+                        itemId: 'tou-allowed-radio-group',
                         fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseAllowed', 'MDC', 'Time of use allowed'),
                         defaultType: 'radiofield',
                         required: true,

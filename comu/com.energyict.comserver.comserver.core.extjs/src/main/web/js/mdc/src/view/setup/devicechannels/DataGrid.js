@@ -47,12 +47,35 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
             {
                 header: Uni.I18n.translate('deviceloadprofiles.endOfInterval', 'MDC', 'End of interval'),
                 dataIndex: 'interval_end',
-                renderer: function (value) {
-                    return  value
-                        ? Uni.I18n.translate(
-                            'general.dateAtTime', 'MDC', '{0} at {1}',
-                            [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)] )
-                        : '';
+                renderer: function (value, metaData, record) {
+                    var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
+                        text = value
+                            ? Uni.I18n.translate(
+                                'general.dateAtTime', 'MDC', '{0} at {1}',
+                                [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)] )
+                            : '-',
+                        tooltipContent = '',
+                        icon = '';
+
+                    if (readingQualitiesPresent) {
+                        Ext.Array.forEach(record.get('readingQualities'), function(readingQualityName) {
+                            // Strange behaviour detected:
+                            // When scrolling the grid completely down a reading quality *object* is added to the first grid item
+                            // Therefor we add this extra condition:
+                            if (typeof(readingQualityName) === 'string') {
+                                tooltipContent += (readingQualityName + '<br>');
+                            }
+                        });
+                        if (tooltipContent.length > 0) {
+                            tooltipContent += '<br>';
+                            tooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View reading quality details for more information.');
+
+                            icon = '<span class="icon-price-tags" style="margin-left:10px; position:absolute;" data-qtitle="'
+                                + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="'
+                                + tooltipContent + '"></span>';
+                        }
+                    }
+                    return text + icon;
                 },
                 flex: 1
             },
@@ -110,12 +133,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 dataIndex: 'bulkModificationState',
                 width: 30,
                 emptyText: ' '
-            },
-            {
-                xtype: 'interval-flags-column',
-                dataIndex: 'intervalFlags',
-                align: 'right',
-                width: 150
             },
             {
                 xtype: 'uni-actioncolumn',

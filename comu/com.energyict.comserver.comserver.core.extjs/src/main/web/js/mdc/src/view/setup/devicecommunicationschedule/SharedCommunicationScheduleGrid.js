@@ -58,11 +58,7 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedu
                     flex: 1,
                     dataIndex: 'plannedDate',
                     renderer: function (value) {
-                        if (value !== null) {
-                            return Uni.DateTime.formatDateTimeShort(new Date(value));
-                        } else {
-                            return '';
-                        }
+                        return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                     }
                 },
                 {
