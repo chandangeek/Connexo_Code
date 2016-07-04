@@ -83,7 +83,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
             endDevice.setLocation(builder.create());
         }
 
-        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && geoCoordinatesData.size() > 1){
+        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)){
             endDevice.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
         endDevice.update();
@@ -188,15 +188,5 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                 .isDaultLocation(true)
                 .setLocale(data.getLocation().get(ranking.get("locale")));
         return builder;
-    }
-
-    private boolean validateGeoCoordinatesData(List<String> geoCoordinatesData){
-        int count = 0;
-        for(String geoElement : geoCoordinatesData){
-            if (geoElement == null){
-                count++;
-            }
-        }
-        return count < 2;
     }
 }
