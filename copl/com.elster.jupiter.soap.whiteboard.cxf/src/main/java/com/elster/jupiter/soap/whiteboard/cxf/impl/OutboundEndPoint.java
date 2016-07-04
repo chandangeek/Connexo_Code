@@ -26,12 +26,16 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Created by bvn on 5/10/16.
  */
 public final class OutboundEndPoint implements ManagedEndpoint {
+    private static final Logger logger = Logger.getLogger(OutboundEndPoint.class.getSimpleName());
+
     private final BundleContext bundleContext;
     private final SoapProviderSupportFactory soapProviderSupportFactory;
     private final Provider<AccessLogFeature> accessLogFeatureProvider;
@@ -88,12 +92,15 @@ public final class OutboundEndPoint implements ManagedEndpoint {
 //                authorization.setAuthorization("BASIC"); // not required
                 httpConduit.setAuthorization(authorization); // still required?
             }
+            Hashtable<String, String> dict = new Hashtable<>();
+            dict.put("url", endPointConfiguration.getUrl());
             serviceRegistration = bundleContext.registerService(
                     endPointProvider.getService(),
                     port,
-                    null);
+                    dict);
         } catch (MalformedURLException e) {
             endPointConfiguration.log("Failed to publish endpoint", e);
+            logger.severe("Failed to publish endpoint: " + e.getMessage());
         }
     }
 
