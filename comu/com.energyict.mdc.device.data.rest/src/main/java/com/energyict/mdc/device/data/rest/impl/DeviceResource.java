@@ -74,6 +74,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -343,7 +344,7 @@ public class DeviceResource {
                 slave = deviceService.findByUniqueMrid(slaveDeviceInfo.mRID)
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE, slaveDeviceInfo.mRID));
             }
-            final HashMap<Channel, Channel> channelMap = new HashMap<>();
+            final Map<Channel, Channel> channelMap = new HashMap<>();
             if (slaveDeviceInfo.dataLoggerSlaveChannelInfos != null) {
                 slaveDeviceInfo.dataLoggerSlaveChannelInfos.stream()
                         .map(info -> slaveDataLoggerChannelPair(slave, info))
@@ -424,7 +425,7 @@ public class DeviceResource {
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
         List<DeviceTopologyInfo> slaves;
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
-            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), topologyService, clock);
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), topologyService, clock, resourceHelper.getThesaurus());
         } else {
             slaves = DeviceTopologyInfo.from(topologyService.findPhysicalConnectedDevices(device));
         }
@@ -847,7 +848,8 @@ public class DeviceResource {
         if (queryParameters.getLimit().isPresent() && queryParameters.getLimit().get() > 0) {
             stream = stream.limit(queryParameters.getLimit().get() + 1);
         }
-        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), topologyService, clock)).collect(Collectors.toList());
+        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), topologyService, clock, resourceHelper.getThesaurus()))
+                .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
     }
 

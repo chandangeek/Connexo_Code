@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
@@ -24,11 +26,12 @@ public class DeviceTopologyInfo {
     public Long linkingTimeStamp;
     public String serialNumber;
     public long creationTime;
+    public String state;
 
-    public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, TopologyService topologyService, Clock clock) {
+    public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, TopologyService topologyService, Clock clock, Thesaurus thesaurus) {
         return timeline.getAllDevices().stream()
                 .sorted(new DeviceRecentlyAddedComporator(timeline))
-                .map(d -> from(d, timeline.mostRecentlyAddedOn(d), topologyService, clock))
+                .map(d -> from(d, timeline.mostRecentlyAddedOn(d), topologyService, clock, thesaurus))
                 .collect(Collectors.toList());
     }
 
@@ -36,7 +39,7 @@ public class DeviceTopologyInfo {
         return devices.stream().map(DeviceTopologyInfo::from).collect(Collectors.toList());
     }
 
-    public static DeviceTopologyInfo from(Device device, Optional<Instant> addTime, TopologyService topologyService, Clock clock) {
+    public static DeviceTopologyInfo from(Device device, Optional<Instant> addTime, TopologyService topologyService, Clock clock, Thesaurus thesaurus) {
         DeviceTopologyInfo info = new DeviceTopologyInfo();
         info.id =device.getId();
         info.mRID = device.getmRID();
@@ -53,6 +56,8 @@ public class DeviceTopologyInfo {
             DeviceTopology physicalTopology = topologyService.getPhysicalTopology(gateway, Range.atMost(clock.instant()));
             physicalTopology.timelined().mostRecentlyAddedOn(device).ifPresent(instant -> info.linkingTimeStamp = instant.toEpochMilli());
         }
+        String key = DefaultState.from(device.getState()).get().getKey();
+        info.state = thesaurus.getString(key, key);
         return info;
     }
 

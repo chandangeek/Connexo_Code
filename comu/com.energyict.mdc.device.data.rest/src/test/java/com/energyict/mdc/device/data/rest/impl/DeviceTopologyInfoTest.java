@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -45,6 +46,8 @@ public class DeviceTopologyInfoTest {
     private TopologyService topologyService;
     @Mock
     private Clock clock;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setup() {
@@ -64,7 +67,7 @@ public class DeviceTopologyInfoTest {
 
         Instant initialTimestamp = LocalDateTime.of(2014, 12, 1, 12, 0).toInstant(ZoneOffset.UTC);
 
-        DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), topologyService, clock);
+        DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), topologyService, clock, thesaurus);
 
         assertThat(info.id).isEqualTo(DEVICE_ID);
         assertThat(info.mRID).isEqualTo(DEVICE_MRID);
