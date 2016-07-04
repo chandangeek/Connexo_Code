@@ -9,6 +9,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -182,7 +183,6 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(serviceCallService).to(ServiceCallService.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
-            bind(UsagePointChannelInfoFactory.class).to(UsagePointChannelInfoFactory.class);
         }
     }
 }
