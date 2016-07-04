@@ -31,6 +31,7 @@ public class CurrencyGogoCommands {
     }
 
     @Reference(target = "(url=http://www.webservicex.net/CurrencyConvertor.asmx?wsdl)")
+//    @Reference(target = "(url=http://BE48LT4141B570:8080/CurrencyConvertor.asmx?wsdl)")
     public void setSoapService(CurrencyConvertorSoap soapService) {
         this.soapService = soapService;
     }
