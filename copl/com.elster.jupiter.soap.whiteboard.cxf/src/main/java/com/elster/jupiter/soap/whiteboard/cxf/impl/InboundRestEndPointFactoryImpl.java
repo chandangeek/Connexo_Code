@@ -3,7 +3,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceType;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -32,7 +32,7 @@ public class InboundRestEndPointFactoryImpl extends EndPointFactoryImpl<InboundR
     }
 
     @Override
-    public WebServiceType getType() {
-        return WebServiceType.REST;
+    public WebServiceProtocol getProtocol() {
+        return WebServiceProtocol.REST;
     }
 }

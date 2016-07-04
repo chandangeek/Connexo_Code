@@ -13,7 +13,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceType;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -129,8 +129,8 @@ public class WebServicesServiceImpl implements WebServicesService {
                 }
 
                 @Override
-                public WebServiceType getType() {
-                    return webServices.get(webServiceName).getType();
+                public WebServiceProtocol getProtocol() {
+                    return webServices.get(webServiceName).getProtocol();
                 }
             });
         } else {
@@ -153,8 +153,8 @@ public class WebServicesServiceImpl implements WebServicesService {
             }
 
             @Override
-            public WebServiceType getType() {
-                return e.getValue().getType();
+            public WebServiceProtocol getProtocol() {
+                return e.getValue().getProtocol();
             }
         }).collect(toList());
     }

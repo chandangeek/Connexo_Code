@@ -3,7 +3,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceType;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -32,8 +32,8 @@ public class InboundSoapEndPointFactoryImpl extends EndPointFactoryImpl<InboundS
     }
 
     @Override
-    public WebServiceType getType() {
-        return WebServiceType.SOAP;
+    public WebServiceProtocol getProtocol() {
+        return WebServiceProtocol.SOAP;
     }
 
 }

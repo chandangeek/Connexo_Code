@@ -8,5 +8,5 @@ public interface WebService {
 
     public boolean isInbound();
 
-    public WebServiceType getType();
+    public WebServiceProtocol getProtocol();
 }
