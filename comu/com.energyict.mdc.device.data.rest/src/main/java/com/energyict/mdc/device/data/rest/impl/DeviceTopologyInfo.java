@@ -44,10 +44,15 @@ public class DeviceTopologyInfo {
         info.deviceConfigurationName = device.getDeviceConfiguration().getName();
         info.serialNumber = device.getSerialNumber();
         info.creationTime = addTime.orElse(Instant.EPOCH).toEpochMilli();
-
-        Device gateway = topologyService.getPhysicalGateway(device).get();
-        DeviceTopology physicalTopology = topologyService.getPhysicalTopology(gateway, Range.atMost(clock.instant()));
-        physicalTopology.timelined().mostRecentlyAddedOn(device).ifPresent(instant -> info.linkingTimeStamp = instant.toEpochMilli());
+        if (device.getDeviceType().isDataloggerSlave()) {
+            info.linkingTimeStamp = topologyService.findCurrentDataloggerReference(device, clock.instant())
+                    .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint().toEpochMilli())
+                    .orElse(null);
+        } else {
+            Device gateway = topologyService.getPhysicalGateway(device).get();
+            DeviceTopology physicalTopology = topologyService.getPhysicalTopology(gateway, Range.atMost(clock.instant()));
+            physicalTopology.timelined().mostRecentlyAddedOn(device).ifPresent(instant -> info.linkingTimeStamp = instant.toEpochMilli());
+        }
         return info;
     }
 
