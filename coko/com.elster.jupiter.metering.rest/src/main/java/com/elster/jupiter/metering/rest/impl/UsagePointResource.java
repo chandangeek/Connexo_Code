@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -255,12 +256,13 @@ public class UsagePointResource {
     public PagedInfoList getChannels(@PathParam("mRID") String mRID, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         List<UsagePointChannelInfo> channelInfos = new ArrayList<>();
         UsagePoint usagePoint = fetchUsagePoint(mRID);
-        EffectiveMetrologyConfigurationOnUsagePoint metrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().orElse(null);
-        if (metrologyConfiguration != null) {
-            List<MetrologyContract> contracts = metrologyConfiguration.getMetrologyConfiguration().getContracts();
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().orElse(null);
+        if (effectiveMetrologyConfiguration != null) {
+            UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
+            List<MetrologyContract> contracts = metrologyConfiguration.getContracts();
             contracts.stream().forEach(metrologyContract -> {
-                metrologyConfiguration.getChannelsContainer(metrologyContract).orElse(null).getChannels().stream().forEach(channel -> {
-                    channelInfos.add(usagePointChannelInfoFactory.from(channel, usagePoint, metrologyConfiguration.getMetrologyConfiguration()));
+                effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).orElse(null).getChannels().stream().forEach(channel -> {
+                    channelInfos.add(usagePointChannelInfoFactory.from(channel, usagePoint, metrologyConfiguration));
                 });
             });
         }
