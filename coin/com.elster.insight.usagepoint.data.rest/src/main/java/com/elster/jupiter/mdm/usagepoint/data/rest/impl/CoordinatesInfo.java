@@ -21,7 +21,9 @@ public class CoordinatesInfo {
             Optional<SpatialCoordinates> geoCoordinates = usagePoint.getSpatialCoordinates();
             coordinatesDisplay = geoCoordinates.isPresent() ? geoCoordinates.get().toString() : null;
             spatialCoordinates = geoCoordinates.isPresent() ?
-                    geoCoordinates.get().toString() : null;
+                    String.format("%s:%s:%s", geoCoordinates.get().getLatitude().getValue().toString(),
+                            geoCoordinates.get().getLongitude().getValue().toString(),
+                            geoCoordinates.get().getElevation().getValue().toString()) : null;
         });
     }
 
