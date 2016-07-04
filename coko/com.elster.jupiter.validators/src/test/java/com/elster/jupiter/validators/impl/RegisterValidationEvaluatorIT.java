@@ -205,7 +205,7 @@ public class RegisterValidationEvaluatorIT {
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900)));
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(102L), date1.plusSeconds(900 * 2)));
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(103L), date1.plusSeconds(900 * 3)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             return null;
         });
         ValidationEvaluator evaluator = validationService.getEvaluator(meter, Range.openClosed(date1, date1.plusSeconds(900 * 3)));
@@ -219,7 +219,7 @@ public class RegisterValidationEvaluatorIT {
                 .collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, VALID));
         injector.getInstance(TransactionService.class).execute(() -> {
-            channel.editReadings(ImmutableList.of(ReadingImpl.of(readingType, BigDecimal.valueOf(10L), date1.plusSeconds(900 * 3))));
+            channel.editReadings(QualityCodeSystem.MDC, ImmutableList.of(ReadingImpl.of(readingType, BigDecimal.valueOf(10L), date1.plusSeconds(900 * 3))));
             return null;
         });
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 3));
@@ -240,7 +240,7 @@ public class RegisterValidationEvaluatorIT {
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900)));
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * 2)));
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(49L), date1.plusSeconds(900 * 3)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             return null;
         });
         ValidationEvaluator evaluator = validationService.getEvaluator(meter, Range.openClosed(date1, date1.plusSeconds(900 * 3)));

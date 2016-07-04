@@ -234,7 +234,7 @@ public class ValidationEvaluatorIT {
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(205L), date1.plusSeconds(900)));
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(205L), date1.plusSeconds(900 * 2)));
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(311L), date1.plusSeconds(900 * 3)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             return null;
         });
         ValidationEvaluator evaluator = validationService.getEvaluator();
@@ -270,7 +270,7 @@ public class ValidationEvaluatorIT {
                 .map(DataValidationStatus::getValidationResult)
                 .collect(Collectors.toList())).isEqualTo(validationResults);
         injector.getInstance(TransactionService.class).execute(() -> {
-            channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(2)));
+            channel.removeReadings(QualityCodeSystem.MDC, ImmutableList.of(channel.getReadings(Range.all()).get(2)));
             return null;
         });
         validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
@@ -307,9 +307,9 @@ public class ValidationEvaluatorIT {
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(102L), date1));
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900)));
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(255L), date1.plusSeconds(900 * 2)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             validationService.deactivateValidation(meter);
-            meter.store(MeterReadingImpl.of(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(359), date1.plusSeconds(900 * 3))));
+            meter.store(QualityCodeSystem.MDC, MeterReadingImpl.of(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(359), date1.plusSeconds(900 * 3))));
             return null;
         });
         ValidationEvaluator evaluator = validationService.getEvaluator();
@@ -323,7 +323,7 @@ public class ValidationEvaluatorIT {
                 .collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT, NOT_VALIDATED));
         injector.getInstance(TransactionService.class).execute(() -> {
-            channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(1)));
+            channel.removeReadings(QualityCodeSystem.MDC, ImmutableList.of(channel.getReadings(Range.all()).get(1)));
             return null;
         });
         validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
@@ -341,9 +341,9 @@ public class ValidationEvaluatorIT {
         injector.getInstance(TransactionService.class).execute(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(102L), date1));
-            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900 * 1)));
+            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900)));
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(255L), date1.plusSeconds(900 * 2)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             return null;
         });
         ValidationEvaluator evaluator = validationService.getEvaluator();
@@ -357,7 +357,7 @@ public class ValidationEvaluatorIT {
                 .collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
-            channel.removeReadings(ImmutableList.of(channel.getReadings(Range.all()).get(1)));
+            channel.removeReadings(QualityCodeSystem.MDC, ImmutableList.of(channel.getReadings(Range.all()).get(1)));
             return null;
         });
         validationStates = evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC),
@@ -380,11 +380,11 @@ public class ValidationEvaluatorIT {
         injector.getInstance(TransactionService.class).execute(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(102L), date1));
-            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900 * 1)));
+            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900)));
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(255L), date1.plusSeconds(900 * 2)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             validationService.deactivateValidation(meter);
-            meter.store(MeterReadingImpl.of(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(359L), date1.plusSeconds(900 * 3))));
+            meter.store(QualityCodeSystem.MDC, MeterReadingImpl.of(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(359L), date1.plusSeconds(900 * 3))));
             return null;
         });
         ValidationEvaluator evaluator = validationService.getEvaluator();
@@ -398,7 +398,7 @@ public class ValidationEvaluatorIT {
                 .collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT, NOT_VALIDATED));
         injector.getInstance(TransactionService.class).execute(() -> {
-            channel.editReadings(ImmutableList.of(ReadingImpl.of(readingType, BigDecimal.valueOf(70L), date1.plusSeconds(900 * 1))));
+            channel.editReadings(QualityCodeSystem.MDM, ImmutableList.of(ReadingImpl.of(readingType, BigDecimal.valueOf(70L), date1.plusSeconds(900))));
             return null;
         });
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1);
@@ -417,9 +417,9 @@ public class ValidationEvaluatorIT {
         injector.getInstance(TransactionService.class).execute(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(102L), date1));
-            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900 * 1)));
+            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900)));
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(255L), date1.plusSeconds(900 * 2)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             return null;
         });
         ValidationEvaluator evaluator = validationService.getEvaluator(meter, Range.openClosed(date1, date1.plusSeconds(900 * 2)));
@@ -433,7 +433,7 @@ public class ValidationEvaluatorIT {
                 .collect(Collectors.toList());
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
-            channel.editReadings(ImmutableList.of(ReadingImpl.of(readingType, BigDecimal.valueOf(70L), date1.plusSeconds(900))));
+            channel.editReadings(QualityCodeSystem.MDM, ImmutableList.of(ReadingImpl.of(readingType, BigDecimal.valueOf(70L), date1.plusSeconds(900))));
             return null;
         });
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 2));
@@ -452,9 +452,9 @@ public class ValidationEvaluatorIT {
         injector.getInstance(TransactionService.class).execute(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(102L), date1));
-            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900 * 1)));
+            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(152L), date1.plusSeconds(900)));
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(255L), date1.plusSeconds(900 * 2)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             return null;
         });
         ValidationEvaluator evaluator = validationService.getEvaluator();
@@ -469,9 +469,9 @@ public class ValidationEvaluatorIT {
         assertThat(validationResults).isEqualTo(ImmutableList.of(VALID, VALID, SUSPECT));
         injector.getInstance(TransactionService.class).execute(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(252L), date1.plusSeconds(900 * 1)));
+            meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(252L), date1.plusSeconds(900)));
             meterReading.addReading(ReadingImpl.of(bulkReadingType, BigDecimal.valueOf(302L), date1.plusSeconds(900 * 2)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             return null;
         });
         assertThat(validationService.getLastChecked(channel).get()).isEqualTo(date1.plusSeconds(900 * 2));

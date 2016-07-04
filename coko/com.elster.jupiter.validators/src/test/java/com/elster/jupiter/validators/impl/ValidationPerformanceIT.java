@@ -207,7 +207,7 @@ public class ValidationPerformanceIT {
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(51L), date1.plusSeconds(900 * i++)));
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(52L), date1.plusSeconds(900 * i++)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             context.commit();
         }
         // reread meter
@@ -216,7 +216,7 @@ public class ValidationPerformanceIT {
         try (TransactionContext context = txService.getContext()) {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             context.commit();
             sqlCount = context.getStats().getSqlCount();
         }
@@ -226,7 +226,7 @@ public class ValidationPerformanceIT {
             for (int j = 0; j < 10; j++) {
                 meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(50L), date1.plusSeconds(900 * i++)));
             }
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             context.commit();
             assertThat(context.getStats().getSqlCount()).isEqualTo(sqlCount);
         }
