@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.TableConstraint;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -19,12 +21,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.intersection;
 
 public abstract class TableConstraintImpl<S extends TableConstraint> implements TableConstraint {
 
-    public static final Map<String, Class<? extends TableConstraint>> implementers = ImmutableMap.<String, Class<? extends TableConstraint>>of(
+    public static final Map<String, Class<? extends TableConstraint>> implementers = ImmutableMap.of(
             "PRIMARYKEY", PrimaryKeyConstraintImpl.class,
             "UNIQUE", UniqueConstraintImpl.class,
             "FOREIGNKEY", ForeignKeyConstraintImpl.class);
@@ -105,7 +111,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     public boolean isForeignKey() {
         return false;
     }
-    
+
     @Override
     public boolean noDdl() {
     	return false;
@@ -119,8 +125,9 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     @Override
     public boolean isNotNull() {
         for (Column each : getColumns()) {
-            if (!each.isNotNull())
+            if (!each.isNotNull()) {
                 return false;
+            }
         }
         return true;
     }
@@ -146,7 +153,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
         // do nothing by default;
     }
 
-    final public String getDdl() {
+    public final String getDdl() {
         StringBuilder sb = new StringBuilder("constraint ");
         sb.append(name);
         sb.append(" ");
@@ -191,7 +198,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
         }
         return true;
     }
-    
+
     public boolean delayDdl() {
     	return false;
     }
@@ -212,6 +219,15 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
                 .forEach(builder::add);
         versions = intersectWithTable(builder.build());
         return self;
+    }
+
+    @Override
+    public SortedSet<Version> changeVersions() {
+        return versions()
+                .asRanges()
+                .stream()
+                .flatMap(range -> Stream.of(Ranges.lowerBound(range), Ranges.upperBound(range)).flatMap(Functions.asStream()))
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     public void setVersions(RangeSet<Version> versions) {

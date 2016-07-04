@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.fields.impl.ForwardConstraintMapping;
 import com.elster.jupiter.orm.fields.impl.MultiColumnMapping;
 import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
+import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.base.Joiner;
@@ -80,7 +81,7 @@ public class TableImpl<T> implements Table<T> {
     // associations
     private final Reference<DataModelImpl> dataModel = ValueReference.absent();
     private final List<ColumnImpl> columns = new ArrayList<>();
-    private final List<TableConstraintImpl> constraints = new ArrayList<>();
+    private final List<TableConstraintImpl<?>> constraints = new ArrayList<>();
     private final List<IndexImpl> indexes = new ArrayList<>();
 
     private Optional<Column> partitionColumn = Optional.empty();
@@ -221,7 +222,7 @@ public class TableImpl<T> implements Table<T> {
         return columns
                 .stream()
                 .filter((column) -> column.getName().equalsIgnoreCase(name))
-                .filter(test(Column::isInVersion).with(getDataModel().getVersion()))
+//                .filter(test(Column::isInVersion).with(getDataModel().getVersion()))
                 .findFirst();
     }
 
@@ -1062,6 +1063,25 @@ public class TableImpl<T> implements Table<T> {
     }
 
     public RangeSet<Version> getVersions() {
+        return versions;
+    }
+
+    @Override
+    public SortedSet<Version> changeVersions() {
+        SortedSet<Version> versions = getVersions()
+                .asRanges()
+                .stream()
+                .flatMap(range -> Stream.of(Ranges.lowerBound(range), Ranges.upperBound(range)).flatMap(Functions.asStream()))
+                .collect(Collectors.toCollection(TreeSet::new));
+        columns
+                .stream()
+                .forEach(column -> versions.addAll(column.changeVersions()));
+        constraints
+                .stream()
+                .forEach(constraint -> versions.addAll(constraint.changeVersions()));
+        indexes
+                .stream()
+                .forEach(index -> versions.addAll(index.changeVersions()));
         return versions;
     }
 

@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.fields.impl.ColumnConversionImpl;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
@@ -23,7 +25,10 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Ranges.intersection;
@@ -494,6 +499,43 @@ public class ColumnImpl implements Column {
 
     Optional<ColumnImpl> getPredecessor() {
         return Optional.ofNullable(predecessor);
+    }
+
+    @Override
+    public ColumnImpl since(Version version) {
+        versions = intersectWithTable(ImmutableRangeSet.of(Range.atLeast(version)));
+        return this;
+    }
+
+    @Override
+    public ColumnImpl upTo(Version version) {
+        versions = intersectWithTable(ImmutableRangeSet.of(Range.lessThan(version)));
+        return this;
+    }
+
+    @Override
+    public ColumnImpl during(Range... ranges) {
+        ImmutableRangeSet.Builder<Version> builder = ImmutableRangeSet.builder();
+        Arrays.stream(ranges)
+                .forEach(builder::add);
+        versions = intersectWithTable(builder.build());
+        return this;
+    }
+
+    @Override
+    public ColumnImpl previously(Column column) {
+        assert column.getTable().equals(getTable());
+        predecessor = (ColumnImpl) column;
+        return this;
+    }
+
+    @Override
+    public SortedSet<Version> changeVersions() {
+        return versions()
+                .asRanges()
+                .stream()
+                .flatMap(range -> Stream.of(Ranges.lowerBound(range), Ranges.upperBound(range)).flatMap(Functions.asStream()))
+                .collect(Collectors.toCollection(TreeSet::new));
     }
 
     static class BuilderImpl implements Column.Builder {

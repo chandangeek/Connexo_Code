@@ -75,34 +75,43 @@ class ParentSetter implements Visitor {
 	}
 
 	public void visitContains(Contains contains) {
+		// Not of interest for now
 	}
 
 	public void visitEffective(Effective effective) {
+        // Not of interest for now
 	}
 
 	public void visitNot(Not ignored) {
+        // Not of interest for now
 	}
 
 	public void visitTrue(Constant ignored) {
+        // Not of interest for now
 	}
 
 	public void visitFalse(Constant ignored) {
+        // Not of interest for now
 	}
 
 	@Override
 	public void visitMembership(Membership membership) {
+        // Not of interest for now
 	}
 
 	@Override
 	public void visitExists(Exists empty) {
+        // Not of interest for now
 	}
 
 	@Override
 	public void visitText(Text expression) {
+        // Not of interest for now
 	}
 
 	@Override
 	public void visitFragmentExpression(FragmentExpression expression) {
+        // Not of interest for now
 	}
 
 }
