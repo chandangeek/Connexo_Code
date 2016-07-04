@@ -137,7 +137,10 @@ public enum MessageSeeds implements MessageSeed {
     CALENDAR_OPTION_SEND_SPECIAL_DAYS_CONTRACT_DATE(221, Keys.CALENDAR_OPTION_SEND_SPECIAL_DAYS_CONTRACT_DATE, "Send special days calendar with contract and activation date"),
     CALENDAR_OPTION_CLEAR_DISABLE_TARIFF(222, Keys.CALENDAR_OPTION_CLEAR_DISABLE_TARIFF, "Clear and disable passive tariff"),
     CALENDAR_OPTION_ACTIVATE_PASSIVE(223, Keys.CALENDAR_OPTION_ACTIVATE_PASSIVE, "Activate passive calendar"),
-    ;
+    DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE(224, Keys.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before you can " +
+            "activate a datalogger slave device configuration"),
+    DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(225, Keys.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
+            "you can activate a datalogger device configuration"),;
 
 
     private final int number;
@@ -279,6 +282,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CALENDAR_OPTION_SEND_SPECIAL_DAYS_CONTRACT_DATE = ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE.getId();
         public static final String CALENDAR_OPTION_CLEAR_DISABLE_TARIFF = ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF.getId();
         public static final String CALENDAR_OPTION_ACTIVATE_PASSIVE = ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR.getId();
-
+        public static final String DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE = "datalogger.slave.at.least.one.datasource";
+        public static final String DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE = "datalogger.enablements.at.least.one.datasource";
     }
 }
