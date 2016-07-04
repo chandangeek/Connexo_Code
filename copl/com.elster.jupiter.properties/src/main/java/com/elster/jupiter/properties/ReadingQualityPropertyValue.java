@@ -2,6 +2,7 @@ package com.elster.jupiter.properties;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Objects;
 
 /**
  * Copyrights EnergyICT
@@ -64,6 +65,11 @@ public class ReadingQualityPropertyValue extends HasIdAndName {
         }
 
         return test.matches(regex);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), cimCode);
     }
 
     @Override
