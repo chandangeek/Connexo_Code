@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointProperty {
+class LoadLimiterTypeSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -29,7 +29,7 @@ public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointPr
     private String uniqueName;
 
     @Inject
-    public LoadLimiterTypeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    LoadLimiterTypeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -38,7 +38,7 @@ public class LoadLimiterTypeSearchableProperty implements SearchableUsagePointPr
         this.domain = domain;
         this.group = group;
         this.clock = cLock;
-        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
+        this.uniqueName = FIELD_NAME + "." + group.getId();
         return this;
     }
 

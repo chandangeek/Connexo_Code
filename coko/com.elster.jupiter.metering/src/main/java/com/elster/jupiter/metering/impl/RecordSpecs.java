@@ -36,11 +36,7 @@ public enum RecordSpecs {
 		private Object[] toArray(BaseReading reading, ProcessStatus status) {
 			Object[] result = new Object[3];
 			result[0] = status.getBits();
-			if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
-				result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
-			} else {
-				result[1] = 0L;
-			}
+			result[1] = 0L;			////The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
 			result[2] = reading.getValue();
 			return result;
 		}
@@ -68,7 +64,7 @@ public enum RecordSpecs {
 		@Override
 		void addFieldSpecs(RecordSpecBuilder recordSpec) {
 			recordSpec.addFieldSpec(VALUE, NUMBER);
-			recordSpec.addFieldSpec("Bulk", NUMBER);
+			recordSpec.addFieldSpec(BULK, NUMBER);
 		}
 
 		@Override
@@ -78,11 +74,7 @@ public enum RecordSpecs {
 			}
 			Object[] result = new Object[4];
 			result[0] = status.getBits();
-			if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
-				result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
-			} else {
-				result[1] = 0L;
-			}
+			result[1] = 0L;			//The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
 			result[2 + slotIndex] = reading.getValue();
 			return result;
 		}
@@ -115,11 +107,7 @@ public enum RecordSpecs {
 			}
 			Object[] result = new Object[8];
 			result[0] = status.getBits();
-			if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
-				result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
-			} else {
-				result[1] = 0L;
-			}
+			result[1] = 0L;			//The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
 			result[2 + slotIndex] = reading.getValue();
 			return result;
 		}
@@ -283,11 +271,7 @@ public enum RecordSpecs {
             }
             Object[] result = new Object[4];
             result[0] = status.getBits();
-			if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
-                result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
-            } else {
-                result[1] = 0L;
-            }
+			result[1] = 0L;			//The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
             result[2 + slotIndex] = reading.getValue();
             return result;
         }
@@ -299,9 +283,10 @@ public enum RecordSpecs {
     },
 	;
 
-    public static final String PROCESS_STATUS = "ProcesStatus";
+	public static final String PROCESS_STATUS = "ProcesStatus";
 	public static final String PROFILE_STATUS = "ProfileStatus";
 	public static final String VALUE = "Value";
+	public static final String BULK = "Bulk";
 
 	private final String specName;
 	private final boolean interval;

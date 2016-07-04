@@ -24,17 +24,21 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -45,8 +49,11 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -65,6 +72,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -98,7 +106,7 @@ public class UsagePointImpl implements UsagePoint {
     private Instant installationTime;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
-    private ConnectionState connectionState = ConnectionState.UNDER_CONSTRUCTION;
+    private TemporalReference<UsagePointConnectionState> connectionState = Temporals.absent();
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -333,6 +341,7 @@ public class UsagePointImpl implements UsagePoint {
 
     void doSave() {
         if (id == 0) {
+            this.setConnectionState(ConnectionState.UNDER_CONSTRUCTION, installationTime);
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
         } else {
@@ -413,12 +422,12 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration() {
+    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration() {
         return this.getMetrologyConfiguration(this.clock.instant());
     }
 
     @Override
-    public Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when) {
+    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when)
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
     }
@@ -428,7 +437,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
+    public List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
         return this.metrologyConfiguration
                 .effective(period)
                 .stream()
@@ -437,12 +446,12 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void apply(MetrologyConfiguration metrologyConfiguration) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration) {
         this.apply(metrologyConfiguration, this.clock.instant());
     }
 
     @Override
-    public void apply(MetrologyConfiguration metrologyConfiguration, Instant when) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
         this.removeMetrologyConfiguration(when);
         this.metrologyConfiguration.add(
                 this.dataModel
@@ -471,12 +480,111 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ConnectionState getConnectionState() {
-        return connectionState;
+        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState).orElse(ConnectionState.UNDER_CONSTRUCTION);
     }
 
     @Override
     public void setConnectionState(ConnectionState connectionState) {
-        this.connectionState = connectionState;
+        this.setConnectionState(connectionState, this.clock.instant());
+    }
+
+    @Override
+    public void setConnectionState(ConnectionState connectionState, Instant effective) {
+        if(!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
+            if (!this.connectionState.effective(Range.all()).isEmpty()) {
+                this.closeCurrentConnectionState(effective);
+            }
+            this.createNewState(effective, connectionState);
+            this.touch();
+        }
+    }
+
+    private void closeCurrentConnectionState(Instant now){
+        UsagePointConnectionState currentState = this.connectionState.effective(now).get();
+        currentState.close(now);
+        this.dataModel.update(currentState);
+    }
+
+    private void createNewState(Instant effective, ConnectionState connectionState) {
+        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective));
+        UsagePointConnectionState usagePointConnectionState = this.dataModel
+                .getInstance(UsagePointConnectionStateImpl.class)
+                .initialize(stateEffectivityInterval, this, connectionState);
+        this.connectionState.add(usagePointConnectionState);
+    }
+
+    @Override
+    public List<CompletionOptions> connect(Instant when, ServiceCall serviceCall) {
+        return this.getMeterActivations(when)
+                .stream()
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createConnectCommand(meter, when), when, serviceCall)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletionOptions> disconnect(Instant when, ServiceCall serviceCall) {
+        return this.getMeterActivations(when)
+                .stream()
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createDisconnectCommand(meter, when), when, serviceCall)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletionOptions> enableLoadLimit(Instant when, Quantity loadLimit, ServiceCall serviceCall) {
+        return this.getMeterActivations(when)
+                .stream()
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createEnableLoadLimitCommand(meter, loadLimit), when, serviceCall)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletionOptions> disableLoadLimit(Instant when, ServiceCall serviceCall) {
+        return this.getMeterActivations(when)
+                .stream()
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createDisableLoadLimitCommand(meter), when, serviceCall)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
+        return this.getMeterActivations(when)
+                .stream()
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter, readingTypes, when, serviceCall)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -704,6 +812,7 @@ public class UsagePointImpl implements UsagePoint {
     public void adopt(MeterActivationImpl meterActivation) {
         meterActivations.stream()
                 .filter(activation -> activation.getId() != meterActivation.getId())
+                .filter(activation -> this.sameMeterRole(activation, meterActivation))
                 .reduce((m1, m2) -> m2)
                 .ifPresent(last -> {
                     if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
@@ -724,6 +833,20 @@ public class UsagePointImpl implements UsagePoint {
             ((MeterImpl) existing).adopt(meterActivation);
         }
         meterActivations.add(meterActivation);
+    }
+
+    private boolean sameMeterRole(MeterActivation ma1, MeterActivation ma2) {
+        return this.sameMeterRole(ma1.getMeterRole(), ma2.getMeterRole());
+    }
+
+    private boolean sameMeterRole(Optional<MeterRole> r1, Optional<MeterRole> r2) {
+        if (r1.isPresent() && r2.isPresent()) {
+            return Checks.is(r1.get()).equalTo(r2.get());
+        } else if (!r1.isPresent() && !r2.isPresent()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void refreshMeterActivations() {

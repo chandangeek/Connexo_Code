@@ -2,8 +2,6 @@ package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.search.SearchablePropertyValue;
 
-import aQute.bnd.annotation.ProviderType;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +17,16 @@ public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration
 
     Optional<MeterRole> getMeterRoleFor(ReadingTypeRequirement readingTypeRequirement);
 
+    /**
+     * Will throw an UnsupportedOperationException because a {@link MeterRole} is required
+     * when creating a {@link ReadingTypeRequirement} on a UsagePointMetrologyConfiguration.
+     *
+     * @see #newReadingTypeRequirement(String, MeterRole)
+     */
+    @Override
     MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name);
+
+    MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name, MeterRole role);
 
     UsagePointRequirement addUsagePointRequirement(SearchablePropertyValue.ValueBean valueBean);
 
@@ -27,9 +34,4 @@ public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration
 
     List<UsagePointRequirement> getUsagePointRequirements();
 
-    @ProviderType
-    interface MetrologyConfigurationReadingTypeRequirementBuilder extends MetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder {
-
-        MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole);
-    }
 }

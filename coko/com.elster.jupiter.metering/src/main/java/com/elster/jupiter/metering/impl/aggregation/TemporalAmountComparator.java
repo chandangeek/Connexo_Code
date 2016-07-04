@@ -11,7 +11,7 @@ import java.util.Comparator;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (13:45)
  */
-public class TemporalAmountComparator implements Comparator<TemporalAmount> {
+class TemporalAmountComparator implements Comparator<TemporalAmount> {
 
     @Override
     public int compare(TemporalAmount ta1, TemporalAmount ta2) {

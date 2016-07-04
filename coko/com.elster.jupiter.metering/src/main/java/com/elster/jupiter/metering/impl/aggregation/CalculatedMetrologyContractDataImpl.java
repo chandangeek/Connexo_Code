@@ -28,14 +28,14 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-04-04 (10:24)
  */
-public class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContractData {
+class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContractData {
 
     private final UsagePoint usagePoint;
     private final MetrologyContract contract;
     private final Range<Instant> period;
     private final Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords;
 
-    public CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+    CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
         this.usagePoint = usagePoint;
         this.contract = contract;
         this.period = period;
@@ -43,7 +43,7 @@ public class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyC
         this.calculatedReadingRecords = this.generateConstantsAsTimeSeries(contract, this.mergeMeterActivations(calculatedReadingRecords));
     }
 
-    protected void injectUsagePoint(Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+    private void injectUsagePoint(Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
         calculatedReadingRecords
                 .values()
                 .stream()
