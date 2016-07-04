@@ -3,6 +3,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -10,18 +11,18 @@ import javax.inject.Provider;
 /**
  * Created by bvn on 5/11/16.
  */
-public class InboundEndPointFactoryImpl extends EndPointFactoryImpl<InboundSoapEndPointProvider> {
+public class InboundSoapEndPointFactoryImpl extends EndPointFactoryImpl<InboundSoapEndPointProvider> {
 
-    private final Provider<InboundSoapEndPoint> inboundEndPointProvider;
+    private final Provider<InboundSoapEndPoint> inboundSoapEndPointProvider;
 
     @Inject
-    public InboundEndPointFactoryImpl(Provider<InboundSoapEndPoint> inboundEndPointProvider) {
-        this.inboundEndPointProvider = inboundEndPointProvider;
+    public InboundSoapEndPointFactoryImpl(Provider<InboundSoapEndPoint> inboundSoapEndPointProvider) {
+        this.inboundSoapEndPointProvider = inboundSoapEndPointProvider;
     }
 
     @Override
     public ManagedEndpoint createEndpoint(EndPointConfiguration endPointConfiguration) {
-        return inboundEndPointProvider.get()
+        return inboundSoapEndPointProvider.get()
                 .init(super.getEndPointProvider(), (InboundEndPointConfiguration) endPointConfiguration);
     }
 
@@ -29,4 +30,10 @@ public class InboundEndPointFactoryImpl extends EndPointFactoryImpl<InboundSoapE
     public boolean isInbound() {
         return true;
     }
+
+    @Override
+    public WebServiceType getType() {
+        return WebServiceType.SOAP;
+    }
+
 }

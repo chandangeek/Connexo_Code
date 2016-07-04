@@ -1,6 +1,8 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
@@ -38,8 +40,8 @@ public class Whiteboard {
 	public void setWebServicesService(WebServicesService webServicesService) {
 		this.webServicesService = (WebServicesServiceImpl) webServicesService;
 	}
-	
-    @Reference(name="ZEndPointProvider",cardinality=ReferenceCardinality.MULTIPLE,policy=ReferencePolicy.DYNAMIC)
+
+	@Reference(name = "ZInboundSoapEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
 	public void addEndPoint(InboundSoapEndPointProvider provider, Map<String, Object> props) {
 		String alias = getName(props);
 		if (alias == null) {
@@ -55,7 +57,23 @@ public class Whiteboard {
 		}
 	}
 
-	@Reference(name = "ZOutboundEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+	@Reference(name = "ZInboundRestEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+	public void addEndPoint(InboundRestEndPointProvider provider, Map<String, Object> props) {
+		String alias = getName(props);
+		if (alias == null) {
+			return;
+		}
+		webServicesService.register(alias, provider);
+	}
+
+	public void removeEndPoint(InboundRestEndPointProvider provider, Map<String, Object> props) {
+		String alias = getName(props);
+		if (alias != null) {
+			webServicesService.unregister(alias);
+		}
+	}
+
+	@Reference(name = "ZOutboundSoapEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
 	public void addEndPoint(OutboundSoapEndPointProvider provider, Map<String, Object> props) {
 		String alias = getName(props);
 		if (alias == null) {
@@ -70,6 +88,23 @@ public class Whiteboard {
 			webServicesService.unregister(alias);
 		}
 	}
+
+	@Reference(name = "ZOutboundRestEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+	public void addEndPoint(OutboundRestEndPointProvider provider, Map<String, Object> props) {
+		String alias = getName(props);
+		if (alias == null) {
+			return;
+		}
+		webServicesService.register(alias, provider);
+	}
+
+	public void removeEndPoint(OutboundRestEndPointProvider provider, Map<String, Object> props) {
+		String alias = getName(props);
+		if (alias != null) {
+			webServicesService.unregister(alias);
+		}
+	}
+
 
 	private String getName(Map<String, Object> props) {
 		return props == null ? null : (String) props.get("name");

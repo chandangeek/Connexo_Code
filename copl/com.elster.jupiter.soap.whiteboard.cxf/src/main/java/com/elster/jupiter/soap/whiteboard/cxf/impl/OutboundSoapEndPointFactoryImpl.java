@@ -3,6 +3,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -10,12 +11,12 @@ import javax.inject.Provider;
 /**
  * Created by bvn on 5/11/16.
  */
-public class OutboundEndPointFactoryImpl extends EndPointFactoryImpl<OutboundSoapEndPointProvider> {
+public class OutboundSoapEndPointFactoryImpl extends EndPointFactoryImpl<OutboundSoapEndPointProvider> {
 
     private final Provider<OutboundSoapEndPoint> outboundEndPointProvider;
 
     @Inject
-    public OutboundEndPointFactoryImpl(Provider<OutboundSoapEndPoint> outboundEndPointProvider) {
+    public OutboundSoapEndPointFactoryImpl(Provider<OutboundSoapEndPoint> outboundEndPointProvider) {
         this.outboundEndPointProvider = outboundEndPointProvider;
     }
 
@@ -29,4 +30,10 @@ public class OutboundEndPointFactoryImpl extends EndPointFactoryImpl<OutboundSoa
     public boolean isInbound() {
         return false;
     }
+
+    @Override
+    public WebServiceType getType() {
+        return WebServiceType.SOAP;
+    }
+
 }
