@@ -7,8 +7,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -195,12 +195,12 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     // called by whiteboard
-    public void register(String name, InboundEndPointProvider endPointProvider) {
+    public void register(String name, InboundSoapEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(InboundEndPointFactoryImpl.class).init(name, endPointProvider));
     }
 
     // called by whiteboard
-    public void register(String name, OutboundEndPointProvider endPointProvider) {
+    public void register(String name, OutboundSoapEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(OutboundEndPointFactoryImpl.class).init(name, endPointProvider));
     }
 

@@ -2,7 +2,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -10,12 +10,12 @@ import javax.inject.Provider;
 /**
  * Created by bvn on 5/11/16.
  */
-public class OutboundEndPointFactoryImpl extends EndPointFactoryImpl<OutboundEndPointProvider> {
+public class OutboundEndPointFactoryImpl extends EndPointFactoryImpl<OutboundSoapEndPointProvider> {
 
-    private final Provider<OutboundEndPoint> outboundEndPointProvider;
+    private final Provider<OutboundSoapEndPoint> outboundEndPointProvider;
 
     @Inject
-    public OutboundEndPointFactoryImpl(Provider<OutboundEndPoint> outboundEndPointProvider) {
+    public OutboundEndPointFactoryImpl(Provider<OutboundSoapEndPoint> outboundEndPointProvider) {
         this.outboundEndPointProvider = outboundEndPointProvider;
     }
 

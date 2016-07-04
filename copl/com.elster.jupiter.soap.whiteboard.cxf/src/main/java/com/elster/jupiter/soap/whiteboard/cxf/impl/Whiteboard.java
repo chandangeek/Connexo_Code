@@ -1,8 +1,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
@@ -41,7 +40,7 @@ public class Whiteboard {
 	}
 	
     @Reference(name="ZEndPointProvider",cardinality=ReferenceCardinality.MULTIPLE,policy=ReferencePolicy.DYNAMIC)
-	public void addEndPoint(InboundEndPointProvider provider, Map<String, Object> props) {
+	public void addEndPoint(InboundSoapEndPointProvider provider, Map<String, Object> props) {
 		String alias = getName(props);
 		if (alias == null) {
     		return;
@@ -49,7 +48,7 @@ public class Whiteboard {
 		webServicesService.register(alias, provider);
 	}
 
-	public void removeEndPoint(EndPointProvider provider, Map<String, Object> props) {
+	public void removeEndPoint(InboundSoapEndPointProvider provider, Map<String, Object> props) {
 		String alias = getName(props);
 		if (alias != null) {
 			webServicesService.unregister(alias);
@@ -57,7 +56,7 @@ public class Whiteboard {
 	}
 
 	@Reference(name = "ZOutboundEndPointProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-	public void addEndPoint(OutboundEndPointProvider provider, Map<String, Object> props) {
+	public void addEndPoint(OutboundSoapEndPointProvider provider, Map<String, Object> props) {
 		String alias = getName(props);
 		if (alias == null) {
 			return;
@@ -65,7 +64,7 @@ public class Whiteboard {
 		webServicesService.register(alias, provider);
 	}
 
-	public void removeEndPoint(OutboundEndPointProvider provider, Map<String, Object> props) {
+	public void removeEndPoint(OutboundSoapEndPointProvider provider, Map<String, Object> props) {
 		String alias = getName(props);
 		if (alias != null) {
 			webServicesService.unregister(alias);

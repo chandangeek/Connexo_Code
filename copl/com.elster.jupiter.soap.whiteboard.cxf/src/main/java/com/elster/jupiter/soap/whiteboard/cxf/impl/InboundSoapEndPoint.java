@@ -2,7 +2,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
@@ -21,8 +21,8 @@ import java.io.File;
 /**
  * This endpoint manager knows how to set up and tear down an inbound SOAP endpoint
  */
-public final class InboundEndPoint implements ManagedEndpoint {
-    private InboundEndPointProvider endPointProvider;
+public final class InboundSoapEndPoint implements ManagedEndpoint {
+    private InboundSoapEndPointProvider endPointProvider;
     private InboundEndPointConfiguration endPointConfiguration;
     private final SoapProviderSupportFactory soapProviderSupportFactory;
     private final String logDirectory;
@@ -32,16 +32,16 @@ public final class InboundEndPoint implements ManagedEndpoint {
     private Server endpoint;
 
     @Inject
-    public InboundEndPoint(SoapProviderSupportFactory soapProviderSupportFactory, @Named("LogDirectory") String logDirectory,
-                           Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider,
-                           Provider<AccessLogFeature> accessLogFeatureProvider) {
+    public InboundSoapEndPoint(SoapProviderSupportFactory soapProviderSupportFactory, @Named("LogDirectory") String logDirectory,
+                               Provider<AuthorizationInInterceptor> authorizationInInterceptorProvider,
+                               Provider<AccessLogFeature> accessLogFeatureProvider) {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
         this.logDirectory = logDirectory;
         this.authorizationInInterceptorProvider = authorizationInInterceptorProvider;
         this.accessLogFeatureProvider = accessLogFeatureProvider;
     }
 
-    InboundEndPoint init(InboundEndPointProvider endPointProvider, InboundEndPointConfiguration endPointConfiguration) {
+    InboundSoapEndPoint init(InboundSoapEndPointProvider endPointProvider, InboundEndPointConfiguration endPointConfiguration) {
         this.endPointProvider = endPointProvider;
         this.endPointConfiguration = endPointConfiguration;
         return this;
