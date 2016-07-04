@@ -61,7 +61,7 @@ class EstimationEngine {
                 .orElse(new MissingReadingRecordEstimatable(readingQualityRecord.getReadingTimestamp()));
     }
 
-    void applyEstimations(EstimationReportImpl report) {
+    void applyEstimations(QualityCodeSystem system, EstimationReportImpl report) {
         Map<CimChannelKey, List<EstimationBlock>> map = report.getResults().values().stream()
                 .flatMap(estimationResult -> estimationResult.estimated().stream())
                 .collect(Collectors.groupingBy(CimChannelKey::of));
@@ -70,7 +70,7 @@ class EstimationEngine {
                     .map(ReadingEstimationBlock::new)
                     .flatMap(ReadingEstimationBlock::getReadings)
                     .collect(Collectors.toList());
-            cimChannelKey.getCimChannel().estimateReadings(readings);
+            cimChannelKey.getCimChannel().estimateReadings(system, readings);
         });
     }
 

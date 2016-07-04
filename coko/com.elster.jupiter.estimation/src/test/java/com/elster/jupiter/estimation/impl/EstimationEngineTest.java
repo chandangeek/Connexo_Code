@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -45,6 +44,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySetOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -57,7 +57,6 @@ public class EstimationEngineTest {
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
 
-    public static final Set<QualityCodeSystem> MDC_SET = Collections.singleton(QualityCodeSystem.MDC);
     @Mock
     private MeterActivation meterActivation;
     @Mock
@@ -117,7 +116,7 @@ public class EstimationEngineTest {
         assertThat(blocksToEstimate).isEmpty();
         verify(cimChannel1).findReadingQualities();
         verify(filter, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
-                .ofQualitySystems(MDC_SET);
+                .ofQualitySystems(Collections.singleton(QualityCodeSystem.MDC));
         verify(filter, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
                 .ofQualityIndex(QualityCodeIndex.SUSPECT);
         verify(filter, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
@@ -230,10 +229,10 @@ public class EstimationEngineTest {
         report.reportEstimated(readingType2, estimationBlock2);
         report.reportEstimated(readingType, estimationBlock3);
 
-        new EstimationEngine().applyEstimations(report);
+        new EstimationEngine().applyEstimations(QualityCodeSystem.MDC, report);
 
         ArgumentCaptor<List> readingCaptor = ArgumentCaptor.forClass(List.class);
-        verify(cimChannel1).estimateReadings(readingCaptor.capture());
+        verify(cimChannel1).estimateReadings(eq(QualityCodeSystem.MDC), readingCaptor.capture());
 
         assertThat(readingCaptor.getValue()).hasSize(4);
         List list = readingCaptor.getValue();
@@ -258,7 +257,7 @@ public class EstimationEngineTest {
         assertThat(reading4.getReadingQualities()).hasSize(1);
         assertThat(reading4.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 3));
 
-        verify(cimChannel2).estimateReadings(readingCaptor.capture());
+        verify(cimChannel2).estimateReadings(eq(QualityCodeSystem.MDC), readingCaptor.capture());
 
         assertThat(readingCaptor.getValue()).hasSize(2);
         list = readingCaptor.getValue();
@@ -273,6 +272,4 @@ public class EstimationEngineTest {
         assertThat(reading2.getReadingQualities()).hasSize(1);
         assertThat(reading2.getReadingQualities().get(0).getType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2));
     }
-
-
 }
