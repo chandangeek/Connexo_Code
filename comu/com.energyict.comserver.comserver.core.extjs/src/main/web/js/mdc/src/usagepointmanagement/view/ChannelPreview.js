@@ -63,7 +63,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                                 + deviceChannel.mRID
                                 + '</a>'
                                     : deviceChannel.mRID,
-                                channel = canViewDevices && !deviceChannel.until
+                                channel = canViewDevices && (!deviceChannel.until || deviceChannel.until >= new Date().getTime())
                                     ? '<a href="'
                                 + me.router.getRoute('devices/device/channels/channel').buildUrl({
                                     mRID: deviceChannel.mRID,
