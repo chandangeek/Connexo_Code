@@ -211,7 +211,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             usagePointBuilder.withLocation(builder.create());
             isVirtual = false;
         }
-        if(geoCoordinatesData != null && geoCoordinatesData.size() > 1) {
+        if(geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
             usagePointBuilder.withGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue((geoCoordinatesData.stream().collect(Collectors.joining(":")))));
             isVirtual = false;
         }
@@ -254,7 +254,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             }
             usagePoint.setLocation(builder.create().getId());
         }
-        if(geoCoordinatesData != null && geoCoordinatesData.stream().allMatch(s -> s != null)) {
+        if(geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
             usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
         usagePoint.setName(data.getName().orElse(null));
@@ -516,16 +516,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                 .isDaultLocation(true)
                 .setLocale(data.getLocation().get(ranking.get("locale")));
         return builder;
-    }
-
-    private boolean validateGeoCoordinatesData(List<String> geoCoordinatesData){
-        int count = 0;
-        for(String geoElement : geoCoordinatesData){
-            if (geoElement == null){
-                count++;
-            }
-        }
-        return count < 2;
     }
 
 }
