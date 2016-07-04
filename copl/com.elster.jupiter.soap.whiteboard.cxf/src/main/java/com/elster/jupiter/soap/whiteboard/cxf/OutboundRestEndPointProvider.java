@@ -4,9 +4,9 @@ import javax.xml.ws.Service;
 
 /**
  * Provider allows whiteboard to pick up deployed components that implement this interface.
- * Allows registering Inbound SOAP services.
+ * Allows registering Outbound REST services.
  */
-public interface OutboundSoapEndPointProvider extends EndPointProvider {
+public interface OutboundRestEndPointProvider extends EndPointProvider {
     Service get();
 
     Class getService();
