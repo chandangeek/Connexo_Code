@@ -297,6 +297,7 @@
                 <module>../com.elster.jupiter.metering.groups</module>
                 <module>../com.elster.jupiter.metering.imports</module>
                 <module>../com.elster.jupiter.metering.rest</module>
+                <module>../com.elster.jupiter.metering.rest.demo</module>
                 <module>../com.elster.jupiter.metering.extjs</module>
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
