@@ -47,7 +47,10 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                 name: 'deviceChannels',
                 renderer: function (value) {
                     var result = '',
-                        canViewDevices = Mdc.privileges.Device.canView();
+                        canViewDevices = Mdc.privileges.Device.canView(),
+                        infoIcon = '<span style="margin-left: 10px;display: inline-block;width: 16px;height: 16px;" class="uni-icon-info-small" data-qtip="'
+                            + Uni.I18n.translate('usagePointChannel.notAvailableChannel.qtip', 'MDC', 'This channel is not available on the device anymore because device configuration is changed')
+                            + '"></span>';
 
                     if (Ext.isArray(value)) {
                         Ext.Array.each(value, function (deviceChannel, index) {
@@ -60,7 +63,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                                 + deviceChannel.mRID
                                 + '</a>'
                                     : deviceChannel.mRID,
-                                channel = !deviceChannel.until
+                                channel = canViewDevices && !deviceChannel.until
                                     ? '<a href="'
                                 + me.router.getRoute('devices/device/channels/channel').buildUrl({
                                     mRID: deviceChannel.mRID,
@@ -70,9 +73,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                                 + deviceChannel.channel.name
                                 + '</a>'
                                     : deviceChannel.channel.name
-                                + '<span style="margin-left: 10px" class="icon-info" data-qtip="'
-                                + Uni.I18n.translate('usagePointChannel.notAvailableChannel.qtip', 'MDC', 'This channel is not available on the device anymore because device configuration is changed')
-                                + '"></span>',
+                                + infoIcon,
                                 period = !deviceChannel.until
                                     ? Uni.I18n.translate('general.fromX', 'MDC', 'from {0}', [Uni.DateTime.formatDateTimeShort(new Date(deviceChannel.from))], false)
                                     : Uni.I18n.translate('general.fromXuntilX', 'MDC', 'from {0} until {1}', [
