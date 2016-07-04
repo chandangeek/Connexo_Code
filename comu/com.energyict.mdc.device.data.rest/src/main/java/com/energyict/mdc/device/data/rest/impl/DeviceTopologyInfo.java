@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.collect.Range;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -42,9 +44,10 @@ public class DeviceTopologyInfo {
         info.deviceConfigurationName = device.getDeviceConfiguration().getName();
         info.serialNumber = device.getSerialNumber();
         info.creationTime = addTime.orElse(Instant.EPOCH).toEpochMilli();
-        info.linkingTimeStamp = topologyService.findCurrentDataloggerReference(device, clock.instant())
-                .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint().toEpochMilli())
-                .orElse(null);
+
+        Device gateway = topologyService.getPhysicalGateway(device).get();
+        DeviceTopology physicalTopology = topologyService.getPhysicalTopology(gateway, Range.atMost(clock.instant()));
+        physicalTopology.timelined().mostRecentlyAddedOn(device).ifPresent(instant -> info.linkingTimeStamp = instant.toEpochMilli());
         return info;
     }
 
