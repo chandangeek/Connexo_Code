@@ -118,6 +118,9 @@ Ext.define('Isu.view.issues.ActionMenu', {
                 case 'Notify user':
                     privileges = Isu.privileges.Issue.notify;
                     break;
+                case 'Retry estimation':
+                    privileges = Isu.privileges.Issue.runTask;
+                    break;
             }
 
             var menuItem = {

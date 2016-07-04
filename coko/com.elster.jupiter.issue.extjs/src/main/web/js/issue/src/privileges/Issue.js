@@ -8,6 +8,7 @@ Ext.define('Isu.privileges.Issue', {
         'Uni.Auth'
     ],
     singleton: true,
+    runTask: 'privilege.run.ScheduleEstimationTask',
     createRule: ['privilege.administrate.creationRule'],
     comment: ['privilege.comment.issue'],
     adminRule: ['privilege.view.assignmentRule','privilege.administrate.creationRule','privilege.view.creationRule'],
