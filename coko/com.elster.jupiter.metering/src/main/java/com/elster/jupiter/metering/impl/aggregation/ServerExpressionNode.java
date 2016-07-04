@@ -9,7 +9,7 @@ import com.elster.jupiter.metering.config.ExpressionNode;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (09:44)
  */
-public interface ServerExpressionNode {
+interface ServerExpressionNode {
 
     interface Visitor<T> {
         T visitNull(NullNode nullNode);

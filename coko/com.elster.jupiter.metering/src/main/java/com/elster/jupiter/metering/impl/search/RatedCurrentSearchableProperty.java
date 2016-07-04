@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
+class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -31,7 +31,7 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
     private static final String FIELD_NAME = "detail.ratedCurrent";
 
     @Inject
-    public RatedCurrentSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    RatedCurrentSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }

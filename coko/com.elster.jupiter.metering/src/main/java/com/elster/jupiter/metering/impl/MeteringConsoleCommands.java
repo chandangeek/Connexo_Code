@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -25,7 +26,6 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
 import com.elster.jupiter.metering.impl.config.ServerExpressionNode;
@@ -211,6 +211,11 @@ public class MeteringConsoleCommands {
         }
     }
 
+    public void activateMeter() {
+        System.out.println("Usage activateMeter <mRID> <epoch millis> [<meter role> <usage point mRID]");
+        System.out.println("       where meter role is one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
+    }
+
     public void activateMeter(String mrId, long epochMilli) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
@@ -219,6 +224,29 @@ public class MeteringConsoleCommands {
             meter.activate(activationDate);
             meter.update();
             context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void activateMeter(String mrId, long epochMilli, String defaultMeterRoleName, String usagePointMRID) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(defaultMeterRoleName);
+            MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
+            Optional<Meter> meter = meteringService.findMeter(mrId);
+            if (meter.isPresent()) {
+                Optional<UsagePoint> usagePoint = this.meteringService.findUsagePoint(usagePointMRID);
+                if (usagePoint.isPresent()) {
+                    Instant activationDate = Instant.ofEpochMilli(epochMilli);
+                    meter.get().activate(usagePoint.get(), meterRole, activationDate);
+                    context.commit();
+                } else {
+                    throw new RuntimeException("Usagepoint with mRID " + usagePointMRID + " does not exist");
+                }
+            } else {
+                throw new RuntimeException("Meter with mRID " + mrId + " does not exist");
+            }
         } finally {
             threadPrincipalService.clear();
         }
@@ -508,7 +536,7 @@ public class MeteringConsoleCommands {
                     DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(meterRoleName);
                     MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
                     UsagePointMetrologyConfiguration upMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfiguration;
-                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingType(readingType).getId();
+                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name, meterRole).withReadingType(readingType).getId();
                     System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole
@@ -543,7 +571,7 @@ public class MeteringConsoleCommands {
                     DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(meterRoleName);
                     MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
                     UsagePointMetrologyConfiguration upMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfiguration;
-                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingTypeTemplate(template).getId();
+                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name, meterRole).withReadingTypeTemplate(template).getId();
                     System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole

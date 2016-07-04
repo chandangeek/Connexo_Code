@@ -15,12 +15,12 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-04 (14:36)
  */
-public class ExpressionNodeToString implements ServerExpressionNode.Visitor<String> {
+class ExpressionNodeToString implements ServerExpressionNode.Visitor<String> {
 
     private final Formula.Mode mode;
     private boolean unitConversionActive = false;
 
-    public ExpressionNodeToString(Formula.Mode mode) {
+    ExpressionNodeToString(Formula.Mode mode) {
         this.mode = mode;
     }
 

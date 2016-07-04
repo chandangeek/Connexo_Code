@@ -9,14 +9,14 @@ import com.elster.jupiter.util.units.Quantity;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 
-public class WaterLoadLimitSearchableProperty extends LoadLimitSearchableProperty {
+class WaterLoadLimitSearchableProperty extends LoadLimitSearchableProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private static final String FIELD_NAME = "detail.loadLimit";
 
     @Inject
-    public WaterLoadLimitSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    WaterLoadLimitSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
@@ -31,4 +31,5 @@ public class WaterLoadLimitSearchableProperty extends LoadLimitSearchablePropert
                 .addValues(Quantity.create(BigDecimal.ZERO, 0, "m3/h"))
                 .finish();
     }
+
 }

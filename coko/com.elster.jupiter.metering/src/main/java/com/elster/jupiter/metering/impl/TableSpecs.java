@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -292,7 +293,6 @@ public enum TableSpecs {
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").since(version(10, 2)).add();
-            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
             table.column("INSTALLATIONTIME")
                     .number()
                     .notNull()
@@ -304,7 +304,6 @@ public enum TableSpecs {
             Column locationIdColumn = table.column("LOCATIONID")
                     .number()
                     .conversion(NUMBER2LONGNULLZERO)
-                    .map("location")
                     .since(version(10, 2))
                     .add();
             Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID")
@@ -333,7 +332,7 @@ public enum TableSpecs {
                     .on(locationIdColumn)
                     .references(Location.class)
                     .onDelete(RESTRICT)
-                    .map("upLocation")
+                    .map("upLocation", LocationMember.class)
                     .since(version(10, 2))
                     .add();
             table.foreignKey("MTR_FK_USAGEPOINTGEOCOORDS")
@@ -421,7 +420,7 @@ public enum TableSpecs {
                     .on(locationIdColumn)
                     .references(Location.class)
                     .onDelete(RESTRICT)
-                    .map("location")
+                    .map("location", LocationMember.class)
                     .since(version(10, 2))
                     .add();
             table.foreignKey("MTR_FK_ENDDEVICEGEOCOORDS")
@@ -499,7 +498,7 @@ public enum TableSpecs {
                     .references(UsagePoint.class)
                     .onDelete(RESTRICT)
                     .map("usagePoint")
-                    .reverseMap("meterActivations")
+                    .reverseMap("meterActivations", EndDevice.class)
                     .reverseMapOrder("interval.start")
                     .reverseMapCurrent("currentMeterActivation")
                     .on(usagePointIdColumn)
@@ -508,7 +507,7 @@ public enum TableSpecs {
                     .references(EndDevice.class)
                     .onDelete(RESTRICT)
                     .map("meter")
-                    .reverseMap("meterActivations")
+                    .reverseMap("meterActivations", UsagePoint.class)
                     .reverseMapOrder("interval.start")
                     .reverseMapCurrent("currentMeterActivation")
                     .on(meterIdColumn)
@@ -836,11 +835,32 @@ public enum TableSpecs {
                     .add();
         }
     },
+    MTR_USAGEPOINTSTATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointConnectionState> table = dataModel.addTable(name(), UsagePointConnectionState.class);
+            table.map(UsagePointConnectionStateImpl.class);
+            Column usagePoint = table.column("USAGEPOINT").notNull().number().add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
+            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").since(version(10, 2)).add();
+            table.primaryKey("PK_MTR_USAGEPOINTSTATE").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("FK_MTR_USAGEPOINTSTATE")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .onDelete(CASCADE)
+                    .map("usagePoint")
+                    .reverseMap("connectionState")
+                    .composition()
+                    .add();
+        }
+    },
     MTR_METROLOGYCONFIG {
         void addTo(DataModel dataModel) {
             Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
             table.map(MetrologyConfigurationImpl.IMPLEMENTERS);
             table.since(version(10, 2));
+            table.cache();
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("CONFIG_TYPE", "char(1)");
             Column name = table.column(MetrologyConfigurationImpl.Fields.NAME.name())
@@ -927,7 +947,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("MTR_FK_UPMTRCONFIG_MC")
                     .on(metrologyConfiguration)
-                    .references(MetrologyConfiguration.class)
+                    .references(UsagePointMetrologyConfiguration.class)
                     .map("metrologyConfiguration")
                     .add();
         }
@@ -1742,7 +1762,6 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .conversion(ColumnConversion.NUMBER2LONG)
-                    .map("locationId")
                     .add();
             Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
 
@@ -1784,7 +1803,8 @@ public enum TableSpecs {
             table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn)
                     .references(MTR_LOCATION.name())
                     .onDelete(RESTRICT)
-                    .map("locationId")
+                    .map("location")
+                    .reverseMap("members")
                     .add();
 
         }

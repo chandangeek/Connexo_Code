@@ -37,11 +37,6 @@ public class Installer implements FullInstaller {
                 this::createReadingTypeTemplates,
                 logger
         );
-        doTry(
-                "Create Metrology Configurations",
-                this::createMetrologyConfigurations,
-                logger
-        );
     }
 
     private void createMeterRoles() {
@@ -75,7 +70,4 @@ public class Installer implements FullInstaller {
         new ReadingTypeTemplateInstaller(metrologyConfigurationService).install();
     }
 
-    private void createMetrologyConfigurations() {
-        new MetrologyConfigurationInstaller(metrologyConfigurationService, meteringService).install();
-    }
 }

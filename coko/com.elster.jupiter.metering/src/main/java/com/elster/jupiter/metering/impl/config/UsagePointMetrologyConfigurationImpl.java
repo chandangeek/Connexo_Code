@@ -3,12 +3,15 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
 import javax.inject.Inject;
@@ -20,19 +23,19 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
+class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
     public static final String TYPE_IDENTIFIER = "U";
 
-    private final UsagePointRequirementsSearchDomain searchDomain;
+    private final SearchDomain searchDomain;
 
     private List<MetrologyConfigurationMeterRoleUsageImpl> meterRoles = new ArrayList<>();
     private List<ReadingTypeRequirementMeterRoleUsage> requirementToRoleUsages = new ArrayList<>();
     private List<UsagePointRequirement> usagePointRequirements = new ArrayList<>();
 
     @Inject
-    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain) {
+    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain, SearchService searchService) {
         super(metrologyConfigurationService, eventService, customPropertySetService);
-        this.searchDomain = searchDomain;
+        this.searchDomain = searchService.findDomain(searchDomain.getId()).get();
     }
 
     @Override
@@ -104,7 +107,12 @@ public class UsagePointMetrologyConfigurationImpl extends MetrologyConfiguration
 
     @Override
     public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name) {
-        return new UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(getMetrologyConfigurationService(), this, name);
+        throw new UnsupportedOperationException(MessageSeeds.Constants.REQUIRED);
+    }
+
+    @Override
+    public MetrologyConfigurationReadingTypeRequirementBuilder newReadingTypeRequirement(String name, MeterRole role) {
+        return new UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(getMetrologyConfigurationService(), this, name, role);
     }
 
     @Override

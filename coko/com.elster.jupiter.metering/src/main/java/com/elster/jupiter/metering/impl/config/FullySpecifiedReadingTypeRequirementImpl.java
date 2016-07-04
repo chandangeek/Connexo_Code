@@ -16,14 +16,14 @@ import javax.validation.ConstraintValidatorContext;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-public class FullySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequirementImpl implements FullySpecifiedReadingTypeRequirement {
+class FullySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequirementImpl implements FullySpecifiedReadingTypeRequirement {
     public static final String TYPE_IDENTIFIER = "FUL";
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
 
     @Inject
-    public FullySpecifiedReadingTypeRequirementImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
+    FullySpecifiedReadingTypeRequirementImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
         super(metrologyConfigurationService);
     }
 

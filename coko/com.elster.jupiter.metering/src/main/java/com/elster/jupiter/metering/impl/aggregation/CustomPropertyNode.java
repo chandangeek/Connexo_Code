@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -23,14 +22,14 @@ class CustomPropertyNode implements ServerExpressionNode {
     private final PropertySpec propertySpec;
     private final RegisteredCustomPropertySet customPropertySet;
     private final UsagePoint usagePoint;
-    private final MeterActivation meterActivation;
+    private final MeterActivationSet meterActivationSet;
 
-    CustomPropertyNode(CustomPropertySetService customPropertySetService, PropertySpec propertySpec, RegisteredCustomPropertySet customPropertySet, UsagePoint usagePoint, MeterActivation meterActivation) {
+    CustomPropertyNode(CustomPropertySetService customPropertySetService, PropertySpec propertySpec, RegisteredCustomPropertySet customPropertySet, UsagePoint usagePoint, MeterActivationSet meterActivationSet) {
         this.customPropertySetService = customPropertySetService;
         this.propertySpec = propertySpec;
         this.customPropertySet = customPropertySet;
         this.usagePoint = usagePoint;
-        this.meterActivation = meterActivation;
+        this.meterActivationSet = meterActivationSet;
     }
 
     CustomPropertySet getCustomPropertySet() {
@@ -48,7 +47,7 @@ class CustomPropertyNode implements ServerExpressionNode {
     }
 
     String sqlName() {
-        return "cps" + this.customPropertySet.getId() + "_" + this.propertySpec.getName() + "_" + this.meterActivation.getId();
+        return "cps" + this.customPropertySet.getId() + "_" + this.propertySpec.getName() + "_" + this.meterActivationSet.sequenceNumber();
     }
 
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
@@ -57,7 +56,9 @@ class CustomPropertyNode implements ServerExpressionNode {
     }
 
     private String sqlComment() {
-        return "Value for custom property '" + this.propertySpec.getName() + "' of set '" + this.getCustomPropertySet().getName() + "' (id=" + this.customPropertySet.getId() + ") in " + this.meterActivation.getRange();
+        return "Value for custom property '" + this.propertySpec.getName() + "' of set '" + this.getCustomPropertySet()
+                .getName() + "' (id=" + this.customPropertySet.getId() + ") in " + this.meterActivationSet
+                .getRange();
     }
 
     private String[] withClauseSqlNames() {
@@ -77,7 +78,7 @@ class CustomPropertyNode implements ServerExpressionNode {
                         this.propertySpec,
                         SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
                         this.usagePoint,
-                        this.meterActivation.getRange()));
+                        this.meterActivationSet.getRange()));
         withClauseBuilder.append(")");
     }
 

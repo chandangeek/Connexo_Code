@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class NominalServiceVoltageSearchableProperty implements SearchableUsagePointProperty {
+class NominalServiceVoltageSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -31,7 +31,7 @@ public class NominalServiceVoltageSearchableProperty implements SearchableUsageP
     private static final String FIELD_NAME = "detail.nominalServiceVoltage";
 
     @Inject
-    public NominalServiceVoltageSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    NominalServiceVoltageSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }

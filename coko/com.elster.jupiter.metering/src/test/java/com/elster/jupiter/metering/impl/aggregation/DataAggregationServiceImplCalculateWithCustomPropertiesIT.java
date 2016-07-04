@@ -31,13 +31,15 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -137,7 +139,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private MetrologyContract contract;
     private UsagePoint usagePoint;
     private MeterActivation meterActivation;
-    private MetrologyConfiguration configuration;
+    private UsagePointMetrologyConfiguration configuration;
     private long customPropertySetId;
     private long localPowerRequirementId;
     private long netConsumptionDeliverableId;
@@ -332,7 +334,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         this.activateMeter();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("monthlyNetConsumption", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumption", ELECTRICITY).create();
 
         // Add the CustomPropertySet
         RegisteredCustomPropertySet registeredCustomPropertySet = getCustomPropertySetService().findActiveCustomPropertySet(AntennaDetailsCustomPropertySet.ID).get();
@@ -382,19 +384,22 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                         any(Optional.class),
                         anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
-            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName().toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from mtr_tst_antenna.*cps\\)");
+            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
+                    .toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
             verify(clauseAwareSqlBuilder)
                     .with(
                         matches("rod" + this.netConsumptionDeliverableId + ".*1"),
                         any(Optional.class),
                         anyVararg());
             String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
-            assertThat(netConsumptionSql).matches(".*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "_" + this.meterActivation.getId() + "\\.value \\* cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + "\\.value.*");
+            assertThat(netConsumptionSql).matches(".*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "_1\\.value \\* cps" + this.customPropertySetId + "_" + AntennaFields.POWER
+                    .javaName() + "_1\\.value.*");
             // Assert that the with clauses for both properties are joined on the utc timestamp
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*FROM\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + "\\s*JOIN.*");
+                    .matches("SELECT.*FROM\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_1\\s*JOIN.*");
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "_" + this.meterActivation.getId() + "\\s*ON\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "\\_" + this.meterActivation.getId() + ".starttime < cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + ".timestamp.*");
+                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "_1\\s*ON\\s*cps" + this.customPropertySetId + "_" + AntennaFields.COUNT.javaName() + "\\_1.starttime < cps" + this.customPropertySetId + "_" + AntennaFields.POWER
+                            .javaName() + "_1.timestamp.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
@@ -429,7 +434,9 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         this.activateMeterWith15MinPower();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("15minNetConsumption", ELECTRICITY).create();
+        MeterRole meterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("15minNetConsumption", ELECTRICITY).create();
+        this.configuration.addMeterRole(meterRole);
 
         // Add the CustomPropertySet
         RegisteredCustomPropertySet registeredCustomPropertySet = getCustomPropertySetService().findActiveCustomPropertySet(AntennaDetailsCustomPropertySet.ID).get();
@@ -439,7 +446,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         PropertySpec antennaPowerPropertySpec = this.getAntennaPowerPropertySpec(registeredCustomPropertySet);
 
         // Setup configuration requirements
-        ReadingTypeRequirement localPower = this.configuration.newReadingTypeRequirement("localPower").withReadingType(fifteenMinuteskWForward);
+        ReadingTypeRequirement localPower = this.configuration.newReadingTypeRequirement("localPower", meterRole).withReadingType(fifteenMinuteskWForward);
         this.localPowerRequirementId = localPower.getId();
         System.out.println("15minNetConsumption::LOCALPOWER_REQUIREMENT_ID = " + this.localPowerRequirementId);
 
@@ -475,19 +482,21 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                         any(Optional.class),
                         anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
-            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName().toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from mtr_tst_antenna.*cps\\)");
+            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
+                    .toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
             verify(clauseAwareSqlBuilder)
                     .with(
                         matches("rod" + this.netConsumptionDeliverableId + ".*1"),
                         any(Optional.class),
                         anyVararg());
             String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
-            assertThat(netConsumptionSql).matches(".*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_" + this.meterActivation.getId() + "\\.value \\+ cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + "\\.value.*");
+            assertThat(netConsumptionSql).matches(".*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value \\+ cps" + this.customPropertySetId + "_" + AntennaFields.POWER
+                    .javaName() + "_1\\.value.*");
             // Assert that the with clauses for both properties are joined on the utc timestamp
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*FROM\\s*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_" + this.meterActivation.getId() + "\\s*JOIN.*");
+                    .matches("SELECT.*FROM\\s*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\s*JOIN.*");
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + "\\s*ON\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_" + this.meterActivation.getId() + "\\.starttime < rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_" + this.meterActivation.getId() + ".timestamp.*");
+                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_1\\s*ON\\s*cps" + this.customPropertySetId + "_" + AntennaFields.POWER.javaName() + "_1\\.starttime < rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1.timestamp.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
@@ -700,12 +709,12 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     private static class AntennaDetailsPersistenceSupport implements PersistenceSupport<UsagePoint, AntennaDetails> {
         @Override
         public String componentName() {
-            return "MTRTST";
+            return "TST";
         }
 
         @Override
         public String tableName() {
-            return "MTR_TST_ANTENNA";
+            return "TST_ANTENNA";
         }
 
         @Override
@@ -715,7 +724,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
         @Override
         public String domainForeignKeyName() {
-            return "MTR_TST_FK_USAGEPOINT";
+            return "TST_FK_USAGEPOINT";
         }
 
         @Override
@@ -758,6 +767,11 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                     .findFirst()
                     .map(AntennaFields::databaseName)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
+        }
+
+        @Override
+        public String application() {
+            return "Testing";
         }
     }
 }

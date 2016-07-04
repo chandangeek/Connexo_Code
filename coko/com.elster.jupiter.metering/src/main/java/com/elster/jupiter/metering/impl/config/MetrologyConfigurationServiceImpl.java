@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -77,6 +78,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     public void install(Logger logger) {
         new Installer(this.meteringService, this).install(null, logger);
+        userService.addModulePrivileges(this);
     }
 
     @Override
