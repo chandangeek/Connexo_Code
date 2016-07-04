@@ -86,7 +86,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                             }
 
                             result += device + ' &#62; ' + channel;
-                            result += '<br><span style="font-size: 90%">' + period + '</span>';
+                            result += '<br><span style="font-size: 13px;font-style: italic;color: #686868;">' + period + '</span>';
                         });
                     }
 
