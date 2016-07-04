@@ -3,7 +3,7 @@ Ext.define('Mdc.usagepointmanagement.store.Channels', {
     model: 'Mdc.usagepointmanagement.model.Channel',
     proxy: {
         type: 'rest',
-        urlTpl: '/api/mtr/usagepoints/{mRID}/channels',
+        urlTpl: '/api/upr/usagepoints/{mRID}/channels',
         pageParam: false,
         startParam: false,
         limitParam: false,
