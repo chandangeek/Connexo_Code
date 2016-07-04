@@ -3,7 +3,11 @@ package com.elster.jupiter.validators.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityValueFactory;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -11,16 +15,23 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ReadingQualityPropertyValue;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationResult;
+
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 class ReadingQualitiesValidator extends AbstractValidator {
 
-    public static final String READING_QUALITIES = "readingQualities";
+    static final String READING_QUALITIES = "readingQualities";
     private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
 
     private Set<ReadingQualityPropertyValue> selectedReadingQualities;
@@ -89,7 +100,7 @@ class ReadingQualitiesValidator extends AbstractValidator {
         }
     }
 
-    public Set<ReadingQualityPropertyValue> getSelectedReadingQualities() {
+    private Set<ReadingQualityPropertyValue> getSelectedReadingQualities() {
         if (selectedReadingQualities == null) {
             selectedReadingQualities = new HashSet<>();
         }
