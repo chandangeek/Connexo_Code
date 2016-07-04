@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -68,7 +69,7 @@ public class CumulativeChannelTest {
         Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         storer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
         storer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100)));
-        storer.execute();
+        storer.execute(QualityCodeSystem.MDC);
         List<BaseReadingRecord> readings = channel.getReadings(Range.openClosed(instant.minusSeconds(15 * 60L), instant.plusSeconds(15 * 60L)));
         assertThat(readings).hasSize(2);
         assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(100));

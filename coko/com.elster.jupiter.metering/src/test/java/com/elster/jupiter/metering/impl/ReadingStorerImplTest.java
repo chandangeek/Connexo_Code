@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.IdsService;
@@ -17,6 +18,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -54,7 +56,7 @@ public class ReadingStorerImplTest {
     @Mock
     private EventService eventService;
     @Mock
-    private IReadingType readingType1, readingType2;
+    private IReadingType readingType;
     @Mock
     private RecordSpec recordSpec;
     @Mock
@@ -73,12 +75,11 @@ public class ReadingStorerImplTest {
         when(idsService.createOverrulingStorer()).thenReturn(storer);
         when(idsService.createUpdatingStorer()).thenReturn(updatingStorer);
         doReturn(channel).when(cimChannel).getChannel();
-        doReturn(readingType2).when(cimChannel).getReadingType();
-        doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
+        doReturn(readingType).when(cimChannel).getReadingType();
+        doReturn(Collections.singletonList(readingType)).when(channel).getReadingTypes();
         doReturn(DerivationRule.MEASURED).when(channel).getDerivationRule(any());
 
         readingStorer = ReadingStorerImpl.createOverrulingStorer(idsService, eventService);
-
     }
 
     @After
@@ -89,24 +90,22 @@ public class ReadingStorerImplTest {
     public void testAddReading() {
         Instant dateTime = Instant.ofEpochMilli(215215641L);
         BaseReading reading = ReadingImpl.of("", BigDecimal.valueOf(1), dateTime);
-        when(channel.toArray(reading, readingType2, ProcessStatus.of())).thenReturn(new Object[]{0L, 0L, reading.getValue()});
+        when(channel.toArray(reading, readingType, ProcessStatus.of())).thenReturn(new Object[]{0L, 0L, reading.getValue()});
 
         readingStorer.addReading(cimChannel, reading);
 
         assertThat(readingStorer.getScope().get(cimChannel)).isEqualTo(Range.singleton(dateTime));
 
-        readingStorer.execute();
+        readingStorer.execute(QualityCodeSystem.MDC);
 
         verify(storer).add(timeSeries, dateTime, 0L, 0L, BigDecimal.valueOf(1));
         verify(storer).execute();
     }
 
-
     @Test
     public void testScope() {
-        when(channel.toArray(any(), eq(readingType2), any())).thenAnswer(invocation -> {
-            return new Object[]{0L, 0L, ((BaseReading) invocation.getArguments()[0]).getValue()};
-        });
+        when(channel.toArray(any(), eq(readingType), any())).thenAnswer(invocation ->
+                new Object[]{0L, 0L, ((BaseReading) invocation.getArguments()[0]).getValue()});
 
         Instant instant = Instant.ofEpochMilli(215215641L);
         for (int i = 0; i < 3; i++) {
@@ -115,5 +114,4 @@ public class ReadingStorerImplTest {
         Map<CimChannel, Range<Instant>> scope = readingStorer.getScope();
         assertThat(scope).contains(entry(cimChannel, Range.closed(instant, instant.plusSeconds(2 * 3600L))));
     }
-
 }

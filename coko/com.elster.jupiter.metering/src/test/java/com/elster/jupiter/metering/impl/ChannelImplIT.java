@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
@@ -176,7 +177,7 @@ public class ChannelImplIT {
 
             Channel channel = meterActivation.getChannelsContainer().createChannel(bulkReadingType);
 
-            assertThat(channel.getReadingTypes()).contains(deltaReadingType);
+            assertThat((List<ReadingType>)channel.getReadingTypes()).contains(deltaReadingType);
 
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(BULK);
@@ -186,7 +187,7 @@ public class ChannelImplIT {
 
             intervalBlock.addAllIntervalReadings(Arrays.asList(reading1, reading2));
             meterReading.addIntervalBlock(intervalBlock);
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
 
             context.commit();
         }
@@ -196,7 +197,7 @@ public class ChannelImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             ChannelsContainer channelsContainer = meter.getChannelsContainers().get(0);
             Channel channel = channelsContainer.getChannels().get(0);
-            channel.getCimChannel(deltaReadingType).get().editReadings(Collections.singletonList(IntervalReadingImpl.of(ACTIVATION.plusDays(3).toInstant(), BigDecimal.valueOf(5))));
+            channel.getCimChannel(deltaReadingType).get().editReadings(QualityCodeSystem.MDC, Collections.singletonList(IntervalReadingImpl.of(ACTIVATION.plusDays(3).toInstant(), BigDecimal.valueOf(5))));
 
             context.commit();
         }

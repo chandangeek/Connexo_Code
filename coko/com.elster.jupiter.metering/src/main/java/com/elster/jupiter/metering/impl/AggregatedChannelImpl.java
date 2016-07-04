@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -29,6 +30,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -206,21 +208,21 @@ public class AggregatedChannelImpl implements ChannelContract {
     }
 
     @Override
-    public void editReadings(List<? extends BaseReading> readings) {
+    public void editReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         // TODO store/edit readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.editReadings(readings);
+        // persistedChannel.editReadings(system, readings);
     }
 
     @Override
-    public void confirmReadings(List<? extends BaseReading> readings) {
+    public void confirmReadings(QualityCodeSystem system, Set<QualityCodeSystem> controlledSystems, List<? extends BaseReading> readings) {
         // TODO store/edit readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.confirmReadings(readings);
+        // persistedChannel.confirmReadings(system, controlledSystems, readings);
     }
 
     @Override
-    public void removeReadings(List<? extends BaseReadingRecord> readings) {
+    public void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings) {
         // TODO remove readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.removeReadings(readings);
+        // persistedChannel.removeReadings(system, readings);
     }
 
     @Override

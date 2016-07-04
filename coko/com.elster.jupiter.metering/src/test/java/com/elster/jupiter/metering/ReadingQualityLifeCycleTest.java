@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -151,7 +152,7 @@ public class ReadingQualityLifeCycleTest {
                 reading.addQuality("1.1.1", "Same");
                 meterReading.addReading(reading);
             }
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             assertThat(meter.getReadingQualities(Range.atLeast(Instant.EPOCH))).hasSize(Cases.values().length);
             ctx.commit();
         }
@@ -172,7 +173,7 @@ public class ReadingQualityLifeCycleTest {
                 }
                 meterReading.addReading(reading);
             }
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             List<? extends BaseReading> readings = meter.getReadings(
                     Range.atLeast(Instant.EPOCH),
                     meteringService.getReadingType(readingTypeCode).get());

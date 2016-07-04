@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -108,7 +109,6 @@ public class ReadingQualityImplIT {
         assertThat(event.containsProperty("readingTimestamp")).isTrue();
         assertThat(event.containsProperty("channelId")).isTrue();
         assertThat(event.containsProperty("readingQualityTypeCode")).isTrue();
-
     }
 
     private ReadingQualityRecord doTest(Instant date) {
@@ -122,7 +122,7 @@ public class ReadingQualityImplIT {
         Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
         ReadingStorer regularStorer = meteringService.createNonOverrulingStorer();
         regularStorer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(date, BigDecimal.valueOf(561561, 2)));
-        regularStorer.execute();
+        regularStorer.execute(QualityCodeSystem.MDC);
         BaseReadingRecord reading = channel.getReading(date).get();
         return channel.createReadingQuality(new ReadingQualityType("6.1"), readingType, reading);
     }

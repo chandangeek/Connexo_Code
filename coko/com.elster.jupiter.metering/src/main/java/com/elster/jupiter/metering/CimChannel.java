@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.metering.impl.ChannelImpl;
 import com.elster.jupiter.metering.readings.BaseReading;
 
 import aQute.bnd.annotation.ProviderType;
@@ -10,6 +12,7 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface CimChannel {
@@ -58,12 +61,34 @@ public interface CimChannel {
 
     List<BaseReadingRecord> getReadingsOnOrBefore(Instant when, int readingCount);
 
-    void editReadings(List<? extends BaseReading> readings);
+    /**
+     * Sets a given list of {@link BaseReading BaseReadings} as addition/editing result.
+     * @param system {@link QualityCodeSystem} that handles editing.
+     * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
+     */
+    void editReadings(QualityCodeSystem system, List<? extends BaseReading> readings);
 
-    void confirmReadings(List<? extends BaseReading> readings);
+    /**
+     * Sets a given list of {@link BaseReading BaseReadings} as confirmation result.
+     * @param system {@link QualityCodeSystem} that handles confirmation.
+     * @param controlledSystems A set of {@link QualityCodeSystem QualityCodeSystems} affected by this confirmation
+     * (including handling system). Empty set means all systems are affected.
+     * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
+     */
+    void confirmReadings(QualityCodeSystem system, Set<QualityCodeSystem> controlledSystems, List<? extends BaseReading> readings);
 
-    void estimateReadings(List<? extends BaseReading> readings);
+    /**
+     * Sets a given list of {@link BaseReading BaseReadings} as estimation result.
+     * @param system {@link QualityCodeSystem} that handles estimation.
+     * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
+     */
+    void estimateReadings(QualityCodeSystem system, List<? extends BaseReading> readings);
 
+    /**
+     * TODO: for now this is only a stub; see {@link ChannelImpl#removeReadings(QualityCodeSystem, List)} implementation.
+     * @param readings
+     */
+    @Deprecated
     void removeReadings(List<? extends BaseReadingRecord> readings);
 
     default Instant getNextDateTime(Instant instant) {

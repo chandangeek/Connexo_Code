@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
@@ -17,10 +19,10 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
@@ -58,6 +60,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
@@ -170,7 +173,7 @@ public class ReadingStorerImplIT {
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
@@ -181,7 +184,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(QualityCodeSystem.MDC, meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -207,7 +210,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(QualityCodeSystem.MDC, meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.plusMinutes(15 * 9).toInstant()));
@@ -226,14 +229,14 @@ public class ReadingStorerImplIT {
         ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
         ReadingType bulkPrimaryReadingType = meteringService.getReadingType(PRIMARY_BULK).get();
 
-        Channel channel = createMeterAndChannelWithMultplier(bulkReadingType, bulkPrimaryReadingType, BigDecimal.valueOf(5, 0));
+        Channel channel = createMeterAndChannelWithMultiplier(bulkReadingType, bulkPrimaryReadingType, BigDecimal.valueOf(5, 0));
 
         transactionService.run(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
@@ -244,7 +247,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(QualityCodeSystem.MDC, meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -270,7 +273,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(QualityCodeSystem.MDC, meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.plusMinutes(15 * 9).toInstant()));
@@ -284,18 +287,17 @@ public class ReadingStorerImplIT {
 
     @Test
     public void testWritePulseDataWithMultiplier() {
-
         ReadingType deltaReadingType = meteringService.getReadingType(PRIMARY_DELTA).get();
         ReadingType pulseDeltaReadingType = meteringService.getReadingType(SECONDARY_PULSE_DELTA).get();
 
-        Channel channel = createMeterAndChannelWithMultplier(pulseDeltaReadingType, deltaReadingType, BigDecimal.valueOf(50, 0));
+        Channel channel = createMeterAndChannelWithMultiplier(pulseDeltaReadingType, deltaReadingType, BigDecimal.valueOf(50, 0));
 
         transactionService.run(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(pulseDeltaReadingType.getMRID());
 
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(11, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
@@ -306,7 +308,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(QualityCodeSystem.MDC, meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -326,11 +328,10 @@ public class ReadingStorerImplIT {
 
     @Test
     public void testWriteIrregularBulkWithMultiplied() {
-
         ReadingType multipliedBulkReadingType = meteringService.getReadingType(PRIMARY_BULK_REG).get();
         ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK_REG).get();
 
-        Channel channel = createMeterAndChannelWithMultplier(bulkReadingType, multipliedBulkReadingType, BigDecimal.valueOf(2, 0));
+        Channel channel = createMeterAndChannelWithMultiplier(bulkReadingType, multipliedBulkReadingType, BigDecimal.valueOf(2, 0));
 
         transactionService.run(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
@@ -339,7 +340,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addReading(reading);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(QualityCodeSystem.MDC, meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -357,7 +358,6 @@ public class ReadingStorerImplIT {
 
     @Test
     public void testWriteMissingBulkData() {
-
         ReadingType deltaReadingType = meteringService.getReadingType(SECONDARY_DELTA).get();
         ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
 
@@ -368,7 +368,7 @@ public class ReadingStorerImplIT {
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             // so not this one ! This is the missing one at first : intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
@@ -379,7 +379,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(QualityCodeSystem.MDC, meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -407,7 +407,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(QualityCodeSystem.MDC, meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -428,19 +428,18 @@ public class ReadingStorerImplIT {
 
     @Test
     public void testWriteMissingBulkDataWithMultiplier() {
-
         ReadingType deltaReadingType = meteringService.getReadingType(PRIMARY_DELTA).get();
         ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
         ReadingType bulkPrimaryReadingType = meteringService.getReadingType(PRIMARY_BULK).get();
 
-        Channel channel = createMeterAndChannelWithMultplier(bulkReadingType, bulkPrimaryReadingType, BigDecimal.valueOf(2, 0));
+        Channel channel = createMeterAndChannelWithMultiplier(bulkReadingType, bulkPrimaryReadingType, BigDecimal.valueOf(2, 0));
 
         transactionService.run(() -> {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
             // so not this one ! This is the missing one at first : intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
@@ -451,7 +450,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(QualityCodeSystem.MDC, meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -479,7 +478,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(QualityCodeSystem.MDC, meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -499,7 +498,7 @@ public class ReadingStorerImplIT {
     }
 
     @Test
-    public void testWriteBulkDataWithOverflow() {
+    public void testWriteBulkDataWithBackflowUnderflowAndOverflowForMdcAndMdm() {
         ReadingType deltaReadingType = meteringService.getReadingType(SECONDARY_DELTA).get();
         ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
 
@@ -507,94 +506,57 @@ public class ReadingStorerImplIT {
 
         transactionService.run(() -> {
             Meter meter = channel.getChannelsContainer().getMeter().get();
-            MeterConfiguration meterConfiguration = meter.startingConfigurationOn(Instant.EPOCH)
+            meter.startingConfigurationOn(Instant.EPOCH)
                     .configureReadingType(bulkReadingType)
                     .withOverflowValue(BigDecimal.valueOf(999999))
                     .create();
         });
 
-        transactionService.run(() -> {
-            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
+        MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+        IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(999998, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(100, 0), ProfileStatus.of()));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(100, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(999998, 0), ProfileStatus.of()));
+        intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(30).toInstant(), BigDecimal.valueOf(100, 0), ProfileStatus.of()));
 
-            meterReading.addIntervalBlock(intervalBlock);
+        meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
+        Stream.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM).forEach(system -> {
+            transactionService.run(() -> {
+                channel.getChannelsContainer().getMeter().get().store(system, meterReading);
+            });
+
+            List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
+
+            assertThat(readings).hasSize(3);
+
+            assertThat(readings.get(0).getQuantity(deltaReadingType)).isNull();
+            assertThat(readings.get(0).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(100, 0), 3, "Wh"));
+            assertThat(readings.get(0).getTimeStamp()).isEqualTo(BASE.toInstant());
+
+            assertThat(readings.get(1).getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(-102, 0), 3, "Wh"));
+            assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(999998, 0), 3, "Wh"));
+            assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
+
+            assertThat(readings.get(2).getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(102, 0), 3, "Wh"));
+            assertThat(readings.get(2).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(100, 0), 3, "Wh"));
+            assertThat(readings.get(2).getTimeStamp()).isEqualTo(BASE.plusMinutes(30).toInstant());
+
+            List<ReadingQualityRecord> qualities = channel.findReadingQualities()
+                    .atTimestamp(BASE.plusMinutes(15).toInstant())
+                    .collect();
+            assertThat(qualities).hasSize(1);
+            assertThat(qualities.get(0).getTypeCode()).isEqualTo(ReadingQualityType.of(system, QualityCodeIndex.REVERSEROTATION).getCode());
+
+            qualities = channel.findReadingQualities()
+                    .atTimestamp(BASE.plusMinutes(30).toInstant())
+                    .collect();
+            assertThat(qualities).hasSize(1);
+            assertThat(qualities.get(0).getTypeCode()).isEqualTo(ReadingQualityType.of(system, QualityCodeIndex.OVERFLOWCONDITIONDETECTED).getCode());
         });
-
-        List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
-
-        assertThat(readings).hasSize(2);
-
-        assertThat(readings.get(0).getQuantity(deltaReadingType)).isNull();
-        assertThat(readings.get(0).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(999998, 0), 3, "Wh"));
-        assertThat(readings.get(0).getTimeStamp()).isEqualTo(BASE.toInstant());
-
-        assertThat(readings.get(1).getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(102, 0), 3, "Wh"));
-        assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(100, 0), 3, "Wh"));
-        assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
-
-        List<ReadingQualityRecord> qualities = channel.findReadingQualities()
-                .atTimestamp(BASE.plusMinutes(15).toInstant())
-                .collect();
-        assertThat(qualities).hasSize(1);
-
-        ReadingQualityRecord readingQualityRecord = qualities.get(0);
-        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("2.4.1");
     }
 
-    @Test
-    public void testWriteBulkDataWithBackflowUnderflow() {
-        ReadingType deltaReadingType = meteringService.getReadingType(SECONDARY_DELTA).get();
-        ReadingType bulkReadingType = meteringService.getReadingType(SECONDARY_BULK).get();
-
-        Channel channel = createMeterAndChannelWithDelta(bulkReadingType);
-
-        transactionService.run(() -> {
-            Meter meter = channel.getChannelsContainer().getMeter().get();
-            MeterConfiguration meterConfiguration = meter.startingConfigurationOn(Instant.EPOCH)
-                    .configureReadingType(bulkReadingType)
-                    .withOverflowValue(BigDecimal.valueOf(999999))
-                    .create();
-        });
-
-        transactionService.run(() -> {
-            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-            IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
-
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(100, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(999998, 0), ProfileStatus.of()));
-
-            meterReading.addIntervalBlock(intervalBlock);
-
-            channel.getChannelsContainer().getMeter().get().store(meterReading);
-        });
-
-        List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
-
-        assertThat(readings).hasSize(2);
-
-        assertThat(readings.get(0).getQuantity(deltaReadingType)).isNull();
-        assertThat(readings.get(0).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(100, 0), 3, "Wh"));
-        assertThat(readings.get(0).getTimeStamp()).isEqualTo(BASE.toInstant());
-
-        assertThat(readings.get(1).getQuantity(deltaReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(-102, 0), 3, "Wh"));
-        assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(999998, 0), 3, "Wh"));
-        assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
-
-        List<ReadingQualityRecord> qualities = channel.findReadingQualities()
-                .atTimestamp(BASE.plusMinutes(15).toInstant())
-                .collect();
-        assertThat(qualities).hasSize(1);
-
-        ReadingQualityRecord readingQualityRecord = qualities.get(0);
-        assertThat(readingQualityRecord.getTypeCode()).isEqualTo("2.3.4");
-    }
-
-    private Channel createMeterAndChannelWithMultplier(ReadingType measured, ReadingType caluclated, BigDecimal multiplierValue) {
+    private Channel createMeterAndChannelWithMultiplier(ReadingType measured, ReadingType caluclated, BigDecimal multiplierValue) {
         return transactionService.execute(() -> {
                 AmrSystem mdc = meteringService.findAmrSystem(1L).get();
                 Meter meter = mdc.newMeter("AMR_ID")
@@ -607,7 +569,7 @@ public class ReadingStorerImplIT {
 
                 meterActivation.setMultiplier(multiplierType, multiplierValue);
 
-                MeterConfiguration meterConfiguration = meter.startingConfigurationOn(ACTIVATION.toInstant())
+                meter.startingConfigurationOn(ACTIVATION.toInstant())
                         .configureReadingType(measured)
                         .withMultiplierOfType(multiplierType)
                         .calculating(caluclated)
