@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -26,14 +25,10 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import org.junit.*;
+import org.junit.Test;
 import org.mockito.Matchers;
+
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,6 +41,19 @@ import static org.mockito.Mockito.when;
  * @since 31/05/12 - 11:12
  */
 public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
+
+    private static DeviceLoadProfile createDeviceCollectedLoadProfile() {
+        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new SimpleLoadProfileIdentifier());
+        List<IntervalData> intervalDatas = new ArrayList<>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "CHN1", Unit.get(BaseUnit.VOLT)));
+        channelInfos.add(new ChannelInfo(channelInfos.size(), "CHN2", Unit.get(BaseUnit.AMPERE)));
+        for (int i = 0; i < 10; i++) {
+            intervalDatas.add(new IntervalData(new Date(), new HashSet<>()));
+        }
+        deviceLoadProfile.setCollectedData(intervalDatas, channelInfos);
+        return deviceLoadProfile;
+    }
 
     @Test
     public void doExecuteTest() {
@@ -72,19 +80,6 @@ public class ReadLoadProfileDataCommandImplTest extends CommonCommandImplTests {
         assertThat(loadProfileCommand.getCollectedData().get(0)).isInstanceOf(CollectedLoadProfile.class);
         assertThat(((CollectedLoadProfile) loadProfileCommand.getCollectedData().get(0)).getCollectedIntervalData()).hasSize(10);
         assertThat(journalMessageDescription).contains("{collectedProfiles: (Test_LP_ID - Supported - channels: CHN1, CHN2 - dataPeriod: [");
-    }
-
-    private static DeviceLoadProfile createDeviceCollectedLoadProfile() {
-        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(new SimpleLoadProfileIdentifier());
-        List<IntervalData> intervalDatas = new ArrayList<>();
-        List<ChannelInfo> channelInfos = new ArrayList<>();
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "CHN1", Unit.get(BaseUnit.VOLT)));
-        channelInfos.add(new ChannelInfo(channelInfos.size(), "CHN2", Unit.get(BaseUnit.AMPERE)));
-        for (int i = 0; i < 10; i++) {
-            intervalDatas.add(new IntervalData(new Date(), IntervalStateBits.OK));
-        }
-        deviceLoadProfile.setCollectedData(intervalDatas, channelInfos);
-        return deviceLoadProfile;
     }
 
     private static class SimpleLoadProfileIdentifier implements LoadProfileIdentifier<LoadProfile> {

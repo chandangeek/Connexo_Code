@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -123,6 +124,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     private volatile SerialComponentService serialATComponentService;
     private volatile FirmwareService firmwareService;
     private volatile UpgradeService upgradeService;
+    private volatile AppService appService;
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
 
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
@@ -210,6 +212,11 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     @Reference
     public void setLogBookService(LogBookService logBookService) {
         this.logBookService = logBookService;
+    }
+
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
     }
 
     @Reference
@@ -385,7 +392,7 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         this.dataModel.register(this.getModule());
         this.setHostNameIfOverruled(bundleContext);
 
-        upgradeService.register(InstallIdentifier.identifier(EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", EngineService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
         this.tryStartComServer();
     }
@@ -615,6 +622,11 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
     }
 
     private class RunningComServerServiceProvider implements RunningComServerImpl.ServiceProvider {
+        @Override
+        public Thesaurus thesaurus() {
+            return thesaurus;
+        }
+
         @Override
         public DeviceConfigurationService deviceConfigurationService() {
             return deviceConfigurationService;

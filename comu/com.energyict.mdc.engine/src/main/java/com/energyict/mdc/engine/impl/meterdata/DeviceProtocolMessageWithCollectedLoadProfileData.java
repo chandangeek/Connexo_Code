@@ -10,6 +10,8 @@ import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
+import java.time.Instant;
+
 /**
  * An implementation of the {@link CollectedMessage} interface,
  * containing additional {@link CollectedLoadProfile} data.
@@ -22,6 +24,7 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
     private final MessageIdentifier deviceMessageIdentifier;
     private final CollectedLoadProfile collectedLoadProfile;
 
+    private Instant sentDate;
     private DeviceMessageStatus deviceMessageStatus;
     private String deviceProtocolInformation;
 
@@ -38,6 +41,15 @@ public class DeviceProtocolMessageWithCollectedLoadProfileData extends Collected
     @Override
     public MessageIdentifier getMessageIdentifier() {
         return this.deviceMessageIdentifier;
+    }
+
+    @Override
+    public Instant getSentDate() {
+        return sentDate;
+    }
+
+    public void setSentDate(Instant sentDate) {
+        this.sentDate = sentDate;
     }
 
     @Override
