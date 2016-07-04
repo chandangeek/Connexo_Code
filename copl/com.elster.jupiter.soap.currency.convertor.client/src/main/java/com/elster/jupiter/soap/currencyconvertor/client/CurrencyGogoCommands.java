@@ -30,7 +30,7 @@ public class CurrencyGogoCommands {
         System.out.println(result * amount);
     }
 
-    @Reference
+    @Reference(target = "(url=http://www.webservicex.net/CurrencyConvertor.asmx?wsdl)")
     public void setSoapService(CurrencyConvertorSoap soapService) {
         this.soapService = soapService;
     }
