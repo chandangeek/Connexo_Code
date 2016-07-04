@@ -24,6 +24,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -62,6 +64,9 @@ public class CalculatedReadingRecordTest {
     @Mock
     private ResultSet resultSet;
 
+    @Mock
+    private Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
+
     @Before
     public void initializeMocks() {
         when(this.fifteenMinutesNetConsumption.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
@@ -99,7 +104,7 @@ public class CalculatedReadingRecordTest {
         when(usagePoint.getMeterActivations(any(Instant.class))).thenReturn(Collections.singletonList(meterActivation));
 
         //Business method
-        testInstance.init(this.resultSet);
+        testInstance.init(this.resultSet, deliverablesPerMeterActivation);
         testInstance.setReadingType(fifteenMinutesNetConsumption);
         testInstance.setUsagePoint(usagePoint);
 
@@ -124,7 +129,7 @@ public class CalculatedReadingRecordTest {
         doThrow(SQLException.class).when(this.resultSet).getLong(anyInt());
 
         //Business method
-        testInstance.init(this.resultSet);
+        testInstance.init(this.resultSet,deliverablesPerMeterActivation);
 
         // Asserts: see expected exception rule
     }
@@ -140,7 +145,7 @@ public class CalculatedReadingRecordTest {
         when(this.resultSet.getLong(4)).thenReturn(jan1st2016.getTime());
         when(this.resultSet.getLong(5)).thenReturn(0L);
         when(this.resultSet.getLong(6)).thenReturn(1L);
-        testInstance.init(this.resultSet);
+        testInstance.init(this.resultSet,deliverablesPerMeterActivation);
 
         //Business method
         testInstance.setReadingType(this.monthlyNetConsumption);
@@ -265,7 +270,7 @@ public class CalculatedReadingRecordTest {
         when(resultSet.getLong(4)).thenReturn(now.toEpochMilli());
         when(resultSet.getLong(5)).thenReturn(readingQuality);
         when(resultSet.getLong(6)).thenReturn(count);
-        return new CalculatedReadingRecord().init(resultSet);
+        return new CalculatedReadingRecord().init(resultSet, deliverablesPerMeterActivation);
     }
 
 }

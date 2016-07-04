@@ -60,6 +60,9 @@ public class CalculatedMetrologyContractDataImplTest {
     @Mock
     private ReadingTypeDeliverable deliverable;
 
+    @Mock
+    private Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
+
     @Before
     public void initializeMocks() {
         when(this.monthlyNetConsumption.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
@@ -211,7 +214,7 @@ public class CalculatedMetrologyContractDataImplTest {
         when(resultSet.getLong(4)).thenReturn(now.toEpochMilli());
         when(resultSet.getLong(5)).thenReturn(0L);
         when(resultSet.getLong(6)).thenReturn(30L);
-        return new CalculatedReadingRecord().init(resultSet);
+        return new CalculatedReadingRecord().init(resultSet, deliverablesPerMeterActivation);
     }
 
 }

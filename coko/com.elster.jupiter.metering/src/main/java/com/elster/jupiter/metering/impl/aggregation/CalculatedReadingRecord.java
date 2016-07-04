@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -96,7 +97,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
      * @param resultSet The ResultSet
      * @return The initialized AggregatedReadingRecord
      */
-    CalculatedReadingRecord init(ResultSet resultSet) {
+    CalculatedReadingRecord init(ResultSet resultSet, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
         try {
             int columnIndex = 1;
             this.readingTypeMRID = resultSet.getString(columnIndex++);
@@ -110,6 +111,26 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             throw new UnderlyingSQLFailedException(e);
         }
     }
+
+    private void appendExpectedCount(Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
+
+        /*IntervalLength sourceIntervalLength = this.expressionReadingType.getIntervalLength();
+        IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
+        long expectedCount = 0;
+        if ((!targetReadingType.equals(IntervalLength.MONTH1)) || (!targetReadingType.equals(IntervalLength.YEAR1))) {
+            expectedCount = targetIntervalLength.getSeconds() / sourceIntervalLength.getSeconds();
+        }
+        sqlBuilder.append(", " + expectedCount);*/
+    }
+
+    /*private ReadingTypeDeliverableForMeterActivation getDeliverable(Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
+        int meterActivationId = 0;
+        Optional<MeterActivation> meterActivation =
+                deliverablesPerMeterActivation.keySet().stream().filter(ma -> ma.getId() == meterActivationId).findFirst();
+        if (meterActivation.isPresent()) {
+            deliverablesPerMeterActivation.get(meterActivation).
+        }
+    }*/
 
     void setReadingType(IReadingType readingType) {
         if (!readingType.getMRID().equals(this.readingTypeMRID)) {

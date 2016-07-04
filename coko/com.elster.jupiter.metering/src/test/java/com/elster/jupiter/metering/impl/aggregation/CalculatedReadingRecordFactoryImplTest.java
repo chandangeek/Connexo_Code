@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingType;
@@ -59,6 +60,8 @@ public class CalculatedReadingRecordFactoryImplTest {
     private IReadingType monthlyNetConsumption;
     @Mock
     private ResultSet resultSet;
+    @Mock
+    private Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
 
     @Before
     public void initializeMocks() {
@@ -85,7 +88,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         when(this.resultSet.next()).thenReturn(false);
 
         // Business method
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet);
+        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
 
         // Asserts
         verify(this.resultSet).next();
@@ -102,7 +105,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         doThrow(SQLException.class).when(this.resultSet).getString(anyInt());
 
         // Business method
-        this.testInstance().consume(this.resultSet);
+        this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
 
         // Asserts: see expected exception rule
     }
@@ -125,7 +128,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         when(this.resultSet.getLong(6)).thenReturn(expectedCountFor15minRecord, expectedCountForMonthlyRecord);
 
         // Business method
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet);
+        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
 
         // Asserts
         verify(this.resultSet, times(3)).next();
@@ -177,7 +180,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         when(this.resultSet.getLong(6)).thenReturn(1L, 1L);
 
         // Business method
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet);
+        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
 
         // Asserts
         verify(this.resultSet, times(3)).next();
