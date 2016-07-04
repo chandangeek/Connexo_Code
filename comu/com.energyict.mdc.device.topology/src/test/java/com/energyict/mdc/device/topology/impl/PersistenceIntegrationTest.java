@@ -4,7 +4,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -13,6 +16,7 @@ import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -20,6 +24,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
@@ -146,12 +151,18 @@ public abstract class PersistenceIntegrationTest {
 
         dataLoggerEnabledDeviceConfiguration = dataLoggerEnabledDeviceConfigurationBuilder.add();
         deviceMessageIds.stream().forEach(dataLoggerEnabledDeviceConfiguration::createDeviceMessageEnablement);
+        ReadingType activeEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), Unit.get("kWh"));
+        RegisterType registerType = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(activeEnergy).get();
+        dataLoggerEnabledDeviceType.addRegisterType(registerType);
+        dataLoggerEnabledDeviceConfiguration.createNumericalRegisterSpec(registerType).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
         dataLoggerEnabledDeviceConfiguration.activate();
 
         DeviceType.DeviceConfigurationBuilder dataLoggerSlaveDeviceConfigurationBuilder = dataLoggerSlaveDeviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         dataLoggerSlaveDeviceConfigurationBuilder.isDirectlyAddressable(true);
         dataLoggerSlaveDeviceConfiguration = dataLoggerSlaveDeviceConfigurationBuilder.add();
+        dataLoggerSlaveDeviceType.addRegisterType(registerType);
         deviceMessageIds.stream().forEach(dataLoggerSlaveDeviceConfiguration::createDeviceMessageEnablement);
+        dataLoggerSlaveDeviceConfiguration.createNumericalRegisterSpec(registerType).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
         dataLoggerSlaveDeviceConfiguration.activate();
 
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");

@@ -1,35 +1,37 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.topology.G3CommunicationPath;
+import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
+import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
-import com.energyict.mdc.device.data.impl.ServerDeviceService;
-import com.energyict.mdc.device.topology.G3CommunicationPath;
-import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.assertj.core.api.BooleanAssert;
 import org.assertj.core.api.Condition;
-import org.junit.*;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -1252,7 +1254,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Device slave = createSlaveDevice("Slave2");
         Device dataLogger = createDataLoggerDevice("Data logger enabled");
         // Business method
-        this.getTopologyService().setDataLogger(slave, dataLogger, now, Collections.emptyMap(), Collections.emptyMap());
+        Map<Register, Register> slaveDataLoggerRegisterMap = new HashMap<>();
+        slaveDataLoggerRegisterMap.put(slave.getRegisters().get(0), dataLogger.getRegisters().get(0));
+        this.getTopologyService().setDataLogger(slave, dataLogger, now, Collections.emptyMap(), slaveDataLoggerRegisterMap);
 
         List<DataLoggerReferenceImpl> gatewayReferences = ((ServerTopologyService) this.getTopologyService()).dataModel().query(DataLoggerReferenceImpl.class).select(com.elster.jupiter.util.conditions.Condition.TRUE);
         assertThat(gatewayReferences).hasSize(1);
@@ -1261,7 +1265,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerReference.getOrigin().getId()).isEqualTo(slave.getId());
         assertThat(dataLoggerReference.getGateway().getId()).isEqualTo(dataLogger.getId());
         assertThat(dataLoggerReference.getRange().lowerEndpoint()).isEqualTo(now);
-        assertThat(dataLoggerReference.getDataLoggerChannelUsages()).hasSize(0);
+        assertThat(dataLoggerReference.getDataLoggerChannelUsages()).hasSize(1);
     }
 
     @Test
@@ -1275,7 +1279,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
         Device dataLogger = createDataLoggerDevice("Data logger enabled");
         // Business method
-        this.getTopologyService().setDataLogger(slave, dataLogger, now, Collections.emptyMap(), Collections.emptyMap());
+        Map<Register, Register> slaveDataLoggerRegisterMap = new HashMap<>();
+        slaveDataLoggerRegisterMap.put(slave.getRegisters().get(0), dataLogger.getRegisters().get(0));
+        this.getTopologyService().setDataLogger(slave, dataLogger, now, Collections.emptyMap(), slaveDataLoggerRegisterMap);
 
         assertThat(this.getTopologyService().isDataLoggerSlaveCandidate(slave)).isFalse();
     }
@@ -1298,8 +1304,12 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(now);
 
         // Business method
-        this.getTopologyService().setDataLogger(slave1, dataLogger,  Instant.now(), Collections.emptyMap(), Collections.emptyMap());
-        this.getTopologyService().setDataLogger(slave2, dataLogger,  Instant.now(), Collections.emptyMap(), Collections.emptyMap());
+        Map<Register, Register> slaveDataLoggerRegisterMap1 = new HashMap<>();
+        slaveDataLoggerRegisterMap1.put(slave1.getRegisters().get(0), dataLogger.getRegisters().get(0));
+        Map<Register, Register> slaveDataLoggerRegisterMap2 = new HashMap<>();
+        slaveDataLoggerRegisterMap2.put(slave2.getRegisters().get(0), dataLogger.getRegisters().get(0));
+        this.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), Collections.emptyMap(), slaveDataLoggerRegisterMap1);
+        this.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), Collections.emptyMap(), slaveDataLoggerRegisterMap2);
 
         // Business method
         List<Device> downstreamDevices = this.getTopologyService().findPhysicalConnectedDevices(dataLogger);
