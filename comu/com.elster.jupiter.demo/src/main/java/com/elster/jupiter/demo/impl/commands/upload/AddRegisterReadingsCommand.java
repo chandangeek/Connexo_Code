@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl.commands.upload;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.demo.impl.commands.upload.time.IntervalReadingTimeProvider;
 import com.elster.jupiter.demo.impl.commands.upload.time.TimeProvider;
 import com.elster.jupiter.metering.MeteringService;
@@ -57,6 +58,6 @@ public class AddRegisterReadingsCommand extends ReadDataFromFileCommand {
         for (IntervalBlockImpl block : blocks.values()) {
             meterReading.addIntervalBlock(block);
         }
-        getMeter().store(meterReading);
+        getMeter().store(QualityCodeSystem.MDC, meterReading);
     }
 }

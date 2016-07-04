@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl.commands.upload;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -59,7 +60,7 @@ public abstract class AddChannelReadingsCommand extends ReadDataFromFileCommand 
         for (IntervalBlockImpl block : blocks.values()) {
             meterReading.addIntervalBlock(block);
         }
-        getMeter().store(meterReading);
+        getMeter().store(QualityCodeSystem.MDC, meterReading);
         setLastReadingTypeForLoadProfile(getMeter().getMRID());
     }
 
@@ -71,7 +72,7 @@ public abstract class AddChannelReadingsCommand extends ReadDataFromFileCommand 
         for (LoadProfile loadProfile : loadProfiles) {
             LoadProfile.LoadProfileUpdater updater = device.getLoadProfileUpdaterFor(loadProfile);
             for (Channel channel : loadProfile.getChannels()) {
-                channel.getLastDateTime().ifPresent(t -> updater.setLastReadingIfLater(t));
+                channel.getLastDateTime().ifPresent(updater::setLastReadingIfLater);
             }
             updater.update();
         }
