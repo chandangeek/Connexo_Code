@@ -65,7 +65,7 @@ public class UsagePointChannelInfoFactory {
             requirementChecker.getReadingTypeRequirements().stream()
                     .flatMap(readingTypeRequirement -> readingTypeRequirement.getMatchingChannelsFor(meterActivation.getChannelsContainer()).stream())
                     .forEach(ch -> {
-                        deviceChannelInfo.channel = new IdWithNameInfo(channel.getId(), channel.getMainReadingType().getFullAliasName());
+                        deviceChannelInfo.channel = new IdWithNameInfo(ch.getId(), ch.getMainReadingType().getFullAliasName());
                     });
             info.deviceChannels.add(deviceChannelInfo);
         });
