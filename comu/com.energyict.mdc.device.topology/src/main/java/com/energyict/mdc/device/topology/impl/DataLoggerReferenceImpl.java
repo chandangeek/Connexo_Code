@@ -44,7 +44,6 @@ import java.util.stream.Collectors;
 @GatewayDeviceTypeIsDataLoggerEnabled(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.GATEWAY_NOT_DATALOGGER_ENABLED + "}")
 @AllSlaveChannelsIncluded(groups = {Save.Create.class}, message = "{" + DataLoggerLinkException.NO_MAPPING_FOR_ALL_SLAVE_CHANNELS + "}")
 @AllDataLoggerChannelsAvailable(groups = {Save.Create.class}, message = "{" + MessageSeeds.Keys.DATA_LOGGER_CHANNEL_ALREADY_REFERENCED + "}")
-@ValidateUniqueStartTime(groups = {Save.Create.class})
 public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImpl implements DataLoggerReference {
 
     private final Thesaurus thesaurus;

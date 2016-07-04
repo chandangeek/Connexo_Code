@@ -36,4 +36,8 @@ public class DataLoggerLinkException extends LocalizedException {
     public static DataLoggerLinkException slaveWasNotLinkedAt(Thesaurus thesaurus, Device slave, Instant when) {
         return new DataLoggerLinkException(thesaurus, MessageSeeds.DATA_LOGGER_SLAVE_NOT_LINKED_AT, slave.getmRID(), when);
     }
+
+    public static DataLoggerLinkException slaveWasPreviouslyLinkedAtSameTimeStamp(Thesaurus thesaurus, Device slave, Device datalogger, Instant linkingDate) {
+        return new DataLoggerLinkException(thesaurus, MessageSeeds.DATA_LOGGER_UNIQUE_KEY_VIOLATION, slave.getmRID(), datalogger.getmRID(), linkingDate);
+    }
 }
