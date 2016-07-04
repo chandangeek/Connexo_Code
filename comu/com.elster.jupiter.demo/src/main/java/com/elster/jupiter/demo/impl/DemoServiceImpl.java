@@ -63,6 +63,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
+import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -537,9 +538,17 @@ public class DemoServiceImpl {
         });
     }
 
-    public void createDataLogger(){
+    public void createDataLogger(String dataLoggerMrid, String dataLoggerSerial, int numberOfSlaves){
         executeTransaction(() -> {
             CreateDataLoggerSetupCommand command = injector.getInstance(CreateDataLoggerSetupCommand.class);
+            if (!Strings.isNullOrEmpty(dataLoggerMrid)){
+                command.setDataLoggerMrid(dataLoggerMrid);
+            }
+            if (!Strings.isNullOrEmpty(dataLoggerSerial)){
+                command.setDataLoggerSerial(dataLoggerSerial);
+            }
+            command.setNumberOfSlaves(numberOfSlaves);
+
             command.run();
         });
     }

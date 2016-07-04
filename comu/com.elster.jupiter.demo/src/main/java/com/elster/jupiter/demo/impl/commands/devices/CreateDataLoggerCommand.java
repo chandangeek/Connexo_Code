@@ -1,7 +1,6 @@
 package com.elster.jupiter.demo.impl.commands.devices;
 
 import com.elster.jupiter.demo.impl.Builders;
-import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
@@ -10,14 +9,12 @@ import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -29,7 +26,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
-import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -82,7 +78,6 @@ public class CreateDataLoggerCommand {
     public void setDataLoggerMrid(String mRID){
         this.mRID = mRID;
     }
-
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
     }
@@ -104,7 +99,7 @@ public class CreateDataLoggerCommand {
         findOrCreateRequiredObjects();
 
         // 3. Create the device type
-        DeviceType deviceType = (Builders.from(DeviceTypeTpl.DATA_LOGGER_32).get());
+        DeviceType deviceType = (Builders.from(DeviceTypeTpl.WEBRTU_Z2).get());
 
         // 4. Create the configuration
         DeviceConfiguration configuration = createDataLoggerDeviceConfiguration(deviceType);
@@ -147,7 +142,7 @@ public class CreateDataLoggerCommand {
             .get();
         addConnectionTasksToDevice(device);
         addSecurityPropertiesToDevice(device);
-        device.setProtocolProperty("Short_MAC_address", BigDecimal.ZERO);
+     //   device.setProtocolProperty("Short_MAC_address", BigDecimal.ZERO);
         device.save();
         return device;
     }
@@ -176,28 +171,28 @@ public class CreateDataLoggerCommand {
 
     private void addSecurityPropertiesToDevice(Device device) {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
-        SecurityPropertySet securityPropertySet =
-                configuration
-                        .getSecurityPropertySets()
-                        .stream()
-                        .filter(sps -> SECURITY_PROPERTY_SET_NAME.equals(sps.getName()))
-                        .findFirst()
-                        .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name" + SECURITY_PROPERTY_SET_NAME + "."));
-        TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
-        securityPropertySet
-                .getPropertySpecs()
-                .stream()
-                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(ps.getName()))
-                .findFirst()
-                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
-        securityPropertySet
-                .getPropertySpecs()
-                .stream()
-                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName()))
-                .findFirst()
-                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
-        device.setSecurityProperties(securityPropertySet, typedProperties);
+//        SecurityPropertySet securityPropertySet =
+//                configuration
+//                        .getSecurityPropertySets()
+//                        .stream()
+//                        .filter(sps -> SECURITY_PROPERTY_SET_NAME.equals(sps.getName()))
+//                        .findFirst()
+//                        .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SECURITY_PROPERTY_SET_NAME + "."));
+//        TypedProperties typedProperties = TypedProperties.empty();
+//        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+//        securityPropertySet
+//                .getPropertySpecs()
+//                .stream()
+//                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(ps.getName()))
+//                .findFirst()
+//                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
+//        securityPropertySet
+//                .getPropertySpecs()
+//                .stream()
+//                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName()))
+//                .findFirst()
+//                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
+//        device.setSecurityProperties(securityPropertySet, typedProperties);
     }
 
     private static class SecurityPropertySetPostBuilder implements Consumer<DeviceConfiguration> {

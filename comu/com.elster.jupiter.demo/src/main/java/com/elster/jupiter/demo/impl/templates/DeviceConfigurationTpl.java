@@ -8,6 +8,7 @@ import com.elster.jupiter.demo.impl.builders.DeviceConfigurationBuilder;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,11 +38,17 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
         Collections.EMPTY_LIST,
         Collections.singletonList(ComTaskTpl.TOPOLOGY_UPDATE)),
     DATA_LOGGER("Default", GatewayType.HOME_AREA_NETWORK,
-        Arrays.<SecurityPropertySetTpl>asList(SecurityPropertySetTpl.NO_SECURITY, SecurityPropertySetTpl.HIGH_LEVEL),
-        Arrays.<RegisterTypeTpl>asList(com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.B_F_E_S_M_E, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.B_R_E_S_M_E, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.S_F_E_S_M_E_T1, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.S_F_E_S_M_E_T2, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.S_R_E_S_M_E_T1, com.elster.jupiter.demo.impl.templates.RegisterTypeTpl.S_R_E_S_M_E_T2),
-        Arrays.<LoadProfileTypeTpl>asList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl._15_MIN_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DAILY_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
+        Arrays.<SecurityPropertySetTpl>asList(SecurityPropertySetTpl.NO_SECURITY),
+        Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.DATA_LOGGER_1, RegisterTypeTpl.DATA_LOGGER_2, RegisterTypeTpl.DATA_LOGGER_3, RegisterTypeTpl.DATA_LOGGER_4, RegisterTypeTpl.DATA_LOGGER_5, RegisterTypeTpl.DATA_LOGGER_6
+                                      ,RegisterTypeTpl.DATA_LOGGER_7, RegisterTypeTpl.DATA_LOGGER_8, RegisterTypeTpl.DATA_LOGGER_9, RegisterTypeTpl.DATA_LOGGER_10, RegisterTypeTpl.DATA_LOGGER_11, RegisterTypeTpl.DATA_LOGGER_12
+                                      ,RegisterTypeTpl.DATA_LOGGER_13, RegisterTypeTpl.DATA_LOGGER_14, RegisterTypeTpl.DATA_LOGGER_15, RegisterTypeTpl.DATA_LOGGER_16, RegisterTypeTpl.DATA_LOGGER_17, RegisterTypeTpl.DATA_LOGGER_18
+                                      ,RegisterTypeTpl.DATA_LOGGER_19, RegisterTypeTpl.DATA_LOGGER_20, RegisterTypeTpl.DATA_LOGGER_21, RegisterTypeTpl.DATA_LOGGER_22, RegisterTypeTpl.DATA_LOGGER_23, RegisterTypeTpl.DATA_LOGGER_24
+                                      ,RegisterTypeTpl.DATA_LOGGER_25, RegisterTypeTpl.DATA_LOGGER_26, RegisterTypeTpl.DATA_LOGGER_27, RegisterTypeTpl.DATA_LOGGER_28, RegisterTypeTpl.DATA_LOGGER_29, RegisterTypeTpl.DATA_LOGGER_30
+                                      ,RegisterTypeTpl.DATA_LOGGER_31, RegisterTypeTpl.DATA_LOGGER_32
+        ),
+        Arrays.<LoadProfileTypeTpl>asList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DATA_LOGGER_32),
         Collections.EMPTY_LIST,
-        Arrays.asList(ComTaskTpl.excludeTopologyTpls())),
+        Arrays.asList( ComTaskTpl.READ_REGISTER_DATA, ComTaskTpl.READ_LOAD_PROFILE_DATA, ComTaskTpl.VERIFY_STATUS_INFO, ComTaskTpl.FIRMWARE_MANAGEMENT )),
     ;
 
     private String name;

@@ -9,6 +9,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 
 public class CreateDeviceCommand {
+
+    private DeviceTypeTpl deviceType = DeviceTypeTpl.Elster_AS1440;
     private String serialNumber;
     private String mridPrefix;
 
@@ -21,8 +23,8 @@ public class CreateDeviceCommand {
     }
 
     public void run(){
-        DeviceType deviceType = Builders.from(DeviceTypeTpl.Elster_AS1440).find()
-                .orElseThrow(() -> new UnableToCreate("Unable to find the Elster AS1440 device type"));
+        DeviceType deviceType = Builders.from(this.deviceType).find()
+                .orElseThrow(() -> new UnableToCreate("Unable to find the " + this.deviceType.getLongName()+ " device type"));
         DeviceConfiguration configuration = Builders.from(DeviceConfigurationTpl.DEFAULT).withDeviceType(deviceType).find()
                 .orElseThrow(() -> new UnableToCreate("Unable to find the Default device configuration"));
         Builders.from(DeviceBuilder.class)
@@ -30,6 +32,10 @@ public class CreateDeviceCommand {
                 .withDeviceConfiguration(configuration)
                 .withSerialNumber(serialNumber)
                 .get();
+    }
+
+    protected void setDeviceTypeTpl(DeviceTypeTpl deviceTypeTpl){
+        this.deviceType = deviceTypeTpl;
     }
 
     protected String getSerialNumber() {

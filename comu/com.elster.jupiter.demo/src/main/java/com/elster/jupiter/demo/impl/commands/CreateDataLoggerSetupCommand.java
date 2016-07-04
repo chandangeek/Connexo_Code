@@ -4,8 +4,8 @@ import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerSlaveCommand;
+import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -20,7 +20,7 @@ import javax.inject.Provider;
  * Time: 9:13
  */
 public class CreateDataLoggerSetupCommand {
-    private final DeviceConfigurationService deviceConfigurationService;
+
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
     private final ConnectionTaskService connectionTaskService;
@@ -28,17 +28,19 @@ public class CreateDataLoggerSetupCommand {
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder;
 
-    private String dataLoggerMrid = "DataLogger32" ;
+    private String dataLoggerMrid;
+    private String dataLoggerSerial;
+    private Integer numberOfSlaves = 10;
 
     @Inject
-    public  CreateDataLoggerSetupCommand(DeviceConfigurationService deviceConfigurationService,
+    public  CreateDataLoggerSetupCommand(/* DeviceConfigurationService deviceConfigurationService ,*/
                                      DeviceService deviceService,
                                      ProtocolPluggableService protocolPluggableService,
                                      ConnectionTaskService connectionTaskService,
                                      Provider<DeviceBuilder> deviceBuilderProvider,
                                      Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
                                          Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder){
-        this.deviceConfigurationService = deviceConfigurationService;
+  //      this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
         this.connectionTaskService = connectionTaskService;
@@ -51,6 +53,14 @@ public class CreateDataLoggerSetupCommand {
         this.dataLoggerMrid = mRid;
     }
 
+    public void setDataLoggerSerial(String serial) {
+        this.dataLoggerSerial = serial;
+    }
+
+    public void setNumberOfSlaves(Integer numberOfSlaves){
+        this.numberOfSlaves = numberOfSlaves;
+    }
+
     public void run() {
         CreateDataLoggerCommand dataLoggerCommand = new CreateDataLoggerCommand(
                 deviceService,
@@ -60,18 +70,20 @@ public class CreateDataLoggerSetupCommand {
                 connectionMethodsProvider,
                 activeLifeCyclestatePostBuilder
         );
-        dataLoggerCommand.setDataLoggerMrid(dataLoggerMrid);
-        dataLoggerCommand.setSerialNumber("DataLogger32");
-
-//        CreateG3SlaveCommand firstSlave = new CreateG3SlaveCommand(activeLifeCyclestatePostBuilder);
-//        firstSlave.setConfig("AS3000");
-//
-//        CreateG3SlaveCommand secondSlave = new CreateG3SlaveCommand(activeLifeCyclestatePostBuilder);
-//        secondSlave.setConfig("AS220");
+        if (this.dataLoggerMrid != null)
+            dataLoggerCommand.setDataLoggerMrid(dataLoggerMrid);
+        if (this.dataLoggerSerial != null)
+            dataLoggerCommand.setSerialNumber(dataLoggerMrid);
 
         dataLoggerCommand.run();
-//        firstSlave.run();
-//        secondSlave.run();
+        createDataLoggerSlaves();
+    }
 
+    private void createDataLoggerSlaves(){
+        for (int i=1; i<=numberOfSlaves; i++) {
+            CreateDataLoggerSlaveCommand slave = new CreateDataLoggerSlaveCommand();
+            slave.setMridPrefix(DeviceTypeTpl.EIMETER_FLEX.getLongName());
+            slave.run();
+        }
     }
 }
