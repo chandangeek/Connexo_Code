@@ -220,7 +220,7 @@ public enum Operator {
             }
         }
 
-    }, usagePointChannelInfoFactory;
+    },;
 
     public void appendTo(SqlBuilder sqlBuilder, SqlFragment operand1, SqlFragment operand2, SqlFragment zeroReplacementOperand) {
         sqlBuilder.add(operand1);
