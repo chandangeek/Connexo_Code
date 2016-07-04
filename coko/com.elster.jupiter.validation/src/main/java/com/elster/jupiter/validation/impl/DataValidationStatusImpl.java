@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
+
 import com.google.common.collect.ImmutableList;
 
 import java.time.Instant;
@@ -41,10 +42,10 @@ public class DataValidationStatusImpl implements DataValidationStatus {
 
     @Override
     public Collection<ValidationRule> getOffendedValidationRule(ReadingQuality readingQuality) {
-        if (qualityRecordList.containsKey(readingQuality)) {
-            return Collections.unmodifiableCollection(qualityRecordList.get(readingQuality));
-        } else if (bulkQualityRecordList.containsKey(readingQuality)) {
-            return Collections.unmodifiableCollection(bulkQualityRecordList.get(readingQuality));
+        Collection<? extends ValidationRule> result;
+        if ((result = qualityRecordList.get(readingQuality)) != null
+                || (result = bulkQualityRecordList.get(readingQuality)) != null) {
+            return Collections.unmodifiableCollection(result);
         }
         return Collections.emptyList();
     }
@@ -80,7 +81,7 @@ public class DataValidationStatusImpl implements DataValidationStatus {
     
     @Override
     public ValidationResult getValidationResult() {
-    	return ValidationResult.getValidationResult(getReadingQualities());
+        return ValidationResult.getValidationResult(getReadingQualities());
     }
 
     @Override
