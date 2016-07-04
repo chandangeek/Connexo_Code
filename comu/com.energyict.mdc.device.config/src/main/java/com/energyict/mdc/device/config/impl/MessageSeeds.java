@@ -154,6 +154,10 @@ public enum MessageSeeds implements MessageSeed {
     VETO_COMPORTPOOL_DELETION(15011, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by connection method(s): {1}"),
     DESTINATION_DATA_SOURCE_IS_EMPTY(15012, Keys.DESTINATION_DATA_SOURCE_IS_EMPTY, "The value of the destination data source is empty while a 'map' solution was defined"),
     MULTIPLE_SOLUTIONS_FOR_SAME_CONFLICT(15013, Keys.MULTIPLE_SOLUTIONS_FOR_SAME_CONFLICT, "There are multiple solutions defined for the same device config change conflict"),
+    DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE(15014, Keys.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before you can " +
+            "activate a datalogger slave device configuration"),
+    DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE(15015, Keys.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE, "You must define at least one channel configuration or register configuration before " +
+            "you can activate a datalogger device configuration"),
     ;
 
     private final int number;
@@ -268,6 +272,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DATALOGGER_SLAVE_NO_PROTOCOL_PLUGGABLE_CLASS = "datalogger.slave.no.protocol.pluggable.class";
         public static final String DATALOGGER_SLAVE_NO_LOGBOOKSPEC_SUPPORT = "datalogger.slave.device.config.not.support.logbook.config";
         public static final String DATALOGGER_ENABLED_CANNOT_CHANGE_ON_ACTIVE_CONFIG = "datalogger.enabled.change.on.active.config";
+        public static final String DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE = "datalogger.slave.at.least.one.datasource";
+        public static final String DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE = "datalogger.enablements.at.least.one.datasource";
     }
 
 }
