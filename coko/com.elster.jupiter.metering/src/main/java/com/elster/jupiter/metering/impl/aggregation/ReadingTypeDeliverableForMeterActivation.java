@@ -8,6 +8,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.Optional;
@@ -173,7 +174,7 @@ class ReadingTypeDeliverableForMeterActivation {
         sqlBuilder.append(", ");
         this.appendTimelineToSelectClause(sqlBuilder);
         sqlBuilder.append(", ");
-        this.appendProcessStatusToSelectClause(sqlBuilder);
+        this.appendReadingQualityToSelectClause(sqlBuilder);
         sqlBuilder.append("\n  FROM ");
         sqlBuilder.append(this.sqlName());
         this.appendGroupByClauseIfApplicable(sqlBuilder);
@@ -245,17 +246,28 @@ class ReadingTypeDeliverableForMeterActivation {
         sqlBuilder.append(columnName.sqlName());
     }
 
-    private void appendProcessStatusToSelectClause(SqlBuilder sqlBuilder) {
+    private void appendReadingQualityToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
-            this.appendAggregatedProcessStatus(sqlBuilder);
+            this.appendAggregatedReadingQuality(sqlBuilder);
             sqlBuilder.append(", count(*)");
+            appendExpectedCount(sqlBuilder);
         } else {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
-            sqlBuilder.append(", 1");
+            sqlBuilder.append(", 1, 1");
         }
     }
 
-    private void appendAggregatedProcessStatus(SqlBuilder sqlBuilder) {
+    private void appendExpectedCount(SqlBuilder sqlBuilder) {
+        IntervalLength sourceIntervalLength = this.expressionReadingType.getIntervalLength();
+        IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
+        long expectedCount = 0;
+        if ((!targetReadingType.equals(IntervalLength.MONTH1)) || (!targetReadingType.equals(IntervalLength.YEAR1))) {
+            expectedCount = targetIntervalLength.getSeconds() / sourceIntervalLength.getSeconds();
+        }
+        sqlBuilder.append(", " + expectedCount);
+    }
+
+    private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
         sqlBuilder.append("MAX(");
         sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
         sqlBuilder.append(")");
