@@ -20,7 +20,6 @@ import java.util.Optional;
 public class LocationServiceImpl implements LocationService {
 
     private volatile DataModel dataModel;
-    private volatile MeteringService meteringService;
 
     public LocationServiceImpl() {
     }
@@ -30,10 +29,6 @@ public class LocationServiceImpl implements LocationService {
         this.setOrmService(ormService);
     }
 
-    @Reference
-    public final void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
-    }
 
     @Reference
     public final void setOrmService(OrmService ormService) {

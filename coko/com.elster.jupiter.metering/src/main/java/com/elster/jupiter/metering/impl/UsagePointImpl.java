@@ -780,6 +780,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     private Optional<Location> findLocation(long id) {
-        return dataModel.getInstance(LocationService.class).findLocationById(id);
+        return dataModel.mapper(Location.class).getOptional(id);
     }
 }
