@@ -332,6 +332,7 @@ public class DeviceResource {
         if (!slaveDeviceInfo.placeHolderForUnlinkedDataLoggerChannelsAndRegisters()) {
             Device slave;
             if (slaveDeviceInfo.id == 0 && slaveDeviceInfo.version == 0) {
+                validateBeforeCreatingNewSlaveViaWizard(slaveDeviceInfo.mRID);
                 slave = newDevice(slaveDeviceInfo.deviceConfigurationId, slaveDeviceInfo.batch, slaveDeviceInfo.mRID, slaveDeviceInfo.serialNumber, slaveDeviceInfo.yearOfCertification, Instant
                         .ofEpochMilli(slaveDeviceInfo.shipmentDate));
             } else {
@@ -357,6 +358,19 @@ public class DeviceResource {
             if (channelMap.size() + registerMap.size() > 0) {
                 topologyService.setDataLogger(slave, dataLogger, Instant.ofEpochMilli(slaveDeviceInfo.linkingTimeStamp), channelMap, registerMap);
             }
+        }
+    }
+
+    /**
+     * Validates the uniqueness of the mrid when creating a datalogger slave via the wizard.
+     * We do the validation here because it doesn't properly work with form-validation
+     *
+     * @param mRID the mrid of the new-to-create datalogger slave
+     */
+    private void validateBeforeCreatingNewSlaveViaWizard(String mRID) {
+        Optional<Device> existingDevice = deviceService.findByUniqueMrid(mRID);
+        if (existingDevice.isPresent()) {
+            throw exceptionFactory.newException(MessageSeeds.UNIQUE_MRID);
         }
     }
 
