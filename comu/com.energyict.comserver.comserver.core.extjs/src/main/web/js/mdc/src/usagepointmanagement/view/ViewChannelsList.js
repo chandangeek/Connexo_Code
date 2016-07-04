@@ -3,6 +3,8 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelsList', {
     alias: 'widget.view-channels-list',
 
     requires: [
+        'Uni.util.FormInfoMessage',
+        'Uni.view.container.PreviewContainer',
         'Mdc.usagepointmanagement.view.UsagePointSideMenu',
         'Mdc.usagepointmanagement.view.ChannelsGrid',
         'Mdc.usagepointmanagement.view.ChannelPreview'
@@ -27,17 +29,9 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelsList', {
                             itemId: 'usage-point-channels-grid'
                         },
                         emptyComponent: {
-                            xtype: 'no-items-found-panel',
+                            xtype: 'uni-form-info-message',
                             itemId: 'usage-point-channels-empty-msg',
-                            title: Uni.I18n.translate('usagePointChannels.noItems', 'MDC', 'No available channels found'),
-                            reasons: [
-                                Uni.I18n.translate('usagePointChannels.empty.list.item1', 'MDC', 'No metrology configuration versions until current moment in time.')
-                            ],
-                            stepItems: [
-                                {
-                                    text: Uni.I18n.translate('usagePointChannels.stepItems.item1', 'MDC', 'See versions of metrology configurations')
-                                }
-                            ]
+                            text: Uni.I18n.translate('usagePointChannels.noItems', 'MDC', 'No available channels because no metrology configuration versions until current moment in time. See versions of metrology configurations', [], false)
                         },
                         previewComponent: {
                             xtype: 'usage-point-channel-preview',
