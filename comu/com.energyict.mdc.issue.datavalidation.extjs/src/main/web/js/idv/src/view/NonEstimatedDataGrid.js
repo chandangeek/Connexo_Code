@@ -79,6 +79,7 @@ Ext.define('Idv.view.NonEstimatedDataGrid', {
                     }, {
                         text: Uni.I18n.translate('issues.actionMenu.estimateValues', 'IDV', 'Estimate values'),
                         itemId: 'datavalidation-estimate-values-mnu',
+                        privileges: Isu.privileges.Issue.runTask,
                         action: 'estimateValues'
                     }
                     ]
