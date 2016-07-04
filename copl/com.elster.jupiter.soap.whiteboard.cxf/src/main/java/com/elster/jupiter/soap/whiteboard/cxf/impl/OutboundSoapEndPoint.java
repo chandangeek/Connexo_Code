@@ -31,7 +31,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * Created by bvn on 5/10/16.
+ * This endpoint manager knows how to set up and tear down an outbound SOAP endpoint. To allow access to the remote server,
+ * an OSGI-service is registered, making the outbound service available as OSGi service (java interface)
+ * Features are added as configured on the endpoint configuration.
+ * The actually registered service is cached to allow tear-down.
  */
 public final class OutboundSoapEndPoint implements ManagedEndpoint {
     private static final Logger logger = Logger.getLogger(OutboundSoapEndPoint.class.getSimpleName());

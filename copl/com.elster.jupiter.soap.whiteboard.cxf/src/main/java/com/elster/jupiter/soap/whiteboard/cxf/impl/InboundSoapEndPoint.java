@@ -19,7 +19,8 @@ import javax.inject.Provider;
 import java.io.File;
 
 /**
- * This endpoint manager knows how to set up and tear down an inbound SOAP endpoint
+ * This endpoint manager knows how to set up and tear down an inbound SOAP endpoint. Features are added as configured on the endpoint configuration.
+ * The actually created endpoint is cached to allow tear-down.
  */
 public final class InboundSoapEndPoint implements ManagedEndpoint {
     private InboundSoapEndPointProvider endPointProvider;
