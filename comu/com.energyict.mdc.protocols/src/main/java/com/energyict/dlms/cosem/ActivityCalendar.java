@@ -69,7 +69,7 @@ public class ActivityCalendar extends AbstractCosemObject {
      * Read the <b>Active</b> calendarName from the device
      *
      * @return the Active calendarName
-     * @throws java.io.IOException if the reading failed
+     * @throws IOException if the reading failed
      */
     public OctetString readCalendarNameActive() throws IOException {
         if (calendarNameActive == null) {

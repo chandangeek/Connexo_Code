@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -44,6 +45,7 @@ import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConn
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
+import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
 import com.energyict.protocolimplv2.abnt.common.LoadProfileBuilder;
@@ -375,4 +377,16 @@ public class A1055 extends AbstractAbntProtocol {
     public CollectedBreakerStatus getBreakerStatus() {
         return collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
     }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        this.issueService.newWarning(
+                this.offlineDevice,
+                this.thesaurus,
+                com.energyict.mdc.protocol.api.MessageSeeds.READ_CALENDAR_INFO_NOT_SUPPORTED,
+                DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+
+        return this.collectedDataFactory.createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
+    }
+
 }

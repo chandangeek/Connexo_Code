@@ -26,6 +26,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -38,6 +39,7 @@ import com.energyict.mdc.protocol.api.device.data.ResultType;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
+import com.energyict.mdc.protocol.api.device.offline.OfflineCalendar;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -492,6 +494,33 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
         return collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
+    }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        CollectedCalendar collectedCalendar = this.collectedDataFactory.createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
+        this.toCalendarName(this.getRequestFactory().getIdentificationStructure().getIdPT().getValue()[0].getIntValue())
+                .ifPresent(collectedCalendar::setActiveCalendar);
+        this.toCalendarName(this.getRequestFactory().getIdentificationStructure().getIdPT().getValue()[2].getIntValue())
+                .ifPresent(collectedCalendar::setPassiveCalendar);
+        return collectedCalendar;
+    }
+
+    private Optional<String> toCalendarName(int tariffSchemaId) {
+        if (tariffSchemaId > 0) {
+            return this.toCalendarName(String.valueOf(tariffSchemaId));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<String> toCalendarName(String tariffSchemaId) {
+        return this.offlineDevice
+                .getCalendars()
+                .stream()
+                .filter(each -> each.getMRID().equals(tariffSchemaId))
+                .findFirst()
+                .map(OfflineCalendar::getName);
     }
 
 }
