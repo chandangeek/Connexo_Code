@@ -776,6 +776,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<PassiveEffectiveCalendar> table = dataModel.addTable(name(), PassiveEffectiveCalendar.class);
             table.map(PassiveEffectiveCalendarImpl.class);
+            table.since(version(10, 2));
 
             Column idColumn = table.addAutoIdColumn();
             Column calendar = table.column("ALLOWED_CALENDAR").number().notNull().add();
@@ -801,6 +802,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<?> table = dataModel.getTable(DDC_DEVICE.name());
             Column passiveCalendar = table.column("PASSIVE_CAL").number().conversion(NUMBER2LONG).add();
+            passiveCalendar.since(version(10, 2));
             table.foreignKey("FK_DDC_DEVICE_PASSIVECAL")
                     .references(DDC_PASSIVE_CALENDAR.name())
                     .on(passiveCalendar)
@@ -820,6 +822,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ActiveEffectiveCalendar> table = dataModel.addTable(name(), ActiveEffectiveCalendar.class);
             table.map(ActiveEffectiveCalendarImpl.class);
+            table.since(version(10, 2));
 
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName());
