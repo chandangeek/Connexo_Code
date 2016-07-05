@@ -73,8 +73,7 @@ public class ForceValidationAndEstimation extends TranslatableServerMicroAction 
                         .ofQualitySystem(QualityCodeSystem.MDC)
                         .ofQualityIndex(QualityCodeIndex.SUSPECT)
                         .actual()
-                        .findFirst()
-                        .isPresent());
+                        .anyMatch());
         if (hasSuspects) {
             throw new ForceValidationAndEstimationException(MessageSeeds.NOT_ALL_DATA_VALID_FOR_DEVICE);
         }

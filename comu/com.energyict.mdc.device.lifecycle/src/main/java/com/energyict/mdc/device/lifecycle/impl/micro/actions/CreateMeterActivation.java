@@ -113,7 +113,6 @@ public class CreateMeterActivation extends TranslatableServerMicroAction {
                         .ofQualitySystems(ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM))
                         .actual()
                         .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.REASONABILITY, QualityCodeCategory.VALIDATION))
-                        .collect()
                         .stream())
                 .forEach(ReadingQualityRecord::delete);
     }
