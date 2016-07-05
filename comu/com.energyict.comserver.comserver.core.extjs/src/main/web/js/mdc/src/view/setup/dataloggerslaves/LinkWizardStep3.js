@@ -68,7 +68,6 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep3', {
                 me.down('#mdc-dataloggerslave-link-wizard-step3-container').add({
                     xtype: 'container',
                     width: 700,
-                    margin: '20 0 0 0',
                     itemId: 'mdc-step3-form-' + counter,
                     layout: {
                         type: 'vbox',
@@ -102,29 +101,6 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep3', {
 
                 Ext.resumeLayouts(true);
                 me.doLayout();
-                form = me.down('#mdc-step3-form-' + counter);
-
-                if (registerConfigRecord.get('useMultiplier')) {
-                    form.add(
-                        {
-                            xtype: 'numberfield',
-                            minValue: 1,
-                            maxValue: 2147483647,
-                            fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
-                            value: 1,
-                            maxWidth: 375
-                        }
-                    );
-                } else {
-                    form.add(
-                        {
-                            xtype: 'displayfield',
-                            fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
-                            value: Uni.I18n.translate('general.registerDoesntUseMultiplier', 'MDC', "Register doesn't use multiplier")
-                        }
-                    );
-                }
-
             }, me);
         }
 

@@ -127,27 +127,6 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep2', {
                             itemId: 'mdc-step2-channel-combo-' + channelCounter
                         }
                     );
-
-                    if (channel.useMultiplier) {
-                        form.add(
-                            {
-                                xtype: 'numberfield',
-                                minValue: 1,
-                                maxValue: 2147483647,
-                                fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
-                                value: 1,
-                                maxWidth: 375
-                            }
-                        );
-                    } else {
-                        form.add(
-                            {
-                                xtype: 'displayfield',
-                                fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
-                                value: Uni.I18n.translate('general.channelDoesntUseMultiplier', 'MDC', "Channel doesn't use multiplier")
-                            }
-                        );
-                    }
                 }, me);
 
             }, me);
