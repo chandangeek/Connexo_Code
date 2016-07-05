@@ -745,42 +745,41 @@ public final class ChannelImpl implements ChannelContract {
         Map<Instant, List<ReadingQualityRecord>> qualities = findActualReadingQuality(instant).stream()
                 .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
         Set<Instant> readingTimes = readings.stream().map(BaseReadingRecord::getTimeStamp).collect(Collectors.toSet());
-
-        if (isRegular()) {
-            Map<ReadingType, IntervalBlockImpl> intervalBlocks = new HashMap<>();
-            for (IReadingType iReadingType : getReadingTypes()) {
-                intervalBlocks.put(iReadingType, IntervalBlockImpl.of(iReadingType.getMRID()));
-            }
-            for (BaseReadingRecord baseReadingRecord : readings) {
-                IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) baseReadingRecord;
-                intervalBlocks.entrySet().stream().forEach(intervalBlock -> {
-                    IntervalReadingRecord filtered = intervalReadingRecord.filter(intervalBlock.getKey());
-                    IntervalReadingImpl intervalReading = IntervalReadingImpl.of(filtered.getTimeStamp(), filtered.getValue(), filtered.getProfileStatus());
-                    filtered.getTimePeriod().ifPresent(intervalReading::setTimePeriod);
-                    addQualityToBaseReading(qualities, intervalBlock.getKey(), intervalReading);
-                    intervalBlock.getValue().addIntervalReading(intervalReading);
-                });
-            }
-            intervalBlocks.values().forEach(meterReading::addIntervalBlock);
-        } else {
-            for (BaseReadingRecord baseReadingRecord : readings) {
-                ReadingRecord baseReading = (ReadingRecord) baseReadingRecord;
+        if (!readingTimes.isEmpty()) {
+            if (isRegular()) {
+                Map<ReadingType, IntervalBlockImpl> intervalBlocks = new HashMap<>();
                 for (IReadingType iReadingType : getReadingTypes()) {
-                    ReadingRecord filtered = baseReading.filter(iReadingType);
-                    ReadingImpl reading = ReadingImpl.of(iReadingType.getMRID(), filtered.getValue(), filtered.getTimeStamp());
-                    reading.setText(filtered.getText());
-                    reading.setReason(filtered.getReason());
-                    filtered.getTimePeriod().ifPresent(reading::setTimePeriod);
-                    addQualityToBaseReading(qualities, iReadingType, reading);
-                    meterReading.addReading(reading);
+                    intervalBlocks.put(iReadingType, IntervalBlockImpl.of(iReadingType.getMRID()));
+                }
+                for (BaseReadingRecord baseReadingRecord : readings) {
+                    IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) baseReadingRecord;
+                    intervalBlocks.entrySet().stream().forEach(intervalBlock -> {
+                        IntervalReadingRecord filtered = intervalReadingRecord.filter(intervalBlock.getKey());
+                        IntervalReadingImpl intervalReading = IntervalReadingImpl.of(filtered.getTimeStamp(), filtered.getValue(), filtered.getProfileStatus());
+                        filtered.getTimePeriod().ifPresent(intervalReading::setTimePeriod);
+                        addQualityToBaseReading(qualities, intervalBlock.getKey(), intervalReading);
+                        intervalBlock.getValue().addIntervalReading(intervalReading);
+                    });
+                }
+                intervalBlocks.values().forEach(meterReading::addIntervalBlock);
+            } else {
+                for (BaseReadingRecord baseReadingRecord : readings) {
+                    ReadingRecord baseReading = (ReadingRecord) baseReadingRecord;
+                    for (IReadingType iReadingType : getReadingTypes()) {
+                        ReadingRecord filtered = baseReading.filter(iReadingType);
+                        ReadingImpl reading = ReadingImpl.of(iReadingType.getMRID(), filtered.getValue(), filtered.getTimeStamp());
+                        reading.setText(filtered.getText());
+                        reading.setReason(filtered.getReason());
+                        filtered.getTimePeriod().ifPresent(reading::setTimePeriod);
+                        addQualityToBaseReading(qualities, iReadingType, reading);
+                        meterReading.addReading(reading);
+                    }
                 }
             }
-        }
 
-        timeSeries.get().removeEntries(Ranges.copy(instant).withOpenLowerBound());
-        dataModel.mapper(ReadingQualityRecord.class).remove(qualities.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
-        qualities.values().stream().flatMap(Collection::stream).map(ReadingQualityRecordImpl.class::cast).forEach(ReadingQualityRecordImpl::notifyDeleted);
-        if (!readingTimes.isEmpty()) {
+            timeSeries.get().removeEntries(Ranges.copy(instant).withOpenLowerBound());
+            dataModel.mapper(ReadingQualityRecord.class).remove(qualities.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
+            qualities.values().stream().flatMap(Collection::stream).map(ReadingQualityRecordImpl.class::cast).forEach(ReadingQualityRecordImpl::notifyDeleted);
             eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this, readingTimes));
         }
         return meterReading;
