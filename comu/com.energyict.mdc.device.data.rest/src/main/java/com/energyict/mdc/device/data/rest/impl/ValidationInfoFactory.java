@@ -266,7 +266,7 @@ public class ValidationInfoFactory {
         veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(getMdcReadingQualities(dataValidationStatus.getReadingQualities())));
         veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
-        veeReadingInfo.action = decorate(dataValidationStatus.getReadingQualities()
+        veeReadingInfo.action = decorate(getMdcReadingQualities(dataValidationStatus.getReadingQualities())
                 .stream())
                 .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                 .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
@@ -285,7 +285,7 @@ public class ValidationInfoFactory {
             veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(getMdcReadingQualities(dataValidationStatus.getBulkReadingQualities())));
             veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
             veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
-            veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()
+            veeReadingInfo.action = decorate(getMdcReadingQualities(dataValidationStatus.getBulkReadingQualities())
                     .stream())
                     .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                     .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
@@ -362,7 +362,7 @@ public class ValidationInfoFactory {
     MinimalVeeReadingValueInfo createMainVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
         MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
         veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(getMdcReadingQualities(dataValidationStatus.getReadingQualities())));
-        veeReadingInfo.action = decorate(dataValidationStatus.getReadingQualities()
+        veeReadingInfo.action = decorate(getMdcReadingQualities(dataValidationStatus.getReadingQualities())
                 .stream())
                 .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                 .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
@@ -379,7 +379,7 @@ public class ValidationInfoFactory {
         if (channel.getCalculatedReadingType(dataValidationStatus.getReadingTimestamp()).isPresent()) {
             MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
             veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(getMdcReadingQualities(dataValidationStatus.getBulkReadingQualities())));
-            veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()
+            veeReadingInfo.action = decorate(getMdcReadingQualities(dataValidationStatus.getBulkReadingQualities())
                     .stream())
                     .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                     .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
