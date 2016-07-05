@@ -9,6 +9,7 @@ import com.elster.jupiter.util.units.Quantity;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,7 +86,7 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     }
 
     public List<String> getLocation() {
-        return location;
+        return Collections.unmodifiableList(location);
     }
 
     public void addLocation(String location) {

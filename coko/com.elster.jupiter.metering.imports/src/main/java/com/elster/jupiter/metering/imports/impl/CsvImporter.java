@@ -12,9 +12,9 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class CsvImporter<T extends FileImportRecord> implements FileImporter {
+public final class CsvImporter<T extends FileImportRecord> implements FileImporter {
 
-    public static class Builder<T extends FileImportRecord> {
+    public static final class Builder<T extends FileImportRecord> {
 
         private final CsvImporter<T> importer;
 
@@ -42,7 +42,7 @@ public class CsvImporter<T extends FileImportRecord> implements FileImporter {
         }
     }
 
-    public static final char COMMENT_MARKER = '#';
+    private static final char COMMENT_MARKER = '#';
 
     private char csvDelimiter;
 
