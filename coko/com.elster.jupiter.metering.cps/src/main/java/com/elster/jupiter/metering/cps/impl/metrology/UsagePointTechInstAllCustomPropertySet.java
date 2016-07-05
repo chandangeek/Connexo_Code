@@ -26,9 +26,9 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_TECH";
+    public static final String TABLE_NAME = "IST_CPS_MTR_USAGEPOINT_TECH";
     public static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_TECH";
-    public static final String COMPONENT_NAME = "MTC_INST";
+    public static final String COMPONENT_NAME = "IST";
 
     public UsagePointTechInstAllCustomPropertySet() {
         super();
@@ -93,7 +93,12 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
 
         private Thesaurus thesaurus;
 
-        private UsagePointTechInstAllPersSupp(Thesaurus thesaurus) {
+        @Override
+        public String application() {
+            return "Example";
+        }
+
+        UsagePointTechInstAllPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

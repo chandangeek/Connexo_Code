@@ -107,6 +107,15 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
     }
 
     private class UsagePointTechnicalWGTPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechnicalWGTDomExt> {
+
+        @Override
+        public String application() {
+            return "Example";
+        }
+
+        UsagePointTechnicalWGTPersistenceSupport() {
+        }
+
         @Override
         public String componentName() {
             return UsagePointTechnicalSeeds.COMPONENT_NAME.get();

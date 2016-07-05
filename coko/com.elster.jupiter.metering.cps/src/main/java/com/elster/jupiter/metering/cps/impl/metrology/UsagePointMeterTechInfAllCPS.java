@@ -31,7 +31,7 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
 
     public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_T_IN";
     public static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_IN";
-    public static final String COMPONENT_NAME = "TECH_INF";
+    public static final String COMPONENT_NAME = "TEC";
 
     public UsagePointMeterTechInfAllCPS() {
         super();
@@ -110,6 +110,10 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
     }
 
     private static class UsagePointMeterTechInfAllPersSupp implements PersistenceSupport<UsagePoint, UsagePointMeterTechInfAllDomExt> {
+        @Override
+        public String application() {
+            return "Example";
+        }
 
         private Thesaurus thesaurus;
 

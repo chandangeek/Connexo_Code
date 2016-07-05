@@ -30,16 +30,12 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_T_INFO";
-    public static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_INFO";
-    public static final String COMPONENT_NAME = "T_INFO";
-
-    public UsagePointMeterTechInfGTWCustomPropertySet() {
-        super();
-    }
+    public static final String TABLE_NAME = "INF_CPS_MTR_USAGEPOINT_T_INFO";
+    private static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_INFO";
+    public static final String COMPONENT_NAME = "INF";
 
     public UsagePointMeterTechInfGTWCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
+        super();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -121,7 +117,12 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
 
         private Thesaurus thesaurus;
 
-        private UsagePointMeterTechInfGTWPersSupp(Thesaurus thesaurus) {
+        @Override
+        public String application() {
+            return "Example";
+        }
+
+        UsagePointMeterTechInfGTWPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

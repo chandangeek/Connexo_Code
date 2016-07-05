@@ -29,16 +29,12 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_INST_EG";
-    public static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_INST_EG";
-    public static final String COMPONENT_NAME = "INST_EG";
-
-    public UsagePointTechInstEGCustomPropertySet() {
-        super();
-    }
+    public static final String TABLE_NAME = "IEG_CPS_MTR_USAGEPOINT_INST_EG";
+    private static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_INST_EG";
+    public static final String COMPONENT_NAME = "IEG";
 
     public UsagePointTechInstEGCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
+        super();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -100,7 +96,12 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
     private static class UsagePointTechInstEGPerSupp implements PersistenceSupport<UsagePoint, UsagePointTechInstEGDomExt> {
         private Thesaurus thesaurus;
 
-        private UsagePointTechInstEGPerSupp(Thesaurus thesaurus) {
+        @Override
+        public String application() {
+            return "Example";
+        }
+
+        UsagePointTechInstEGPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

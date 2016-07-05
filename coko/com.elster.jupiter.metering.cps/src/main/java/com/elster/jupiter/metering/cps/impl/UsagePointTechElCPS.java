@@ -27,20 +27,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTechElDomExt> {
+class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTechElDomExt> {
 
-    public static final String TABLE_NAME = "MTC_CPS_TECH_EL";
-    public static final String FK_CPS_DEVICE_ONE = "FK_CPS_TECH_EL";
+    public static final String TABLE_NAME = "TE1_CPS_TECH_EL";
+    private static final String FK_CPS_DEVICE_ONE = "FK_CPS_TECH_EL";
 
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public UsagePointTechElCPS() {
+    UsagePointTechElCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
-    }
-
-    public UsagePointTechElCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -122,7 +118,12 @@ public class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsageP
     private static class UsagePointTechnicalElectricityPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointTechElDomExt> {
         private Thesaurus thesaurus;
 
-        private UsagePointTechnicalElectricityPersistenceSupport(Thesaurus thesaurus) {
+        @Override
+        public String application() {
+            return "Example";
+        }
+
+        UsagePointTechnicalElectricityPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

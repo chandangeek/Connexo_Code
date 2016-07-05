@@ -25,20 +25,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, UsagePointContrElectrDomExt> {
+class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, UsagePointContrElectrDomExt> {
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "MTC_CPS_USAGEPOINT_EL_CON";
-    public static final String FK_CPS_DEVICE_CONTR_ELECTRICITY = "FK_CPS_USAGEPOINT_EL_CON";
-    public static final String COMPONENT_NAME = "EL_CON";
+    public static final String TABLE_NAME = "ELC_CPS_USAGEPOINT_EL_CON";
+    private static final String FK_CPS_DEVICE_CONTR_ELECTRICITY = "FK_CPS_USAGEPOINT_EL_CON";
+    public static final String COMPONENT_NAME = "ELC";
 
-    public UsagePointContrElectrCPS() {
+    UsagePointContrElectrCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
-    }
-
-    public UsagePointContrElectrCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -101,7 +97,12 @@ public class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, U
     private class UsagePointContractualPerSupp implements PersistenceSupport<UsagePoint, UsagePointContrElectrDomExt> {
         private Thesaurus thesaurus;
 
-        private UsagePointContractualPerSupp(Thesaurus thesaurus) {
+        @Override
+        public String application() {
+            return "Example";
+        }
+
+        UsagePointContractualPerSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 
