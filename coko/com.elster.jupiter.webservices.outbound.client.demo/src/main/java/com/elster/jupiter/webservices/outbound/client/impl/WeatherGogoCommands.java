@@ -6,9 +6,6 @@ import com.elster.jupiter.webservices.outbound.rest.WeatherService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-/**
- * Created by bvn on 5/9/16.
- */
 @Component(name = "com.elster.jupiter.soap.currency.converter.client.gogo",
         service = WeatherGogoCommands.class,
         property = {"osgi.command.scope=wea",
