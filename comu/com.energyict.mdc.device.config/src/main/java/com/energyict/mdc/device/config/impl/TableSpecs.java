@@ -46,7 +46,6 @@ import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
-import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -833,7 +832,7 @@ public enum TableSpecs {
     DTC_DEVICEMESSAGEFILE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<DeviceMessageFile> table = dataModel.addTable(name(), DeviceMessageFile.class);
+            Table<DeviceMessageFile> table = dataModel.addTable(name(), DeviceMessageFile.class).since(version(10, 2));
             table.map(DeviceMessageFileImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table
@@ -868,7 +867,7 @@ public enum TableSpecs {
     DTC_DEVICETYPECALENDARUSAGE {
         @Override
         void addTo(DataModel dataModel) {
-            Table<AllowedCalendar> table = dataModel.addTable(name(), AllowedCalendar.class);
+            Table<AllowedCalendar> table = dataModel.addTable(name(), AllowedCalendar.class).since(version(10, 2));
             table.map(AllowedCalendarImpl.class);
             Column id = table.addAutoIdColumn();
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
@@ -894,19 +893,10 @@ public enum TableSpecs {
     DTC_TIMEOFUSEMANAGEMENTOPTIONS {
         @Override
         void addTo(DataModel dataModel) {
-            Table<TimeOfUseOptions> table = dataModel.addTable(name(), TimeOfUseOptions.class);
+            Table<TimeOfUseOptions> table = dataModel.addTable(name(), TimeOfUseOptions.class).since(version(10, 2));
             table.map(TimeOfUseOptionsImpl.class);
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
-            table.column("SEND").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR.fieldName()).add();
-            table.column("SEND_DATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATE.fieldName()).add();
-            table.column("SEND_DATE_TYPE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE.fieldName()).add();
-            table.column("SEND_DATE_CONTRACT").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT.fieldName()).add();
-            table.column("SEND_DATE_TIME").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_ACTIVITY_CALENDAR_WITH_DATETIME.fieldName()).add();
-            table.column("SEND_SPECIAL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_SPECIAL_DAYS_CALENDAR.fieldName()).add();
-            table.column("SEND_SPECIAL_TYPE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE.fieldName()).add();
-            table.column("SEND_SPECIAL_CONTRACT_DATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE.fieldName()).add();
-            table.column("CLEAR_DISABLE_TARIFF").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.CLEAR_AND_DISABLE_PASSIVE_TARIFF.fieldName()).add();
-            table.column("ACTIVATE_PASSIVE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(TimeOfUseOptionsImpl.Fields.ACTIVATE_PASSIVE_CALENDAR.fieldName()).add();
+            table.column("OPTIONS").number().map(TimeOfUseOptionsImpl.Fields.OPTION_BITS.fieldName()).conversion(NUMBER2LONG).notNull().add();
             table.addAuditColumns( );
             table.primaryKey("DTC_PK_TIMEOFUSEOPTIONS").on(deviceTypeColumn).add();
             table.foreignKey("DTC_TOUOPTIONS_FK_DEVICETYPE")
