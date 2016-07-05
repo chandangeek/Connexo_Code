@@ -398,6 +398,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         return this.messagingService;
     }
 
+    @Override
+    public ValidationService validationService() {
+        return this.validationService;
+    }
+
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
@@ -504,7 +509,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     public void activate(BundleContext bundleContext) {
         this.createRealServices();
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(DeviceDataServices.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceDataServices.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
         this.registerRealServices(bundleContext);
     }
 

@@ -6,7 +6,6 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.EndDeviceControlTypeMapping;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -30,8 +29,6 @@ import java.net.URL;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -130,16 +127,7 @@ public class MultisenseHeadEndInterfaceTest {
     @Test
     public void getDeviceCapabilities() {
         EndDeviceCapabilities endDeviceCapabilities = headEndInterface.getCapabilities(endDevice);
-        AtomicInteger count = new AtomicInteger(0);
-        Stream.of(EndDeviceControlTypeMapping.values()).forEach(type -> {
-            if (type.getEndDeviceControlTypeMRID().startsWith(3 + ".")
-                    || type.getEndDeviceControlTypeMRID().startsWith("0.")
-                    || type.getEndDeviceControlTypeMRID().startsWith("*.")) {
-                count.incrementAndGet();
-            }
-        });
-
-        assertTrue(endDeviceCapabilities.getSupportedControlTypes().size() == count.get());
+        assertTrue(endDeviceCapabilities.getSupportedControlTypes().size() == 0);
         assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().size() == 1);
         assertTrue(endDeviceCapabilities.getConfiguredReadingTypes().get(0).equals(readingType));
     }

@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.orm.DataModel;
@@ -17,6 +9,13 @@ import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
+
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DeviceEstimationImpl implements DeviceEstimation {
     
@@ -68,7 +67,12 @@ public class DeviceEstimationImpl implements DeviceEstimation {
     public boolean isEstimationActive() {
         return active;
     }
-    
+
+    @Override
+    public Device getDevice() {
+        return this.device.get();
+    }
+
     @Override
     public void activateEstimation() {
         if (!active) {
