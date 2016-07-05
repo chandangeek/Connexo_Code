@@ -203,6 +203,7 @@ Ext.define('Wss.view.Add', {
         form.add(
             {
                 xtype: 'textfield',
+                itemId: 'url-path',
                 name: 'url',
                 fieldLabel: direction.toUpperCase()==='INBOUND'?Uni.I18n.translate('endPointAdd.urlPath', 'WSS', 'Url Path'):Uni.I18n.translate('endPointAdd.url', 'WSS', 'Url'),
                 required: true,
