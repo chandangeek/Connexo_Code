@@ -1,14 +1,11 @@
 package com.energyict.mdc.engine;
 
-import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -236,6 +233,9 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
                     for (LogBookType logBookType : logBookTypes) {
                         this.deviceType.addLogBookType(logBookType);
                     }
+                    if (this.registerType != null) {
+                        this.deviceType.addRegisterType(this.registerType);
+                    }
                     this.deviceType.update();
                 }
             }
@@ -252,7 +252,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
                 }
             }
             if (this.registerType != null) {
-                deviceConfigurationBuilder.newNumericalRegisterSpec(registerType).add();
+                deviceConfigurationBuilder.newNumericalRegisterSpec(registerType).numberOfFractionDigits(0).overflowValue(BigDecimal.valueOf(999999999999999L));
             }
             for (LogBookType logBookType : logBookTypes) {
                 deviceConfigurationBuilder.newLogBookSpec(logBookType);

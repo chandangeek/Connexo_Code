@@ -64,7 +64,6 @@ import static org.mockito.Mockito.withSettings;
 public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollectedDataIntegrationTest {
 
     private final String registerObisCode1 = "1.0.1.8.0.255";
-   // private final String registerObisCode2 = "1.0.2.8.0.255";
     private final Unit kiloWattHours = Unit.get("kWh");
     private final int firstReadingTypeOfChannel = 0;
 
@@ -72,7 +71,6 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     private Instant registerEventTime1 = Instant.ofEpochMilli(1388530800000L);  // Dec 31st, 2014 23:00:00 (UTC)
     private Quantity register1Quantity = new Quantity(123, kiloWattHours);
     private Date registerEventTime2 = new DateTime(2014, 1, 1, 0, 23, 12, 2).toDate();
-   //  private Date registerEventTime3 = new DateTime(2014, 1, 1, 0, 23, 12, 12).toDate();
 
     private DeviceCreator deviceCreator;
 
@@ -82,11 +80,17 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     private IdentificationService identificationService;
     @Mock
     private ComServerDAOImpl.ServiceProvider serviceProvider;
+    private RegisterType registerType;
 
     @Before
     public void setUp() {
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
-
+        ReadingType readingType = getMeteringService().getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        registerType = getMasterDataService().findRegisterTypeByReadingType(readingType).orElseGet(() -> {
+            RegisterType registerType = getMasterDataService().newRegisterType(readingType, ObisCode.fromString(registerObisCode1));
+            registerType.save();
+            return registerType;
+        });
         this.deviceCreator = new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
                 getInjector().getInstance(DeviceService.class)
@@ -96,7 +100,8 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     @Test
     @Transactional
     public void successfulStoreOfSingleRegisterTest() {
-        Device device = this.deviceCreator.name("successfulStoreOfSingleRegisterTest").mRDI("successfulStoreOfSingleRegisterTest").create(Instant.ofEpochMilli(justBeforeRegisterReadEventTime1.getTime()));
+        Device device = this.deviceCreator.name("successfulStoreOfSingleRegisterTest").mRDI("successfulStoreOfSingleRegisterTest").registerType(registerType)
+                .create(Instant.ofEpochMilli(justBeforeRegisterReadEventTime1.getTime()));
         long deviceId = device.getId();
 
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId, getInjector().getInstance(DeviceService.class));
@@ -150,6 +155,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 .mRDI("unLinkedDataLogger")
                 .deviceTypeName(DeviceCreator.DATA_LOGGER_DEVICE_TYPE_NAME)
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
+                .registerType(registerType)
                 .dataLoggerEnabled(true)
                 .create(justBeforeRegisterReadEventTime1.toInstant());
 
@@ -165,7 +171,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         when(register.getDevice()).thenReturn(dataLogger);
 
         // DataLogger is not linked
-        when(topologyService.getSlaveRegister(register,registerEventTime1 )).thenReturn(Optional.empty());
+        when(topologyService.getSlaveRegister(register, registerEventTime1)).thenReturn(Optional.empty());
 
         RegisterIdentifier registerIdentifier = mock(RegisterIdentifier.class);
         when(registerIdentifier.findRegister()).thenReturn(register);
@@ -209,13 +215,14 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         DeviceCreator slaveDeviceCreator = (DeviceCreator) new DeviceCreator(
                 getInjector().getInstance(DeviceConfigurationService.class),
                 getInjector().getInstance(DeviceService.class)
-                ).dataLoggerSlaveDevice();
+        ).dataLoggerSlaveDevice();
 
         Device dataLogger = this.deviceCreator
                 .name("DataLogger")
                 .mRDI("unLinkedDataLogger")
                 .deviceTypeName(DeviceCreator.DATA_LOGGER_DEVICE_TYPE_NAME)
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
+                .registerType(registerType)
                 .dataLoggerEnabled(true)
                 .create(justBeforeRegisterReadEventTime1.toInstant());
 
@@ -232,6 +239,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         Device slave = slaveDeviceCreator
                 .name("slave")
                 .mRDI("simplePreStoreWithDataInFutureTest")
+                .registerType(registerType)
                 .create(justBeforeRegisterReadEventTime1.toInstant());
         long slaveId = dataLogger.getId();
         DeviceIdentifier slaveIdentifier = new DeviceIdentifierById(slaveId, getInjector().getInstance(DeviceService.class));
