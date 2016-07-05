@@ -189,7 +189,7 @@ public class LocationBuilderImpl implements LocationBuilder {
         }
 
         private LocationMemberImpl createMember(LocationImpl location) {
-            LocationMemberImpl locationMember = LocationMemberImpl.from(dataModel, location.getId(), countryCode, countryName, administrativeArea, locality, subLocality,
+            LocationMemberImpl locationMember = LocationMemberImpl.from(dataModel, location, countryCode, countryName, administrativeArea, locality, subLocality,
                     streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
                     defaultLocation, locale);
             locationMember.doSave();

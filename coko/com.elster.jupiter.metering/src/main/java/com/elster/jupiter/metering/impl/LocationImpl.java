@@ -94,8 +94,6 @@ public class LocationImpl implements Location {
 
     @Override
     public List<List<String>> format() {
-        List<LocationMember> members = dataModel.query(LocationMember.class)
-                .select(Operator.EQUAL.compare("locationId", id));
         List<List<String>> formattedLocation = new LinkedList<>();
         if (!members.isEmpty()) {
             LocationMember member = members.get(0);
