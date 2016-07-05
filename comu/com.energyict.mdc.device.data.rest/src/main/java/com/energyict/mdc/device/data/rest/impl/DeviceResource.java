@@ -838,12 +838,8 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        TopologyTimeline timeline;
-        if (queryParameters.getLimit().isPresent()) {
-            timeline = topologyService.getPhysicalTopologyTimelineAdditions(device, queryParameters.getLimit().get());
-        } else {
-            timeline = topologyService.getPysicalTopologyTimeline(device);
-        }
+        Integer limit = queryParameters.getLimit().orElse(Integer.MAX_VALUE);
+        TopologyTimeline timeline = topologyService.getPhysicalTopologyTimelineAdditions(device, limit);
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
                 .sorted(Comparator.comparing(Device::getmRID));

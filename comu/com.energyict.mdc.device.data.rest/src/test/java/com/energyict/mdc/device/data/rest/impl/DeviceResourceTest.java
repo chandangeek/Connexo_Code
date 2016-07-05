@@ -1031,10 +1031,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testGetCommunicationTopology() {
         when(clock.instant()).thenReturn(NOW);
-        mockTopologyTimeline();
+        int limit = 10;
+        mockTopologyTimeline(limit);
 
         String response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(7);
@@ -1046,22 +1047,24 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testCommunicationTopologyPaging() {
         when(clock.instant()).thenReturn(NOW);
-        mockTopologyTimeline();
+        int limit = 2;
+        mockTopologyTimeline(limit);
         String response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 3).queryParam("limit", 2)
+                .queryParam("start", 3).queryParam("limit", limit)
                 .request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(6); // 3 (start) + 2 (limit) + 1 (for FE)
-        assertThat(model.<List>get("$.slaveDevices")).hasSize(2);
+        assertThat(model.<List>get("$.slaveDevices")).hasSize(limit);
         assertThat(model.<String>get("$.slaveDevices[0].mRID")).isEqualTo("slave4");
         assertThat(model.<String>get("$.slaveDevices[1].mRID")).isEqualTo("slave5");
     }
 
     @Test
     public void testGetCommunicationTopologyPagingBigStart() {
-        mockTopologyTimeline();
+        int limit = 2;
+        mockTopologyTimeline(limit);
         String response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 1000).queryParam("limit", 2)
+                .queryParam("start", 1000).queryParam("limit", limit)
                 .request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(1000); // 1000 (start) + 0 (limit) + 0 (for FE: no additional pages)
@@ -1071,9 +1074,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testGetCommunicationTopologyPagingBigEnd() {
         when(clock.instant()).thenReturn(NOW);
-        mockTopologyTimeline();
+        int limit = 1000;
+        mockTopologyTimeline(limit);
         String response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 6).queryParam("limit", 1000)
+                .queryParam("start", 6).queryParam("limit", limit)
                 .request().get(String.class);
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(7);
@@ -1083,7 +1087,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testGetCommunicationTopologyNoPaging() {
         when(clock.instant()).thenReturn(NOW);
-        mockTopologyTimeline();
+        mockTopologyTimeline(Integer.MAX_VALUE);
         String response = target("/devices/gateway/topology/communication")
                 .request().get(String.class);
         JsonModel model = JsonModel.create(response);
@@ -1091,7 +1095,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(model.<List>get("$.slaveDevices")).hasSize(7);
     }
 
-    private void mockTopologyTimeline() {
+    private void mockTopologyTimeline(int limit) {
         Device gateway = mockDeviceForTopologyTest("gateway");
         Device slave1 = mockDeviceForTopologyTest("slave1", gateway);
         Device slave2 = mockDeviceForTopologyTest("slave2", gateway);
@@ -1117,6 +1121,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPhysicalTopologyTimelineAdditions(gateway, limit)).thenReturn(topologyTimeline);
     }
 
     @Test
@@ -1128,6 +1133,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(slave2.getSerialNumber()).thenReturn(null);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
 
+        int limit = 10;
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
 
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
@@ -1139,46 +1145,47 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPhysicalTopologyTimelineAdditions(gateway, limit)).thenReturn(topologyTimeline);
 
 
         Map<?, ?> response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"%\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"Simple%Mrid\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"Simple?Mrid\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(0);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"1234*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"*789\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"mrid\",\"value\":\"%34*7?9\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
@@ -1193,6 +1200,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
+        int limit = 10;
 
         DeviceTopology deviceTopology = mock(DeviceTopology.class);
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
@@ -1205,46 +1213,47 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
         when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
+        when(topologyService.getPhysicalTopologyTimelineAdditions(gateway, limit)).thenReturn(topologyTimeline);
 
 
         Map<?, ?> response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"%\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"D(E%\\\\Q\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(0);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"123456?89\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"1234*\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"*789\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
 
         response = target("/devices/gateway/topology/communication")
-                .queryParam("start", 0).queryParam("limit", 10)
+                .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"%34*7?9\"}]", "UTF-8"))
                 .request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
