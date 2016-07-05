@@ -52,6 +52,26 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
                     .mapToLong(Long::longValue)
                     .sum();
 
+            /*List<DataValidationStatus> yy = device.get()
+                    .getRegisters()
+                    .stream()
+                    .map(reg -> (device.get()
+                                    .forValidation()
+                                    .getValidationStatus(reg, Collections.emptyList(), Range.all())
+                                    .stream())
+                                    .filter(s -> (s.getReadingQualities()
+                                            .stream()
+                                            .anyMatch(q -> q.getType()
+                                                    .qualityIndex()
+                                                    .orElse(QualityCodeIndex.DATAVALID)
+                                                    .equals(QualityCodeIndex.SUSPECT))))
+                                    .collect(Collectors.toList())
+//                            .map(DataValidationStatus::getReadingTimestamp)
+//                            .mapToLong(Instant::getEpochSecond)
+//                            .max()
+//                            .getAsLong()
+                    ).flatMap(Collection::stream).collect(Collectors.toList());*/
+
             return new BigDecimal(registerSuspects);
         }
         return new BigDecimal(0);
