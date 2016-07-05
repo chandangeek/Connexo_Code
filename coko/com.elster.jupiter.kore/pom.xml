@@ -297,7 +297,6 @@
                 <module>../com.elster.jupiter.metering.groups</module>
                 <module>../com.elster.jupiter.metering.imports</module>
                 <module>../com.elster.jupiter.metering.rest</module>
-                <module>../com.elster.jupiter.metering.rest.demo</module>
                 <module>../com.elster.jupiter.metering.extjs</module>
                 <module>../com.elster.jupiter.parties</module>
                 <module>../com.elster.jupiter.parties.rest</module>
@@ -319,6 +318,8 @@
             <modules>
                 <module>../com.elster.jupiter.gogo</module>
                 <module>../com.elster.jupiter.metering.cps</module>
+                <module>../com.elster.jupiter.webservices.inbound.rest.demo</module>
+                <module>../com.elster.jupiter.webservices.outbound.rest.demo</module>
             </modules>
         </profile>
     </profiles>
