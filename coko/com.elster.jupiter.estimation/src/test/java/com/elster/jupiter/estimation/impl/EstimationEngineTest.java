@@ -15,7 +15,7 @@ import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 
@@ -72,7 +72,7 @@ public class EstimationEngineTest {
     @Mock
     private CimChannel cimChannel1;
     @Mock
-    private ReadingQualityWithTypeFilter filter;
+    private ReadingQualityWithTypeFetcher fetcher;
 
     @Before
     public void setUp() {
@@ -99,11 +99,11 @@ public class EstimationEngineTest {
         when(baseReadingRecord5.getTimeStamp()).thenReturn(first.plusHours(4).toInstant());
         when(channel1.getNextDateTime(any())).thenAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofHours(1)));
         when(channel1.getCimChannel(readingType)).thenReturn(Optional.of(cimChannel1));
-        when(channel1.findReadingQualities()).thenReturn(filter);
-        when(cimChannel1.findReadingQualities()).thenReturn(filter);
-        when(filter.ofQualitySystems(anySetOf(QualityCodeSystem.class))).thenReturn(filter);
-        when(filter.ofQualityIndex(any(QualityCodeIndex.class))).thenReturn(filter);
-        when(filter.inTimeInterval(Range.all())).thenReturn(filter);
+        when(channel1.findReadingQualities()).thenReturn(fetcher);
+        when(cimChannel1.findReadingQualities()).thenReturn(fetcher);
+        when(fetcher.ofQualitySystems(anySetOf(QualityCodeSystem.class))).thenReturn(fetcher);
+        when(fetcher.ofQualityIndex(any(QualityCodeIndex.class))).thenReturn(fetcher);
+        when(fetcher.inTimeInterval(Range.all())).thenReturn(fetcher);
     }
 
     @After
@@ -115,17 +115,17 @@ public class EstimationEngineTest {
         List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
         assertThat(blocksToEstimate).isEmpty();
         verify(cimChannel1).findReadingQualities();
-        verify(filter, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
+        verify(fetcher, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
                 .ofQualitySystems(Collections.singleton(QualityCodeSystem.MDC));
-        verify(filter, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
+        verify(fetcher, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
                 .ofQualityIndex(QualityCodeIndex.SUSPECT);
-        verify(filter, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
+        verify(fetcher, MockitoExtension.and(atLeastOnce(), MockitoExtension.neverWithOtherArguments()))
                 .inTimeInterval(Range.all());
     }
 
     @Test
     public void testFindBlocksWhenThereIsOneSuspectForMissing() {
-        when(filter.collect()).thenReturn(Collections.singletonList(readingQualityRecord2));
+        when(fetcher.collect()).thenReturn(Collections.singletonList(readingQualityRecord2));
         when(readingQualityRecord2.getBaseReadingRecord()).thenReturn(Optional.empty());
 
         List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
@@ -144,7 +144,7 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereIsOneSuspectForReading() {
-        when(filter.collect()).thenReturn(Collections.singletonList(readingQualityRecord2));
+        when(fetcher.collect()).thenReturn(Collections.singletonList(readingQualityRecord2));
 
         List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
 
@@ -162,7 +162,7 @@ public class EstimationEngineTest {
 
     @Test
     public void testFindBlocksWhenThereIsOneBlockOfSuspectForReading() {
-        when(filter.collect()).thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
+        when(fetcher.collect()).thenReturn(Arrays.asList(readingQualityRecord2, readingQualityRecord3, readingQualityRecord4));
 
         List<EstimationBlock> blocksToEstimate = new EstimationEngine().findBlocksToEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), readingType);
 

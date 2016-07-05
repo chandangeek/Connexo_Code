@@ -29,7 +29,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
@@ -54,7 +54,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -80,7 +79,6 @@ import static org.mockito.Mockito.when;
 public class EstimationServiceImplTest {
     private static final Logger LOGGER = Logger.getLogger(EstimationServiceImplTest.class.getName());
 
-    private static final Set<QualityCodeSystem> MDC_SET = Collections.singleton(QualityCodeSystem.MDC);
     private final ReadingQualityType readingQualityType1 = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1);
     private final ReadingQualityType readingQualityType2 = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2);
     private EstimationServiceImpl estimationService;
@@ -148,9 +146,9 @@ public class EstimationServiceImplTest {
     @Mock
     private UpgradeService upgradeService;
     @Mock
-    private ReadingQualityWithTypeFilter filter;
+    private ReadingQualityWithTypeFetcher fetcher;
     @Mock
-    private ReadingQualityWithTypeFilter emptyFilter;
+    private ReadingQualityWithTypeFetcher emptyFetcher;
 
     private LogRecorder logRecorder;
 
@@ -198,19 +196,19 @@ public class EstimationServiceImplTest {
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         doReturn(true).when(channel).isRegular();
         List<ReadingQualityRecord> readingQualityRecords = readingQualities();
-        doReturn(filter).when(channel).findReadingQualities();
-        doReturn(filter).when(filter).ofQualitySystems(Collections.singleton(QualityCodeSystem.MDC));
-        doReturn(emptyFilter).when(filter).ofQualitySystems(Collections.singleton(QualityCodeSystem.MDM));
-        doReturn(filter).when(filter).ofQualityIndex(any(QualityCodeIndex.class));
-        doReturn(emptyFilter).when(emptyFilter).ofQualityIndex(any(QualityCodeIndex.class));
-        doReturn(filter).when(filter).inTimeInterval(Range.all());
-        doReturn(emptyFilter).when(emptyFilter).inTimeInterval(Range.all());
-        doReturn(readingQualityRecords).when(filter).collect();
-        doReturn(Collections.emptyList()).when(emptyFilter).collect();
+        doReturn(fetcher).when(channel).findReadingQualities();
+        doReturn(fetcher).when(fetcher).ofQualitySystems(Collections.singleton(QualityCodeSystem.MDC));
+        doReturn(emptyFetcher).when(fetcher).ofQualitySystems(Collections.singleton(QualityCodeSystem.MDM));
+        doReturn(fetcher).when(fetcher).ofQualityIndex(any(QualityCodeIndex.class));
+        doReturn(emptyFetcher).when(emptyFetcher).ofQualityIndex(any(QualityCodeIndex.class));
+        doReturn(fetcher).when(fetcher).inTimeInterval(Range.all());
+        doReturn(emptyFetcher).when(emptyFetcher).inTimeInterval(Range.all());
+        doReturn(readingQualityRecords).when(fetcher).collect();
+        doReturn(Collections.emptyList()).when(emptyFetcher).collect();
         doReturn(Optional.of(cimChannel1)).when(channel).getCimChannel(readingType1);
         doReturn(Optional.of(cimChannel2)).when(channel).getCimChannel(readingType2);
-        doReturn(filter).when(cimChannel1).findReadingQualities();
-        doReturn(filter).when(cimChannel2).findReadingQualities();
+        doReturn(fetcher).when(cimChannel1).findReadingQualities();
+        doReturn(fetcher).when(cimChannel2).findReadingQualities();
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofMinutes(15))).when(channel).getNextDateTime(any());
         doReturn(estimator1).when(rule1).createNewEstimator();
         doReturn(estimator2).when(rule2).createNewEstimator();
