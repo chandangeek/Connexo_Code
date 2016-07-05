@@ -1,12 +1,16 @@
 package com.energyict.mdc.device.data.impl.ami;
 
 
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
@@ -14,8 +18,11 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -25,9 +32,15 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -37,14 +50,17 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.RegistersTask;
 
 import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -62,6 +78,8 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockingDetails;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -209,5 +227,50 @@ public class MultisenseHeadEndInterfaceTest {
         // Asserts
         verify(comTaskExecution).addNewComTaskExecutionTrigger(messageReleaseDate);
         verify(comTaskExecution).updateNextExecutionTimestamp();
+    }
+
+    @Test
+    public void readMeterTest() throws Exception {
+
+        ReadingType readingType = mock(ReadingType.class);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
+        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        RegistersTask registersTask = mock(RegistersTask.class);
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.getProtocolTasks()).thenReturn(Collections.singletonList(registersTask));
+
+        Meter meter = mock(Meter.class);
+        when(deviceService.findByUniqueMrid(any())).thenReturn(Optional.of(device));
+
+        RegisteredCustomPropertySet registredReadSet = mock(RegisteredCustomPropertySet.class);
+        OnDemandReadServiceCallCustomPropertySet readSet = mock(OnDemandReadServiceCallCustomPropertySet.class);
+        when(registredReadSet.getCustomPropertySet()).thenReturn(readSet);
+        when(readSet.getId()).thenReturn(OnDemandReadServiceCallDomainExtension.class.getName());
+        when(readSet.getName()).thenReturn(OnDemandReadServiceCallCustomPropertySet.class.getSimpleName());
+        RegisteredCustomPropertySet registredCompletionSet = mock(RegisteredCustomPropertySet.class);
+        CompletionOptionsCustomPropertySet completionSet = mock(CompletionOptionsCustomPropertySet.class);
+        when(registredCompletionSet.getCustomPropertySet()).thenReturn(completionSet);
+        when(completionSet.getId()).thenReturn(CompletionOptionsServiceCallDomainExtension.class.getName());
+        when(completionSet.getName()).thenReturn(CompletionOptionsCustomPropertySet.class.getSimpleName());
+        when(customPropertySetService.findActiveCustomPropertySets(any())).thenReturn(Arrays.asList(registredReadSet,registredCompletionSet));
+
+        ServiceCallType serviceCallType = mock(ServiceCallType.class);
+        when(serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION))
+                .thenReturn(Optional.of(serviceCallType));
+        ServiceCallBuilder builder = mock(ServiceCallBuilder.class);
+        when(builder.origin(anyString())).thenReturn(builder);
+        when(builder.extendedWith(any())).thenReturn(builder);
+        when(builder.targetObject(any(Device.class))).thenReturn(builder);
+        when(builder.create()).thenReturn(serviceCall);
+        when(serviceCallType.newServiceCall()).thenReturn(builder);
+
+
+        List<ReadingType> readingTypes = Collections.singletonList(readingType);
+
+        // Business method
+        headEndInterface.readMeter(meter,readingTypes);
+
+        // Asserts
+        verify(serviceCall, times(1)).requestTransition(DefaultState.PENDING);
     }
 }

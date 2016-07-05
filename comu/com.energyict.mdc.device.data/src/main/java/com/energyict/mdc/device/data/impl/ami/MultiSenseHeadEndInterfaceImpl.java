@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data.impl.ami;
 
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -19,7 +22,9 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -32,14 +37,21 @@ import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.RegistersTask;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -47,12 +59,14 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -182,22 +196,132 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     @Override
     public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant) {
-        return null;
+        Device multiSenseDevice = findDeviceForEndDevice(meter);
+        Set<ComTaskExecution> comTaskExecutions = getComTaskExecutions(multiSenseDevice, readingTypes);
+
+        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size(), Optional.empty());
+        serviceCall.requestTransition(DefaultState.ONGOING);
+
+
+        comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
+
+        return new CompletionOptionsImpl(serviceCall);
     }
 
     @Override
-    public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall serviceCall) {
-        return null;
+    public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall parentServiceCall) {
+        Device multiSenseDevice = findDeviceForEndDevice(meter);
+        Set<ComTaskExecution> comTaskExecutions = getComTaskExecutions(multiSenseDevice, readingTypes);
+
+        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size(), Optional.of(parentServiceCall));
+        serviceCall.requestTransition(DefaultState.ONGOING);
+
+
+        comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
+
+        return new CompletionOptionsImpl(serviceCall);
     }
 
     @Override
     public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes) {
-        return null;
+        Device multiSenseDevice = findDeviceForEndDevice(meter);
+        Set<ComTaskExecution> comTaskExecutions = getComTaskExecutions(multiSenseDevice, readingTypes);
+
+        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size(), Optional.empty());
+        serviceCall.requestTransition(DefaultState.ONGOING);
+
+        comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, Instant.now()));
+
+        return new CompletionOptionsImpl(serviceCall);
     }
 
     @Override
-    public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes, ServiceCall serviceCall) {
-        return null;
+    public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes, ServiceCall parentServiceCall) {
+        Device multiSenseDevice = findDeviceForEndDevice(meter);
+        Set<ComTaskExecution> comTaskExecutions = getComTaskExecutions(multiSenseDevice, readingTypes);
+
+        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size(), Optional.of(parentServiceCall));
+        serviceCall.requestTransition(DefaultState.ONGOING);
+
+        comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, Instant.now()));
+
+        return new CompletionOptionsImpl(serviceCall);
+    }
+
+    private Set<ComTaskExecution> getComTaskExecutions(Device multiSenseDevice, List<ReadingType> readingTypes) {
+        Set<ComTaskExecution> comTaskExecutions = new HashSet<>();
+
+        for (ReadingType readingType : readingTypes) {
+            if (readingType.getMacroPeriod().equals(MacroPeriod.NOTAPPLICABLE) && readingType.getMeasuringPeriod()
+                    .equals(TimeAttribute.NOTAPPLICABLE)) {
+                multiSenseDevice.getComTaskExecutions().stream()
+                        .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
+                                .stream()
+                                .anyMatch(protocolTask -> protocolTask instanceof RegistersTask))
+                        .forEach(comTaskExecutions::add);
+            } else {
+                multiSenseDevice.getComTaskExecutions().stream()
+                        .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
+                                .stream()
+                                .anyMatch(protocolTask -> protocolTask instanceof LoadProfilesTask))
+                        .forEach(comTaskExecutions::add);
+            }
+        }
+
+        return comTaskExecutions;
+    }
+
+    private void scheduleComTaskExecution(ComTaskExecution comTaskExecution, Instant instant) {
+        comTaskExecution.addNewComTaskExecutionTrigger(instant);
+        comTaskExecution.updateNextExecutionTimestamp();
+    }
+
+
+    private ServiceCall getOnDemandReadServiceCall(Device device, int estimatedTasks, Optional<ServiceCall> parentServiceCall) {
+        CompletionOptionsServiceCallDomainExtension completionOptionsServiceCallDomainExtension = new CompletionOptionsServiceCallDomainExtension();
+        OnDemandReadServiceCallDomainExtension onDemandReadServiceCallDomainExtension = new OnDemandReadServiceCallDomainExtension();
+        onDemandReadServiceCallDomainExtension.setExpectedTasks(new BigDecimal(estimatedTasks));
+
+        ServiceCallType serviceCallType = getOnDemandReadServiceCallType();
+
+        ServiceCallBuilder serviceCallBuilder = parentServiceCall.isPresent() ? parentServiceCall.get()
+                .newChildCall(serviceCallType) : serviceCallType.newServiceCall();
+
+        ServiceCall serviceCall = serviceCallBuilder
+                .origin("PublicAPI")
+                .extendedWith(onDemandReadServiceCallDomainExtension)
+                .extendedWith(completionOptionsServiceCallDomainExtension)
+                .targetObject(device)
+                .create();
+        serviceCall.requestTransition(DefaultState.PENDING);
+        return serviceCall;
+    }
+
+    private ServiceCallType getOnDemandReadServiceCallType() {
+        RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
+                .stream()
+                .filter(cps -> cps.getCustomPropertySet()
+                        .getId()
+                        .equals(OnDemandReadServiceCallDomainExtension.class.getName()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", OnDemandReadServiceCallCustomPropertySet.class
+                        .getSimpleName())));
+        RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
+                .stream()
+                .filter(cps -> cps.getCustomPropertySet()
+                        .getName()
+                        .equals(CompletionOptionsCustomPropertySet.class.getSimpleName()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", CompletionOptionsCustomPropertySet.class
+                        .getSimpleName())));
+
+
+        return serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
+                .orElseGet(() -> serviceCallService.createServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
+                        .handler(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
+                        .customPropertySet(customPropertySet)
+                        .customPropertySet(completionOptionsCustomPropertySet)
+                        .create());
     }
 
     @Override

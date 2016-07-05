@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
@@ -169,6 +170,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         this.createMessageHandler(defaultQueueTableSpec, SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION, ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_DESTINATION, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER);
+        setConnectionTaskSubscriber();
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String messagingName) {
@@ -190,6 +192,15 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 destinationSpecOptional.get().activate();
                 destinationSpecOptional.get().subscribe(subscriberName);
             }
+        }
+    }
+
+    private void setConnectionTaskSubscriber() {
+        DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
+        try {
+            destinationSpec.subscribe("ConnectionTaskHandler", whereCorrelationId().like("com/energyict/mdc/connectiontask/%"));
+        } catch (DuplicateSubscriberNameException e) {
+            // subscriber already exists, ignoring
         }
     }
 
