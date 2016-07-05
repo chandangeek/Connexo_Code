@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfigChangeAction;
+import com.energyict.mdc.device.config.DeviceConfigChangeActionType;
+import com.energyict.mdc.device.config.DeviceConfigChangeEngine;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 
 import java.util.List;
@@ -29,9 +33,9 @@ public class ComTaskExecutionConfigChangeItem extends AbstractConfigChangeItem {
 
         final List<DeviceConfigChangeAction<ComTaskEnablement>> actionsToRemove = comTaskActions.stream().filter(actionTypeIs(DeviceConfigChangeActionType.REMOVE)).collect(Collectors.toList());
         final List<ComTaskExecution> comTaskExecutionsToRemove = device.getComTaskExecutions().stream().filter(comTaskExecution ->
-                comTaskExecution.getComTasks().stream().filter(comTask ->
-                        actionsToRemove.stream().filter(actionToRemove ->
-                                actionToRemove.getOrigin().getComTask().getId() == comTask.getId()).findFirst().isPresent()).findFirst().isPresent()).collect(Collectors.toList());
+                comTaskExecution.getComTasks().stream().anyMatch(comTask ->
+                        actionsToRemove.stream().anyMatch(actionToRemove ->
+                                actionToRemove.getOrigin().getComTask().getId() == comTask.getId()))).collect(Collectors.toList());
 
         comTaskExecutionsToRemove.stream().forEach(device::removeComTaskExecution);
     }

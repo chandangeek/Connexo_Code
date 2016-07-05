@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -191,22 +190,19 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
     @Override
     public RegisterDataUpdater startEditingData() {
-        return new RegisterDataUpdaterImpl(this, QualityCodeSystem.MDC, Collections.singleton(QualityCodeSystem.MDC));
+        return new RegisterDataUpdaterImpl(this);
     }
 
     private class RegisterDataUpdaterImpl implements RegisterDataUpdater {
         private final RegisterImpl<R, RS> register;
-        private final QualityCodeSystem handlingSystem;
-        private final Set<QualityCodeSystem> controlledSystems;
+        private final QualityCodeSystem handlingSystem = QualityCodeSystem.MDC;
         private final List<BaseReading> edited = new ArrayList<>();
         private final List<BaseReading> confirmed = new ArrayList<>();
         private final Map<Channel, List<BaseReadingRecord>> obsolete = new HashMap<>();
         private Optional<Instant> activationDate = Optional.empty();
 
-        private RegisterDataUpdaterImpl(RegisterImpl<R, RS> register, QualityCodeSystem handlingSystem, Set<QualityCodeSystem> controlledSystems) {
+        private RegisterDataUpdaterImpl(RegisterImpl<R, RS> register) {
             this.register = register;
-            this.handlingSystem = handlingSystem;
-            this.controlledSystems = controlledSystems;
         }
 
         @Override
@@ -257,7 +253,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         private void confirm(BaseReading reading) {
             this.register.device
                     .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
-                    .confirmReadings(handlingSystem, controlledSystems, Collections.singletonList(reading));
+                    .confirmReadings(handlingSystem, Collections.singletonList(reading));
         }
     }
 

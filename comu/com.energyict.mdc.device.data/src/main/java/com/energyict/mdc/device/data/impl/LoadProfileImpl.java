@@ -396,7 +396,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
                                 bulkCimChannel.editReadings(QualityCodeSystem.MDC, this.editedBulk)));
             });
             groupReadingsByKoreChannel(this.confirmed).entrySet().forEach(entry ->
-                    entry.getKey().confirmReadings(QualityCodeSystem.MDC, Collections.singleton(QualityCodeSystem.MDC), entry.getValue()));
+                    entry.getKey().confirmReadings(QualityCodeSystem.MDC, entry.getValue()));
             this.removed.forEach(instant ->
                     LoadProfileImpl.this.device.get().findKoreChannel(channel, instant).ifPresent(koreChannel ->
                             koreChannel.getReading(instant).ifPresent(reading ->
