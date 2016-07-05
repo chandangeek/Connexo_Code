@@ -6,10 +6,13 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.PrivilegeInfo;
 
-import java.util.*;
-
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 public class UpdateMembership {
     final GroupInfo info;
@@ -43,11 +46,9 @@ public class UpdateMembership {
     Group doUpdateEmpty(Group group, List<PrivilegeInfo> privileges) {
         Map<String, List<Privilege>> current = group.getPrivileges();
         current.entrySet().stream().
-                filter(p -> !privileges.stream().
-                        map(PrivilegeInfo::getApplicationName)
-                        .filter(p.getKey()::equals)
-                        .findFirst()
-                        .isPresent())
+                filter(p -> privileges.stream()
+                        .map(PrivilegeInfo::getApplicationName)
+                        .noneMatch(p.getKey()::equals))
                 .forEach(p -> p.getValue()
                         .forEach(pp -> group.revoke(p.getKey(), pp)));
 
