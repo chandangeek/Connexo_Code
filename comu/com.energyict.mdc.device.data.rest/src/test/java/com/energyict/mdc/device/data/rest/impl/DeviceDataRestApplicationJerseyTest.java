@@ -171,6 +171,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     CalendarInfoFactory calendarInfoFactory;
     @Mock
     CalendarService calendarService;
+
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
 

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,6 +53,7 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String location;
     public LocationInfo locationInfo;
     public String geoCoordinates;
+    public Instant shipmentDate;
 
     public DeviceInfo() {
     }
@@ -106,6 +108,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         if (location != null) {
             deviceInfo.location = location;
         }
+        deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
         return deviceInfo;
     }
 
@@ -123,6 +126,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         deviceInfo.location = location;
         deviceInfo.geoCoordinates = geoCoordinates;
+        deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
         return deviceInfo;
     }
 
@@ -138,6 +142,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
         deviceInfo.version = device.getVersion();
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
         return deviceInfo;
     }
 }

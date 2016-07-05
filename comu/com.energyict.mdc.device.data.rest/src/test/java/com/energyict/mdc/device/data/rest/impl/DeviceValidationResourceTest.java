@@ -20,6 +20,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
@@ -107,7 +108,8 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     private DeviceType deviceType;
     @Mock
     private DeviceConfiguration deviceConfiguration;
-
+    @Mock
+    private CIMLifecycleDates cimLifecycleDates;
 
     @Before
     public void setUp1() {
@@ -121,8 +123,8 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(ch1.getDevice()).thenReturn(device);
         when(ch2.getDevice()).thenReturn(device);
         when(register1.getDevice()).thenReturn(device);
-
-
+        when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
+        when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.empty());
         doModelStubbing();
 
     }

@@ -9,6 +9,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -20,6 +21,7 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -36,15 +38,17 @@ public class DeviceMessageInfoFactory {
     private final Thesaurus thesaurus;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final ServiceCallService serviceCallService;
+    private final DeviceMessageService deviceMessageService;
 
     @Inject
-    public DeviceMessageInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils, ServiceCallService serviceCallService) {
+    public DeviceMessageInfoFactory(Thesaurus thesaurus, MdcPropertyUtils mdcPropertyUtils, ServiceCallService serviceCallService, DeviceMessageService deviceMessageService) {
         this.thesaurus = thesaurus;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.serviceCallService = serviceCallService;
+        this.deviceMessageService = deviceMessageService;
     }
 
-    public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage) {
+    public DeviceMessageInfo asInfo(DeviceMessage<?> deviceMessage, UriInfo uriInfo) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
         info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
@@ -70,27 +74,15 @@ public class DeviceMessageInfoFactory {
 
         Device device = (Device) deviceMessage.getDevice();
         if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus())) {
-            info.willBePickedUpByPlannedComTask = device.getComTaskExecutions().stream().
-                    filter(cte-> !cte.isOnHold()).
-                    flatMap(cte -> cte.getComTasks().stream()).
-                    flatMap(comTask -> comTask.getProtocolTasks().stream()).
-                    filter(task -> task instanceof MessagesTask).
-                    flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                    anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId());
+            info.willBePickedUpByPlannedComTask = this.deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, deviceMessage);
             if (info.willBePickedUpByPlannedComTask) {
                 info.willBePickedUpByComTask = true; // shortcut
             } else {
-                info.willBePickedUpByComTask = device.getDeviceConfiguration().
-                        getComTaskEnablements().stream().
-                        map(ComTaskEnablement::getComTask).
-                        flatMap(comTask -> comTask.getProtocolTasks().stream()).
-                        filter(task -> task instanceof MessagesTask).
-                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                        anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId());
+                info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
             }
         }
 
-        ComTask comTaskForDeviceMessage = getPreferredComTask(device, deviceMessage);
+        ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
 
         if (comTaskForDeviceMessage!=null) {
             info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
@@ -99,7 +91,7 @@ public class DeviceMessageInfoFactory {
 
         TypedProperties typedProperties = TypedProperties.empty();
         deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
-        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(null,
+        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
                 deviceMessage.getAttributes().stream().map(DeviceMessageAttribute::getSpecification).collect(toList()),
                 typedProperties,
                 info.properties
@@ -129,37 +121,6 @@ public class DeviceMessageInfoFactory {
         }
     }
 
-    private ComTask getPreferredComTask(Device device, DeviceMessage<?> deviceMessage) {
-        return device.getComTaskExecutions().stream().
-            filter(cte -> cte.isAdHoc() && cte.isOnHold()).
-            flatMap(cte -> cte.getComTasks().stream()).
-            filter(comTask -> comTask.getProtocolTasks().stream().
-                    filter(task -> task instanceof MessagesTask).
-                    flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                    anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).
-                findFirst(). // An adHoc comTask that has already been executed (nextExecTimestamp==null)
-            orElse(device.
-                getDeviceConfiguration().
-                getComTaskEnablements().stream().
-                map(ComTaskEnablement::getComTask).
-                filter(ct -> device.getComTaskExecutions().stream().
-                        flatMap(cte -> cte.getComTasks().stream()).
-                        noneMatch(comTask -> comTask.getId() == ct.getId())).
-                filter(comTask -> comTask.getProtocolTasks().stream().
-                        filter(task -> task instanceof MessagesTask).
-                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                        anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).
-                findFirst(). // A Dangling ComTask -> There is no ComTaskExecution yet but the enabled comTask supports the device message category
-            orElse(device.
-                getComTaskExecutions().stream().
-                sorted(Comparator.comparing(ComTaskExecution::isAdHoc).thenComparing(ComTaskExecution::isScheduledManually).thenComparing(ComTaskExecution::isOnHold).reversed()).
-                flatMap(cte -> cte.getComTasks().stream()).
-                filter(comTask -> comTask.getProtocolTasks().stream().
-                        filter(task -> task instanceof MessagesTask).
-                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                        anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId())).
-                findFirst().
-                orElse(null)));
-    }
+
 
 }

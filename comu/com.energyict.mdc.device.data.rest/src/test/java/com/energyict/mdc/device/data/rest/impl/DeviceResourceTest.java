@@ -4,25 +4,18 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.OverlapCalculatorBuilder;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.cps.ValuesRangeConflict;
-import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.cps.*;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.LocationTemplate;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.VersionInfo;
@@ -39,22 +32,9 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.ConnectionStrategy;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
-import com.energyict.mdc.device.data.CIMLifecycleDates;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -64,6 +44,8 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -72,10 +54,14 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -83,37 +69,18 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -129,6 +96,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     public void setupStubs() {
         readingType = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(readingType));
+        IssueType dataCollectionIssueType = mock(IssueType.class);
+        when(issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE)).thenReturn(Optional.of(dataCollectionIssueType));
+        IssueType dataValidationIssueType = mock(IssueType.class);
+        when(issueService.findIssueType(IssueDataValidationService.ISSUE_TYPE_NAME)).thenReturn(Optional.of(dataValidationIssueType));
+        Finder<OpenIssue> issueFinder = mock(Finder.class);
+        when(issueFinder.find()).thenReturn(Collections.emptyList());
+        when(issueService.findOpenIssuesForDevice(any(String.class))).thenReturn(issueFinder);
     }
 
     @Test
@@ -679,7 +653,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         final long startTime = 1388534400000L;
         long start = startTime;
         for (int i = 0; i < 2880; i++) {
-            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Ranges.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900))));
+            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Ranges.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900)), channel1, channel2));
             start += 900;
         }
         when(loadProfile3.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
@@ -697,7 +671,18 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .containsKey("interval")
                 .containsKey("channelData")
                 .containsKey("readingTime")
-                .containsKey("intervalFlags");
+                .containsKey("readingQualities");
+
+        Map<String, List<String>> readingQualitiesPerChannel = (Map<String, List<String>>) ((Map) data.get(0)).get("readingQualities");
+
+        List<String> readingQualitiesChannel1 = readingQualitiesPerChannel.get(String.valueOf(channel1.getId()));
+        assertThat(readingQualitiesChannel1).hasSize(1);
+        assertThat(readingQualitiesChannel1.get(0)).isEqualTo("RAM checksum error");
+
+        List<String> readingQualitiesChannel2 = readingQualitiesPerChannel.get(String.valueOf(channel2.getId()));
+        assertThat(readingQualitiesChannel2).hasSize(1);
+        assertThat(readingQualitiesChannel2.get(0)).isEqualTo("RAM checksum error");
+
         Map<String, Long> interval = (Map<String, Long>) ((Map) data.get(0)).get("interval");
         assertThat(interval.get("start")).isEqualTo(startTime);
         assertThat(interval.get("end")).isEqualTo(startTime + 900);
@@ -728,7 +713,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         final long startTime = 1388534400000L;
         long start = startTime;
         for (int i = 0; i < 2880; i++) {
-            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Ranges.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900))));
+            loadProfileReadings.add(mockLoadProfileReading(loadProfile3, Ranges.openClosed(Instant.ofEpochMilli(start), Instant.ofEpochMilli(start + 900)), channel1));
             start += 900;
         }
         when(channel1.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
@@ -746,7 +731,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .containsKey("interval")
                 .containsKey("value")
                 .containsKey("readingTime")
-                .containsKey("intervalFlags");
+                .containsKey("readingQualities");
+        assertThat(((List<String>) ((Map) data.get(0)).get("readingQualities")).get(0)).isEqualTo("RAM checksum error");
         Map<String, Long> interval = (Map<String, Long>) ((Map) data.get(0)).get("interval");
         assertThat(interval.get("start")).isEqualTo(startTime);
         assertThat(interval.get("end")).isEqualTo(startTime + 900);
@@ -867,7 +853,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
         when(device.getLogBooks()).thenReturn(Arrays.asList(logBook));
 
-        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22intervalStart%22,%22value%22:2%7D,%7B%22property%22:%22intervalEnd%22,%22value%22:1%7D]").request().get();
+        Response response = target("/devices/mrid/logbooks/1/data").queryParam("filter", "[%7B%22property%22:%22intervalStart%22,%22value%22:2%7D,%7B%22property%22:%22intervalEnd%22,%22value%22:1%7D]")
+                .request()
+                .get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -1379,11 +1367,19 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         return device;
     }
 
-    private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Range<Instant> interval) {
+    private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Range<Instant> interval, Channel... channels) {
         LoadProfileReading loadProfileReading = mock(LoadProfileReading.class);
         IntervalReadingRecord intervalReadingRecord = mock(IntervalReadingRecord.class);
         when(intervalReadingRecord.getValue()).thenReturn(BigDecimal.TEN);
-        when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.CORRUPTED));
+        ReadingQualityRecord readingQualityCorrupted = mockReadingQuality(ProtocolReadingQualities.CORRUPTED.getCimCode());
+
+        Map<Channel, List<ReadingQualityRecord>> readingQualitiesPerChannel = new HashMap<>();
+        for (Channel channel : channels) {
+            readingQualitiesPerChannel.put(channel, Arrays.asList(readingQualityCorrupted));
+        }
+
+        doReturn(readingQualitiesPerChannel).when(loadProfileReading).getReadingQualities();
+
         when(loadProfileReading.getReadingTime()).thenReturn(Instant.now());
         when(loadProfileReading.getRange()).thenReturn(interval);
         Map<Channel, IntervalReadingRecord> map = new HashMap<>();
@@ -1392,6 +1388,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         }
         when(loadProfileReading.getChannelValues()).thenReturn(map);
         return loadProfileReading;
+    }
+
+    private ReadingQualityRecord mockReadingQuality(String code) {
+        ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
+        ReadingQualityType readingQualityType = new ReadingQualityType(code);
+        when(readingQuality.getType()).thenReturn(readingQualityType);
+        when(readingQuality.isActual()).thenReturn(true);
+        return readingQuality;
     }
 
     private Channel mockChannel(String name, String mrid, long id) {
@@ -1778,4 +1782,33 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
+
+    @Test
+    public void createWithShipmentDateTest() {
+        long deviceConfigId = 12L;
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfigurationService.findDeviceConfiguration(deviceConfigId)).thenReturn(Optional.of(deviceConfiguration));
+        Device device = mock(Device.class, RETURNS_DEEP_STUBS);
+        when(batchService.findBatch(device)).thenReturn(Optional.empty());
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
+        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
+        when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
+        when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
+        String mrid = "mrid";
+        when(deviceService.newDevice(deviceConfiguration, mrid, mrid)).thenReturn(device);
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.mRID = mrid;
+        deviceInfo.deviceConfigurationId = deviceConfigId;
+        deviceInfo.serialNumber = "MySerialNumber";
+        deviceInfo.yearOfCertification = 1970;
+        Instant shipmentDate = Instant.ofEpochSecond(1467019262L);
+        deviceInfo.shipmentDate = shipmentDate;
+        when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.of(shipmentDate));
+        Response response = target("/devices/").request().post(Entity.json(deviceInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(cimLifecycleDates, times(1)).setReceivedDate(shipmentDate);
+    }
 }
