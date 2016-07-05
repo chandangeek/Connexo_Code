@@ -184,6 +184,9 @@ Ext.define('Cfg.controller.Validation', {
                 openInfoWindow: this.showSelectedReadingTypes,
                 showNoFoundPanel: this.showNoFoundPanel,
                 uncheckAll: this.uncheckAll
+            },
+            '#addRuleLink' : {
+                click: this.onAddRuleLinkClicked
             }
         });
     },
@@ -287,7 +290,7 @@ Ext.define('Cfg.controller.Validation', {
 
         record.readingTypes().add(arrReadingTypes);
 
-        me.getAddRule().setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
+        me.getAddRule().setLoading(true);
         record.getProxy().setUrl(router.arguments.ruleSetId, router.arguments.versionId);
         record.save({
             backUrl: me.returnLink
@@ -325,13 +328,20 @@ Ext.define('Cfg.controller.Validation', {
                 me.getAddRule().setLoading(false);
                 var json = Ext.decode(operation.response.responseText, true);
                 if (json && json.errors) {
+                    var readingQualitiesErrorSet = false;
                     Ext.Array.each(json.errors, function (item) {
                         if (item.id.indexOf("readingTypes") !== -1) {
                             form.down('#readingTypesForValidationRuleGridPanel').addCls('error-border');
                             form.down('#readingTypesErrorLabel').setText(item.msg);
                             form.down('#readingTypesErrorLabel').show();
                         }
+                        if (item.id.indexOf('readingQualities') !== -1 && !readingQualitiesErrorSet) {
+                            form.down('#readingQualitiesErrorLabel').setText(item.msg);
+                            form.down('#readingQualitiesErrorLabel').show();
+                            readingQualitiesErrorSet = true;
+                        }
                     });
+
                     form.getForm().markInvalid(json.errors);
                     formErrorsPanel.show();
                     me.validationRuleRecord = null;
@@ -485,16 +495,23 @@ Ext.define('Cfg.controller.Validation', {
 
     addRule: function (ruleSetId, versionId) {
         var me = this,
-            widget = Ext.widget('addRule', {
-                edit: false,
-                returnLink: me.returnLink || '#/administration/validation/rulesets/' + ruleSetId + '/versions'
-            }),
-            editRulePanel = me.getAddRule(),
+            router = me.getController('Uni.controller.history.Router'),
+            widget,
+            viewPort = Ext.ComponentQuery.query('viewport')[0],
+            editRulePanel,
             ruleSetsStore = Ext.create('Cfg.store.ValidationRuleSets'),
             readingTypesStore = me.getStore('ReadingTypesForRule'),
             model = Ext.create('Cfg.model.ValidationRule'),
             propertyForm,
             form;
+
+        readingTypesStore.removeAll();
+        widget = Ext.widget('addRule', {
+            edit: false,
+            returnLink: me.returnLink || '#/administration/validation/rulesets/' + ruleSetId + '/versions'
+        });
+        me.getApplication().fireEvent('changecontentevent', widget);
+        viewPort.setLoading(true);
 
         //refresh breadcrumb
         Cfg.model.ValidationRuleSet.load(ruleSetId, {
@@ -519,9 +536,9 @@ Ext.define('Cfg.controller.Validation', {
 
         me.getValidatorsStore().load({
             callback: function () {
+                viewPort.setLoading(false);
                 me.ruleSetId = ruleSetId;
-                me.getApplication().fireEvent('changecontentevent', widget);
-                readingTypesStore.removeAll();
+                editRulePanel = me.getAddRule();
 
                 if (me.validationRuleRecord) {
                     me.modelToForm(null, null, null, me.validationRuleRecord, false);
@@ -560,7 +577,7 @@ Ext.define('Cfg.controller.Validation', {
         }
         var values = form.getValues();
         record.set(values);
-        createEditRuleSetPanel.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
+        createEditRuleSetPanel.setLoading(true);
 
         record.save({
             backUrl: me.fromRuleSetOverview ? '#/administration/validation/rulesets/' + record.get('id') : '#/administration/validation/rulesets',
@@ -626,7 +643,7 @@ Ext.define('Cfg.controller.Validation', {
             formPanel = view.down('#newRuleSetForm'),
             form = formPanel.getForm(),
             ruleSet;
-        view.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
+        view.setLoading(true);
         ruleSetsStore.load({
             callback: function () {
                 view.setLoading(false);
@@ -836,7 +853,7 @@ Ext.define('Cfg.controller.Validation', {
         if (record) {
             loadRecordToForm(record);
         } else {
-            editRulePanel.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
+            editRulePanel.setLoading(true);
             rulesStore.load({
                 params: {
                     ruleSetId: ruleSetId,
@@ -912,9 +929,9 @@ Ext.define('Cfg.controller.Validation', {
         record.endEdit(true);
 
         if (!versionsGrid) {
-            view.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
+            view.setLoading(true);
         } else {
-            versionsGrid.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
+            versionsGrid.setLoading(true);
         }
 
         record.save({
@@ -981,7 +998,7 @@ Ext.define('Cfg.controller.Validation', {
             router = this.getController('Uni.controller.history.Router'),
             view = self.getRulePreviewContainer() || self.getRuleSetBrowsePanel() || self.getRuleOverview() || self.getVersionsContainer() || self.getRulePreviewContainerPanel();
 
-        view.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
+        view.setLoading(true);
 
         rule.getProxy().setUrl(rule.get('ruleSetVersion').ruleSet.id, rule.get('ruleSetVersionId'));
         rule.readingTypes().loadData([], false);
@@ -1266,7 +1283,7 @@ Ext.define('Cfg.controller.Validation', {
             view = me.getVersionsContainer() || me.getVersionOverview() || me.getRuleSetsGrid(),
             grid = me.getVersionsGrid();
 
-        view.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
+        view.setLoading(true);
 
         version.getProxy().setUrl(version.get('ruleSetId'), version.get('id'));
         version.destroy({
@@ -1416,7 +1433,7 @@ Ext.define('Cfg.controller.Validation', {
             id: router.arguments.ruleSetId
         });
 
-        me.getAddVersion().setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
+        me.getAddVersion().setLoading(true);
         record.getProxy().setUrl(router.arguments.ruleSetId, router.arguments.versionId, record.get('isClone'));
 
         record.save({
@@ -1549,5 +1566,11 @@ Ext.define('Cfg.controller.Validation', {
         var me = this,
             bulk = me.getAddReadingTypesBulk();
         bulk.getUncheckAllButton().fireEvent('click',bulk.getUncheckAllButton());
+    },
+
+    onAddRuleLinkClicked: function() {
+        if (!Ext.isEmpty(this.validationRuleRecord)) {
+            this.validationRuleRecord = null;
+        }
     }
 });
