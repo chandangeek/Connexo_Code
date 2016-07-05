@@ -66,6 +66,7 @@ public abstract class DataValidationEvent implements IssueEvent {
         DataValidationIssueFilter filter = new DataValidationIssueFilter();
         getEndDevice().ifPresent(filter::setDevice);
         filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
+        filter.addStatus(issueService.findStatus(IssueStatus.IN_PROGRESS).get());
         Optional<? extends IssueDataValidation> foundIssue = issueDataValidationService.findAllDataValidationIssues(filter).find().stream().findFirst();//It is going to be only zero or one open issue per device
         if (foundIssue.isPresent()) {
             return Optional.of((OpenIssue)foundIssue.get());
