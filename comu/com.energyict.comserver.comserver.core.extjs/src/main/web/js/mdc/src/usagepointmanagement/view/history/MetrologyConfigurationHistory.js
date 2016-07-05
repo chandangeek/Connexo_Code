@@ -1,6 +1,7 @@
 Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistory', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.metrology-configuration-history-tab',
+    itemId: 'metrology-configuration-history',
     router: null,
 
     requires: [
