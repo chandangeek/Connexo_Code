@@ -381,7 +381,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         foundMeter.setMRID(getmRID());
                     }
                     this.location.ifPresent(foundMeter::setLocation);
-                    this.geoCoordinates.ifPresent(foundMeter::setGeoCoordinates);
+                    this.spatialCoordinates.ifPresent(foundMeter::setSpatialCoordinates);
                     foundMeter.update();
                 });
             }
@@ -393,12 +393,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             Save.CREATE.save(dataModel, this);
             Meter meter = this.createKoreMeter();
-            if (this.location.isPresent()) {
-                meter.setLocation(location.get());
-            }
-            if (this.spatialCoordinates.isPresent()) {
-                meter.setSpatialCoordinates(spatialCoordinates.get());
-            }
+            this.location.ifPresent(meter::setLocation);
+            this.spatialCoordinates.ifPresent(meter::setSpatialCoordinates);
             this.createMeterConfiguration(meter, this.clock.instant(), false);
             this.saveNewDialectProperties();
             this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
