@@ -1,6 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.data.Device;
+
+import java.util.Optional;
 
 public class CoordinatesInfo {
 
@@ -15,7 +18,8 @@ public class CoordinatesInfo {
     }
 
     public CoordinatesInfo(Device device) {
-        device.getSpatialCoordinates().ifPresent(deviceGeoCoordinates -> {
+        Optional<SpatialCoordinates> coordinates = device.getSpatialCoordinates();
+        coordinates.ifPresent(deviceGeoCoordinates -> {
             coordinatesDisplay = deviceGeoCoordinates.toString();
             spatialCoordinates = String.format("%s:%s:%s", deviceGeoCoordinates.getLatitude().getValue().toString(),
                     deviceGeoCoordinates.getLongitude().getValue().toString(),
@@ -23,7 +27,7 @@ public class CoordinatesInfo {
         });
         device.getUsagePoint().ifPresent(usagePoint -> {
             usagePoint.getSpatialCoordinates().ifPresent(usagePointGeoCoordinates -> {
-                if ((spatialCoordinates != null) && (usagePointGeoCoordinates.equals(device.getSpatialCoordinates()))) {
+                if (spatialCoordinates != null && usagePointGeoCoordinates.equals(coordinates.get())) {
                     isInherited = true;
                 }
                 usagePointCoordinatesDisplay = usagePointGeoCoordinates.toString();

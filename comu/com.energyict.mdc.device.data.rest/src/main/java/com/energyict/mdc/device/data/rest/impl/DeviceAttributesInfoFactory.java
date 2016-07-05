@@ -80,7 +80,7 @@ public class DeviceAttributesInfoFactory {
         info.geoCoordinates.displayValue = coordinatesInfo;
         fillAvailableAndEditable(info.geoCoordinates, DeviceAttribute.GEOCOORDINATES, state);
 
-        EditLocationInfo editLocationInfo = new EditLocationInfo(thesaurus, device);
+        EditLocationInfo editLocationInfo = new EditLocationInfo(meteringService, locationService, thesaurus, device);
         info.location = new DeviceAttributeInfo<>();
         info.location.displayValue = editLocationInfo;
         fillAvailableAndEditable(info.location, DeviceAttribute.LOCATION, state);
