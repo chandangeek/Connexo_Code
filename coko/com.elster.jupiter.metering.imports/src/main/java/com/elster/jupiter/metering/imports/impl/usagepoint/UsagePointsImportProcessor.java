@@ -201,7 +201,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                     .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
 
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData.get(ranking.get("locale")));
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking.get("locale")));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), data, ranking);
             } else {
