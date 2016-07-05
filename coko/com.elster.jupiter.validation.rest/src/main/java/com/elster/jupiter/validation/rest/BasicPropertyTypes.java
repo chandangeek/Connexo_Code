@@ -1,12 +1,6 @@
 package com.elster.jupiter.validation.rest;
 
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.ListValueFactory;
-import com.elster.jupiter.properties.RelativePeriodFactory;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ThreeStateFactory;
-import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.*;
 import com.elster.jupiter.rest.util.properties.PropertyType;
 
 public enum BasicPropertyTypes implements PropertyType {
@@ -15,6 +9,7 @@ public enum BasicPropertyTypes implements PropertyType {
     NULLABLE_BOOLEAN(ThreeStateFactory.class),
     BOOLEAN(BooleanFactory.class),
     TEXT(StringFactory.class),
+    LISTREADINGQUALITY(ListReadingQualityFactory.class),
     LISTVALUE(ListValueFactory.class),
     RELATIVEPERIOD(RelativePeriodFactory.class);
 
