@@ -27,7 +27,6 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -158,7 +157,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         return readingType;
     }
 
-    public MetrologyConfiguration mockMetrologyConfiguration(long id, String name) {
+    public UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name) {
         UsagePointMetrologyConfiguration mock = mock(UsagePointMetrologyConfiguration.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
