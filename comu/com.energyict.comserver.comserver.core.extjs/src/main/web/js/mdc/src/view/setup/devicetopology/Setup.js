@@ -132,7 +132,7 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                         itemId: 'mdc-topology-remove-master-btn',
                         margins: '7 0 0 0',
                         ui: 'blank',
-                        text: '<span class="icon-minus-circle2" style="display:inline-block; font-size:16px;"></span>',
+                        text: '<span class="icon-cancel-circle2" style="display:inline-block; font-size:16px;"></span>',
                         tooltip: Uni.I18n.translate('deviceCommunicationTopology.removeMaster.tooltip', 'MDC', 'Remove master'),
                         hidden: Ext.isEmpty(me.device.get('masterDevicemRID'))
                     }
@@ -156,8 +156,8 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                 queryMode: 'remote',
                 queryParam: 'search',
                 queryCaching: false,
-                minChars: 0,
-                forceSelection: true,
+                minChars: 1,
+                forceSelection: false,
                 width: 250,
                 emptyText: Uni.I18n.translate('general.selectMaster', 'MDC', 'Start typing to select a master...'),
                 msgTarget: 'under',
@@ -176,6 +176,7 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
                     {
                         xtype: 'button',
                         itemId: 'mdc-topology-edit-master-save-btn',
+                        ui: 'action',
                         text: Uni.I18n.translate('general.save', 'MDC', 'Save')
                     },
                     {
@@ -188,14 +189,17 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
             }
         );
         me.setLoading(true);
-        var masterStore = masterContainer.down('#mdc-topology-masterCandidatesCombo').getStore();
+        var combo = masterContainer.down('#mdc-topology-masterCandidatesCombo'),
+            masterStore = combo.getStore();
         masterStore.getProxy().setExtraParam('excludeDeviceMRID', me.device.get('mRID'));
         masterStore.load({
             callback: function () {
                 if (me.device.get('masterDeviceId')) {
-                    masterContainer.down('#mdc-topology-masterCandidatesCombo').setValue(me.device.get('masterDeviceId'));
+                    combo.setValue(me.device.get('masterDeviceId'));
                 }
                 me.setLoading(false);
+                combo.focus();
+                combo.selectText();
             }
         });
     },
@@ -218,60 +222,5 @@ Ext.define('Mdc.view.setup.devicetopology.Setup', {
         picker.on('beforehide', function () {
             picker.un('refresh', fn);
         }, combo, {single: true});
-    },
-
-    applyMasterDevice: function () {
-        var me = this,
-            masterCombo = me.down('#mdc-topology-masterCandidatesCombo');
-        if (me.device && !Ext.isEmpty(masterCombo.getValue())) {
-            this.updateDevice(
-                {
-                    masterDeviceId: masterCombo.getValue(),
-                    masterDevicemRID: masterCombo.getRawValue()
-                }
-            );
-        }
-    },
-
-    updateDevice: function (data) {
-        var me = this;
-
-        me.setLoading(true);
-        me.device.set('masterDeviceId', data.masterDeviceId);
-        me.device.set('masterDevicemRID', data.masterDevicemRID);
-        me.device.save({
-            isNotEdit: true,
-            success: function (deviceData) {
-                Ext.ModelManager.getModel('Mdc.model.Device').load(deviceData.get('mRID'), {
-                    success: function (device) {
-                        me.addMasterContainerViewItems();
-                    },
-                    callback: function () {
-                        me.setLoading(false);
-                    }
-                });
-            },
-            failure: function(record, operation) {
-                me.setLoading(false);
-            }
-        });
-    },
-
-    removeMasterDevice: function() {
-        var me = this;
-        Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('comTopologyWidget.removeMasterConfirmation.title', 'MDC', "Remove '{0}' as master device?", me.device.get('masterDevicemRID')),
-            msg: Uni.I18n.translate('comTopologyWidget.removeMasterConfirmation.message', 'MDC', "This device will no longer be the master of '{0}'", me.device.get('mRID'), false),
-            fn: function (action) {
-                if (action === 'confirm') {
-                    me.updateDevice(
-                        {
-                            masterDeviceId: null,
-                            masterDevicemRID: null
-                        }
-                    );
-                }
-            }
-        });
     }
 });
