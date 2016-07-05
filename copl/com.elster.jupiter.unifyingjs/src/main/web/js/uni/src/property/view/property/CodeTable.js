@@ -36,5 +36,14 @@ Ext.define('Uni.property.view.property.CodeTable', {
                 this.down('button').disable();
             }
         }
+    },
+
+    setValue: function (value) {
+        if(Ext.isEmpty(value) || Ext.isEmpty(value.name)) {
+            value = '-'
+        } else {
+            value = value.name
+        }
+        this.getDisplayField().setValue(value);
     }
 });
