@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -101,6 +102,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     private volatile UserService userService;
     private volatile TimeService timeService;
     private volatile UpgradeService upgradeService;
+    private volatile AppService appService;
 
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
 
@@ -184,6 +186,11 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     @Reference
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
+    }
+
+    @Reference
+    public void setAppService(AppService appService) {
+        this.appService = appService;
     }
 
     @Override
