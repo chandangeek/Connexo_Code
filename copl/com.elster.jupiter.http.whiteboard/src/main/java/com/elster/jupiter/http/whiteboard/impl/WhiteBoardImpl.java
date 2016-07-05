@@ -46,7 +46,7 @@ import java.util.logging.Logger;
         service = {Application.class, TranslationKeyProvider.class},
         property = {"alias=/apps", "name=HTW"},
         immediate = true)
-public class WhiteBoardImpl extends Application implements BinderProvider, TranslationKeyProvider {
+public final class WhiteBoardImpl extends Application implements BinderProvider, TranslationKeyProvider {
     static String COMPONENTNAME = "HTW";
 
     private volatile HttpService httpService;
