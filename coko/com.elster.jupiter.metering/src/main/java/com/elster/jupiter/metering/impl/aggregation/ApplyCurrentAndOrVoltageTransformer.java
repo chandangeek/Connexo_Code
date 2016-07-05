@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
@@ -28,11 +27,11 @@ import java.util.stream.Collectors;
 class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visitor<ServerExpressionNode> {
 
     private final MeteringService meteringService;
-    private final MeterActivation meterActivation;
+    private final MeterActivationSet meterActivationSet;
 
-    ApplyCurrentAndOrVoltageTransformer(MeteringService meteringService, MeterActivation meterActivation) {
+    ApplyCurrentAndOrVoltageTransformer(MeteringService meteringService, MeterActivationSet meterActivationSet) {
         this.meteringService = meteringService;
-        this.meterActivation = meterActivation;
+        this.meterActivationSet = meterActivationSet;
     }
 
     @Override
@@ -44,7 +43,7 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
                 .apply(new Context(
                         requirement,
                         this.meteringService,
-                        this.meterActivation));
+                        this.meterActivationSet));
     }
 
     private VirtualReadingType getTargetReadingType(VirtualRequirementNode requirementNode, ReadingType deliverableReadingType) {
@@ -73,6 +72,12 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     public ServerExpressionNode visitConstant(StringConstantNode constant) {
         // No replacement
         return constant;
+    }
+
+    @Override
+    public ServerExpressionNode visitProperty(CustomPropertyNode property) {
+        // No replacement
+        return property;
     }
 
     @Override
@@ -141,16 +146,16 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     private class Context {
         final VirtualRequirementNode node;
         final MeteringService meteringService;
-        final MeterActivation meterActivation;
+        final MeterActivationSet meterActivationSet;
 
-        private Context(VirtualRequirementNode node, MeteringService meteringService, MeterActivation meterActivation) {
+        private Context(VirtualRequirementNode node, MeteringService meteringService, MeterActivationSet meterActivationSet) {
             this.node = node;
             this.meteringService = meteringService;
-            this.meterActivation = meterActivation;
+            this.meterActivationSet = meterActivationSet;
         }
 
         Optional<BigDecimal> getMultiplier(MultiplierType.StandardType type) {
-            return this.meterActivation.getMultiplier(this.meteringService.getMultiplierType(type));
+            return this.meterActivationSet.getMultiplier(this.node.getRequirement(), this.meteringService.getMultiplierType(type));
         }
 
         ServerExpressionNode multiply(BigDecimal multiplier) {

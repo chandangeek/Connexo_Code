@@ -219,7 +219,7 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
 
     @Override
     public List<HeadEndInterface> getHeadEndInterfaces() {
-        return headEndInterfaces;
+        return Collections.unmodifiableList(this.headEndInterfaces);
     }
 
     @Override
@@ -227,7 +227,6 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
         return headEndInterfaces.stream()
                 .filter(itf -> itf.getAmrSystem().equalsIgnoreCase(amrSystem)).findFirst();
     }
-
 
     @Override
     public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {
@@ -340,6 +339,7 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
         return queryService.wrap(
                 dataModel.query(
                         UsagePoint.class,
+                        Location.class, LocationMember.class,
                         UsagePointDetail.class,
                         ServiceLocation.class,
                         MeterActivation.class,
@@ -361,11 +361,7 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
 
     @Override
     public Query<Meter> getMeterQuery() {
-        QueryExecutor<?> executor = dataModel.query(EndDevice.class,
-                MeterActivation.class,
-                UsagePoint.class,
-                ServiceLocation.class,
-                Channel.class);
+        QueryExecutor<?> executor = dataModel.query(EndDevice.class, Location.class, LocationMember.class, EndDeviceLifeCycleStatus.class);
         executor.setRestriction(Operator.EQUAL.compare("class", Meter.TYPE_IDENTIFIER));
         return queryService.wrap((QueryExecutor<Meter>) executor);
     }
@@ -514,13 +510,13 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
             }
         });
 
-        if (upgradeService.isInstalled(identifier(COMPONENTNAME), version(10, 2))) {
+        if (upgradeService.isInstalled(identifier("Pulse", COMPONENTNAME), version(10, 2))) {
             getLocationTemplateFromDB().ifPresent(template -> {
                 locationTemplate = template;
                 locationTemplateMembers = ImmutableList.copyOf((template.getTemplateMembers()));
             });
         }
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
     }

@@ -9,17 +9,14 @@ import com.elster.jupiter.util.units.Quantity;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 
-public class GasLoadLimitSearchableProperty extends LoadLimitSearchableProperty {
-
+class GasLoadLimitSearchableProperty extends LoadLimitSearchableProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private static final String FIELD_NAME = "detail.loadLimit";
-    private final String uniqueName = FIELD_NAME.concat(".").concat("serviceKind.gas");
-    ;
 
     @Inject
-    public GasLoadLimitSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    GasLoadLimitSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
@@ -27,11 +24,13 @@ public class GasLoadLimitSearchableProperty extends LoadLimitSearchableProperty 
 
     @Override
     public PropertySpec getSpecification() {
+        String uniqueName = FIELD_NAME + "." + "serviceKind.gas";
         return this.propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
-                .named(this.uniqueName, PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
+                .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 0, "m3/h"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 0, "m3/h"))
                 .finish();
     }
+
 }

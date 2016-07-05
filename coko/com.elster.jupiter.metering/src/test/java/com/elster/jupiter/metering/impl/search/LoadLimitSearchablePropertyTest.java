@@ -176,7 +176,7 @@ public class LoadLimitSearchablePropertyTest {
     @Test
     public void displayString() {
         LoadLimitSearchableProperty property = this.getTestInstance();
-        Quantity valueToDisplay = Quantity.create(new BigDecimal(0), 0, "Pa");
+        Quantity valueToDisplay = Quantity.create(BigDecimal.ZERO, 0, "Pa");
 
         // Business method
         String displayValue = property.toDisplay(valueToDisplay);

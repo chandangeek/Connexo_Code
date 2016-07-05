@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Function;
@@ -7,6 +8,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 class InvalidNodeException extends LocalizedException {
@@ -36,6 +38,36 @@ class InvalidNodeException extends LocalizedException {
                 readingType.getMRID() + " (" + readingType.getFullAliasName() + ")",
                 deliverable.getFormula().getExpressionNode().toString(),
                 deliverable.getName());
+    }
+
+    static InvalidNodeException customPropertyNotConfigured(Thesaurus thesaurus, PropertySpec propertySpec, CustomPropertySet customPropertySet) {
+        throw new InvalidNodeException(
+                thesaurus,
+                MessageSeeds.CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION,
+                propertySpec.getName(),
+                customPropertySet.getName());
+    }
+
+    static InvalidNodeException customPropertySetNotVersioned(Thesaurus thesaurus, CustomPropertySet customPropertySet) {
+        throw new InvalidNodeException(
+                thesaurus,
+                MessageSeeds.CUSTOM_PROPERTY_SET_NOT_VERSIONED,
+                customPropertySet.getName());
+    }
+
+    static InvalidNodeException customPropertySetNoLongerActive(Thesaurus thesaurus, CustomPropertySet customPropertySet) {
+        throw new InvalidNodeException(
+                thesaurus,
+                MessageSeeds.CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE,
+                customPropertySet.getName());
+    }
+
+    static InvalidNodeException customPropertyMustBeNumerical(Thesaurus thesaurus, CustomPropertySet customPropertySet, PropertySpec propertySpec) {
+        throw new InvalidNodeException(
+                thesaurus,
+                MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL,
+                propertySpec.getDisplayName(),
+                customPropertySet.getName());
     }
 
     private InvalidNodeException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {

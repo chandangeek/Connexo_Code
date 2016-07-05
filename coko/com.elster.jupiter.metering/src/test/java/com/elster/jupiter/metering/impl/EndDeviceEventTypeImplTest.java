@@ -10,7 +10,12 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+
 import com.google.common.collect.ImmutableList;
+
+import java.sql.SQLException;
+import java.util.Optional;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -18,14 +23,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.sql.SQLException;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceEventTypeImplTest extends EqualsContractTest {
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @BeforeClass
     public static void beforeClass() {

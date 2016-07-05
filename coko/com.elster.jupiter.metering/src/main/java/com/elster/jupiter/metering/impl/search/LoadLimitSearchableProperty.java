@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
+class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -32,7 +32,7 @@ public class LoadLimitSearchableProperty implements SearchableUsagePointProperty
     private String uniqueName;
 
     @Inject
-    public LoadLimitSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    LoadLimitSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -41,7 +41,7 @@ public class LoadLimitSearchableProperty implements SearchableUsagePointProperty
         this.domain = domain;
         this.group = group;
         this.clock = clock;
-        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
+        this.uniqueName = FIELD_NAME + "." + group.getId();
         return this;
     }
 
@@ -89,16 +89,17 @@ public class LoadLimitSearchableProperty implements SearchableUsagePointProperty
                 .specForValuesOf(new QuantityValueFactory())
                 .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_LOADLIMIT)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
-                        Quantity.create(new BigDecimal(0), 3, "W"),
-                        Quantity.create(new BigDecimal(0), 6, "W"),
-                        Quantity.create(new BigDecimal(0), 9, "W"),
-                        Quantity.create(new BigDecimal(0), 12, "W"),
-                        Quantity.create(new BigDecimal(0), 0, "VA"),
-                        Quantity.create(new BigDecimal(0), 3, "VA"),
-                        Quantity.create(new BigDecimal(0), 6, "VA"),
-                        Quantity.create(new BigDecimal(0), 9, "VA"),
-                        Quantity.create(new BigDecimal(0), 12, "VA"))
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "W"),
+                        Quantity.create(BigDecimal.ZERO, 3, "W"),
+                        Quantity.create(BigDecimal.ZERO, 6, "W"),
+                        Quantity.create(BigDecimal.ZERO, 9, "W"),
+                        Quantity.create(BigDecimal.ZERO, 12, "W"),
+                        Quantity.create(BigDecimal.ZERO, 0, "VA"),
+                        Quantity.create(BigDecimal.ZERO, 3, "VA"),
+                        Quantity.create(BigDecimal.ZERO, 6, "VA"),
+                        Quantity.create(BigDecimal.ZERO, 9, "VA"),
+                        Quantity.create(BigDecimal.ZERO, 12, "VA"))
                 .finish();
     }
 

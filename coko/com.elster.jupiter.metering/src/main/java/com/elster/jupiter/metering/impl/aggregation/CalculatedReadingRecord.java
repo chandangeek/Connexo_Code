@@ -101,6 +101,25 @@ class CalculatedReadingRecord implements BaseReadingRecord {
         }
     }
 
+    /**
+     * Returns a copy of this CalculatedReadingRecord for the specified timestamp.
+     *
+     * @param timeStamp The Timestamp
+     * @return The copied CalculatedReadingRecord that occurs on the specified timestamp
+     */
+    CalculatedReadingRecord atTimeStamp(Instant timeStamp) {
+        CalculatedReadingRecord record = new CalculatedReadingRecord();
+        record.usagePoint = this.usagePoint;
+        record.rawValue = this.rawValue;
+        record.readingTypeMRID = this.readingTypeMRID;
+        record.setReadingType(this.readingType);
+        record.localDate = new java.sql.Timestamp(timeStamp.toEpochMilli());
+        record.timestamp = timeStamp;
+        record.processStatus = this.processStatus;
+        record.count = 1;
+        return record;
+    }
+
     void setReadingType(IReadingType readingType) {
         if (!readingType.getMRID().equals(this.readingTypeMRID)) {
             throw new IllegalArgumentException("ReadingType mRID does not match, was expecting " + this.readingTypeMRID + " but got " + readingType.getMRID());
@@ -163,7 +182,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     }
 
     public Timestamp getLocalDate() {
-        return localDate;
+        return new Timestamp(localDate.getTime());
     }
 
     @Override
