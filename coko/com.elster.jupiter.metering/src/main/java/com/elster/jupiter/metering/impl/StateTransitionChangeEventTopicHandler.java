@@ -5,6 +5,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.metering.MeteringService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -61,15 +62,15 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         StateTransitionChangeEvent event = (StateTransitionChangeEvent) localEvent.getSource();
-        String mRID = event.getSourceId();
+        String endDeviceId = event.getSourceId();
         try {
             this.meteringService
-                    .findEndDevice(mRID)
+                    .findEndDevice(Long.parseLong(endDeviceId))
                     .map(ServerEndDevice.class::cast)
                     .ifPresent(d -> this.handle(event, d));
         }
         catch (NumberFormatException e) {
-            this.logger.fine(() -> "Unable to parse end device id '" + mRID + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
+            this.logger.fine(() -> "Unable to parse end device id '" + endDeviceId + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
         }
     }
 
