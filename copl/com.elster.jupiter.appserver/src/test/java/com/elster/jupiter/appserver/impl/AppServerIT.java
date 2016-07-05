@@ -125,6 +125,7 @@ public class AppServerIT {
                     new PubSubModule(),
                     new TransactionModule(),
                     new NlsModule(),
+                    new WebServicesModule(),
                     new AppServiceModule(),
                     new FileImportModule(),
                     new TaskModule(),
