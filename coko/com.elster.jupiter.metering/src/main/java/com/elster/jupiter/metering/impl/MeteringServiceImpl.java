@@ -46,7 +46,6 @@ import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
@@ -291,11 +290,6 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
     public Optional<UsagePoint> findUsagePoint(String mRID) {
         List<UsagePoint> usagePoints = dataModel.mapper(UsagePoint.class).select(Operator.EQUAL.compare("mRID", mRID));
         return usagePoints.isEmpty() ? Optional.empty() : Optional.of(usagePoints.get(0));
-    }
-
-    @Override
-    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> findEffectiveMetrologyConfigurationOnUsagePointById(long id) {
-        return dataModel.mapper(EffectiveMetrologyConfigurationOnUsagePoint.class).getOptional(id);
     }
 
     @Override

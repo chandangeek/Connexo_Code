@@ -10,14 +10,12 @@ import java.util.List;
 import java.util.Map;
 
 public class UnsatisfiedReadingTypeRequirements extends LocalizedException {
-    private UsagePointMetrologyConfiguration metrologyConfiguration;
     private Map<MeterRole, List<ReadingTypeRequirement>> failedRequirementsMap;
 
     public UnsatisfiedReadingTypeRequirements(Thesaurus thesaurus,
                                               UsagePointMetrologyConfiguration metrologyConfiguration) {
 
         super(thesaurus, MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS);
-        this.metrologyConfiguration = metrologyConfiguration;
     }
 
     public UnsatisfiedReadingTypeRequirements addUnsatisfiedReadingTypeRequirements(MeterRole meterRole, List<ReadingTypeRequirement> readingTypeRequirements) {
@@ -26,10 +24,6 @@ public class UnsatisfiedReadingTypeRequirements extends LocalizedException {
         }
         this.failedRequirementsMap.put(meterRole, readingTypeRequirements);
         return this;
-    }
-
-    public UsagePointMetrologyConfiguration getMetrologyConfiguration() {
-        return metrologyConfiguration;
     }
 
     public Map<MeterRole, List<ReadingTypeRequirement>> getFailedRequirements() {

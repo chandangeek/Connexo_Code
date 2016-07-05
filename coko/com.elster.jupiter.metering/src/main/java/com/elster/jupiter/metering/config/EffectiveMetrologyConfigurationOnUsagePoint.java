@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.config;
 
-//import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.time.Interval;

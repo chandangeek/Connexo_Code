@@ -562,6 +562,11 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> findEffectiveMetrologyConfigurationById(long id) {
+        return dataModel.mapper(EffectiveMetrologyConfigurationOnUsagePoint.class).getOptional(id);
+    }
+
+    @Override
     public UsagePointCustomPropertySetExtension forCustomProperties() {
         if (this.customPropertySetExtension == null) {
             this.customPropertySetExtension = new UsagePointCustomPropertySetExtensionImpl(this.clock, this.customPropertySetService, this.thesaurus, this);
