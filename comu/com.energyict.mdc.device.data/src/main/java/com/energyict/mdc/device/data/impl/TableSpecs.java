@@ -27,7 +27,7 @@ import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
@@ -774,13 +774,13 @@ public enum TableSpecs {
     DDC_PASSIVE_CALENDAR {
         @Override
         void addTo(DataModel dataModel) {
-            Table<PassiveEffectiveCalendar> table = dataModel.addTable(name(), PassiveEffectiveCalendar.class);
-            table.map(PassiveEffectiveCalendarImpl.class);
+            Table<PassiveCalendar> table = dataModel.addTable(name(), PassiveCalendar.class);
+            table.map(PassiveCalendarImpl.class);
             table.since(version(10, 2));
 
             Column idColumn = table.addAutoIdColumn();
             Column calendar = table.column("ALLOWED_CALENDAR").number().notNull().add();
-            table.column("ACTIVATION_DATE").number().conversion(NUMBER2INSTANT).map(PassiveEffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
+            table.column("ACTIVATION_DATE").number().conversion(NUMBER2INSTANT).map(PassiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
             Column deviceMessage = table.column("DEVICE_MESSAGE").number().conversion(NUMBER2LONG).add();
 
             table.primaryKey("PK_DDC_PASSIVE_CAL").on(idColumn).add();
@@ -788,12 +788,12 @@ public enum TableSpecs {
                     .references(AllowedCalendar.class)
                     .on(calendar)
                     .onDelete(CASCADE)
-                    .map(PassiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName())
+                    .map(PassiveCalendarImpl.Fields.CALENDAR.fieldName())
                     .add();
             table.foreignKey("FK_DDC_PASSCAL_DEVICEMSG")
                     .on(deviceMessage)
                     .references(DDC_DEVICEMESSAGE.name())
-                    .map(PassiveEffectiveCalendarImpl.Fields.DEVICEMESSAGE.fieldName())
+                    .map(PassiveCalendarImpl.Fields.DEVICEMESSAGE.fieldName())
                     .add();
         }
     },

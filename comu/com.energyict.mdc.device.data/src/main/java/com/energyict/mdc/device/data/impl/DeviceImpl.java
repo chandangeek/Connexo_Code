@@ -92,7 +92,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
@@ -267,8 +267,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private List<ProtocolDialectPropertiesImpl> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
-    private Reference<PassiveEffectiveCalendar> passiveCalendar = ValueReference.absent();
-    private Reference<PassiveEffectiveCalendar> plannedPassiveCalendar = ValueReference.absent();
+    private Reference<PassiveCalendar> passiveCalendar = ValueReference.absent();
+    private Reference<PassiveCalendar> plannedPassiveCalendar = ValueReference.absent();
     private TemporalReference<ServerActiveEffectiveCalendar> activeCalendar = Temporals.absent();
 
     private Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = new HashMap<>();
@@ -2013,11 +2013,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.activeCalendar;
     }
 
-    Optional<PassiveEffectiveCalendar> getPassiveCalendar() {
+    Optional<PassiveCalendar> getPassiveCalendar() {
         return this.passiveCalendar.getOptional();
     }
 
-    void setPassiveCalendar(PassiveEffectiveCalendar calendar) {
+    void setPassiveCalendar(PassiveCalendar calendar) {
         this.clearPassiveCalendar();
         this.passiveCalendar.set(calendar);
     }
@@ -2027,11 +2027,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.getPassiveCalendar().ifPresent(this.dataModel::remove);
     }
 
-    Optional<PassiveEffectiveCalendar> getPlannedPassiveCalendar() {
+    Optional<PassiveCalendar> getPlannedPassiveCalendar() {
         return this.plannedPassiveCalendar.getOptional();
     }
 
-    void setPlannedPassiveCalendar(PassiveEffectiveCalendar calendar) {
+    void setPlannedPassiveCalendar(PassiveCalendar calendar) {
         this.clearPlannedPassiveCalendar();
         this.plannedPassiveCalendar.set(calendar);
     }
