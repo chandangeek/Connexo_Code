@@ -60,13 +60,13 @@ public class KpiResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION})
     public PagedInfoList getAllDataValidationKpis(@BeanParam JsonQueryParameters queryParameters) {
-        List<DataValidationKpiInfo> collection = dataValidationKpiService.dataValidationKpiFinder()
+        List<DataValidationKpiInfo> dataValidations = dataValidationKpiService.dataValidationKpiFinder()
                 .from(queryParameters)
                 .stream()
                 .map(dataValidationKpiInfoFactory::from)
                 .collect(toList());
 
-        return PagedInfoList.fromPagedList("kpis", collection, queryParameters);
+        return PagedInfoList.fromPagedList("kpis", dataValidations, queryParameters);
     }
 
 
