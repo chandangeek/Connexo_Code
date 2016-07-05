@@ -102,27 +102,27 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
 
     @Override
     public ServiceCallFilter convertToServiceCallFilter(JsonQueryFilter filter) {
-        ServiceCallFilter serviceCallFilter = new ServiceCallFilterImpl();
+        ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
         if (filter.hasProperty("name")) {
-            serviceCallFilter.setReference(filter.getString("name"));
+            serviceCallFilter.reference = filter.getString("name");
         }
         if (filter.hasProperty("type")) {
-            serviceCallFilter.setTypes(filter.getStringList("type"));
+            serviceCallFilter.types = filter.getStringList("type");
         }
         if (filter.hasProperty("status")) {
-            serviceCallFilter.setStates(filter.getStringList("status"));
+            serviceCallFilter.states = filter.getStringList("status");
         }
         if (filter.hasProperty("receivedDateFrom")) {
-            serviceCallFilter.setReceivedDateFrom(filter.getInstant("receivedDateFrom"));
+            serviceCallFilter.receivedDateFrom = filter.getInstant("receivedDateFrom");
         }
         if (filter.hasProperty("receivedDateTo")) {
-            serviceCallFilter.setReceivedDateTo(filter.getInstant("receivedDateTo"));
+            serviceCallFilter.receivedDateTo = filter.getInstant("receivedDateTo");
         }
         if (filter.hasProperty("modificationDateFrom")) {
-            serviceCallFilter.setModificationDateFrom(filter.getInstant("modificationDateFrom"));
+            serviceCallFilter.modificationDateFrom = filter.getInstant("modificationDateFrom");
         }
         if (filter.hasProperty("modificationDateTo")) {
-            serviceCallFilter.setModificationDateTo(filter.getInstant("modificationDateTo"));
+            serviceCallFilter.modificationDateTo = filter.getInstant("modificationDateTo");
         }
 
         return serviceCallFilter;
