@@ -2,20 +2,46 @@ package com.energyict.mdc.engine.monitor.app.impl.rest.resource;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.DateTimeFormatGenerator;
-import com.energyict.mdc.engine.config.*;
-import com.energyict.mdc.engine.monitor.*;
-import com.energyict.mdc.engine.status.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.monitor.CollectedDataStorageStatistics;
+import com.energyict.mdc.engine.monitor.ComServerOperationalStatistics;
+import com.energyict.mdc.engine.monitor.EventAPIStatistics;
+import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
+import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
+import com.energyict.mdc.engine.status.ComServerStatus;
+import com.energyict.mdc.engine.status.StatusService;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
 import java.security.Principal;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -388,9 +414,9 @@ public class JSonConverter {
     private boolean hasActiveProcess(ComPort comPort){
         ComServerStatus status = statusService.getStatus();
         if (comPort.isInbound()){
-            return status.getInboundComportMonitors().stream().filter(m -> m.isMonitoring(comPort)).findFirst().isPresent();
+            return status.getInboundComportMonitors().stream().anyMatch(m -> m.isMonitoring(comPort));
         }else {
-            return status.getScheduledComportMonitors().stream().filter(m -> m.isMonitoring(comPort)).findFirst().isPresent();
+            return status.getScheduledComportMonitors().stream().anyMatch(m -> m.isMonitoring(comPort));
         }
     }
 
@@ -399,7 +425,7 @@ public class JSonConverter {
     }
 
     private boolean comPortPoolIncludesComPort(ComPortPool pool, ComPort port){
-        return pool.getComPorts().stream().filter(p -> p.getId() == port.getId()).findFirst().isPresent();
+        return pool.getComPorts().stream().anyMatch(p -> p.getId() == port.getId());
     }
 
     private String format(Instant date, DateTimeFormatGenerator.Mode dateFormatMode, DateTimeFormatGenerator.Mode timeFormatMode) {
@@ -448,7 +474,6 @@ public class JSonConverter {
         return builder.toString();
     }
 
-
     private DateTimeFormatter getDateFormatForCurrentUser(DateTimeFormatGenerator.Mode dateFormatMode, DateTimeFormatGenerator.Mode timeFormatMode){
         UserPreferencesService preferencesService = this.userService.getUserPreferencesService();
         Principal principal = threadPrincipalService.getPrincipal();
@@ -478,6 +503,4 @@ public class JSonConverter {
         }
         return DateTimeFormatter.ofPattern(dateTimeFormat,locale);
     }
-
-
 }
