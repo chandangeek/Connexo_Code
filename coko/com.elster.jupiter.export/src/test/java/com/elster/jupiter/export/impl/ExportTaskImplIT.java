@@ -50,6 +50,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -67,6 +68,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -128,7 +130,6 @@ public class ExportTaskImplIT {
 
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
@@ -149,8 +150,7 @@ public class ExportTaskImplIT {
 
     @Mock
     private BundleContext bundleContext;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private UserService userService;
+
     @Mock
     private EventAdmin eventAdmin;
     @Mock
@@ -221,6 +221,8 @@ public class ExportTaskImplIT {
                     new TaskModule(),
                     new MeteringGroupsModule(),
                     new SearchModule(),
+                    new UserModule(),
+                    new WebServicesModule(),
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
                     new MailModule(),
@@ -234,7 +236,6 @@ public class ExportTaskImplIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        when(userService.findGroup(anyString())).thenReturn(Optional.of(group));
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);

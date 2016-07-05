@@ -32,6 +32,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -42,6 +43,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.cron.impl.DefaultCronExpressionParser;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -88,7 +90,6 @@ public class DirectoryForAppServerlIT {
 
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
@@ -108,8 +109,6 @@ public class DirectoryForAppServerlIT {
 
     @Mock
     private BundleContext bundleContext;
-    @Mock
-    private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
     @Mock
@@ -156,6 +155,8 @@ public class DirectoryForAppServerlIT {
                     new TaskModule(),
                     new MeteringGroupsModule(),
                     new SearchModule(),
+                    new UserModule(),
+                    new WebServicesModule(),
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
                     new MailModule(),
@@ -169,9 +170,9 @@ public class DirectoryForAppServerlIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        when(userService.createUser(any(), any())).thenReturn(user);
-        when(userService.createGroup(anyString(), anyString())).thenReturn(mock(Group.class));
-        when(userService.findGroup(anyString())).thenReturn(Optional.of(group));
+//        when(userService.createUser(any(), any())).thenReturn(user);
+//        when(userService.createGroup(anyString(), anyString())).thenReturn(mock(Group.class));
+//        when(userService.findGroup(anyString())).thenReturn(Optional.of(group));
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             injector.getInstance(FiniteStateMachineService.class);
