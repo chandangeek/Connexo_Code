@@ -108,6 +108,11 @@ public class CustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes 
 
     private static class MyPeristenceSupport implements PersistenceSupport<TestDomain, DomainExtensionForTestingPurposes> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "T11";
         }

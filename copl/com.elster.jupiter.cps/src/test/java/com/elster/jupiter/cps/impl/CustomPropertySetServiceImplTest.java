@@ -27,6 +27,7 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -60,7 +61,6 @@ import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
@@ -165,6 +165,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.customPropertySet.getPersistenceSupport()).thenReturn(this.persistenceSupport);
         when(this.customPropertySet.getDomainClass()).thenReturn(TestDomain.class);
         when(this.customPropertySetDataModel.addTable(TABLE_NAME, DomainExtensionForTestingPurposes.class)).thenReturn(this.table);
+        when(this.persistenceSupport.application()).thenReturn("Example");
         when(this.persistenceSupport.componentName()).thenReturn(CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.persistenceSupport.tableName()).thenReturn(TABLE_NAME);
         when(this.persistenceSupport.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
@@ -183,6 +184,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.versionedCustomPropertySet.getPersistenceSupport()).thenReturn(this.versionedPersistenceSupport);
         when(this.versionedCustomPropertySetDataModel.addTable(VERSIONED_TABLE_NAME, VersionedDomainExtensionForTestingPurposes.class)).thenReturn(this.versionedTable);
         when(this.versionedTable.column(DOMAIN_COLUMN_NAME)).thenReturn(this.domainColumnBuilder);
+        when(this.versionedPersistenceSupport.application()).thenReturn("Example");
         when(this.versionedPersistenceSupport.componentName()).thenReturn(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID);
         when(this.versionedPersistenceSupport.tableName()).thenReturn(VERSIONED_TABLE_NAME);
         when(this.versionedPersistenceSupport.domainColumnName()).thenReturn(DOMAIN_COLUMN_NAME);
@@ -256,7 +258,6 @@ public class CustomPropertySetServiceImplTest {
         service.addCustomPropertySet(this.customPropertySet);
 
         // Asserts
-        verify(this.persistenceSupport).componentName();
         verify(this.customPropertySet, atLeastOnce()).getId();
         verify(this.customPropertySet).isVersioned();
         verify(this.ormService).newDataModel(eq(CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
@@ -275,7 +276,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.table).primaryKey(startsWith("PK_CPS_"));
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.customPropertySetDataModel).register(anyVararg());
-        verify(this.customPropertySetDataModel).install(eq(true), anyBoolean());
+        verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(customPropertySetDataModel), any(), any());
     }
 
     @Test
@@ -309,7 +310,6 @@ public class CustomPropertySetServiceImplTest {
         testInstance.activate();
 
         // Asserts
-        verify(this.persistenceSupport).componentName();
         verify(this.customPropertySet, atLeastOnce()).getId();
         verify(this.customPropertySet).isVersioned();
         verify(this.ormService).newDataModel(eq(CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
@@ -328,7 +328,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.table).primaryKey(startsWith("PK_CPS_"));
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.customPropertySetDataModel).register(anyVararg());
-        verify(this.customPropertySetDataModel).install(eq(true), anyBoolean());
+        verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(customPropertySetDataModel), any(), any());
     }
 
     @Test
@@ -342,7 +342,6 @@ public class CustomPropertySetServiceImplTest {
         service.addCustomPropertySet(this.versionedCustomPropertySet);
 
         // Asserts
-        verify(this.versionedPersistenceSupport).componentName();
         verify(this.versionedCustomPropertySet, atLeastOnce()).getId();
         verify(this.versionedCustomPropertySet).isVersioned();
         verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
@@ -363,7 +362,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.versionedTable).addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
         verify(this.versionedCustomPropertySetDataModel).register(anyVararg());
-        verify(this.versionedCustomPropertySetDataModel).install(eq(true), anyBoolean());
+        verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(versionedCustomPropertySetDataModel), any(), any());
     }
 
     @Test
@@ -383,7 +382,6 @@ public class CustomPropertySetServiceImplTest {
         testInstance.activate();
 
         // Asserts
-        verify(this.versionedPersistenceSupport).componentName();
         verify(this.versionedCustomPropertySet, atLeastOnce()).getId();
         verify(this.versionedCustomPropertySet).isVersioned();
         verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
@@ -404,7 +402,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.versionedTable).addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
         verify(this.versionedCustomPropertySetDataModel).register(anyVararg());
-        verify(this.versionedCustomPropertySetDataModel).install(eq(true), anyBoolean());
+        verify(this.upgradeService).register(eq(InstallIdentifier.identifier("Example", VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID)), eq(versionedCustomPropertySetDataModel), any(), any());
     }
 
     @Test

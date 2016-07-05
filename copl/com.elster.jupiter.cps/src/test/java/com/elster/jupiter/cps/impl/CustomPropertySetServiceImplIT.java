@@ -37,6 +37,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -1157,7 +1158,7 @@ public class CustomPropertySetServiceImplIT {
         }
 
         // Business method
-        SqlFragment rawValuesSql = this.testInstance.getRawValuesSql(customPropertySet, propertySpec, "value", testDomain);
+        SqlFragment rawValuesSql = this.testInstance.getRawValuesSql(customPropertySet, propertySpec, "value", testDomain, Range.all());
         System.out.println("rawValuesSql = " + rawValuesSql);
 
         // Asserts: execute the query first
@@ -1209,7 +1210,7 @@ public class CustomPropertySetServiceImplIT {
         }
 
         // Business method
-        SqlFragment rawValuesSql = this.testInstance.getRawValuesSql(customPropertySet, propertySpec, "value", testDomain, ServiceCategoryForTestingPurposes.ELECTRICITY);
+        SqlFragment rawValuesSql = this.testInstance.getRawValuesSql(customPropertySet, propertySpec, "value", testDomain, Range.all(), ServiceCategoryForTestingPurposes.ELECTRICITY);
 
         // Asserts: execute the query first
         try (Connection connection = this.testInstance.getDataModel().getConnection(false)) {

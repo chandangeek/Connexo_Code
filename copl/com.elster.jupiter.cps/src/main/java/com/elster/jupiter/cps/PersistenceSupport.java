@@ -137,4 +137,6 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
         return propertySpec.getName();
     }
 
+    String application();
+
 }

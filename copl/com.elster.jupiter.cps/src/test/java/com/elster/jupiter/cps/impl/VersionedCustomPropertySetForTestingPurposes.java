@@ -101,6 +101,11 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
 
     private static class MyPersistenceSupport implements PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "T04";
         }
