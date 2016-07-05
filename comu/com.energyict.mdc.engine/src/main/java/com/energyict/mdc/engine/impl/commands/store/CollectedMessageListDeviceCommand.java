@@ -20,14 +20,14 @@ import java.util.Optional;
 /**
  * Provides functionality to store {@link DeviceMessage DeviceMessage}
  * results in the database.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 21/03/13
  * Time: 16:40
  */
 public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<CollectedMessageListEvent> {
 
-    public final static String DESCRIPTION_TITLE = "Collected message data";
+    public static final String DESCRIPTION_TITLE = "Collected message data";
 
     private final DeviceProtocolMessageList deviceProtocolMessageList;
     private final List<OfflineDeviceMessage> allDeviceMessages;
@@ -43,12 +43,12 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     @Override
     public void logExecutionWith(ExecutionLogger logger) {
         super.logExecutionWith(logger);
-        if (deviceProtocolMessageList != null){
+        if (deviceProtocolMessageList != null) {
             deviceProtocolMessageList.getCollectedMessages().stream()
-                .filter(x -> x instanceof CollectedDeviceData)
-                .map(CollectedDeviceData.class::cast)
-                .map(y -> y.toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()))
-                .forEach(x -> x.logExecutionWith(logger));
+                    .filter(x -> x instanceof CollectedDeviceData)
+                    .map(CollectedDeviceData.class::cast)
+                    .map(y -> y.toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()))
+                    .forEach(x -> x.logExecutionWith(logger));
         }
     }
 
@@ -56,8 +56,8 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     public void doExecute(ComServerDAO comServerDAO) {
         for (OfflineDeviceMessage offlineDeviceMessage : allDeviceMessages) {
             List<CollectedMessage> messagesToExecute = this.deviceProtocolMessageList.getCollectedMessages(offlineDeviceMessage.getIdentifier());
-            if (messagesToExecute.isEmpty()){
-                comServerDAO.updateDeviceMessageInformation(offlineDeviceMessage.getIdentifier(), offlineDeviceMessage.getDeviceMessageStatus(), CollectedMessageList.REASON_FOR_PENDING_STATE);
+            if (messagesToExecute.isEmpty()) {
+                comServerDAO.updateDeviceMessageInformation(offlineDeviceMessage.getIdentifier(), offlineDeviceMessage.getDeviceMessageStatus(), null, CollectedMessageList.REASON_FOR_PENDING_STATE);
                 continue;
             }
 
@@ -67,7 +67,7 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     }
 
     @Override
-    public ComServer.LogLevel getJournalingLogLevel () {
+    public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.INFO;
     }
 
@@ -77,6 +77,7 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
             for (CollectedMessage collectedMessage : deviceProtocolMessageList.getCollectedMessages()) {
                 builder.addListProperty("messageIdentifier").append(collectedMessage.getMessageIdentifier()).next()
                         .append("message status: ").append(collectedMessage.getNewDeviceMessageStatus()).next()
+                        .append("sent date: ").append(collectedMessage.getSentDate()).next()
                         .append("protocolInfo: ").append(collectedMessage.getDeviceProtocolInformation()).next();
             }
         } else if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.INFO)) {
@@ -88,7 +89,7 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     }
 
     protected Optional<CollectedMessageListEvent> newEvent(List<Issue> issues) {
-        CollectedMessageListEvent event  =  new CollectedMessageListEvent(new ComServerEventServiceProvider(), deviceProtocolMessageList);
+        CollectedMessageListEvent event = new CollectedMessageListEvent(new ComServerEventServiceProvider(), deviceProtocolMessageList);
         event.addIssues(issues);
         return Optional.of(event);
     }
@@ -98,12 +99,12 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
         return DESCRIPTION_TITLE;
     }
 
-    private void executeMessage(ComServerDAO comServerDAO, CollectedMessage collectedMessage){
+    private void executeMessage(ComServerDAO comServerDAO, CollectedMessage collectedMessage) {
         comServerDAO.updateDeviceMessageInformation(collectedMessage.getMessageIdentifier(),
-                                                    collectedMessage.getNewDeviceMessageStatus(),
-                                                    collectedMessage.getDeviceProtocolInformation());
-        ((CollectedDeviceData)collectedMessage).toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()).execute(comServerDAO);
-
+                collectedMessage.getNewDeviceMessageStatus(),
+                collectedMessage.getSentDate(),
+                collectedMessage.getDeviceProtocolInformation());
+        ((CollectedDeviceData) collectedMessage).toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()).execute(comServerDAO);
     }
 
 }

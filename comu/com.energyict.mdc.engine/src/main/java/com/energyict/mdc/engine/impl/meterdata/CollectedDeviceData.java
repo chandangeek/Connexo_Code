@@ -42,7 +42,7 @@ public abstract class CollectedDeviceData implements ServerCollectedData {
     public void setFailureInformation(final ResultType resultType, final Issue issue) {
         if (resultType == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "resultType", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
-        } else if (issue == null){
+        } else if (issue == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "setFailureInformation", "issue", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
         this.resultType = resultType;

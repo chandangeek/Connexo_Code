@@ -7,6 +7,9 @@ import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageAcknowledgem
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+
+import java.time.Instant;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,11 +37,11 @@ public class UpdateDeviceMessageTest {
     }
 
     @Test
-    public void testToJournalMessageDescriptiononInfoLogLevel() throws Exception {
+    public void testToJournalMessageDescriptionOnInfoLogLevel() throws Exception {
         final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage);
         final DeviceProtocolMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
-        messageAcknowledgement.setProtocolInfo("Additional ProolInfo");
+        messageAcknowledgement.setProtocolInfo("Additional ProtocolInfo");
         UpdateDeviceMessage command = new UpdateDeviceMessage(messageAcknowledgement, null, new NoDeviceCommandServices());
 
         // Business method
@@ -50,16 +53,18 @@ public class UpdateDeviceMessageTest {
 
     @Test
     public void testToJournalMessageDescriptionOnDebugLogLevel() throws Exception {
+        Instant sentDate = Instant.now();
         final MessageIdentifier messageIdentifier = new DeviceMessageIdentifierForAlreadyKnownMessage(deviceMessage);
         final DeviceProtocolMessageAcknowledgement messageAcknowledgement = new DeviceProtocolMessageAcknowledgement(messageIdentifier);
         messageAcknowledgement.setDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         messageAcknowledgement.setProtocolInfo("Additional ProtocolInfo");
+        messageAcknowledgement.setSentDate(sentDate);
         UpdateDeviceMessage command = new UpdateDeviceMessage(messageAcknowledgement, null, new NoDeviceCommandServices());
 
         // Business method
         final String journalMessage = command.toJournalMessageDescription(ComServer.LogLevel.DEBUG);
 
         // Asserts
-        assertThat(journalMessage).contains("{messageIdentifier: message having id 1; message status: confirmed; protocolInfo: Additional ProtocolInfo}");
+        assertThat(journalMessage).contains("{messageIdentifier: message having id 1; message status: confirmed; sent date: " + sentDate.toString() + "; protocolInfo: Additional ProtocolInfo}");
     }
 }
