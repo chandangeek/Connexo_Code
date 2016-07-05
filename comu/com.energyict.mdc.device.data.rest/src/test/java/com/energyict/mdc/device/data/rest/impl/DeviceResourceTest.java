@@ -80,6 +80,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.topology.DeviceTopology;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.impl.DataLoggerLinkException;
 import com.energyict.mdc.device.topology.impl.DataLoggerReferenceImpl;
@@ -1029,6 +1030,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testGetCommunicationTopology() {
+        when(clock.instant()).thenReturn(NOW);
         mockTopologyTimeline();
 
         String response = target("/devices/gateway/topology/communication")
@@ -1043,6 +1045,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testCommunicationTopologyPaging() {
+        when(clock.instant()).thenReturn(NOW);
         mockTopologyTimeline();
         String response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 3).queryParam("limit", 2)
@@ -1067,6 +1070,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testGetCommunicationTopologyPagingBigEnd() {
+        when(clock.instant()).thenReturn(NOW);
         mockTopologyTimeline();
         String response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 6).queryParam("limit", 1000)
@@ -1078,6 +1082,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testGetCommunicationTopologyNoPaging() {
+        when(clock.instant()).thenReturn(NOW);
         mockTopologyTimeline();
         String response = target("/devices/gateway/topology/communication")
                 .request().get(String.class);
@@ -1088,13 +1093,13 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     private void mockTopologyTimeline() {
         Device gateway = mockDeviceForTopologyTest("gateway");
-        Device slave1 = mockDeviceForTopologyTest("slave1");
-        Device slave2 = mockDeviceForTopologyTest("slave2");
-        Device slave3 = mockDeviceForTopologyTest("slave3");
-        Device slave4 = mockDeviceForTopologyTest("slave4");
-        Device slave5 = mockDeviceForTopologyTest("slave5");
-        Device slave6 = mockDeviceForTopologyTest("slave6");
-        Device slave7 = mockDeviceForTopologyTest("slave7");
+        Device slave1 = mockDeviceForTopologyTest("slave1", gateway);
+        Device slave2 = mockDeviceForTopologyTest("slave2", gateway);
+        Device slave3 = mockDeviceForTopologyTest("slave3", gateway);
+        Device slave4 = mockDeviceForTopologyTest("slave4", gateway);
+        Device slave5 = mockDeviceForTopologyTest("slave5", gateway);
+        Device slave6 = mockDeviceForTopologyTest("slave6", gateway);
+        Device slave7 = mockDeviceForTopologyTest("slave7", gateway);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave5, slave2, slave7, slave4, slave1, slave6, slave3));
 
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
@@ -1107,24 +1112,32 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave6)).thenReturn(Optional.of(Instant.ofEpochMilli(60L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave7)).thenReturn(Optional.of(Instant.ofEpochMilli(70L)));
 
+        DeviceTopology deviceTopology = mock(DeviceTopology.class);
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
+        when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
+        when(deviceTopology.timelined()).thenReturn(topologyTimeline);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
     }
 
     @Test
     public void testGetCommunicationTopologyFilter() throws Exception {
+        when(clock.instant()).thenReturn(NOW);
         Device gateway = mockDeviceForTopologyTest("gateway");
-        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid");
-        Device slave2 = mockDeviceForTopologyTest("123456789");
+        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid", gateway);
+        Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
+
+        DeviceTopology deviceTopology = mock(DeviceTopology.class);
 
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
         when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
+        when(deviceTopology.timelined()).thenReturn(topologyTimeline);
 
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
+        when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
 
@@ -1174,18 +1187,23 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testGetCommunicationTopologyFilterOnSerialNumber() throws Exception {
+        when(clock.instant()).thenReturn(NOW);
         Device gateway = mockDeviceForTopologyTest("gateway");
-        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid");
-        Device slave2 = mockDeviceForTopologyTest("123456789");
+        Device slave1 = mockDeviceForTopologyTest("SimpleStringMrid", gateway);
+        Device slave2 = mockDeviceForTopologyTest("123456789", gateway);
         when(slave2.getSerialNumber()).thenReturn(null);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave1, slave2));
 
+        DeviceTopology deviceTopology = mock(DeviceTopology.class);
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
         when(topologyTimeline.mostRecentlyAddedOn(slave1)).thenReturn(Optional.of(Instant.ofEpochMilli(10L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave2)).thenReturn(Optional.of(Instant.ofEpochMilli(20L)));
 
+        when(deviceTopology.timelined()).thenReturn(topologyTimeline);
+
         when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
+        when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
 
@@ -1234,14 +1252,19 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testDeviceTopologyInfo() {
-        Device slave1 = mockDeviceForTopologyTest("slave1");
-        Device slave2 = mockDeviceForTopologyTest("slave2");
-        Device slave3 = mockDeviceForTopologyTest("slave3");
-        Device slave4 = mockDeviceForTopologyTest("slave4");
-        Device slave5 = mockDeviceForTopologyTest("slave5");
-        Device slave6 = mockDeviceForTopologyTest("slave6");
-        Device slave7 = mockDeviceForTopologyTest("slave7");
+        when(clock.instant()).thenReturn(NOW);
+        Device gateway = mockDeviceForTopologyTest("gateway");
+        Device slave1 = mockDeviceForTopologyTest("slave1", gateway);
+        Device slave2 = mockDeviceForTopologyTest("slave2", gateway);
+        Device slave3 = mockDeviceForTopologyTest("slave3", gateway);
+        Device slave4 = mockDeviceForTopologyTest("slave4", gateway);
+        Device slave5 = mockDeviceForTopologyTest("slave5", gateway);
+        Device slave6 = mockDeviceForTopologyTest("slave6", gateway);
+        Device slave7 = mockDeviceForTopologyTest("slave7", gateway);
         Set<Device> slaves = new HashSet<>(Arrays.<Device>asList(slave3, slave4, slave5, slave6, slave7));
+        DeviceTopology deviceTopology = mock(DeviceTopology.class);
+        when(deviceService.findByUniqueMrid("gateway")).thenReturn(Optional.of(gateway));
+        when(topologyService.getPhysicalTopology(gateway, Range.atMost(NOW))).thenReturn(deviceTopology);
 
         TopologyTimeline topologyTimeline = mock(TopologyTimeline.class);
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
@@ -1252,6 +1275,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyTimeline.mostRecentlyAddedOn(slave5)).thenReturn(Optional.of(Instant.ofEpochMilli(50L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave6)).thenReturn(Optional.of(Instant.ofEpochMilli(60L)));
         when(topologyTimeline.mostRecentlyAddedOn(slave7)).thenReturn(Optional.of(Instant.ofEpochMilli(70L)));
+        when(deviceTopology.timelined()).thenReturn(topologyTimeline);
+        when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
         List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline, topologyService, clock, thesaurus);
 
@@ -2206,7 +2231,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         verify(device.forEstimation()).deactivateEstimation();
     }
 
-    private Device mockDeviceForTopologyTest(String name) {
+    private Device mockDeviceForTopologyTest(String name, Device gateway) {
         Device device = mock(Device.class);
         when(device.getId()).thenReturn(1L);
         when(device.getmRID()).thenReturn(name);
@@ -2223,7 +2248,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         DeviceEstimation deviceEstimation = mock(DeviceEstimation.class);
         when(device.forEstimation()).thenReturn(deviceEstimation);
         mockGetOpenDataValidationIssue();
-        State state = mockDeviceState("In stock");
+        State state = mockDeviceState("dlc.default.inStock");
         when(device.getState()).thenReturn(state);
         Instant now = Instant.now();
         CIMLifecycleDates dates = mock(CIMLifecycleDates.class);
@@ -2240,7 +2265,16 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(name), anyLong())).thenReturn(Optional.of(device));
         when(meteringService.findDeviceLocation(name)).thenReturn(Optional.empty());
         when(meteringService.findDeviceGeoCoordinates(name)).thenReturn(Optional.empty());
+        if (gateway != null) {
+            when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(gateway));
+        } else {
+            when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
+        }
         return device;
+    }
+
+    private Device mockDeviceForTopologyTest(String name) {
+        return mockDeviceForTopologyTest(name, null);
     }
 
     private LoadProfileReading mockLoadProfileReading(final LoadProfile loadProfile, Range<Instant> interval) {
