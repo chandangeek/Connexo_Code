@@ -141,5 +141,10 @@
             <artifactId>time</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
