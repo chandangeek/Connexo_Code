@@ -72,7 +72,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReadingEstimateTest {
+public class ReadingEstimateIT {
 
     private Injector injector;
 

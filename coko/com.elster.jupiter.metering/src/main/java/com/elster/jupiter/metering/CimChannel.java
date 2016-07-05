@@ -12,7 +12,6 @@ import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @ProviderType
 public interface CimChannel {
@@ -44,10 +43,10 @@ public interface CimChannel {
     /**
      * Initializes a new search of {@link ReadingQualityRecord ReadingQualityRecords}
      *
-     * @return the {@link ReadingQualityFilter} that will help to define the desired criteria
+     * @return the {@link ReadingQualityFetcher} that will help to define the desired criteria
      * for search of {@link ReadingQualityRecord ReadingQualityRecords}
      */
-    ReadingQualityFilter findReadingQualities();
+    ReadingQualityFetcher findReadingQualities();
 
     List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval);
 
@@ -71,11 +70,9 @@ public interface CimChannel {
     /**
      * Sets a given list of {@link BaseReading BaseReadings} as confirmation result.
      * @param system {@link QualityCodeSystem} that handles confirmation.
-     * @param controlledSystems A set of {@link QualityCodeSystem QualityCodeSystems} affected by this confirmation
-     * (including handling system). Empty set means all systems are affected.
      * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
      */
-    void confirmReadings(QualityCodeSystem system, Set<QualityCodeSystem> controlledSystems, List<? extends BaseReading> readings);
+    void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings);
 
     /**
      * Sets a given list of {@link BaseReading BaseReadings} as estimation result.

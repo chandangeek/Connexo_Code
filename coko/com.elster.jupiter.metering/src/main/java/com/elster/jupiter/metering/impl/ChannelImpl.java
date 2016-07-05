@@ -22,7 +22,7 @@ import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingQualityFilter;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -568,8 +568,8 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public ReadingQualityFilter findReadingQualities() {
-        return new ReadingQualityFilterImpl(dataModel, this);
+    public ReadingQualityFetcher findReadingQualities() {
+        return new ReadingQualityFetcherImpl(dataModel, this);
     }
 
     @Override
@@ -629,12 +629,12 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public void confirmReadings(QualityCodeSystem system, Set<QualityCodeSystem> controlledSystems, List<? extends BaseReading> readings) {
+    public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         getCimChannel(getMainReadingType()).ifPresent(cimChannel ->
-                cimChannel.confirmReadings(system, controlledSystems, readings));
+                cimChannel.confirmReadings(system, readings));
         getBulkQuantityReadingType().ifPresent(bulkReadingType ->
                 getCimChannel(bulkReadingType).ifPresent(bulkChannel ->
-                        bulkChannel.confirmReadings(system, controlledSystems, readings)));
+                        bulkChannel.confirmReadings(system, readings)));
     }
 
     @Override
@@ -642,7 +642,7 @@ public final class ChannelImpl implements ChannelContract {
         if (!readings.isEmpty()) {
             Set<Instant> readingTimes = readings.stream().map(BaseReading::getTimeStamp).collect(Collectors.toSet());
             readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
-            findReadingQualities().inTimeInterval(Range.encloseAll(readingTimes)).collect().stream()
+            findReadingQualities().inTimeInterval(Range.encloseAll(readingTimes)).stream()
                     .filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
                     .forEach(ReadingQualityRecord::delete);
             ReadingQualityType rejected = ReadingQualityType.of(system, QualityCodeIndex.REJECTED);

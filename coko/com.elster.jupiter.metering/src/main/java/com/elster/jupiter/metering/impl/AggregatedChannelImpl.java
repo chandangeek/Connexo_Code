@@ -7,7 +7,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingQualityFilter;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -30,7 +30,6 @@ import java.time.temporal.TemporalAmount;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -186,7 +185,7 @@ public class AggregatedChannelImpl implements ChannelContract {
     }
 
     @Override
-    public ReadingQualityFilter findReadingQualities() {
+    public ReadingQualityFetcher findReadingQualities() {
         return persistedChannel.findReadingQualities();
     }
 
@@ -214,9 +213,9 @@ public class AggregatedChannelImpl implements ChannelContract {
     }
 
     @Override
-    public void confirmReadings(QualityCodeSystem system, Set<QualityCodeSystem> controlledSystems, List<? extends BaseReading> readings) {
+    public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         // TODO store/edit readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.confirmReadings(system, controlledSystems, readings);
+        // persistedChannel.confirmReadings(system, readings);
     }
 
     @Override

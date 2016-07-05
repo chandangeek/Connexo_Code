@@ -7,13 +7,13 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
-public interface ReadingQualityWithTypeFilter extends ReadingQualityFilter {
+public interface ReadingQualityWithTypeFetcher extends ReadingQualityFetcher {
 
     /**
      * Starts declaration of an alternative {@link ReadingQualityType} criteria group to look for.
      * Logically 'or' applies here to {@link ReadingQualityType} related criteria only.
      *
-     * @return the self to proceed with search criteria definition.
+     * @return The self to proceed with search criteria definition.
      */
     ReadingQualityTypeFilter orOfAnotherType();
 
@@ -23,7 +23,7 @@ public interface ReadingQualityWithTypeFilter extends ReadingQualityFilter {
      * Logically 'or' applies here to {@link QualityCodeCategory}
      * and {@link QualityCodeIndex} related criteria only.
      *
-     * @return the self to proceed with search criteria definition.
+     * @return The self to proceed with search criteria definition.
      */
     ReadingQualityIndexFilter orOfAnotherTypeInSameSystems();
 }

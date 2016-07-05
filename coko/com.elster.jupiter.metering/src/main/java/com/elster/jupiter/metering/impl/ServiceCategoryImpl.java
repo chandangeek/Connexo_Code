@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -150,7 +151,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 
     @Override
     public void addCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        if (!serviceCategoryCustomPropertySetUsages.stream().filter(e -> e.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId()).findFirst().isPresent()) {
+        if (serviceCategoryCustomPropertySetUsages.stream().noneMatch(e -> e.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())) {
             ServiceCategoryCustomPropertySetUsage serviceCategoryCustomPropertySetUsage = this.dataModel.getInstance(ServiceCategoryCustomPropertySetUsage.class).initialize(this, registeredCustomPropertySet);
             this.serviceCategoryCustomPropertySetUsages.add(serviceCategoryCustomPropertySetUsage);
         }
@@ -211,7 +212,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 
     @Override
     public void addMeterRole(MeterRole meterRole) {
-        if (!this.serviceCategoryMeterRoleUsages.stream().filter(usage -> usage.getMeterRole().equals(meterRole)).findFirst().isPresent()) {
+        if (this.serviceCategoryMeterRoleUsages.stream().noneMatch(usage -> usage.getMeterRole().equals(meterRole))) {
             ServiceCategoryMeterRoleUsage usage = dataModel.getInstance(ServiceCategoryMeterRoleUsage.class).init(this, meterRole);
             this.serviceCategoryMeterRoleUsages.add(usage);
         }

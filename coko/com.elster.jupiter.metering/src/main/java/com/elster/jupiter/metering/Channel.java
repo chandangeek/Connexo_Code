@@ -54,10 +54,10 @@ public interface Channel {
     /**
      * Initializes a new search of {@link ReadingQualityRecord ReadingQualityRecords}
      *
-     * @return the {@link ReadingQualityFilter} that will help to define the desired criteria
+     * @return the {@link ReadingQualityFetcher} that will help to define the desired criteria
      * for search of {@link ReadingQualityRecord ReadingQualityRecords}
      */
-    ReadingQualityFilter findReadingQualities();
+    ReadingQualityFetcher findReadingQualities();
 
     boolean isRegular();
 
@@ -79,11 +79,9 @@ public interface Channel {
     /**
      * Sets a given list of {@link BaseReading BaseReadings} as confirmation result.
      * @param system {@link QualityCodeSystem} that handles confirmation.
-     * @param controlledSystems A set of {@link QualityCodeSystem QualityCodeSystems} affected by this confirmation
-     * (including handling system). Empty set means all systems affected.
      * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
      */
-    void confirmReadings(QualityCodeSystem system, Set<QualityCodeSystem> controlledSystems, List<? extends BaseReading> readings);
+    void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings);
 
     /**
      * Removes a given list of {@link BaseReadingRecord BaseReadingRecords}.

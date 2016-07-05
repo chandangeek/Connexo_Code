@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingQualityFilter;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -60,8 +60,8 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     @Override
-    public ReadingQualityFilter findReadingQualities() {
-        return new ReadingQualityFilterImpl(dataModel, this);
+    public ReadingQualityFetcher findReadingQualities() {
+        return new ReadingQualityFetcherImpl(dataModel, this);
     }
 
     @Override
@@ -147,9 +147,10 @@ public abstract class AbstractCimChannel implements CimChannel {
     }
 
     @Override
-    public void confirmReadings(QualityCodeSystem system, Set<QualityCodeSystem> controlledSystems, List<? extends BaseReading> readings) {
+    public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         if (!readings.isEmpty()) {
             ReadingStorer storer = meteringService.createUpdatingStorer(StorerProcess.CONFIRM);
+            Set<QualityCodeSystem> controlledSystems = system == QualityCodeSystem.MDM ? Collections.emptySet() : Collections.singleton(system);
             Map<Instant, List<ReadingQualityRecord>> readingQualitiesByTimestamp = findReadingQualitiesByTimestamp(readings, controlledSystems);
             for (BaseReading reading : readings) {
                 List<ReadingQualityRecord> currentQualityRecords = Optional.ofNullable(readingQualitiesByTimestamp.get(reading.getTimeStamp()))
@@ -250,7 +251,7 @@ public abstract class AbstractCimChannel implements CimChannel {
 
     private Map<Instant, List<ReadingQualityRecord>> findReadingQualitiesByTimestamp(List<? extends BaseReading> readings, Set<QualityCodeSystem> qualityCodeSystems) {
         Range<Instant> range = readings.stream().map(BaseReading::getTimeStamp).map(Range::singleton).reduce(Range::span).get();
-        return findReadingQualities().ofQualitySystems(qualityCodeSystems).inTimeInterval(range).collect().stream()
+        return findReadingQualities().ofQualitySystems(qualityCodeSystems).inTimeInterval(range).stream()
                 .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
     }
 
