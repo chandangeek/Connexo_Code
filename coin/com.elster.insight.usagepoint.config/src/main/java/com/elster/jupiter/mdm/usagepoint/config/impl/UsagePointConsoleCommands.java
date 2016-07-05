@@ -205,7 +205,7 @@ public class UsagePointConsoleCommands {
                 Meter meter = amrSystem
                         .findMeter(amrid)
                         .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
-                meter.store(QualityCodeSystem.MDC, createReading(cim, BigDecimal.valueOf(value), Instant.parse(timestamp)));
+                meter.store(QualityCodeSystem.MDM, createReading(cim, BigDecimal.valueOf(value), Instant.parse(timestamp)));
                 System.out.println("Save register for ID: " + meter.getId());
             });
         } catch (Exception e) {
@@ -230,7 +230,7 @@ public class UsagePointConsoleCommands {
                 Meter meter = amrSystem
                         .findMeter(amrid)
                         .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
-                meter.store(QualityCodeSystem.MDC, createLPReading(cim, values, Instant.parse(timestamp), minutes));
+                meter.store(QualityCodeSystem.MDM, createLPReading(cim, values, Instant.parse(timestamp), minutes));
                 System.out.println("Save LP for ID: " + meter.getId());
             });
         } catch (Exception e) {
