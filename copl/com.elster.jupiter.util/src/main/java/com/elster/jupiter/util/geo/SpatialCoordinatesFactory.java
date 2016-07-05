@@ -103,7 +103,7 @@ public class SpatialCoordinatesFactory {
         BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
         BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
         BigDecimal numericElevation = BigDecimal.ZERO;
-        if(parts.length == 3 && !"null".equals(parts[2])){
+        if (parts.length == 3 && !"null".equals(parts[2])) {
             numericElevation = new BigDecimal(parts[2]);
         }
         if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
