@@ -42,12 +42,14 @@ public class DataValidationStatusImpl implements DataValidationStatus {
 
     @Override
     public Collection<ValidationRule> getOffendedValidationRule(ReadingQuality readingQuality) {
-        Collection<? extends ValidationRule> result;
-        if ((result = qualityRecordList.get(readingQuality)) != null
-                || (result = bulkQualityRecordList.get(readingQuality)) != null) {
-            return Collections.unmodifiableCollection(result);
+        Collection<? extends ValidationRule> result = qualityRecordList.get(readingQuality);
+        if (result == null) {
+            result = bulkQualityRecordList.get(readingQuality);
+            if (result == null) {
+                return Collections.emptyList();
+            }
         }
-        return Collections.emptyList();
+        return Collections.unmodifiableCollection(result);
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
@@ -46,7 +46,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
     @Mock
     private Channel channel, channel1;
     @Mock
-    private ReadingQualityWithTypeFilter filter;
+    private ReadingQualityWithTypeFetcher fetcher;
     @Mock
     private ChannelsContainerValidation channelsContainerValidation, channelsContainerValidation1;
     @Mock
@@ -78,7 +78,7 @@ public class ChannelValidationImplTest extends EqualsContractTest {
         when(channel1.getChannelsContainer()).thenReturn(channelsContainer);
         when(channel.getId()).thenReturn(1L);
         when(channel1.getId()).thenReturn(2L);
-        when(channel.findReadingQualities()).thenReturn(filter);
+        when(channel.findReadingQualities()).thenReturn(fetcher);
         when(channelsContainerValidation.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainerValidation1.getChannelsContainer()).thenReturn(channelsContainer);
         when(channelsContainer.getStart()).thenReturn(Year.of(2013).atMonth(Month.JANUARY).atDay(1).atTime(14, 0).atZone(ZoneId.systemDefault()).toInstant());
@@ -111,10 +111,10 @@ public class ChannelValidationImplTest extends EqualsContractTest {
 
     @Test
     public void testLastChecked() {
-        when(filter.ofQualitySystem(any(QualityCodeSystem.class))).thenReturn(filter);
-        when(filter.inTimeInterval(any(Range.class))).thenReturn(filter);
-        when(filter.ofAnyQualityIndexInCategories(anySetOf(QualityCodeCategory.class))).thenReturn(filter);
-        when(filter.collect()).thenReturn(ImmutableList.of(readingQuality));
+        when(fetcher.ofQualitySystem(any(QualityCodeSystem.class))).thenReturn(fetcher);
+        when(fetcher.inTimeInterval(any(Range.class))).thenReturn(fetcher);
+        when(fetcher.ofAnyQualityIndexInCategories(anySetOf(QualityCodeCategory.class))).thenReturn(fetcher);
+        when(fetcher.collect()).thenReturn(ImmutableList.of(readingQuality));
         ValidationRuleSet ruleSet = mock(ValidationRuleSet.class);
         when(channelsContainerValidation.getRuleSet()).thenReturn(ruleSet);
         when(ruleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
@@ -125,9 +125,9 @@ public class ChannelValidationImplTest extends EqualsContractTest {
         channelValidation.updateLastChecked(dateTime.toInstant());
         Instant instant = dateTime.minusMonths(1).toInstant();
         channelValidation.updateLastChecked(instant);
-        verify(filter).ofQualitySystem(QualityCodeSystem.MDM);
-        verify(filter).inTimeInterval(Range.greaterThan(instant));
-        verify(filter).ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.REASONABILITY, QualityCodeCategory.VALIDATION));
+        verify(fetcher).ofQualitySystem(QualityCodeSystem.MDM);
+        verify(fetcher).inTimeInterval(Range.greaterThan(instant));
+        verify(fetcher).ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.REASONABILITY, QualityCodeCategory.VALIDATION));
         verify(readingQuality).delete();
     }
 }
