@@ -1,5 +1,10 @@
 package com.energyict.mdc.gogo;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -8,11 +13,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -145,7 +145,7 @@ public class ProtocolGogo {
 
         private boolean analyseResponse(String response) {
             String[] ok = {"", "y", "yes"};
-            return Stream.of(ok).filter(option -> option.equalsIgnoreCase(response)).findFirst().isPresent();
+            return Stream.of(ok).anyMatch(option -> option.equalsIgnoreCase(response));
         }
 
         @Override
