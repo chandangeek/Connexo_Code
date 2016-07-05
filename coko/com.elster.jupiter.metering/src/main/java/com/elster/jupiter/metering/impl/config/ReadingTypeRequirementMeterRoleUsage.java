@@ -72,7 +72,7 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
         UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) getReadingTypeRequirement().getMetrologyConfiguration();
         if (!containsMyMeterRole(metrologyConfiguration)) {
             context.disableDefaultConstraintViolation();
-            String formattedTemplate = this.thesaurus.getFormat(MessageSeeds.CAN_NOT_ADD_REQUIREMENT_WITH_THAT_ROLE).format(this.getMeterRole().getDisplayName(), metrologyConfiguration.getName());
+            String formattedTemplate = this.thesaurus.getFormat(MessageSeeds.ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION).format(this.getMeterRole().getDisplayName(), metrologyConfiguration.getName());
             context
                 .buildConstraintViolationWithTemplate(formattedTemplate)
                 .addPropertyNode(Fields.METER_ROLE.fieldName())

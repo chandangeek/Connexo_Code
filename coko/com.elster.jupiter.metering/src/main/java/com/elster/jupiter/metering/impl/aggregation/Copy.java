@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
@@ -33,12 +32,12 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
     private final Formula.Mode mode;
     private final VirtualFactory virtualFactory;
     private final CustomPropertySetService customPropertySetService;
-    private final ReadingTypeDeliverableForMeterActivationProvider deliverableProvider;
+    private final ReadingTypeDeliverableForMeterActivationSetProvider deliverableProvider;
     private final ReadingTypeDeliverable deliverable;
     private final UsagePoint usagePoint;
-    private final MeterActivation meterActivation;
+    private final MeterActivationSet meterActivationSet;
 
-    Copy(Formula.Mode mode, VirtualFactory virtualFactory, CustomPropertySetService customPropertySetService, ReadingTypeDeliverableForMeterActivationProvider deliverableProvider, ReadingTypeDeliverable deliverable, UsagePoint usagePoint, MeterActivation meterActivation) {
+    Copy(Formula.Mode mode, VirtualFactory virtualFactory, CustomPropertySetService customPropertySetService, ReadingTypeDeliverableForMeterActivationSetProvider deliverableProvider, ReadingTypeDeliverable deliverable, UsagePoint usagePoint, MeterActivationSet meterActivationSet) {
         super();
         this.mode = mode;
         this.virtualFactory = virtualFactory;
@@ -46,7 +45,7 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
         this.deliverableProvider = deliverableProvider;
         this.deliverable = deliverable;
         this.usagePoint = usagePoint;
-        this.meterActivation = meterActivation;
+        this.meterActivationSet = meterActivationSet;
     }
 
     @Override
@@ -56,7 +55,7 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
 
     @Override
     public ServerExpressionNode visitProperty(com.elster.jupiter.metering.config.CustomPropertyNode property) {
-        return new CustomPropertyNode(this.customPropertySetService, property.getPropertySpec(), property.getRegisteredCustomPropertySet(), this.usagePoint, this.meterActivation);
+        return new CustomPropertyNode(this.customPropertySetService, property.getPropertySpec(), property.getRegisteredCustomPropertySet(), this.usagePoint, this.meterActivationSet);
     }
 
     @Override
@@ -72,7 +71,7 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
                 this.virtualFactory,
                 node.getReadingTypeRequirement(),
                 this.deliverable,
-                this.meterActivation);
+                this.meterActivationSet);
     }
 
     @Override
@@ -81,7 +80,7 @@ class Copy implements ExpressionNode.Visitor<ServerExpressionNode> {
         return new VirtualDeliverableNode(
                 this.deliverableProvider.from(
                         node.getReadingTypeDeliverable(),
-                        this.meterActivation));
+                        this.meterActivationSet));
     }
 
     @Override

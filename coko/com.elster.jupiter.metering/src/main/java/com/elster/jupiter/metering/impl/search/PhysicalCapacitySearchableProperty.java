@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class PhysicalCapacitySearchableProperty implements SearchableUsagePointProperty {
+class PhysicalCapacitySearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -32,7 +32,7 @@ public class PhysicalCapacitySearchableProperty implements SearchableUsagePointP
     private String uniqueName;
 
     @Inject
-    public PhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    PhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }

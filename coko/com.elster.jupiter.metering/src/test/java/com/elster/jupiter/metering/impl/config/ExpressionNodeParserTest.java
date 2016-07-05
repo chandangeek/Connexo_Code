@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
@@ -14,11 +15,16 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -28,6 +34,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,6 +64,9 @@ public class ExpressionNodeParserTest {
         when(this.metrologyConfigurationService.findReadingTypeRequirement(11)).thenReturn(Optional.of(this.readingTypeRequirement2));
         when(this.readingTypeRequirement1.getMetrologyConfiguration()).thenReturn(this.config);
         when(this.readingTypeRequirement2.getMetrologyConfiguration()).thenReturn(this.config);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -254,14 +265,18 @@ public class ExpressionNodeParserTest {
     public void existingProperties() {
         PropertySpec antennaPower = mock(PropertySpec.class);
         when(antennaPower.getName()).thenReturn("antennaPower");
+        when(antennaPower.getValueFactory()).thenReturn(new BigDecimalFactory());
         PropertySpec antennaCount = mock(PropertySpec.class);
         when(antennaCount.getName()).thenReturn("antennaCount");
+        when(antennaCount.getValueFactory()).thenReturn(new BigDecimalFactory());
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
         when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(antennaPower, antennaCount));
         when(customPropertySet.isVersioned()).thenReturn(true);
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(this.config.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         String formulaString = "multiply(property(c.e.j.metering.cps.ExampleCPS, antennaPower), property(c.e.j.metering.cps.ExampleCPS, antennaCount))";
 
         // Business method
@@ -287,9 +302,12 @@ public class ExpressionNodeParserTest {
     public void propertyOfNonRegisteredSet() {
         PropertySpec antennaPower = mock(PropertySpec.class);
         when(antennaPower.getName()).thenReturn("antennaPower");
+        when(antennaPower.getValueFactory()).thenReturn(new BigDecimalFactory());
         PropertySpec antennaCount = mock(PropertySpec.class);
         when(antennaCount.getName()).thenReturn("antennaCount");
+        when(antennaCount.getValueFactory()).thenReturn(new BigDecimalFactory());
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
         when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(antennaPower, antennaCount));
         when(customPropertySet.isVersioned()).thenReturn(true);
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
@@ -303,24 +321,62 @@ public class ExpressionNodeParserTest {
         // Asserts: see expected exception rule
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = InvalidNodeException.class)
     public void nonVersionedProperty() {
         PropertySpec antennaPower = mock(PropertySpec.class);
         when(antennaPower.getName()).thenReturn("antennaPower");
+        when(antennaPower.getValueFactory()).thenReturn(new BigDecimalFactory());
         PropertySpec antennaCount = mock(PropertySpec.class);
         when(antennaCount.getName()).thenReturn("antennaCount");
+        when(antennaCount.getValueFactory()).thenReturn(new BigDecimalFactory());
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
         when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(antennaPower, antennaCount));
         when(customPropertySet.isVersioned()).thenReturn(false);
         RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(this.config.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         String formulaString = "multiply(property(c.e.j.metering.cps.ExampleCPS, antennaPower), property(c.e.j.metering.cps.ExampleCPS, antennaCount))";
 
-        // Business method
-        new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+        try {
+            // Business method
+            new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
-        // Asserts: see expected exception rule
+            // Asserts: see expected exception rule
+        } catch (InvalidNodeException e) {
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_SET_NOT_VERSIONED);
+            throw e;
+        }
+    }
+
+    @Test(expected = InvalidNodeException.class)
+    public void nonNumericalProperty() {
+        PropertySpec firstName = mock(PropertySpec.class);
+        when(firstName.getName()).thenReturn("firstName");
+        when(firstName.getValueFactory()).thenReturn(new StringFactory());
+        PropertySpec lastName = mock(PropertySpec.class);
+        when(lastName.getName()).thenReturn("lastName");
+        when(lastName.getValueFactory()).thenReturn(new StringFactory());
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
+        when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(firstName, lastName));
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(this.config.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        String formulaString = "multiply(property(c.e.j.metering.cps.ExampleCPS, firstName), property(c.e.j.metering.cps.ExampleCPS, lastName))";
+
+        try {
+            // Business method
+            new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+            // Asserts: see expected exception rule
+        } catch (InvalidNodeException e) {
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
+            throw e;
+        }
     }
 
 }

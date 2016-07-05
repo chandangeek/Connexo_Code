@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class InterruptibleSearchableProperty implements SearchableUsagePointProperty {
+class InterruptibleSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -32,7 +32,7 @@ public class InterruptibleSearchableProperty implements SearchableUsagePointProp
     private String uniqueName;
 
     @Inject
-    public InterruptibleSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    InterruptibleSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -40,7 +40,7 @@ public class InterruptibleSearchableProperty implements SearchableUsagePointProp
     InterruptibleSearchableProperty init(SearchDomain domain, ServiceKindAwareSearchablePropertyGroup group, Clock clock) {
         this.domain = domain;
         this.group = group;
-        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
+        this.uniqueName = FIELD_NAME + "." + group.getId();
         this.clock = clock;
         return this;
     }

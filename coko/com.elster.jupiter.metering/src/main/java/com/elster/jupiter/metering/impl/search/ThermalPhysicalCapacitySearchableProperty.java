@@ -9,13 +9,13 @@ import com.elster.jupiter.util.units.Quantity;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 
-public class ThermalPhysicalCapacitySearchableProperty extends PhysicalCapacitySearchableProperty {
+class ThermalPhysicalCapacitySearchableProperty extends PhysicalCapacitySearchableProperty {
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private static final String FIELD_NAME = "detail.loadLimit";
 
     @Inject
-    public ThermalPhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    ThermalPhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super(propertySpecService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
@@ -34,4 +34,5 @@ public class ThermalPhysicalCapacitySearchableProperty extends PhysicalCapacityS
                         Quantity.create(BigDecimal.ZERO, 9, "Wh"))
                 .finish();
     }
+
 }

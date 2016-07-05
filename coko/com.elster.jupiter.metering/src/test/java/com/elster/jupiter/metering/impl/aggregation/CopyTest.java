@@ -9,7 +9,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.AggregationLevel;
@@ -71,9 +70,9 @@ public class CopyTest {
     @Mock
     private UsagePoint usagePoint;
     @Mock
-    private MeterActivation meterActivation;
+    private MeterActivationSet meterActivationSet;
     @Mock
-    private ReadingTypeDeliverableForMeterActivationProvider readingTypeDeliverableForMeterActivationProvider;
+    private ReadingTypeDeliverableForMeterActivationSetProvider readingTypeDeliverableForMeterActivationSetProvider;
     @Mock
     private ServerMeteringService meteringService;
     @Mock
@@ -106,7 +105,7 @@ public class CopyTest {
         when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this.meteringService, this.userService, this.meterActivationValidatorsWhiteboard);
-        when(this.meterActivation.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(this.meterActivationSet.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         when(this.readingType.getMRID()).thenReturn("CopyTest");
     }
 
@@ -318,7 +317,7 @@ public class CopyTest {
         when(requirement.getReadingType()).thenReturn(readingType);
         Channel channel = mock(Channel.class);
         when(channel.getMainReadingType()).thenReturn(readingType);
-        when(requirement.getMatchingChannelsFor(this.meterActivation)).thenReturn(Collections.singletonList(channel));
+        when(this.meterActivationSet.getMatchingChannelsFor(requirement)).thenReturn(Collections.singletonList(channel));
         ExpressionNode formulaPart =
                 formulaBuilder.plus(
                     formulaBuilder.requirement(requirement),
@@ -326,16 +325,15 @@ public class CopyTest {
                             formulaBuilder.deliverable(readingTypeDeliverable),
                             formulaBuilder.constant(BigDecimal.TEN)))).create();
         com.elster.jupiter.metering.config.OperationNode node = (com.elster.jupiter.metering.config.OperationNode) formulaPart;
-        ReadingTypeDeliverableForMeterActivation readingTypeDeliverableForMeterActivation =
-                new ReadingTypeDeliverableForMeterActivation(
+        ReadingTypeDeliverableForMeterActivationSet readingTypeDeliverableForMeterActivationSet =
+                new ReadingTypeDeliverableForMeterActivationSet(
                         Formula.Mode.AUTO,
                         readingTypeDeliverable,
-                        this.meterActivation,
-                        Range.all(),
+                        this.meterActivationSet,
                         1,
                         mock(ServerExpressionNode.class),
                         VirtualReadingType.from(readingType));
-        when(this.readingTypeDeliverableForMeterActivationProvider.from(readingTypeDeliverable, this.meterActivation)).thenReturn(readingTypeDeliverableForMeterActivation);
+        when(this.readingTypeDeliverableForMeterActivationSetProvider.from(readingTypeDeliverable, this.meterActivationSet)).thenReturn(readingTypeDeliverableForMeterActivationSet);
 
         // Business method
         ServerExpressionNode copied = node.accept(visitor);
@@ -536,7 +534,7 @@ public class CopyTest {
     }
 
     private Copy getTestInstance(Formula.Mode mode) {
-        return new Copy(mode, this.virtualFactory, this.customPropertySetService, this.readingTypeDeliverableForMeterActivationProvider, this.deliverable, this.usagePoint, this.meterActivation);
+        return new Copy(mode, this.virtualFactory, this.customPropertySetService, this.readingTypeDeliverableForMeterActivationSetProvider, this.deliverable, this.usagePoint, this.meterActivationSet);
     }
 
 }

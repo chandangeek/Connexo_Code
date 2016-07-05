@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -139,9 +140,6 @@ public class ExpressionNodeParser {
             if (!readingTypeRequirement.get().getMetrologyConfiguration().equals(metrologyConfiguration)) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) readingTypeRequirement.get().getId());
             }
-            if ((mode.equals(Formula.Mode.AUTO)) && (!readingTypeRequirement.get().isRegular())) {
-                throw new InvalidNodeException(thesaurus, MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
-            }
             if ((mode.equals(Formula.Mode.AUTO) && (!UnitConversionSupport.isValidForAggregation(readingTypeRequirement.get().getUnit())))) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
             }
@@ -161,20 +159,36 @@ public class ExpressionNodeParser {
         String customPropertySetId = this.customPropertySetIds.pop();
         Optional<RegisteredCustomPropertySet> activeCustomPropertySet = this.customPropertySetService.findActiveCustomPropertySet(customPropertySetId);
         if (activeCustomPropertySet.isPresent()) {
-            if (activeCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
-                List<PropertySpec> propertySpecs = activeCustomPropertySet.get().getCustomPropertySet().getPropertySpecs();
-                Optional<PropertySpec> propertySpec = propertySpecs.stream().filter(each -> propertyName.equals(each.getName())).findFirst();
-                if (propertySpec.isPresent()) {
-                    nodes.add(new CustomPropertyNodeImpl(propertySpec.get(), activeCustomPropertySet.get()));
-                } else {
-                    throw new IllegalArgumentException("No property with name " + propertyName + " found in custom property set found with id " + customPropertySetId);
-                }
-            } else {
-                throw new IllegalArgumentException("Only versioned custom property sets are supported but " + activeCustomPropertySet.get().getCustomPropertySet().getName() + " is not versioned");
+            CustomPropertySet customPropertySet = activeCustomPropertySet.get().getCustomPropertySet();
+            List<PropertySpec> propertySpecs = activeCustomPropertySet.get().getCustomPropertySet().getPropertySpecs();
+            Optional<PropertySpec> propertySpec = propertySpecs.stream().filter(each -> propertyName.equals(each.getName())).findFirst();
+            if (!propertySpec.isPresent()) {
+                throw new IllegalArgumentException("No property with name " + propertyName + " found in custom property set found with id " + customPropertySetId);
             }
+            if (!this.customPropertySetIsConfiguredOnMetrologyConfiguration(customPropertySet)) {
+                throw InvalidNodeException.customPropertyNotConfigured(this.thesaurus, propertySpec.get(), customPropertySet);
+            }
+            if (!activeCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
+                throw InvalidNodeException.customPropertySetNotVersioned(this.thesaurus, customPropertySet);
+            }
+            if (!this.isNumerical(propertySpec.get())) {
+                throw InvalidNodeException.customPropertyMustBeNumerical(this.thesaurus, customPropertySet, propertySpec.get());
+            }
+            this.nodes.add(new CustomPropertyNodeImpl(propertySpec.get(), activeCustomPropertySet.get()));
         } else {
             throw new IllegalArgumentException("No custom property set found with id " + customPropertySetId);
         }
+    }
+
+    private boolean customPropertySetIsConfiguredOnMetrologyConfiguration(CustomPropertySet customPropertySet) {
+        return this.metrologyConfiguration
+                .getCustomPropertySets()
+                .stream()
+                .anyMatch(each -> each.getCustomPropertySet().getId().equals(customPropertySet.getId()));
+    }
+
+    private boolean isNumerical(PropertySpec propertySpec) {
+        return Number.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
     }
 
     private void handleNullNode() {

@@ -24,6 +24,7 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.config.ExpressionNode;
@@ -292,7 +293,6 @@ public enum TableSpecs {
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").since(version(10, 2)).add();
-            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
             table.column("INSTALLATIONTIME")
                     .number()
                     .notNull()
@@ -835,6 +835,26 @@ public enum TableSpecs {
                     .add();
         }
     },
+    MTR_USAGEPOINTSTATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointConnectionState> table = dataModel.addTable(name(), UsagePointConnectionState.class);
+            table.map(UsagePointConnectionStateImpl.class);
+            Column usagePoint = table.column("USAGEPOINT").notNull().number().add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
+            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").since(version(10, 2)).add();
+            table.primaryKey("PK_MTR_USAGEPOINTSTATE").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("FK_MTR_USAGEPOINTSTATE")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .onDelete(CASCADE)
+                    .map("usagePoint")
+                    .reverseMap("connectionState")
+                    .composition()
+                    .add();
+        }
+    },
     MTR_METROLOGYCONFIG {
         void addTo(DataModel dataModel) {
             Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
@@ -927,7 +947,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("MTR_FK_UPMTRCONFIG_MC")
                     .on(metrologyConfiguration)
-                    .references(MetrologyConfiguration.class)
+                    .references(UsagePointMetrologyConfiguration.class)
                     .map("metrologyConfiguration")
                     .add();
         }

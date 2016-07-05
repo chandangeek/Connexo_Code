@@ -226,7 +226,7 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
 
     @Override
     public List<HeadEndInterface> getHeadEndInterfaces() {
-        return headEndInterfaces;
+        return Collections.unmodifiableList(this.headEndInterfaces);
     }
 
     @Override
@@ -234,7 +234,6 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
         return headEndInterfaces.stream()
                 .filter(itf -> itf.getAmrSystem().equalsIgnoreCase(amrSystem)).findFirst();
     }
-
 
     @Override
     public Optional<ServiceCategory> getServiceCategory(ServiceKind kind) {
@@ -895,7 +894,7 @@ public class MeteringServiceImpl implements ServerMeteringService, TranslationKe
             formattedLocation = locationTemplate.getTemplateMembers()
                     .stream()
                     .sorted((m1, m2) -> Integer.compare(m1.getRanking(), m2.getRanking()))
-                    .filter(m -> !m.getName().equalsIgnoreCase("locale"))
+                    .filter(m -> !"locale".equalsIgnoreCase(m.getName()))
                     .collect(() -> {
                                 List<List<String>> list = new ArrayList<>();
                                 list.add(new ArrayList<>());

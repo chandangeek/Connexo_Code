@@ -22,12 +22,12 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.Optional;
 
-public class DeliverableValidator implements ConstraintValidator<ValidDeliverable, ReadingTypeDeliverable> {
+class DeliverableValidator implements ConstraintValidator<ValidDeliverable, ReadingTypeDeliverable> {
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
     @Inject
-    public DeliverableValidator(ServerMetrologyConfigurationService metrologyConfigurationService) {
+    DeliverableValidator(ServerMetrologyConfigurationService metrologyConfigurationService) {
         super();
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
@@ -41,11 +41,20 @@ public class DeliverableValidator implements ConstraintValidator<ValidDeliverabl
         try {
             Formula formula = deliverable.getFormula();
             ReadingType readingType = deliverable.getReadingType();
-            if ((readingType != null) && formula.getMode().equals(Formula.Mode.AUTO)) {
-                if (!readingType.isRegular()) {
-                    throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_DELIVERABLE);
+            if ((readingType != null)) {
+                if (readingType.isRegular()) {
+                    if (!formula.getExpressionNode().accept(new RegularDeliverableComplexityAnalyzer())) {
+                        throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS);
+                    }
+                } else {
+                    IrregularDeliverableComplexityAnalyzer complexity = new IrregularDeliverableComplexityAnalyzer();
+                    formula.getExpressionNode().accept(complexity);
+                    if (!complexity.isSimple()) {
+                        throw new InvalidNodeException(this.metrologyConfigurationService.getThesaurus(), MessageSeeds.IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS);
+                    }
                 }
-                if (!UnitConversionSupport.isValidForAggregation(readingType)) {
+                if (   formula.getMode().equals(Formula.Mode.AUTO)
+                    && !UnitConversionSupport.isValidForAggregation(readingType)) {
                     throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_IN_DELIVERABLE);
                 }
             }

@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
+class LoadLimitSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -32,7 +32,7 @@ public class LoadLimitSearchableProperty implements SearchableUsagePointProperty
     private String uniqueName;
 
     @Inject
-    public LoadLimitSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    LoadLimitSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }

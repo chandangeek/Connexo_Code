@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -38,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class CustomPropertyNodeTest {
 
     private static final long REGISTERED_CPS_ID = 97L;
-    private static final long METER_ACTIVATION_ID = 101L;
+    private static final int METER_ACTIVATION_SET_SEQUENCE_NUMBER = 101;
     private static final String PROPERTY_NAME = "example";
 
     @Mock
@@ -52,7 +51,7 @@ public class CustomPropertyNodeTest {
     @Mock
     private UsagePoint usagePoint;
     @Mock
-    private MeterActivation meterActivation;
+    private MeterActivationSet meterActivationSet;
     private Range<Instant> meterActivationRange = Range.all();
 
     @Before
@@ -62,8 +61,8 @@ public class CustomPropertyNodeTest {
         when(this.customPropertySet.isVersioned()).thenReturn(true);
         when(this.registeredCustomPropertySet.getCustomPropertySet()).thenReturn(this.customPropertySet);
         when(this.registeredCustomPropertySet.getId()).thenReturn(REGISTERED_CPS_ID);
-        when(this.meterActivation.getId()).thenReturn(METER_ACTIVATION_ID);
-        when(this.meterActivation.getRange()).thenReturn(this.meterActivationRange);
+        when(this.meterActivationSet.sequenceNumber()).thenReturn(METER_ACTIVATION_SET_SEQUENCE_NUMBER);
+        when(this.meterActivationSet.getRange()).thenReturn(this.meterActivationRange);
     }
 
     @Test
@@ -98,7 +97,7 @@ public class CustomPropertyNodeTest {
 
         // Asserts
         assertThat(sqlName).contains(String.valueOf(REGISTERED_CPS_ID));
-        assertThat(sqlName).contains(String.valueOf(METER_ACTIVATION_ID));
+        assertThat(sqlName).contains(String.valueOf(METER_ACTIVATION_SET_SEQUENCE_NUMBER));
         verify(this.propertySpec).getName();
         assertThat(sqlName).contains(PROPERTY_NAME);
     }
@@ -125,7 +124,7 @@ public class CustomPropertyNodeTest {
     }
 
     private CustomPropertyNode getTestInstance() {
-        return new CustomPropertyNode(this.customPropertySetService, this.propertySpec, this.registeredCustomPropertySet, this.usagePoint, this.meterActivation);
+        return new CustomPropertyNode(this.customPropertySetService, this.propertySpec, this.registeredCustomPropertySet, this.usagePoint, this.meterActivationSet);
     }
 
 }
