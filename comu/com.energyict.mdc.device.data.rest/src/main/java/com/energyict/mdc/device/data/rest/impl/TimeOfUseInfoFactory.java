@@ -5,7 +5,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 
 import javax.inject.Inject;
@@ -33,7 +33,7 @@ public class TimeOfUseInfoFactory {
         return this.from(calendarSupport.getActive(), calendarSupport.getPassive(), calendarSupport.getPlannedPassive(), device);
     }
 
-    private TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, Optional<PassiveEffectiveCalendar> passiveCalendar, Optional<PassiveEffectiveCalendar> plannedPassiveCalendar, Device device) {
+    private TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, Optional<PassiveCalendar> passiveCalendar, Optional<PassiveCalendar> plannedPassiveCalendar, Device device) {
         TimeOfUseInfo info = new TimeOfUseInfo();
         if (activeCalendar.isPresent()) {
             if (activeCalendar.get().getAllowedCalendar().getCalendar().isPresent()) {
@@ -52,7 +52,7 @@ public class TimeOfUseInfoFactory {
         }
 
         if (plannedPassiveCalendar.isPresent()) {
-            PassiveEffectiveCalendar next = plannedPassiveCalendar.get();
+            PassiveCalendar next = plannedPassiveCalendar.get();
             Instant activationDate = next.getActivationDate();
             boolean willBePickedUpByPlannedComtask = deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, next.getDeviceMessage().get());
             boolean willBePickedUpByComtask = willBePickedUpByPlannedComtask || deviceMessageService.willDeviceMessageBePickedUpByComTask(device, next.getDeviceMessage().get());
