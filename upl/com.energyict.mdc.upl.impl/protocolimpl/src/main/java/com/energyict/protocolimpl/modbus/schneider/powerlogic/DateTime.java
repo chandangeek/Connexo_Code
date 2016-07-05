@@ -13,12 +13,20 @@ public class DateTime {
 
     private Calendar meterCalendar;
 
-    private int year;
-    private int month;
-    private int day;
-    private int hour;
-    private int minutes;
-    private int milliSeconds;
+    private static int year;
+    private static int month;
+    private static int day;
+    private static int hour;
+    private static int minutes;
+    private static int milliSeconds;
+
+    private static int dayProfile = Integer.parseInt("0");
+    private static int monthProfile = Integer.parseInt("0");
+    private static int yearProfile = Integer.parseInt("2");
+    private static int hourProfile = Integer.parseInt("1");
+    private static int minuteProfile = Integer.parseInt("1");
+    private static int secondsProfile = Integer.parseInt("2");
+
 
     public DateTime() {
     }
@@ -37,7 +45,7 @@ public class DateTime {
      *
      * @return the metercalendar
      */
-    protected Calendar getMeterCalender() {
+    public Calendar getMeterCalender() {
         return this.meterCalendar;
     }
 
@@ -67,12 +75,34 @@ public class DateTime {
      *
      * @return the DateTimeObject
      */
-    private DateTime createDateTime() {
+    private static DateTime createDateTime() {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.set(year, (month - 1), day, hour, minutes);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, milliSeconds);
         System.out.println(cal.getTime());
         return new DateTime(cal);
+    }
+
+    /**
+     * Create a DateTime Object for a dateTime from the LoadProfile.
+     * The format of the input should be : [monthDay, hourMinut, year] (the last can also be [secondsYear], but the doc is not clear about it, it's always zero)
+     * ex. [2832, 3584, 0009] -> 16 nov. 2009 14:00:00
+     *
+     * @param dateTimeRegisters
+     * @return a DateTime object with the date and time calculated form the input
+     */
+    public static DateTime parseProfileDateTime(byte[] dateTimeRegisters){
+        if(dateTimeRegisters.length != 3){
+            throw new IllegalArgumentException("The dateTime did not contain 3 digits but " + dateTimeRegisters.length);
+        }
+        day = dateTimeRegisters[dayProfile]&0x00FF;
+        month = (dateTimeRegisters[monthProfile]&0x0F00)>>8;
+        year = 2000+(dateTimeRegisters[yearProfile]&0x00FF);
+
+        hour = (dateTimeRegisters[hourProfile]&0xFF00)>>8;
+        minutes = dateTimeRegisters[minuteProfile]&0x00FF;
+        milliSeconds = (dateTimeRegisters[secondsProfile]&0xFF00)>>8;
+        return createDateTime();
     }
 }

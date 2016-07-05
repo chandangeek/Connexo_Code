@@ -14,7 +14,6 @@ import java.util.Date;
  */
 public class InstantVoltAndCurrent extends AbstractActarisObject {
 
-    private MeterReadingData mrd = new MeterReadingData();
     private Date timeStamp = null;
 
     public InstantVoltAndCurrent(ObjectFactory of) {
@@ -94,7 +93,7 @@ public class InstantVoltAndCurrent extends AbstractActarisObject {
         Element md = doc.createElement(XMLTags.METERDATA);
         root.appendChild(md);
         Element s = doc.createElement(XMLTags.SERIALNUMBER);
-        s.setTextContent(getObjectFactory().getAce4000().getSerialNumber());
+        s.setTextContent(getObjectFactory().getAce4000().getConfiguredSerialNumber());
         md.appendChild(s);
         Element t = doc.createElement(XMLTags.TRACKER);
         t.setTextContent(Integer.toString(getTrackingID(), 16));

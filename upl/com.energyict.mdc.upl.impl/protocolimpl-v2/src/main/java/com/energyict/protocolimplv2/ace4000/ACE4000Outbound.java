@@ -4,6 +4,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.*;
@@ -20,6 +21,7 @@ import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.mdw.offline.OfflineLoadProfile;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
@@ -62,7 +64,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     }
 
     public String getVersion() {
-        return "$Date: 2016-05-06 09:43:54 +0300 (Fri, 06 May 2016)$";
+        return "$Date: 2016-06-23 18:11:26 +0200 (Thu, 23 Jun 2016)$";
+    }
+
+    @Override
+    public String getConfiguredSerialNumber() {
+        return getOfflineDevice().getSerialNumber();
     }
 
     @Override
@@ -71,18 +78,43 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         for (LoadProfileReader loadProfileReader : loadProfilesToRead) {
             if (isMaster(loadProfileReader.getMeterSerialNumber())) {     //Master device
                 ObisCode profileObisCode = loadProfileReader.getProfileObisCode();
-                CollectedLoadProfileConfiguration config = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, getSerialNumber());
+                CollectedLoadProfileConfiguration config = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(profileObisCode, getConfiguredSerialNumber());
                 if (!profileObisCode.equals(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE)) {                        //Only one LP is supported
                     config.setSupportedByMeter(false);
+                } else {
+                    List<OfflineLoadProfile> offlineLoadProfiles = getOfflineDevice().getAllOfflineLoadProfiles();
+                    if (offlineLoadProfiles != null && offlineLoadProfiles.size() > 0) {
+                        OfflineLoadProfile offlineLoadProfile = getOfflineLoadProfile(offlineLoadProfiles, DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE);
+                        long profileInterval = offlineLoadProfile.getInterval().getMilliSeconds();
+                        Date toDate = new Date();
+                        Date fromDate = new Date(toDate.getTime() - (2 * profileInterval)); // get the last interval from date
+                        ReadLoadProfile readLoadProfileRequest = new ReadLoadProfile(this, fromDate, toDate);
+                        List<CollectedLoadProfile> collectedLoadProfiles = readLoadProfileRequest.request(loadProfileReader);
+                        if (collectedLoadProfiles != null && collectedLoadProfiles.size() > 0) {
+                            config.setChannelInfos(collectedLoadProfiles.get(0).getChannelInfo());
+                        } else { // if we are not able to read the channelInfos from device then return the ones configured in EIMaster and skip validation of channelInfos
+                            config.setChannelInfos(loadProfileReader.getChannelInfos());
+                        }
+                        getObjectFactory().resetLoadProfile();
+                    }
                 }
                 result.add(config);
             } else {                                                                                    //Slave doesn't support
-                CollectedLoadProfileConfiguration slaveConfig = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getSerialNumber());
+                CollectedLoadProfileConfiguration slaveConfig = MdcManager.getCollectedDataFactory().createCollectedLoadProfileConfiguration(loadProfileReader.getProfileObisCode(), getConfiguredSerialNumber());
                 slaveConfig.setSupportedByMeter(false);
                 result.add(slaveConfig);
             }
         }
         return result;
+    }
+
+    private OfflineLoadProfile getOfflineLoadProfile(List<OfflineLoadProfile> offlineLoadProfiles, ObisCode genericLoadProfileObiscode) {
+        for (OfflineLoadProfile offlineLoadProfile : offlineLoadProfiles) {
+            if (offlineLoadProfile.getObisCode().equals(genericLoadProfileObiscode)) {
+                return offlineLoadProfile;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -94,7 +126,8 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
                 result.addAll(readLoadProfileRequest.request(loadProfileReader));
             } else {    //Slave device
                 CollectedLoadProfile collectedLoadProfile = CollectedDataFactoryProvider.instance.get().getCollectedDataFactory().createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode()));
-                collectedLoadProfile.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning("MBus slave device doesn't support load profiles"));
+                Issue<LoadProfileReader> warning = MdcManager.getIssueFactory().createWarning(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode(), "MBus slave device doesn't support load profiles");
+                collectedLoadProfile.setFailureInformation(ResultType.NotSupported, warning);
                 result.add(collectedLoadProfile);
             }
         }
@@ -236,7 +269,7 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         if (logger == null) {
             logger = Logger.getLogger(this.getClass().getName());
         }
-        return logger; //TODO temporary, replace with provided logger
+        return logger;
     }
 
     @Override
@@ -265,11 +298,11 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         LogBookReader logBookReader = logBooks.get(0);
         if (isMaster(logBookReader.getMeterSerialNumber())) {
             ReadMeterEvents readMeterEventsRequest = new ReadMeterEvents(this);
-            return readMeterEventsRequest.request(logBookReader.getLogBookIdentifier());
+            return readMeterEventsRequest.request(logBookReader);
         } else {
             List<CollectedLogBook> result = new ArrayList<>();
             CollectedLogBook deviceLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(logBookReader.getLogBookIdentifier());
-            deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning("MBus slave device doesn't support events"));
+            deviceLogBook.setFailureInformation(ResultType.NotSupported, MdcManager.getIssueFactory().createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), "MBus slave device doesn't support events"));
             result.add(deviceLogBook);
             return result;
         }
@@ -299,10 +332,13 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     public void terminate() {
     }
 
+    /**
+     * GPRS communication has no security.
+     * The security set can contain a password, this is to be used for SMS communication.
+     */
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         securityProperties = deviceProtocolSecurityPropertySet;
-        //TODO use the password property for SMS communication
     }
 
     @Override

@@ -50,11 +50,20 @@ public class FunctionCodeFactory {
         } else if (functionCode == FunctionCode.WRITE_MULTIPLE_COILS.getFunctionCode()) {
             byte[] data = ParseUtils.convert2ByteArray(vals,2);
             return getWriteMultipleCoils(vals[0], vals[1], data);
+        }else if (functionCode == FunctionCode.READ_GENERAL_REFERENCE.getFunctionCode()){
+            return readGeneralReferenceRequest(vals[0]);
         }
 
         else return null;
     }
-            
+
+    public ReadGeneralReferenceRequest readGeneralReferenceRequest(int referenceSpec)throws IOException {
+        ReadGeneralReferenceRequest readGeneralReferenceRegistersRequest = new ReadGeneralReferenceRequest(this);
+        readGeneralReferenceRegistersRequest.setReferenceSpec(referenceSpec);
+        readGeneralReferenceRegistersRequest.build();
+        return readGeneralReferenceRegistersRequest;
+    }
+
     public ReadHoldingRegistersRequest getReadHoldingRegistersRequest(int startingAddress, int quantityOfRegisters) throws IOException {
         ReadHoldingRegistersRequest readHoldingRegistersRequest = new ReadHoldingRegistersRequest(this);
         readHoldingRegistersRequest.setRegisterSpec(startingAddress, quantityOfRegisters);

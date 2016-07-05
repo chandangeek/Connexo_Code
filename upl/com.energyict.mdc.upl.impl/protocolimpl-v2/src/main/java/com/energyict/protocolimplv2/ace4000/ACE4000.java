@@ -63,6 +63,11 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport implements Ser
         }
     }
 
+    /**
+     * Return the serial number of the device that is configured in EIServer
+     */
+    public abstract String getConfiguredSerialNumber();
+
     public void setAce4000Connection(ACE4000Connection ace4000Connection) {
         this.ace4000Connection = ace4000Connection;
     }

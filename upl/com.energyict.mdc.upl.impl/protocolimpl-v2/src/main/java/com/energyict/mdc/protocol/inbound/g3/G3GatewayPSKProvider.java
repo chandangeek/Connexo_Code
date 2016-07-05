@@ -87,17 +87,7 @@ public class G3GatewayPSKProvider {
             providePSK(gatewayProtocol);
             joiningMacAddresses.remove(macAddress);
         } catch (CommunicationException e) {
-            //Close the TCP connection, this will also release the current association to the beacon.
-            //The next inbound frame will set it up again.
-            try {
-                context.logOnAllLoggerHandlers("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.", Level.WARNING);
-                if (tcpComChannel != null) {
-                    this.tcpComChannel.close();
-                }
-            } finally {
-                this.gatewayProtocol = null;
-                this.tcpComChannel = null;
-            }
+            communicationError(macAddress);
             throw e;
         }
 
@@ -119,6 +109,32 @@ public class G3GatewayPSKProvider {
                     this.tcpComChannel = null;
                 }
             }
+        }
+    }
+
+    /**
+     * This method is synchronized, so that only 1 thread at a time can call it.
+     * The other threads that want to call this method (on the same instance of this class) will automatically wait.
+     * Close the TCP connection, this will also release the current association to the beacon.
+     * The next inbound frame will set it up again.
+     */
+    public synchronized void provideError(String macAddress) {
+        communicationError(macAddress);
+    }
+
+    /**
+     * Close the TCP connection, this will also release the current association to the beacon.
+     * The next inbound frame will set it up again.
+     */
+    private void communicationError(String macAddress) {
+        try {
+            context.logOnAllLoggerHandlers("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.", Level.WARNING);
+            if (tcpComChannel != null) {
+                this.tcpComChannel.close();
+            }
+        } finally {
+            this.gatewayProtocol = null;
+            this.tcpComChannel = null;
         }
     }
 
@@ -153,7 +169,7 @@ public class G3GatewayPSKProvider {
         addDefaultValuesIfNecessary(gatewayProtocol, dialectProperties);
 
         DLMSCache dummyCache = new DLMSCache(new UniversalObject[0], 0);     //Empty cache, prevents that the protocol will read out the object list
-        OfflineDevice offlineDevice = context.getInboundDAO().goOffline(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
+        OfflineDevice offlineDevice = context.getInboundDAO().getOfflineDevice(getDeviceIdentifier(), new DeviceOfflineFlags());   //Empty flags means don't load any master data
         context.logOnAllLoggerHandlers("Setting up a new outbound TCP connection to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);
         createTcpComChannel();
         context.logOnAllLoggerHandlers("Creating a new DLMS session to Beacon device '" + getDeviceIdentifier().getIdentifier() + "', to provide the PSK key(s)", Level.INFO);

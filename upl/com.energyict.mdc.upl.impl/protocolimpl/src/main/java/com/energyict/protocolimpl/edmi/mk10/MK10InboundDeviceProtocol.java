@@ -137,13 +137,18 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
         return Collections.emptyList();
     }
 
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
+    }
+
     public void setDeviceIdentifier(String serialNumber) {
         this.deviceIdentifier = new DialHomeIdDeviceIdentifier(serialNumber);
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
+        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
     }
 
     @Override
@@ -187,4 +192,6 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
         }
         return typedProperties;
     }
+
+
 }

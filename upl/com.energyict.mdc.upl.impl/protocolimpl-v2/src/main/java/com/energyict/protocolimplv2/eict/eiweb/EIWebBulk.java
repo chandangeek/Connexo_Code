@@ -57,7 +57,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-10 17:34:23 +0100 (Thu, 10 Mar 2016)$";
+        return "$Date: 2016-05-31 16:24:54 +0300 (Tue, 31 May 2016)$";
     }
 
     @Override
@@ -129,6 +129,11 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
     @Override
     public List<CollectedData> getCollectedData() {
         return this.protocolHandler.getCollectedData();
+    }
+
+    @Override
+    public boolean hasSupportForRequestsOnInbound() {
+        return false;
     }
 
 }

@@ -1,17 +1,25 @@
 package com.energyict.protocolimplv2.dlms.idis.am540;
 
 import com.energyict.cbo.ConfigurationSupport;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.dlms.protocolimplv2.connection.FlagIEC1107Connection;
+import com.energyict.mdc.channels.ComChannelType;
+import com.energyict.mdc.channels.serial.Parities;
+import com.energyict.mdc.channels.serial.SerialPortConfiguration;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
+import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocol.exceptions.*;
 import com.energyict.protocol.support.SerialNumberSupport;
@@ -24,6 +32,7 @@ import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Configuratio
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
 import com.energyict.protocolimplv2.dlms.idis.am540.registers.AM540RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
+import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -40,7 +49,68 @@ import java.util.List;
 public class AM540 extends AM130 implements SerialNumberSupport {
 
     private AM540Cache am540Cache;
+    private HHUSignOnV2 hhuSignOn;
 
+    @Override
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.offlineDevice = offlineDevice;
+        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        initDlmsSession(comChannel);
+    }
+
+    private void initDlmsSession(ComChannel comChannel) {
+        setMeterToTransparentMode(comChannel);
+        readFrameCounter(comChannel);
+        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+    }
+
+    private void setMeterToTransparentMode(ComChannel comChannel) {
+        if (getDlmsSessionProperties().useMeterInTransparentMode()){
+            if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
+                hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
+                SerialPortConfiguration serialPortConfiguration = ((SerialPortComChannel) comChannel).getSerialPortConfiguration();
+                int transparentConnectTime = getDlmsSessionProperties().getTransparentConnectTime();
+                int transparentDatabits = serialPortConfiguration.getNrOfDataBits().getNrOfDataBits().intValue();
+                int transparentStopbits = serialPortConfiguration.getNrOfStopBits().getNrOfStopBits().intValue();
+                int transparentParity = getParityValue(serialPortConfiguration.getParity());
+                int transparentBaudrate = serialPortConfiguration.getBaudrate().getBaudrate().intValue();
+                int authenticationSecurityLevel = Integer.parseInt(getDlmsSessionProperties().getTransparentSecurityLevel().split(":")[0]);
+                String strPassword = getDlmsSessionProperties().getTransparentPassword();
+                FlagIEC1107Connection flagIEC1107Connection = null;
+                try {
+                    flagIEC1107Connection = new FlagIEC1107Connection((SerialPortComChannel) comChannel, transparentConnectTime, transparentBaudrate, transparentDatabits, transparentStopbits, transparentParity, authenticationSecurityLevel, strPassword, getLogger(), hhuSignOn);
+                    flagIEC1107Connection.setMeterToTransparentMode();
+                } catch (Exception e) {
+                    getLogger().info("Failed to set the meter into transparent mode");
+                    if(flagIEC1107Connection != null){
+                        flagIEC1107Connection.switchBaudrate(transparentBaudrate, HHUSignOn.PROTOCOL_HDLC);
+                    }
+                }
+                flagIEC1107Connection = null;//cleanUp this connection
+            }
+        }
+    }
+
+    private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
+        HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
+        hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
+        hhuSignOn.enableDataReadout(false);
+        return hhuSignOn;
+    }
+
+    private int getParityValue(Parities parities){
+        switch (parities) {
+            case NONE:
+                return 0;
+            case ODD:
+                return 2;
+            case EVEN:
+                return 1;
+            default:
+                return -1;
+        }
+    }
 
     @Override
     public String getProtocolDescription() {
@@ -49,7 +119,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-10 12:20:42 +0200 (Tue, 10 May 2016)$";
+        return "$Date: 2016-06-13 09:30:28 +0300 (Mon, 13 Jun 2016)$";
     }
 
     /**

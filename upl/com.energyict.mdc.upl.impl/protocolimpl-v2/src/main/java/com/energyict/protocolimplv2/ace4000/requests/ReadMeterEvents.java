@@ -1,8 +1,10 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
+import com.energyict.mdc.issues.Issue;
 import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.ResultType;
-import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
 import com.energyict.protocolimplv2.ace4000.requests.tracking.RequestType;
@@ -16,7 +18,7 @@ import java.util.List;
  * Time: 14:00
  * Author: khe
  */
-public class ReadMeterEvents extends AbstractRequest<LogBookIdentifier, List<CollectedLogBook>> {
+public class ReadMeterEvents extends AbstractRequest<LogBookReader, List<CollectedLogBook>> {
 
     public ReadMeterEvents(ACE4000Outbound ace4000) {
         super(ace4000);
@@ -40,16 +42,17 @@ public class ReadMeterEvents extends AbstractRequest<LogBookIdentifier, List<Col
     protected void parseResult() {
         if (isSuccessfulRequest(RequestType.Events)) {
             List<CollectedLogBook> result = new ArrayList<CollectedLogBook>();
-            result.add(getAce4000().getObjectFactory().getDeviceLogBook(getInput()));
+            result.add(getAce4000().getObjectFactory().getDeviceLogBook(getInput().getLogBookIdentifier()));
             setResult(result);
         } else if (isFailedRequest(RequestType.Events)) {
             List<CollectedLogBook> result = new ArrayList<CollectedLogBook>();
-            CollectedLogBook deviceLogBook = getAce4000().getObjectFactory().getDeviceLogBook(getInput());
-            ResultType resultType = ResultType.DataIncomplete;
+            CollectedLogBook deviceLogBook = getAce4000().getObjectFactory().getDeviceLogBook(getInput().getLogBookIdentifier());
+            ResultType resultType = ResultType.InCompatible;
             if (deviceLogBook.getCollectedMeterEvents().size() == 0) {
                 resultType = ResultType.NotSupported;
             }
-            deviceLogBook.setFailureInformation(resultType, MdcManager.getIssueFactory().createProblem(getInput(), "Requested events, meter returned NACK." + getReasonDescription(), getInput().getLogBook().getLogBookSpec().getDeviceObisCode()));
+            Issue<LoadProfileReader> problem = MdcManager.getIssueFactory().createProblem(getInput(), "loadProfileXIssue", getInput().getLogBookObisCode().toString(), "Requested events, meter returned NACK. " + getReasonDescription());
+            deviceLogBook.setFailureInformation(resultType, problem);
             result.add(deviceLogBook);
             setResult(result);
         }

@@ -50,11 +50,13 @@ public class ContactorCommand extends AbstractRequest<OfflineDeviceMessage, Coll
 
         if (isFailedRequest(RequestType.Contactor, trackingId)) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.ConfigurationError, messageExecutor.createMessageFailedIssue(getInput(), "Contactor command failed, meter returned NACK." + getReasonDescription()));
-            collectedMessage.setDeviceProtocolInformation("Contactor command failed, meter returned NACK..");
+            collectedMessage.setFailureInformation(ResultType.ConfigurationError, messageExecutor.createMessageFailedIssue(getInput(), "Contactor command failed, meter returned NACK. " + getReasonDescription()));
+            collectedMessage.setDeviceProtocolInformation("Contactor command failed, meter returned NACK " + getReasonDescription());
+            setResult(collectedMessage);
         } else {
             //If no nak has been received, assume that the command was successful. The meter does not send confirmation.
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+            setResult(collectedMessage);
         }
     }
 

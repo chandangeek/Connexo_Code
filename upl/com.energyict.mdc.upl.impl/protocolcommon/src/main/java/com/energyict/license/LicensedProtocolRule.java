@@ -288,6 +288,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     Itron_CryptoMbusDeviceWithBreaker(253, "com.enexis.smartmeterprotocolimpl.nta.dsmr40.itron.CryptoMbusDeviceWithBreaker", FamilyRule.DSMR_NTA),
 
     PM5560(254, "com.energyict.protocolimpl.modbus.schneider.powerlogic.PM5560", FamilyRule.EICT_RTU_EMS),
+    PM5561(280, "com.energyict.protocolimpl.modbus.schneider.powerlogic.PM5561", FamilyRule.EICT_RTU_EMS),
     WEB_RTU_Z3_V2(255, "com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3", FamilyRule.EICT_Z3),
     WEB_RTU_Z3_MBUS_DEVICE_V2(256, "com.energyict.protocolimplv2.eict.webrtuz3.MBusDevice", FamilyRule.EICT_Z3),
     WEB_RTU_Z3_EMETER_V2(257, "com.energyict.protocolimplv2.eict.webrtuz3.EMeter", FamilyRule.EICT_Z3),

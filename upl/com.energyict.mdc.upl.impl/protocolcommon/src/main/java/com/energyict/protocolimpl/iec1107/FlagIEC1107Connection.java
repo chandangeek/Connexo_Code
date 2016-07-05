@@ -324,6 +324,7 @@ public class FlagIEC1107Connection extends Connection {
     public void sendBreak() throws NestedIOException, FlagIEC1107ConnectionException {
         try {
             byte[] buffer = {(byte) SOH, (byte) 0x42, (byte) 0x30, (byte) ETX, (byte) 0x71};
+            startWriting();
             sendRawData(buffer);
             return;
         }
@@ -390,6 +391,7 @@ public class FlagIEC1107Connection extends Connection {
         while (true) {
             try {
                 String str = "/?" + meterID + "!\r\n";
+                startWriting();
                 sendRawData(str.getBytes());
                 // KV 16122003
                 String strIdent = receiveIdent(strIdentConfig);
@@ -409,10 +411,12 @@ public class FlagIEC1107Connection extends Connection {
                 if (iIEC1107Compatible == 1) {
                     // protocol mode C, programming mode
                     byte[] ack = {(byte) ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x31, (byte) 0x0D, (byte) 0x0A};
+                    startWriting();
                     sendRawData(ack);
                 } else {
                     // special case for Elster A1700 meter
                     byte[] ack = {(byte) ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x36, (byte) 0x0D, (byte) 0x0A};
+                    startWriting();
                     sendRawData(ack);
                 }
 
@@ -442,6 +446,7 @@ public class FlagIEC1107Connection extends Connection {
         while (true) {
             try {
                 // here, mac is connected for HHU or modem
+                delay(1000);
                 if (iSecurityLevel == 0) {
                     receiveData();
                 } else if (iSecurityLevel == 1) {
@@ -517,6 +522,7 @@ public class FlagIEC1107Connection extends Connection {
             if (iSecurityLevel != 0) {
                 while (true) {
                     echoByteArrayOutputStream.reset();
+                    startWriting();
                     sendRawCommandFrame(authenticationCommand, authenticationData); // logon using securitylevel
                     String resp = receiveString();
                     if (resp.compareTo("ACK") == 0) {
@@ -571,6 +577,7 @@ public class FlagIEC1107Connection extends Connection {
         while (true) {
             try {
                 String str = "/?" + meterID + "!\r\n";
+                startWriting();
                 sendRawData(str.getBytes());
                 String strIdent = receiveIdent(strIdentConfig);
 
@@ -580,6 +587,7 @@ public class FlagIEC1107Connection extends Connection {
                 }
 
                 byte[] ack = {(byte) ACK, (byte) 0x30, (byte) strIdent.charAt(4), (byte) 0x30, (byte) 0x0D, (byte) 0x0A};
+                startWriting();
                 sendRawData(ack);
                 boolFlagIEC1107Connected = true;
                 return (receiveRawData());
@@ -726,8 +734,9 @@ public class FlagIEC1107Connection extends Connection {
 
         lMSTimeout = System.currentTimeMillis() + iProtocolTimeout;
 
+        startReading();
         copyEchoBuffer();
-
+        delay(1000);
         while (true) {
             if ((iNewKar = readIn()) != -1) {
                 if (DEBUG == 1) {
@@ -838,6 +847,7 @@ public class FlagIEC1107Connection extends Connection {
         if (DEBUG == 1) {
             System.out.println("doReceiveData(...):");
         }
+        startReading();
         copyEchoBuffer();
 
         while (true) {
@@ -937,7 +947,7 @@ public class FlagIEC1107Connection extends Connection {
                             lMSTimeoutInterFrame = System.currentTimeMillis() + iProtocolTimeout;
                             byteArrayOutputStream.reset();
                             end = false;
-
+                            startWriting();
                             sendRawData(ACK);
                             copyEchoBuffer(); // KV 07092005 bugfix when ech cancelling...
                         } else {
@@ -966,6 +976,7 @@ public class FlagIEC1107Connection extends Connection {
     // KV 27102004
 
     public void breakStreamingMode() throws NestedIOException, ConnectionException {
+        startWriting();
         sendRawData((byte) 0x1B);
         delayAndFlush(3000);
     }
@@ -1000,7 +1011,7 @@ public class FlagIEC1107Connection extends Connection {
         if (DEBUG == 1) {
             System.out.println("receiveStreamData(...):");
         }
-
+        startReading();
         copyEchoBuffer();
 
         while (true) {
@@ -1108,7 +1119,7 @@ public class FlagIEC1107Connection extends Connection {
         byte[] convert = new byte[1];
 
         lMSTimeout = System.currentTimeMillis() + iProtocolTimeout;
-
+        startReading();
         copyEchoBuffer();
         String convertstr;
 
@@ -1200,6 +1211,7 @@ public class FlagIEC1107Connection extends Connection {
         for (int i = 1; i < data.length; i++) {
             data[i] = txBuffer[i - 1];
         }
+        startWriting();
         sendOut(data);
 //        sendOut(SOH);
 //        sendOut(txBuffer);
@@ -1295,4 +1307,13 @@ public class FlagIEC1107Connection extends Connection {
         }
         return objectId;
     }
+
+    protected void startWriting() {
+        //Nothing to do, subclasses can override
+    }
+
+    protected void startReading() {
+        //Nothing to do, subclasses can override
+    }
+
 }

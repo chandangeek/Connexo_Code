@@ -32,7 +32,6 @@ public class MBusBillingData extends AbstractActarisObject {
 
     private Date from;
     private Map<String, List<Date>> billingPointDates = new HashMap<String, List<Date>>();
-    private MeterReadingData mrd = new MeterReadingData();
     private Map<String, MeterReadingData> mrdPerSlave = new HashMap<String, MeterReadingData>();
 
     public MeterReadingData getMrdPerSlave(String serialNumber) {
@@ -85,7 +84,7 @@ public class MBusBillingData extends AbstractActarisObject {
         Element md = doc.createElement(XMLTags.METERDATA);
         root.appendChild(md);
         Element s = doc.createElement(XMLTags.SERIALNUMBER);
-        s.setTextContent(getObjectFactory().getAce4000().getSerialNumber());
+        s.setTextContent(getObjectFactory().getAce4000().getConfiguredSerialNumber());
         md.appendChild(s);
         Element t = doc.createElement(XMLTags.TRACKER);
         t.setTextContent(Integer.toString(getTrackingID(), 16));

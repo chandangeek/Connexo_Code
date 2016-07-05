@@ -16,13 +16,12 @@ import java.util.List;
  */
 public abstract class AbstractRequest<Input, Result> {
 
+    //Indicates if the response can come in multiple frames. In this case, keep listening until a timeout occurs!
+    protected boolean multiFramedAnswer = false;
     private ACE4000Outbound ace4000;
     private Input input;
     private Result result = null;
     private String reasonDescription = "";
-
-    //Indicates if the response can come in multiple frames. In this case, keep listening until a timeout occurs!
-    protected boolean multiFramedAnswer = false;
 
     public AbstractRequest(ACE4000Outbound ace4000) {
         this.ace4000 = ace4000;
@@ -36,12 +35,12 @@ public abstract class AbstractRequest<Input, Result> {
         return input;
     }
 
-    protected void setResult(Result result) {
-        this.result = result;
-    }
-
     protected Result getResult() {
         return result;
+    }
+
+    protected void setResult(Result result) {
+        this.result = result;
     }
 
     /**
@@ -129,7 +128,17 @@ public abstract class AbstractRequest<Input, Result> {
      * Check the request received a proper response (not nack)
      */
     protected boolean isSuccessfulRequest(RequestType type, int trackingId) {
-        return RequestState.Success.equals(getAce4000().getObjectFactory().getRequestStates().get(new Tracker(type, trackingId)));
+        RequestState requestState = getRequestState(type, trackingId);
+        return RequestState.Success.equals(requestState);
+    }
+
+    private RequestState getRequestState(RequestType type, int trackingId) {
+        for (Tracker tracker : getAce4000().getObjectFactory().getRequestStates().keySet()) {
+            if (tracker.equals(new Tracker(type, trackingId))) {
+                return getAce4000().getObjectFactory().getRequestStates().get(tracker);
+            }
+        }
+        return null;
     }
 
     /**
@@ -143,11 +152,20 @@ public abstract class AbstractRequest<Input, Result> {
      * Check if the request received a nack response. Additionally, fetch the reason description for logging purposes
      */
     protected boolean isFailedRequest(RequestType type, int trackingId) {
-        Tracker tracker = new Tracker(type, trackingId);
-        RequestState requestState = getAce4000().getObjectFactory().getRequestStates().get(tracker);
-        String reason = getAce4000().getObjectFactory().getReasonDescriptions().get(tracker);
+        RequestState requestState = getRequestState(type, trackingId);
+        String reason = getReasonDescription(type, trackingId);
+
         reasonDescription = reason == null ? reasonDescription : reason;
         return RequestState.Fail.equals(requestState);
+    }
+
+    private String getReasonDescription(RequestType type, int trackingId) {
+        for (Tracker tracker : getAce4000().getObjectFactory().getReasonDescriptions().keySet()) {
+            if (tracker.equals(new Tracker(type, trackingId))) {
+                return getAce4000().getObjectFactory().getReasonDescriptions().get(tracker);
+            }
+        }
+        return null;
     }
 
     /**

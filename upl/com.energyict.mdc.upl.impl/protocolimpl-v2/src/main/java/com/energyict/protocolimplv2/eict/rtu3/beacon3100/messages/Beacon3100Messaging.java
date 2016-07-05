@@ -76,6 +76,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private static final ObisCode DEVICE_NAME_OBISCODE = ObisCode.fromString("0.0.128.0.9.255");
     private static final String SEPARATOR = ";";
     private static final String SEPARATOR2 = ",";
+    /**
+     * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
+     */
+    private static final Lock firmwareFileLock = new ReentrantLock();
 
     static {
         supportedMessages = new ArrayList<>();
@@ -163,10 +167,6 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(PLCConfigurationDeviceMessage.PathRequestWithTimeout);
     }
 
-    /**
-     * We lock the critical section where we write the firmware file, making sure that we don't corrupt it.
-     */
-    private final Lock firmwareFileLock = new ReentrantLock();
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
 
@@ -269,7 +269,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         final String fileName = new StringBuilder("beacon-3100-firmware-").append(userFile.getId()).toString();
 
         try {
-            this.firmwareFileLock.lock();
+            firmwareFileLock.lock();
 
             final File tempFile = new File(tempDirectory, fileName);
 
@@ -337,7 +337,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
             throw new IllegalStateException("Error while writing temporary file : [" + e.getMessage() + "]", e);
         } finally {
-            this.firmwareFileLock.unlock();
+            firmwareFileLock.unlock();
         }
     }
 
