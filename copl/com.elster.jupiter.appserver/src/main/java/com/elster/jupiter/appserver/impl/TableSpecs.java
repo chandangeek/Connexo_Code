@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2PATH;
@@ -66,6 +67,36 @@ public enum TableSpecs {
             table.column("PATH").varChar(DESCRIPTION_LENGTH).conversion(CHAR2PATH).map("importFolderPath").add();
             table.primaryKey("APS_PK_IMPORTFOLDER").on(appServerColumn).add();
             table.foreignKey("APS_FK_IMPORTFOLDERAPPSERVER").references(APS_APPSERVER.name()).onDelete(DeleteRule.CASCADE).map("appServer").on(appServerColumn).add();
+        }
+    },
+    APS_ENDPOINTS() {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<WebServiceForAppServer> table = dataModel.addTable(name(), WebServiceForAppServer.class);
+            table.map(EndPointForAppServerImpl.class);
+            Column appServer = table.column("APPSERVER")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .add();
+            Column endPointConfiguration = table.column("ENDPOINTCONFIG")
+                    .number()
+                    .notNull()
+                    .add();
+            table.primaryKey("APS_PK_WEBSERVICE")
+                    .on(appServer, endPointConfiguration)
+                    .add();
+            table.foreignKey("APS_FK_APPSERVER")
+                    .on(appServer)
+                    .references(AppServer.class)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(EndPointForAppServerImpl.Fields.AppServer.fieldName())
+                    .add();
+            table.foreignKey("APS_FK_ENDPOINTCONFIG")
+                    .on(endPointConfiguration)
+                    .references(EndPointConfiguration.class)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map(EndPointForAppServerImpl.Fields.EndPointConfiguration.fieldName())
+                    .add();
         }
     };
 

@@ -6,6 +6,7 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -30,6 +31,7 @@ public class AppServiceModule extends AbstractModule {
         requireBinding(UserService.class);
         requireBinding(BundleContext.class);
         requireBinding(EventService.class);
+        requireBinding(WebServicesService.class);
 
         bind(AppServiceImpl.class).in(Scopes.SINGLETON);
         bind(AppService.class).to(AppServiceImpl.class);

@@ -30,6 +30,10 @@ import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -101,7 +105,9 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile WebServicesService webServicesService;
     private volatile UpgradeService upgradeService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
 
     private volatile AppServerImpl appServer;
     private volatile List<? extends SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -119,7 +125,11 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
     }
 
     @Inject
-    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService, CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService, UserService userService, QueryService queryService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService, UpgradeService upgradeService) {
+    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService,
+                   CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService,
+                   UserService userService, QueryService queryService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService,
+                   WebServicesService webServicesService,
+                   UpgradeService upgradeService, EndPointConfigurationService endPointConfigurationService, EventService eventService) {
         this();
         setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
@@ -132,8 +142,10 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
         setTaskService(taskService);
         setUserService(userService);
         setQueryService(queryService);
+        setWebServicesService(webServicesService);
         setUpgradeService(upgradeService);
-
+        setEndPointConfigurationService(endPointConfigurationService);
+        setEventService(eventService);
         activate(bundleContext);
         delayedNotifications.ready();
     }
@@ -155,10 +167,13 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
                     bind(FileImportService.class).toInstance(fileImportService);
                     bind(Thesaurus.class).toInstance(thesaurus);
                     bind(MessageInterpolator.class).toInstance(thesaurus);
+                    bind(EventService.class).toInstance(eventService);
                     bind(AppService.class).toInstance(AppServiceImpl.this);
                     bind(IAppService.class).toInstance(AppServiceImpl.this);
                     bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                    bind(WebServicesService.class).toInstance(webServicesService);
                     bind(UserService.class).toInstance(userService);
+                    bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
                 }
             });
 
@@ -211,6 +226,7 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
 
         launchFileImports();
         launchTaskService();
+        launchWebServices();
         listenForMessagesToAppServer();
         listenForMessagesToAllServers();
     }
@@ -248,12 +264,55 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
         servedImportSchedules.remove(importSchedule);
     }
 
+    private void launchWebServices() {
+        Optional<AppServer> appServer = this.getAppServer();
+        if (appServer.isPresent()) {
+            appServer.get()
+                    .supportedEndPoints()
+                    .stream()
+                    .filter(EndPointConfiguration::isActive)
+                    .forEach(webServicesService::publishEndPoint);
+        }
+    }
+
     private void serveImportSchedule(ImportSchedule importSchedule) {
         fileImportService.schedule(importSchedule);
         servedImportSchedules.add(importSchedule);
     }
 
     private void reconfigure() {
+        reconfigureImportSchedules();
+        reconfigureWebServices();
+    }
+
+    private void reconfigureWebServices() {
+        Optional<AppServer> appServer = this.getAppServer();
+        if (appServer.isPresent()) {
+            List<EndPointConfiguration> runningButUnsupportedEndPoints = webServicesService.getPublishedEndPoints();
+            runningButUnsupportedEndPoints.removeAll(appServer.get().supportedEndPoints());
+            runningButUnsupportedEndPoints.stream().forEach(webServicesService::removeEndPoint);
+
+            for (EndPointConfiguration endPointConfiguration : appServer.get().supportedEndPoints()) {
+                boolean published = webServicesService.isPublished(endPointConfiguration);
+                boolean shouldBePublished = endPointConfiguration.isActive() && appServer.get().isActive();
+                if (published && !shouldBePublished) {
+                    String msg = "Stopping WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
+                            .getName() + " on application server " + appServer.get().getName();
+                    LOGGER.info(msg);
+                    endPointConfiguration.log(LogLevel.FINE, msg);
+                    webServicesService.removeEndPoint(endPointConfiguration);
+                } else if (!published && shouldBePublished) {
+                    String msg = "Publishing WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
+                            .getName() + " on application server " + appServer.get().getName();
+                    LOGGER.info(msg);
+                    endPointConfiguration.log(LogLevel.FINE, msg);
+                    webServicesService.publishEndPoint(endPointConfiguration);
+                }
+            }
+        }
+    }
+
+    private void reconfigureImportSchedules() {
         Optional<ImportFolderForAppServer> appServerImportFolder = dataModel.mapper(ImportFolderForAppServer.class).getOptional(appServer.getName());
         if (appServerImportFolder.isPresent() && appServerImportFolder.get().getImportFolder().isPresent()) {
             appServerImportFolder.flatMap(ImportFolderForAppServer::getImportFolder)
@@ -354,6 +413,10 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
         appServer = null;
         subscriberExecutionSpecs = Collections.emptyList();
         deactivateTasks.clear();
+        Optional<AppServer> appServer = getAppServer();
+        if (appServer.isPresent()) {
+            appServer.get().supportedEndPoints().forEach(webServicesService::removeEndPoint);
+        }
     }
 
     @Override
@@ -435,6 +498,11 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
         this.thesaurus = nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
+    }
+
     @Override
     public void handle(Object notification, Object... notificationDetails) {
         if (notification instanceof InvalidateCacheRequest) {
@@ -485,6 +553,11 @@ public class AppServiceImpl implements IAppService, Subscriber, TranslationKeyPr
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     private class CommandHandler implements MessageHandler {

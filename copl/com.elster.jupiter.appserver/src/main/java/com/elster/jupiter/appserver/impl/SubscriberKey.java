@@ -9,7 +9,7 @@ final class SubscriberKey {
     private final String destination;
     private final String subscriber;
 
-    SubscriberKey(String destination, String subscriber) {
+    private SubscriberKey(String destination, String subscriber) {
         this.destination = destination;
         this.subscriber = subscriber;
     }
@@ -39,8 +39,12 @@ final class SubscriberKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         SubscriberKey that = (SubscriberKey) o;
 

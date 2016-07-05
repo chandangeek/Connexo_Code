@@ -11,6 +11,7 @@ import com.elster.jupiter.appserver.ServerMessageQueueMissing;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.UniqueCaseInsensitive;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -20,12 +21,17 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EventType;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -35,12 +41,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static java.util.stream.Collectors.toList;
 
 @UniqueCaseInsensitive(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 class AppServerImpl implements AppServer {
@@ -55,6 +62,11 @@ class AppServerImpl implements AppServer {
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final WebServicesService webServicesService;
+    private final Provider<EndPointForAppServerImpl> webServiceForAppServerProvider;
+    private final EventService eventService;
+    private final EndPointConfigurationService endPointConfigurationService;
+
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = APP_SERVER_NAME_SIZE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_14 + "}")
     @Pattern(regexp = "[a-zA-Z0-9\\-]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.APPSERVER_NAME_INVALID_CHARS + "}")
@@ -64,6 +76,7 @@ class AppServerImpl implements AppServer {
     private boolean recurrentTaskActive = true;
     private boolean active;
     private List<SubscriberExecutionSpecImpl> executionSpecs;
+
     private List<ImportScheduleOnAppServerImpl> importSchedulesOnAppServer;
 
     //audit columns: all managed by ORM
@@ -77,7 +90,11 @@ class AppServerImpl implements AppServer {
     private String userName;
 
     @Inject
-    AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService, MessageService messageService, JsonService jsonService, Thesaurus thesaurus, TransactionService transactionService, ThreadPrincipalService threadPrincipalService) {
+    AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService,
+                  MessageService messageService, JsonService jsonService, Thesaurus thesaurus,
+                  TransactionService transactionService, ThreadPrincipalService threadPrincipalService,
+                  Provider<EndPointForAppServerImpl> webServiceForAppServerProvider,
+                  WebServicesService webServicesService, EventService eventService, EndPointConfigurationService endPointConfigurationService) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
         this.fileImportService = fileImportService;
@@ -86,6 +103,10 @@ class AppServerImpl implements AppServer {
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
         this.threadPrincipalService = threadPrincipalService;
+        this.webServiceForAppServerProvider = webServiceForAppServerProvider;
+        this.webServicesService = webServicesService;
+        this.eventService = eventService;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     static AppServerImpl from(DataModel dataModel, String name, CronExpression scheduleFrequency) {
@@ -135,7 +156,7 @@ class AppServerImpl implements AppServer {
             importSchedulesOnAppServer = getImportScheduleOnAppServerFactory().find("appServer", this)
                     .stream()
                     .filter(importService -> importService.getAppServer().getName().equals(this.getName()))
-                    .collect(Collectors.toList());
+                    .collect(toList());
         }
         return Collections.unmodifiableList(importSchedulesOnAppServer);
     }
@@ -257,6 +278,47 @@ class AppServerImpl implements AppServer {
     @Override
     public long getVersion() {
         return this.version;
+    }
+
+    @Override
+    public void supportEndPoint(EndPointConfiguration endPointConfiguration) {
+        Objects.nonNull(endPointConfiguration);
+        if (!supportedEndPoints().contains(endPointConfiguration)) {
+            EndPointForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
+            link.save();
+            eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+        }
+    }
+
+    @Override
+    public void dropEndPointSupport(EndPointConfiguration endPointConfiguration) {
+        Objects.nonNull(endPointConfiguration);
+        List<WebServiceForAppServer> links = dataModel.query(WebServiceForAppServer.class)
+                .select(
+                        where(EndPointForAppServerImpl.Fields.EndPointConfiguration.fieldName())
+                                .isEqualTo(endPointConfiguration)
+                                .and(where(EndPointForAppServerImpl.Fields.AppServer.fieldName())
+                                        .isEqualTo(this)));
+        if (!links.isEmpty()) {
+            dataModel.mapper(WebServiceForAppServer.class).remove(links.get(0)); // there can only be one anyway
+        }
+        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+    }
+
+    @Override
+    public List<EndPointConfiguration> supportedEndPoints() {
+        List<WebServiceForAppServer> links =
+                dataModel
+                        .query(WebServiceForAppServer.class)
+                        .select(where(EndPointForAppServerImpl.Fields.AppServer.fieldName()).isEqualTo(this));
+        List<EndPointConfiguration> endPointConfigurations = links.stream()
+                .map(WebServiceForAppServer::getEndPointConfiguration)
+                .collect(toList());
+        endPointConfigurationService.findEndPointConfigurations()
+                .stream()
+                .filter(epc -> !epc.isInbound())
+                .forEach(endPointConfigurations::add);
+        return endPointConfigurations;
     }
 
     private SubscriberExecutionSpecImpl getSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
