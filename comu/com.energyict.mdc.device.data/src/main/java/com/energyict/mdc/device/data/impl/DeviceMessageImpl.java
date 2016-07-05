@@ -54,7 +54,8 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         RELEASEDATE("releaseDate"),
         SENTDATE("sentDate"),
         DEVICEMESSAGEATTRIBUTES("deviceMessageAttributes"),
-        USER("user"),;
+        USER("user"),
+        CREATEDBYUSER("createdByUser");
 
         private final String javaFieldName;
 
@@ -85,6 +86,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private Instant releaseDate;
     @ValidReleaseDateUpdate(groups = {Save.Create.class, Save.Update.class})
     private ReleaseDateUpdater releaseDateUpdater;
+    private String createdByUser;
     private Instant sentDate;
     private String trackingId;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_TRACKING_CATEGORY_MISSING + "}")
@@ -107,6 +109,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         this.device.set(device);
         this.deviceMessageStatus = DeviceMessageStatus.WAITING;
         this.messageSpec = this.deviceMessageSpecificationService.findMessageSpecById(this.deviceMessageId);
+        this.createdByUser = threadPrincipalService.getPrincipal().getName();
         return this;
     }
 
@@ -193,8 +196,13 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     }
 
     @Override
+    public void setSentDate(Instant sentDate) {
+        this.sentDate = sentDate;
+    }
+
+    @Override
     public String getUser() {
-        return userName;
+        return createdByUser;
     }
 
     public void setProtocolInfo(String protocolInfo) {
@@ -241,7 +249,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public void setProtocolInformation(String protocolInformation) {
-        this.protocolInfo = protocolInformation;
+        this.setProtocolInfo(protocolInformation);
     }
 
     @Override
