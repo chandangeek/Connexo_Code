@@ -158,7 +158,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.displayMetrologyConfiguration = usagePoint.getMetrologyConfiguration().map(HasName::getName).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
         info.displayConnectionState = usagePoint.getConnectionState().getName();
-        info.geoCoordinates = usagePoint.getGeoCoordinates().map(GeoCoordinates::toString).orElse(null);
+        info.geoCoordinates = usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null);
         info.location = usagePoint.getLocation().map(Location::toString).orElse(null);
         return info;
     }
