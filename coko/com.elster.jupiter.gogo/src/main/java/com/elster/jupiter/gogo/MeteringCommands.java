@@ -174,7 +174,7 @@ public class MeteringCommands {
                         executeTransaction(new VoidTransaction() {
                             @Override
                             protected void doPerform() {
-                                endDevice.get().store(meterReading);
+                                endDevice.get().store(QualityCodeSystem.MDC, meterReading);
                             }
                         });
                     } else {
@@ -214,7 +214,7 @@ public class MeteringCommands {
                         executeTransaction(new VoidTransaction() {
                             @Override
                             protected void doPerform() {
-                                endDevice.get().store(meterReading);
+                                endDevice.get().store(QualityCodeSystem.MDC, meterReading);
                             }
                         });
                     } else {
@@ -262,7 +262,7 @@ public class MeteringCommands {
                         executeTransaction(new VoidTransaction() {
                             @Override
                             protected void doPerform() {
-                                endDevice.get().store(meterReading);
+                                endDevice.get().store(QualityCodeSystem.MDC, meterReading);
                             }
                         });
                     } catch (Exception e) {
