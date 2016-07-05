@@ -18,6 +18,23 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
         {ref: 'topFilter', selector: '#deviceTopologySetup #mdc-view-setup-devicechannels-topologiestopfilter'}
     ],
 
+    init: function () {
+        this.control({
+            '#deviceTopologySetup #mdc-topology-edit-master-btn': {
+                click: this.onEditMasterClicked
+            },
+            '#deviceTopologySetup #mdc-topology-remove-master-btn': {
+                click: this.onRemoveMasterClicked
+            },
+            '#deviceTopologySetup #mdc-topology-edit-master-cancel-btn': {
+                click: this.onEditMasterCancel
+            },
+            '#deviceTopologySetup #mdc-topology-edit-master-save-btn': {
+                click: this.onEditMasterSave
+            }
+        });
+    },
+
     showTopologyView: function (mRID) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
@@ -33,6 +50,21 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
                 deviceTopologyStore.load();
             }
         });
-    }
+    },
 
+    onEditMasterClicked: function() {
+        this.getDeviceTopology().addMasterContainerEditItems();
+    },
+
+    onEditMasterCancel: function() {
+        this.getDeviceTopology().addMasterContainerViewItems();
+    },
+
+    onEditMasterSave: function() {
+        this.getDeviceTopology().applyMasterDevice();
+    },
+
+    onRemoveMasterClicked: function() {
+        this.getDeviceTopology().removeMasterDevice();
+    }
 });

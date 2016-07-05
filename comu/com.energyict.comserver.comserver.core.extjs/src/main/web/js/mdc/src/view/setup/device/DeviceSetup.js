@@ -175,7 +175,9 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
 
     initComponent: function () {
         var me = this,
-            panel = me.content[0];
+            panel = me.content[0],
+            isGateway = me.device.get('isGateway'),
+            isDirectlyAddressable = me.device.get('isDirectlyAddressed');
 
         panel.tools = [
             {
@@ -293,9 +295,11 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                 items: [
                                     {
                                         xtype: 'deviceCommunicationTopologyPanel',
+                                        title: Uni.I18n.translate('deviceCommunicationTopology.title', 'MDC', 'Communication topology'),
                                         privileges: Mdc.privileges.Device.deviceOperator,
                                         router: me.router,
-                                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget
+                                        dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget,
+                                        hidden: isDirectlyAddressable && !isGateway
                                     },
                                     {
                                         xtype: 'device-data-validation-panel',

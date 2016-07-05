@@ -181,7 +181,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                             text: Uni.I18n.translate('deviceCommunicationTopology.topologyTitle', 'MDC', 'Communication topology'),
                             itemId: 'topologyLink',
                             href: '#/devices/' + encodeURIComponent(mRID) + '/topology',
-                            showCondition: me.device.get('gatewayType') === 'LAN' || me.device.get('gatewayType') === 'HAN'
+                            showCondition: me.device.get('isGateway') || !me.device.get('isDirectlyAddressed')
                         }
                     ]
                 },
