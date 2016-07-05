@@ -24,7 +24,7 @@ public class TopologyTimesliceMerger {
         return new ArrayList<>(this.entries);
     }
 
-    public void add (CompleteTopologyTimesliceImpl newEntry) {
+    public void add(CompleteTopologyTimesliceImpl newEntry) {
         AddEntryCommand command = new DefaultAddEntryCommand();
         for (CompleteTopologyTimesliceImpl existingChild : this.entries) {
             command = this.createCommandsFor(existingChild, command);
@@ -36,19 +36,18 @@ public class TopologyTimesliceMerger {
         return new EqualsCommand(
                 existingEntry,
                 new EnvelopCommand(
-                    existingEntry,
-                    new IncludeCommand(
-                            existingEntry,
-                            new OverlapCommand(
-                                    existingEntry,
-                                    defaultCommand))));
+                        existingEntry,
+                        new IncludeCommand(
+                                existingEntry,
+                                new OverlapCommand(
+                                        existingEntry,
+                                        defaultCommand))));
     }
 
     private Instant lowerEndpoint(Range<Instant> period) {
         if (period.hasLowerBound()) {
             return period.lowerEndpoint();
-        }
-        else {
+        } else {
             return Instant.MIN;
         }
     }
@@ -56,8 +55,7 @@ public class TopologyTimesliceMerger {
     private Instant upperEndpoint(Range<Instant> period) {
         if (period.hasUpperBound()) {
             return period.upperEndpoint();
-        }
-        else {
+        } else {
             return Instant.MAX;
         }
     }
@@ -142,8 +140,7 @@ public class TopologyTimesliceMerger {
             if (this.matches(newEntry)) {
                 this.merge(newEntry);
                 return false;
-            }
-            else {
+            } else {
                 return this.next.execute(newEntry);
             }
         }
@@ -157,7 +154,7 @@ public class TopologyTimesliceMerger {
          * @param newEntry The new CompleteCommunicationTopologyEntryImpl entry
          * @return <code>true</code> iff the new entry matches this command's entry
          */
-        protected abstract boolean matches (CompleteTopologyTimesliceImpl newEntry);
+        protected abstract boolean matches(CompleteTopologyTimesliceImpl newEntry);
 
         /**
          * Merges the new CompleteCommunicationTopologyEntryImpl entry with this command's entry.
@@ -266,8 +263,7 @@ public class TopologyTimesliceMerger {
                         new CompleteTopologyTimesliceImpl(
                                 this.fromEndToEnd(newEntry.getPeriod(), myEntry().getPeriod()),
                                 myEntry().getDevices()));
-            }
-            else {
+            } else {
                 // Abut at the end
                 this.addEntry(
                         new CompleteTopologyTimesliceImpl(
@@ -304,7 +300,7 @@ public class TopologyTimesliceMerger {
         @Override
         protected boolean matches(CompleteTopologyTimesliceImpl newEntry) {
             return myEntry().getPeriod().isConnected(newEntry.getPeriod())
-                && !this.endPointMatch(myEntry().getPeriod(), newEntry.getPeriod());
+                    && !this.endPointMatch(myEntry().getPeriod(), newEntry.getPeriod());
         }
 
         /**
@@ -321,18 +317,31 @@ public class TopologyTimesliceMerger {
 
         private boolean lowerBoundMatch(Range<Instant> period1, Range<Instant> period2) {
             return (period1.hasUpperBound() && period2.hasLowerBound() && period1.upperEndpoint().equals(period2.lowerEndpoint()))
-                || (period2.hasUpperBound() && period1.hasLowerBound() && period2.upperEndpoint().equals(period1.lowerEndpoint()));
+                    || (period2.hasUpperBound() && period1.hasLowerBound() && period2.upperEndpoint().equals(period1.lowerEndpoint()));
         }
 
         private boolean upperBoundMatch(Range<Instant> period1, Range<Instant> period2) {
             return (period1.hasLowerBound() && period2.hasUpperBound() && period1.lowerEndpoint().equals(period2.upperEndpoint()))
-                || (period2.hasLowerBound() && period1.hasUpperBound() && period2.lowerEndpoint().equals(period1.upperEndpoint()));
+                    || (period2.hasLowerBound() && period1.hasUpperBound() && period2.lowerEndpoint().equals(period1.upperEndpoint()));
         }
 
         @Override
         protected void merge(CompleteTopologyTimesliceImpl newEntry) {
             this.removeEntry(myEntry());
-            if (myEntry().getPeriod().contains(upperEndpoint(newEntry.getPeriod()))) {
+            if (newEntry.getPeriod().encloses(myEntry().getPeriod())) {
+                this.addEntry(
+                        new CompleteTopologyTimesliceImpl(
+                                this.fromStartToStart(newEntry.getPeriod(), myEntry().getPeriod()),
+                                newEntry.getDevices()));
+                this.addEntry(
+                        new CompleteTopologyTimesliceImpl(
+                                this.fromStartToEnd(myEntry().getPeriod(), myEntry().getPeriod()),
+                                this.concat(newEntry.getDevices(), myEntry().getDevices())));
+                this.addEntry(
+                        new CompleteTopologyTimesliceImpl(
+                                this.fromEndToEnd(myEntry().getPeriod(), newEntry.getPeriod()),
+                                newEntry.getDevices()));
+            } else if (myEntry().getPeriod().contains(upperEndpoint(newEntry.getPeriod()))) {
                 this.addEntry(
                         new CompleteTopologyTimesliceImpl(
                                 this.fromStartToStart(newEntry.getPeriod(), myEntry().getPeriod()),
@@ -345,8 +354,7 @@ public class TopologyTimesliceMerger {
                         new CompleteTopologyTimesliceImpl(
                                 this.fromEndToEnd(newEntry.getPeriod(), myEntry().getPeriod()),
                                 myEntry().getDevices()));
-            }
-            else {
+            } else {
                 this.addEntry(
                         new CompleteTopologyTimesliceImpl(
                                 this.fromStartToStart(myEntry().getPeriod(), newEntry.getPeriod()),

@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.data.Device;
 
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 import org.joda.time.DateMidnight;
 
@@ -14,8 +14,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -264,6 +265,28 @@ public class TopologyTimesliceMergerTest {
                 assertDeviceIds(entry.getDevices(), DEVICE2_ID);
             }
             else {
+                fail("Unexpected Interval: " + entry.getPeriod());
+            }
+        }
+    }
+
+    @Test
+    public void addEntryWithEnvelopedOverlapPart2Test() {
+        TopologyTimesliceMerger merger = new TopologyTimesliceMerger();
+        merger.add(this.newEntry(MID_JAN_2014, this.device1));
+        merger.add(this.newEntry(JAN_2014, this.device2));
+
+        // Asserts
+        List<CompleteTopologyTimesliceImpl> entries = merger.getEntries();
+        assertThat(entries).hasSize(3);
+        for (CompleteTopologyTimesliceImpl entry : entries) {
+            if (entry.getPeriod().lowerEndpoint().equals(JAN_2014.lowerEndpoint())) {
+                assertDeviceIds(entry.getDevices(), DEVICE2_ID);
+            } else if (entry.getPeriod().lowerEndpoint().equals(MID_JAN_2014.lowerEndpoint())) {
+                assertDeviceIds(entry.getDevices(), DEVICE1_ID, DEVICE2_ID);
+            } else if (entry.getPeriod().lowerEndpoint().equals(MID_JAN_2014.upperEndpoint())) {
+                assertDeviceIds(entry.getDevices(), DEVICE2_ID);
+            } else {
                 fail("Unexpected Interval: " + entry.getPeriod());
             }
         }
