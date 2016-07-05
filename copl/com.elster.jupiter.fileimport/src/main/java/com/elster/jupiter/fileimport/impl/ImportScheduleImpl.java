@@ -9,7 +9,6 @@ import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
-import com.elster.jupiter.fileimport.MissingRequiredProperty;
 import com.elster.jupiter.fileimport.NonNullPath;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -18,7 +17,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
@@ -36,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -47,8 +44,7 @@ import java.util.stream.Collectors;
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 final class ImportScheduleImpl implements ServerImportSchedule {
 
-    private final JsonService jsonService;
-    private static final Logger LOGGER = Logger.getLogger(ImportScheduleImpl.class.getName());
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
@@ -91,18 +87,21 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     private final FileSystem fileSystem;
     private final Thesaurus thesaurus;
     private final FileImportService fileImportService;
-    boolean propertiesDirty;
+    private boolean propertiesDirty;
 
     private List<FileImporterProperty> properties = new ArrayList<>();
     private boolean active;
     private Instant obsoleteTime;
 
     //audit fields
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
-
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
@@ -111,11 +110,10 @@ final class ImportScheduleImpl implements ServerImportSchedule {
 
     @SuppressWarnings("unused")
     @Inject
-    ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, EventService eventService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileUtils fileUtils, JsonService jsonService, Thesaurus thesaurus, FileSystem fileSystem) {
+    ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, EventService eventService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileUtils fileUtils, Thesaurus thesaurus, FileSystem fileSystem) {
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.eventService = eventService;
-        this.jsonService = jsonService;
         this.scheduleExpressionParser = scheduleExpressionParser;
         this.fileNameCollisionresolver = fileNameCollisionresolver;
         this.fileUtils = fileUtils;
@@ -381,12 +379,6 @@ final class ImportScheduleImpl implements ServerImportSchedule {
         return FileImportOccurrenceImpl.create(fileImportService, fileSystem, fileUtils, dataModel, fileNameCollisionresolver, thesaurus, clock, this, relativeFilePath);
     }
 
-    private void checkRequiredProperty(String propertyName, Map<String, Object> properties) {
-        if (!properties.containsKey(propertyName)) {
-            throw new MissingRequiredProperty(thesaurus, propertyName);
-        }
-    }
-
     @Override
     public void update() {
         save();
@@ -428,8 +420,12 @@ final class ImportScheduleImpl implements ServerImportSchedule {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ImportScheduleImpl that = (ImportScheduleImpl) o;
         return Objects.equals(id, that.id);
     }

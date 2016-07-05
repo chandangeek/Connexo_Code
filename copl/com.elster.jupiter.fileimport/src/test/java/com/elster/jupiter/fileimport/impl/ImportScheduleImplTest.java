@@ -11,18 +11,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,6 +23,13 @@ import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,8 +72,6 @@ public class ImportScheduleImplTest extends EqualsContractTest {
     @Mock
     private FileImporterFactory fileImporterFactory;
     @Mock
-    private JsonService jsonService;
-    @Mock
     private Clock clock;
     @Mock
     private EventService eventService;
@@ -83,7 +81,6 @@ public class ImportScheduleImplTest extends EqualsContractTest {
     private Path sourceFilePath;
     private Path notExistFilePath;
     private Path sourceDirectory, inProcessDirectory, successDirectory, failureDirectory, basePath;
-
 
     @Before
     public void equalsContractSetUp() {
@@ -125,7 +122,7 @@ public class ImportScheduleImplTest extends EqualsContractTest {
             when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
             when(fileImporterFactory.getApplicationName()).thenReturn("SYS");
             when(dataModel.getInstance(ImportScheduleImpl.class)).thenAnswer(invocation -> new ImportScheduleImpl(dataModel, fileImportService,
-                    messageService, eventService, cronParser, nameResolver, fileSystem, jsonService, thesaurus, testFileSystem));
+                    messageService, eventService, cronParser, nameResolver, fileSystem, thesaurus, testFileSystem));
             when(fileImportService.getImportFactory("importerName")).thenReturn(Optional.empty());
             importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "SYS", "importerName",
                     DESTINATION_NAME, sourceDirectory, ".", inProcessDirectory, failureDirectory, successDirectory);
@@ -133,10 +130,6 @@ public class ImportScheduleImplTest extends EqualsContractTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Override
