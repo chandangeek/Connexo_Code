@@ -838,15 +838,17 @@ public class DeviceResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getCommunicationReferences(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        TopologyTimeline timeline = topologyService.getPysicalTopologyTimeline(device);
+        TopologyTimeline timeline;
+        if (queryParameters.getLimit().isPresent()) {
+            timeline = topologyService.getPhysicalTopologyTimelineAdditions(device, queryParameters.getLimit().get());
+        } else {
+            timeline = topologyService.getPysicalTopologyTimeline(device);
+        }
         Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
         Stream<Device> stream = timeline.getAllDevices().stream().filter(filterPredicate)
                 .sorted(Comparator.comparing(Device::getmRID));
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
             stream = stream.skip(queryParameters.getStart().get());
-        }
-        if (queryParameters.getLimit().isPresent() && queryParameters.getLimit().get() > 0) {
-            stream = stream.limit(queryParameters.getLimit().get() + 1);
         }
         List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), topologyService, clock, resourceHelper.getThesaurus()))
                 .collect(Collectors.toList());
