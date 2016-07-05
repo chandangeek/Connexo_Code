@@ -12,7 +12,7 @@ import java.util.Objects;
 public final class EventPropertyTypeImpl implements EventPropertyType {
 
     @SuppressWarnings("unused")
-	private String eventTypeTopic; 
+	private String eventTypeTopic;
     private String name;
     private ValueType valueType;
     private String accessPath;
@@ -60,8 +60,12 @@ public final class EventPropertyTypeImpl implements EventPropertyType {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         EventPropertyTypeImpl that = (EventPropertyTypeImpl) o;
         return Objects.equals(eventTypeTopic, that.eventTypeTopic) &&
                 Objects.equals(name, that.name);
@@ -71,4 +75,5 @@ public final class EventPropertyTypeImpl implements EventPropertyType {
     public int hashCode() {
         return Objects.hash(eventTypeTopic, name);
     }
+
 }
