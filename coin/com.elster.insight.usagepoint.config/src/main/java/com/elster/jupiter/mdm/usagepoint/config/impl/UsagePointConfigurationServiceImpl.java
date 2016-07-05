@@ -2,8 +2,6 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -12,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -29,7 +28,6 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -95,10 +93,10 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Activate
     public void activate() {
         dataModel.register(getModule());
-        upgradeService.register(InstallIdentifier.identifier(UsagePointConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap
-                .of(
-                        version(10, 2), UpgraderV10_2.class
-                ));
+
+        upgradeService.register(InstallIdentifier.identifier("Insight", UsagePointConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
+                version(10, 2), UpgraderV10_2.class
+        ));
     }
 
     @Reference
@@ -149,24 +147,13 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
+    @Reference(target ="(com.elster.jupiter.checklist=Insight)")
+    public void setCheckList(UpgradeCheckList upgradeCheckList) {
+        // just explicitly depend
+    }
+
     DataModel getDataModel() {
         return dataModel;
-    }
-
-    @Override
-    public void link(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration) {
-        usagePoint.apply(metrologyConfiguration, this.clock.instant());
-    }
-
-    @Override
-    public Boolean unlink(UsagePoint usagePoint, MetrologyConfiguration mc) {
-        usagePoint.removeMetrologyConfiguration(this.clock.instant());
-        return Boolean.TRUE;
-    }
-
-    @Override
-    public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint usagePoint) {
-        return usagePoint.getMetrologyConfiguration();
     }
 
     @Override
