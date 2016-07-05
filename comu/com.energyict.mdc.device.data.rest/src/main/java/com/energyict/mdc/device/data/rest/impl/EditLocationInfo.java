@@ -102,5 +102,4 @@ public class EditLocationInfo {
         properties = infoProperties;
     }
 
-
 }

@@ -46,7 +46,7 @@ public final class DevicePrivileges {
     public static final String DEVICES_PAGES_COMMUNICATION_PLANNING = "devices.pages.communication.planning";
     public static final String DEVICES_TIME_OF_USE_ALLOWED = "devices.pages.timeofuseallowed";
 
-    private static Map<ProtocolSupportedCalendarOptions, String> option2Privilege = createMap();
+    private static Map<ProtocolSupportedCalendarOptions, String> option2Privilege = createAllPrivilegesMap();
 
     public static List<String> getPrivilegesFor(Device device, User user){
         List<String> privileges = PrivilegesBasedOnDeviceState.get(device.getState()).getPrivileges(user);
@@ -69,11 +69,21 @@ public final class DevicePrivileges {
                     privileges.add("devices.timeofuse.supportspassive");
 
             }
+            if(containsSendOption(allowedOptions)) {
+                privileges.add("devices.timeofuse.supportssend");
+            }
             privileges.addAll(getTimeOfUsePrivileges(allowedOptions));
             return privileges ;
         } else {
             return Collections.EMPTY_LIST;
         }
+    }
+
+    private static boolean containsSendOption(Set<ProtocolSupportedCalendarOptions> allowedOptions) {
+        return allowedOptions.stream()
+                .filter(createSendPrivilegesMap().keySet()::contains)
+                .findAny()
+                .isPresent();
     }
 
     private static List<String> getTimeOfUsePrivileges(Set<ProtocolSupportedCalendarOptions> allowedOptions) {
@@ -84,20 +94,25 @@ public final class DevicePrivileges {
         return list;
     }
 
-    private static Map<ProtocolSupportedCalendarOptions, String> createMap() {
+    private static Map<ProtocolSupportedCalendarOptions, String> createAllPrivilegesMap() {
         Map<ProtocolSupportedCalendarOptions, String> map = new EnumMap<>(ProtocolSupportedCalendarOptions.class);
         map.put(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR, "devices.actions.timeofuse.verify");
-        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, "devices.actions.timeofuse.send");
-        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE, "devices.actions.timeofuse.send");
-        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE, "devices.actions.timeofuse.send");
-        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT, "devices.actions.timeofuse.send");
-        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME, "devices.actions.timeofuse.send");
-        map.put(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, "devices.actions.timeofuse.send");
-        map.put(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE, "devices.actions.timeofuse.send");
-        map.put(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE, "devices.actions.timeofuse.send");
         map.put(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF, "devices.actions.timeofuse.clearanddisable");
         map.put(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR, "devices.actions.timeofuse.activatepassive");
+        map.putAll(createSendPrivilegesMap());
+        return map;
+    }
 
+    private static Map<ProtocolSupportedCalendarOptions, String> createSendPrivilegesMap() {
+        Map<ProtocolSupportedCalendarOptions, String> map = new EnumMap<>(ProtocolSupportedCalendarOptions.class);
+        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR, "devices.actions.timeofuse.send");
+        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_TYPE, "devices.actions.timeofuse.sendDateType");
+        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE, "devices.actions.timeofuse.sendDate");
+        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATE_AND_CONTRACT, "devices.actions.timeofuse.sendDateContract");
+        map.put(ProtocolSupportedCalendarOptions.SEND_ACTIVITY_CALENDAR_WITH_DATETIME, "devices.actions.timeofuse.sendDateTime");
+        map.put(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR, "devices.actions.timeofuse.sendSpecial");
+        map.put(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE, "devices.actions.timeofuse.sendSpecialType");
+        map.put(ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE, "devices.actions.timeofuse.sendSpecialContractDate");
         return map;
     }
 

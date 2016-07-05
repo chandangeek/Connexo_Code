@@ -47,9 +47,9 @@ import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
-import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
+import com.energyict.mdc.device.data.rest.ReadingQualitiesTranslationKeys;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -251,6 +251,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        this.thesaurus = thesaurus.join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -338,6 +339,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         keys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
         keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceMessageStatusTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ReadingQualitiesTranslationKeys.values()));
         keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceSearchModelTranslationKeys.values()));
         keys.addAll(Arrays.asList(LocationTranslationKeys.values()));
