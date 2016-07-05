@@ -2,9 +2,12 @@ package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.search.SearchablePropertyValue;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface UsagePointMetrologyConfiguration extends MetrologyConfiguration {
 
     void addMeterRole(MeterRole meterRole);
