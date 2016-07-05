@@ -278,7 +278,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public Finder<ServiceCall> findChildren(ServiceCallFilter filter) {
-        filter.setParent(this);
+        filter.parent = this;
         return serviceCallService.getServiceCallFinder(filter);
     }
 

@@ -1,38 +1,18 @@
 package com.elster.jupiter.servicecall;
 
-import aQute.bnd.annotation.ConsumerType;
-
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
-@ConsumerType
-public interface ServiceCallFilter {
+public class ServiceCallFilter {
 
-    String getReference();
-    void setReference(String reference);
-
-    List<String> getTypes();
-    void setTypes(List<String> types);
-
-    List<String> getStates();
-    void setStates(List<String> states);
-
-    Instant getReceivedDateFrom();
-    void setReceivedDateFrom(Instant receivedDateFrom);
-
-    Instant getReceivedDateTo();
-    void setReceivedDateTo(Instant receivedDateTo);
-
-    Instant getModificationDateFrom();
-    void setModificationDateFrom(Instant modificationDateFrom);
-
-    Instant getModificationDateTo();
-    void setModificationDateTo(Instant modificationDateTo);
-
-    ServiceCall getParent();
-    void setParent(ServiceCall serviceCall);
-
-    Object getTargetObject();
-    void setTargetObject(Object object);
-
+    public String reference;
+    public List<String> types = new ArrayList<>();
+    public List<String> states = new ArrayList<>();
+    public Instant receivedDateFrom;
+    public Instant receivedDateTo;
+    public Instant modificationDateFrom;
+    public Instant modificationDateTo;
+    public ServiceCall parent;
+    public Object targetObject;
 }
