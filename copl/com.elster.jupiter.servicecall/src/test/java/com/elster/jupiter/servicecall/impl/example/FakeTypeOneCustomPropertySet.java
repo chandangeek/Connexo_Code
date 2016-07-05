@@ -116,7 +116,7 @@ public class FakeTypeOneCustomPropertySet implements CustomPropertySet<ServiceCa
 
         @Override
         public String componentName() {
-            return "OMFG.1";
+            return "OM1";
         }
 
         @Override
