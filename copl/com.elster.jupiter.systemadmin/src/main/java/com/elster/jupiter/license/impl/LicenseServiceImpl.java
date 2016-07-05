@@ -61,7 +61,7 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
         service = {LicenseService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + LicenseService.COMPONENTNAME},
         immediate = true)
-public class LicenseServiceImpl implements LicenseService, MessageSeedProvider, TranslationKeyProvider {
+public final class LicenseServiceImpl implements LicenseService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -123,7 +123,7 @@ public class LicenseServiceImpl implements LicenseService, MessageSeedProvider, 
         dataModel.register(getModule());
 
         this.context = context;
-        upgradeService.register(identifier(COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
 
         dailyCheck.scheduleAtFixedRate(new LicenseCheckTask(), 0, 24 * 60 * 60 * 1000);
     }

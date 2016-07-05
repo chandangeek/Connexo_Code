@@ -41,7 +41,7 @@ public class LicenseImpl implements License {
     private final Thesaurus thesaurus;
 
     @Inject
-   public LicenseImpl(Thesaurus thesaurus) {
+    public LicenseImpl(Thesaurus thesaurus) {
         super();
         this.thesaurus = thesaurus;
     }
