@@ -567,8 +567,7 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(interval)
                 .actual()
-                .findFirst()
-                .isPresent();
+                .anyMatch();
     }
 
     private static Instant lastOf(List<Instant> instants) {
@@ -649,15 +648,14 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
     }
 
     private static boolean ofRequiredQuality(EstimationBlock estimationBlock, Instant timeStamp, Set<QualityCodeSystem> systems) {
-        return !estimationBlock.getCimChannel().findReadingQualities()
+        return estimationBlock.getCimChannel().findReadingQualities()
                 .atTimestamp(timeStamp)
                 .actual()
                 .ofQualitySystems(systems)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.ACCEPTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.ESTIMATED, QualityCodeCategory.EDITED))
-                .findFirst()
-                .isPresent();
+                .noneMatch();
     }
 
     private static boolean sameTimeOfWeek(ZonedDateTime first, ZonedDateTime second) {
@@ -677,14 +675,13 @@ class AverageWithSamplesEstimator extends AbstractEstimator {
 
     private static boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate,
                                           Set<QualityCodeSystem> systems) {
-        return !advanceCimChannel.findReadingQualities()
+        return advanceCimChannel.findReadingQualities()
                 .atTimestamp(readingToEvaluate.getTimeStamp())
                 .actual()
                 .ofQualitySystems(systems)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.OVERFLOWCONDITIONDETECTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                .findFirst()
-                .isPresent();
+                .noneMatch();
     }
 }

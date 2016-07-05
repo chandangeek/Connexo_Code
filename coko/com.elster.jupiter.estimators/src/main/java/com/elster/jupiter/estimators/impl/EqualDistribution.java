@@ -46,8 +46,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Predicates.either;
-
 class EqualDistribution extends AbstractEstimator implements Estimator {
     static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
     public static final String MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS = TranslationKeys.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS.getKey();
@@ -259,15 +257,14 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
     }
 
     private static boolean isValidReading(CimChannel advanceCimChannel, BaseReadingRecord readingToEvaluate, Set<QualityCodeSystem> systems) {
-        return !advanceCimChannel.findReadingQualities()
+        return advanceCimChannel.findReadingQualities()
                 .atTimestamp(readingToEvaluate.getTimeStamp())
                 .actual()
                 .ofQualitySystems(systems)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.OVERFLOWCONDITIONDETECTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                .findFirst()
-                .isPresent();
+                .noneMatch();
     }
 
     private Optional<BigDecimal> calculateConsumption(EstimationBlock block,
@@ -287,7 +284,6 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
                         .ofQualityIndex(QualityCodeIndex.SUSPECT)
                         .orOfAnotherTypeInSameSystems()
                         .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                        .collect()
                         .stream()
                         .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
 
@@ -401,13 +397,12 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
 
     private static Optional<BigDecimal> getValueAt(CimChannel bulkCimChannel, Instant timestamp, Set<QualityCodeSystem> systems) {
         return bulkCimChannel.getReading(timestamp)
-                .filter(baseReadingRecord -> !bulkCimChannel.findReadingQualities()
+                .filter(baseReadingRecord -> bulkCimChannel.findReadingQualities()
                         .atTimestamp(timestamp)
                         .actual()
                         .ofQualitySystems(systems)
                         .ofQualityIndex(QualityCodeIndex.OVERFLOWCONDITIONDETECTED)
-                        .findFirst()
-                        .isPresent())
+                        .noneMatch())
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
     }
 
