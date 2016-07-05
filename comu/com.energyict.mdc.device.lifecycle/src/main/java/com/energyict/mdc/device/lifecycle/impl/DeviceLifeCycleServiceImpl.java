@@ -45,6 +45,7 @@ import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
+
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -420,7 +421,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         eventType
             .newInstance(
                     device.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine(),
-                    device.getmRID(),
+                    String.valueOf(device.getId()),
                     device.getState().getName(),
                     effectiveTimestamp,
                     Collections.emptyMap())
