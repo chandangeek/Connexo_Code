@@ -1,4 +1,4 @@
-package com.elster.jupiter.rest.metering.impl;
+package com.elster.jupiter.webservices.inbound.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;

@@ -10,10 +10,10 @@
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
 
-    <artifactId>metering.rest.demo</artifactId>
+    <artifactId>webservices.inbound.rest.demo</artifactId>
     <version>1.0.0${revision}</version>
     <packaging>bundle</packaging>
-    <name>[Jupiter] com.elster.jupiter.rest.metering</name>
+    <name>[Jupiter] com.elster.jupiter.webservices.inbound.rest.demo</name>
     <description>Demo REST bundle for web services -- Inbound REST bundle</description>
 
     <dependencies>
