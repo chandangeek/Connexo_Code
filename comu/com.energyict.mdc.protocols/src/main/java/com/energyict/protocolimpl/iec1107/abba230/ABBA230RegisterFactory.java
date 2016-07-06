@@ -3,8 +3,9 @@ package com.energyict.protocolimpl.iec1107.abba230;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.protocol.api.device.data.RegisterValue;
 import com.energyict.mdc.protocol.api.MeterExceptionInfo;
+import com.energyict.mdc.protocol.api.device.data.RegisterValue;
+
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 
@@ -13,12 +14,63 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_BATTERYVOLTAGELOWEVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_BIGDECIMAL;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_BYTEARRAY;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CMD;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTORARMDISCONNECTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTORARMLOADMONITORLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTORARMMODULELOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTORARMOPTICALLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTORCLOSEBUTTONLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTORCLOSEMODULELOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTORCLOSEOPTICALLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTORLOADMONITORLOWLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTOROPENAUTODISCONNECTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTOROPENLOADMONITORHIGHLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTOROPENMODULELOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CONTACTOROPENOPTICALLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_CUSTDEFREGCONFIG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_DATE;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_ENDOFBILLINGEVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_HEX;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_HEX_LE;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_HISTORICALVALUES;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_INSTRUMENTATION_PROFILE_BY_DATE;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_INSTRUMENTATION_PROFILE_CONFIG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_INSTUMENTATION_PROFILE_INTEGRATION_PERIOD;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_LOAD_MONITORING_CONFIGURATION;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_LOAD_PROFILE_BY_DATE;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_LOAD_PROFILE_CONFIG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_LOAD_PROFILE_INTEGRATION_PERIOD;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_LONGPOWERFAILEVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_MAGNETICTAMPEREVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_MAINCOVEREVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_MD;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_METERERROREVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_OVERVOLTAGEEVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_POWEREFAILEVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_PROGRAMMINGEVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_REGISTER;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_REVERSERUNEVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_STRING;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_SYSTEMSTATUS;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_TARIFFSOURCES;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_TERMINALCOVEREVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_TRANSIENTEVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.ABBA_UNDERVOLTAGEEVENTLOG;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.CACHED;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.NOT_CACHED;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.NOT_WRITEABLE;
+import static com.energyict.protocolimpl.iec1107.abba230.ABBA230Register.WRITEABLE;
+
 /** @author fbo */
 
 public class ABBA230RegisterFactory {
 
     static public final int MAX_CMD_REGS=2;
     static public final int MAX_MD_REGS=2;
+    static public final String LOAD_MONITORING_CONFIGURATION = "LoadMonitoringConfiguration";
 
     private Map registers = new TreeMap();
     private ProtocolLink protocolLink;
@@ -168,6 +220,8 @@ public class ABBA230RegisterFactory {
     };
 
     SystemStatus systemStatus=null;
+    LoadMonitoringConfiguration loadMonitoringConfiguration = null;
+    ABBA230Register loadMonitoringConfigurationRegister = null;
     ABBA230 abba230;
 
     /**
@@ -420,131 +474,132 @@ public class ABBA230RegisterFactory {
         Unit mvarh = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3);
         Unit mvah = Unit.get(BaseUnit.VOLTAMPEREHOUR, -3);
 
-        serialNumber = cr("798", "SerialNumber", ABBA230RegisterData.ABBA_STRING,0, -1,null );
-        schemeID = cr("795", "SchemeID", ABBA230RegisterData.ABBA_STRING,0,8, null );
-        timeDate = cr("861", "TimeDate", ABBA230RegisterData.ABBA_DATE,0,-1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+        serialNumber = cr("798", "SerialNumber", ABBA_STRING, 0, -1, null);
+        schemeID = cr("795", "SchemeID", ABBA_STRING, 0, 8, null);
+        timeDate = cr("861", "TimeDate", ABBA_DATE, 0, -1, null, WRITEABLE, NOT_CACHED);
 
-        cummulativeRegisters = cr("507", "CummulativeRegisters", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null );
+        cummulativeRegisters = cr("507", "CummulativeRegisters", ABBA_BYTEARRAY, 0, -1, null);
 
-        cummMainImport = cr(cummulativeMainId, "CummMainImport", ABBA230RegisterData.ABBA_REGISTER,0,8,mWh);
-        cummMainExport = cr(cummulativeMainId, "CummMainExport", ABBA230RegisterData.ABBA_REGISTER,8,8,mWh);
-        cummMainQ1 = cr(cummulativeMainId, "CummMainQ1", ABBA230RegisterData.ABBA_REGISTER,16,8,mvarh);
-        cummMainQ2 = cr(cummulativeMainId, "CummMainQ2", ABBA230RegisterData.ABBA_REGISTER,24,8,mvarh);
-        cummMainQ3 = cr(cummulativeMainId, "CummMainQ3", ABBA230RegisterData.ABBA_REGISTER,32,8,mvarh);
-        cummMainQ4 = cr(cummulativeMainId, "CummMainQ4", ABBA230RegisterData.ABBA_REGISTER,40,8,mvarh);
-        cummMainVAImport = cr(cummulativeMainId, "CummMainVAImport", ABBA230RegisterData.ABBA_REGISTER,48,8,mvah);
-        cummMainVAExport = cr(cummulativeMainId, "CummMainVAExport", ABBA230RegisterData.ABBA_REGISTER,56,8,mvah);
+        cummMainImport = cr(cummulativeMainId, "CummMainImport", ABBA_REGISTER, 0, 8, mWh);
+        cummMainExport = cr(cummulativeMainId, "CummMainExport", ABBA_REGISTER, 8, 8, mWh);
+        cummMainQ1 = cr(cummulativeMainId, "CummMainQ1", ABBA_REGISTER, 16, 8, mvarh);
+        cummMainQ2 = cr(cummulativeMainId, "CummMainQ2", ABBA_REGISTER, 24, 8, mvarh);
+        cummMainQ3 = cr(cummulativeMainId, "CummMainQ3", ABBA_REGISTER, 32, 8, mvarh);
+        cummMainQ4 = cr(cummulativeMainId, "CummMainQ4", ABBA_REGISTER, 40, 8, mvarh);
+        cummMainVAImport = cr(cummulativeMainId, "CummMainVAImport", ABBA_REGISTER, 48, 8, mvah);
+        cummMainVAExport = cr(cummulativeMainId, "CummMainVAExport", ABBA_REGISTER, 56, 8, mvah);
         // reserved for future use
-        cummMainvarhImport = cr(cummulativeMainId, "CummMainvarhImport", ABBA230RegisterData.ABBA_REGISTER,112,8,mvarh);
-        cummMainvarhExport = cr(cummulativeMainId, "CummMainvarhExport", ABBA230RegisterData.ABBA_REGISTER,120,8,mvarh);
+        cummMainvarhImport = cr(cummulativeMainId, "CummMainvarhImport", ABBA_REGISTER, 112, 8, mvarh);
+        cummMainvarhExport = cr(cummulativeMainId, "CummMainvarhExport", ABBA_REGISTER, 120, 8, mvarh);
 
-        timeOfUse0 = cr(timeOfUseId, "TimeOfUse0", ABBA230RegisterData.ABBA_REGISTER,0,8,null);
-        timeOfUse1 = cr(timeOfUseId, "TimeOfUse1", ABBA230RegisterData.ABBA_REGISTER,8,8,null);
-        timeOfUse2 = cr(timeOfUseId, "TimeOfUse2", ABBA230RegisterData.ABBA_REGISTER,16,8,null);
-        timeOfUse3 = cr(timeOfUseId, "TimeOfUse3", ABBA230RegisterData.ABBA_REGISTER,24,8,null);
-        timeOfUse4 = cr(timeOfUseId, "TimeOfUse4", ABBA230RegisterData.ABBA_REGISTER,32,8,null);
-        timeOfUse5 = cr(timeOfUseId, "TimeOfUse5", ABBA230RegisterData.ABBA_REGISTER,40,8,null);
-        timeOfUse6 = cr(timeOfUseId, "TimeOfUse6", ABBA230RegisterData.ABBA_REGISTER,48,8,null);
-        timeOfUse7 = cr(timeOfUseId, "TimeOfUse7", ABBA230RegisterData.ABBA_REGISTER,56,8,null);
-        timeOfUse8 = cr(timeOfUseId, "TimeOfUse8", ABBA230RegisterData.ABBA_REGISTER,64,8,null);
-        timeOfUse9 = cr(timeOfUseId, "TimeOfUse9", ABBA230RegisterData.ABBA_REGISTER,72,8,null);
-        timeOfUse10 = cr(timeOfUseId, "TimeOfUse10", ABBA230RegisterData.ABBA_REGISTER,80,8,null);
-        timeOfUse11 = cr(timeOfUseId, "TimeOfUse11", ABBA230RegisterData.ABBA_REGISTER,88,8,null);
-        timeOfUse12 = cr(timeOfUseId, "TimeOfUse12", ABBA230RegisterData.ABBA_REGISTER,96,8,null);
-        timeOfUse13 = cr(timeOfUseId, "TimeOfUse13", ABBA230RegisterData.ABBA_REGISTER,104,8,null);
-        timeOfUse14 = cr(timeOfUseId, "TimeOfUse14", ABBA230RegisterData.ABBA_REGISTER,112,8,null);
-        timeOfUse15 = cr(timeOfUseId, "TimeOfUse15", ABBA230RegisterData.ABBA_REGISTER,120,8,null);
+        timeOfUse0 = cr(timeOfUseId, "TimeOfUse0", ABBA_REGISTER, 0, 8, null);
+        timeOfUse1 = cr(timeOfUseId, "TimeOfUse1", ABBA_REGISTER, 8, 8, null);
+        timeOfUse2 = cr(timeOfUseId, "TimeOfUse2", ABBA_REGISTER, 16, 8, null);
+        timeOfUse3 = cr(timeOfUseId, "TimeOfUse3", ABBA_REGISTER, 24, 8, null);
+        timeOfUse4 = cr(timeOfUseId, "TimeOfUse4", ABBA_REGISTER, 32, 8, null);
+        timeOfUse5 = cr(timeOfUseId, "TimeOfUse5", ABBA_REGISTER, 40, 8, null);
+        timeOfUse6 = cr(timeOfUseId, "TimeOfUse6", ABBA_REGISTER, 48, 8, null);
+        timeOfUse7 = cr(timeOfUseId, "TimeOfUse7", ABBA_REGISTER, 56, 8, null);
+        timeOfUse8 = cr(timeOfUseId, "TimeOfUse8", ABBA_REGISTER, 64, 8, null);
+        timeOfUse9 = cr(timeOfUseId, "TimeOfUse9", ABBA_REGISTER, 72, 8, null);
+        timeOfUse10 = cr(timeOfUseId, "TimeOfUse10", ABBA_REGISTER, 80, 8, null);
+        timeOfUse11 = cr(timeOfUseId, "TimeOfUse11", ABBA_REGISTER, 88, 8, null);
+        timeOfUse12 = cr(timeOfUseId, "TimeOfUse12", ABBA_REGISTER, 96, 8, null);
+        timeOfUse13 = cr(timeOfUseId, "TimeOfUse13", ABBA_REGISTER, 104, 8, null);
+        timeOfUse14 = cr(timeOfUseId, "TimeOfUse14", ABBA_REGISTER, 112, 8, null);
+        timeOfUse15 = cr(timeOfUseId, "TimeOfUse15", ABBA_REGISTER, 120, 8, null);
 
-        cummulativeMaximumDemand = cr(cummulativeMaxDemandId, "CummulativeMaximumDemand", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null );
-        cumulativeMaximumDemand0 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand0", ABBA230RegisterData.ABBA_CMD,0,9,null);
-        cumulativeMaximumDemand1 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand1", ABBA230RegisterData.ABBA_CMD,9,9,null);
-        cumulativeMaximumDemand2 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand2", ABBA230RegisterData.ABBA_CMD,18,9,null);
-        cumulativeMaximumDemand3 = cr(cummulativeMaxDemandId,"CumulativeMaximumDemand3", ABBA230RegisterData.ABBA_CMD,27,9,null);
+        cummulativeMaximumDemand = cr(cummulativeMaxDemandId, "CummulativeMaximumDemand", ABBA_BYTEARRAY, 0, -1, null);
+        cumulativeMaximumDemand0 = cr(cummulativeMaxDemandId, "CumulativeMaximumDemand0", ABBA_CMD, 0, 9, null);
+        cumulativeMaximumDemand1 = cr(cummulativeMaxDemandId, "CumulativeMaximumDemand1", ABBA_CMD, 9, 9, null);
+        cumulativeMaximumDemand2 = cr(cummulativeMaxDemandId, "CumulativeMaximumDemand2", ABBA_CMD, 18, 9, null);
+        cumulativeMaximumDemand3 = cr(cummulativeMaxDemandId, "CumulativeMaximumDemand3", ABBA_CMD, 27, 9, null);
 
-        maximumDemandRegisters = cr("510", "MaximumDemandRegisters", ABBA230RegisterData.ABBA_BYTEARRAY,0,24, null );
-        maximumDemand0 = cr( "510", "MaximumDemand0", ABBA230RegisterData.ABBA_MD,0,12,null);
-        maximumDemand1 = cr( "510", "MaximumDemand1", ABBA230RegisterData.ABBA_MD,12,12,null);
+        maximumDemandRegisters = cr("510", "MaximumDemandRegisters", ABBA_BYTEARRAY, 0, 24, null);
+        maximumDemand0 = cr("510", "MaximumDemand0", ABBA_MD, 0, 12, null);
+        maximumDemand1 = cr("510", "MaximumDemand1", ABBA_MD, 12, 12, null);
 
-        historicalRegister = cr("543", "HistoricalRegister", ABBA230RegisterData.ABBA_HISTORICALVALUES,0,302, null);
+        historicalRegister = cr("543", "HistoricalRegister", ABBA_HISTORICALVALUES, 0, 302, null);
 
-        dailyHistoricalRegister = cr("545", "DailyHistoricalRegister", ABBA230RegisterData.ABBA_HISTORICALVALUES,0,302, null);
+        dailyHistoricalRegister = cr("545", "DailyHistoricalRegister", ABBA_HISTORICALVALUES, 0, 302, null);
 
 
         // event logs
-        overVoltageEventLog = cr("678", "OverVoltageEventLog", ABBA230RegisterData.ABBA_OVERVOLTAGEEVENTLOG,0,83, null);
-        underVoltageEventLog = cr("679", "UnderVoltageEventLog", ABBA230RegisterData.ABBA_UNDERVOLTAGEEVENTLOG,0,83, null);
-        programmingEventLog = cr("680", "ProgrammingEventLog", ABBA230RegisterData.ABBA_PROGRAMMINGEVENTLOG,0,64+64+45, null);
-        longPowerFailEventLog = cr("685", "LongPowerFailEventLog", ABBA230RegisterData.ABBA_LONGPOWERFAILEVENTLOG,0,83, null);
-        powerFailEventLog = cr("695", "PowerFailEventLog", ABBA230RegisterData.ABBA_POWEREFAILEVENTLOG,0,83, null);
-        terminalCoverEventLog = cr("691", "TerminalCoverEventLog", ABBA230RegisterData.ABBA_TERMINALCOVEREVENTLOG,0,83, null);
-        mainCoverEventLog = cr("692", "MainCoverEventLog", ABBA230RegisterData.ABBA_MAINCOVEREVENTLOG,0,83, null);
-        magneticTamperEventLog = cr("693", "MagneticTamperEventLog", ABBA230RegisterData.ABBA_MAGNETICTAMPEREVENTLOG,0,83, null);
-        reverserunEventLog = cr("694", "ReverserunEventLog", ABBA230RegisterData.ABBA_REVERSERUNEVENTLOG,0,43, null);
-        transientEventLog = cr("696", "TransientEventLog", ABBA230RegisterData.ABBA_TRANSIENTEVENTLOG,0,43, null);
-        endOfBillingEventLog = cr("699", "EndOfBillingEventLog", ABBA230RegisterData.ABBA_ENDOFBILLINGEVENTLOG,0,53, null);
-        contactorOpenOpticalLog = cr("422", "ContactorOpenOpticalLog", ABBA230RegisterData.ABBA_CONTACTOROPENOPTICALLOG,0,53, null);
-        contactorOpenModuleLog = cr("423", "ContactorOpenModuleLog", ABBA230RegisterData.ABBA_CONTACTOROPENMODULELOG,0,53, null);
-        contactorOpenLoadMonitorLowEventLog = cr("424", "ContactorOpenLoadMonitorLowEventLog", ABBA230RegisterData.ABBA_CONTACTORLOADMONITORLOWLOG,0,53, null);
-        contactorOpenLoadMonitorHighEventLog = cr("425", "ContactorOpenLoadMonitorHighEventLog", ABBA230RegisterData.ABBA_CONTACTOROPENLOADMONITORHIGHLOG,0,53, null);
-        contactorOpenAutoDisconnectEventLog = cr("426", "ContactorOpenAutoDisconnectEventLog", ABBA230RegisterData.ABBA_CONTACTOROPENAUTODISCONNECTLOG,0,53, null);
-        contactorArmOpticalEventLog = cr("427", "ContactorArmOpticalEventLog", ABBA230RegisterData.ABBA_CONTACTORARMOPTICALLOG,0,53, null);
-        contactorArmModuleEventLog = cr("428", "ContactorArmModuleEventLog", ABBA230RegisterData.ABBA_CONTACTORARMMODULELOG,0,53, null);
-        contactorArmLoadMonitorEventLog = cr("429", "ContactorArmLoadMonitorEventLog", ABBA230RegisterData.ABBA_CONTACTORARMLOADMONITORLOG,0,53, null);
-        contactorArmDisconnectEventLog = cr("430", "ContactorArmDisconnectEventLog", ABBA230RegisterData.ABBA_CONTACTORARMDISCONNECTLOG,0,53, null);
-        contactorCloseOpticalEventLog = cr("431", "ContactorCloseOpticalEventLog", ABBA230RegisterData.ABBA_CONTACTORCLOSEOPTICALLOG,0,53, null);
-        contactorCloseModuleEventLog = cr("432", "ContactorCloseModuleEventLog", ABBA230RegisterData.ABBA_CONTACTORCLOSEMODULELOG,0,53, null);
-        contactorCloseButtonEventLog = cr("433", "ContactorCloseButtonEventLog", ABBA230RegisterData.ABBA_CONTACTORCLOSEBUTTONLOG,0,53, null);
-        meterErrorEventLog = cr("701", "MeterErrorEventLog", ABBA230RegisterData.ABBA_METERERROREVENTLOG,0,53, null);
-        batteryVoltageLowEventLog = cr("705", "BatteryVoltageLowEventLog", ABBA230RegisterData.ABBA_BATTERYVOLTAGELOWEVENTLOG,0,43, null);
+        overVoltageEventLog = cr("678", "OverVoltageEventLog", ABBA_OVERVOLTAGEEVENTLOG, 0, 83, null);
+        underVoltageEventLog = cr("679", "UnderVoltageEventLog", ABBA_UNDERVOLTAGEEVENTLOG, 0, 83, null);
+        programmingEventLog = cr("680", "ProgrammingEventLog", ABBA_PROGRAMMINGEVENTLOG, 0, 64 + 64 + 45, null);
+        longPowerFailEventLog = cr("685", "LongPowerFailEventLog", ABBA_LONGPOWERFAILEVENTLOG, 0, 83, null);
+        powerFailEventLog = cr("695", "PowerFailEventLog", ABBA_POWEREFAILEVENTLOG, 0, 83, null);
+        terminalCoverEventLog = cr("691", "TerminalCoverEventLog", ABBA_TERMINALCOVEREVENTLOG, 0, 83, null);
+        mainCoverEventLog = cr("692", "MainCoverEventLog", ABBA_MAINCOVEREVENTLOG, 0, 83, null);
+        magneticTamperEventLog = cr("693", "MagneticTamperEventLog", ABBA_MAGNETICTAMPEREVENTLOG, 0, 83, null);
+        reverserunEventLog = cr("694", "ReverserunEventLog", ABBA_REVERSERUNEVENTLOG, 0, 43, null);
+        transientEventLog = cr("696", "TransientEventLog", ABBA_TRANSIENTEVENTLOG, 0, 43, null);
+        endOfBillingEventLog = cr("699", "EndOfBillingEventLog", ABBA_ENDOFBILLINGEVENTLOG, 0, 53, null);
+        contactorOpenOpticalLog = cr("422", "ContactorOpenOpticalLog", ABBA_CONTACTOROPENOPTICALLOG, 0, 53, null);
+        contactorOpenModuleLog = cr("423", "ContactorOpenModuleLog", ABBA_CONTACTOROPENMODULELOG, 0, 53, null);
+        contactorOpenLoadMonitorLowEventLog = cr("424", "ContactorOpenLoadMonitorLowEventLog", ABBA_CONTACTORLOADMONITORLOWLOG, 0, 53, null);
+        contactorOpenLoadMonitorHighEventLog = cr("425", "ContactorOpenLoadMonitorHighEventLog", ABBA_CONTACTOROPENLOADMONITORHIGHLOG, 0, 53, null);
+        contactorOpenAutoDisconnectEventLog = cr("426", "ContactorOpenAutoDisconnectEventLog", ABBA_CONTACTOROPENAUTODISCONNECTLOG, 0, 53, null);
+        contactorArmOpticalEventLog = cr("427", "ContactorArmOpticalEventLog", ABBA_CONTACTORARMOPTICALLOG, 0, 53, null);
+        contactorArmModuleEventLog = cr("428", "ContactorArmModuleEventLog", ABBA_CONTACTORARMMODULELOG, 0, 53, null);
+        contactorArmLoadMonitorEventLog = cr("429", "ContactorArmLoadMonitorEventLog", ABBA_CONTACTORARMLOADMONITORLOG, 0, 53, null);
+        contactorArmDisconnectEventLog = cr("430", "ContactorArmDisconnectEventLog", ABBA_CONTACTORARMDISCONNECTLOG, 0, 53, null);
+        contactorCloseOpticalEventLog = cr("431", "ContactorCloseOpticalEventLog", ABBA_CONTACTORCLOSEOPTICALLOG, 0, 53, null);
+        contactorCloseModuleEventLog = cr("432", "ContactorCloseModuleEventLog", ABBA_CONTACTORCLOSEMODULELOG, 0, 53, null);
+        contactorCloseButtonEventLog = cr("433", "ContactorCloseButtonEventLog", ABBA_CONTACTORCLOSEBUTTONLOG, 0, 53, null);
+        meterErrorEventLog = cr("701", "MeterErrorEventLog", ABBA_METERERROREVENTLOG, 0, 53, null);
+        batteryVoltageLowEventLog = cr("705", "BatteryVoltageLowEventLog", ABBA_BATTERYVOLTAGELOWEVENTLOG, 0, 43, null);
 
         /* Load Profile */
-        loadProfile = cr("550", "LoadProfile", ABBA230RegisterData.ABBA_BYTEARRAY,0,-1, null);
+        loadProfile = cr("550", "LoadProfile", ABBA_BYTEARRAY, 0, -1, null);
         /* The 2 ways to specifiy how much load profile data to retrieve:
          * 551: nr of days
          * 554: between from and to */
-        loadProfileSet = cr("551", "LoadProfileSet", ABBA230RegisterData.ABBA_HEX_LE,0,2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
-        loadProfile64Blocks = cr("551", "LoadProfile64Blocks", ABBA230RegisterData.ABBA_HEX,0,2, null);
-        loadProfile256Blocks = cr("551", "LoadProfile256Blocks", ABBA230RegisterData.ABBA_HEX,2,2, null);
+        loadProfileSet = cr("551", "LoadProfileSet", ABBA_HEX_LE, 0, 2, null, WRITEABLE, NOT_CACHED);
+        loadProfile64Blocks = cr("551", "LoadProfile64Blocks", ABBA_HEX, 0, 2, null);
+        loadProfile256Blocks = cr("551", "LoadProfile256Blocks", ABBA_HEX, 2, 2, null);
 
-        loadProfileReadByDate = cr("554", "LoadProfileReadByDate", ABBA230RegisterData.ABBA_LOAD_PROFILE_BY_DATE,0, 2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
-        loadProfileByDate64Blocks = cr("554", "LoadProfileByDate64Blocks", ABBA230RegisterData.ABBA_HEX,0,2, null);
+        loadProfileReadByDate = cr("554", "LoadProfileReadByDate", ABBA_LOAD_PROFILE_BY_DATE, 0, 2, null, WRITEABLE, NOT_CACHED);
+        loadProfileByDate64Blocks = cr("554", "LoadProfileByDate64Blocks", ABBA_HEX, 0, 2, null);
 
-        loadProfileConfiguration = cr("777", "LoadProfileConfiguration", ABBA230RegisterData.ABBA_LOAD_PROFILE_CONFIG,0,2, null);
-        loadProfileIntegrationPeriod = cr("878", "LoadProfileIntegrationPeriod", ABBA230RegisterData.ABBA_LOAD_PROFILE_INTEGRATION_PERIOD,0,1, null);
-        loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA230RegisterData.ABBA_HEX,0,1, null);
+        loadProfileConfiguration = cr("777", "LoadProfileConfiguration", ABBA_LOAD_PROFILE_CONFIG, 0, 2, null);
+        loadProfileIntegrationPeriod = cr("878", "LoadProfileIntegrationPeriod", ABBA_LOAD_PROFILE_INTEGRATION_PERIOD, 0, 1, null);
+        loadProfileDSTConfig = cr("778", "LoadProfileDSTConfig", ABBA_HEX, 0, 1, null);
         /* ------ */
 
-        systemStatusDataIdentity = cr("724", "SystemStatus", ABBA230RegisterData.ABBA_SYSTEMSTATUS,0,13, null);
+        systemStatusDataIdentity = cr("724", "SystemStatus", ABBA_SYSTEMSTATUS, 0, 13, null);
 
-        custDefRegConfig = cr("600", "CustDefRegConfig", ABBA230RegisterData.ABBA_CUSTDEFREGCONFIG,0,4, null);
+        custDefRegConfig = cr("600", "CustDefRegConfig", ABBA_CUSTDEFREGCONFIG, 0, 4, null);
 
-        tariffSources = cr("667", "TariffSources", ABBA230RegisterData.ABBA_TARIFFSOURCES,0,16, null );
+        tariffSources = cr("667", "TariffSources", ABBA_TARIFFSOURCES, 0, 16, null);
 
-        cTPrimaryAndSecundary = cr("616", "CTPrimaryAndSecundary", ABBA230RegisterData.ABBA_STRING,0,-1, null);
-        cTPrimary = cr("616", "CTPrimary", ABBA230RegisterData.ABBA_BIGDECIMAL,0,4, Unit.get(BaseUnit.UNITLESS,-2));
-        cTSecundary = cr("616", "CTSecundary", ABBA230RegisterData.ABBA_BIGDECIMAL,4,2, Unit.get(BaseUnit.UNITLESS,-2));
+        cTPrimaryAndSecundary = cr("616", "CTPrimaryAndSecundary", ABBA_STRING, 0, -1, null);
+        cTPrimary = cr("616", "CTPrimary", ABBA_BIGDECIMAL, 0, 4, Unit.get(BaseUnit.UNITLESS, -2));
+        cTSecundary = cr("616", "CTSecundary", ABBA_BIGDECIMAL, 4, 2, Unit.get(BaseUnit.UNITLESS, -2));
 
-        contactorStatus = cr("411", "ContactorStatus", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
-        contactorCloser = cr("412", "ContactorCloser", ABBA230RegisterData.ABBA_HEX,0,1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+        contactorStatus = cr("411", "ContactorStatus", ABBA_HEX, 0, 1, null, WRITEABLE, NOT_CACHED);
+        contactorCloser = cr("412", "ContactorCloser", ABBA_HEX, 0, 1, null, WRITEABLE, NOT_CACHED);
+        loadMonitoringConfigurationRegister = cr("413", LOAD_MONITORING_CONFIGURATION, ABBA_LOAD_MONITORING_CONFIGURATION, 0, 13, null, WRITEABLE, NOT_CACHED);
 
-        resetRegister = cr("099", "ResetRegister", ABBA230RegisterData.ABBA_HEX, 0, 1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
-        endOfBillingPeriod = cr("655", "EndOfBillingPeriod", ABBA230RegisterData.ABBA_HEX, 0, 1, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
+        resetRegister = cr("099", "ResetRegister", ABBA_HEX, 0, 1, null, WRITEABLE, NOT_CACHED);
+        endOfBillingPeriod = cr("655", "EndOfBillingPeriod", ABBA_HEX, 0, 1, null, WRITEABLE, NOT_CACHED);
 
         /* Instrumentation Profile */
-        instrumentationProfile = cr("555", "InstrumentationProfile", ABBA230RegisterData.ABBA_BYTEARRAY, 0, -1, null);
+        instrumentationProfile = cr("555", "InstrumentationProfile", ABBA_BYTEARRAY, 0, -1, null);
          /* The 2 ways to specify how much Instrumentation profile data to retrieve:
          * 556: nr of days
          * 558: between from and to */
-        instrumentationProfileSet = cr("556", "InstrumentationProfileSet", ABBA230RegisterData.ABBA_HEX_LE, 0, 2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
-        instrumentationProfile64Blocks = cr("556", "InstrumentationProfile64Blocks", ABBA230RegisterData.ABBA_HEX, 0, 2, null);
-        instrumentationProfile256Blocks = cr("556", "InstrumentationProfile256Blocks", ABBA230RegisterData.ABBA_HEX, 2, 2, null);
+        instrumentationProfileSet = cr("556", "InstrumentationProfileSet", ABBA_HEX_LE, 0, 2, null, WRITEABLE, NOT_CACHED);
+        instrumentationProfile64Blocks = cr("556", "InstrumentationProfile64Blocks", ABBA_HEX, 0, 2, null);
+        instrumentationProfile256Blocks = cr("556", "InstrumentationProfile256Blocks", ABBA_HEX, 2, 2, null);
 
-        instrumentationProfileReadByDate = cr("558", "InstrumentationProfileReadByDate", ABBA230RegisterData.ABBA_INSTRUMENTATION_PROFILE_BY_DATE, 0, 2, null, ABBA230Register.WRITEABLE, ABBA230Register.NOT_CACHED);
-        instrumentationProfileByDate64Blocks = cr("558", "InstrumentationProfileByDate64Blocks", ABBA230RegisterData.ABBA_HEX, 0, 2, null);
+        instrumentationProfileReadByDate = cr("558", "InstrumentationProfileReadByDate", ABBA_INSTRUMENTATION_PROFILE_BY_DATE, 0, 2, null, WRITEABLE, NOT_CACHED);
+        instrumentationProfileByDate64Blocks = cr("558", "InstrumentationProfileByDate64Blocks", ABBA_HEX, 0, 2, null);
 
-        instrumentationProfileConfiguration = cr("775", "InstrumentationProfileConfiguration", ABBA230RegisterData.ABBA_INSTRUMENTATION_PROFILE_CONFIG, 0, 16, null);
-        instrumentationProfileIntegrationPeriod = cr("879", "InstrumentationProfileIntegrationPeriod", ABBA230RegisterData.ABBA_INSTUMENTATION_PROFILE_INTEGRATION_PERIOD, 0, 1, null);
-        instrumentationProfileDSTConfig = cr("776", "InstrumentationProfileDSTConfig", ABBA230RegisterData.ABBA_HEX, 0, 1, null);
+        instrumentationProfileConfiguration = cr("775", "InstrumentationProfileConfiguration", ABBA_INSTRUMENTATION_PROFILE_CONFIG, 0, 16, null);
+        instrumentationProfileIntegrationPeriod = cr("879", "InstrumentationProfileIntegrationPeriod", ABBA_INSTUMENTATION_PROFILE_INTEGRATION_PERIOD, 0, 1, null);
+        instrumentationProfileDSTConfig = cr("776", "InstrumentationProfileDSTConfig", ABBA_HEX, 0, 1, null);
         /* ------ */
     }
 
@@ -554,7 +609,7 @@ public class ABBA230RegisterFactory {
 
         ABBA230Register register =
                 new ABBA230Register( id, name, type, offset, length, unit,
-                ABBA230Register.NOT_WRITEABLE, ABBA230Register.CACHED, this );
+                        NOT_WRITEABLE, CACHED, this);
 
         registers.put( name, register );
         return register;
@@ -727,7 +782,7 @@ public class ABBA230RegisterFactory {
 
     public ABBA230Register getInstrumentationChannelRegister(int valueConfiguration, String phaseConfiguration, String storageConfiguration) {
         String name = instrumentationChannelNameMapping[valueConfiguration - 1] + ": " + phaseConfiguration + " - " + storageConfiguration;
-        return cr("InstrumentationChannel" + valueConfiguration, name, ABBA230RegisterData.ABBA_REGISTER, 0, 8, instrumentationChannelUnitMapping[valueConfiguration - 1]);
+        return cr("InstrumentationChannel" + valueConfiguration, name, ABBA_REGISTER, 0, 8, instrumentationChannelUnitMapping[valueConfiguration - 1]);
     }
 
 	public ABBA230Register getCummMainvarhImport() {
@@ -888,9 +943,16 @@ public class ABBA230RegisterFactory {
 
     public SystemStatus getSystemStatus() throws IOException {
     	if (systemStatus==null) {
-    		systemStatus = (SystemStatus)getRegister("SystemStatus");
-    	}
-    	return systemStatus;
+            systemStatus = (SystemStatus) getRegister(systemStatusDataIdentity);
+        }
+        return systemStatus;
+    }
+
+    public LoadMonitoringConfiguration getLoadMonitoringConfiguration() throws IOException {
+        if (loadMonitoringConfiguration == null) {
+            loadMonitoringConfiguration = (LoadMonitoringConfiguration) getRegister(loadMonitoringConfigurationRegister);
+        }
+        return loadMonitoringConfiguration;
     }
 
 }

@@ -3,6 +3,7 @@ package com.energyict.protocolimpl.iec1107.abba230;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.protocols.util.ProtocolUtils;
+
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.ProtocolLink;
 import com.energyict.protocolimpl.iec1107.abba230.eventlogs.BatteryVoltageLowEventLog;
@@ -97,6 +98,8 @@ abstract public class ABBA230RegisterData {
     final static int ABBA_INSTRUMENTATION_PROFILE_BY_DATE = 51;
     final static int ABBA_INSTRUMENTATION_PROFILE_CONFIG = 52;
 
+    final static int ABBA_LOAD_MONITORING_CONFIGURATION = 53;
+
     abstract protected Unit getUnit();
     abstract protected int getType();
     abstract protected FlagIEC1107Connection getFlagIEC1107Connection();
@@ -153,6 +156,8 @@ abstract public class ABBA230RegisterData {
             case ABBA_INSTRUMENTATION_PROFILE_BY_DATE:
                 return build((ProfileReadByDate)object);
 
+            case ABBA_LOAD_MONITORING_CONFIGURATION:
+                return ((LoadMonitoringConfiguration) object).buildData();
             default:
                 throw new IOException("ABBA230RegisterData, parse , unknown type "+getType());
         }
@@ -447,6 +452,9 @@ abstract public class ABBA230RegisterData {
                 	return o;
                 }
 
+                case ABBA_LOAD_MONITORING_CONFIGURATION: {
+                    return new LoadMonitoringConfiguration(data);
+                }
 
                 default:
                     throw new IOException("ABBA230RegisterData, parse , unknown type " + getType());

@@ -71,8 +71,8 @@ import java.util.logging.Logger;
 /**
  * @author jme
  * @since 19-aug-2009
- *        <p/>
- *        19-08-2009 jme > Copied ABBA1350 protocol as base for new A1440 protocol
+ * <p>
+ * 19-08-2009 jme > Copied ABBA1350 protocol as base for new A1440 protocol
  */
 public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDuplexEnabler, ProtocolLink, MeterExceptionInfo, RegisterProtocol, MessageProtocol, DemandResetProtocol {
 
@@ -235,9 +235,9 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         try {
             Optional<String> anyMissingKey =
                     this.getRequiredKeys()
-                        .stream()
-                        .filter(key -> properties.getProperty(key) == null)
-                        .findAny();
+                            .stream()
+                            .filter(key -> properties.getProperty(key) == null)
+                            .findAny();
             if (anyMissingKey.isPresent()) {
                 throw new MissingPropertyException(anyMissingKey.get() + " key missing");
             }
@@ -328,23 +328,23 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
      */
     public List<String> getOptionalKeys() {
         return Arrays.asList(
-                    "LoadProfileNumber",
-                    "Timeout",
-                    "Retries",
-                    "SecurityLevel",
-                    "EchoCancelling",
-                    "ChannelMap",
-                    "RequestHeader",
-                    "Scaler",
-                    "DataReadout",
-                    "ExtendedLogging",
-                    "VDEWCompatible",
-                    "ForceDelay",
-                    "Software7E1",
-                    "HalfDuplex",
-                    "FailOnUnitMismatch",
-                    "RS485RtuPlusServer",
-                    PR_LIMIT_MAX_NR_OF_DAYS);
+                "LoadProfileNumber",
+                "Timeout",
+                "Retries",
+                "SecurityLevel",
+                "EchoCancelling",
+                "ChannelMap",
+                "RequestHeader",
+                "Scaler",
+                "DataReadout",
+                "ExtendedLogging",
+                "VDEWCompatible",
+                "ForceDelay",
+                "Software7E1",
+                "HalfDuplex",
+                "FailOnUnitMismatch",
+                "RS485RtuPlusServer",
+                PR_LIMIT_MAX_NR_OF_DAYS);
     }
 
     @Override
@@ -606,7 +606,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             }
             if ("1.1.0.0.13.255".equals(obis.toString())) {
                 try {
-                    LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantity(
+                    LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantityForQuantityCode(
                             (String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
                     );
                     return new RegisterValue(obis, measurementQuantity.getDescription());
@@ -701,7 +701,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 String dString = dp.parseBetweenBrackets(data, 0, 1);
                 if ("0000000000".equals(dString)) {
                     // If timestamp is empty - return eventTime null, instead of throwing an error
-					// throw new NoSuchRegisterException();
+                    // throw new NoSuchRegisterException();
                     eventTime = null;
                 } else {
                     VDEWTimeStamp vts = new VDEWTimeStamp(getTimeZone());
@@ -719,7 +719,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 return new RegisterValue(obis, null, null, null);
             }
 
-			Quantity q;
+            Quantity q;
             if (obis.getUnitElectricity(this.scaler).isUndefined()) {
                 q = new Quantity(bd, obis.getUnitElectricity(0));
             } else {
@@ -759,10 +759,10 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     private RegisterValue readLoadControlThresholdRegister(ObisCode obis, int tariff) throws IOException {
         try {
-            LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantity(
+            LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantityForQuantityCode(
                     (String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
             );
-            BigDecimal loadControlThreshold = new BigDecimal((String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_THRESHOLD_REGISTER, getTariffCode(tariff)));
+            float loadControlThreshold = measurementQuantity.format((String) getA1440Registry().getRegister(A1440Registry.LOAD_CONTROL_THRESHOLD_REGISTER, getTariffCode(tariff)));
             return new RegisterValue(obis, new Quantity(loadControlThreshold, measurementQuantity.getUnit()));
         } catch (NumberFormatException e) {
             throw new NoSuchRegisterException(e.getMessage());

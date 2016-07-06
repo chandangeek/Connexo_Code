@@ -1,11 +1,11 @@
 /**
  * A1440Messages.java
- *
+ * <p>
  * Created on 19-nov-2008, 13:15:45 by jme
- *
  */
 package com.energyict.protocolimpl.iec1107.a1440;
 
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.protocol.api.MessageProtocol;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
@@ -26,6 +26,7 @@ import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.utils.MessagingTools;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -52,14 +53,14 @@ public class A1440Messages implements MessageProtocol {
     //PQ threshold messages
     private static final A1440MessageType PQ_THRESHOLD = new A1440MessageType("CLASS_37_UPDATE", 37, 180 * 2, "Update MeterClass 37");
 
+    private static final A1440MessageType DISABLE_LOAD_LIMIT = new A1440MessageType("DISABLE_LOAD_LIMIT", 0, 0, "Disable load limit");
     private static final A1440MessageType LOADLIMIT_DURATION = new A1440MessageType("SET_LOAD_LIMIT_DURATION", 0, 0, "Set load limit duration");
     private static final A1440MessageType LOADLIMIT_THRESHOLD = new A1440MessageType("SET_LOAD_LIMIT_TRESHOLD", 0, 0, "Set load limit threshold");
-    private static final A1440MessageType LOADLIMIT_MEASUREMENT_VALUE = new A1440MessageType("SET_LOAD_LIMIT_MEASUREMENT_VALUE", 0, 0, "Set load limit measurement value");
     private static final A1440MessageType LOADLIMIT_CONFIGURATION = new A1440MessageType("CONFIGURE_LOAD_LIMIT", 0, 0, "Configure the load limit settings");
     private static final String DURATION_ATTRIBUTE = "Duration";
     private static final String THRESHOLD_ATTRIBUTE = "Threshold";
-    private static final String TARIFFS_ATTRIBUTE = "Tariff(s)";
-    private static final String MEASUREMENT_CODE = "MeasurementCode";
+    private static final String UNIT_ATTRIBUTE = "Unit";
+    private static final String UNDEFINED = "undefined";
 
     private A1440 a1440 = null;
 
@@ -87,11 +88,11 @@ public class A1440Messages implements MessageProtocol {
         MessageCategorySpec catPowerQuality = new MessageCategorySpec("'Meter class update' Messages");
         catPowerQuality.addMessageSpec(addValueMsg(PQ_THRESHOLD, false));
 
+        //TODO: Note that these messages are for the Elster AS3000 device (which extends from A1440) - once we have a dedicated protocol for the AS3000, these messages should be moved to there.
         MessageCategorySpec catLoadLimit = new MessageCategorySpec("'Load limitation' Messages");
-        catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_DURATION, false, DURATION_ATTRIBUTE));
-        catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_THRESHOLD, false, THRESHOLD_ATTRIBUTE, TARIFFS_ATTRIBUTE));
-        catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_MEASUREMENT_VALUE, false, MEASUREMENT_CODE));
-        catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_CONFIGURATION, false, true, THRESHOLD_ATTRIBUTE, TARIFFS_ATTRIBUTE, DURATION_ATTRIBUTE));
+        catLoadLimit.addMessageSpec(addValueMsg(DISABLE_LOAD_LIMIT, false));
+        catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_THRESHOLD, false, THRESHOLD_ATTRIBUTE, UNIT_ATTRIBUTE));
+        catLoadLimit.addMessageSpec(addBasicMsgWithAttributes(LOADLIMIT_CONFIGURATION, false, true, THRESHOLD_ATTRIBUTE, UNIT_ATTRIBUTE, DURATION_ATTRIBUTE));
 
         theCategories.add(catContactor);
         theCategories.add(catResetMessages);
@@ -160,16 +161,12 @@ public class A1440Messages implements MessageProtocol {
                 return MessageResult.createSuccess(messageEntry);
             }
 
-            if (isThisMessage(messageEntry, LOADLIMIT_DURATION)) {
-                doLoadLimitDurationMessage(messageEntry);
+            if (isThisMessage(messageEntry, DISABLE_LOAD_LIMIT)) {
+                disableLoadLimit(messageEntry);
                 return MessageResult.createSuccess(messageEntry);
             }
             if (isThisMessage(messageEntry, LOADLIMIT_THRESHOLD)) {
                 doLoadLimitThresholdMessage(messageEntry);
-                return MessageResult.createSuccess(messageEntry);
-            }
-            if (isThisMessage(messageEntry, LOADLIMIT_MEASUREMENT_VALUE)) {
-                doLoadLimitMeasurementValueMessage(messageEntry);
                 return MessageResult.createSuccess(messageEntry);
             }
             if (isThisMessage(messageEntry, LOADLIMIT_CONFIGURATION)) {
@@ -202,7 +199,7 @@ public class A1440Messages implements MessageProtocol {
         builder.append(tag.getName());
 
         // b. Attributes
-        for (Iterator it = tag.getAttributes().iterator(); it.hasNext();) {
+        for (Iterator it = tag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
             if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
@@ -213,7 +210,7 @@ public class A1440Messages implements MessageProtocol {
         builder.append(">");
 
         // c. sub elements
-        for (Iterator it = tag.getSubElements().iterator(); it.hasNext();) {
+        for (Iterator it = tag.getSubElements().iterator(); it.hasNext(); ) {
             MessageElement elt = (MessageElement) it.next();
             if (elt.isTag()) {
                 builder.append(writeTag((MessageTag) elt));
@@ -458,10 +455,51 @@ public class A1440Messages implements MessageProtocol {
 
     }
 
-    private void doLoadLimitDurationMessage(MessageEntry messageEntry) throws IOException {
-        getLogger().fine("Received SET_LOAD_LIMIT_DURATION");
+    private void disableLoadLimit(MessageEntry messageEntry) throws IOException {
+        getLogger().fine("Received DISABLE_LOAD_LIMIT");
         checkSecurityLevelSufficient();
-        doSetLoadLimitDuration(MessagingTools.getContentOfAttribute(messageEntry, DURATION_ATTRIBUTE));
+        doSetLoadLimitThreshold(BigDecimal.ZERO.toString(), UNDEFINED); // Disable load limitation, by writing limit '0' to device
+    }
+
+    private void doLoadLimitThresholdMessage(MessageEntry messageEntry) throws IOException {
+        doSetLoadLimitThreshold(
+                MessagingTools.getContentOfAttribute(messageEntry, THRESHOLD_ATTRIBUTE),
+                MessagingTools.getContentOfAttribute(messageEntry, UNIT_ATTRIBUTE));
+    }
+
+    private void doSetLoadLimitThreshold(String threshold, String unitAcronym) throws IOException {
+        getLogger().fine("Received SET_LOAD_LIMIT_TRESHOLD");
+        checkSecurityLevelSufficient();
+        try {
+            LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantityForQuantityCode(
+                    (String) getA1440().getA1440Registry()
+                            .getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
+            );
+            String value = measurementQuantity.format(Float.parseFloat(threshold), convertToUnit(unitAcronym));
+
+            getA1440().getA1440Registry().setRegister(A1440Registry.LOAD_CONTROL_THRESHOLD_REGISTER, value);
+        } catch (NumberFormatException e) {
+            throw new IOException("Failed to parse the threshold value: " + e.getMessage());
+        }
+    }
+
+    private Unit convertToUnit(String unitAcronym) throws IOException {
+        Unit unit = unitAcronym.equals(UNDEFINED) ? Unit.getUndefined() : Unit.get(unitAcronym.trim());
+        if (unit == null) {
+            throw new IOException("Encountered invalid unit '" + unitAcronym + "'.");
+        }
+        return unit;
+    }
+
+    private void doLoadLimitConfiguration(MessageEntry messageEntry) throws IOException {
+        getLogger().fine("Received CONFIGURE_LOAD_LIMIT");
+        checkSecurityLevelSufficient();
+        String threshold = MessagingTools.getContentOfAttribute(messageEntry, THRESHOLD_ATTRIBUTE);
+        String unit = MessagingTools.getContentOfAttribute(messageEntry, UNIT_ATTRIBUTE);
+        String duration = MessagingTools.getContentOfAttribute(messageEntry, DURATION_ATTRIBUTE);
+
+        doSetLoadLimitThreshold(threshold, unit);
+        doSetLoadLimitDuration(duration);
     }
 
     private void doSetLoadLimitDuration(String loadLimitDuration) throws IOException {
@@ -471,76 +509,6 @@ public class A1440Messages implements MessageProtocol {
         } catch (NumberFormatException e) {
             throw new IOException("Failed to parse duration '" + loadLimitDuration + "' - duration should contain a number indicating the number of seconds");
         }
-    }
-
-    private void doLoadLimitThresholdMessage(MessageEntry messageEntry) throws IOException {
-        doSetLoadLimitThreshold(
-                MessagingTools.getContentOfAttribute(messageEntry, THRESHOLD_ATTRIBUTE),
-                MessagingTools.getContentOfAttribute(messageEntry, TARIFFS_ATTRIBUTE));
-    }
-
-    private void doSetLoadLimitThreshold(String threshold, String tariffs) throws IOException {
-        getLogger().fine("Received SET_LOAD_LIMIT_TRESHOLD");
-        checkSecurityLevelSufficient();
-        try {
-            float thresholdValue = Float.parseFloat(threshold);
-            LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantity(
-                    (String) getA1440().getA1440Registry()
-                            .getRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER)
-            );
-            String value = measurementQuantity.format(thresholdValue);
-            if (tariffs != null) {
-                value = value.concat(buildTariffMask(tariffs));
-            }
-
-            getA1440().getA1440Registry().setRegister(A1440Registry.LOAD_CONTROL_THRESHOLD_REGISTER, value);
-        } catch (NumberFormatException e) {
-            throw new IOException("Failed to parse the threshold value: " + e.getMessage());
-        }
-    }
-
-    private String buildTariffMask(String tariffs) throws IOException {
-        int tariffMask = 0;
-        String[] split = tariffs.split(",");
-        for (String s : split) {
-            try {
-                int tariffCode = Integer.parseInt(s.trim());
-                if (tariffCode < 1 || tariffCode > 8) {
-                    throw new IOException("Encountered invalid tariff '" + tariffCode + "'; only tariff 1 to 8 are supported");
-                }
-                tariffMask += 1 << (tariffCode - 1);
-            } catch (NumberFormatException e) {
-                throw new IOException("Encountered invalid tariff '" + s.trim() + "'; only tariff 1 to 8 are supported");
-            }
-        }
-        return String.format("%02X", tariffMask);
-    }
-
-    private void doLoadLimitMeasurementValueMessage(MessageEntry messageEntry) throws IOException {
-        getLogger().fine("Received SET_LOAD_LIMIT_MEASUREMENT_VALUE");
-        checkSecurityLevelSufficient();
-        doSetLoadLimitMeasurementValue(MessagingTools.getContentOfAttribute(messageEntry, MEASUREMENT_CODE));
-    }
-
-    private void doSetLoadLimitMeasurementValue(String measurementCode) throws IOException {
-        LoadControlMeasurementQuantity measurementQuantity = LoadControlMeasurementQuantity.getLoadControlMeasurementQuantity(measurementCode);
-        if (!measurementQuantity.equals(LoadControlMeasurementQuantity.INVALID)) {
-            getA1440().getA1440Registry()
-                    .setRegister(A1440Registry.LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER, measurementQuantity.getMeasurementQuantityCode());
-        } else {
-            throw new IOException("'" + measurementCode + "' is not a valid measurement quantity code.");
-        }
-    }
-
-    private void doLoadLimitConfiguration(MessageEntry messageEntry) throws IOException {
-        getLogger().fine("Received CONFIGURE_LOAD_LIMIT");
-        checkSecurityLevelSufficient();
-        String threshold = MessagingTools.getContentOfAttribute(messageEntry, THRESHOLD_ATTRIBUTE);
-        String duration = MessagingTools.getContentOfAttribute(messageEntry, DURATION_ATTRIBUTE);
-        String tariffs = MessagingTools.getContentOfAttribute(messageEntry, TARIFFS_ATTRIBUTE);
-
-        doSetLoadLimitDuration(duration);
-        doSetLoadLimitThreshold(threshold, tariffs);
     }
 
     private void checkSecurityLevelSufficient() throws IOException {
