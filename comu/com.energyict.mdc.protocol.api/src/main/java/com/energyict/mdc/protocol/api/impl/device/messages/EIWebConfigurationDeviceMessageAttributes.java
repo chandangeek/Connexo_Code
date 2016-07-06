@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum EIWebConfigurationDeviceMessageAttributes implements TranslationKey {
+enum EIWebConfigurationDeviceMessageAttributes implements TranslationKey {
 
     Id("EIWeb." + DeviceMessageConstants.id, "ID"),
     SetEIWebPasswordAttributeName(DeviceMessageConstants.SetEIWebPasswordAttributeName, "Set EIWeb password"),

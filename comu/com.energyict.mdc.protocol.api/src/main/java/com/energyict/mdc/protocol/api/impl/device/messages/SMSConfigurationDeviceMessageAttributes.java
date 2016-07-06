@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum SMSConfigurationDeviceMessageAttributes implements TranslationKey {
+enum SMSConfigurationDeviceMessageAttributes implements TranslationKey {
 
     SetSmsDataNbrAttributeName(DeviceMessageConstants.SetSmsDataNbrAttributeName, "Set Sms dataNbr"),
     SetSmsAlarmNbrAttributeName(DeviceMessageConstants.SetSmsAlarmNbrAttributeName, "Set Sms alarmNbr"),

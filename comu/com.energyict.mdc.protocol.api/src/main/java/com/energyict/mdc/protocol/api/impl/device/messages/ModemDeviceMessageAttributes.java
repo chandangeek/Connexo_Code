@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum ModemDeviceMessageAttributes implements TranslationKey {
+enum ModemDeviceMessageAttributes implements TranslationKey {
 
     SetDialCommandAttributeName(DeviceMessageConstants.SetDialCommandAttributeName, "Set dial command"),
     SetModemInit1AttributeName(DeviceMessageConstants.SetModemInit1AttributeName, "Set modem init1"),

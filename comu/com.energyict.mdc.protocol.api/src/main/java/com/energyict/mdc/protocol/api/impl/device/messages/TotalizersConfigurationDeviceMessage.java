@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum TotalizersConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetSumMask(DeviceMessageId.TOTALIZER_CONFIGURATION_SET_SUM_MASK, "Set sum mask") {
         @Override

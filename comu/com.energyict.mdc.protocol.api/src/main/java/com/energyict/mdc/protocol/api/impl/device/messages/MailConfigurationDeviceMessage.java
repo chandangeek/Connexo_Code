@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum MailConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum MailConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     // Read Mail (POP3) Parameters
     SetPOPUsername(DeviceMessageId.MAIL_CONFIGURATION_SET_POP_USERNAME, "Set POP username") {

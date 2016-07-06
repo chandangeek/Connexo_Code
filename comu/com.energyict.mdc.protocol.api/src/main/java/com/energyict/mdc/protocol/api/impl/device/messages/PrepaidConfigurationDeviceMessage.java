@@ -13,7 +13,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum PrepaidConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     AddPrepaidCredit(DeviceMessageId.PREPAID_CONFIGURATION_ADD_CREDIT, "Add prepaid credit") {
         @Override

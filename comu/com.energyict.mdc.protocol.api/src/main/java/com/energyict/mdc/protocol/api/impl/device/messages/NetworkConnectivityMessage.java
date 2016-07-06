@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * Date: 2/04/13
  * Time: 10:11
  */
-public enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
+enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
 
     ACTIVATE_WAKEUP_MECHANISM(DeviceMessageId.NETWORK_CONNECTIVITY_ACTIVATE_WAKEUP_MECHANISM, "Activate wakeup mechanism"),
     DEACTIVATE_SMS_WAKEUP(DeviceMessageId.NETWORK_CONNECTIVITY_DEACTIVATE_SMS_WAKEUP, "Deactivate SMS wakeup"),

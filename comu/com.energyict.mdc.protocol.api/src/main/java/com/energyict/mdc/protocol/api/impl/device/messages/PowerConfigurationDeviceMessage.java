@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum PowerConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     IEC1107LimitPowerQuality(DeviceMessageId.POWER_CONFIGURATION_IEC1107_LIMIT_POWER_QUALITY, "Limit power quality") {
         @Override

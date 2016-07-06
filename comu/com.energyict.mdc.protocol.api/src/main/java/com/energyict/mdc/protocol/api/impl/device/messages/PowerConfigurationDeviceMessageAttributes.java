@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum PowerConfigurationDeviceMessageAttributes implements TranslationKey {
+enum PowerConfigurationDeviceMessageAttributes implements TranslationKey {
 
     ReferenceVoltageAttributeName(DeviceMessageConstants.ReferenceVoltageAttributeName, "ReferenceVoltage"),
     VoltageSagTimeThresholdAttributeName(DeviceMessageConstants.VoltageSagTimeThresholdAttributeName, "VoltageSagTimeThreshold"),

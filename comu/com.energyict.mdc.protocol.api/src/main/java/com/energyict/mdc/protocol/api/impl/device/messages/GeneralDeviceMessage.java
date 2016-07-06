@@ -19,7 +19,7 @@ import java.util.List;
  * Date: 3/04/13
  * Time: 8:38
  */
-public enum GeneralDeviceMessage implements DeviceMessageSpecEnum {
+enum GeneralDeviceMessage implements DeviceMessageSpecEnum {
 
     WRITE_RAW_IEC1107_CLASS(DeviceMessageId.GENERAL_WRITE_RAW_IEC1107_CLASS, "Write raw IEC1107 class") {
         @Override
@@ -56,6 +56,19 @@ public enum GeneralDeviceMessage implements DeviceMessageSpecEnum {
                     propertySpecService
                             .referenceSpec(DeviceMessageFile.class)
                             .named(DeviceMessageAttributes.configUserFileAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+        }
+    },
+    WRITE_CONTRACTS_FROM_XML_USERFILE(DeviceMessageId.ACTIVITY_CALENDAR_WRITE_CONTRACTS_FROM_XML_USERFILE, "Write contract from XML user file") {
+        @Override
+        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
+            propertySpecs.add(
+                    propertySpecService
+                            .referenceSpec(DeviceMessageFile.class)
+                            .named(DeviceMessageAttributes.contractsXmlUserFileAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * Time: 9:45
  * Author: khe
  */
-public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
+enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecEnum {
 
     WriteExchangeStatus(DeviceMessageId.CONFIGURATION_CHANGE_WRITE_EXCHANGE_STATUS, "Write exchange status") {
         @Override

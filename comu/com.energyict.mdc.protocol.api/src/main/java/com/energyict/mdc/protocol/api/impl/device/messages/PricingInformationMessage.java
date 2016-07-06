@@ -17,7 +17,7 @@ import java.util.List;
  * Date: 11/03/13
  * Time: 11:59
  */
-public enum PricingInformationMessage implements DeviceMessageSpecEnum {
+enum PricingInformationMessage implements DeviceMessageSpecEnum {
 
     ReadPricingInformation(DeviceMessageId.PRICING_GET_INFORMATION, "Read pricing information"),
     SetPricingInformation(DeviceMessageId.PRICING_SET_INFORMATION, "Set pricing information") {

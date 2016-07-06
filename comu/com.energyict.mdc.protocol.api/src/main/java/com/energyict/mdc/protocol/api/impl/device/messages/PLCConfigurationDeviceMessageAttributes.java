@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum PLCConfigurationDeviceMessageAttributes implements TranslationKey {
+enum PLCConfigurationDeviceMessageAttributes implements TranslationKey {
 
     ActiveChannelAttributeName(DeviceMessageConstants.ActiveChannelAttributeName, "ActiveChannel"),
     CHANNEL1_FSAttributeName(DeviceMessageConstants.CHANNEL1_FSAttributeName, "CHANNEL1_FS"),

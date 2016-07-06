@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum OpusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum OpusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetOpusOSNbr(DeviceMessageId.OPUS_CONFIGURATION_SET_OS_NUMBER, "Set opus OS number") {
         @Override

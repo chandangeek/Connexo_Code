@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 12/8/14
  * Time: 12:07 PM
  */
-public enum OutputConfigurationMessage implements DeviceMessageSpecEnum {
+enum OutputConfigurationMessage implements DeviceMessageSpecEnum {
 
     SetOutputOn(DeviceMessageId.OUTPUT_CONFIGURATION_SET_OUTPUT_ON, "Set output on"){
         @Override

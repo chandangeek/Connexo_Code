@@ -21,7 +21,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
  * Date: 2/05/13
  * Time: 10:44
  */
-public enum LoadProfileMessage implements DeviceMessageSpecEnum {
+enum LoadProfileMessage implements DeviceMessageSpecEnum {
 
     PARTIAL_LOAD_PROFILE_REQUEST(DeviceMessageId.LOAD_PROFILE_PARTIAL_REQUEST, "Partial load profile request") {
         @Override

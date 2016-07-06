@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.TranslationKey;
  * Time: 17:27
  * Author: khe
  */
-public enum ActivityCalendarType implements TranslationKey {
+enum ActivityCalendarType implements TranslationKey {
 
     PublicNetwork("PublicNetwork", "Public network"),
     Provider("Provider", "Provider");

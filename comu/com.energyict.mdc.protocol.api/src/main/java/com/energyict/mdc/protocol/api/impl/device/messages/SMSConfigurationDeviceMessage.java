@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum SMSConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum SMSConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetSmsDataNbr(DeviceMessageId.SMS_CONFIGURATION_SET_DATA_NUMBER, "Set SMS data number") {
         @Override

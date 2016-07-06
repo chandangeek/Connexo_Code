@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * Date: 12/8/14
  * Time: 12:11 PM
  */
-public enum FirewallConfigurationMessage implements DeviceMessageSpecEnum {
+enum FirewallConfigurationMessage implements DeviceMessageSpecEnum {
 
     ActivateFirewall(DeviceMessageId.FIREWALL_ACTIVATE_FIREWALL, "Activate the firewall"),
     DeactivateFirewall(DeviceMessageId.FIREWALL_DEACTIVATE_FIREWALL, "Deactivate the firewall"),

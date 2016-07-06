@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum ConfigurationChangeDeviceMessageAttributes implements TranslationKey {
+enum ConfigurationChangeDeviceMessageAttributes implements TranslationKey {
 
     enableSSL(DeviceMessageConstants.enableSSL, "Enable SSL"),
     deviceName(DeviceMessageConstants.deviceName, "Device name"),

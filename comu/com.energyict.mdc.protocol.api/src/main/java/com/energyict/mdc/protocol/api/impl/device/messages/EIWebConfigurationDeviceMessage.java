@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum EIWebConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetEIWebPassword(DeviceMessageId.EIWEB_SET_PASSWORD, "Set EIWeb password") {
         @Override

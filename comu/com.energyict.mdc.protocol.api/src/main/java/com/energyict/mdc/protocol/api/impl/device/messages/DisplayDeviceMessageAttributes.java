@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum DisplayDeviceMessageAttributes implements TranslationKey {
+enum DisplayDeviceMessageAttributes implements TranslationKey {
 
     p1InformationAttributeName(DeviceMessageConstants.p1InformationAttributeName, "Consumer p1"),
     DisplayMessageAttributeName(DeviceMessageConstants.DisplayMessageAttributeName, "Display message"),
