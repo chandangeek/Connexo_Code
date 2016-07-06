@@ -133,7 +133,7 @@ public class UsagePointResourceTest {
 
     @Test
     public void testNoCurrentMeterActivation() throws Exception {
-        when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentMeterActivations()).thenReturn(Collections.emptyList());
 
         // Business method
         Response response = usagePointResource.updateContactor(USAGE_POINT_MRID, new ContactorInfo(), uriInfo);

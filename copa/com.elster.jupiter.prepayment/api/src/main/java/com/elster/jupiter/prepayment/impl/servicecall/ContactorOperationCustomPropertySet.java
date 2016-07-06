@@ -28,8 +28,13 @@ import java.util.Set;
  */
 @Component(name = "com.energyict.servicecall.redknee.contactoroperation.customPropertySet",
         service = CustomPropertySet.class,
+        property = "name=" + ContactorOperationCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
         immediate = true)
 public class ContactorOperationCustomPropertySet implements CustomPropertySet<ServiceCall, ContactorOperationDomainExtension> {
+
+    public static final String CUSTOM_PROPERTY_SET_NAME = "contactoroperation";
+
+    public volatile PropertySpecService propertySpecService;
 
     public ContactorOperationCustomPropertySet() {
     }
@@ -39,8 +44,6 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
         customPropertySetService.addCustomPropertySet(this);
     }
 
-    public volatile PropertySpecService propertySpecService;
-
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -49,6 +52,11 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        customPropertySetService.addCustomPropertySet(this);
     }
 
     @Override

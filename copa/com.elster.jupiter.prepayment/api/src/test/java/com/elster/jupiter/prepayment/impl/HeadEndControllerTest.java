@@ -21,13 +21,13 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageAttributes;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -152,7 +152,7 @@ public class HeadEndControllerTest {
         contactorInfo.status = BreakerStatus.connected;
         contactorInfo.activationDate = Instant.now();
 
-        when(commandFactory.createConnectCommand(endDevice)).thenReturn(endDeviceCommand);
+        when(commandFactory.createConnectCommand(endDevice, contactorInfo.activationDate)).thenReturn(endDeviceCommand);
         PropertySpec dateTimeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
                 .named(ContactorDeviceMessageAttributes.contactorActivationDateAttributeName)
@@ -165,8 +165,7 @@ public class HeadEndControllerTest {
         headEndController.performContactorOperations(endDevice, serviceCall, contactorInfo);
 
         // Asserts
-        verify(commandFactory).createConnectCommand(endDevice);
-        verify(endDeviceCommand).setPropertyValue(dateTimeSpec, Date.from(contactorInfo.activationDate));
+        verify(commandFactory).createConnectCommand(endDevice, contactorInfo.activationDate);
         verify(headEndInterface).sendCommand(endDeviceCommand, contactorInfo.activationDate, serviceCall);
     }
 
@@ -176,7 +175,7 @@ public class HeadEndControllerTest {
         contactorInfo.status = BreakerStatus.disconnected;
         contactorInfo.activationDate = Instant.now();
 
-        when(commandFactory.createDisconnectCommand(endDevice)).thenReturn(endDeviceCommand);
+        when(commandFactory.createDisconnectCommand(endDevice, contactorInfo.activationDate)).thenReturn(endDeviceCommand);
         PropertySpec dateTimeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
                 .named(ContactorDeviceMessageAttributes.contactorActivationDateAttributeName)
@@ -189,8 +188,7 @@ public class HeadEndControllerTest {
         headEndController.performContactorOperations(endDevice, serviceCall, contactorInfo);
 
         // Asserts
-        verify(commandFactory).createDisconnectCommand(endDevice);
-        verify(endDeviceCommand).setPropertyValue(dateTimeSpec, Date.from(contactorInfo.activationDate));
+        verify(commandFactory).createDisconnectCommand(endDevice, contactorInfo.activationDate);
         verify(headEndInterface).sendCommand(endDeviceCommand, contactorInfo.activationDate, serviceCall);
     }
 
@@ -200,7 +198,7 @@ public class HeadEndControllerTest {
         contactorInfo.status = BreakerStatus.armed;
         contactorInfo.activationDate = Instant.now();
 
-        when(commandFactory.createArmCommand(endDevice, false)).thenReturn(endDeviceCommand);
+        when(commandFactory.createArmCommand(endDevice, false, contactorInfo.activationDate)).thenReturn(endDeviceCommand);
         PropertySpec dateTimeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
                 .named(ContactorDeviceMessageAttributes.contactorActivationDateAttributeName)
@@ -213,8 +211,7 @@ public class HeadEndControllerTest {
         headEndController.performContactorOperations(endDevice, serviceCall, contactorInfo);
 
         // Asserts
-        verify(commandFactory).createArmCommand(endDevice, false);
-        verify(endDeviceCommand).setPropertyValue(dateTimeSpec, Date.from(contactorInfo.activationDate));
+        verify(commandFactory).createArmCommand(endDevice, false, contactorInfo.activationDate);
         verify(headEndInterface).sendCommand(endDeviceCommand, contactorInfo.activationDate, serviceCall);
     }
 
@@ -239,8 +236,9 @@ public class HeadEndControllerTest {
     public void testEnableLoadLimittingOperation() throws Exception {
         ContactorInfo contactorInfo = new ContactorInfo();
         contactorInfo.loadLimit = contactorInfo.new LoadLimit(BigDecimal.TEN, "kWh");
+        Quantity quantity = Quantity.create(BigDecimal.TEN, 3, "Wh");
 
-        when(commandFactory.createEnableLoadLimitCommand(endDevice)).thenReturn(endDeviceCommand);
+        when(commandFactory.createEnableLoadLimitCommand(endDevice, quantity)).thenReturn(endDeviceCommand);
         List<PropertySpec> propertySpecs = new ArrayList<>();
         PropertySpec thresholdPropertySpec = propertySpecService
                 .bigDecimalSpec()
@@ -268,9 +266,7 @@ public class HeadEndControllerTest {
         headEndController.performContactorOperations(endDevice, serviceCall, contactorInfo);
 
         // Asserts
-        verify(commandFactory).createEnableLoadLimitCommand(endDevice);
-        verify(endDeviceCommand).setPropertyValue(thresholdPropertySpec, contactorInfo.loadLimit.limit);
-        verify(endDeviceCommand).setPropertyValue(unitPropertySpec, contactorInfo.loadLimit.unit);
+        verify(commandFactory).createEnableLoadLimitCommand(endDevice, quantity);
         verify(endDeviceCommand, never()).setPropertyValue(eq(loadTolerancePropertySpec), any());
         verify(headEndInterface).sendCommand(eq(endDeviceCommand), any(Instant.class), eq(serviceCall));
     }
@@ -280,8 +276,9 @@ public class HeadEndControllerTest {
         ContactorInfo contactorInfo = new ContactorInfo();
         contactorInfo.loadLimit = contactorInfo.new LoadLimit(BigDecimal.TEN, "kWh");
         contactorInfo.loadTolerance = 30;
+        Quantity quantity = Quantity.create(BigDecimal.TEN, 3, "Wh");
 
-        when(commandFactory.createEnableLoadLimitCommand(endDevice)).thenReturn(endDeviceCommand);
+        when(commandFactory.createEnableLoadLimitCommand(endDevice, quantity)).thenReturn(endDeviceCommand);
         List<PropertySpec> propertySpecs = new ArrayList<>();
         PropertySpec thresholdPropertySpec = propertySpecService
                 .bigDecimalSpec()
@@ -309,9 +306,7 @@ public class HeadEndControllerTest {
         headEndController.performContactorOperations(endDevice, serviceCall, contactorInfo);
 
         // Asserts
-        verify(commandFactory).createEnableLoadLimitCommand(endDevice);
-        verify(endDeviceCommand).setPropertyValue(thresholdPropertySpec, contactorInfo.loadLimit.limit);
-        verify(endDeviceCommand).setPropertyValue(unitPropertySpec, contactorInfo.loadLimit.unit);
+        verify(commandFactory).createEnableLoadLimitCommand(endDevice, quantity);
         verify(endDeviceCommand).setPropertyValue(loadTolerancePropertySpec, TimeDuration.seconds(contactorInfo.loadTolerance));
         verify(headEndInterface).sendCommand(eq(endDeviceCommand), any(Instant.class), eq(serviceCall));
     }
@@ -323,14 +318,15 @@ public class HeadEndControllerTest {
         contactorInfo.activationDate = Instant.now();
         contactorInfo.loadLimit = contactorInfo.new LoadLimit(BigDecimal.TEN, "kWh");
         contactorInfo.loadTolerance = 30;
+        Quantity quantity = Quantity.create(BigDecimal.TEN, 3, "Wh");
 
         EndDeviceCommand breakerEndDeviceCommand = mock(EndDeviceCommand.class);
         EndDeviceCommand loadLimitEndDeviceCommand = mock(EndDeviceCommand.class);
         when(breakerEndDeviceCommand.getEndDeviceControlType()).thenReturn(endDeviceControlType);
         when(loadLimitEndDeviceCommand.getEndDeviceControlType()).thenReturn(endDeviceControlType);
 
-        when(commandFactory.createConnectCommand(endDevice)).thenReturn(breakerEndDeviceCommand);
-        when(commandFactory.createEnableLoadLimitCommand(endDevice)).thenReturn(loadLimitEndDeviceCommand);
+        when(commandFactory.createConnectCommand(endDevice, contactorInfo.activationDate)).thenReturn(breakerEndDeviceCommand);
+        when(commandFactory.createEnableLoadLimitCommand(endDevice, quantity)).thenReturn(loadLimitEndDeviceCommand);
         PropertySpec dateTimeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
                 .named(ContactorDeviceMessageAttributes.contactorActivationDateAttributeName)
@@ -365,23 +361,22 @@ public class HeadEndControllerTest {
         headEndController.performContactorOperations(endDevice, serviceCall, contactorInfo);
 
         // Asserts
-        verify(commandFactory).createEnableLoadLimitCommand(endDevice);
-        verify(breakerEndDeviceCommand).setPropertyValue(dateTimeSpec, Date.from(contactorInfo.activationDate));
-        verify(loadLimitEndDeviceCommand).setPropertyValue(thresholdPropertySpec, contactorInfo.loadLimit.limit);
-        verify(loadLimitEndDeviceCommand).setPropertyValue(unitPropertySpec, contactorInfo.loadLimit.unit);
+        verify(commandFactory).createEnableLoadLimitCommand(endDevice, quantity);
         verify(loadLimitEndDeviceCommand).setPropertyValue(loadTolerancePropertySpec, TimeDuration.seconds(contactorInfo.loadTolerance));
         verify(headEndInterface).sendCommand(breakerEndDeviceCommand, contactorInfo.activationDate, serviceCall);
         verify(headEndInterface).sendCommand(eq(loadLimitEndDeviceCommand), any(Instant.class), eq(serviceCall));
     }
 
     @Test
-    @Expected(value = LocalizedException.class, message = "Could not find the command argument spec " + DeviceMessageConstants.contactorActivationDateAttributeName + " for command " + END_DEVICE_CONTROL_TYPE)
+    @Expected(value = LocalizedException.class, message = "Could not find the command argument spec " + DeviceMessageConstants.overThresholdDurationAttributeName + " for command " + END_DEVICE_CONTROL_TYPE)
     public void testCommandArgumentSpecNotFound() throws Exception {
         ContactorInfo contactorInfo = new ContactorInfo();
         contactorInfo.status = BreakerStatus.armed;
-        contactorInfo.activationDate = Instant.now();
+        contactorInfo.loadLimit = contactorInfo.new LoadLimit(BigDecimal.TEN, "kWh");
+        contactorInfo.loadTolerance = 30;
+        Quantity quantity = Quantity.create(BigDecimal.TEN, 3, "Wh");
 
-        when(commandFactory.createArmCommand(endDevice, false)).thenReturn(endDeviceCommand);
+        when(commandFactory.createEnableLoadLimitCommand(endDevice, quantity)).thenReturn(endDeviceCommand);
         when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(Collections.emptyList());
 
         // Business method

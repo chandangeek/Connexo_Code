@@ -23,6 +23,7 @@ public enum MessageSeeds implements MessageSeed {
     INCOMPLETE_CONTACTOR_INFO(1013, "Received incomplete request - please make sure to specify contactor status and/or load limit parameters"),
     NO_HEAD_END_INTERFACE(1013, "Could not find the head-end interface for end device with MRID {0}"),
     COMMAND_ARGUMENT_SPEC_NOT_FOUND(1014, "Could not find the command argument spec {0} for command {1}"),
+    COULD_NOT_FIND_SERVICE_CALL_TYPE(1015, "Could not find service call type {0} having version {1}"),
     ;
 
 

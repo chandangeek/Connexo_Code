@@ -50,8 +50,15 @@ public class OperationHandler implements ServiceCallHandler {
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
-        if (newState.equals(DefaultState.CANCELLED)) {
-            cancelServiceCallIncludingItsChildren(serviceCall);
+        switch (newState) {
+            case CANCELLED:
+                cancelServiceCallIncludingItsChildren(serviceCall);
+                break;
+            case SUCCESSFUL:
+                callBackRedknee(SUCCESS);
+                break;
+            default:
+                break;
         }
     }
 
@@ -75,7 +82,6 @@ public class OperationHandler implements ServiceCallHandler {
                     parent.log(LogLevel.INFO, "All child service call operations have been executed successfully");
                     requestTransitionTo(parent, DefaultState.SUCCESSFUL);
                 }
-                callBackRedknee(SUCCESS);
                 break;
             case FAILED:
                 parent.log(LogLevel.SEVERE, MessageFormat.format("Child service call {0} (type={1}) failed", serviceCall.getId(), serviceCall.getType().getName()));
@@ -97,7 +103,8 @@ public class OperationHandler implements ServiceCallHandler {
         }
         if (serviceCall.canTransitionTo(state)) {
             serviceCall.requestTransition(state);
-        }
+        } // Else the serviceCall is probably already in an end state
+
     }
 
     private void callBackRedknee(boolean successIndicator) {

@@ -1,11 +1,11 @@
 package com.elster.jupiter.prepayment.impl.servicecall;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.prepayment.impl.BreakerStatus;
 import com.elster.jupiter.prepayment.impl.ContactorInfo;
+import com.elster.jupiter.prepayment.impl.MessageSeeds;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 public class ServiceCallCommands {
 
-    private enum ServiceCallTypes {
+    public enum ServiceCallTypes {
         disconnect("redkneeDisconnectHandler", "v1.0"),
         connectWithLoadLimit("redkneeConnectWithLoadLimitHandler", "v1.0"),
         connectWithoutLoadLimit("redkneeConnectHandler", "v1.0"),
@@ -47,15 +47,15 @@ public class ServiceCallCommands {
         }
     }
 
+    private final Thesaurus thesaurus;
     private final ServiceCallService serviceCallService;
-    private final CustomPropertySetService customPropertySetService;
 
     private ServiceCallType serviceCallType;
 
     @Inject
-    public ServiceCallCommands(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+    public ServiceCallCommands(ServiceCallService serviceCallService, Thesaurus thesaurus) {
         this.serviceCallService = serviceCallService;
-        this.customPropertySetService = customPropertySetService;
+        this.thesaurus = thesaurus;
     }
 
     @TransactionRequired
@@ -96,20 +96,10 @@ public class ServiceCallCommands {
 
     private ServiceCallType getServiceCallType(ContactorInfo contactorInfo) {
         if (serviceCallType == null) {
-            RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
-                    .stream()
-                    .filter(cps -> cps.getCustomPropertySet()
-                            .getName()
-                            .equals(ContactorOperationCustomPropertySet.class.getSimpleName()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("Could not find the Redknee contactor operation custom property set"));
             ServiceCallTypes serviceCallType = getServiceCallTypesFor(contactorInfo);
             this.serviceCallType = serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())
-                    .orElseGet(() -> serviceCallService.createServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())
-                            .handler(OperationHandler.HANDLER_NAME)
-                            .logLevel(LogLevel.FINEST)
-                            .customPropertySet(customPropertySet)
-                            .create());
+                    .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
+                            .format(serviceCallType.getTypeName(), serviceCallType.getTypeVersion())));
         }
         return serviceCallType;
     }

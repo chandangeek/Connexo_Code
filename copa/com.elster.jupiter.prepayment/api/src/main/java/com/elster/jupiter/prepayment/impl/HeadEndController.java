@@ -8,10 +8,10 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.elster.jupiter.util.units.Quantity;
+import com.energyict.mdc.common.Unit;
 
 import javax.inject.Inject;
-import java.sql.Date;
 import java.time.Instant;
 
 /**
@@ -23,8 +23,8 @@ import java.time.Instant;
  */
 public class HeadEndController {
 
+    private static final String OVER_THRESHOLD_DURATION_ATTRIBUTE_NAME = "LoadBalanceDeviceMessage.parameters.overthresholdduration";
     private static final boolean ARM_FOR_CLOSURE = false;
-    private static final String UNDEFINED_UNIT = "undefined";
 
     private final ExceptionFactory exceptionFactory;
 
@@ -43,33 +43,23 @@ public class HeadEndController {
         if (shouldPerformBreakerOperations(contactorInfo)) {
             serviceCall.log(LogLevel.INFO, "Handling breaker operations - the breaker will be " + contactorInfo.status.getDescription() + ".");
             EndDeviceCommand deviceCommand;
+            Instant activationDate = contactorInfo.activationDate != null ? contactorInfo.activationDate : Instant.now();
             switch (contactorInfo.status) {
                 case connected:
-                    deviceCommand = headEndInterface.getCommandFactory().createConnectCommand(endDevice);
+                    deviceCommand = headEndInterface.getCommandFactory().createConnectCommand(endDevice, activationDate);
                     break;
                 case disconnected:
-                    deviceCommand = headEndInterface.getCommandFactory().createDisconnectCommand(endDevice);
+                    deviceCommand = headEndInterface.getCommandFactory().createDisconnectCommand(endDevice, activationDate);
                     break;
                 case armed:
-                    deviceCommand = headEndInterface.getCommandFactory().createArmCommand(endDevice, ARM_FOR_CLOSURE);
+                    deviceCommand = headEndInterface.getCommandFactory().createArmCommand(endDevice, ARM_FOR_CLOSURE, activationDate);
                     break;
                 default:
                     throw exceptionFactory.newException(MessageSeeds.UNKNOWN_STATUS);
             }
-
-            deviceCommand.setPropertyValue(
-                    getCommandArgumentSpec(deviceCommand, DeviceMessageConstants.contactorActivationDateAttributeName),
-                    contactorInfo.activationDate != null ? Date.from(contactorInfo.activationDate) : Date.from(Instant.now()));
             headEndInterface.sendCommand(deviceCommand, contactorInfo.activationDate, serviceCall); // No need to do something with the CompletionOptions returned by the #sendCommand method
             // The parent service call is already notified of child process by AbstractContactorOperationServiceCallHandler#onChildStateChange
         }
-    }
-
-    private PropertySpec getCommandArgumentSpec(EndDeviceCommand endDeviceCommand, String commandArgumentName) {
-        return endDeviceCommand.getCommandArgumentSpecs().stream()
-                .filter(propertySpec -> propertySpec.getName().equals(commandArgumentName))
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COMMAND_ARGUMENT_SPEC_NOT_FOUND, commandArgumentName, endDeviceCommand.getEndDeviceControlType().getName()));
     }
 
     private void performLoadLimitOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, ContactorInfo contactorInfo) {
@@ -79,17 +69,22 @@ public class HeadEndController {
             if (contactorInfo.loadLimit.shouldDisableLoadLimit()) {
                 deviceCommand = headEndInterface.getCommandFactory().createDisableLoadLimitCommand(endDevice);
             } else {
-                deviceCommand = headEndInterface.getCommandFactory().createEnableLoadLimitCommand(endDevice);
-                deviceCommand.setPropertyValue(getCommandArgumentSpec(deviceCommand, DeviceMessageConstants.normalThresholdAttributeName), contactorInfo.loadLimit.limit);
-                deviceCommand.setPropertyValue(getCommandArgumentSpec(deviceCommand, DeviceMessageConstants.unitAttributeName),
-                        (contactorInfo.loadLimit.unit == null || contactorInfo.loadLimit.unit.isEmpty()) ? UNDEFINED_UNIT : contactorInfo.loadLimit.unit
-                );
+                Unit unit = contactorInfo.loadLimit.getUnit().orElse(Unit.getUndefined());
+                deviceCommand = headEndInterface.getCommandFactory()
+                        .createEnableLoadLimitCommand(endDevice, Quantity.create(contactorInfo.loadLimit.limit, unit.getScale(), unit.getBaseUnit().toString()));
                 if (contactorInfo.loadTolerance != null) {
-                    deviceCommand.setPropertyValue(getCommandArgumentSpec(deviceCommand, DeviceMessageConstants.overThresholdDurationAttributeName), TimeDuration.seconds(contactorInfo.loadTolerance));
+                    deviceCommand.setPropertyValue(getCommandArgumentSpec(deviceCommand, OVER_THRESHOLD_DURATION_ATTRIBUTE_NAME), TimeDuration.seconds(contactorInfo.loadTolerance));
                 }
             }
             headEndInterface.sendCommand(deviceCommand, Instant.now(), serviceCall);
         }
+    }
+
+    private PropertySpec getCommandArgumentSpec(EndDeviceCommand endDeviceCommand, String commandArgumentName) {
+        return endDeviceCommand.getCommandArgumentSpecs().stream()
+                .filter(propertySpec -> propertySpec.getName().equals(commandArgumentName))
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COMMAND_ARGUMENT_SPEC_NOT_FOUND, commandArgumentName, endDeviceCommand.getEndDeviceControlType().getName()));
     }
 
     private boolean shouldPerformBreakerOperations(ContactorInfo contactorInfo) {
