@@ -172,8 +172,8 @@ Ext.define('Idv.controller.Detail', {
 
                 if (success) {
                     me.getReadingEstimationWindow().destroy();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.estimateSucceeded', 'IDV', 'Estimate values succeeded'));
                     me.refreshGrid(me.getPage());
-
                 } else {
                     me.getReadingEstimationWindow().setLoading(false);
                     if (responseText) {
