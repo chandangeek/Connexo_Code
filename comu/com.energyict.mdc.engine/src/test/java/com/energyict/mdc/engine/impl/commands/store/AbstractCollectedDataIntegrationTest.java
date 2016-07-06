@@ -31,6 +31,8 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionService;
@@ -44,6 +46,8 @@ import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -139,6 +143,8 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new AppServiceModule(),
                 new UserModule(),
                 new FiniteStateMachineModule(),
+                new ServiceCallModule(),
+                new CustomPropertySetsModule(),
                 new MeteringModule(
                         "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
@@ -185,7 +191,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new TasksModule(),
                 new IssuesModule(),
                 new TopologyModule(),
-                new CustomPropertySetsModule(),
                 new FirmwareModule(),
                 new CalendarModule());
         initializeTopModuleInATransaction();
@@ -198,13 +203,16 @@ public abstract class AbstractCollectedDataIntegrationTest {
             protected void doPerform() {
                 UserService userService = injector.getInstance(UserService.class);
                 userService.findOrCreateGroup(UserService.BATCH_EXECUTOR_ROLE);
+                injector.getInstance(ServiceCallService.class);
                 injector.getInstance(CustomPropertySetService.class);
+                injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+                injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
                 injector.getInstance(FiniteStateMachineService.class);
                 injector.getInstance(MeteringService.class);
                 injector.getInstance(MasterDataService.class);
                 injector.getInstance(MeteringGroupsService.class);
                 injector.getInstance(EngineService.class);
-                EventService eventService = injector.getInstance(EventService.class);
+                injector.getInstance(EventService.class);
                 meteringService = injector.getInstance(MeteringService.class);
                 mdcReadingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
                 masterDataService = injector.getInstance(MasterDataService.class);

@@ -142,7 +142,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
-
         <dependency>
             <groupId>javassist</groupId>
             <artifactId>javassist</artifactId>
@@ -309,6 +308,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fileimport</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
