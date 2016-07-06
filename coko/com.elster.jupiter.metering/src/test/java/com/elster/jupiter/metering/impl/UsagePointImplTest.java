@@ -68,6 +68,7 @@ public class UsagePointImplTest {
     public static final ZonedDateTime START_DATE = ZonedDateTime.of(2013, 9, 18, 13, 16, 45, 0, TimeZoneNeutral.getMcMurdo());
     private static final Instant START = START_DATE.toInstant();
 
+    @Mock
     private UsagePointImpl usagePoint;
 
     private Clock clock = Clock.fixed(START, TimeZoneNeutral.getMcMurdo());
@@ -135,6 +136,7 @@ public class UsagePointImplTest {
         final Provider<ChannelBuilder> channelBuilderProvider = () -> channelBuilder;
         when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilderProvider));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenReturn(new UsagePointConnectionStateImpl());
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(meterActivationProvider.get()).thenAnswer(invocationOnMock -> new MeterActivationImpl(dataModel, eventService, clock, thesaurus));
         when(accountabilityProvider.get()).thenAnswer(invocationOnMock -> new UsagePointAccountabilityImpl(clock));
