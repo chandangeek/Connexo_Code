@@ -29,7 +29,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_READINGTYPE(1002, Constants.NO_SUCH_READINGTYPE, "Reading type {0} does not exist.", Level.SEVERE),
 
     VALIDATOR_PROPERTY_NOT_IN_SPEC(1005, Constants.VALIDATOR_PROPERTY_NOT_IN_SPEC_KEY, "The validator ''{0}'' does not contain a specification for attribute ''{1}''", Level.SEVERE),
-    VALIDATOR_PROPERTY_INVALID_VALUE(1006, Constants.VALIDATOR_PROPERTY_INVALID_VALUE_KEY, "''{0}'' is not a valid value for attribute ''{1}'' of validator ''{2}''", Level.SEVERE),
+    VALIDATOR_PROPERTY_INVALID_VALUE(1006, Constants.VALIDATOR_PROPERTY_INVALID_VALUE_KEY, "This value is not valid for this property", Level.SEVERE),
     VALIDATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.VALIDATOR_REQUIRED_PROPERTY_MISSING_KEY, "This field is required", Level.SEVERE),
 
     OVERLAPPED_VALIDATION_RULE_SET_VERSION(1008, Constants.OVERLAPPED_PERIOD, "Validation rule set version start date overlapped", Level.SEVERE);
