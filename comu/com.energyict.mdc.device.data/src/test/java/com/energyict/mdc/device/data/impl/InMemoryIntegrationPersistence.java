@@ -43,6 +43,8 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -68,6 +70,8 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
@@ -181,6 +185,7 @@ public class InMemoryIntegrationPersistence {
     private DataCollectionKpiService dataCollectionKpiService;
     private FiniteStateMachineService finiteStateMachineService;
     private CalendarService calendarService;
+    private ServiceCallService serviceCallService;
     private Injector injector;
 
     public InMemoryIntegrationPersistence() {
@@ -213,6 +218,7 @@ public class InMemoryIntegrationPersistence {
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
+                new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new EventsModule(),
                 new PubSubModule(),
@@ -269,7 +275,6 @@ public class InMemoryIntegrationPersistence {
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
             injector.getInstance(OrmService.class);
-            injector.getInstance(CustomPropertySetService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
@@ -283,7 +288,9 @@ public class InMemoryIntegrationPersistence {
             this.estimationService = injector.getInstance(EstimationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
+            this.serviceCallService = injector.getInstance(ServiceCallService.class);
             this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
+            initializeCustomPropertySets();
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
@@ -307,16 +314,20 @@ public class InMemoryIntegrationPersistence {
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.calendarService = injector.getInstance(CalendarService.class);
-            injector.getInstance(CustomPropertySetService.class);
             initializePrivileges();
             ctx.commit();
         }
     }
 
+    private void initializeCustomPropertySets() {
+        customPropertySetService.addCustomPropertySet(new CommandCustomPropertySet());
+        customPropertySetService.addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+    }
+
     private void initializePrivileges() {
         new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources().stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class)).getModuleResources().stream()
+        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), serviceCallService, customPropertySetService).getModuleResources().stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 
@@ -489,6 +500,10 @@ public class InMemoryIntegrationPersistence {
 
     public CalendarService calendarService() {
         return calendarService;
+    }
+
+    public ServiceCallService getServiceCallService() {
+        return serviceCallService;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {

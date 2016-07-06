@@ -17,12 +17,14 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.UserHasTheMessage
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidDeviceMessageId;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidReleaseDateUpdate;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidTrackingInformation;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -80,6 +83,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private Reference<Device> device = ValueReference.absent();
     private long deviceMessageId;
     private DeviceMessageStatus deviceMessageStatus;
+    private int oldDeviceMessageStatus;
     @IsRevokeAllowed(groups = {Revoke.class})
     private RevokeChecker revokeChecker;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED + "}")
@@ -145,7 +149,10 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public DeviceMessageId getDeviceMessageId() {
-        return Stream.of(DeviceMessageId.values()).filter(deviceMessage -> deviceMessage.dbValue() == this.deviceMessageId).findAny().orElseThrow(() -> new IllegalDeviceMessageIdException(this.deviceMessageId, getThesaurus(), MessageSeeds.DEVICE_MESSAGE_ID_NOT_SUPPORTED));
+        return Stream.of(DeviceMessageId.values())
+                .filter(deviceMessage -> deviceMessage.dbValue() == this.deviceMessageId)
+                .findAny()
+                .orElseThrow(() -> new IllegalDeviceMessageIdException(this.deviceMessageId, getThesaurus(), MessageSeeds.DEVICE_MESSAGE_ID_NOT_SUPPORTED));
     }
 
     @Override
@@ -168,6 +175,10 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     private boolean statusIsPending() {
         return this.deviceMessageStatus == DeviceMessageStatus.WAITING && this.releaseDate != null && !this.releaseDate.isAfter(this.clock.instant());
+    }
+
+    public int getOldDeviceMessageStatus() {
+        return oldDeviceMessageStatus;
     }
 
     @Override
@@ -230,6 +241,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     @Override
     public void revoke() {
         this.revokeChecker = new RevokeChecker(deviceMessageStatus);
+        this.oldDeviceMessageStatus = getStatus().dbValue();
         this.deviceMessageStatus = DeviceMessageStatus.REVOKED;
         Save.UPDATE.validate(this.getDataModel(), this, Revoke.class);
         this.update("deviceMessageStatus");
@@ -247,6 +259,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         if (!getStatus().isPredecessorOf(status)) {
             throw new InvalidDeviceMessageStatusMove(this.deviceMessageStatus, status, getThesaurus(), MessageSeeds.DEVICE_MESSAGE_STATUS_INVALID_MOVE);
         }
+        this.oldDeviceMessageStatus = getStatus().dbValue();
         this.deviceMessageStatus = status;
     }
 
@@ -311,15 +324,40 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         }
     }
 
-    public static class RevokeChecker {
+    public class RevokeChecker {
         private final DeviceMessageStatus initialStatus;
 
         private RevokeChecker(DeviceMessageStatus initialStatus) {
             this.initialStatus = initialStatus;
         }
 
-        public boolean isRevokeAllowed(){
+        /**
+         * Tests if a state transition from current DeviceMessageStatus to DeviceMessageStatus.REVOKED is allowed or not
+         *
+         * @return true in case the state change is allowed
+         */
+        public boolean isRevokeStatusChangeAllowed() {
             return initialStatus.isPredecessorOf(DeviceMessageStatus.REVOKED);
+        }
+
+        /**
+         * Tests if any ComServer has picked up the DeviceMessage. This is the case when the DeviceMessage is pending, a ComServer is currently communicating to the device
+         * and is executing a ComTaskExecution who is able to send out messages having corresponding DeviceMessageSpecification
+         *
+         * @return true in case a ComServer has picked up the DeviceMessage, which means revoking of the DeviceMessage should be prohibited.
+         */
+        public boolean comServerHasPickedUpDeviceMessage() {
+            List<Long> executingConnectionTasks = getDevice().getConnectionTasks().stream().filter(ConnectionTask::isExecuting).map(ConnectionTask::getId).collect(Collectors.toList());
+            return getReleaseDate().isBefore(Instant.now()) &&      // If the release date is in the future, we have guarantee the comServer did not pick up the device message
+                    getDevice().getComTaskExecutions().stream()     // Else check if there is an ongoing communication able to send the device message
+                            .filter(cte -> cte.getProtocolTasks().stream().
+                                    filter(task -> task instanceof MessagesTask).
+                                    flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
+                                    flatMap(category -> category.getMessageSpecifications().stream()).
+                                    filter(dms -> dms.getId().dbValue() == deviceMessageId).
+                                    findFirst().
+                                    isPresent())
+                            .anyMatch(cte -> cte.getConnectionTask().isPresent() && executingConnectionTasks.contains(cte.getConnectionTask().get().getId()));
         }
     }
 

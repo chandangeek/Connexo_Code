@@ -36,6 +36,7 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionTriggerImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionJournalEntryImpl;
@@ -44,6 +45,7 @@ import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionI
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -871,6 +873,31 @@ public enum TableSpecs {
                     references(ReadingType.class).
                     map("readingType").
                     add();
+        }
+    },
+    DDC_COMTASKEXEC_TRIGGERS {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ComTaskExecutionTrigger> table = dataModel.addTable(name(), ComTaskExecutionTrigger.class);
+            table.since(version(10, 2));
+            table.map(ComTaskExecutionTriggerImpl.class);
+
+            Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
+            Column triggerTimestamp = table.column("TIMESTAMP")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBERINUTCSECONDS2INSTANT)
+                    .map(ComTaskExecutionTriggerImpl.Fields.TRIGGER_TIMESTAMP.fieldName())
+                    .add();
+            table.primaryKey("PK_DDC_CTEXECTRIGGER").on(comTaskExecution, triggerTimestamp).add();
+            table.foreignKey("FK_DDC_CTEXECTRIGGER_CTEXEC")
+                    .on(comTaskExecution)
+                    .references(DDC_COMTASKEXEC.name())
+                    .map(ComTaskExecutionTriggerImpl.Fields.COMTASK_EXECUTION.fieldName())
+                    .reverseMap("comTaskExecutionTriggers")
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
         }
     };
 

@@ -43,6 +43,8 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -66,6 +68,8 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
@@ -281,6 +285,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new ThreadSecurityModule(this.principal),
                     new PubSubModule(),
                     new TransactionModule(showSqlLogging),
+                    new ServiceCallModule(),
                     new CustomPropertySetsModule(),
                     new EventsModule(),
                     new NlsModule(),
@@ -319,7 +324,9 @@ public class DeviceImplDoSomethingWithEventsTest {
             this.transactionService = injector.getInstance(TransactionService.class);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
+                injector.getInstance(ServiceCallService.class);
                 injector.getInstance(CustomPropertySetService.class);
+                initializeCustomPropertySets(injector);
                 this.transactionService = injector.getInstance(TransactionService.class);
                 this.eventService = new SpyEventService(injector.getInstance(EventService.class));
                 this.nlsService = injector.getInstance(NlsService.class);
@@ -346,7 +353,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.issueService,
                                 mock(PropertySpecService.class),
                                 mock(com.elster.jupiter.properties.PropertySpecService.class),
-                                mock(CustomPropertySetService.class),
+                                injector.getInstance(CustomPropertySetService.class),
                                 this.protocolPluggableService, this.engineConfigurationService,
                                 this.deviceConfigurationService, this.meteringService, this.validationService, this.estimationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),
@@ -361,11 +368,16 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(JsonService.class),
                                 mdcIssueService,
                                 injector.getInstance(MdcReadingTypeUtilService.class),
-                                UpgradeModule.FakeUpgradeService.getInstance()
-                        );
+                                UpgradeModule.FakeUpgradeService.getInstance(),
+                                injector.getInstance(ServiceCallService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }
+        }
+
+        private void initializeCustomPropertySets(Injector injector) {
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
         }
 
         private void initializeMocks(String testName) {

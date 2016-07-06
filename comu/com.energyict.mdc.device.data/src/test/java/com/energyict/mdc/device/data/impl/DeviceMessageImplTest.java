@@ -12,6 +12,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
@@ -35,7 +37,9 @@ import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -44,6 +48,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.tasks.MessagesTask;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -62,7 +67,10 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static junit.framework.Assert.assertTrue;
+import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -648,6 +656,84 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Device device = createSimpleDeviceWithName("userDoesNotHaveTheCorrectPrivilegeTest", "userDoesNotHaveTheCorrectPrivilegeTest");
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+    }
+
+
+    @Test
+    @Transactional
+    public void oldDeviceMessageStatusFilledInWhenMovingToTest() {
+        Device device = createSimpleDeviceWithName("updateReleaseDateWithStatusConfirmedTest", "updateReleaseDateWithStatusConfirmedTest");
+        DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
+        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(initializeClockWithCurrentAfterReleaseInstant()).add();
+        ((ServerDeviceMessage) deviceMessage).moveTo(DeviceMessageStatus.CONFIRMED);
+        deviceMessage.save();
+
+        assertEquals(DeviceMessageStatus.PENDING.ordinal(), ((DeviceMessageImpl) deviceMessage).getOldDeviceMessageStatus());
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER + "}")
+    public void revokeWhileComServerHasPickedUpDeviceMessageTest() {
+        Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
+
+        Device device = createSimpleDeviceWithName("revokeWithStatusConfirmedTest", "deviceMessage.revoke.picked.up.by.comserver");
+        DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
+        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        deviceMessage.save();
+
+        DeviceMessage messageSpy = spy(deviceMessage);
+        Device mockedDevice = mock(Device.class);
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.isExecuting()).thenReturn(true);
+        when(mockedDevice.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        MessagesTask messagesTask = mock(MessagesTask.class);
+        DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
+        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
+        when(deviceMessageCategory.getMessageSpecifications()).thenReturn(Collections.singletonList(deviceMessageSpec));
+        when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CONTACTOR_CLOSE);
+        when(messagesTask.getDeviceMessageCategories()).thenReturn(Collections.singletonList(deviceMessageCategory));
+        when(comTaskExecution.getProtocolTasks()).thenReturn(Collections.singletonList(messagesTask));
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(connectionTask));
+        when(mockedDevice.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
+        when(mockedDevice.getDeviceConfiguration()).thenReturn(device.getDeviceConfiguration());
+        when(messageSpy.getDevice()).thenReturn(mockedDevice);
+
+        messageSpy.revoke();
+        messageSpy.save();
+    }
+
+    @Test
+    @Transactional
+    public void revokeWhileComServerIsCommunicatingToDeviceButHasNotPickedUpDeviceMessageTest() {
+        Instant myReleaseInstant = initializeClockWithCurrentAfterReleaseInstant();
+
+        Device device = createSimpleDeviceWithName("revokeWithStatusConfirmedTest", "deviceMessage.revoke.picked.up.by.comserver");
+        DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
+        DeviceMessage<Device> deviceMessage = device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+        deviceMessage.save();
+
+        DeviceMessage messageSpy = spy(deviceMessage);
+        Device mockedDevice = mock(Device.class);
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.isExecuting()).thenReturn(true);
+        when(mockedDevice.getConnectionTasks()).thenReturn(Collections.singletonList(connectionTask));
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        MessagesTask messagesTask = mock(MessagesTask.class);
+        DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
+        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
+        when(deviceMessageCategory.getMessageSpecifications()).thenReturn(Collections.singletonList(deviceMessageSpec));
+        when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CLOCK_SET_DST);
+        when(messagesTask.getDeviceMessageCategories()).thenReturn(Collections.singletonList(deviceMessageCategory));
+        when(comTaskExecution.getProtocolTasks()).thenReturn(Collections.singletonList(messagesTask));
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(connectionTask));
+        when(mockedDevice.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
+        when(mockedDevice.getDeviceConfiguration()).thenReturn(device.getDeviceConfiguration());
+        when(messageSpy.getDevice()).thenReturn(mockedDevice);
+
+        messageSpy.revoke();
+        messageSpy.save();  // Call should succeed, comServer is communication with the device, but the ComTaskExecution cannot execute message DeviceMessageId.CONTACTOR_CLOSE
     }
 
     private void createAndSetPrincipleForUserWithLimitedPrivileges() {
