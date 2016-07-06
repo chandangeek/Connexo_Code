@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class EditLocationInfo {
@@ -28,57 +31,61 @@ public class EditLocationInfo {
     public EditLocationInfo() {
     }
 
-    public EditLocationInfo(MeteringService meteringService, Thesaurus thesaurus, Device device) {
-        meteringService.findDeviceLocation(device.getmRID()).ifPresent(deviceLocation -> createLocationInfo(meteringService, thesaurus, deviceLocation.getId(), device));
+    public EditLocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, Device device) {
+        device.getLocation().ifPresent(deviceLocation -> {
+            createLocationInfo(meteringService, locationService, thesaurus, deviceLocation.getId(), device);
+        });
     }
 
-    public void createLocationInfo(MeteringService meteringService, Thesaurus thesaurus, Long locationId, Device device) {
-        createLocationInfo(meteringService, thesaurus, locationId);
-        device.getUsagePoint().ifPresent(usagePoint -> usagePoint.getLocation().ifPresent(usagePointLocation -> {
-            if(usagePointLocation.getId() == locationId){
-                isInherited = true;
-            }
-            usagePointLocationId = usagePointLocation.getId();
-        }));
+    public void createLocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, Long locationId, Device device) {
+        createLocationInfo(meteringService, locationService, thesaurus, locationId);
+        device.getUsagePoint().ifPresent(usagePoint -> {
+            usagePoint.getLocation().ifPresent(usagePointLocation -> {
+                if (usagePointLocation.getId() == locationId) {
+                    isInherited = true;
+                }
+                usagePointLocationId = usagePointLocation.getId();
+            });
+        });
     }
 
-    public void createLocationInfo(MeteringService meteringService, Thesaurus thesaurus, Long locationId) {
+    public void createLocationInfo(MeteringService meteringService, LocationService locationService, Thesaurus thesaurus, Long locationId) {
         this.locationId = locationId;
 
-        List<String> lst = new ArrayList<>();
-        meteringService.getFormattedLocationMembers(locationId).stream()
-                .flatMap(Collection::stream)
-                .forEach(el -> {
-                    if (el == null){
-                        lst.add("");
-                    }
-                    else {
-                        lst.add(el);
-                    }
-                });
-        unformattedLocationValue  = lst.stream().collect(Collectors.joining(", "));
+        List<String> unformattedList = new ArrayList<>();
+        Optional<Location> location = locationService.findLocationById(locationId);
+        if (location.isPresent()) {
+            location.get().format().stream()
+                    .flatMap(Collection::stream)
+                    .map(element -> element == null ? "" : element)
+                    .forEach(unformattedList::add);
+            unformattedLocationValue = unformattedList.stream().collect(Collectors.joining(", "));
 
-        List<List<String>> formattedLocationMembers = meteringService.getFormattedLocationMembers(locationId);
-        formattedLocationMembers.stream().skip(1).forEach(list ->
-                list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(0, "\\r\\n" + member)));
-        formattedLocationValue = formattedLocationMembers.stream()
-                .flatMap(List::stream).filter(Objects::nonNull)
-                .collect(Collectors.joining(", "));
+            List<List<String>> formattedLocationMembers = location.get().format();
+            formattedLocationMembers.stream().skip(1).forEach(list ->
+                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(list.indexOf(member), "\\r\\n" + member)));
+            formattedLocationValue = formattedLocationMembers.stream()
+                    .flatMap(List::stream).filter(Objects::nonNull)
+                    .collect(Collectors.joining(", "));
 
-        locationValue = meteringService.getFormattedLocationMembers(locationId).stream()
-                .flatMap(Collection::stream)
-                .filter(Objects::nonNull)
-                .collect(Collectors.joining(", "));
+            locationValue = location.get().format().stream()
+                    .flatMap(Collection::stream)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining(", "));
+        }
 
         List<String> templateElementsNames = meteringService.getLocationTemplate().getTemplateElementsNames().stream()
-                .filter(m -> !"locale".equalsIgnoreCase(m)).collect(Collectors.toList());
+                .filter(m -> !m.equalsIgnoreCase("locale")).collect(Collectors.toList());
         PropertyInfo[] infoProperties = new PropertyInfo[templateElementsNames.size()];
-        List<String> locationList = meteringService.getFormattedLocationMembers(locationId).stream()
-                .flatMap(Collection::stream).collect(Collectors.toList());
-
+        List<String> locationList = new ArrayList<>();
+        if (location.isPresent()) {
+            locationList = location.get().format().stream()
+                    .flatMap(Collection::stream).collect(Collectors.toList());
+        }
         for (int i = 0; i < templateElementsNames.size(); i++) {
+            boolean isMandatory;
             String field = templateElementsNames.get(i);
-            boolean isMandatory = meteringService.getLocationTemplate().getTemplateMembers().stream()
+            isMandatory = meteringService.getLocationTemplate().getTemplateMembers().stream()
                     .filter(member -> member.getName().equalsIgnoreCase(field))
                     .collect(Collectors.toList()).
                             get(0).isMandatory();

@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -10,34 +9,17 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationAction;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationRuleSetVersion;
-import com.elster.jupiter.validation.rest.PropertyUtils;
-import com.elster.jupiter.validation.rest.ValidationRuleInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
+import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.rest.*;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
-
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
@@ -48,13 +30,6 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
  * Time: 10:44
  */
 public class ValidationInfoFactory {
-
-    private static final List<QualityCodeCategory> QUALITY_CODE_CATEGORIES = Arrays.asList(
-            QualityCodeCategory.DIAGNOSTICS,
-            QualityCodeCategory.POWERQUALITY,
-            QualityCodeCategory.TAMPER,
-            QualityCodeCategory.DATACOLLECTION
-    );
 
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
@@ -245,6 +220,9 @@ public class ValidationInfoFactory {
         return veeReadingInfo;
     }
 
+    /**
+     * Returns the CIM code and the full translation of all distinct reading qualities on the given interval reading
+     */
     private List<ReadingQualityInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
         if (intervalReadingRecord == null) {
             return Collections.emptyList();
@@ -254,10 +232,10 @@ public class ValidationInfoFactory {
                 .map(ReadingQuality::getType)
                 .distinct()
                 .filter(type -> type.system().isPresent())
+                .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
-                .filter(type -> QUALITY_CODE_CATEGORIES.contains(type.category().get()))
                 .filter(type -> type.system().get() != QualityCodeSystem.MDM && type.hasValidationCategory())
-                .map(type -> new ReadingQualityInfo(type, thesaurus))
+                .map(type -> ReadingQualityInfo.fromReadingQualityType(thesaurus, type))
                 .collect(Collectors.toList());
     }
 
