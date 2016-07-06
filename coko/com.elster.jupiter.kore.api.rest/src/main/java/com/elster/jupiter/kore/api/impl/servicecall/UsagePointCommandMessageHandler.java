@@ -8,7 +8,6 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.json.JsonService;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Map;
 
 public class UsagePointCommandMessageHandler implements MessageHandler {
@@ -25,24 +24,25 @@ public class UsagePointCommandMessageHandler implements MessageHandler {
     public void process(Message message) {
         Map<?, ?> map = jsonService.deserialize(message.getPayload(), Map.class);
         ServiceCall serviceCall = serviceCallService.getServiceCall((Integer)map.get("id")).get();
-        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class).orElseThrow(IllegalStateException::new);
+        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
 
-        long successfulCommands = extension.getActualNumberOfSuccessfulCommands().longValue();
-        long failedCommands = extension.getActualNumberOfFailedCommands().longValue();
-        long expectedCommands = extension.getExpectedNumberOfCommands().longValue();
+        BigDecimal successfulCommands = extension.getActualNumberOfSuccessfulCommands();
+        BigDecimal failedCommands = extension.getActualNumberOfFailedCommands();
+        BigDecimal expectedCommands = extension.getExpectedNumberOfCommands();
 
         if((Boolean) map.get("success")){
-            successfulCommands++;
-            extension.setActualNumberOfSuccessfulCommands(new BigDecimal(successfulCommands));
+            successfulCommands = successfulCommands.add(BigDecimal.ONE);
+            extension.setActualNumberOfSuccessfulCommands(successfulCommands);
         } else {
-            failedCommands++;
-            extension.setActualNumberOfFailedCommands(new BigDecimal(failedCommands));
+            failedCommands = failedCommands.add(BigDecimal.ONE);
+            extension.setActualNumberOfFailedCommands(failedCommands);
         }
 
-        if (extension.getExpectedNumberOfCommands().longValue()<=(successfulCommands+failedCommands)){
-            if(successfulCommands >= expectedCommands){
+        if (extension.getExpectedNumberOfCommands().compareTo(successfulCommands.add(failedCommands)) <= 0) {
+            if (successfulCommands.compareTo(expectedCommands) >= 0) {
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-            } else if (failedCommands >= expectedCommands){
+            } else if (failedCommands.compareTo(expectedCommands) >= 0) {
                 serviceCall.requestTransition(DefaultState.FAILED);
             } else {
                 serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);

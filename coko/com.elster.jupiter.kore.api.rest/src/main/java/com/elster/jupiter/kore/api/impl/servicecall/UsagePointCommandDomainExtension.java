@@ -19,7 +19,7 @@ public class UsagePointCommandDomainExtension implements PersistentDomainExtensi
         CALLBACK_METHOD("callbackHttpMethod", "http_method"),
         CALLBACK_SUCCESS("callbackSuccessURL", "callback_success_url"),
         CALLBACK_PART_SUCCESS("callbackPartialSuccessURL", "callback_part_success_url"),
-        CALLBACK_FAILURE("callbackFailureURL", "callbackfailure_url");
+        CALLBACK_FAILURE("callbackFailureURL", "callback_failure_url");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;

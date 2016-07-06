@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.j.kore.api.impl.sc.UsagePointCommandCustomPropertySet",
+@Component(name = "com.elster.jupiter.kore.api.impl.sc.UsagePointCommandCustomPropertySet",
         service = CustomPropertySet.class,
         immediate = true)
 public class UsagePointCommandCustomPropertySet implements CustomPropertySet<ServiceCall, UsagePointCommandDomainExtension> {
@@ -127,12 +127,12 @@ public class UsagePointCommandCustomPropertySet implements CustomPropertySet<Ser
     }
 
     private class UsagePointCommandPersistenceSupport implements PersistenceSupport<ServiceCall,UsagePointCommandDomainExtension>{
-        private final String TABLE_NAME = "MTR_CPS_UP_COMMAND";
-        private final String FK_MTR_CPS_UP_COMMAND = "FK_MTR_CPS_UP_COMMAND";
+        private final String TABLE_NAME = "PRI_CPS_UP_COMMAND ";
+        private final String FK_MTR_CPS_UP_COMMAND = "FK_PRI_CPS_UP_COMMAND";
 
         @Override
         public String componentName() {
-            return "USC";
+            return "PRS";
         }
 
         @Override

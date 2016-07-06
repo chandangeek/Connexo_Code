@@ -6,7 +6,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -59,13 +58,14 @@ public class UsagePointCommandHelper {
             return commandRunStatusInfo;
 
         } else {
-            return new CommandRunStatusInfo(usagePoint.getId(), CommandStatus.SUCCESS, childrenCommands.toArray(new CommandRunStatusInfo[childrenCommands.size()]));
+            return new CommandRunStatusInfo(usagePoint.getId(), childrenCommands.size() < expectedCommands ? CommandStatus.FAILED : CommandStatus.SUCCESS, childrenCommands
+                    .toArray(new CommandRunStatusInfo[childrenCommands.size()]));
 
         }
 
     }
 
-    public ServiceCall getServiceCall(UsagePoint usagePoint, UsagePointCommandInfo commandInfo){
+    public ServiceCall createServiceCall(UsagePoint usagePoint, UsagePointCommandInfo commandInfo) {
         RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                 .stream()
                 .filter(cps -> cps.getCustomPropertySet()
@@ -88,7 +88,6 @@ public class UsagePointCommandHelper {
                         .create());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
-                .origin("PublicAPI")
                 .extendedWith(usagePointCommandDomainExtension)
                 .targetObject(usagePoint)
                 .create();

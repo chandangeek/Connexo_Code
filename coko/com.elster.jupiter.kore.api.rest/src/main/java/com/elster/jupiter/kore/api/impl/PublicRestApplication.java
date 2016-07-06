@@ -67,8 +67,6 @@ public class PublicRestApplication extends Application implements TranslationKey
                 UsagePointCustomPropertySetResource.class,
                 MeterActivationResource.class,
                 MetrologyConfigurationResource.class,
-                UsagePointCommandHelper.class,
-
                 RestExceptionMapper.class
         );
     }

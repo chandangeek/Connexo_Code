@@ -7,14 +7,11 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
@@ -73,22 +70,25 @@ public class UsagePointCommandHandler  implements ServiceCallHandler {
     }
 
     public void sendSuccessResponce(ServiceCall serviceCall){
-        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class).orElseThrow(IllegalStateException::new);
-        sendResponce(extension.getCallbackSuccessURL(), extension.getCallbackHttpMethod());
+        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        sendResponse(extension.getCallbackSuccessURL(), extension.getCallbackHttpMethod());
     }
 
     public void getPartiallySuccessResponce(ServiceCall serviceCall){
-        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class).orElseThrow(IllegalStateException::new);
-        sendResponce(extension.getCallbackPartialSuccessURL(), extension.getCallbackHttpMethod());
+        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        sendResponse(extension.getCallbackPartialSuccessURL(), extension.getCallbackHttpMethod());
     }
 
     public void getFailureResponce(ServiceCall serviceCall){
-        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class).orElseThrow(IllegalStateException::new);
-        sendResponce(extension.getCallbackFailureURL(), extension.getCallbackHttpMethod());
+        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
+        sendResponse(extension.getCallbackFailureURL(), extension.getCallbackHttpMethod());
     }
 
 
-    public void sendResponce(String targetURL, String method) {
+    public void sendResponse(String targetURL, String method) {
         HttpURLConnection httpConnection = null;
         try {
             URL targetUrl = new URL(targetURL);
