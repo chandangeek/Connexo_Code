@@ -9,6 +9,8 @@ import javax.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 @LiteralSql
 public final class GeoCoordinatesSpatialMetaDataTableOperation {
@@ -21,27 +23,32 @@ public final class GeoCoordinatesSpatialMetaDataTableOperation {
     }
 
     public void execute() {
+        List<PreparedStatement> statements = new ArrayList<>();
         try (Connection conn = dataModel.getConnection(false);
              PreparedStatement dropOldMetaData = buildStatement(conn, dropSpatialMetaDataSql());
-             PreparedStatement setMetData = buildStatement(conn, setSpatialMetaDataSql())) {
+             PreparedStatement setMetDataforEndDevice = buildStatement(conn, setSpatialMetaDataSql(TableSpecs.MTR_ENDDEVICE));
+             PreparedStatement setMetDataforUsagePoint = buildStatement(conn, setSpatialMetaDataSql(TableSpecs.MTR_USAGEPOINT))) {
             dropOldMetaData.execute();
-            setMetData.execute();
+            setMetDataforEndDevice.execute();
+            setMetDataforUsagePoint.execute();
         } catch (SQLException sqlEx) {
             throw new UnderlyingSQLFailedException(sqlEx);
         }
     }
 
 
-    private SqlBuilder setSpatialMetaDataSql() {
+    private SqlBuilder setSpatialMetaDataSql(TableSpecs table) {
         SqlBuilder builder = new SqlBuilder();
         builder.append("INSERT INTO mdsys.user_sdo_geom_metadata VALUES ('"
-                + TableSpecs.MTR_GEOCOORDINATES.name()
+                + table.name()
                 + "', '"
                 + "GEOCOORDINATES"
                 + "', "
                 + "MDSYS.SDO_DIM_ARRAY ("
                 + "SDO_DIM_ELEMENT ('LONGITUDE',-180,180,1),"
-                + "SDO_DIM_ELEMENT ('LATITUDE',-90,90,1)),8307)"
+                + "SDO_DIM_ELEMENT ('LATITUDE',-90,90,1),"
+                + "SDO_DIM_ELEMENT ('ELEVATION',-10000,10000,1)"
+                + "),8307)"
         );
         return builder;
     }
@@ -49,9 +56,11 @@ public final class GeoCoordinatesSpatialMetaDataTableOperation {
 
     private SqlBuilder dropSpatialMetaDataSql() {
         SqlBuilder builder = new SqlBuilder();
-        builder.append("DELETE FROM mdsys.user_sdo_geom_metadata where table_name = '"
-                + TableSpecs.MTR_GEOCOORDINATES.name()
-                + "' and column_name = '"
+        builder.append("DELETE FROM mdsys.user_sdo_geom_metadata where table_name IN ('"
+                + TableSpecs.MTR_ENDDEVICE.name()
+                + "', '"
+                + TableSpecs.MTR_USAGEPOINT.name()
+                + "') and column_name = '"
                 + "GEOCOORDINATES'"
         );
         return builder;

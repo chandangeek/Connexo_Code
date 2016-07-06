@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+
 public interface UsagePointBuilder {
 
     UsagePointBuilder withAliasName(String aliasName);
@@ -10,7 +12,7 @@ public interface UsagePointBuilder {
 
     UsagePointBuilder withLocation(Location location);
 
-    UsagePointBuilder withGeoCoordinates(GeoCoordinates geoCoordinates);
+    UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordinates);
 
     UsagePointBuilder withName(String name);
 
@@ -33,4 +35,6 @@ public interface UsagePointBuilder {
     UsagePoint create();
 
     UsagePoint validate();
+
+    LocationBuilder newLocationBuilder();
 }

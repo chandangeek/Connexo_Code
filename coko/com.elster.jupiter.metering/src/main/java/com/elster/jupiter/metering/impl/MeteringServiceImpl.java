@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
@@ -56,6 +55,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
@@ -71,6 +71,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -587,7 +588,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return new LocationBuilderImpl(dataModel);
     }
 
-
     @Override
     public Optional<Location> findLocation(long id) {
         return dataModel.mapper(Location.class).getOptional(id);
@@ -716,48 +716,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
         locationTemplate = new LocationTemplateImpl(dataModel).init(locationElements, locationElements);
         locationTemplate
                 .parseTemplate(locationElements, locationElements);
-    }
-
-    @Override
-    public GeoCoordinates createGeoCoordinates(String coordinates) {
-        GeoCoordinatesImpl geoCoordinates = GeoCoordinatesImpl
-                .from(dataModel, new SpatialCoordinatesFactory().fromStringValue(coordinates));
-        geoCoordinates.doSave();
-        return geoCoordinates;
-    }
-
-    @Override
-    public Optional<GeoCoordinates> findGeoCoordinates(long id) {
-        return dataModel.mapper(GeoCoordinates.class).getOptional(id);
-    }
-
-
-    @Override
-    public Optional<GeoCoordinates> findDeviceGeoCoordinates(String mRID) {
-        return findMeter(mRID).isPresent() ? findMeter(mRID).get().getGeoCoordinates() : Optional.empty();
-    }
-
-
-    @Override
-    public Optional<GeoCoordinates> findDeviceGeoCoordinates(long id) {
-        return findMeter(id).isPresent() ? findMeter(id).get().getGeoCoordinates() : Optional.empty();
-    }
-
-    @Override
-    public Optional<GeoCoordinates> findUsagePointGeoCoordinates(String mRID) {
-        return findUsagePoint(mRID).isPresent() ? findUsagePoint(mRID).get().getGeoCoordinates() : Optional.empty();
-    }
-
-    @Override
-    public Optional<GeoCoordinates> findUsagePointGeoCoordinates(long id) {
-        return findUsagePoint(id).isPresent() ? findUsagePoint(id).get().getGeoCoordinates() : Optional.empty();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Query<GeoCoordinates> getGeoCoordinatesQuery() {
-        QueryExecutor<?> executor = dataModel.query(GeoCoordinates.class);
-        return queryService.wrap((QueryExecutor<GeoCoordinates>) executor);
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -146,6 +147,7 @@ public class UsagePointImplTest {
 
         usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider, customPropertySetService, meteringService, metrologyConfigurationService)
                 .init(MR_ID, serviceCategory);
+        usagePoint.setInstallationTime(Instant.EPOCH);
     }
 
     @After
@@ -218,7 +220,9 @@ public class UsagePointImplTest {
 
     @Test
     public void testGetConnectionState() {
-        assertThat(usagePoint.getConnectionState()).isEqualTo(ConnectionState.UNDER_CONSTRUCTION);
+        usagePoint.setConnectionState(ConnectionState.CONNECTED);
+
+        assertThat(usagePoint.getConnectionState()).isEqualTo(ConnectionState.CONNECTED);
     }
 
     @Test
