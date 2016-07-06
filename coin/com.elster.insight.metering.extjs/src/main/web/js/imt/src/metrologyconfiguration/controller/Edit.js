@@ -8,13 +8,9 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
     ],
     models: [
              'Imt.metrologyconfiguration.model.MetrologyConfiguration',
-             'Imt.metrologyconfiguration.model.LinkedValidationRulesSet',
-             'Imt.metrologyconfiguration.model.LinkableValidationRulesSet',
              'Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'
     ],
     stores: [
-             'Imt.metrologyconfiguration.store.LinkedValidationRulesSet',
-             'Imt.metrologyconfiguration.store.LinkableValidationRulesSet',
              'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations'
     ],
     refs: [
