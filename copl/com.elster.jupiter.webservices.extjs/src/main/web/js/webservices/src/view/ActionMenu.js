@@ -26,7 +26,7 @@ Ext.define('Wss.view.ActionMenu', {
     listeners: {
         beforeshow: function () {
             var me = this;
-            me.down('#activate-webservice').setText(me.record.get('active') ? Uni.I18n.translate('general.deactivate', 'WSS', 'Dectivate')
+            me.down('#activate-webservice').setText(me.record.get('active') ? Uni.I18n.translate('general.deactivate', 'WSS', 'Deactivate')
                 : Uni.I18n.translate('general.activate', 'WSS', 'Activate'));
         }
     }
