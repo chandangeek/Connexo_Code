@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
@@ -147,7 +148,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
-    @Reference(target ="(com.elster.jupiter.checklist=Insight)")
+    @Reference(target = "(com.elster.jupiter.checklist=Insight)")
     public void setCheckList(UpgradeCheckList upgradeCheckList) {
         // just explicitly depend
     }

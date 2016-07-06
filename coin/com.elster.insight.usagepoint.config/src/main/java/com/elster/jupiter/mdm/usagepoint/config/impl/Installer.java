@@ -127,13 +127,11 @@ class Installer implements FullInstaller {
         MetrologyContract contractInformation = config.addMetrologyContract(purposeInformation);
 
         ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation()
-                .getDefaultFormat())
-                .withMeterRole(meterRole)
+                .getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
         ReadingTypeRequirement requirementAminus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation()
-                .getDefaultFormat())
-                .withMeterRole(meterRole)
+                .getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_MINUS));
 
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeMonthlyAplusWh, requirementAplus, "Monthly A+ kWh"));
@@ -188,13 +186,11 @@ class Installer implements FullInstaller {
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
         ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation()
-                .getDefaultFormat())
-                .withMeterRole(meterRoleConsumption)
+                .getDefaultFormat(), meterRoleConsumption)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
         ReadingTypeRequirement requirementAminus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation()
-                .getDefaultFormat())
-                .withMeterRole(meterRoleProduction)
+                .getDefaultFormat(), meterRoleProduction)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_MINUS));
 
         contractBilling.addDeliverable(buildFormulaRequirementMax(config, readingTypeMonthlyAplusWh, requirementAplus, requirementAminus, "Monthly A+ kWh"));
@@ -241,8 +237,7 @@ class Installer implements FullInstaller {
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
         ReadingTypeRequirement requirementAminus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation()
-                .getDefaultFormat())
-                .withMeterRole(meterRole)
+                .getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_MINUS));
 
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAplusWh, requirementAminus, "Daily A- kWh"));
@@ -297,8 +292,7 @@ class Installer implements FullInstaller {
         MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
 
         ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation()
-                .getDefaultFormat())
-                .withMeterRole(meterRole)
+                .getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
         contractBilling.addDeliverable(buildFormulaSingleRequirement(config, readingTypeDailyAplusWh, requirementAplus, "Daily A+ kWh"));
@@ -381,42 +375,35 @@ class Installer implements FullInstaller {
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
         MetrologyContract contractVoltageMonitoring = config.addMandatoryMetrologyContract(purposeVoltageMonitoring);
 
-        ReadingTypeRequirement requirementAplusToU1 = config.newReadingTypeRequirement("Active energy+ ToU1")
-                .withMeterRole(meterRole)
+        ReadingTypeRequirement requirementAplusToU1 = config.newReadingTypeRequirement("Active energy+ ToU1", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 1);
-        ReadingTypeRequirement requirementAplusToU2 = config.newReadingTypeRequirement("Active energy+ ToU2")
-                .withMeterRole(meterRole)
+        ReadingTypeRequirement requirementAplusToU2 = config.newReadingTypeRequirement("Active energy+ ToU2", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 2);
         ReadingTypeRequirement requirementReactiveEnergyPlusToU1 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.REACTIVE_ENERGY_PLUS
                 .getNameTranslation()
-                .getDefaultFormat() + " ToU1")
-                .withMeterRole(meterRole)
+                .getDefaultFormat() + " ToU1", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.REACTIVE_ENERGY_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 1);
         ReadingTypeRequirement requirementReactiveEnergyPlusToU2 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.REACTIVE_ENERGY_PLUS
                 .getNameTranslation()
-                .getDefaultFormat() + " ToU2")
-                .withMeterRole(meterRole)
+                .getDefaultFormat() + " ToU2", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.REACTIVE_ENERGY_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 2);
         ReadingTypeRequirement requirementAverageVoltagePhaseA = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
                 .getNameTranslation()
-                .getDefaultFormat() + " phase A")
-                .withMeterRole(meterRole)
+                .getDefaultFormat() + " phase A", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 128);
         ReadingTypeRequirement requirementAverageVoltagePhaseB = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
                 .getNameTranslation()
-                .getDefaultFormat() + " phase B")
-                .withMeterRole(meterRole)
+                .getDefaultFormat() + " phase B", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 64);
         ReadingTypeRequirement requirementAverageVoltagePhaseC = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE
                 .getNameTranslation()
-                .getDefaultFormat() + " phase C")
-                .withMeterRole(meterRole)
+                .getDefaultFormat() + " phase C", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.AVERAGE_VOLTAGE))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.PHASE, 32);
 
@@ -481,26 +468,22 @@ class Installer implements FullInstaller {
 
         ReadingTypeRequirement requirementAplusToU1 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS
                 .getNameTranslation()
-                .getDefaultFormat() + " ToU1")
-                .withMeterRole(meterRole)
+                .getDefaultFormat() + " ToU1", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 1);
         ReadingTypeRequirement requirementAplusToU2 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS
                 .getNameTranslation()
-                .getDefaultFormat() + " ToU2")
-                .withMeterRole(meterRole)
+                .getDefaultFormat() + " ToU2", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 2);
         ReadingTypeRequirement requirementAplusToU3 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS
                 .getNameTranslation()
-                .getDefaultFormat() + " ToU3")
-                .withMeterRole(meterRole)
+                .getDefaultFormat() + " ToU3", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 3);
         ReadingTypeRequirement requirementAplusToU4 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS
                 .getNameTranslation()
-                .getDefaultFormat() + " ToU4")
-                .withMeterRole(meterRole)
+                .getDefaultFormat() + " ToU4", meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.TIME_OF_USE, 4);
 
@@ -551,8 +534,7 @@ class Installer implements FullInstaller {
 
         ReadingTypeRequirement requirementGasVolume = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.GAS_VOLUME
                 .getNameTranslation()
-                .getDefaultFormat())
-                .withMeterRole(meterRole)
+                .getDefaultFormat(), meterRole)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.GAS_VOLUME))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
 
@@ -594,12 +576,10 @@ class Installer implements FullInstaller {
                 .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
-        ReadingTypeRequirement requiremenPeakConsumption = config.newReadingTypeRequirement("Peak consumption")
-                .withMeterRole(meterRolePeakConsumption)
+        ReadingTypeRequirement requiremenPeakConsumption = config.newReadingTypeRequirement("Peak consumption", meterRolePeakConsumption)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.WATER_VOLUME))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
-        ReadingTypeRequirement requirementOffPeakConsumption = config.newReadingTypeRequirement("Off peak consumption")
-                .withMeterRole(meterRoleOffPeakConsumption)
+        ReadingTypeRequirement requirementOffPeakConsumption = config.newReadingTypeRequirement("Off peak consumption", meterRoleOffPeakConsumption)
                 .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.WATER_VOLUME))
                 .overrideAttribute(ReadingTypeTemplateAttributeName.UNIT_OF_MEASURE, 42);
 
