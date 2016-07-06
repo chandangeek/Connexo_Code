@@ -139,7 +139,7 @@ public enum TableSpecs {
                     .add();
             table.column("REFERENCE")
                     .varChar(NAME_LENGTH)
-                    .as("'SC_' || lpad(ID," + ServiceCallImpl.ZEROFILL_SIZE + ",'0')")
+                    .as("'SC_'||lpad(to_char(ID)," + ServiceCallImpl.ZEROFILL_SIZE + ",'0')")
                     .alias("internalReference")
                     .add();
             table.addRefAnyColumns("TARGET", false, ServiceCallImpl.Fields.targetObject.fieldName());
