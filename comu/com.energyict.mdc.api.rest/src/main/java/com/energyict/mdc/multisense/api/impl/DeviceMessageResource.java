@@ -280,9 +280,7 @@ public class DeviceMessageResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
-
         deviceMessage.revoke();
-        deviceMessage.save();
         DeviceMessage reloadedDeviceMessage = deviceMessageService.findDeviceMessageById(deviceMessage.getId()).get();
         return deviceMessageInfoFactory.from(reloadedDeviceMessage, uriInfo, Collections.emptyList());
     }
