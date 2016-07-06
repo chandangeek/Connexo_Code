@@ -122,7 +122,7 @@ public class CompletionOptionsCustomPropertySet implements CustomPropertySet<Ser
 
         @Override
         public String componentName() {
-            return "DDC_SCS_COMPLETION_OPTIONS";
+            return "COP";
         }
 
         @Override

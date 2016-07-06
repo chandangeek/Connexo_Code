@@ -135,7 +135,7 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
 
         @Override
         public String componentName() {
-            return "DDC_SCS_COMMAND";
+            return "CCP";
         }
 
         @Override
