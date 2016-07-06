@@ -50,7 +50,7 @@ import java.util.Set;
 public class PrepaymentApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";
-    public static final String COMPONENT_NAME = "RKN"; // Redknee
+    public static final String COMPONENT_NAME = "RKN";
 
     private volatile DataModel dataModel;
     private volatile DeviceService deviceService;
@@ -152,7 +152,7 @@ public class PrepaymentApplication extends Application implements TranslationKey
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier(PrepaymentChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override

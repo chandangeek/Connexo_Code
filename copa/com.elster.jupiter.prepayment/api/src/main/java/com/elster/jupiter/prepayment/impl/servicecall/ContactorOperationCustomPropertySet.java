@@ -7,6 +7,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.prepayment.impl.PrepaymentChecklist;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -151,6 +152,11 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
                     .map(ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName())
                     .notNull()
                     .add();
+        }
+
+        @Override
+        public String application() {
+            return PrepaymentChecklist.APPLICATION_NAME;
         }
     }
 }
