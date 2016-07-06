@@ -10,6 +10,7 @@ import com.google.common.collect.Range;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -63,6 +64,46 @@ class ReadingTypeDeliverableForMeterActivation {
 
     ReadingTypeDeliverable getDeliverable() {
         return this.deliverable;
+    }
+
+    long getExpectedCount(Instant timestamp) {
+        IntervalLength sourceIntervalLength = this.expressionReadingType.getIntervalLength();
+        IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
+        if (targetReadingType.equals(IntervalLength.DAY1)) {
+            return 0;
+        } else if (targetReadingType.equals(IntervalLength.WEEK1)) {
+            return 0;
+        } else if (targetIntervalLength.equals(IntervalLength.MONTH1)) {
+            return 0;
+        } else if (targetIntervalLength.equals(IntervalLength.YEAR1)) {
+            return 0;
+        } else {
+            return targetIntervalLength.getSeconds() / sourceIntervalLength.getSeconds();
+        }
+    }
+
+     Range getTargetRange(Instant timestamp) {
+        IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
+            ChronoUnit unit;
+            if (targetIntervalLength.equals(IntervalLength.HOUR1)) {
+                unit = ChronoUnit.HOURS;
+            } else if (targetIntervalLength.equals(IntervalLength.DAY1)) {
+                unit = ChronoUnit.DAYS;
+            } else if (targetIntervalLength.equals(IntervalLength.WEEK1)) {
+                unit = ChronoUnit.WEEKS;
+            } else if (targetIntervalLength.equals(IntervalLength.MONTH1)) {
+                unit = ChronoUnit.MONTHS;
+            } else if (targetIntervalLength.equals(IntervalLength.YEAR1)) {
+                unit = ChronoUnit.YEARS;
+            } else {
+                return Range.openClosed(timestamp.minusSeconds(targetIntervalLength.getSeconds()), timestamp);
+            }
+            Instant truncated = timestamp.truncatedTo(unit);
+            if (truncated.equals(timestamp)) {
+                return Range.openClosed(truncated.minus(1, unit), truncated);
+            } else {
+                return Range.openClosed(truncated, truncated.plus(1, unit));
+            }
     }
 
     ReadingType getReadingType () {
@@ -250,21 +291,15 @@ class ReadingTypeDeliverableForMeterActivation {
         if (this.resultValueNeedsTimeBasedAggregation()) {
             this.appendAggregatedReadingQuality(sqlBuilder);
             sqlBuilder.append(", count(*)");
-            appendExpectedCount(sqlBuilder);
+            appendMeterActivationAndDeliverable(sqlBuilder);
         } else {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
-            sqlBuilder.append(", 1, 1");
+            sqlBuilder.append(", 1, 0, 0");
         }
     }
 
-    private void appendExpectedCount(SqlBuilder sqlBuilder) {
-        IntervalLength sourceIntervalLength = this.expressionReadingType.getIntervalLength();
-        IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
-        long expectedCount = 0;
-        if ((!targetReadingType.equals(IntervalLength.MONTH1)) || (!targetReadingType.equals(IntervalLength.YEAR1))) {
-            expectedCount = targetIntervalLength.getSeconds() / sourceIntervalLength.getSeconds();
-        }
-        sqlBuilder.append(", " + expectedCount);
+    private void appendMeterActivationAndDeliverable(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(", " + this.meterActivation.getId() + ", " + this.deliverable.getId());
     }
 
     private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {

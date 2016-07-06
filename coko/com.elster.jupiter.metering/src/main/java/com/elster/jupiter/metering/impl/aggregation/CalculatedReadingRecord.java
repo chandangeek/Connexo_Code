@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -21,6 +22,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -105,32 +107,45 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             this.localDate = resultSet.getTimestamp(columnIndex++);
             this.timestamp = Instant.ofEpochMilli(resultSet.getLong(columnIndex++));
             this.readingQuality = resultSet.getLong(columnIndex++);
-            this.count = resultSet.getLong(columnIndex);
+            this.count = resultSet.getLong(columnIndex++);
+
+            long meterActivationId = resultSet.getLong(columnIndex++);
+            long deliverableId = resultSet.getLong(columnIndex);
+
+            if ((meterActivationId != 0) && (deliverableId != 0)) {
+                checkCount(deliverablesPerMeterActivation, meterActivationId, deliverableId);
+            }
+
             return this;
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
 
-    private void appendExpectedCount(Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
-
-        /*IntervalLength sourceIntervalLength = this.expressionReadingType.getIntervalLength();
-        IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
-        long expectedCount = 0;
-        if ((!targetReadingType.equals(IntervalLength.MONTH1)) || (!targetReadingType.equals(IntervalLength.YEAR1))) {
-            expectedCount = targetIntervalLength.getSeconds() / sourceIntervalLength.getSeconds();
-        }
-        sqlBuilder.append(", " + expectedCount);*/
-    }
-
-    /*private ReadingTypeDeliverableForMeterActivation getDeliverable(Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
-        int meterActivationId = 0;
+    private void checkCount(Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation, long meterActivationId, long deliverableId) {
         Optional<MeterActivation> meterActivation =
                 deliverablesPerMeterActivation.keySet().stream().filter(ma -> ma.getId() == meterActivationId).findFirst();
         if (meterActivation.isPresent()) {
-            deliverablesPerMeterActivation.get(meterActivation).
+            List<ReadingTypeDeliverableForMeterActivation> deliverables = deliverablesPerMeterActivation.get(meterActivation.get());
+            Optional<ReadingTypeDeliverableForMeterActivation> readingTypeDeliverableForMeterActivation =
+                    deliverables.stream().filter(d -> d.getDeliverable().getId() == deliverableId).findFirst();
+            if (readingTypeDeliverableForMeterActivation.isPresent()) {
+                long expectedCount = readingTypeDeliverableForMeterActivation.get().getExpectedCount(this.timestamp);
+                if (this.count != expectedCount) {
+                    Optional<Meter> meter = meterActivation.get().getMeter();
+                    if (meter.isPresent()) {
+                        List<? extends ReadingQualityRecord> qualities =
+                            meter.get().getReadingQualities(readingTypeDeliverableForMeterActivation.get().getTargetRange(this.timestamp));
+                        this.readingQuality =
+                                qualities.stream().filter(record -> record.isSuspect()).findAny().isPresent() ?
+                                        SUSPECT : MISSING;
+
+                    }
+                }
+            }
         }
-    }*/
+    }
+
 
     void setReadingType(IReadingType readingType) {
         if (!readingType.getMRID().equals(this.readingTypeMRID)) {
