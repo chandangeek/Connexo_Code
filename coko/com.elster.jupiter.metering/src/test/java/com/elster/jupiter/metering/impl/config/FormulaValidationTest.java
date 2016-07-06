@@ -44,7 +44,7 @@ public class FormulaValidationTest {
     @Mock
     private ReadingTypeRequirement volume2;
 
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @BeforeClass
     public static void setUp() {

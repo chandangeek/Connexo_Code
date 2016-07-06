@@ -14,8 +14,6 @@ public class WaterPhysicalCapacitySearchableProperty extends PhysicalCapacitySea
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private static final String FIELD_NAME = "detail.physicalCapacity";
-    private final String uniqueName = FIELD_NAME.concat(".")
-            .concat("serviceKind.water");
 
     @Inject
     public WaterPhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -28,12 +26,13 @@ public class WaterPhysicalCapacitySearchableProperty extends PhysicalCapacitySea
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
-                .named(this.uniqueName, PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
+                .named(FIELD_NAME + ".serviceKind.water", PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 0, "Wh"),
-                        Quantity.create(new BigDecimal(0), 3, "Wh"),
-                        Quantity.create(new BigDecimal(0), 6, "Wh"),
-                        Quantity.create(new BigDecimal(0), 9, "Wh"))
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "Wh"),
+                        Quantity.create(BigDecimal.ZERO, 3, "Wh"),
+                        Quantity.create(BigDecimal.ZERO, 6, "Wh"),
+                        Quantity.create(BigDecimal.ZERO, 9, "Wh"))
                 .finish();
     }
 }

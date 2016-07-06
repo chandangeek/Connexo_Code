@@ -52,6 +52,11 @@ class CheckEnforceReadingTypeImpl implements CheckEnforceReadingType {
     }
 
     @Override
+    public Boolean visitProperty(CustomPropertyNode property) {
+        return Boolean.TRUE;
+    }
+
+    @Override
     public Boolean visitSqlFragment(SqlFragmentNode variable) {
         return Boolean.TRUE;
     }

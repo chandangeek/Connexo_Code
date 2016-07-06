@@ -12,10 +12,10 @@ import java.sql.SQLException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-04 (13:47)
  */
-public class TextFragment implements SqlFragment {
+class TextFragment implements SqlFragment {
     private final String text;
 
-    public TextFragment(String text) {
+    TextFragment(String text) {
         this.text = text;
     }
 

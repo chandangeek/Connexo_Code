@@ -152,13 +152,13 @@ public class UnitConversionSupport {
     }
 
     public static boolean isValidForAggregation(ReadingTypeUnit unit) {
-        return (!unit.equals(ReadingTypeUnit.BOOLEAN)) &&  //109
-                (!unit.equals(ReadingTypeUnit.BOOLEANARRAY)) &&  //110
-                (!unit.equals(ReadingTypeUnit.ENCODEDVALUE)) &&  //114
-                (!unit.equals(ReadingTypeUnit.CHARACTERS)) &&  //76
-                (!unit.equals(ReadingTypeUnit.TIMESTAMP)) && //108
-                (!unit.equals(ReadingTypeUnit.ENDDEVICEEVENTCODE)) && //118
-                (!unit.equals(ReadingTypeUnit.NOTAPPLICABLE)); //0
+        return (!unit.equals(ReadingTypeUnit.BOOLEAN)) &&
+                (!unit.equals(ReadingTypeUnit.BOOLEANARRAY)) &&
+                (!unit.equals(ReadingTypeUnit.ENCODEDVALUE)) &&
+                (!unit.equals(ReadingTypeUnit.CHARACTERS)) &&
+                (!unit.equals(ReadingTypeUnit.TIMESTAMP)) &&
+                (!unit.equals(ReadingTypeUnit.ENDDEVICEEVENTCODE)) &&
+                (!unit.equals(ReadingTypeUnit.NOTAPPLICABLE));
     }
 
     public static boolean isAssignable(IntervalLength deliverableIntervalLength, IntervalLength formulaIntervalLength) {

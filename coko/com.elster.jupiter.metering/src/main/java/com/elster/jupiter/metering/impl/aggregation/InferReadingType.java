@@ -21,16 +21,16 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-08 (12:13)
  */
-public class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingType> {
+class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingType> {
 
     private final VirtualReadingType requestedReadingType;
 
-    public InferReadingType(VirtualReadingType requestedReadingType) {
+    InferReadingType(VirtualReadingType requestedReadingType) {
         super();
         this.requestedReadingType = requestedReadingType;
     }
 
-    protected VirtualReadingType getRequestedReadingType() {
+    VirtualReadingType getRequestedReadingType() {
         return requestedReadingType;
     }
 
@@ -56,6 +56,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
 
     @Override
     public VirtualReadingType visitConstant(StringConstantNode constant) {
+        return VirtualReadingType.dontCare();
+    }
+
+    @Override
+    public VirtualReadingType visitProperty(CustomPropertyNode property) {
         return VirtualReadingType.dontCare();
     }
 
@@ -112,7 +117,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
             return this.enforceReadingType(children, this.requestedReadingType);
         } else {
             if (preferredReadingTypes.stream().anyMatch(VirtualReadingType::isUnsupported)) {
-                throw unsupportedOperationExceptionSupplier.get();
+                throw new UnsupportedOperationException("At least one of the expression nodes represents an unsupported reading type");
             }
             if (preferredReadingTypes.size() == 1) {
                 // All child nodes are fine with the same reading type, simply enforce that one
@@ -193,7 +198,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
      *
      * @see CheckEnforceReadingTypeImpl
      */
-    private class EnforceReadingType implements ServerExpressionNode.Visitor<Void> {
+    private final class EnforceReadingType implements ServerExpressionNode.Visitor<Void> {
         private final VirtualReadingType readingType;
 
         private EnforceReadingType(VirtualReadingType readingType) {
@@ -220,6 +225,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
 
         @Override
         public Void visitConstant(StringConstantNode constant) {
+            return null;
+        }
+
+        @Override
+        public Void visitProperty(CustomPropertyNode property) {
             return null;
         }
 
@@ -271,7 +281,7 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
      *
      * @see CheckEnforceReadingTypeImpl
      */
-    private class EnforceIntervalMultiplierAndCommodity implements ServerExpressionNode.Visitor<Void> {
+    private final class EnforceIntervalMultiplierAndCommodity implements ServerExpressionNode.Visitor<Void> {
         private final IntervalLength intervalLength;
         private final MetricMultiplier multiplier;
         private final Commodity commodity;
@@ -302,6 +312,11 @@ public class InferReadingType implements ServerExpressionNode.Visitor<VirtualRea
 
         @Override
         public Void visitConstant(StringConstantNode constant) {
+            return null;
+        }
+
+        @Override
+        public Void visitProperty(CustomPropertyNode property) {
             return null;
         }
 

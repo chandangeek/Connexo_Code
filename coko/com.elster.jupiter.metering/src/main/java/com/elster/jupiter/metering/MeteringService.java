@@ -1,7 +1,5 @@
 package com.elster.jupiter.metering;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -169,39 +167,9 @@ public interface MeteringService {
 
     List<MultiplierType> getMultiplierTypes();
 
-    LocationBuilder newLocationBuilder();
-
-    Optional<Location> findLocation(long id);
-
-    Optional<Location> findDeviceLocation(String mRID);
-
-    Optional<Location> findDeviceLocation(long id);
-
-    Optional<Location> findUsagePointLocation(String mRID);
-
-    Optional<Location> findUsagePointLocation(long id);
-
-    Query<LocationMember> getLocationMemberQuery();
-
     void createLocationTemplate();
 
     LocationTemplate getLocationTemplate();
-
-    List<List<String>> getFormattedLocationMembers(long id);
-
-    GeoCoordinates createGeoCoordinates(String coordinates);
-
-    Optional<GeoCoordinates> findGeoCoordinates(long id);
-
-    Optional<GeoCoordinates> findDeviceGeoCoordinates(String mRID);
-
-    Optional<GeoCoordinates> findDeviceGeoCoordinates(long id);
-
-    Optional<GeoCoordinates> findUsagePointGeoCoordinates(String mRID);
-
-    Optional<GeoCoordinates> findUsagePointGeoCoordinates(long id);
-
-    Query<GeoCoordinates> getGeoCoordinatesQuery();
 
     Optional<EndDeviceControlType> getEndDeviceControlType(String mRID);
 
