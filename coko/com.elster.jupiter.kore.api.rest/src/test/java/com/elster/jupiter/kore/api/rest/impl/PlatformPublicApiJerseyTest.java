@@ -19,6 +19,7 @@ import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.kore.api.impl.PublicRestApplication;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
@@ -167,6 +168,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(usagePoint.getServicePriority()).thenReturn("service priority");
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
         when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
+        when(usagePoint.getConnectionState()).thenReturn(ConnectionState.CONNECTED);
 
         when(usagePoint.forCustomProperties()).thenReturn(extension);
         when(meteringService.findUsagePoint(id)).thenReturn(Optional.of(usagePoint));
