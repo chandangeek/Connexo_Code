@@ -1,5 +1,6 @@
 package com.elster.jupiter.validators.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -185,7 +186,7 @@ public class ReadingQualitiesValidatorTest {
     }
 
     @Test
-    public void testGetSupportedApplications() {
-        assertThat(validator.getSupportedApplications()).containsOnly("INS", "MDC");
+    public void testGetSupportedQualityCodeSystems() {
+        assertThat(validator.getSupportedQualityCodeSystems()).containsOnly(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
     }
 }
