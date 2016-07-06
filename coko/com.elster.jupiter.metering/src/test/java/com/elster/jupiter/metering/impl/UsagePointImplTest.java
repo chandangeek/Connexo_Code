@@ -68,7 +68,6 @@ public class UsagePointImplTest {
     public static final ZonedDateTime START_DATE = ZonedDateTime.of(2013, 9, 18, 13, 16, 45, 0, TimeZoneNeutral.getMcMurdo());
     private static final Instant START = START_DATE.toInstant();
 
-    @Mock
     private UsagePointImpl usagePoint;
 
     private Clock clock = Clock.fixed(START, TimeZoneNeutral.getMcMurdo());
