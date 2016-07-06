@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.EditCustomAttributeSetForm', {
             xtype: 'combobox',
             disabled: true,
             itemId: 'edit-custom-attribute-time-duration',
-            fieldLabel: Uni.I18n.translate('loadProfileTypes.interval', 'MDC', 'Interval'),
+            fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
             name: 'timeDuration',
             displayField: 'name',
             valueField: 'id',

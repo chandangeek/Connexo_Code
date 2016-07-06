@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             xtype: 'combobox',
             allowBlank: false,
             itemId: 'timeDuration',
-            fieldLabel: Uni.I18n.translate('loadProfileTypes.interval', 'MDC', 'Interval'),
+            fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
             emptyText: Uni.I18n.translate('loadProfileTypes.interval.epmtyText', 'MDC', '0 minutes'),
             name: 'timeDuration',
             displayField: 'name',
