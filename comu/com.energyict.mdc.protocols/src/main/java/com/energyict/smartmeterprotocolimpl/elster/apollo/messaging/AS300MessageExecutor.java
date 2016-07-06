@@ -1,14 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.elster.apollo.messaging;
 
 import com.elster.jupiter.calendar.CalendarService;
-import com.energyict.dlms.DlmsSession;
-import com.energyict.dlms.ParseUtils;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.util.DateTime;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.xmlparsing.GenericDataToWrite;
-import com.energyict.dlms.xmlparsing.XmlToDlms;
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.common.NestedIOException;
 import com.energyict.mdc.common.ObisCode;
@@ -48,7 +40,6 @@ import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocols.messaging.TimeOfUseMessageBuilder;
 import com.energyict.smartmeterprotocolimpl.eict.NTAMessageHandler;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
 import org.xml.sax.SAXException;
@@ -57,7 +48,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -273,7 +263,7 @@ public class AS300MessageExecutor extends MessageParser {
             }
         }
 
-        log(Level.SEVERE, "Storing of activity calendar information in user file is no longer supported");
+        log(Level.SEVERE, "Storing of activity calendar information in file is no longer supported");
         throw new UnsupportedOperationException("Creating global Userfiles is not supported in Connexo, file management is now done in the context of device types");
     }
 

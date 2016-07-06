@@ -1,6 +1,5 @@
 package com.energyict.protocolimpl.dlms.idis;
 
-import com.energyict.dlms.axrdencoding.*;
 import com.elster.jupiter.calendar.CalendarService;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.io.CommunicationException;
@@ -17,6 +16,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+import com.energyict.protocols.util.TempFileLoader;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
@@ -28,15 +28,18 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.GenericWrite;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.Limiter;
+import com.energyict.dlms.cosem.MBusClient;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.RegisterMonitor;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.MessageProtocol;
-import com.energyict.mdc.protocol.api.device.data.MessageEntry;
-import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocols.util.TempFileLoader;
-import com.energyict.mdc.protocol.api.messaging.*;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
@@ -50,7 +53,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 
 /**
@@ -75,7 +82,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
     private static final String TIMEZONE = "TimeZone";
     private static final String DATE_DD_MM_YYYY_HH_MM = "Date (dd/mm/yyyy hh:mm)";
     private static final String CONFIGURATION_DOWNLOAD = "Configuration download";
-    private static final String CONFIGURATION_USER_FILE = "Configuration user file";
+    private static final String CONFIGURATION_USER_FILE = "Configuration file";
     protected IDIS idis;
     private final CalendarService calendarService;
 

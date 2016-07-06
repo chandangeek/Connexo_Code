@@ -29,7 +29,7 @@ public class AS300Messaging extends GenericMessaging implements MessageProtocol 
     private static final String READ_PRICE_PER_UNIT = "ReadPricePerUnit";
     private static final String READ_ACTIVITY_CALENDAR = "ReadActivityCalendar";
     private static final String SET_STANDING_CHARGE = "SetStandingCharge";
-    private static final String ID_OF_USER_FILE = "ID of user file containing the price information";
+    private static final String ID_OF_USER_FILE = "Unique identifier of file containing the price information";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final String STANDING_CHARGE = "Standing charge";
     protected static final String DISCONNECT_CONTROL_RECONNECT = "DisconnectControlReconnect";

@@ -79,7 +79,7 @@ public class XMLParser {
             DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.parse(new InputSource(new StringReader(xml)));
         } catch (ParserConfigurationException | SAXException | IOException | DOMException e) {
-            throw new IOException("Failed to parse the xml document - the user file does not contain a valid XML document: " + e.getMessage());
+            throw new IOException("Failed to parse the xml document: " + e.getMessage());
         }
     }
 
