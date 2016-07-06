@@ -40,4 +40,8 @@ public class DataLoggerLinkException extends LocalizedException {
     public static DataLoggerLinkException slaveWasPreviouslyLinkedAtSameTimeStamp(Thesaurus thesaurus, Device slave, Device datalogger, Instant linkingDate) {
         return new DataLoggerLinkException(thesaurus, MessageSeeds.DATA_LOGGER_UNIQUE_KEY_VIOLATION, slave.getmRID(), datalogger.getmRID(), linkingDate);
     }
+
+    public static DataLoggerLinkException slaveWasAlreadyLinkedToOtherDatalogger(Thesaurus thesaurus, Device slave, Device datalogger, Instant linkingDate) {
+        return new DataLoggerLinkException(thesaurus, MessageSeeds.DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED, slave.getmRID(), datalogger.getmRID(), linkingDate);
+    }
 }

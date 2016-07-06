@@ -339,7 +339,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public void setDataLogger(Device slave, Device dataLogger, Instant linkingDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap) {
-        this.getPhysicalGatewayReference(slave, linkingDate).ifPresent(r -> terminateTemporal(r, linkingDate));
+        Optional<PhysicalGatewayReference> existingGatewayReference = this.getPhysicalGatewayReference(slave, linkingDate);
+        if (existingGatewayReference.isPresent()) {
+            throw DataLoggerLinkException.slaveWasAlreadyLinkedToOtherDatalogger(thesaurus, slave, existingGatewayReference.get().getGateway(), linkingDate);
+        }
+        existingGatewayReference.ifPresent(r -> terminateTemporal(r, linkingDate));
         validateUniqueKeyConstraintForDataloggerReference(dataLogger, linkingDate, slave);
         final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, linkingDate);
         slaveDataLoggerChannelMap.forEach((slaveChannel, dataLoggerChannel) -> this.addChannelDataLoggerUsage(dataLoggerReference, slaveChannel, dataLoggerChannel));

@@ -32,6 +32,7 @@ public enum MessageSeeds implements MessageSeed {
     DATA_LOGGER_LINK_INVALID_TERMINATION_DATE(1007, Keys.INVALID_TERMINATION_DATE, "You can not unlink a slave before it's linking date"),
     DATA_LOGGER_SLAVE_NOT_LINKED_AT(1008, Keys.DATA_LOGGER_SLAVE_NOT_LINKED_AT, "Slave {0} is not linked at {1}"),
     DATA_LOGGER_UNIQUE_KEY_VIOLATION(1009, Keys.DATA_LOGGER_UNIQUE_KEY_VIOLATION, "You have already linked this slave ''{0}'' to this datalogger ''{1}'' at this timestamp ''{2}'', please select another link time"),
+    DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED(1010, Keys.DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED, "The slave ''{0}'' was already linked to a datalogger ''{1}'' at the given timestamp ''{2}''"),
     ;
 
     private final int number;
@@ -97,6 +98,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_TERMINATION_DATE = "DataLoggerLinkException.invalid.termination.date";
         public static final String DATA_LOGGER_SLAVE_NOT_LINKED_AT = "DataLoggerLinkException.slave.already.unlinked";
         public static final String DATA_LOGGER_UNIQUE_KEY_VIOLATION = "DataLoggerLinkException.unique.key.violation";
+        public static final String DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED = "DataLoggerLinkException.slave.was.already.linked";
     }
 
 }
