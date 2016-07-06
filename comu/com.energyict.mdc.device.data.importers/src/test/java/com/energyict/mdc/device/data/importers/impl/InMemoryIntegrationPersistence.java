@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -8,6 +9,7 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -26,6 +28,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -107,6 +110,9 @@ public class InMemoryIntegrationPersistence {
                 new TransactionModule(showSqlLogging),
                 new NlsModule(),
                 new UserModule(),
+                new FileImportModule(),
+                new WebServicesModule(),
+                new AppServiceModule(),
                 new MeteringGroupsModule(),
                 new SearchModule(),
                 new IssuesModule(),

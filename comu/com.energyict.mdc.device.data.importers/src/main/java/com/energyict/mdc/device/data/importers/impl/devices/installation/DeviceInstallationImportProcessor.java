@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LocationBuilder;
@@ -8,6 +9,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
@@ -27,9 +29,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<DeviceInstallationImportRecord> {
+class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<DeviceInstallationImportRecord> {
 
-    public DeviceInstallationImportProcessor(DeviceDataImporterContext context) {
+    DeviceInstallationImportProcessor(DeviceDataImporterContext context) {
         super(context);
     }
 
@@ -40,7 +42,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
         EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
         if(locationData!=null && !locationData.isEmpty()){
-            LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
+            LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder();
             Map<String, Integer> ranking = super.getContext()
                     .getMeteringService()
                     .getLocationTemplate()
@@ -48,7 +50,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                     .stream()
                     .collect(Collectors.toMap(TemplateField::getName,
                             TemplateField::getRanking));
-            if(ranking.entrySet().size() != locationData.size()){
+            if (ranking.entrySet().size() != locationData.size()) {
                 String fields = super.getContext()
                         .getMeteringService()
                         .getLocationTemplate()
@@ -59,7 +61,7 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                         .map(s -> s = "<" + s + ">")
                         .collect(Collectors.joining(" "));
                 throw new ProcessorException(MessageSeeds.INCORRECT_LOCATION_FORMAT, fields);
-            }else{
+            } else {
                 super.getContext()
                         .getMeteringService()
                         .getLocationTemplate()
@@ -67,12 +69,12 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                         .stream()
                         .filter(TemplateField::isMandatory)
                         .forEach(field -> {
-                            if(locationData.get(field.getRanking()) == null){
+                            if (locationData.get(field.getRanking()) == null) {
                                 throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
                             }
                         });
             }
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData
                     .get(ranking.get("locale")));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), data, ranking);
@@ -82,16 +84,14 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
             endDevice.setLocation(builder.create());
         }
 
-        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && validateGeoCoordinatesData(geoCoordinatesData)){
-            endDevice.setGeoCoordinates(super.getContext().getMeteringService()
-                    .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
+        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)){
+            endDevice.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
         endDevice.update();
     }
 
     @Override
-    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws
-            ProcessorException {
+    protected void afterTransition(Device device, DeviceInstallationImportRecord data, FileImportLogger logger) throws ProcessorException {
         super.afterTransition(device, data, logger);
         processUsagePoint(device, data, logger);
     }
@@ -141,11 +141,15 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
     }
 
     private void setUsagePoint(Device device, UsagePoint usagePoint, DeviceInstallationImportRecord data) {
-        getContext().getMeteringService().findAmrSystem(KnownAmrSystem.MDC.getId()).ifPresent(amrSystem -> {
-            amrSystem.findMeter(String.valueOf(device.getId())).ifPresent(meter -> {
-                usagePoint.activate(meter, data.getTransitionDate().orElse(getContext().getClock().instant()));
-            });
-        });
+        getContext().getMeteringService()
+                .findAmrSystem(KnownAmrSystem.MDC.getId())
+                .ifPresent(amrSystem -> this.setUsagePoint(device, usagePoint, data, amrSystem));
+    }
+
+    private void setUsagePoint(Device device, UsagePoint usagePoint, DeviceInstallationImportRecord data, AmrSystem amrSystem) {
+        amrSystem
+            .findMeter(String.valueOf(device.getId()))
+            .ifPresent(meter -> usagePoint.activate(meter, data.getTransitionDate().orElse(getContext().getClock().instant())));
     }
 
     @Override
@@ -188,15 +192,5 @@ public class DeviceInstallationImportProcessor extends DeviceTransitionImportPro
                 .isDaultLocation(true)
                 .setLocale(data.getLocation().get(ranking.get("locale")));
         return builder;
-    }
-
-    private boolean validateGeoCoordinatesData(List<String> geoCoordinatesData){
-        int count = 0;
-        for(String geoElement : geoCoordinatesData){
-            if (geoElement == null){
-                count++;
-            }
-        }
-        return count < 2;
     }
 }
