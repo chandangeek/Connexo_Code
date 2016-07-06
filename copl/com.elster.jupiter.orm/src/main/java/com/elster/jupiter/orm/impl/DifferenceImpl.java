@@ -1,5 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
+import com.elster.jupiter.orm.Difference;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

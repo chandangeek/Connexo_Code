@@ -2,6 +2,7 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataDropper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Difference;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.PartitionCreator;

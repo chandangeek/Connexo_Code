@@ -1,8 +1,8 @@
-package com.elster.jupiter.orm.impl;
+package com.elster.jupiter.orm;
 
 import java.util.List;
 
-interface Difference {
+public interface Difference {
 
     String description();
 

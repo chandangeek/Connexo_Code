@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.Difference;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.util.streams.Functions;

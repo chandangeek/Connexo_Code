@@ -23,6 +23,7 @@ public class UserColumnImpl implements ExistingColumn {
     private boolean nullable;
     private int characterLength;
     private String dataDefault;
+    private String virtual;
 
     private Reference<UserTableImpl> table = ValueReference.absent();
 
@@ -49,7 +50,12 @@ public class UserColumnImpl implements ExistingColumn {
                 }
             }
             if (!Strings.isNullOrEmpty(dataDefault)) {
-                column.as(dataDefault.replaceAll("\"", ""));
+                String formula = dataDefault.replaceAll("\"", "");
+                column.insert(formula);
+                column.update(formula);
+                if (isVirtual()) {
+                    column.as(formula);
+                }
             }
             column.add();
 
@@ -126,4 +132,8 @@ public class UserColumnImpl implements ExistingColumn {
         return Joiner.on(" ").join("Column:", name, "type:", dataType + "(", dataLength + ")");
     }
 
+    @Override
+    public boolean isVirtual() {
+        return "YES".equalsIgnoreCase(virtual);
+    }
 }

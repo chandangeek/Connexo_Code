@@ -1,19 +1,25 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelDifferencesLister;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.Difference;
+import com.elster.jupiter.orm.DifferencesListener;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.schema.ExistingConstraint;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
+import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.streams.Functions;
 
+import java.nio.file.FileSystem;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -25,9 +31,10 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.streams.Currying.perform;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
-public class DataModelUpgraderImpl implements DataModelUpgrader {
+public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLister {
 
     private static final String EXISTING_TABLES_DATA_MODEL = "ORA";
 
@@ -35,6 +42,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
     private final OrmServiceImpl ormService;
     private final Logger logger;
     private final State state;
+    private final Set<DifferencesListener> listeners = new HashSet<>();
 
     private interface State {
         Context createContext(DataModelImpl dataModel);
@@ -171,6 +179,13 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         return new DataModelUpgraderImpl(schemaInfoProvider, ormService, logger, new PerformCautiousUpgrade());
     }
 
+    public static DataModelDifferencesLister forDifferences(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, FileSystem fileSystem, Logger logger) {
+        DataModelUpgraderImpl dataModelUpgrader = new DataModelUpgraderImpl(schemaInfoProvider, ormService, logger, new CollectStrictUpgrade());
+        dataModelUpgrader.register(new DifferencesLogListener());
+        dataModelUpgrader.register(new SqlDiffFileListener(fileSystem));
+        return dataModelUpgrader;
+    }
+
     private DataModelUpgraderImpl(SchemaInfoProvider schemaInfoProvider, OrmServiceImpl ormService, Logger logger, State state) {
         this.schemaInfoProvider = schemaInfoProvider;
         this.ormService = ormService;
@@ -183,8 +198,25 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
         DataModelImpl current = getCurrentDataModel((DataModelImpl) dataModel, version);
         try (Context context = state.createContext(current)) {
             List<Difference> allDdl = determineDdl(current, (DataModelImpl) dataModel, version, context);
+            allDdl.forEach(difference -> listeners.forEach(perform(DifferencesListener::onDifference).with(difference)));
             state.handleDifferences(context, allDdl);
+        } finally {
+            listeners.forEach(DifferencesListener::done);
         }
+    }
+
+    @Override
+    public List<Difference> findDifferences() {
+        List<Difference> result = new ArrayList<>();
+        register(result::add);
+        upgrade(ormService.getFullModel(), Version.latest());
+        return result;
+    }
+
+    @Override
+    public Registration register(DifferencesListener listener) {
+        listeners.add(listener);
+        return () -> listeners.remove(listener);
     }
 
     private DataModelImpl getCurrentDataModel(DataModelImpl model, Version version) {
@@ -193,6 +225,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader {
 
         Set<String> processedTables = new HashSet<>();
         if (schemaMetaDataModel != null) {
+//            MetaData metaData = new MetaData(schemaMetaDataModel);
             for (TableImpl<?> table : model.getTables(version)) {
                 String existingJournalTableName = table.hasJournal() ? getExistingJournalTableName(schemaMetaDataModel, table) : null;
                 table.getHistoricalNames()
