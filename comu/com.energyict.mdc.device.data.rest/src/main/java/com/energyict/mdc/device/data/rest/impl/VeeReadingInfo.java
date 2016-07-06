@@ -25,7 +25,7 @@ public class VeeReadingInfo {
     @JsonProperty("bulkValidationInfo")
     public VeeReadingValueInfo bulkValidationInfo = new VeeReadingValueInfo();
     @JsonProperty("readingQualities")
-    public List<IdWithNameInfo> readingQualities;
+    public List<ReadingQualityInfo> readingQualities;
 
     public VeeReadingInfo() {
     }

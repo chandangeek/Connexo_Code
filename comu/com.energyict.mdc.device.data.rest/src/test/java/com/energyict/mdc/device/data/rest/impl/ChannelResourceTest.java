@@ -2,12 +2,7 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.OverlapCalculatorBuilder;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.cps.ValuesRangeConflict;
-import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.cps.*;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -20,6 +15,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
@@ -27,10 +23,7 @@ import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationResult;
-import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.*;
 import com.elster.jupiter.validation.impl.DataValidationStatusImpl;
 import com.elster.jupiter.validation.impl.IValidationRule;
 import com.energyict.mdc.common.Unit;
@@ -40,11 +33,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ChannelDataUpdater;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -54,12 +43,16 @@ import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,27 +74,22 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyList;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    public static final String BATTERY_LOW = "BATTERY_LOW";
+    public static final String BATTERY_LOW = "Battery low";
     public static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
     public static final Date LAST_CHECKED = new Date(1409570229000L);
     public static final Instant LAST_READING = Instant.ofEpochMilli(1410786196000L);
     public static final long CHANNEL_ID1 = 151521354L;
-    private static long intervalStart = 1410774630000L;
-    private static long intervalEnd = 1410828630000L;
-
     public static final long startTimeFirst = 1416403197000L;
     public static final long endTimeFirst = 1479561597000L;
     public static final long endTimeSecond = 1489561597000L;
     public static final long startTimeNew = 1469561597000L;
     public static final long endTimeNew = 1499561597000L;
-
+    private static long intervalStart = 1410774630000L;
+    private static long intervalEnd = 1410828630000L;
     @Mock
     private Device device;
     @Mock
@@ -152,6 +140,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
         when(device.getVersion()).thenReturn(1L);
         when(device.getmRID()).thenReturn("1");
+        when(device.getZone()).thenReturn(ZoneId.systemDefault());
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         LoadProfile.LoadProfileUpdater loadProfileUpdater = mock(LoadProfile.LoadProfileUpdater.class);
         when(device.getLoadProfileUpdaterFor(loadProfile)).thenReturn(loadProfileUpdater);
@@ -162,17 +151,24 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
         when(channel.getChannelData(interval)).thenReturn(Arrays.asList(
                 loadProfileReading, addedloadProfileReading, editedProfileReading, removedProfileReading, confirmedProfileReading, missingReadingRecord));
+        Range<Instant> interval2 = Ranges.openClosed(Instant.ofEpochMilli(intervalStart - 900000), Instant.ofEpochMilli(intervalStart));
+        when(channel.getChannelData(interval2)).thenReturn(Arrays.asList(loadProfileReading));
         when(loadProfileReading.getRange()).thenReturn(interval);
-        when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
         doReturn(BATTERY_LOW).when(thesaurus).getString(BATTERY_LOW, BATTERY_LOW);
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, readingRecord));
         when(readingRecord.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord.getReportedDateTime()).thenReturn(LAST_READING);
         when(readingRecord.getTimeStamp()).thenReturn(NOW);
+        ReadingQualityRecord readingQualityBatteryLow = mockReadingQuality(ProtocolReadingQualities.BATTERY_LOW.getCimCode());
         ReadingQualityRecord readingQualityPowerFail = mockReadingQuality("3.2.32");
         ReadingQualityRecord readingQualityWrongSystem = mockReadingQuality("112.0.0");//should be filtered out
         ReadingQualityRecord readingQualityDataValid = mockReadingQuality("3.0.0");//should be filtered out
         doReturn(Arrays.asList(readingQualityPowerFail, readingQualityWrongSystem, readingQualityDataValid)).when(readingRecord).getReadingQualities();
+
+        List<ReadingQualityRecord> readingQualities = Arrays.asList(readingQualityBatteryLow);
+        Map<Channel, List<ReadingQualityRecord>> readingQualitiesPerChannel = new HashMap<>();
+        readingQualitiesPerChannel.put(channel, readingQualities);
+        doReturn(readingQualitiesPerChannel).when(loadProfileReading).getReadingQualities();
 
         when(addedloadProfileReading.getRange()).thenReturn(interval);
         when(addedloadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel, addedReadingRecord));
@@ -247,6 +243,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(validationRule.getImplementation()).thenReturn("isPrime");
         when(validationRule.getDisplayName()).thenReturn("Primes only");
+        ValidationRuleSetVersion validationRuleSetVersion = mock(ValidationRuleSetVersion.class);
+        when(validationRuleSetVersion.getRuleSet()).thenReturn(mock(ValidationRuleSet.class));
+        when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
         when(channel.getNrOfFractionDigits()).thenReturn(3);
         when(channelSpec.getOverflow()).thenReturn(Optional.empty());
@@ -299,6 +298,26 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
+    public void test1IntervalOfChannelData() throws UnsupportedEncodingException {
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data/1410774630000/validation")
+                .request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<List<?>>get("$.readingQualities")).hasSize(2);
+
+        assertThat(jsonModel.<String>get("$.readingQualities[0].cimCode")).isEqualTo("3.2.32");
+        assertThat(jsonModel.<String>get("$.readingQualities[0].indexName")).isEqualTo("Power fail");
+        assertThat(jsonModel.<String>get("$.readingQualities[0].systemName")).isEqualTo("MDM");
+        assertThat(jsonModel.<String>get("$.readingQualities[0].categoryName")).isEqualTo("Power quality");
+
+        assertThat(jsonModel.<String>get("$.readingQualities[1].cimCode")).isEqualTo("3.0.0");
+        assertThat(jsonModel.<String>get("$.readingQualities[1].indexName")).isEqualTo("Data valid");
+        assertThat(jsonModel.<String>get("$.readingQualities[1].systemName")).isEqualTo("MDM");
+        assertThat(jsonModel.<String>get("$.readingQualities[1].categoryName")).isEqualTo("Valid");
+    }
+
+    @Test
     public void testChannelData() throws UnsupportedEncodingException {
         String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).create();
 
@@ -311,8 +330,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(6);
         assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(1410774630000L);
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1410828630000L);
-        assertThat(jsonModel.<List<?>>get("$.data[0].intervalFlags")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.data[0].intervalFlags[0]")).isEqualTo(BATTERY_LOW);
+        assertThat(jsonModel.<List<?>>get("$.data[0].readingQualities")).hasSize(1);
+        assertThat(jsonModel.<String>get("$.data[0].readingQualities[0]")).isEqualTo(BATTERY_LOW);
         assertThat(jsonModel.<String>get("$.data[0].collectedValue")).isEqualTo("200.000");
         assertThat(jsonModel.<String>get("$.data[0].mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
 
@@ -326,23 +345,28 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.data[1].mainValidationInfo.valueModificationFlag")).isEqualTo("ADDED");
         assertThat(jsonModel.<String>get("$.data[1].bulkValidationInfo.valueModificationFlag")).isEqualTo("ADDED");
         assertThat(jsonModel.<Long>get("$.data[1].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
+        assertThat(jsonModel.<List<?>>get("$.data[1].readingQualities")).hasSize(0);
 
         assertThat(jsonModel.<String>get("$.data[2].collectedValue")).isEqualTo("202.000");
         assertThat(jsonModel.<String>get("$.data[2].mainValidationInfo.valueModificationFlag")).isNull();
         assertThat(jsonModel.<String>get("$.data[2].bulkValidationInfo.valueModificationFlag")).isEqualTo("EDITED");
         assertThat(jsonModel.<Long>get("$.data[2].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
+        assertThat(jsonModel.<List<?>>get("$.data[2].readingQualities")).hasSize(0);
 
         assertThat(jsonModel.<String>get("$.data[3].value")).isNull();
         assertThat(jsonModel.<String>get("$.data[3].mainValidationInfo.valueModificationFlag")).isEqualTo("REMOVED");
         assertThat(jsonModel.<String>get("$.data[3].bulkValidationInfo.valueModificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[3].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
+        assertThat(jsonModel.<List<?>>get("$.data[3].readingQualities")).hasSize(0);
 
         assertThat(jsonModel.<Boolean>get("$.data[4].mainValidationInfo.isConfirmed")).isEqualTo(false);
         assertThat(jsonModel.<Boolean>get("$.data[4].bulkValidationInfo.isConfirmed")).isEqualTo(true);
         assertThat(jsonModel.<Long>get("$.data[4].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
+        assertThat(jsonModel.<List<?>>get("$.data[4].readingQualities")).hasSize(0);
 
         assertThat(jsonModel.<String>get("$.data[5].mainValidationInfo.validationResult")).isEqualTo("validationStatus.notValidated");
         assertThat(jsonModel.<String>get("$.data[5].bulkValidationInfo.validationResult")).isEqualTo("validationStatus.notValidated");
+        assertThat(jsonModel.<List<?>>get("$.data[5].readingQualities")).hasSize(0);
     }
 
     @Test
