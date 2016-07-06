@@ -44,7 +44,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
 
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.empty();
+            return Optional.of(ProtocolSupportedCalendarOptions.WRITE_CONTRACTS_FROM_XML_USERFILE);
         }
     },
     ACTIVITY_CALENDER_SEND(DeviceMessageId.ACTIVITY_CALENDER_SEND, "Send activity calendar") {
@@ -229,7 +229,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
     CLEAR_AND_DISABLE_PASSIVE_TARIFF(DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF, "Clear and disable passive tariff") {
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.empty();
+            return Optional.of(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF);
         }
     },
     ACTIVATE_PASSIVE_CALENDAR(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE, "Activate passive calendar") {

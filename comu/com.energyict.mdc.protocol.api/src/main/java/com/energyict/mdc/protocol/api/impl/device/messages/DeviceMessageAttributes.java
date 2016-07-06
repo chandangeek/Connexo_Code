@@ -86,7 +86,7 @@ public enum DeviceMessageAttributes implements TranslationKey {
     signatureAttributeName(DeviceMessageConstants.signatureAttributeName, "signature"),
     verificationKeyAttributeName(DeviceMessageConstants.verificationKeyAttributeName, "Verification key"),
     activityCalendarTypeAttributeName(DeviceMessageConstants.activityCalendarTypeAttributeName, "Activity calendar type"),
-    activityCalendarContractAttributeName(DeviceMessageConstants.contractAttributeName, "contract"),
+    activityCalendarContractAttributeName(DeviceMessageConstants.contractAttributeName, "Contract"),
     activityCalendarNameAttributeName(DeviceMessageConstants.activityCalendarNameAttributeName, "Activity calendar name"),
     activityCalendarAttributeName(DeviceMessageConstants.activityCalendarAttributeName, "Activity calendar"),
     specialDaysAttributeName(DeviceMessageConstants.specialDaysAttributeName, "Special days"),
