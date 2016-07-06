@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
