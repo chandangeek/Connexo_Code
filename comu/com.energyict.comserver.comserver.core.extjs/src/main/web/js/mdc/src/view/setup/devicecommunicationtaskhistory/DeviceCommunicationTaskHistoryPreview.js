@@ -27,7 +27,6 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                     text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                     iconCls: 'x-uni-action-iconD',
                     menu: {
-                        //  xtype: 'device-communication-task-history-action-menu'
                         items: [
                             {
                                 text: Uni.I18n.translate('devicecommunicationtaskhistory.viewCommunicationLog', 'MDC', 'View communication log'),
@@ -66,7 +65,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('devicecommunicationhistory.startedOn', 'MDC', 'Started on'),
                                     itemId: 'startedOn',
                                     renderer: function (value) {
-                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                                     }
                                 },
                                 {
@@ -75,7 +74,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('devicecommunicationhistory.finishedOn', 'MDC', 'Finished on'),
                                     itemId: 'finishedOn',
                                     renderer: function (value) {
-                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                                     }
                                 },
                                 {
@@ -111,17 +110,16 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     itemId: 'comSession',
                                     renderer: function (value) {
                                         if (value && value !== '') {
-                                            var data = this.up('form').getRecord().data;
-
-                                            var link = '#/devices/' + encodeURIComponent(data.comSession.device.id)
-                                                + '/connectionmethods/' + data.comSession.connectionMethod.id
-                                                + '/history/' + data.comSession.id
-                                                + '/viewlog'
-                                                + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications';
+                                            var data = this.up('form').getRecord().data,
+                                                link = '#/devices/' + encodeURIComponent(data.comSession.device.id)
+                                                    + '/connectionmethods/' + data.comSession.connectionMethod.id
+                                                    + '/history/' + data.comSession.id
+                                                    + '/viewlog'
+                                                    + '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications';
 
                                             return '<a href="' + link + '">' + Ext.String.htmlEncode(value.connectionMethod.name) + '</a>'
                                         } else {
-                                            return '';
+                                            return '-';
                                         }
                                     }
                                 }
@@ -185,7 +183,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.device', 'MDC', 'Device'),
                                     itemId: 'device',
                                     renderer: function (device) {
-                                        return device !== '' ? '<a href="#/devices/' + device.id + '">' + Ext.String.htmlEncode(device.name) + '</a>' : '';
+                                        return device !== '' ? '<a href="#/devices/' + device.id + '">' + Ext.String.htmlEncode(device.name) + '</a>' : '-';
                                     }
                                 },
                                 {
@@ -194,7 +192,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('general.deviceType', 'MDC', 'Device type'),
                                     itemId: 'deviceType',
                                     renderer: function (deviceType) {
-                                        return deviceType !== '' ? '<a href="#/administration/devicetypes/' + deviceType.id + '">' + Ext.String.htmlEncode(deviceType.name) + '</a>' : '';
+                                        return deviceType !== '' ? '<a href="#/administration/devicetypes/' + deviceType.id + '">' + Ext.String.htmlEncode(deviceType.name) + '</a>' : '-';
                                     }
                                 },
                                 {
@@ -203,7 +201,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     fieldLabel: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                                     itemId: 'deviceConfiguration',
                                     renderer: function (deviceConfiguration) {
-                                        return deviceConfiguration != '' ? '<a href="#/administration/devicetypes/' + deviceConfiguration.deviceTypeId + '/deviceconfigurations/' + deviceConfiguration.id + '">' + Ext.String.htmlEncode(deviceConfiguration.name) + '</a>' : '';
+                                        return deviceConfiguration != '' ? '<a href="#/administration/devicetypes/' + deviceConfiguration.deviceTypeId + '/deviceconfigurations/' + deviceConfiguration.id + '">' + Ext.String.htmlEncode(deviceConfiguration.name) + '</a>' : '-';
                                     }
                                 },
                                 {
@@ -245,7 +243,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     name: 'result',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationtaskhistory.result', 'MDC', 'Result'),
                                     renderer: function (value) {
-                                        return value ? value.displayValue : '';
+                                        return value ? value.displayValue : '-';
                                     }
                                 },
                                 {
@@ -254,6 +252,9 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     name: 'comTaskCount',
                                     cls: 'communication-tasks-status',
                                     renderer: function (val) {
+                                        if (Ext.isEmpty(val)) {
+                                            return '-';
+                                        }
                                         var template = '';
                                         template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '<br></tpl>';
                                         template += '<tpl><span class="icon-cross"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '<br></tpl>';
@@ -266,7 +267,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     name: 'startedOn',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationhistory.startedOn', 'MDC', 'Started on'),
                                     renderer: function (value) {
-                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                                     }
                                 },
                                 {
@@ -274,7 +275,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                                     name: 'finishedOn',
                                     fieldLabel: Uni.I18n.translate('devicecommunicationhistory.finishedOn', 'MDC', 'Finished on'),
                                     renderer: function (value) {
-                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                                     }
                                 },
                                 {

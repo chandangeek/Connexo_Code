@@ -212,7 +212,9 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         items: [
                                             {
                                                 xtype: 'displayfield',
-                                                value: ''
+                                                renderer: function() {
+                                                    return ''; // No dash!
+                                                }
                                             },
                                             {
                                                 xtype: 'container',
@@ -291,8 +293,10 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                             {
                                 xtype: 'displayfield',
                                 itemId: 'connectionDetailsField',
-                                fieldLabel: '<h3>' + Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details') + '</h3>',
-                                value: '-'
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.connectionDetails', 'MDC', 'Connection details'),
+                                renderer: function() {
+                                    return ''; // No dash!
+                                }
                             }
                         ]
                     },
