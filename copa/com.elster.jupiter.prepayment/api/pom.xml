@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -9,7 +10,7 @@
     </parent>
 
     <artifactId>prepayment.rest</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] prepayment.rest</name>
     <description>
@@ -83,41 +84,42 @@
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.protocols.api</artifactId>
+            <artifactId>mdc.device.data</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.scheduling</artifactId>
+            <artifactId>mdc.protocols.api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fsm</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.data</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.device.config</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.tasks</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall.rest</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.pluggable</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.protocol.pluggable</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.engine.config</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
         </dependency>
 
+        <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -127,6 +129,40 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>parties</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.dynamic</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-assert-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
         </dependency>
 
     </dependencies>
