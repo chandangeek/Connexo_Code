@@ -169,6 +169,10 @@ public class EventPushNotificationParser {
         return new G3GatewayProperties();
     }
 
+    protected Boolean getInboundComTaskOnHold() {
+        return inboundDAO.getInboundComTaskOnHold(deviceIdentifier, inboundComPort);
+    }
+
     public DeviceProtocolSecurityPropertySet getSecurityPropertySet() {
         if (securityPropertySet == null) {
             List<SecurityProperty> securityProperties = inboundDAO.getDeviceProtocolSecurityProperties(deviceIdentifier, inboundComPort);
