@@ -62,6 +62,7 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyString;
@@ -110,8 +111,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void setUp1() {
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
-        when(meteringService.findUsagePointLocation("MRID")).thenReturn(Optional.empty());
-        when(meteringService.findUsagePointGeoCoordinates("MRID")).thenReturn(Optional.empty());
 
         when(serviceCategory.newUsagePoint(anyString(), any(Instant.class))).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withIsSdp(anyBoolean())).thenReturn(usagePointBuilder);
@@ -177,6 +176,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(readingRecord1.getTimePeriod()).thenReturn(Optional.of(range1));
         when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(206, 0));
         when(readingRecord2.getTimePeriod()).thenReturn(Optional.of(range2));
+        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
+        when(usagePoint.getLocation()).thenReturn(Optional.empty());
+        when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
     }
 
     @Test
