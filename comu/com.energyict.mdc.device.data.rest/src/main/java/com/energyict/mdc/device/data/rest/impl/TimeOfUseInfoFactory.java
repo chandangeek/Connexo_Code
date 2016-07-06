@@ -2,68 +2,78 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.nls.Thesaurus;
-
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.PassiveCalendar;
+import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 
 import javax.inject.Inject;
-import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class TimeOfUseInfoFactory {
     private Thesaurus thesaurus;
     private CalendarInfoFactory calendarInfoFactory;
-    private Clock clock;
+    private DeviceMessageService deviceMessageService;
 
     @Inject
-    public TimeOfUseInfoFactory(Thesaurus thesaurus, Clock clock) {
+    public TimeOfUseInfoFactory(Thesaurus thesaurus, CalendarInfoFactory calendarInfoFactory, DeviceMessageService deviceMessageService) {
         this.thesaurus = thesaurus;
-        this.clock = clock;
+        this.calendarInfoFactory = calendarInfoFactory;
+        this.deviceMessageService = deviceMessageService;
     }
 
-    public TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, List<PassiveEffectiveCalendar> passiveCalendars, Device device, CalendarInfoFactory calendarInfoFactory) {
+    public TimeOfUseInfo from(Device device) {
+        return this.from(device.calendars(), device);
+    }
+
+    private TimeOfUseInfo from(Device.CalendarSupport calendarSupport, Device device) {
+        return this.from(calendarSupport.getActive(), calendarSupport.getPassive(), calendarSupport.getPlannedPassive(), device);
+    }
+
+    private TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, Optional<PassiveCalendar> passiveCalendar, Optional<PassiveCalendar> plannedPassiveCalendar, Device device) {
         TimeOfUseInfo info = new TimeOfUseInfo();
-        this.calendarInfoFactory = calendarInfoFactory;
-        if(activeCalendar.isPresent()) {
-            if(activeCalendar.get().getAllowedCalendar().getCalendar().isPresent()) {
+        if (activeCalendar.isPresent()) {
+            if (activeCalendar.get().getAllowedCalendar().getCalendar().isPresent()) {
                 info.activeCalendar = this.calendarInfoFactory.detailedFromCalendar(activeCalendar.get().getAllowedCalendar().getCalendar().get());
             } else {
                 info.activeCalendar =  this.calendarInfoFactory.nameOnly(activeCalendar.get().getAllowedCalendar().getName());
                 info.activeIsGhost = true;
             }
-            if(activeCalendar.get().getLastVerifiedDate() != null) {
+            if (activeCalendar.get().getLastVerifiedDate() != null) {
                 info.lastVerified = activeCalendar.get().getLastVerifiedDate().toEpochMilli();
             }
         }
 
-        if(passiveCalendars.size() > 0) {
+        if (passiveCalendar.isPresent()) {
+            this.addPassiveCalendar(info, new PassiveCalendarInfo(passiveCalendar.get().getAllowedCalendar().getName(), passiveCalendar.get().getAllowedCalendar().isGhost()));
+        }
 
-            info.passiveCalendars = new ArrayList<>();
-            info.passiveCalendars = passiveCalendars.stream()
-                    .map(PEC -> new PassiveCalendarInfo(PEC.getAllowedCalendar().getName(), PEC.getAllowedCalendar().isGhost()))
-                    .collect(Collectors.toList());
-
-            Optional<PassiveEffectiveCalendar> nextInLine = passiveCalendars.stream()
-                    .filter(passiveCalendar -> passiveCalendar.getComTaskExecution().isPresent())
-                    .filter(passiveEffectiveCalendar -> passiveEffectiveCalendar.getComTaskExecution().get().getNextExecutionTimestamp().isAfter(this.clock.instant()))
-                    .sorted((p1, p2) -> compareNextExecution(p1, p2))
-                    .findFirst();
-
-            if(nextInLine.isPresent()) {
-                PassiveEffectiveCalendar next = nextInLine.get();
-                info.nextPassiveCalendar = new NextCalendarInfo(next.getAllowedCalendar().getName(), next.getComTaskExecution().get().getNextExecutionTimestamp().toEpochMilli(),
-                        next.getActivationDate().toEpochMilli(), TaskStatusTranslationKeys.translationFor(next.getComTaskExecution().get().getStatus(), thesaurus));
-            }
+        if (plannedPassiveCalendar.isPresent()) {
+            PassiveCalendar next = plannedPassiveCalendar.get();
+            Instant activationDate = next.getActivationDate();
+            boolean willBePickedUpByPlannedComtask = deviceMessageService.willDeviceMessageBePickedUpByPlannedComTask(device, next.getDeviceMessage().get());
+            boolean willBePickedUpByComtask = willBePickedUpByPlannedComtask || deviceMessageService.willDeviceMessageBePickedUpByComTask(device, next.getDeviceMessage().get());
+            info.nextPassiveCalendar =
+                    new NextCalendarInfo(
+                            next.getAllowedCalendar().getName(),
+                            next.getDeviceMessage().get().getReleaseDate().toEpochMilli(),
+                            (activationDate != null) ? activationDate.toEpochMilli() : 0,
+                            DeviceMessageStatusTranslationKeys.translationFor(next.getDeviceMessage().get().getStatus(), thesaurus),
+                            willBePickedUpByPlannedComtask,
+                            willBePickedUpByComtask);
         }
 
         return info;
     }
 
-    private int compareNextExecution(PassiveEffectiveCalendar p1, PassiveEffectiveCalendar p2) {
-        return p1.getComTaskExecution().get().getNextExecutionTimestamp().compareTo(p2.getComTaskExecution().get().getNextExecutionTimestamp());
+    private void addPassiveCalendar(TimeOfUseInfo info, PassiveCalendarInfo passiveCalendar) {
+        if (info.passiveCalendars == null) {
+            info.passiveCalendars = new ArrayList<>();
+        }
+        info.passiveCalendars.add(passiveCalendar);
     }
+
 }
