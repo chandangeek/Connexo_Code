@@ -168,7 +168,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Arrays.asList(usagePointMetrologyConfiguration));
         when(usagePoint.forCustomProperties().getPropertySet(1L)).thenReturn(usagePointPropertySet);
-        when(usagePointPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
 
         Range<Instant> range1 = Ranges.openClosed(Instant.ofEpochMilli(1410774620100L), Instant.ofEpochMilli(1410774620200L));
         Range<Instant> range2 = Ranges.openClosed(Instant.ofEpochMilli(1410774621100L), Instant.ofEpochMilli(1410774621200L));
@@ -314,6 +313,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testLinkMetrologyConfigurationToUsagePoint() {
         when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(usagePointMetrologyConfiguration.isActive()).thenReturn(true);
+        when(usagePoint.getMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
+        Instant now = Instant.ofEpochMilli(1462876396000L);
+        when(usagePoint.getInstallationTime()).thenReturn(now);
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
         casInfo.id = 1L;
 
@@ -331,7 +333,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         response = target("usagepoints/test/metrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
-        verify(usagePoint, times(1)).apply(usagePointMetrologyConfiguration);
+        verify(usagePoint, times(1)).apply(usagePointMetrologyConfiguration, now);
     }
 
     @Test
