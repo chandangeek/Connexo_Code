@@ -62,10 +62,12 @@ public class ProfileBuilder {
             loadProfileRecordItem1 = protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_RECORD_ITEM1);
         }
         int index = firstRecord.intValue();
-        while (from.before(profileBlock.getOldestProfileRecordDate()) && index < lastRecord.intValue()) {
-            ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + index++);
+        while (index < lastRecord.intValue()) {
+            ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + index);
             profileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS);
-            profileDataBlocks.add(profileBlock);
+            if(from.before(profileBlock.getOldestProfileRecordDate())) {
+                profileDataBlocks.add(profileBlock);
+            }
             index++;
         }
 
@@ -78,9 +80,9 @@ public class ProfileBuilder {
 
         for (ProfileBlock profileDataBlock : profileDataBlocks) {
             for (IntervalData intervalData : profileDataBlock.getProfileData().getIntervalDatas()) {
-                if (intervalData.getEndTime().after(from) && intervalData.getEndTime().before(to)) {
+               // if (intervalData.getEndTime().after(from) && intervalData.getEndTime().before(to)) {
                     profileData.addInterval(intervalData);  // Only add entries fitting within the time boundaries
-                }
+                //}
             }
         }
 
