@@ -25,9 +25,9 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.sql.Date;
@@ -64,6 +64,18 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceCommandImplTest {
+
+    private static final TranslationKey CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY = new TranslationKey() {
+        @Override
+        public String getKey() {
+            return DeviceMessageConstants.contactorActivationDateAttributeName;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return "Activation date";
+        }
+    };
 
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
@@ -243,7 +255,7 @@ public class EndDeviceCommandImplTest {
         when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.dbValue())).thenReturn(Optional.of(messageSpec));
         PropertySpec dateTimeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
-                .named(ContactorDeviceMessageAttributes.contactorActivationDateAttributeName)
+                .named(CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY)
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
@@ -290,7 +302,7 @@ public class EndDeviceCommandImplTest {
         when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE.dbValue())).thenReturn(Optional.of(messageSpec));
         PropertySpec dateTimeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
-                .named(ContactorDeviceMessageAttributes.contactorActivationDateAttributeName)
+                .named(CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY)
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
