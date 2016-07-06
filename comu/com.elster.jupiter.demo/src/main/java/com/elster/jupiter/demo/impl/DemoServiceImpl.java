@@ -45,6 +45,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -659,7 +660,7 @@ public class DemoServiceImpl {
             command.setHost(host);
             command.setStartDate(startDate);
             if(!dataModel.getSqlDialect().name().equalsIgnoreCase("H2")){
-                command.setGeoCoordinates(meteringService.createGeoCoordinates("40.7922408:-74.4462162:0"));
+                command.setGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue("40.7922408:-74.4462162:0"));
             }
             if (numberOfDevicesPerType == null) {
                 command.setDevicesPerType(null);

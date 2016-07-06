@@ -1,7 +1,7 @@
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.builders.device.SetValidateOnStorePostBuilder;
-import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -39,11 +39,12 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -65,7 +66,7 @@ public class CreateCollectRemoteDataSetupCommand {
     private Integer devicesPerType = null;
     private int deviceCounter = 0;
     private Location location;
-    private GeoCoordinates geoCoordinates;
+    private SpatialCoordinates spatialCoordinates;
 
 
     private static final List<String> administrativeAreaList = Arrays.asList("Ohio,Massachusetts,Tennessee,California,Maryland,Florida,Florida,California,California,California,Texas,Texas,Pennsylvania,Washington,Texas,South Dakota,California,Indiana,Louisiana,North Carolina,Washington,California,Hawaii,Oklahoma,Tennessee,Georgia,Florida,West Virginia,Nevada,California,New York,Colorado,Pennsylvania,Ohio,Texas,Texas,Iowa,Florida,Georgia,Texas,Missouri,Pennsylvania,Michigan,Utah,Minnesota,California,Hawaii,Georgia,Tennessee,Nevada,Florida,Georgia,California,Nevada,Indiana,Wisconsin,California,Alabama,Georgia,Colorado,Pennsylvania,Utah,New York,Florida,Texas,Florida,New York,Missouri,Georgia,Indiana,Minnesota,Florida,Ohio,Colorado,District of Columbia,Kentucky,Virginia,Virginia,New York,District of Columbia,Texas,Minnesota,Louisiana,Nevada,Arizona,Nevada,New York,Louisiana,North Carolina,California,Colorado,California,South Carolina,Alabama,Florida,Virginia,Alabama,California,Hawaii"
@@ -124,8 +125,8 @@ public class CreateCollectRemoteDataSetupCommand {
         this.location = location;
     }
 
-    public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
-        this.geoCoordinates = geoCoordinates;
+    public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
+        this.spatialCoordinates = spatialCoordinates;
     }
 
     public void run() {
@@ -244,10 +245,10 @@ public class CreateCollectRemoteDataSetupCommand {
             deviceCounter++;
             String serialNumber = "01000001" + String.format("%04d", deviceCounter);
             String mrid = Constants.Device.STANDARD_PREFIX + serialNumber;
-            if (geoCoordinates != null) {
-                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), createGeoCoordinates());
+            if (spatialCoordinates != null) {
+                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), createSpatialCoordinates());
             } else {
-                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), geoCoordinates);
+                createDevice(configuration, mrid, serialNumber, deviceTypeTpl, createLocation(), spatialCoordinates);
             }
 
         }
@@ -262,13 +263,13 @@ public class CreateCollectRemoteDataSetupCommand {
         return configuration;
     }
 
-    private void createDevice(DeviceConfiguration configuration, String mrid, String serialNumber, DeviceTypeTpl deviceTypeTpl, Location location, GeoCoordinates geoCoordinates) {
+    private void createDevice(DeviceConfiguration configuration, String mrid, String serialNumber, DeviceTypeTpl deviceTypeTpl, Location location, SpatialCoordinates geoCoordinates) {
         Builders.from(DeviceBuilder.class)
                 .withMrid(mrid)
                 .withSerialNumber(serialNumber)
                 .withDeviceConfiguration(configuration)
                 .withLocation(location)
-                .withGeoCoordinates(geoCoordinates)
+                .withSpatialCoordinates(geoCoordinates)
                 .withComSchedules(Collections.singletonList(Builders.from(ComScheduleTpl.DAILY_READ_ALL).get()))
                 .withPostBuilder(this.connectionsDevicePostBuilderProvider.get()
                         .withComPortPool(Builders.from(deviceTypeTpl.getPoolTpl()).get())
@@ -299,7 +300,7 @@ public class CreateCollectRemoteDataSetupCommand {
 
 
     private Location createLocation() {
-        LocationBuilder builder = meteringService.newLocationBuilder();
+        LocationBuilder builder = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get().newMeter(String.valueOf(KnownAmrSystem.MDC.getId())).newLocationBuilder();
         setLocationAttributes(builder.member()).add();
         return builder.create();
     }
@@ -324,7 +325,7 @@ public class CreateCollectRemoteDataSetupCommand {
         return builder;
     }
 
-    private GeoCoordinates createGeoCoordinates() {
+    private SpatialCoordinates createSpatialCoordinates() {
         double minLatitude = -90.00;
         double maxLatitude = 90.00;
         double minLongitude = -180.00;
@@ -333,6 +334,6 @@ public class CreateCollectRemoteDataSetupCommand {
         String latitude = df.format(minLatitude + Math.random() * (maxLatitude - minLatitude));
         String longitude = df.format(minLongitude + Math.random() * (maxLongitude - minLongitude));
         String elevation = String.valueOf((int) (Math.random() * 10));
-        return meteringService.createGeoCoordinates(latitude + ":" + longitude + ":" + elevation);
+        return new SpatialCoordinatesFactory().fromStringValue(latitude + ":" + longitude + ":" + elevation);
     }
 }

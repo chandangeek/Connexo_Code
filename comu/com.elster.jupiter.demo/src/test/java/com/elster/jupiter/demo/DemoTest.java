@@ -60,6 +60,7 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -310,6 +311,7 @@ public class DemoTest {
                 new KpiModule(),
                 new TaskModule(),
                 new com.elster.jupiter.issue.impl.module.IssueModule(),
+                new WebServicesModule(),
                 new AppServiceModule(),
                 new TimeModule(),
                 new ExportModule(),
