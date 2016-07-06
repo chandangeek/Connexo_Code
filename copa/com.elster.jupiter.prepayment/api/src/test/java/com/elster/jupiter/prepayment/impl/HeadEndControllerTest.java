@@ -24,7 +24,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.units.Quantity;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
-import com.energyict.mdc.protocol.api.impl.device.messages.ContactorDeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageAttributes;
 
 import java.math.BigDecimal;
@@ -59,6 +58,17 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class HeadEndControllerTest {
 
+    private static final TranslationKey CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY = new TranslationKey() {
+        @Override
+        public String getKey() {
+            return DeviceMessageConstants.contactorActivationDateAttributeName;
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return "Activation date";
+        }
+    };
 
     private static final String END_DEVICE_MRID = "endDeviceMRID";
     private static final String END_DEVICE_CONTROL_TYPE = "RCDSwitch ArmForClosure";
@@ -155,7 +165,7 @@ public class HeadEndControllerTest {
         when(commandFactory.createConnectCommand(endDevice, contactorInfo.activationDate)).thenReturn(endDeviceCommand);
         PropertySpec dateTimeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
-                .named(ContactorDeviceMessageAttributes.contactorActivationDateAttributeName)
+                .named(CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY)
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
@@ -178,7 +188,7 @@ public class HeadEndControllerTest {
         when(commandFactory.createDisconnectCommand(endDevice, contactorInfo.activationDate)).thenReturn(endDeviceCommand);
         PropertySpec dateTimeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
-                .named(ContactorDeviceMessageAttributes.contactorActivationDateAttributeName)
+                .named(CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY)
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
@@ -201,7 +211,7 @@ public class HeadEndControllerTest {
         when(commandFactory.createArmCommand(endDevice, false, contactorInfo.activationDate)).thenReturn(endDeviceCommand);
         PropertySpec dateTimeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
-                .named(ContactorDeviceMessageAttributes.contactorActivationDateAttributeName)
+                .named(CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY)
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
@@ -329,7 +339,7 @@ public class HeadEndControllerTest {
         when(commandFactory.createEnableLoadLimitCommand(endDevice, quantity)).thenReturn(loadLimitEndDeviceCommand);
         PropertySpec dateTimeSpec = propertySpecService
                 .specForValuesOf(new DateAndTimeFactory())
-                .named(ContactorDeviceMessageAttributes.contactorActivationDateAttributeName)
+                .named(CONTACTOR_ACTIVATION_DATE_ATTREIBUTE_TRANSLATION_KEY)
                 .fromThesaurus(thesaurus)
                 .markRequired()
                 .finish();
