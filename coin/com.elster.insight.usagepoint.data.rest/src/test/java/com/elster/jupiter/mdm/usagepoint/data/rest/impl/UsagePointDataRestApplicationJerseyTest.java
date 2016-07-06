@@ -18,6 +18,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -70,6 +71,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     MeteringService meteringService;
     @Mock
+    LocationService locationService;
+    @Mock
     RestQueryService restQueryService;
     @Mock
     PropertySpecService propertySpecService;
@@ -117,6 +120,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMeteringService(meteringService);
+        application.setLocationService(locationService);
         application.setRestQueryService(restQueryService);
         application.setClockService(clock);
         application.setMeteringGroupService(meteringGroupsService);
