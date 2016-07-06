@@ -23,7 +23,6 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.LocalizedException;
@@ -343,11 +342,6 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
 
         public ReadingType getReadingType() {
             return readingType;
-        }
-
-        @Override
-        public ProfileStatus getProfileStatus() {
-            return decorated.getProfileStatus();
         }
 
         @Override
