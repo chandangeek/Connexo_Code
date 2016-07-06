@@ -3,10 +3,12 @@ package com.energyict.protocolimpl.modbus.schneider.powerlogic.profile;
 import com.energyict.dlms.DataContainerException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocolimpl.modbus.schneider.powerlogic.DateTime;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 
 public class ProfileRecords {
@@ -21,17 +23,17 @@ public class ProfileRecords {
     public ProfileRecords() {
     }
 
-    public static ProfileRecords parse(byte[] values) throws ProtocolException {
+    public static ProfileRecords parse(byte[] values, TimeZone timezone) throws ProtocolException {
         ProfileRecords profileRecords = new ProfileRecords();
         int offset = 0;
         List lstValues = new ArrayList();
         byte dateArray[] = ProtocolUtils.getSubArray2(values,0,objectSize[0]);
-        int year = 2000 + dateArray[1] - 1900;
-        int month = dateArray[2] - 1;
+        int year = 2000 + dateArray[1];
+        int month = dateArray[2];
         int day = dateArray[3];
         int hours = dateArray[4];
         int minutes = dateArray[5];
-        lstValues.add(new Date(year, month,day, hours, minutes));
+        lstValues.add(DateTime.parseDateTime(year, month, day, hours, minutes, timezone).getMeterCalender().getTime());
         offset += objectSize[0];
         for (int i = 1; i < NO_OBJECTS; i++){
             if(objectType[i].equals(LONG)) {

@@ -21,7 +21,7 @@ import java.util.TimeZone;
 import java.util.logging.Logger;
 
 public class PM5561 extends PM5560 implements SerialNumberSupport {
-    private static final String TIMEZONE = "TimeZone";
+    private static final String TIMEZONE = "deviceTimeZone";
     private static final String APPLY_CTRATIO = "ApplyCTRatio";
     public static final int SETCLOCK			= 0x0104;
     private ProfileBuilder profileBuilder;
@@ -146,6 +146,7 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     public TimeZone getTimeZone(){
         if (timeZone == null) {
             timeZone = String.valueOf(TimeZone.getDefault());
+            getLogger().warning("Using default time zone.");
         }
         return TimeZone.getTimeZone(timeZone);
     }
@@ -153,12 +154,12 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
 
     @Override
     public Date getTime() throws IOException {
-        return com.energyict.protocolimpl.modbus.emco.DateTime.parseDateTime(getDateTimeRegister().values(), getTimeZone()).getMeterCalender().getTime();
+        return DateTime.parseDateTime(getDateTimeRegister().values(), getTimeZone()).getMeterCalender().getTime();
     }
 
     @Override
     public void setTime() throws IOException {
-        getDateTimeRegister().getWriteMultipleRegisters(com.energyict.protocolimpl.modbus.emco.DateTime.getCurrentDate(getTimeZone()));
+        getDateTimeRegister().getWriteMultipleRegisters(DateTime.getCurrentDate(getTimeZone()));
     }
     private AbstractRegister getDateTimeRegister() throws IOException {
         return getRegisterFactory().findRegister(PM5561RegisterFactory.CurrentDateTime);

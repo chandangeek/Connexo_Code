@@ -12,9 +12,9 @@ public class ProfileBlock {
     private ProfileHeader profileHeader;
     private ProfileRecords profileRecords;
 
-    public ProfileBlock(byte[] values, int recordCount) throws ProtocolException {
+    public ProfileBlock(byte[] values, int recordCount, TimeZone timezone) throws ProtocolException {
         this.profileHeader = ProfileHeader.parse(recordCount);
-        this.profileRecords = ProfileRecords.parse(values);
+        this.profileRecords = ProfileRecords.parse(values, timezone);
     }
 
     public ProfileHeader getProfileHeader() {
