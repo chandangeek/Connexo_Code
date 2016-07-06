@@ -80,7 +80,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     private Reference<Device> device = ValueReference.absent();
     private long deviceMessageId;
     private DeviceMessageStatus deviceMessageStatus;
-    @IsRevokeAllowed(groups = {Save.Create.class, Save.Update.class})
+    @IsRevokeAllowed(groups = {Revoke.class})
     private RevokeChecker revokeChecker;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED + "}")
     private Instant releaseDate;
@@ -231,6 +231,9 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     public void revoke() {
         this.revokeChecker = new RevokeChecker(deviceMessageStatus);
         this.deviceMessageStatus = DeviceMessageStatus.REVOKED;
+        Save.UPDATE.validate(this.getDataModel(), this, Revoke.class);
+        this.update("deviceMessageStatus");
+        this.revokeChecker = null;
     }
 
     void addProperty(String key, Object value) {
@@ -308,7 +311,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         }
     }
 
-    public class RevokeChecker {
+    public static class RevokeChecker {
         private final DeviceMessageStatus initialStatus;
 
         private RevokeChecker(DeviceMessageStatus initialStatus) {
@@ -319,4 +322,11 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
             return initialStatus.isPredecessorOf(DeviceMessageStatus.REVOKED);
         }
     }
+
+    /**
+     * Models a Group used for validating attributes that need
+     * validation during revoke operations.
+     */
+    private interface Revoke {}
+
 }
