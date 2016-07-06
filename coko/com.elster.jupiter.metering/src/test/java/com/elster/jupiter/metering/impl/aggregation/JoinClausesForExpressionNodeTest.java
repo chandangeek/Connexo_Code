@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
  */
 public class JoinClausesForExpressionNodeTest {
 
-    public static final String SOURCE_TABLE_NAME = "TST_1";
+    private static final String SOURCE_TABLE_NAME = "TST_1";
 
     @Test
     public void numericalConstantNodesDoNotProvideJoinClauseInformation() {
@@ -269,7 +269,7 @@ public class JoinClausesForExpressionNodeTest {
         MeterActivationSet meterActivation = mock(MeterActivationSet.class);
         when(meterActivation.sequenceNumber()).thenReturn(101);
         ServerExpressionNode node = new CustomPropertyNode(mock(CustomPropertySetService.class), propertySpec, customPropertySet, mock(UsagePoint.class), meterActivation);
-        String expectedJoinTableName = "cps97_example_101";
+        String expectedJoinTableNameMatchPattern = "cps97_.*_101";
 
         // Business method
         node.accept(testInstance);
@@ -277,7 +277,7 @@ public class JoinClausesForExpressionNodeTest {
         // Asserts
         List<String> joinClauses = testInstance.joinClauses();
         assertThat(joinClauses).hasSize(1);
-        assertThat(joinClauses.get(0)).isEqualTo(" JOIN " + expectedJoinTableName + " ON " + expectedJoinTableName + ".starttime < " + SOURCE_TABLE_NAME + ".timestamp AND " + SOURCE_TABLE_NAME + ".timestamp <= " + expectedJoinTableName + ".endtime");
+        assertThat(joinClauses.get(0)).matches(" JOIN " + expectedJoinTableNameMatchPattern + " ON " + expectedJoinTableNameMatchPattern + "\\.starttime < " + SOURCE_TABLE_NAME + "\\.timestamp AND " + SOURCE_TABLE_NAME + "\\.timestamp <= " + expectedJoinTableNameMatchPattern + "\\.endtime");
     }
 
     private ReadingType mockedReadingType() {

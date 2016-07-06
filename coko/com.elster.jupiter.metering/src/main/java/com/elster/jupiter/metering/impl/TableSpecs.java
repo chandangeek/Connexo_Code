@@ -7,8 +7,6 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -27,6 +25,7 @@ import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
+import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -239,26 +238,6 @@ public enum TableSpecs {
             TableBuilder.buildLocationMemberTable(table, MeteringServiceImpl.getLocationTemplateMembers());
         }
     },
-
-    MTR_GEOCOORDINATES {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<GeoCoordinates> table = dataModel.addTable(name(), GeoCoordinates.class);
-            table.since(version(10, 2));
-            table.map(GeoCoordinatesImpl.class);
-            Column idColumn = table.addAutoIdColumn();
-            table.column("GEOCOORDINATES")
-                    .sdoGeometry()
-                    .notNull()
-                    .conversion(SDOGEOMETRY2SPATIALGEOOBJ)
-                    .map("coordinates")
-                    .add();
-            table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.addModTimeColumn("MODTIME", "modTime");
-            table.primaryKey("MTR_PK_GEOCOORDS").on(idColumn).add();
-
-        }
-    },
     MTR_AMRSYSTEM {
         @Override
         void addTo(DataModel dataModel) {
@@ -304,14 +283,10 @@ public enum TableSpecs {
             Column locationIdColumn = table.column("LOCATIONID")
                     .number()
                     .conversion(NUMBER2LONGNULLZERO)
+                    .map("location")
                     .since(version(10, 2))
                     .add();
-            Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID")
-                    .number()
-                    .conversion(NUMBER2LONGNULLZERO)
-                    .since(version(10, 2))
-                    .add();
-
+            table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
@@ -333,13 +308,6 @@ public enum TableSpecs {
                     .references(Location.class)
                     .onDelete(RESTRICT)
                     .map("upLocation", LocationMember.class)
-                    .since(version(10, 2))
-                    .add();
-            table.foreignKey("MTR_FK_USAGEPOINTGEOCOORDS")
-                    .on(geoCoordinatesIdColumn)
-                    .references(GeoCoordinates.class)
-                    .onDelete(RESTRICT)
-                    .map("geoCoordinates")
                     .since(version(10, 2))
                     .add();
         }
@@ -399,8 +367,7 @@ public enum TableSpecs {
             Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column stateMachine = table.column("FSM").number().add();
             Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
-            Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
-
+            table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_METER").on(idColumn).add();
             table.unique("MTR_U_METER").on(mRIDColumn, obsoleteTime).add();
@@ -421,13 +388,6 @@ public enum TableSpecs {
                     .references(Location.class)
                     .onDelete(RESTRICT)
                     .map("location", LocationMember.class)
-                    .since(version(10, 2))
-                    .add();
-            table.foreignKey("MTR_FK_ENDDEVICEGEOCOORDS")
-                    .on(geoCoordinatesIdColumn)
-                    .references(GeoCoordinates.class)
-                    .onDelete(RESTRICT)
-                    .map("geoCoordinates")
                     .since(version(10, 2))
                     .add();
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();

@@ -26,7 +26,7 @@ class WaterLoadLimitSearchableProperty extends LoadLimitSearchableProperty {
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
-                .named(FIELD_NAME + "." + "serviceKind.water", PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
+                .named(FIELD_NAME + ".serviceKind.water", PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
                 .fromThesaurus(this.thesaurus)
                 .addValues(Quantity.create(BigDecimal.ZERO, 0, "m3/h"))
                 .finish();
