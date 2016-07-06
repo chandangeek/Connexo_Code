@@ -67,7 +67,9 @@ public class DeviceSearchInfo {
         searchInfo.decommissionDate = lifecycleDates.getRetiredDate().orElse(null);
         searchInfo.validationActive = deviceValidationRetriever.isValidationActive(device);
         searchInfo.hasOpenDataValidationIssues = issueService.hasOpenDataValidationIssues(device);
-        searchInfo.location = device.getLocation().map(Location::toString).orElse(device.getGeoCoordinates().map(geoCoordinates -> geoCoordinates.getCoordinates().toString()).orElse(""));
+        searchInfo.location = device.getLocation().map(Location::toString).
+                orElse(device.getSpatialCoordinates()
+                        .map(coordinates -> coordinates.toString()).orElse(""));
         return searchInfo;
     }
 
