@@ -111,7 +111,7 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
 
         @Override
         public String componentName() {
-            return "RKN_CNT";
+            return "RKP";
         }
 
         @Override
