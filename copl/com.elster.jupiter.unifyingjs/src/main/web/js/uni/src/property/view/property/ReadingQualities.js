@@ -227,12 +227,11 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
             parts = cimCode.split('.'),
             categoryCode = parts[1],
             indexCode = parts[2],
-            indexStore,
-            storeRecord;
+            indexStore = me.getIndexStore(categoryCode),
+            indexOfFoundItem = Ext.isEmpty(indexStore) ? -1 : indexStore.findExact('id', indexCode),
+            storeRecord = indexOfFoundItem === -1 ? undefined : indexStore.getAt(indexOfFoundItem);
 
-        indexStore = me.getIndexStore(categoryCode);
-        storeRecord = Ext.isEmpty(indexStore) ? undefined : indexStore.findRecord('id', indexCode);
-        displayName += storeRecord ? storeRecord.get('name') : Uni.I18n.translate('general.unknown', 'UNI', 'Unknown');
+        displayName += Ext.isEmpty(storeRecord) ? Uni.I18n.translate('general.unknown', 'UNI', 'Unknown') : storeRecord.get('name');
         displayName += ' (' + cimCode + ')';
         return displayName;
     },
@@ -245,17 +244,21 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
             indexCode = parts[2],
             indexStore,
             tooltip = '<table><tr><td>',
+            indexInStore,
             storeRecord;
 
         tooltip += '<b>' + Uni.I18n.translate('general.readingQuality.field1.name', 'UNI', 'System') + ':</b></td>';
-        storeRecord = me.systemStore.findRecord('id', systemCode);
+        indexInStore = me.systemStore.findExact('id', systemCode);
+        storeRecord = indexInStore === -1 ? null : me.systemStore.getAt(indexInStore);
         tooltip += '<td>' + (storeRecord ? storeRecord.get('name') : Uni.I18n.translate('general.unknown', 'UNI', 'Unknown')) + '</td></tr>';
         tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field2.name', 'UNI', 'Category') + ':</b></td>';
-        storeRecord = me.categoryStore.findRecord('id', categoryCode);
+        indexInStore = me.categoryStore.findExact('id', categoryCode);
+        storeRecord = indexInStore === -1 ? null : me.categoryStore.getAt(indexInStore);
         tooltip += '<td>' + (storeRecord ? storeRecord.get('name') : Uni.I18n.translate('general.unknown', 'UNI', 'Unknown')) + '</td></tr>';
         tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field3.name', 'UNI', 'Index') + ':</b></td>';
         indexStore = me.getIndexStore(categoryCode);
-        storeRecord = Ext.isEmpty(indexStore) ? undefined : indexStore.findRecord('id', indexCode);
+        indexInStore = Ext.isEmpty(indexStore) ? -1 : indexStore.findExact('id', indexCode);
+        storeRecord = indexInStore === -1 ? null : indexStore.getAt(indexInStore);
         tooltip += '<td>' + (storeRecord ? storeRecord.get('name') : Uni.I18n.translate('general.unknown', 'UNI', 'Unknown')) + '</td></tr></table>';
         return tooltip;
     },
@@ -271,13 +274,16 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         var systemCode = parts[0],
             categoryCode = parts[1],
             indexCode = parts[2],
+            indexInStore,
             storeRecord;
 
-        storeRecord = me.systemStore.findRecord('id', systemCode);
+        indexInStore = me.systemStore.findExact('id', systemCode);
+        storeRecord = indexInStore === -1 ? undefined : me.systemStore.getAt(indexInStore);
         if (Ext.isEmpty(storeRecord)) {
             result |= 2; // = invalid, 1st part
         }
-        storeRecord = me.categoryStore.findRecord('id', categoryCode);
+        indexInStore = me.categoryStore.findExact('id', categoryCode);
+        storeRecord = indexInStore === -1 ? undefined : me.categoryStore.getAt(indexInStore);
         if (Ext.isEmpty(storeRecord)) {
             result |= 4; // = invalid, 2nd part
         }
