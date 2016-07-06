@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 class ReadingQualitiesValidator extends AbstractValidator {
 
     static final String READING_QUALITIES = "readingQualities";
-    private static final Set<String> SUPPORTED_APPLICATIONS = ImmutableSet.of("MDC", "INS");
+    private static final Set<QualityCodeSystem> QUALITY_CODE_SYSTEMS = ImmutableSet.of(QualityCodeSystem.MDC, QualityCodeSystem.MDM);
 
     private Set<ReadingQualityPropertyValue> selectedReadingQualities;
 
@@ -154,7 +154,7 @@ class ReadingQualitiesValidator extends AbstractValidator {
     }
 
     @Override
-    public Set<String> getSupportedApplications() {
-        return SUPPORTED_APPLICATIONS;
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return QUALITY_CODE_SYSTEMS;
     }
 }
