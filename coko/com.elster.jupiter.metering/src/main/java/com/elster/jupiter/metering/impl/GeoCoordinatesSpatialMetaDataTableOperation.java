@@ -46,7 +46,9 @@ public final class GeoCoordinatesSpatialMetaDataTableOperation {
                 + "', "
                 + "MDSYS.SDO_DIM_ARRAY ("
                 + "SDO_DIM_ELEMENT ('LONGITUDE',-180,180,1),"
-                + "SDO_DIM_ELEMENT ('LATITUDE',-90,90,1)),8307)"
+                + "SDO_DIM_ELEMENT ('LATITUDE',-90,90,1),"
+                + "SDO_DIM_ELEMENT ('ELEVATION',-10000,10000,1)"
+                + "),8307)"
         );
         return builder;
     }
