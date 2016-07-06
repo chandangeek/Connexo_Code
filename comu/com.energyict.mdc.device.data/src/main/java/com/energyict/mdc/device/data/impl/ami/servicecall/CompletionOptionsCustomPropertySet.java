@@ -168,5 +168,10 @@ public class CompletionOptionsCustomPropertySet implements CustomPropertySet<Ser
                     .map(CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_MESSAGE.javaName())
                     .add();
         }
+
+        @Override
+        public String application() {
+            return "MultiSense";
+        }
     }
 }

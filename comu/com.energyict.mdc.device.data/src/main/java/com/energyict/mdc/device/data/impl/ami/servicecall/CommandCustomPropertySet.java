@@ -196,5 +196,10 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
                     .notNull()
                     .add();
         }
+
+        @Override
+        public String application() {
+            return "MultiSense";
+        }
     }
 }
