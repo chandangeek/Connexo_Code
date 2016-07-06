@@ -715,6 +715,28 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>clean-copy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <version>2.5</version>
+                        <configuration>
+                            <filesets>
+                                <fileset>
+                                    <directory>${felix.load.folder}</directory>
+                                    <includes>
+                                        <include>${project.groupId}.${project.artifactId}-*</include>
+                                    </includes>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
 </project>
