@@ -20,7 +20,7 @@ public enum TableSpecs {
 			Table<Vault> table = dataModel.addTable(name(),Vault.class);
 			table.map(VaultImpl.class);
 			table.cache();
-			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
+			Column componentName = table.column("COMPONENT").varChar(3).notNull().map("componentName").add();
 			Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
 			table.column("DESCRIPTION").varChar(NAME_LENGTH).notNull().map("description").add();
 			table.column("MINTIME").type("number").notNull().conversion(NUMBER2INSTANT).map("minTime").add();
@@ -43,7 +43,7 @@ public enum TableSpecs {
 			Table<RecordSpec> table = dataModel.addTable(name(),RecordSpec.class);
 			table.map(RecordSpecImpl.class);
 			table.cache();
-			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
+			Column componentName = table.column("COMPONENT").varChar(3).notNull().map("componentName").add();
 			Column idColumn = table.column("ID").type("number").notNull().conversion(NUMBER2LONG).map("id").add();
 			Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
 			table.addAuditColumns();
@@ -56,7 +56,7 @@ public enum TableSpecs {
 		public void  addTo(DataModel dataModel) {
 			Table<FieldSpec> table = dataModel.addTable(name(),FieldSpec.class);
 			table.map(FieldSpecImpl.class);
-			Column componentName = table.column("COMPONENT").type("varchar2(3)").notNull().add();
+			Column componentName = table.column("COMPONENT").varChar(3).notNull().add();
 			Column recordSpecIdColumn = table.column("RECORDSPECID").type("number").notNull().conversion(NUMBER2LONG).add();
 			Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
 			Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
@@ -75,9 +75,9 @@ public enum TableSpecs {
 			Table<TimeSeries> table = dataModel.addTable(name(),TimeSeries.class);
 			table.map(TimeSeriesImpl.class);
 			Column idColumn = table.addAutoIdColumn();
-			Column vaultComponent = table.column("VAULTCOMPONENT").type("varchar2(3)").notNull().add();
+			Column vaultComponent = table.column("VAULTCOMPONENT").varChar(3).notNull().add();
 			Column vaultIdColumn = table.column("VAULTID").type("number").notNull().conversion(NUMBER2LONG).add();
-			Column recordSpecComponent = table.column("RECORDSPECCOMPONENT").type("varchar2(3)").notNull().add();
+			Column recordSpecComponent = table.column("RECORDSPECCOMPONENT").varChar(3).notNull().add();
 			Column recordSpecIdColumn = table.column("RECORDSPECID").type("number").notNull().conversion(NUMBER2LONG).add();
 			table.column("FIRSTTIME").type("number").conversion(NUMBER2INSTANT).map("firstTime").add();
 			table.column("LASTTIME").type("number").conversion(NUMBER2INSTANT).map("lastTime").add();
