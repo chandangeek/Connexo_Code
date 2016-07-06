@@ -2,15 +2,17 @@ package com.elster.jupiter.metering.cim.soap.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.soap.whiteboard.EndPointProvider;
-import java.time.Clock;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name="com.elster.jupiter.metering.cim.soap", service = { EndPointProvider.class }, immediate = true, property = {"alias=/cim"})
-public class GetMeterReadingsEndpointProvider implements EndPointProvider {
+import java.time.Clock;
+
+@Component(name = "com.elster.jupiter.metering.cim.soap", service = {InboundEndPointProvider.class}, immediate = true, property = {"name=cim"})
+public class GetMeterReadingsEndpointProvider implements InboundEndPointProvider {
 
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;

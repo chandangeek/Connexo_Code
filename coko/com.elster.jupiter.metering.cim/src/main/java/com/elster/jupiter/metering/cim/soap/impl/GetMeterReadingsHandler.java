@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.cim.soap.impl;
 
-import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -10,6 +9,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointMembership;
+import com.elster.jupiter.metering.ChannelsContainer;
 
 import ch.iec.tc57._2011.getmeterreadings.EndDevice;
 import ch.iec.tc57._2011.getmeterreadings.FaultMessage;
@@ -76,6 +76,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
             addForRequestedEndDevices(request, meterReadingsPayloadType, range);
             addForRequestedUsagePointGroups(request, meterReadingsPayloadType, range);
             addForRequestedEndDeviceGroups(request, meterReadingsPayloadType, range);
+//            throw new IllegalStateException("BVN"); // Test failed SOAP call here
         }
     }
 

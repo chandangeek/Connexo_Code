@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.collections.BinarySearch;
 
 import ch.iec.tc57._2011.meterreadings.EndDeviceEvent;
@@ -182,17 +181,16 @@ public class MeterReadingsGenerator {
         reading.setReportedDateTime(Date.from(baseReading.getTimeStamp()));
         reading.setValue(baseReading.getValue().toString());
         if (baseReading instanceof IntervalReading) {
-            ProfileStatus profileStatus = ((IntervalReading) baseReading).getProfileStatus();
-            for (ProfileStatus.Flag flag : profileStatus.getFlags()) {
-                if (flag.getCimCode().isPresent()) {
-                    ReadingQuality readingQuality = payloadObjectFactory.createReadingQuality();
-                    ReadingQuality.ReadingQualityType qualityType = payloadObjectFactory.createReadingQualityReadingQualityType();
-                    qualityType.setRef(flag.getCimCode().get());
-                    readingQuality.setReadingQualityType(qualityType);
-                    readingQuality.setTimeStamp(Date.from(baseReading.getTimeStamp()));
-                }
+            for (com.elster.jupiter.metering.readings.ReadingQuality quality : baseReading.getReadingQualities()) {
+                ReadingQuality readingQuality = payloadObjectFactory.createReadingQuality();
+                ReadingQuality.ReadingQualityType readingQualityType = payloadObjectFactory.createReadingQualityReadingQualityType();
+                readingQualityType.setRef(quality.getType().getCode());
+                readingQuality.setReadingQualityType(readingQualityType);
+                readingQuality.setTimeStamp(Date.from(baseReading.getTimeStamp()));
+                reading.getReadingQualities().add(readingQuality);
             }
         }
+
         for (com.elster.jupiter.metering.ReadingQualityRecord quality : relevantQualities) {
             ReadingQuality readingQuality = payloadObjectFactory.createReadingQuality();
             ReadingQuality.ReadingQualityType readingQualityType = payloadObjectFactory.createReadingQualityReadingQualityType();
