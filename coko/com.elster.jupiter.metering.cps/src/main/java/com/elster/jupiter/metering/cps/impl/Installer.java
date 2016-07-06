@@ -108,6 +108,9 @@ class Installer implements FullInstaller {
         assign(UsagePointTechnicalWGTDomExt.class.getName(), this::addThermalSets);
 //        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInfGTWDomExt.class.getName())
 //                .ifPresent(this::addThermalSets);
+
+        meteringCustomPropertySetsDemoInstaller.unmeasuredAntennaInstallation();
+        meteringCustomPropertySetsDemoInstaller.residentialPrepay();
     }
 
     private void assign(String cps, Consumer<RegisteredCustomPropertySet> action) {

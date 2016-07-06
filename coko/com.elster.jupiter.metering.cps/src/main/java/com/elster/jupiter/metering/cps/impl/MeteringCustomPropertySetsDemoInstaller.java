@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.cps.impl;
 import com.elster.jupiter.cbo.PhaseCode;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -46,13 +47,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -65,12 +64,10 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.function.Consumer;
 
 @Component(name = "com.elster.jupiter.metering.cps", service = {TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=CPM")
 public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyProvider, MessageSeedProvider {
@@ -218,7 +215,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         return Arrays.asList(MessageSeeds.values());
     }
 
-    private void unmeasuredAntennaInstallation() {
+    public void unmeasuredAntennaInstallation() {
         if (metrologyConfigurationService.findMetrologyConfiguration("Unmeasured antenna installation").isPresent()) {
             return;
         }
@@ -256,7 +253,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         contractBilling.addDeliverable(builder.build(builder.multiply(compositionCPS, monthlyConstant)));
     }
 
-    private void residentialPrepay() {
+    public void residentialPrepay() {
         if (metrologyConfigurationService.findMetrologyConfiguration("Residential prepay").isPresent()) {
             return;
         }
@@ -292,8 +289,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
         MetrologyContract contractInformation = config.addMandatoryMetrologyContract(purposeInformation);
 
-        ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat())
-                .withMeterRole(meterRole).withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
+        ReadingTypeRequirement requirementAplus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS.getNameTranslation().getDefaultFormat(), meterRole)
+                .withReadingTypeTemplate(getDefaultReadingTypeTemplate(DefaultReadingTypeTemplate.A_PLUS));
 
         contractInformation.addDeliverable(buildFormulaSingleRequirement(config, readingType15minAplusWh, requirementAplus, "Active energy+"));
     }

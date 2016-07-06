@@ -179,5 +179,10 @@ public class UsagePointAntennaCPS implements CustomPropertySet<UsagePoint, Usage
                     .map(UsagePointAntennaDomExt.Fields::databaseName)
                     .orElseThrow(() -> new IllegalArgumentException("Unknown property spec: " + propertySpec.getName()));
         }
+
+        @Override
+        public String application() {
+            return "Example";
+        }
     }
 }
