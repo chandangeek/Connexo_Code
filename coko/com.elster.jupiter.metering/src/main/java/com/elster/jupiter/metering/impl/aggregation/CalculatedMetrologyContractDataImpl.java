@@ -135,9 +135,9 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
                             .getDeliverables()
                             .stream()
                             .filter(deliverable -> deliverable.getReadingType().getMRID().equals(readingType.getMRID()))
-                            .findFirst()    // Guaranteed to find one: reading type is result from sql that was generated from the list of deliverables
                             .map(ReadingTypeDeliverable::getFormula)
                             .map(Formula::getExpressionNode)
+                            .findFirst()    // Guaranteed to find one: reading type is result from sql that was generated from the list of deliverables
                             .get();
             if (expressionNode.accept(new ContainsOnlyConstants())) {
                 CalculatedReadingRecord record = calculatedReadingRecords.get(0);

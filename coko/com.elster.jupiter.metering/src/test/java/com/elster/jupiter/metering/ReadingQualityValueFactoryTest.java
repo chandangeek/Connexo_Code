@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.properties.ReadingQualityPropertyValue;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

@@ -2,11 +2,9 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 
-import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

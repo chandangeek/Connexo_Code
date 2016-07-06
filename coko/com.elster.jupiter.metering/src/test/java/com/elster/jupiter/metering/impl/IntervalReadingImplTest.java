@@ -4,12 +4,16 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
-import org.junit.Test;
 
 import java.util.Arrays;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class IntervalReadingImplTest extends AbstractBaseReadingImplTest {
 

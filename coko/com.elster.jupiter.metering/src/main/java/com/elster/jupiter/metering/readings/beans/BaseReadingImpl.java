@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.readings.beans;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;

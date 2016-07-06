@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
@@ -392,11 +391,6 @@ public class AggregatedChannelImpl implements ChannelContract {
         @Override
         public Optional<Range<Instant>> getTimePeriod() {
             return record.getTimePeriod();
-        }
-
-        @Override
-        public ProfileStatus getProfileStatus() {
-            return new ProfileStatus(0L);
         }
     }
 }
