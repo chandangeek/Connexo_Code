@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.google.common.collect.Range;
 
@@ -17,11 +16,6 @@ class OverflowIntervalReading implements IntervalReading {
     OverflowIntervalReading(IntervalReading overflowing, BigDecimal checked) {
         this.overflowing = overflowing;
         this.checked = checked;
-    }
-
-    @Override
-    public ProfileStatus getProfileStatus() {
-        return overflowing.getProfileStatus();
     }
 
     @Override
