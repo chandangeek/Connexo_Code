@@ -32,7 +32,7 @@ public class UsagePointAntennaCPS implements CustomPropertySet<UsagePoint, Usage
 
     public static final String TABLE_NAME = "MTC_CPS_ANTENNA";
     public static final String DOMAIN_FK_NAME = "FK_CPS_MTR_ANTENNA";
-    public static final String COMPONENT_NAME = "MTR_ANTENNA";
+    public static final String COMPONENT_NAME = "ANT";
 
     public UsagePointAntennaCPS() {
         super();
