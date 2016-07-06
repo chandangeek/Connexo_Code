@@ -4,7 +4,6 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -15,6 +14,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
@@ -45,6 +45,7 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -60,6 +61,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 
 /**
  * Copyrights EnergyICT
@@ -77,9 +79,9 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setLocation(Location location);
 
-    Optional<GeoCoordinates> getGeoCoordinates();
+    Optional<SpatialCoordinates> getSpatialCoordinates();
 
-    void setGeoCoordinates(GeoCoordinates geoCoordinates);
+    void setSpatialCoordinates(SpatialCoordinates geoCoordinates);
 
     /**
      * Gets the name of the Device.
@@ -436,26 +438,22 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents();
 
     /**
-     * Gets the CIM dates that relate to thie life cycle of this Device.
+     * Gets the CIM dates that relate to the life cycle of this Device.
      *
      * @return The CIMLifecycleDates
      * @since 2.0
      */
     CIMLifecycleDates getLifecycleDates();
 
-    List<PassiveEffectiveCalendar> getPassiveCalendars();
-
-    void setPassiveCalendars(List<PassiveEffectiveCalendar> passiveCalendars);
-
-    Optional<ActiveEffectiveCalendar> getActiveCalendar();
-
-    void setActiveCalendar(AllowedCalendar allowedCalendar, Instant effective, Instant lastVerified);
+    CalendarSupport calendars();
 
     Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType);
 
     Channel.ChannelUpdater getChannelUpdaterFor(Channel channel);
 
     Register.RegisterUpdater getRegisterUpdaterFor(Register register);
+
+    void runStatusInformationTask(Consumer<ComTaskExecution> requestedAction);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
@@ -562,6 +560,32 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
          * @return the newly created DeviceMessage
          */
         DeviceMessage<Device> add();
+    }
+
+    @ProviderType
+    interface CalendarSupport {
+        Optional<ActiveEffectiveCalendar> getActive();
+
+        /**
+         * Gets the {@link PassiveCalendar} as reported by the actual device
+         * while status information was obtained.
+         *
+         * @return The actual passive calendar as reported by the actual device
+         */
+        Optional<PassiveCalendar> getPassive();
+
+        /**
+         * Gets the {@link PassiveCalendar} that is planned to be sent
+         * to the actual device. Note that this PassiveEffectiveCalendar
+         * will be linked to a DeviceMessage.
+         *
+         * @return The actual passive calendar that is planned to be sent to the actual device
+         */
+        Optional<PassiveCalendar> getPlannedPassive();
+
+        void updateCalendars(CollectedCalendarInformation collectedData);
+
+        void setPassive(AllowedCalendar passiveCalendar, Instant activationDate, DeviceMessage deviceMessage);
     }
 
 }

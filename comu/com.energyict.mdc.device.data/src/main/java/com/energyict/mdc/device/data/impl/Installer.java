@@ -84,17 +84,17 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 logger
         );
         doTry(
-                "",
+                "Create message handlers",
                 this::createMessageHandlers,
                 logger
         );
         doTry(
-                "",
+                "Create event subscribers",
                 this::addJupiterEventSubscribers,
                 logger
         );
         doTry(
-                "",
+                "Create master data",
                 this::createMasterData,
                 logger
         );

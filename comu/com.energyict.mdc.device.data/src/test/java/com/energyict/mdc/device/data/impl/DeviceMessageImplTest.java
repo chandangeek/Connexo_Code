@@ -27,6 +27,7 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -65,6 +66,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -74,6 +76,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
+    private static final String TEST_USER_NAME = "TestUser";
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
 
     private User testUser;
@@ -94,7 +97,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3);
         group.grant("MDC", Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4);
         group.update();
-        testUser = inMemoryPersistence.getUserService().createUser("TestUser", "This user is just to satisfy the foreign key ...");
+        testUser = inMemoryPersistence.getUserService().createUser(TEST_USER_NAME, "This user is just to satisfy the foreign key ...");
         testUser.join(group);
         testUser.update();
         inMemoryPersistence.getThreadPrincipalService().set(testUser);
@@ -144,6 +147,8 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
         assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
+        assertThat(deviceMessage1.getUser()).isEqualTo(TEST_USER_NAME);
+        assertThat(deviceMessage1.getSentDate()).isEqualTo(Optional.empty());
     }
 
     @Test
@@ -157,6 +162,32 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         device.newDeviceMessage(contactorClose).setReleaseDate(null).add();
+    }
+
+    @Test
+    @Transactional
+    public void updateSentDateTest() {
+        Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
+
+        Device device = createSimpleDeviceWithName("updateWithReleaseDateInWaitingTest", "updateWithReleaseDateInWaitingTest");
+        DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
+        device.newDeviceMessage(contactorClose).setReleaseDate(myReleaseInstant).add();
+
+        Device reloadedDevice = getReloadedDevice(device);
+        List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
+        DeviceMessage<Device> deviceMessage = messages.get(0);
+        Instant sentDate = myReleaseInstant.plusSeconds(1000L);
+        deviceMessage.setSentDate(sentDate);
+        deviceMessage.save();
+
+        Device finalReloadedDevice = getReloadedDevice(device);
+        DeviceMessage<Device> deviceMessage1 = finalReloadedDevice.getMessages().get(0);
+
+        assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
+        assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
+        assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
+        assertTrue(deviceMessage1.getSentDate().isPresent());
+        assertThat(deviceMessage1.getSentDate().get()).isEqualTo(sentDate);
     }
 
     @Test
@@ -181,6 +212,7 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         assertThat(deviceMessage1.getDeviceMessageId()).isEqualTo(contactorClose);
         assertThat(deviceMessage1.getDevice().getId()).isEqualTo(device.getId());
         assertThat(deviceMessage1.getStatus()).isEqualTo(DeviceMessageStatus.WAITING);
+        assertThat(deviceMessage1.getUser()).isEqualTo(TEST_USER_NAME);
         assertThat(deviceMessage1.getReleaseDate()).isEqualTo(newReleaseDate);
     }
 
@@ -911,6 +943,11 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
 
         @Override
         public CollectedBreakerStatus getBreakerStatus() {
+            return null;
+        }
+
+        @Override
+        public CollectedCalendar getCollectedCalendar() {
             return null;
         }
     }
