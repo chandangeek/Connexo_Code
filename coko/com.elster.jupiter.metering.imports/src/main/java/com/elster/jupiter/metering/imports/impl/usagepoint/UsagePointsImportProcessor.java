@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
 import com.elster.jupiter.metering.imports.impl.MessageSeeds;
 import com.elster.jupiter.metering.imports.impl.MeteringDataImporterContext;
 import com.elster.jupiter.metering.imports.impl.exceptions.ProcessorException;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
 import com.google.common.collect.Range;
 
@@ -196,11 +197,11 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                             throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
                         }
                     });
-            LocationBuilder builder = context.getMeteringService().newLocationBuilder();
+            LocationBuilder builder = usagePointBuilder.newLocationBuilder();
             Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                     .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
 
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData.get(ranking.get("locale")));
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData.get(ranking.get("locale")));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), data, ranking);
             } else {
@@ -209,9 +210,8 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             usagePointBuilder.withLocation(builder.create());
             isVirtual = false;
         }
-        if(geoCoordinatesData != null && validateGeoCoordinatesData(geoCoordinatesData)) {
-            usagePointBuilder.withGeoCoordinates((context.getMeteringService()
-                    .createGeoCoordinates(geoCoordinatesData.stream().collect(Collectors.joining(":")))));
+        if(geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
+            usagePointBuilder.withGeoCoordinates(new SpatialCoordinatesFactory().fromStringValue((geoCoordinatesData.stream().collect(Collectors.joining(":")))));
             isVirtual = false;
         }
         usagePointBuilder.withIsVirtual(isVirtual);
@@ -240,11 +240,11 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                             throw new ProcessorException(MessageSeeds.LINE_MISSING_LOCATION_VALUE, data.getLineNumber(), field.getName());
                         }
                     });
-            LocationBuilder builder = context.getMeteringService().newLocationBuilder();
+            LocationBuilder builder = usagePoint.updateLocation();
             Map<String, Integer> ranking = context.getMeteringService().getLocationTemplate().getTemplateMembers().stream()
                     .collect(Collectors.toMap(LocationTemplate.TemplateField::getName, LocationTemplate.TemplateField::getRanking));
 
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData
                     .get(ranking.get("locale")));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), data, ranking);
@@ -253,9 +253,8 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
             }
             usagePoint.setLocation(builder.create().getId());
         }
-        if (geoCoordinatesData != null && validateGeoCoordinatesData(geoCoordinatesData)) {
-            usagePoint.setGeoCoordinates(context.getMeteringService()
-                    .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
+        if(geoCoordinatesData != null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)) {
+            usagePoint.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
         usagePoint.setName(data.getName().orElse(null));
         usagePoint.setOutageRegion(data.getOutageRegion().orElse(null));
@@ -511,16 +510,6 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
                 .isDaultLocation(true)
                 .setLocale(location.get(ranking.get("locale")));
         return builder;
-    }
-
-    private boolean validateGeoCoordinatesData(List<String> geoCoordinatesData){
-        int count = 0;
-        for(String geoElement : geoCoordinatesData){
-            if (geoElement == null){
-                count++;
-            }
-        }
-        return count < 2;
     }
 
 }
