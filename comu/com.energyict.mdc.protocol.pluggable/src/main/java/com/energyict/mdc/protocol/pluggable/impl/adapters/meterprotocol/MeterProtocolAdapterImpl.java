@@ -29,6 +29,7 @@ import com.energyict.mdc.protocol.api.MissingPropertyException;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
@@ -611,4 +612,21 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         }
         return breakerStatusCollectedData;
     }
+
+    @Override
+    public CollectedCalendar getCollectedCalendar() {
+        CollectedCalendar collectedCalendar = this.collectedDataFactory.createCalendarCollectedData(this.offlineDevice.getDeviceIdentifier());
+        try {
+            this.getMeterProtocol().getActiveCalendarName().ifPresent(collectedCalendar::setActiveCalendar);
+        } catch (IOException e) {
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        }
+        try {
+            this.getMeterProtocol().getPassiveCalendarName().ifPresent(collectedCalendar::setPassiveCalendar);
+        } catch (IOException e) {
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        }
+        return collectedCalendar;
+    }
+
 }
