@@ -42,9 +42,9 @@ public class SpatialCoordinatesFactory {
 
                 NUMBER SDO_GTYPE = new NUMBER(2001);  //point = 2001
                 NUMBER SDO_SRID = new NUMBER(8307);   //datum = 8307
-                NUMBER x = new NUMBER((object.getLatitude()).getValue());  // latitude
-                NUMBER y = new NUMBER((object.getLongitude()).getValue());    //longitude
-                NUMBER z = new NUMBER((object.getElevation()).getValue());;
+                NUMBER x = new NUMBER((object.getLatitude()).getValue());  //latitude
+                NUMBER y = new NUMBER((object.getLongitude()).getValue()); //longitude
+                NUMBER z = new NUMBER((object.getElevation()).getValue()); //elevation
                 Object[] pointAttributes = {x, y, z};
                 Struct SDO_POINT = conn.createStruct("MDSYS.SDO_POINT_TYPE", pointAttributes);
 
