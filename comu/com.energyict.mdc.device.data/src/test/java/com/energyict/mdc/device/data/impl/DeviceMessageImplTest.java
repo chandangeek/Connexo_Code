@@ -229,7 +229,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
         DeviceMessage<Device> deviceMessage = messages.get(0);
         deviceMessage.revoke();
-        deviceMessage.save();
 
         Device finalReloadedDevice = getReloadedDevice(device);
         DeviceMessage<Device> deviceMessage1 = finalReloadedDevice.getMessages().get(0);
@@ -277,7 +276,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
         DeviceMessage<Device> deviceMessage = messages.get(0);
         deviceMessage.revoke();
-        deviceMessage.save();
 
         Device finalReloadedDevice = getReloadedDevice(device);
         DeviceMessage<Device> deviceMessage1 = finalReloadedDevice.getMessages().get(0);
@@ -323,7 +321,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
         DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.revoke();
-        reloadedDeviceMessage.save();
     }
 
     @Test
@@ -362,7 +359,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
         DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.revoke();
-        reloadedDeviceMessage.save();
     }
 
     @Test
@@ -401,7 +397,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
         DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.revoke();
-        reloadedDeviceMessage.save();
     }
 
     @Test
@@ -440,7 +435,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
         DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.revoke();
-        reloadedDeviceMessage.save();
     }
 
     @Test
@@ -479,7 +473,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         List<DeviceMessage<Device>> messages = reloadedDevice.getMessages();
         DeviceMessage<Device> reloadedDeviceMessage = messages.get(0);
         reloadedDeviceMessage.revoke();
-        reloadedDeviceMessage.save();
     }
 
     @Test
