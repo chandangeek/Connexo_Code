@@ -21,6 +21,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
+import com.elster.jupiter.validation.ValidationContextImpl;
 
 import java.time.Instant;
 import java.util.EnumSet;

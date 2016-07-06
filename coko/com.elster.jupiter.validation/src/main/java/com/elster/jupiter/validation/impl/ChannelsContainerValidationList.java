@@ -45,6 +45,10 @@ public class ChannelsContainerValidationList {
         channelsContainerValidations.forEach(channelsContainerValidation -> channelsContainerValidation.moveLastCheckedBefore(ranges));
     }
 
+    void moveLastCheckedBefore(Instant date) {
+        channelsContainerValidations.forEach(channelsContainerValidation -> channelsContainerValidation.moveLastCheckedBefore(date));
+    }
+
     void updateLastChecked(Instant instant) {
         channelsContainerValidations.stream()
                 .filter(ChannelsContainerValidation::isActive)
