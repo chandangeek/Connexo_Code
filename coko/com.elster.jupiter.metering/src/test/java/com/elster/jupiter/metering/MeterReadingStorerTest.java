@@ -151,12 +151,13 @@ public class MeterReadingStorerTest {
         assertThat(readings.get(1).getReadingQualities()).hasSize(2);
         assertThat(readings.get(1).getReadingQualities().get(0).getTypeCode()).isEqualTo(ProtocolReadingQualities.BATTERY_LOW.getCimCode());
         Range<Instant> range = Range.closed(instant.minusSeconds(15 * 60L), instant.plusSeconds(30 * 60L));
-        assertThat(channel.findReadingQualities().inTimeInterval(range).collect()).hasSize(2);
+        assertThat(channel.findReadingQualities().inTimeInterval(range).collect()).hasSize(4);
         channel.removeReadings(readings);
         assertThat(channel.getReadings(range)).hasSize(1);
-        List<ReadingQualityRecord> qualities = channel.findReadingQualities().inTimeInterval(range).sorted().collect();
-        assertThat(qualities).hasSize(3);
-        assertThat(qualities.get(1).getType().qualityIndex().get()).isSameAs(QualityCodeIndex.REJECTED);
+        List<ReadingQualityRecord> readingQualities = channel.findReadingQualities().inTimeInterval(range).sorted().collect();
+        assertThat(readingQualities).hasSize(4);
+        assertThat(readingQualities.get(0).getType().qualityIndex().get()).isEqualTo(QualityCodeIndex.REJECTED);
+        assertThat(readingQualities.get(1).getType().qualityIndex().get()).isEqualTo(QualityCodeIndex.REJECTED);
     }
 
     @Test
