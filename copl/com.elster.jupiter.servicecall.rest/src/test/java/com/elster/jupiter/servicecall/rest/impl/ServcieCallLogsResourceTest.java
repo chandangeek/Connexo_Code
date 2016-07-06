@@ -38,7 +38,7 @@ public class ServcieCallLogsResourceTest extends ServiceCallApplicationTest {
         assertThat(jsonModel.<String>get("$.logs[0].message")).isEqualTo("First");
         assertThat(jsonModel.<String>get("$.logs[0].logLevel")).isEqualTo("Severe");
         assertThat(jsonModel.<String>get("$.logs[1].message")).isEqualTo("Second");
-        assertThat(jsonModel.<String>get("$.logs[1].logLevel")).isEqualTo("Info");
+        assertThat(jsonModel.<String>get("$.logs[1].logLevel")).isEqualTo("Information");
         assertThat(jsonModel.<String>get("$.logs[2].message")).isEqualTo("Third");
         assertThat(jsonModel.<String>get("$.logs[2].logLevel")).isEqualTo("Finest");
     }
