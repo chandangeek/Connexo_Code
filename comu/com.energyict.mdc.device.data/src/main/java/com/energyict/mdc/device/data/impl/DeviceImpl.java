@@ -2108,8 +2108,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Integer[] determineScore(List<ProtocolTask> protocolTasks) {
         return protocolTasks.stream()
                 .map(protocolTask -> score(protocolTask.getClass()))
-                .sorted(Integer::compareTo)
-                .sorted(Comparator.reverseOrder())
+                .sorted(Comparator.<Integer>naturalOrder().reversed())
                 .toArray(Integer[]::new);
     }
 
