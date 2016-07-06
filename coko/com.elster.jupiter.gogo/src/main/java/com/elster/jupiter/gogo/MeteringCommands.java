@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -206,7 +205,7 @@ public class MeteringCommands {
                         final MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(readingType);
                         for (int i = 0; i < numberOfInterval; i++) {
-                            intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.toInstant(), BigDecimal.valueOf(randomBetween(minValue, maxValue))));
+                            intervalBlock.addIntervalReading(IntervalReadingImpl.of(startDate.toInstant(), BigDecimal.valueOf(randomBetween(minValue, maxValue)), Collections.emptyList()));
                             startDate = startDate.plusSeconds(intervalInSeconds);
                         }
                         meterReading.addIntervalBlock(intervalBlock);
@@ -237,7 +236,7 @@ public class MeteringCommands {
         storeCumulativeIntervalData(mRID, readingType, startDateTime, numberOfInterval, startValue, minValue, maxValue, null);
     }
 
-    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue, String intervalFlagCimCode) {
+    public void storeCumulativeIntervalData(String mRID, String readingType, String startDateTime, int numberOfInterval, double startValue, double minValue, double maxValue, String readingQualityCIMCode) {
         final Optional<Meter> endDevice = meteringService.findMeter(mRID);
         if (endDevice.isPresent()) {
             try {
@@ -250,9 +249,9 @@ public class MeteringCommands {
                         BigDecimal cumulativeValue = BigDecimal.valueOf(startValue);
                         for (int i = 0; i < numberOfInterval; i++) {
                             cumulativeValue = cumulativeValue.add(BigDecimal.valueOf(randomBetween(minValue, maxValue)));
-                            IntervalReadingImpl reading = IntervalReadingImpl.of(startDate.toInstant(), cumulativeValue);
-                            if (intervalFlagCimCode != null) {
-                                reading.setProfileStatus(ProfileStatus.of(ProfileStatus.Flag.valueOf(intervalFlagCimCode)));
+                            IntervalReadingImpl reading = IntervalReadingImpl.of(startDate.toInstant(), cumulativeValue, Collections.emptyList());
+                            if (readingQualityCIMCode != null) {
+                                reading.addQuality(readingQualityCIMCode);
                             }
                             intervalBlock.addIntervalReading(reading);
                             startDate = nextIntervalTime(startDate, readingTypeOptional.get());
@@ -410,7 +409,7 @@ public class MeteringCommands {
         //find reading type
         Optional<ReadingType> readingType = meteringService.getReadingType(readingTypeMRID);
         if (!readingType.isPresent()) {
-            System.out.println("Unknown reading type '" + readingType + "'. Skipping.");
+            System.out.println("Unknown reading type '" + readingTypeMRID + "'. Skipping.");
             return;
         }
         //parse timestamp
