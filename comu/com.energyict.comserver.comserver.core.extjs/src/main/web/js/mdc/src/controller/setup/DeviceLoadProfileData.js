@@ -257,6 +257,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             var channelName = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.fullAliasName : channel.readingType.fullAliasName;
             channels.push(
                 {
+                    id: channel.id,
                     name: channelName,
                     unitOfMeasure: !Ext.isEmpty(channel.calculatedReadingType)
                         ? channel.calculatedReadingType.names.unitOfMeasure : channel.readingType.names.unitOfMeasure
@@ -301,7 +302,9 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         });
 
         if (dataStore.getTotalCount() > 0) {
+            var showDeviceQualityIcon = {};
             dataStore.each(function (record) {
+                showDeviceQualityIcon[record.get('interval').start] = me.arrayHasNonEmptyItems(record.get('readingQualities'), channels);
                 if (record.get('channelData')) {
                     Ext.iterate(record.get('channelData'), function (key, value) {
                         if (channelDataArrays[key]) {
@@ -316,13 +319,23 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
             });
             container.down('#graphContainer').show();
             container.down('#emptyGraphMessage').hide();
-            container.drawGraph(title, yAxis, series, channels, seriesToYAxisMap, intervalLengthInMs, zoomLevels);
+            container.drawGraph(title, yAxis, series, channels, seriesToYAxisMap, intervalLengthInMs, zoomLevels, showDeviceQualityIcon);
         } else {
             container.down('#graphContainer').hide();
             container.down('#emptyGraphMessage').show();
         }
 
         me.getPage().doLayout();
+    },
+
+    arrayHasNonEmptyItems: function(readingQualitiesArray, channels) {
+        var hasNonEmptyItems = false;
+        Ext.Array.each(channels, function (channel) {
+            if (!Ext.isEmpty(readingQualitiesArray[channel.id])) {
+                hasNonEmptyItems |= true;
+            }
+        });
+        return hasNonEmptyItems;
     },
 
     onGraphResize: function (graphView, width, height) {

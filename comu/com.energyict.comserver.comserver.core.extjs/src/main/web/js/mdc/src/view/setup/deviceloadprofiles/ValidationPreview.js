@@ -45,42 +45,26 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.ValidationPreview', {
                                 result += ' - ' + Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
                             }
                         });
-                        return result;
+                        return Ext.isEmpty(result) ? '-' : result;
                     } else {
                         field.hide();
                     }
                 }
             },
             {
-                xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation.lastChecked', 'MDC', 'Last checked'),
                 itemId: 'lastCheckedCont',
-                layout: 'hbox',
-                items: [
-                    {
-                        xtype: 'displayfield',
-                        name: 'lastChecked_formatted',
-                        renderer: function (value, field) {
-                            if (!Ext.isEmpty(value)) {
-                                field.up('#lastCheckedCont').show();
-                                this.nextSibling('button').setVisible(value ? true : false);
-                                return Ext.String.htmlEncode(value);
-                            } else {
-                                field.up('#lastCheckedCont').hide();
-                            }
-                        }
-                    },
-                    {
-                        xtype: 'button',
-                        tooltip: Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The moment when the last interval was checked in the validation process.'),
-                        iconCls: 'icon-info-small',
-                        ui: 'blank',
-                        itemId: 'lastCheckedHelp',
-                        shadow: false,
-                        margin: '6 0 0 10',
-                        width: 16
+                name: 'lastChecked_formatted',
+                renderer: function (value, field) {
+                    if (Ext.isEmpty(value)) {
+                        field.hide();
+                    } else {
+                        field.show();
+                        var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The moment when the last interval was checked in the validation process.');
+                        return '<span style="display:inline-block; float:left; margin-right:7px;" >' + Ext.String.htmlEncode(value) + '</span>'+
+                            '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.String.htmlEncode(tooltip) + '"></span>'
                     }
-                ]
+                }
             }
         ];
 

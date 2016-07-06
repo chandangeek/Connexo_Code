@@ -89,7 +89,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataPreview', {
                     },
                     items: [
                         {
-                            fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
+                            fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
                             name: 'interval_formatted'
                         },
                         {
