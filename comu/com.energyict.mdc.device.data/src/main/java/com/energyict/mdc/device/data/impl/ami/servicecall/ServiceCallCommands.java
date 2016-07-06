@@ -1,15 +1,14 @@
 package com.energyict.mdc.device.data.impl.ami.servicecall;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.TransactionRequired;
-import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.ArmServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.ConnectServiceCallHandler;
@@ -17,8 +16,6 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisableLoadLi
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisconnectServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.EnableLoadLimitServiceCallHandler;
 
-import javax.inject.Inject;
-import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,7 +33,7 @@ public class ServiceCallCommands {
         disconnectBreaker(DisconnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DisconnectServiceCallHandler.VERSION, EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH),
         armBreaker(ArmServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_CLOSURE),
 
-        loadControlInitiate(EnableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_INITITATE),
+        loadControlInitiate(EnableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_INITIATE),
         loadControlTerminate(DisableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE),;
 
         private final String typeName;
@@ -68,15 +65,14 @@ public class ServiceCallCommands {
         }
     }
 
+    private final Thesaurus thesaurus;
     private final ServiceCallService serviceCallService;
-    private final CustomPropertySetService customPropertySetService;
 
     private Map<EndDeviceControlType, ServiceCallType> serviceCallTypes;
 
-    @Inject
-    public ServiceCallCommands(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+    public ServiceCallCommands(ServiceCallService serviceCallService, Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
         this.serviceCallService = serviceCallService;
-        this.customPropertySetService = customPropertySetService;
     }
 
     @TransactionRequired
@@ -97,23 +93,9 @@ public class ServiceCallCommands {
     private ServiceCallType getServiceCallType(EndDeviceControlType endDeviceControlType) {
         if (!getServiceCallTypesMapping().containsKey(endDeviceControlType)) {
             ServiceCallTypeMapping serviceCallTypeMapping = ServiceCallTypeMapping.getServiceCallTypeMappingFor(endDeviceControlType).orElseThrow(IllegalStateException::new);
-            RegisteredCustomPropertySet commandCustomPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
-                    .stream()
-                    .filter(cps -> cps.getCustomPropertySet().getName().equals(CommandCustomPropertySet.class.getSimpleName()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", CommandCustomPropertySet.class.getSimpleName())));
-            RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
-                    .stream()
-                    .filter(cps -> cps.getCustomPropertySet().getName().equals(CompletionOptionsCustomPropertySet.class.getSimpleName()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", CompletionOptionsCustomPropertySet.class.getSimpleName())));
             ServiceCallType serviceCallType = serviceCallService.findServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion())
-                    .orElseGet(() -> serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion())
-                            .handler(serviceCallTypeMapping.getTypeName())
-                            .logLevel(LogLevel.FINEST)  //TODO: desired log level?
-                            .customPropertySet(commandCustomPropertySet)
-                            .customPropertySet(completionOptionsCustomPropertySet)
-                            .create());
+                    .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)
+                            .format(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion())));
             getServiceCallTypesMapping().put(endDeviceControlType, serviceCallType);
         }
         return getServiceCallTypesMapping().get(endDeviceControlType);

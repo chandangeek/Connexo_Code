@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.data.impl.ami.eventhandler;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
@@ -16,7 +18,6 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.EnableLoadLim
 
 import java.time.Instant;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -49,6 +50,8 @@ public class ActivatedBreakerStatusUpdateEventHandlerTest {
     @Mock
     private ServiceCallType serviceCallType;
     @Mock
+    private Finder<ServiceCall> serviceCallFinder;
+    @Mock
     private ServiceCallService serviceCallService;
     private CommandServiceCallDomainExtension commandServiceCallDomainExtension;
 
@@ -60,7 +63,8 @@ public class ActivatedBreakerStatusUpdateEventHandlerTest {
         commandServiceCallDomainExtension.setNrOfUnconfirmedDeviceCommands(1);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(commandServiceCallDomainExtension));
         when(serviceCallService.getServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));
-        when(serviceCallService.findServiceCalls(device, EnumSet.allOf(DefaultState.class))).thenReturn(Collections.singleton(serviceCall));
+        when(serviceCallService.getServiceCallFinder(any(ServiceCallFilter.class))).thenReturn(serviceCallFinder);
+        when(serviceCallFinder.find()).thenReturn(Collections.singletonList(serviceCall));
     }
 
     @Test

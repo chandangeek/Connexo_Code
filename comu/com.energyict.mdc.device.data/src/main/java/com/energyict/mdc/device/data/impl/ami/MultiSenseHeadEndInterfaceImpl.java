@@ -26,6 +26,8 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
+import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
@@ -63,7 +65,7 @@ import java.util.stream.Stream;
 @Component(name = "com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterface",
         service = {HeadEndInterface.class},
         property = "name=MultiSenseHeadEndInterface", immediate = true)
-public class MultiSenseHeadEndInterface implements HeadEndInterface {
+public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterface {
 
     private static final String AMR_SYSTEM = KnownAmrSystem.MDC.getName();
     private static final Logger LOGGER = Logger.getLogger(MultiSenseHeadEndInterface.class.getName());
@@ -74,22 +76,22 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     private volatile Thesaurus thesaurus;
     private volatile ServiceCallService serviceCallService;
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile CommandFactory commandFactory;
+    private volatile EndDeviceCommandFactory endDeviceCommandFactory;
     private volatile ThreadPrincipalService threadPrincipalService;
 
     //For OSGI purposes
-    public MultiSenseHeadEndInterface() {
+    public MultiSenseHeadEndInterfaceImpl() {
     }
 
     @Inject
-    public MultiSenseHeadEndInterface(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, CommandFactory commandFactory, ThreadPrincipalService threadPrincipalService) {
+    public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory, ThreadPrincipalService threadPrincipalService) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
-        this.commandFactory = commandFactory;
+        this.endDeviceCommandFactory = endDeviceCommandFactory;
         this.threadPrincipalService = threadPrincipalService;
     }
 
@@ -130,13 +132,12 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     }
 
     @Reference
-    public void setCommandFactory(CommandFactory commandFactory) {
-        this.commandFactory = commandFactory;
+    public void setEndDeviceCommandFactory(EndDeviceCommandFactory endDeviceCommandFactory) {
+        this.endDeviceCommandFactory = endDeviceCommandFactory;
     }
 
     @Activate
     public void activate() {
-        System.out.println("Activating MultiSense Head End Interface");
     }
 
     @Deactivate
@@ -175,9 +176,8 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
         return new EndDeviceCapabilities(readingTypes, controlTypes);
     }
 
-    @Override
     public CommandFactory getCommandFactory() {
-        return commandFactory;
+        return endDeviceCommandFactory;
     }
 
     @Override
@@ -282,7 +282,7 @@ public class MultiSenseHeadEndInterface implements HeadEndInterface {
     }
 
     protected ServiceCallCommands getServiceCallCommands() {
-        return new ServiceCallCommands(serviceCallService, customPropertySetService);
+        return new ServiceCallCommands(serviceCallService, thesaurus);
     }
 
     private Device findDeviceForEndDevice(EndDevice endDevice) {

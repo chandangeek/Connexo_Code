@@ -29,8 +29,15 @@ import java.util.Set;
  * @author sva
  * @since 30/03/2016 - 15:43
  */
-@Component(name = "com.energyict.servicecall.ami.CommandCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+@Component(name = "com.energyict.servicecall.ami.CommandCustomPropertySet",
+        service = CustomPropertySet.class,
+        property = "name=" + CommandCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
+        immediate = true)
 public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, CommandServiceCallDomainExtension> {
+
+    public static final String CUSTOM_PROPERTY_SET_NAME = "CommandCustomPropertySet";
+
+    public volatile PropertySpecService propertySpecService;
 
     public CommandCustomPropertySet() {
     }
@@ -40,8 +47,6 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
-
-    public volatile PropertySpecService propertySpecService;
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -53,9 +58,13 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
         // PATCH; required for proper startup; do not delete
     }
 
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        customPropertySetService.addCustomPropertySet(this);
+    }
+
     @Activate
     public void activate() {
-        System.out.println("CommandCustomPropertySet activating");
     }
 
     @Override

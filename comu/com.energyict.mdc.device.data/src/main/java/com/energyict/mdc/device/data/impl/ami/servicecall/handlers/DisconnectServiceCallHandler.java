@@ -55,7 +55,7 @@ public class DisconnectServiceCallHandler extends AbstractContactorOperationServ
     }
 
     @Override
-    public BreakerStatus getDesiredBreakerStatus() {
+    protected BreakerStatus getDesiredBreakerStatus() {
         return BreakerStatus.DISCONNECTED;
     }
 }

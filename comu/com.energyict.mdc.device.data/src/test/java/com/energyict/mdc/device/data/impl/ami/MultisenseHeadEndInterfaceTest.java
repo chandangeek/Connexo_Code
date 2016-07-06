@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.EndDeviceCapabilities;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -23,6 +22,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
@@ -100,7 +100,7 @@ public class MultisenseHeadEndInterfaceTest {
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
     @Mock
-    private CommandFactory commandFactory;
+    private EndDeviceCommandFactory endDeviceCommandFactory;
     @Mock
     private ReadingType readingType;
     @Mock
@@ -118,7 +118,7 @@ public class MultisenseHeadEndInterfaceTest {
     @Mock(answer = org.mockito.Answers.RETURNS_DEEP_STUBS)
     Device device;
 
-    private MultiSenseHeadEndInterface headEndInterface;
+    private MultiSenseHeadEndInterfaceImpl headEndInterface;
 
     @Before
     public void setup() {
@@ -127,7 +127,7 @@ public class MultisenseHeadEndInterfaceTest {
         Map<KnownAmrSystem, String> knownAmrSystemStringMap = new HashMap<>();
         knownAmrSystemStringMap.put(KnownAmrSystem.MDC, url);
         when(meteringService.getSupportedApplicationsUrls()).thenReturn(knownAmrSystemStringMap);
-        headEndInterface = Mockito.spy(new MultiSenseHeadEndInterface(deviceService, deviceConfigurationService, meteringService, thesaurus, serviceCallService, customPropertySetService, commandFactory, threadPrincipalService));
+        headEndInterface = Mockito.spy(new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService, meteringService, thesaurus, serviceCallService, customPropertySetService, endDeviceCommandFactory, threadPrincipalService));
         when(headEndInterface.getServiceCallCommands()).thenReturn(serviceCallCommands);    // Use mocked variant of ServiceCallCommands, as for this test we are not interested in what happens with ServiceCalls
         when(serviceCallCommands.createOperationServiceCall(any(), any(), any(), any())).thenReturn(serviceCall);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(new CommandServiceCallDomainExtension()));

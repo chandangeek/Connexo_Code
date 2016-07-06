@@ -55,7 +55,7 @@ public class ArmServiceCallHandler extends AbstractContactorOperationServiceCall
     }
 
     @Override
-    public BreakerStatus getDesiredBreakerStatus() {
+    protected BreakerStatus getDesiredBreakerStatus() {
         return BreakerStatus.ARMED;
     }
 }

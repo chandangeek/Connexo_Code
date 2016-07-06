@@ -6,6 +6,7 @@ Private-Package:  \
 	com.energyict.mdc.device.data.impl.*
 Export-Package:  \
 	com.energyict.mdc.device.data,\
+	com.energyict.mdc.device.data.ami,\
 	com.energyict.mdc.device.data.exceptions,\
 	com.energyict.mdc.device.data.kpi,\
 	com.energyict.mdc.device.data.security,\

@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -22,7 +23,6 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.UnsupportedCommandException;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -30,6 +30,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
@@ -148,7 +149,7 @@ public class EndDeviceCommandFactoryImplTest {
         when(deviceProtocol.getSupportedMessages()).thenReturn(Collections.singleton(DeviceMessageId.CONTACTOR_CLOSE));
 
         // Business method
-        EndDeviceCommand command = commandFactory.createConnectCommand(endDevice);
+        EndDeviceCommand command = commandFactory.createConnectCommand(endDevice, null);
 
         // asserts
         assertEquals(endDevice, command.getEndDevice());
@@ -174,6 +175,6 @@ public class EndDeviceCommandFactoryImplTest {
         when(deviceProtocol.getSupportedMessages()).thenReturn(Collections.singleton(DeviceMessageId.CONTACTOR_OPEN));
 
         // Business method
-        commandFactory.createConnectCommand(endDevice);
+        commandFactory.createConnectCommand(endDevice, Instant.now());
     }
 }

@@ -4,12 +4,13 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.impl.EventType;
-import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
@@ -20,10 +21,8 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisconnectSer
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.EnumSet;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Handles events that are being sent when a {@link ActivatedBreakerStatus} has been created/updated/deleted.
@@ -83,20 +82,18 @@ public class ActivatedBreakerStatusUpdateEventHandler implements TopicHandler {
 
     private boolean breakerStatusUpdatedAsPartOfContactorOperation(ServiceCall serviceCall, ActivatedBreakerStatus breakerStatus) {
         CommandServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CommandCustomPropertySet()).get();
-        return domainExtension.getCommandOperationStatus().equals(CommandOperationStatus.READ_STATUS_INFORMATION) && domainExtension.getReleaseDate().isBefore(breakerStatus.getLastChecked());
+        return CommandOperationStatus.READ_STATUS_INFORMATION.equals(domainExtension.getCommandOperationStatus()) && domainExtension.getReleaseDate().isBefore(breakerStatus.getLastChecked());
         // Else the breakerStatus update was not triggered by ServiceCall (but was manually triggered or executed according to its schedule)
         // In such case, the update should be ignored here
     }
 
     private List<ServiceCall> findAllBreakerOperationServiceCallsLinkedTo(Device device) {
-        Set<ServiceCall> serviceCalls = serviceCallService.findServiceCalls(device, EnumSet.allOf(DefaultState.class));
-        return serviceCalls.stream().filter(this::serviceCallUsedForBreakerOperation).collect(Collectors.toList());
-    }
-
-    private boolean serviceCallUsedForBreakerOperation(ServiceCall serviceCall) {
-        String typeName = serviceCall.getType().getName();
-        return typeName.equals(ConnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
-                || typeName.equals(DisconnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
-                || typeName.equals(ArmServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
+        ServiceCallFilter filter = new ServiceCallFilter();
+        filter.targetObject = device;
+        filter.types = Arrays.asList(
+                DisconnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
+                ConnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME,
+                ArmServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
+        return serviceCallService.getServiceCallFinder(filter).find();
     }
 }

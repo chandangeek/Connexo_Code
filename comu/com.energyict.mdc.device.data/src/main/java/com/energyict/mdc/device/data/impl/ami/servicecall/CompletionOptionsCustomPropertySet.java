@@ -28,8 +28,15 @@ import java.util.Set;
  * @author sva
  * @since 30/03/2016 - 15:43
  */
-@Component(name = "com.energyict.servicecall.ami.CompletionOptionsCustomPropertySet", service = CustomPropertySet.class, immediate = true)
+@Component(name = "com.energyict.servicecall.ami.CompletionOptionsCustomPropertySet",
+        service = CustomPropertySet.class,
+        property = "name=" + CompletionOptionsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
+        immediate = true)
 public class CompletionOptionsCustomPropertySet implements CustomPropertySet<ServiceCall, CompletionOptionsServiceCallDomainExtension> {
+
+    public static final String CUSTOM_PROPERTY_SET_NAME = "CompletionOptionsCustomPropertySet";
+
+    public volatile PropertySpecService propertySpecService;
 
     public CompletionOptionsCustomPropertySet() {
     }
@@ -39,8 +46,6 @@ public class CompletionOptionsCustomPropertySet implements CustomPropertySet<Ser
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
-
-    public volatile PropertySpecService propertySpecService;
 
     @Reference
     public void setPropertySpecService(PropertySpecService propertySpecService) {
@@ -52,9 +57,13 @@ public class CompletionOptionsCustomPropertySet implements CustomPropertySet<Ser
         // PATCH; required for proper startup; do not delete
     }
 
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        customPropertySetService.addCustomPropertySet(this);
+    }
+
     @Activate
     public void activate() {
-        System.out.println("CompletionOptionsCustomPropertySet activating");
     }
 
     @Override

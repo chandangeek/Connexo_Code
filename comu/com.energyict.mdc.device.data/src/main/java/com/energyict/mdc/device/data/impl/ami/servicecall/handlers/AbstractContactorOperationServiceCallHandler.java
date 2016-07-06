@@ -109,5 +109,5 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         }
     }
 
-    public abstract BreakerStatus getDesiredBreakerStatus();
+    protected abstract BreakerStatus getDesiredBreakerStatus();
 }

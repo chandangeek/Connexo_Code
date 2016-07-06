@@ -55,7 +55,7 @@ public class ConnectServiceCallHandler extends AbstractContactorOperationService
     }
 
     @Override
-    public BreakerStatus getDesiredBreakerStatus() {
+    protected BreakerStatus getDesiredBreakerStatus() {
         return BreakerStatus.CONNECTED;
     }
 }

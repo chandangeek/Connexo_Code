@@ -12,19 +12,17 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EndDeviceCommandImpl implements EndDeviceCommand {
+public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
 
     private final EndDevice endDevice;
     private final EndDeviceControlType endDeviceControlType;
@@ -36,7 +34,7 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
     private List<PropertySpec> commandArgumentSpecs = null;
     private Map<PropertySpec, Object> propertyValueMap = new HashMap<>();
 
-    public EndDeviceCommandImpl(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+    protected EndDeviceCommandImpl(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
         this.endDevice = endDevice;
         this.endDeviceControlType = endDeviceControlType;
         this.possibleDeviceMessageIds = possibleDeviceMessageIds;
@@ -84,58 +82,17 @@ public class EndDeviceCommandImpl implements EndDeviceCommand {
         getPropertyValueMap().put(propertySpec, value);
     }
 
-    public List<DeviceMessage<Device>> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate) {
-        List<DeviceMessageId> actualDeviceMessageIds = new ArrayList<>();
-        boolean useReleaseDate = false;
-        switch (EndDeviceControlTypeMapping.getMappingFor(getEndDeviceControlType())) {
-            case ARM_REMOTE_SWITCH_FOR_CLOSURE:
-            case ARM_REMOTE_SWITCH_FOR_OPEN:
-                if (hasCommandArgumentValueFor(DeviceMessageConstants.contactorActivationDateAttributeName) && deviceHasSupportFor(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
-                    actualDeviceMessageIds.addAll(Arrays.asList(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE, DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE));
-                } else {
-                    actualDeviceMessageIds.addAll(Arrays.asList(DeviceMessageId.CONTACTOR_OPEN, DeviceMessageId.CONTACTOR_ARM));
-                    useReleaseDate = true;
-                }
-                break;
-            case CLOSE_REMOTE_SWITCH:
-                if (hasCommandArgumentValueFor(DeviceMessageConstants.contactorActivationDateAttributeName) && deviceHasSupportFor(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
-                    actualDeviceMessageIds.add(DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE);
-                } else {
-                    actualDeviceMessageIds.add(DeviceMessageId.CONTACTOR_CLOSE);
-                    useReleaseDate = true;
-                }
-                break;
-            case OPEN_REMOTE_SWITCH:
-                if (hasCommandArgumentValueFor(DeviceMessageConstants.contactorActivationDateAttributeName) && deviceHasSupportFor(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
-                    actualDeviceMessageIds.add(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE);
-                } else {
-                    actualDeviceMessageIds.add(DeviceMessageId.CONTACTOR_OPEN);
-                    useReleaseDate = true;
-                }
-                break;
-            case LOAD_CONTROL_INITITATE:
-                actualDeviceMessageIds.add(
-                        hasCommandArgumentValueFor(DeviceMessageConstants.overThresholdDurationAttributeName)
-                                ? DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION
-                                : DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD);
-                break;
-            default:
-                actualDeviceMessageIds.addAll(getPossibleDeviceMessageIds()); // Default case, all possible DeviceMessageIds should be used 1-on-1
-                break;
-        }
+    public abstract List<DeviceMessage<Device>> createCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate);
 
-        return doCreateCorrespondingMultiSenseDeviceMessages(serviceCall, useReleaseDate ? releaseDate : Instant.now(), actualDeviceMessageIds);
-    }
-
-    private boolean hasCommandArgumentValueFor(String commandArgumentName) {
+    protected boolean hasCommandArgumentValueFor(String commandArgumentName) {
         return getPropertyValueMap().keySet().stream().anyMatch(propertySpec -> propertySpec.getName().equals(commandArgumentName));
     }
 
-    private boolean deviceHasSupportFor(DeviceMessageId deviceMessageId) {
+    protected boolean deviceHasSupportFor(DeviceMessageId deviceMessageId) {
         return findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().contains(deviceMessageId);
     }
 
-    private List<DeviceMessage<Device>> doCreateCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate, List<DeviceMessageId> deviceMessageIds) {
+    protected List<DeviceMessage<Device>> doCreateCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate, List<DeviceMessageId> deviceMessageIds) {
         Device multiSenseDevice = findDeviceForEndDevice(getEndDevice());
         List<DeviceMessage<Device>> deviceMessages = new ArrayList<>(deviceMessageIds.size());
         int idx = 0;

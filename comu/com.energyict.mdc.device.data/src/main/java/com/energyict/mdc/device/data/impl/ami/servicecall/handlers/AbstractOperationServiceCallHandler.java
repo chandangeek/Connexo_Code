@@ -157,8 +157,4 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
             );
         }
     }
-
-    @Override
-    public void onChildStateChange(ServiceCall parent, ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-    }
 }

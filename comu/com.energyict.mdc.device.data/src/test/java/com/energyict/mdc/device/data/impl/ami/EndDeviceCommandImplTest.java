@@ -18,6 +18,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -147,7 +149,7 @@ public class EndDeviceCommandImplTest {
                 .setDefaultValue("Value2")
                 .finish();
         when(message.getPropertySpecs()).thenReturn(propertySpecs = Arrays.asList(string1, string2));
-        endDeviceCommand = new EndDeviceCommandImpl(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
+        endDeviceCommand = new OpenRemoteSwitchCommand(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
     }
 
     @Test
@@ -180,7 +182,7 @@ public class EndDeviceCommandImplTest {
 
         // Business method
         DeviceMessageId[] allDeviceMessageIds = new DeviceMessageId[]{DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE, DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE};
-        endDeviceCommand = new EndDeviceCommandImpl(endDevice, endDeviceControlType, Arrays.asList(allDeviceMessageIds), deviceService, deviceMessageSpecificationService, thesaurus);
+        endDeviceCommand = new ArmRemoteSwitchCommand(endDevice, endDeviceControlType, Arrays.asList(allDeviceMessageIds), deviceService, deviceMessageSpecificationService, thesaurus);
         List<PropertySpec> commandArgsSpecs = endDeviceCommand.getCommandArgumentSpecs();
 
         // Asserts
@@ -247,7 +249,7 @@ public class EndDeviceCommandImplTest {
                 .finish();
         when(messageSpec.getPropertySpecs()).thenReturn(Collections.singletonList(dateTimeSpec));
         when(endDeviceControlType.getMRID()).thenReturn(EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH.getEndDeviceControlTypeMRID());
-        endDeviceCommand = new EndDeviceCommandImpl(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
+        endDeviceCommand = new OpenRemoteSwitchCommand(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
 
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
@@ -294,7 +296,7 @@ public class EndDeviceCommandImplTest {
                 .finish();
         when(messageSpec.getPropertySpecs()).thenReturn(Collections.singletonList(dateTimeSpec));
         when(endDeviceControlType.getMRID()).thenReturn(EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_OPEN.getEndDeviceControlTypeMRID());
-        endDeviceCommand = new EndDeviceCommandImpl(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
+        endDeviceCommand = new ArmRemoteSwitchCommand(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
 
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
@@ -338,7 +340,7 @@ public class EndDeviceCommandImplTest {
         when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.CONTACTOR_OPEN.dbValue())).thenReturn(Optional.of(messageSpec));
         when(messageSpec.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(endDeviceControlType.getMRID()).thenReturn(EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH.getEndDeviceControlTypeMRID());
-        endDeviceCommand = new EndDeviceCommandImpl(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
+        endDeviceCommand = new OpenRemoteSwitchCommand(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
 
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
@@ -374,7 +376,7 @@ public class EndDeviceCommandImplTest {
         when(deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.CONTACTOR_ARM.dbValue())).thenReturn(Optional.of(messageSpec));
         when(messageSpec.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(endDeviceControlType.getMRID()).thenReturn(EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_OPEN.getEndDeviceControlTypeMRID());
-        endDeviceCommand = new EndDeviceCommandImpl(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
+        endDeviceCommand = new ArmRemoteSwitchCommand(endDevice, endDeviceControlType, deviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus);
 
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
