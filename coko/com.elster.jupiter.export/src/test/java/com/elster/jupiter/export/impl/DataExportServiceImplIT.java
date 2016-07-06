@@ -42,6 +42,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
@@ -133,8 +134,6 @@ public class DataExportServiceImplIT {
     @Mock
     private BundleContext bundleContext;
     @Mock
-    private UserService userService;
-    @Mock
     private EventAdmin eventAdmin;
     @Mock
     private ValidatorFactory validatorFactory;
@@ -207,6 +206,7 @@ public class DataExportServiceImplIT {
                     new TaskModule(),
                     new MeteringGroupsModule(),
                     new SearchModule(),
+                    new WebServicesModule(),
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
                     new MailModule(),
