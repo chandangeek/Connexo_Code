@@ -43,7 +43,7 @@ class H2BootstrapService implements BootstrapService {
             this.executeStatement(connection, "create domain if not exists SDO_GEOMETRY as VARCHAR(255)");
             this.executeStatement(connection, "create schema if not exists MDSYS AUTHORIZATION SA");
             this.executeStatement(connection, "create table if not exists MDSYS.USER_SDO_GEOM_METADATA(TABLE_NAME VARCHAR2(32),COLUMN_NAME VARCHAR2(1024),DIMINFO VARCHAR2(1024),SRID INT)");
-            this.executeStatement(connection, "create alias if not exists MDSYS.SDO_DIM_ARRAY as $$ String sdoDimArray(String element1, String element2) { return element1+\" \"+element2; } $$;");
+            this.executeStatement(connection, "create alias if not exists MDSYS.SDO_DIM_ARRAY as $$ String sdoDimArray(String element1, String element2, String element3) { return element1+\" \"+element2+\" \"+element3; } $$;");
             this.executeStatement(connection, "create alias if not exists SDO_DIM_ELEMENT as $$ String sdoDimElement(String coordType, int dimX, int dimY, int dimZ) { return coordType +\" \"+ dimX +\" \"+ dimY +\" \"+ dimZ; } $$;");
         } catch (SQLException e) {
             throw new DataSourceSetupException(e);
