@@ -33,6 +33,8 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -49,6 +51,8 @@ import com.energyict.mdc.bpm.impl.device.DeviceProcessAssociationProvider;
 import com.energyict.mdc.bpm.impl.issue.datacollection.IssueProcessAssociationProvider;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
@@ -149,6 +153,7 @@ public class InMemoryPersistence {
                 new MeteringGroupsModule(),
                 new PartyModule(),
                 new IdsModule(),
+                new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new DeviceDataModule(),
                 new DeviceConfigurationModule(),
@@ -190,15 +195,22 @@ public class InMemoryPersistence {
             this.injector.getInstance(BpmService.class);
             this.injector.getInstance(PropertySpecService.class);
             this.injector.getInstance(FiniteStateMachineService.class);
+            this.injector.getInstance(ServiceCallService.class);
+            this.injector.getInstance(CustomPropertySetService.class);
+            initializeCustomPropertySets();
             this.injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.injector.getInstance(IssueDataCollectionService.class);
-            this.injector.getInstance(CustomPropertySetService.class);
             this.injector.getInstance(MeteringGroupsService.class);
             this.injector.getInstance(MasterDataService.class);
             this.deviceProvider = this.injector.getInstance(DeviceProcessAssociationProvider.class);
             this.issueProvider = this.injector.getInstance(IssueProcessAssociationProvider.class);
             ctx.commit();
         }
+    }
+
+    private void initializeCustomPropertySets() {
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
     }
 
     private List<Module> guiceModules() {

@@ -63,34 +63,22 @@ public class DeviceProcessAssociationProviderTest {
 
         List<DeviceProcessAssociationProvider.DeviceStateInfo> values = spec.getPossibleValues().getAllValues();
 
-        assertEquals(3L, (long) values.get(0).getId());
         assertEquals("dlc.default.active", values.get(0).getName());
-        assertEquals(1L, (long)values.get(0).getLifeCycleId());
         assertEquals("Standard device life cycle", values.get(0).getLifeCycleName());
 
-        assertEquals(5L, (long) values.get(1).getId());
         assertEquals("dlc.default.commissioning", values.get(1).getName());
-        assertEquals(1L, (long)values.get(1).getLifeCycleId());
         assertEquals("Standard device life cycle", values.get(1).getLifeCycleName());
 
-        assertEquals(2L, (long) values.get(2).getId());
         assertEquals("dlc.default.decommissioned", values.get(2).getName());
-        assertEquals(1L, (long)values.get(2).getLifeCycleId());
         assertEquals("Standard device life cycle", values.get(2).getLifeCycleName());
 
-        assertEquals(4L, (long)values.get(3).getId());
         assertEquals("dlc.default.inactive", values.get(3).getName());
-        assertEquals(1L, (long)values.get(3).getLifeCycleId());
         assertEquals("Standard device life cycle", values.get(3).getLifeCycleName());
 
-        assertEquals(6L, (long) values.get(4).getId());
         assertEquals("dlc.default.inStock", values.get(4).getName());
-        assertEquals(1L, (long)values.get(4).getLifeCycleId());
         assertEquals("Standard device life cycle", values.get(4).getLifeCycleName());
 
-        assertEquals(1L, (long) values.get(5).getId());
         assertEquals("dlc.default.removed", values.get(5).getName());
-        assertEquals(1L, (long)values.get(5).getLifeCycleId());
         assertEquals("Standard device life cycle", values.get(5).getLifeCycleName());
     }
 }
