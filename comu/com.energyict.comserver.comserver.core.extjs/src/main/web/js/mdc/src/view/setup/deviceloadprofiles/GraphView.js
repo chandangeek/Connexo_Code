@@ -25,7 +25,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
     ],
 
 
-    drawGraph: function (title, yAxis, series, channels, seriesToYAxisMap, intervalLength, zoomLevels) {
+    drawGraph: function (title, yAxis, series, channels, seriesToYAxisMap, intervalLength, zoomLevels, showDeviceQualityIcon) {
         var me = this;
         me.chart = new Highcharts.StockChart({
 
@@ -100,11 +100,15 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.GraphView', {
                 formatter: function () {
                     var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>';
                     if (intervalLength < 86400000) {
-                        s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', this.x);
-                        s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength) + '<br>';
+                        s += '<br/>' + Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', this.x);
+                        s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength);
                     } else {
-                        s += '<b>' + ' - ' + Highcharts.dateFormat('%A, %e %B %Y', this.x + intervalLength) + '</b>' + '<br>';
+                        s += '<b> - ' + Highcharts.dateFormat('%A, %e %B %Y', this.x + intervalLength) + '</b>';
                     }
+                    if (showDeviceQualityIcon[this.x]) {
+                        s += '<span class="icon-price-tags" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
+                    }
+                    s += '<br>';
                     s += '<table style="margin-top: 10px"><tbody>';
                     $.each(this.points, function (i, points) {
                         var series = points.point.series;
