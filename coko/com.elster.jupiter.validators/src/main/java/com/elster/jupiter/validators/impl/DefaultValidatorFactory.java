@@ -33,7 +33,7 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
     public static final String THRESHOLD_VALIDATOR = ThresholdValidator.class.getName();
     public static final String MISSING_VALUES_VALIDATOR = MissingValuesValidator.class.getName();
     public static final String REGISTER_INCREASE_VALIDATOR = RegisterIncreaseValidator.class.getName();
-    public static final String INTERVAL_STATE_VALIDATOR = IntervalStateValidator.class.getName();
+    public static final String READING_QUALITIES_VALIDATOR = ReadingQualitiesValidator.class.getName();
 
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
@@ -133,15 +133,15 @@ public class DefaultValidatorFactory implements ValidatorFactory, MessageSeedPro
                 return new RegisterIncreaseValidator(thesaurus, propertySpecService);
             }
         },
-        INTERVAL_STATE(INTERVAL_STATE_VALIDATOR) {
+        READING_QUALITIES(READING_QUALITIES_VALIDATOR) {
             @Override
             Validator create(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService, Map<String, Object> props) {
-                return new IntervalStateValidator(thesaurus, propertySpecService, props);
+                return new ReadingQualitiesValidator(thesaurus, propertySpecService, props);
             }
 
             @Override
             IValidator createTemplate(Thesaurus thesaurus, PropertySpecService propertySpecService, MeteringService meteringService) {
-                return new IntervalStateValidator(thesaurus, propertySpecService);
+                return new ReadingQualitiesValidator(thesaurus, propertySpecService);
             }
         };
 
