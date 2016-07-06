@@ -91,7 +91,7 @@ public class RetryEstimationAction extends AbstractIssueAction {
                 result.getValue().estimated()
                         .forEach(estimated -> estimated.estimatables()
                                 .forEach(value -> {
-                                    editedBulkReadings.add(IntervalReadingImpl.of(value.getTimestamp(), value.getEstimation(), null));
+                                    editedBulkReadings.add(IntervalReadingImpl.of(value.getTimestamp(), value.getEstimation()));
                                 }));
             });
             channel.editReadings(editedBulkReadings);
