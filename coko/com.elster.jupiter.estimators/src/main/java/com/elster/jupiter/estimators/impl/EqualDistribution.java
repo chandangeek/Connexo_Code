@@ -3,21 +3,10 @@ package com.elster.jupiter.estimators.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.estimation.AdvanceReadingsSettings;
-import com.elster.jupiter.estimation.AdvanceReadingsSettingsWithoutNoneFactory;
-import com.elster.jupiter.estimation.BulkAdvanceReadingsSettings;
-import com.elster.jupiter.estimation.Estimatable;
-import com.elster.jupiter.estimation.EstimationBlock;
-import com.elster.jupiter.estimation.EstimationResult;
-import com.elster.jupiter.estimation.Estimator;
-import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
-import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
+import com.elster.jupiter.estimation.*;
 import com.elster.jupiter.estimators.AbstractEstimator;
-import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -25,7 +14,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.logging.LoggingContext;
 import com.elster.jupiter.util.streams.Functions;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -46,7 +34,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Predicates.either;
+
 
 class EqualDistribution extends AbstractEstimator implements Estimator {
     static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
@@ -409,6 +397,10 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
                         .findFirst()
                         .isPresent())
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
+    }
+
+    private boolean isOverflow(IntervalReadingRecord intervalReadingRecord) {
+        return intervalReadingRecord.hasReadingQuality(ProtocolReadingQualities.OVERFLOW.getReadingQualityType());
     }
 
     @Override
