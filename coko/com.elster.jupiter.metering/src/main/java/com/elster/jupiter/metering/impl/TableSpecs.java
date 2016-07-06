@@ -284,7 +284,7 @@ public enum TableSpecs {
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").since(version(10, 2)).add();
-            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
+            table.column("CONNECTIONSTATE").varChar(30).conversion(CHAR2ENUM).map("connectionState").add();
             table.column("INSTALLATIONTIME")
                     .number()
                     .notNull()
@@ -618,11 +618,11 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column channelColumn = table.column("CHANNELID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column timestampColumn = table.column("READINGTIMESTAMP").type("number").notNull().conversion(NUMBER2INSTANT).map("readingTimestamp").add();
-            Column typeColumn = table.column("TYPE").type("varchar(64)").notNull().map("typeCode").add();
+            Column typeColumn = table.column("TYPE").varChar(64).notNull().map("typeCode").add();
             Column readingTypeColumn = table.column("READINGTYPE").varChar(NAME_LENGTH).notNull().add();
             Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
-            table.column("COMMENTS").type("varchar(4000)").map("comment").add();
+            table.column("COMMENTS").varChar(4000).map("comment").add();
             table.primaryKey("MTR_PK_READINGQUALITY").on(idColumn).add();
             table.foreignKey("MTR_FK_RQ_CHANNEL")
                     .references(Channel.class)
@@ -733,7 +733,7 @@ public enum TableSpecs {
             Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONGNULLZERO).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
 
-            table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
+            table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1 char)");
 
             table.column("AMIBILLINGREADY").number().notNull().conversion(NUMBER2ENUM).map("amiBillingReady").upTo(version(10, 2)).add();
             table.column("CHECKBILLING").bool().map("checkBilling").upTo(version(10, 2)).add();
@@ -742,24 +742,24 @@ public enum TableSpecs {
             table.column("SERVICEDELIVERYREMARK").varChar(NAME_LENGTH).map("serviceDeliveryRemark").upTo(version(10, 2)).add();
 
             Column groundedColumn1 = table.column("GROUNDED").type("char(1)").conversion(CHAR2BOOLEAN).map("grounded").upTo(version(10, 2)).add();
-            table.column("GROUNDED").type("varchar2(7)").conversion(CHAR2ENUM).map("grounded").since(version(10, 2)).previously(groundedColumn1).installValue("'Y'").add();
+            table.column("GROUNDED").varChar(7).conversion(CHAR2ENUM).map("grounded").since(version(10, 2)).previously(groundedColumn1).installValue("'Y'").add();
             table.addQuantityColumns("NOMINALVOLTAGE", false, "nominalServiceVoltage", Range.atLeast(version(10, 2)));
-            table.column("PHASECODE").type("varchar2(7)").conversion(CHAR2ENUM).map("phaseCode").add();
+            table.column("PHASECODE").varChar(7).conversion(CHAR2ENUM).map("phaseCode").add();
             table.addQuantityColumns("PHYSICALCAPACITY", false, "physicalCapacity", Range.atLeast(version(10, 2)));
             table.addQuantityColumns("RATEDCURRENT", false, "ratedCurrent");
             table.addQuantityColumns("RATEDPOWER", false, "ratedPower");
             table.addQuantityColumns("ESTIMATEDLOAD", false, "estimatedLoad");
-            table.column("LIMITER").type("varchar2(7)").conversion(CHAR2ENUM).map("limiter").since(version(10, 2)).add();
+            table.column("LIMITER").varChar(7).conversion(CHAR2ENUM).map("limiter").since(version(10, 2)).add();
             table.column("LOADLIMITERTYPE").varChar(NAME_LENGTH).map("loadLimiterType").since(version(10, 2)).add();
             table.addQuantityColumns("LOADLIMIT", false, "loadLimit", Range.atLeast(version(10, 2)));
             table.addQuantityColumns("PRESSURE", false, "pressure", Range.atLeast(version(10, 2)));
-            table.column("INTERRUPTIBLE").type("varchar2(7)").conversion(CHAR2ENUM).map("interruptible").since(version(10, 2)).add();
-            table.column("COLLAR").type("varchar2(7)").conversion(CHAR2ENUM).map("collar").since(version(10, 2)).add();
-            table.column("BYPASS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypass").since(version(10, 2)).add();
-            table.column("BYPASSSTATUS").type("varchar2(7)").conversion(CHAR2ENUM).map("bypassStatus").since(version(10, 2)).add();
-            table.column("VALVE").type("varchar2(7)").conversion(CHAR2ENUM).map("valve").since(version(10, 2)).add();
-            table.column("CAPPED").type("varchar2(7)").conversion(CHAR2ENUM).map("capped").since(version(10, 2)).add();
-            table.column("CLAMPED").type("varchar2(7)").conversion(CHAR2ENUM).map("clamped").since(version(10, 2)).add();
+            table.column("INTERRUPTIBLE").varChar(7).conversion(CHAR2ENUM).map("interruptible").since(version(10, 2)).add();
+            table.column("COLLAR").varChar(7).conversion(CHAR2ENUM).map("collar").since(version(10, 2)).add();
+            table.column("BYPASS").varChar(7).conversion(CHAR2ENUM).map("bypass").since(version(10, 2)).add();
+            table.column("BYPASSSTATUS").varChar(7).conversion(CHAR2ENUM).map("bypassStatus").since(version(10, 2)).add();
+            table.column("VALVE").varChar(7).conversion(CHAR2ENUM).map("valve").since(version(10, 2)).add();
+            table.column("CAPPED").varChar(7).conversion(CHAR2ENUM).map("capped").since(version(10, 2)).add();
+            table.column("CLAMPED").varChar(7).conversion(CHAR2ENUM).map("clamped").since(version(10, 2)).add();
 
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
