@@ -19,6 +19,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -348,6 +349,31 @@ public class ExpressionNodeParserTest {
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_SET_NOT_VERSIONED);
             throw e;
         }
+    }
+
+    @Test
+    public void quantityProperty() {
+        PropertySpec quantity = mock(PropertySpec.class);
+        when(quantity.getName()).thenReturn("quantity");
+        when(quantity.getValueFactory()).thenReturn(new QuantityValueFactory());
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(quantity));
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(this.config.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        String formulaString = "property(c.e.j.metering.cps.ExampleCPS, quantity)";
+
+        // Business method
+        ServerExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+        // Asserts
+        assertThat(node).isInstanceOf(CustomPropertyNode.class);
+        CustomPropertyNode customPropertyNode = (CustomPropertyNode) node;
+        assertThat(customPropertyNode.getPropertySpec().getName()).isEqualTo(quantity.getName());
+        assertThat(customPropertyNode.getCustomPropertySet()).isEqualTo(customPropertySet);
     }
 
     @Test(expected = InvalidNodeException.class)

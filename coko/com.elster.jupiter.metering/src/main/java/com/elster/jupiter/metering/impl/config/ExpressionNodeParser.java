@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
@@ -187,7 +188,9 @@ public class ExpressionNodeParser {
     }
 
     private boolean isNumerical(PropertySpec propertySpec) {
-        return Number.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
+        Class valueType = propertySpec.getValueFactory().getValueType();
+        return Number.class.isAssignableFrom(valueType)
+            || Quantity.class.isAssignableFrom(valueType);
     }
 
     private void handleNullNode() {

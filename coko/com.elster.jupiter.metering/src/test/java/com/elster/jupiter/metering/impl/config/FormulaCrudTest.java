@@ -42,6 +42,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.QuantityValueFactory;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.time.Interval;
 
@@ -2245,6 +2246,49 @@ public class FormulaCrudTest {
         when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPS.class);
         CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
         when(customPropertySet.getId()).thenReturn("customProperty");
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
+        when(customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
+        CustomPropertySetService customPropertySetService = inMemoryBootstrapModule.getCustomPropertySetService();
+        customPropertySetService.addCustomPropertySet(customPropertySet);
+        RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId()).get();
+
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        config.addCustomPropertySet(registeredCustomPropertySet);
+        assertThat(config).isNotNull();
+        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+
+        // Business method
+        FormulaBuilder property = builder.property(customPropertySet, propertySpec);
+        ReadingTypeDeliverable deliverable = builder.build(property);
+
+        // Asserts
+        assertThat(property).isNotNull();
+        assertThat(deliverable).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void quantityCustomProperty() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("quantity");
+        when(propertySpec.getValueFactory()).thenReturn(new QuantityValueFactory());
+        PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
+        when(persistenceSupport.componentName()).thenReturn("TST");
+        when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
+        when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
+        when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
+        when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
+        when(persistenceSupport.module()).thenReturn(Optional.empty());
+        when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPSWithStringProperty.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("customPropertySetNoLongerActive");
         when(customPropertySet.isVersioned()).thenReturn(true);
         when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
