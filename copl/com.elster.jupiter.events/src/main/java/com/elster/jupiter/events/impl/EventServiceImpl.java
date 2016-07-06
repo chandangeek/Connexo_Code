@@ -149,7 +149,7 @@ public class EventServiceImpl implements EventService, MessageSeedProvider {
                 bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
     }
 
     @Deactivate

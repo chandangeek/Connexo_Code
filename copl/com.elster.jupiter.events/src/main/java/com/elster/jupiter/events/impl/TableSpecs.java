@@ -7,8 +7,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 public enum TableSpecs {
 
@@ -41,7 +43,7 @@ public enum TableSpecs {
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("TYPE").number().notNull().conversion(NUMBER2ENUM).map("valueType").add();
             table.column("ACCESSPATH").varChar(NAME_LENGTH).notNull().map("accessPath").add();
-            Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
+            Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
 
             table.primaryKey("EVT_PK_EVENTPROPERTYTYPE").on(topicColumn, nameColumn).add();
             table.unique("EVT_UK_EVENTPROPERTYTYPE").on(topicColumn, positionColumn).add();
