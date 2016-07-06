@@ -34,7 +34,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -92,7 +92,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
         this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
         Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
-        Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new HashMap<>();
+        Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new LinkedHashMap<>();
         this.getMeterActivationSets(usagePoint, clippedPeriod)
             .forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
         if (deliverablesPerMeterActivation.isEmpty()) {

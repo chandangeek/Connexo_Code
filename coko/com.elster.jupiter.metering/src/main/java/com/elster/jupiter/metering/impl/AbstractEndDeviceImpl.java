@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
@@ -25,6 +24,7 @@ import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.ImmutableMap;
@@ -65,6 +65,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private Instant createTime;
     private Instant obsoleteTime;
     private Instant modTime;
+    private SpatialCoordinates spatialCoordinates;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -75,7 +76,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private TemporalReference<EndDeviceLifeCycleStatus> status = Temporals.absent();
     private StateManager stateManager = new NoDeviceLifeCycle();
     private final Reference<Location> location = ValueReference.absent();
-    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
+
 
     private final Clock clock;
     private final DataModel dataModel;
@@ -160,39 +161,6 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     public ElectronicAddress getElectronicAddress() {
         return electronicAddress == null ? null : electronicAddress.copy();
     }
-
-    @Override
-    public long getLocationId() {
-        Optional<Location> location = getLocation();
-        return location.isPresent() ? location.get().getId() : 0L;
-    }
-
-    @Override
-    public void setLocation(Location location){
-        this.location.set(location);
-    }
-
-    @Override
-    public Optional<Location> getLocation() {
-        return location.getOptional();
-    }
-
-    @Override
-    public long getGeoCoordinatesId() {
-        Optional<GeoCoordinates> coordinates = getGeoCoordinates();
-        return coordinates.isPresent() ? coordinates.get().getId() : 0L;
-    }
-
-    @Override
-    public Optional<GeoCoordinates> getGeoCoordinates() {
-        return geoCoordinates.getOptional();
-    }
-
-    @Override
-    public void setGeoCoordinates(GeoCoordinates geoCoordinates){
-        this.geoCoordinates.set(geoCoordinates);
-    }
-
 
     @Override
     public AmrSystem getAmrSystem() {
@@ -551,6 +519,27 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
             AbstractEndDeviceImpl.this.retiredDate = retiredDate;
         }
     }
+
+    @Override
+    public void setLocation(Location location) {
+        this.location.set(location);
+    }
+
+    @Override
+    public Optional<Location> getLocation() {
+        return location.getOptional();
+    }
+
+    @Override
+    public Optional<SpatialCoordinates> getSpatialCoordinates() {
+        return spatialCoordinates == null ? Optional.empty() : Optional.of(spatialCoordinates);
+    }
+
+    @Override
+    public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
+        this.spatialCoordinates = spatialCoordinates;
+    }
+
 
     /**
      * Models the exceptional situation that occurs when an attempt
