@@ -675,6 +675,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 linkingDateToSuggest = me.wizardInformation.minimalLinkingDate;
             }
         }
+        // c. Don't suggest an invalid date
+        if (minimalLinkingDateMidnight>0 && linkingDateToSuggest < me.wizardInformation.minimalLinkingDate) {
+            linkingDateToSuggest = me.wizardInformation.minimalLinkingDate;
+        }
         wizard.down('dataloggerslave-link-wizard-step4').initialize(minimalLinkingDateMidnight, linkingDateToSuggest);
     },
 
