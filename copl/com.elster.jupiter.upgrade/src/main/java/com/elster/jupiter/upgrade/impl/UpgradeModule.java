@@ -1,12 +1,15 @@
 package com.elster.jupiter.upgrade.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.DifferencesListener;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.StartupFinishedListener;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.util.Registration;
 
 import com.google.inject.AbstractModule;
 
@@ -36,7 +39,17 @@ public class UpgradeModule extends AbstractModule {
         @Override
         public void register(InstallIdentifier installIdentifier, DataModel dataModel, Class<? extends FullInstaller> installerClass, Map<Version, Class<? extends Upgrader>> upgraders) {
             FullInstaller installer = dataModel.getInstance(installerClass);
-            installer.install((dataModel1, version) -> dataModel1.install(true, false), LOGGER);
+            installer.install(new DataModelUpgrader() {
+                @Override
+                public void upgrade(DataModel dataModel, Version version) {
+                    dataModel.install(true, false);
+                }
+
+                @Override
+                public Registration register(DifferencesListener listener) {
+                    return () -> {};
+                }
+            }, LOGGER);
             installed.add(installIdentifier);
         }
 

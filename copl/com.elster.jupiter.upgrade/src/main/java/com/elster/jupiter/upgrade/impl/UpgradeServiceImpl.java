@@ -100,9 +100,14 @@ public class UpgradeServiceImpl implements UpgradeService, EventHandler {
     public void activate(BundleContext bundleContext) {
         String upgradeProperty = bundleContext.getProperty("upgrade");
         boolean doUpgrade = upgradeProperty != null && Boolean.parseBoolean(upgradeProperty);
+        String differencesProperty = bundleContext.getProperty("differences");
+        boolean differences = differencesProperty != null && Boolean.parseBoolean(differencesProperty);
         state = doUpgrade ? new UpgraderState() : new CheckState();
         state.addHandler();
         startupFinishedListeners.add(new ReportingFinishedListener());
+        if (differences) {
+            startupFinishedListeners.add(new StartDiffCheckListener());
+        }
     }
 
     @Deactivate
@@ -420,6 +425,13 @@ public class UpgradeServiceImpl implements UpgradeService, EventHandler {
         @Override
         public void onStartupComplete() {
             userInterface.notifyUser("All components have been installed.");
+        }
+    }
+
+    private class StartDiffCheckListener implements StartupFinishedListener {
+        @Override
+        public void onStartupComplete() {
+            ormService.getDataModelDifferences(logger).findDifferences();
         }
     }
 }
