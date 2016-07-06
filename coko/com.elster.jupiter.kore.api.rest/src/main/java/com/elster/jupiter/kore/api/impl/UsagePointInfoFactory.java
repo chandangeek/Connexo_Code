@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -123,10 +122,10 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 .getServiceDeliveryRemark());
 
         map.put("metrologyConfiguration", (usagePointInfo, usagePoint, uriInfo) -> {
-            usagePoint.getMetrologyConfiguration()
-                    .ifPresent(mc -> usagePointInfo.metrologyConfiguration =
-                                    metrologyConfigurationInfoFactory.get()
-                                        .asLink(mc, Relation.REF_RELATION, uriInfo));
+            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = usagePoint.getMetrologyConfiguration();
+            metrologyConfiguration.ifPresent(mc -> usagePointInfo.metrologyConfiguration = metrologyConfigurationInfoFactory
+                    .get()
+                    .asLink(mc, Relation.REF_RELATION, uriInfo));
         });
         map.put("detail", (usagePointInfo, usagePoint, uriInfo) -> {
             List<? extends UsagePointDetail> details = usagePoint.getDetail(Range.all());
@@ -190,14 +189,13 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 .create();
         Instant now = clock.instant();
         if (usagePointInfo.metrologyConfiguration != null && usagePointInfo.metrologyConfiguration.id != null) {
-            Optional<MetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(usagePointInfo.metrologyConfiguration.id);
+            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(usagePointInfo.metrologyConfiguration.id)
+                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                    .map(UsagePointMetrologyConfiguration.class::cast);
             if (!metrologyConfiguration.isPresent()) {
                 throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION);
             }
-            if (!(metrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration)) {
-                throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION);
-            }
-            usagePoint.apply((UsagePointMetrologyConfiguration) metrologyConfiguration.get(), now);
+            usagePoint.apply(metrologyConfiguration.get(), now);
         }
         return usagePoint;
     }
@@ -222,21 +220,21 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
 
         usagePoint.update();
         Instant now = clock.instant();
+
         if (usagePointInfo.metrologyConfiguration != null && usagePointInfo.metrologyConfiguration.id != null) {
-            Optional<MetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(usagePointInfo.metrologyConfiguration.id);
+            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(usagePointInfo.metrologyConfiguration.id)
+                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                    .map(UsagePointMetrologyConfiguration.class::cast);
             if (!metrologyConfiguration.isPresent()) {
-                throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION);
-            }
-            if (!(metrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration)) {
                 throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION);
             }
             if (usagePoint.getMetrologyConfiguration().isPresent() && usagePoint.getMetrologyConfiguration().get()
                     .getId() != usagePointInfo.metrologyConfiguration.id) {
                 usagePoint.removeMetrologyConfiguration(now);
-                usagePoint.apply((UsagePointMetrologyConfiguration) metrologyConfiguration.get(), now);
+                usagePoint.apply(metrologyConfiguration.get(), now);
             } else {
                 if (!usagePoint.getMetrologyConfiguration().isPresent()) {
-                    usagePoint.apply((UsagePointMetrologyConfiguration) metrologyConfiguration.get(), now);
+                    usagePoint.apply(metrologyConfiguration.get(), now);
                 }
             }
         } else {
@@ -247,7 +245,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
     }
 
     private ConnectionState findConnectionState(UsagePointInfo usagePointInfo){
-       return Arrays.stream(ConnectionState.values())
+        return Arrays.stream(ConnectionState.values())
                 .filter(connectionState -> connectionState.getId()
                         .equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId))
                 .findFirst()

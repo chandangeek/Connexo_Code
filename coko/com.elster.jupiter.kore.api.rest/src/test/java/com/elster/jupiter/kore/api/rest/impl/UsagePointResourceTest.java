@@ -143,6 +143,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         Response response = target("/usagepoints/11").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
+
     @Test
     public void testNoUpdateMetrologyWithIdenticalIds() throws Exception {
         UsagePointInfo info = new UsagePointInfo();
