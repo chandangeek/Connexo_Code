@@ -24,7 +24,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.primaryKey("PK_CPC_PLUGGABLE").on(idColumn).add();
             table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("JAVACLASSNAME").type("varchar2(512)").map("javaClassName").add();
+            table.column("JAVACLASSNAME").varChar(512).map("javaClassName").add();
             table.column("PLUGGABLETYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUMPLUSONE).map("pluggableType").add();
             table.addAuditColumns();
         }
