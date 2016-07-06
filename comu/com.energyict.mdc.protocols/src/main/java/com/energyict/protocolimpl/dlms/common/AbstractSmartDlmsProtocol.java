@@ -13,6 +13,7 @@ import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -299,6 +301,28 @@ public abstract class AbstractSmartDlmsProtocol extends AbstractSmartMeterProtoc
      */
     public byte[] getHHUDataReadout() {
         return new byte[0];
+    }
+
+    @Override
+    public Optional<String> getActiveCalendarName() throws IOException {
+        ActivityCalendar activityCalendar = this.getDlmsSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        String calendarName = activityCalendar.readCalendarNameActive().stringValue();
+        if (calendarName != null && !calendarName.isEmpty()) {
+            return Optional.of(calendarName);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<String> getPassiveCalendarName() throws IOException {
+        ActivityCalendar activityCalendar = this.getDlmsSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        String calendarName = activityCalendar.readCalendarNamePassive().stringValue();
+        if (calendarName != null && !calendarName.isEmpty()) {
+            return Optional.of(calendarName);
+        } else {
+            return Optional.empty();
+        }
     }
 
 }

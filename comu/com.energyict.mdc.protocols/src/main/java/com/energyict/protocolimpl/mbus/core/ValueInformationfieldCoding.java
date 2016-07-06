@@ -421,7 +421,7 @@ public class ValueInformationfieldCoding {
         return new RangeCoder() {
             public BigDecimal calcMultiplier(int coding) {
                 int range = (coding&((getMask()|0x80)^0xff));
-                BigDecimal bd = new BigDecimal(1);
+                BigDecimal bd = BigDecimal.ONE;
                 if (range==1) {
                     //bd = new BigDecimal(60);
                     setUnit(Unit.get(BaseUnit.MINUTE));
@@ -443,7 +443,7 @@ public class ValueInformationfieldCoding {
         if (rangeCoder != null)
             return rangeCoder.calcMultiplier(coding);
         else
-            return new BigDecimal(1);
+            return BigDecimal.ONE;
     }
 
     static public ValueInformationfieldCoding findPrimaryValueInformationfieldCoding(int coding, int dataField) throws IOException {

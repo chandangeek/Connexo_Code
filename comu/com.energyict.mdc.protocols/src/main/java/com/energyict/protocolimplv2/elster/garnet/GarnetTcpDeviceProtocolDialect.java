@@ -21,7 +21,7 @@ import java.util.Optional;
  */
 public class GarnetTcpDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
 
-    public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(0);
+    public static final BigDecimal DEFAULT_RETRIES = BigDecimal.ZERO;
     public static final TimeDuration DEFAULT_TIMEOUT = new TimeDuration(10, TimeDuration.TimeUnit.SECONDS);
     public static final TimeDuration DEFAULT_FORCED_DELAY = new TimeDuration(0, TimeDuration.TimeUnit.MILLISECONDS);
     public static final TimeDuration DEFAULT_DELAY_AFTER_ERROR = new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS);

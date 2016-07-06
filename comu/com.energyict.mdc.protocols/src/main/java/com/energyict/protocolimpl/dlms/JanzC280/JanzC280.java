@@ -384,7 +384,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
                 try {
                     ObisCode obisCode = ObisCode.fromString("1.0.99.128." + i + ".255");
                     RegisterValue registerValue = readRegister(obisCode);
-                    if (!registerValue.getQuantity().getAmount().equals(new BigDecimal(0))) {
+                    if (!registerValue.getQuantity().getAmount().equals(BigDecimal.ZERO)) {
                         this.enabledChannelNumbers.add(new Integer(i));
                     }
                 } catch (DataAccessResultException e) {

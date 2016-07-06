@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155.object;
 
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimplv2.elster.ctr.MTU155.object.field.CTRObjectID;
 
 import java.math.BigDecimal;
@@ -55,7 +56,7 @@ public class InputOutputCategory extends AbstractUnsignedBINObject<InputOutputCa
 
 
     public BigDecimal getOverflowValue(CTRObjectID id, int valueNumber, Unit unit) {
-        return new BigDecimal(0);
+        return BigDecimal.ZERO;
     }
 
     public int[] getValueLengths(CTRObjectID id) {

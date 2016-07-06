@@ -16,9 +16,9 @@ import com.energyict.dlms.cosem.attributeobjects.DayProfileActions;
 import com.energyict.dlms.cosem.attributeobjects.DayProfiles;
 import com.energyict.dlms.cosem.attributeobjects.SeasonProfiles;
 import com.energyict.dlms.cosem.attributeobjects.WeekProfiles;
-import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.as220.emeter.AS220Messaging;
+import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.elster.apollo.AS300;
@@ -385,13 +385,14 @@ public class AS300ActivityCalendarController implements ActivityCalendarControll
         }
     }
 
-    /**
-     * Get the name of the current <u>Active</u> Calendar
-     *
-     * @return the name of the current <u>Active</u> Calendar
-     */
+    @Override
     public String getCalendarName() throws IOException {
         return getActivityCalendar().readCalendarNameActive().stringValue();
+    }
+
+    @Override
+    public String getPassiveCalendarName() throws IOException {
+        return getActivityCalendar().readCalendarNamePassive().stringValue();
     }
 
     /**

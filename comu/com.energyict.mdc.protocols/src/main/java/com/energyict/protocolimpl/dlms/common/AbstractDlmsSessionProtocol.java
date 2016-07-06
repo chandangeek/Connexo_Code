@@ -23,6 +23,7 @@ import com.energyict.mdc.protocol.api.messaging.MessageValue;
 
 import com.energyict.dlms.DlmsSession;
 import com.energyict.dlms.DlmsSessionProperties;
+import com.energyict.dlms.cosem.ActivityCalendar;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 
 import javax.inject.Inject;
@@ -35,6 +36,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -192,7 +194,7 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
         // b. Attributes
         for (Iterator it = tag.getAttributes().iterator(); it.hasNext(); ) {
             MessageAttribute att = (MessageAttribute) it.next();
-            if ((att.getValue() == null) || (att.getValue().length() == 0)) {
+            if ((att.getValue() == null) || (att.getValue().isEmpty())) {
                 continue;
             }
             builder.append(" ").append(att.getSpec().getName());
@@ -207,7 +209,7 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
                 builder.append(writeTag((MessageTag) elt));
             } else if (elt.isValue()) {
                 String value = writeValue((MessageValue) elt);
-                if ((value == null) || (value.length() == 0)) {
+                if ((value == null) || (value.isEmpty())) {
                     return "";
                 }
                 builder.append(value);
@@ -228,11 +230,33 @@ public abstract class AbstractDlmsSessionProtocol extends PluggableMeterProtocol
     }
 
     public List<MessageCategorySpec> getMessageCategories() {
-        return new ArrayList<MessageCategorySpec>();
+        return new ArrayList<>();
     }
 
     public RegisterInfo translateRegister(ObisCode obisCode) throws IOException {
         return new RegisterInfo(obisCode.getDescription());
+    }
+
+    @Override
+    public Optional<String> getActiveCalendarName() throws IOException {
+        ActivityCalendar activityCalendar = this.getSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        String calendarName = activityCalendar.readCalendarNameActive().stringValue();
+        if (calendarName != null && !calendarName.isEmpty()) {
+            return Optional.of(calendarName);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<String> getPassiveCalendarName() throws IOException {
+        ActivityCalendar activityCalendar = this.getSession().getCosemObjectFactory().getActivityCalendar(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
+        String calendarName = activityCalendar.readCalendarNamePassive().stringValue();
+        if (calendarName != null && !calendarName.isEmpty()) {
+            return Optional.of(calendarName);
+        } else {
+            return Optional.empty();
+        }
     }
 
 }

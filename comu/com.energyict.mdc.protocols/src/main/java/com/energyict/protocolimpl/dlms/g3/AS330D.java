@@ -80,9 +80,6 @@ public class AS330D extends AbstractDlmsSessionProtocol {
         return properties;
     }
 
-    /**
-     * The protocol version
-     */
     public String getProtocolVersion() {
         return "$Date: 2012-03-28 15:35:22 +0200 (Wed, 28 Mar 2012) $";
     }

@@ -43,12 +43,12 @@ public class MTU155Properties extends BasicDynamicPropertySupport{
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal(10000);
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal(3);
     public static final BigDecimal DEFAULT_DELAY_AFTER_ERROR = new BigDecimal(100);
-    public static final BigDecimal DEFAULT_FORCED_DELAY = new BigDecimal(0);
+    public static final BigDecimal DEFAULT_FORCED_DELAY = BigDecimal.ZERO;
     public static final String DEFAULT_KEYC = "1234567890123456";
     public static final String DEFAULT_KEYT = "1234567890123456";
     public static final String DEFAULT_KEYF = "1234567890123456";
     public static final String DEFAULT_PASSWORD = "000001";
-    public static final BigDecimal DEFAULT_ADDRESS = new BigDecimal(0);
+    public static final BigDecimal DEFAULT_ADDRESS = BigDecimal.ZERO;
     public static final String DEFAULT_CHANNEL_CONFIG = "1.0.2:1.2.2:4.0.2:7.0.2:1.1.3:1.3.3:1.F.2:2.0.3:2.1.3:2.3.3:1.A.3";
     public static final String DEFAULT_SECURITY_LEVEL = "1"; // 0 == KeyT, 1 == KeyC, 2 == KeyF
     public static final Boolean DEFAULT_DEBUG = false;

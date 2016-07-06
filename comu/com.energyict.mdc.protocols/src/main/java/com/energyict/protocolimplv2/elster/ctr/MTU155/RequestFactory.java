@@ -54,7 +54,7 @@ public interface RequestFactory {
      * </ul>
      *
      * @param objectIDs: the CTR Object's ID's
-     * @return: a list of CTR objects
+     * @return a list of CTR objects
      * @throws CTRConnectionException
      */
     public List<AbstractCTRObject> getObjects(String... objectIDs) throws CTRConnectionException;
@@ -71,7 +71,7 @@ public interface RequestFactory {
      * </ul>
      *
      * @param objectIDs: the CTR Object's ID's
-     * @return: a list of CTR objects
+     * @return a list of CTR objects
      * @throws CTRConnectionException
      */
     public List<AbstractCTRObject> getObjects(CTRObjectID... objectIDs) throws CTRConnectionException;
@@ -127,7 +127,7 @@ public interface RequestFactory {
      * @param attributeType: determines the fields of the objects
      * @param objects:       the objects that should be written in the meter
      * @throws CTRException, if the meter's response was not recognized
-     * @return: the meter's response (ack or nack)
+     * @return the meter's response (ack or nack)
      */
     public Data writeRegister(ReferenceDate validityDate, WriteDataBlock wdb, P_Session p_Session, AttributeType attributeType, AbstractCTRObject... objects) throws CTRException;
 
@@ -136,7 +136,7 @@ public interface RequestFactory {
      * @param attributeType: determines the fields of the objects
      * @param numberOfObjects: the number of objects to write to the device
      * @param rawData: the raw data containing the objects to write
-     * @return: the meter's response (ack or nack)
+     * @return the meter's response (ack or nack)
      * @throws CTRException, if the meter's response was not recognized
      */
     public Data writeRegister(AttributeType attributeType, int numberOfObjects, byte[] rawData) throws CTRException;
@@ -148,7 +148,7 @@ public interface RequestFactory {
      * PSession = 0x00 (open & close)
      * AttributeType = Value and ObjectID
      * @param objects: the objects that should be written in the meter
-     * @return: the meter's response (ack or nack)
+     * @return the meter's response (ack or nack)
      * @throws CTRException, if the meter's response was not recognized
      */
     public Data writeRegister(AbstractCTRObject... objects) throws CTRException;
@@ -161,7 +161,7 @@ public interface RequestFactory {
      * @param startDate:        the start date
      * @param numberOfElements: the number of interval values returned
      * @throws CTRException, when the meter's response was not recognized
-     * @return: a list of objects
+     * @return a list of objects
      */
     public List<AbstractCTRObject> queryTrace(CTRObjectID id, PeriodTrace period, StartDate startDate, NumberOfElements numberOfElements) throws CTRException;
 

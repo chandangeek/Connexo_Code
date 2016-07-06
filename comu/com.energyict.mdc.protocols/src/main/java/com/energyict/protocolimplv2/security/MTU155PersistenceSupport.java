@@ -21,6 +21,10 @@ import java.util.stream.Stream;
  * @since 2015-11-19 (17:36)
  */
 public class MTU155PersistenceSupport extends CommonBaseDeviceSecuritySupport<MTU155SecurityProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {

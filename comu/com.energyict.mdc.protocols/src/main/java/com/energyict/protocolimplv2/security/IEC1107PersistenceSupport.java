@@ -20,6 +20,10 @@ import java.util.Optional;
  * @since 2015-11-18 (14:27)
  */
 public class IEC1107PersistenceSupport extends CommonBaseDeviceSecuritySupport<IEC1107SecurityProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {

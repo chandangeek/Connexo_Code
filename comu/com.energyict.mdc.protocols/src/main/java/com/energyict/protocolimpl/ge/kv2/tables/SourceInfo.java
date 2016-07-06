@@ -11,6 +11,7 @@
 package com.energyict.protocolimpl.ge.kv2.tables;
 
 import com.energyict.mdc.common.Unit;
+
 import com.energyict.protocolimpl.ansi.c12.tables.UOMEntryBitField;
 import com.energyict.protocolimpl.ge.kv2.GEKV2;
 
@@ -195,7 +196,7 @@ public class SourceInfo {
     public BigDecimal getMultiplier(int index, boolean loadProfile, boolean energy) throws IOException {
         UOMEntryBitField uomEntryBitField=null;
         int sourceIndex=-1;
-        BigDecimal bd = new BigDecimal(1);
+        BigDecimal bd = BigDecimal.ONE;
         if (loadProfile) {
             // source index is load profile channel
             sourceIndex = gekv2.getStandardTableFactory().getLoadProfileControlTable().getLoadProfileSelectionSet1()[index].getLoadProfileSourceSelect();

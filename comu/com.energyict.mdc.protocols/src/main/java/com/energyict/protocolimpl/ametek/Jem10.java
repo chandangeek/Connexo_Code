@@ -206,19 +206,21 @@ public class Jem10 extends Jem implements MessageProtocol  {
 				readMore = true;
 			}
 			for(int i=0; i<channelCount; i++) {
-				if (readMore)
+				if (readMore) {
 					val = convertHexToLong(byteStream, len);
-				else
+				} else {
 					readMore = true;
+				}
 
 				if((val & intervalIndicator) == intervalIndicator) {
 					val = val ^ intervalIndicator;
 				}
 				BigDecimal bd;
-				if (partialVals.size()>0)
-					bd = (BigDecimal)partialVals.remove(0);
-				else
-					bd = new BigDecimal(0);
+				if (!partialVals.isEmpty()) {
+					bd = (BigDecimal) partialVals.remove(0);
+				} else {
+					bd = BigDecimal.ZERO;
+				}
 				values.add(bd.add(new BigDecimal(val)));
 			}
 
@@ -238,8 +240,9 @@ public class Jem10 extends Jem implements MessageProtocol  {
 					if(byteStream.available()>0 && !( (((val = convertHexToLong(byteStream, len))& intervalIndicator) == intervalIndicator) //)){
 							|| (((val)& eventIndicator) == eventIndicator))) {
 						String s = Long.toHexString(val);
-						while (s.length()<4)
-							s="0"+s;
+						while (s.length()<4) {
+							s = "0" + s;
+						}
 						s+= convertHexToString(byteStream,3,true);
 						endTime = getShortDateFormatter().parse(s);
 						val = convertHexToLong(byteStream, len);
@@ -247,7 +250,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 
 					if ((eventVal & powerOutEvent) == powerOutEvent) { //powerOutage
 						eventVal=0;
-						if(endTime.before(cal.getTime())){
+						if (endTime.before(cal.getTime())) {
 							//Power up power down happens inside the interval
 							eiStatus = IntervalStateBits.POWERDOWN | IntervalStateBits.POWERUP;
 							continue;
@@ -265,7 +268,7 @@ public class Jem10 extends Jem implements MessageProtocol  {
 							continue;
 						}
 					}
-					else if((eventVal & 0x80) == 0x80) { //midnight
+					else if ((eventVal & 0x80) == 0x80) { //midnight
 						eventVal=0;
 					}
 					else{
@@ -280,16 +283,17 @@ public class Jem10 extends Jem implements MessageProtocol  {
 
 				eventVal = 0;
 			}
-			else if (byteStream.available()>0)
+			else if (byteStream.available()>0) {
 				val = convertHexToLong(byteStream, len);
+			}
 
-			if(noDate){
+			if (noDate) {
 				dataList.add(values);
 				partialVals = new ArrayList();
 			}
 			else{
 				partialVals = new ArrayList();
-				if(dataList.size()>0){
+				if (!dataList.isEmpty()) {
 					Calendar c = (Calendar)cal.clone();
 					c.setTime(startTime);
 					processList(dataList, c, startDate, now);
@@ -321,13 +325,13 @@ public class Jem10 extends Jem implements MessageProtocol  {
 
 		channelCount = (int)convertHexToLong(byteStream, 1);
 
-		if (getProfileInterval()<=0)
-			throw new IOException("load profile interval must be > 0 sec. (is "+getProfileInterval()+")");
+		if (getProfileInterval()<=0) {
+			throw new IOException("load profile interval must be > 0 sec. (is " + getProfileInterval() + ")");
+		}
 
-		for(int i=0; i<channelCount; i++)
-			pd.addChannel(new ChannelInfo(i,i, "JemStarChannel_"+i, Unit.get(BaseUnit.UNITLESS)));
-
-
+		for(int i=0; i<channelCount; i++) {
+			pd.addChannel(new ChannelInfo(i, i, "JemStarChannel_" + i, Unit.get(BaseUnit.UNITLESS)));
+		}
 	}
 
 	protected void processRegisters(InputStream byteStream, int obisCValue) throws IOException
@@ -358,19 +362,21 @@ public class Jem10 extends Jem implements MessageProtocol  {
 
 			int type = 0;
 
-			if((bt & 0x80) == 0x80)
+			if ((bt & 0x80) == 0x80) {
 				type = 1;
+			}
 
 			switch(type)
 			{
 			case 0:
 				float f = val;
-				if((bt & 4) == 4 || (bt & 1) == 1)
+				if ((bt & 4) == 4 || (bt & 1) == 1) {
 					f *= .1;
-				else if((bt & 8) == 8 || (bt & 2) == 2)
+				} else if ((bt & 8) == 8 || (bt & 2) == 2) {
 					f *= .01;
-				else if((bt & 12) == 12 || (bt & 3) == 3)
+				} else if ((bt & 12) == 12 || (bt & 3) == 3) {
 					f *= .001;
+				}
 				rv = new RegisterValue(ob, new Quantity(new BigDecimal(f), Unit.getUndefined()), new Date(), null , new Date(), time);
 				break;
 			case 1:
@@ -382,8 +388,9 @@ public class Jem10 extends Jem implements MessageProtocol  {
 			}
 
 
-			if(rv!=null)
+			if (rv!=null) {
 				registerValues.put(ob.toString(), rv);
+			}
 		}
 
 	}
@@ -395,8 +402,9 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		{
 			int inval = byteStream.read();
 			String zeropad = "";
-			if (pad && Integer.toHexString(inval & 0xff).length()<2)
+			if (pad && Integer.toHexString(inval & 0xff).length()<2) {
 				zeropad = "0";
+			}
 			instr += zeropad + Integer.toHexString(inval & 0xff);
 		}
 
@@ -422,8 +430,9 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		outputStream.write(check);
 		InputStream bais = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
 		int inval = bais.read();
-		if (inval!=6)
+		if (inval!=6) {
 			getLogger().warning("Failed to freeze regiser");
+		}
 		getLogger().info("Registers frozen successfully");
 
 		send = new byte[]{(byte)getInfoTypeNodeAddressNumber(),0x52,0x06,0x10,0x02,(byte)dateRangeCmd,0x10,0x03};
@@ -445,7 +454,6 @@ public class Jem10 extends Jem implements MessageProtocol  {
 
 		bais = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
 		processRegisters(bais, ALTERNATE);
-
 	}
 
 	public int getNumberOfChannels() throws IOException {
@@ -536,16 +544,13 @@ public class Jem10 extends Jem implements MessageProtocol  {
 //			throw new IOException("Invalid Checksum.");
 		String instr = "";
 		ByteArrayInputStream bais = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
-		for (int i = 0; i<12; i++)
+		for (int i = 0; i<12; i++) {
 			instr += Integer.toHexString(bais.read());
-
-		try
-		{
-			Date date = getDateFormatter().parse(instr);
-			return date;
 		}
-		catch (Exception e)
-		{
+
+		try {
+			return getDateFormatter().parse(instr);
+		} catch (Exception e) {
 			throw new IOException(e.getMessage());
 		}
 	}
@@ -581,11 +586,10 @@ public class Jem10 extends Jem implements MessageProtocol  {
 		outputStream.write(check);
 
 		ByteArrayInputStream bais = new ByteArrayInputStream(connection.receiveResponse().toByteArray());
-		int inval=0;
-
-		inval = bais.read();
-		if (inval!=6)
+		int inval = bais.read();
+		if (inval!=6) {
 			throw new IOException("Failed to set time");
+		}
 		getLogger().info("Set time successful");
 	}
 

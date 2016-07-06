@@ -21,6 +21,10 @@ import java.util.Optional;
  * @since 2015-11-06 (15:46)
  */
 public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, EIWebConnectionProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {

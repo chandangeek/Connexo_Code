@@ -21,6 +21,10 @@ import java.util.stream.Stream;
  * @since 2015-11-20 (11:31)
  */
 public class WavenisPersistenceSupport extends CommonBaseDeviceSecuritySupport<WavenisSecurityProperties> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {
