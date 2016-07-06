@@ -52,7 +52,7 @@ public enum TableSpecs {
         void describeTable(Table table) {
             table.map(BpmProcessPrivilegeImpl.class);
             Column processIdColumn = table.column("PROCESSID").number().notNull().conversion(NUMBER2LONG).map("processId").add();
-            Column applicationColumn = table.column("APPLICATION").type("varchar2(10)").notNull().map("application").add();
+            Column applicationColumn = table.column("APPLICATION").varChar(10).notNull().map("application").add();
             Column privilegeIdColumn = table.column("PRIVILEGENAME").varChar(NAME_LENGTH).notNull().map("privilegeName").add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
             table.primaryKey("BPM_PK_PROCESSPRIVILEGE").on(processIdColumn, applicationColumn, privilegeIdColumn).add();
@@ -67,8 +67,8 @@ public enum TableSpecs {
             Column processIdColumn = table.column("PROCESSID").number().notNull().conversion(NUMBER2LONG).map("processId").add();
             Column deviceStateId = table.column("DEVICESTATEID").number().notNull().conversion(NUMBER2LONG).map("deviceStateId").add();
             table.column("DEVICELIFECYCLEID").number().notNull().conversion(NUMBER2LONG).map("deviceLifeCycleId").add();
-            table.column("NAME").type("varchar2(30)").notNull().map("name").add();
-            table.column("DEVICESTATE").type("varchar2(30)").notNull().map("deviceState").add();
+            table.column("NAME").varChar(30).notNull().map("name").add();
+            table.column("DEVICESTATE").varChar(30).notNull().map("deviceState").add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
             table.primaryKey("BPM_PK_DEVICESTATE").on(processIdColumn, deviceStateId).add();
             table.foreignKey("FK_DEVICESTATE").references(BPM_PROCESS.name()).onDelete(CASCADE).map("bpmProcessDefinition")
