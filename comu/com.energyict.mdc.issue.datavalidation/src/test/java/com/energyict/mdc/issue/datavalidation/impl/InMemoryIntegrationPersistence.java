@@ -24,6 +24,8 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -37,6 +39,8 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
@@ -97,6 +101,10 @@ public class InMemoryIntegrationPersistence {
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(CustomPropertySetService.class);
             this.transactionService = this.injector.getInstance(TransactionService.class);
+            injector.getInstance(ServiceCallService.class);
+            injector.getInstance(CustomPropertySetService.class);
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
             ctx.commit();
         }
     }
@@ -106,6 +114,7 @@ public class InMemoryIntegrationPersistence {
         Collections.addAll(modules,
                 new MockModule(),
                 bootstrapModule,
+                new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new DataVaultModule(),
                 new InMemoryMessagingModule(),
