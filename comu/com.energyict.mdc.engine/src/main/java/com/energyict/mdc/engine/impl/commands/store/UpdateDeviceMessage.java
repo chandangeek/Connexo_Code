@@ -13,6 +13,7 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,23 +27,23 @@ public class UpdateDeviceMessage extends DeviceCommandImpl<UpdateDeviceMessageEv
 
     private MessageIdentifier messageIdentifier;
     private DeviceMessageStatus deviceMessageStatus;
+    private Instant sentDate;
     private String protocolInfo;
 
     public UpdateDeviceMessage(DeviceProtocolMessageAcknowledgement messageAcknowledgement, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
         super(comTaskExecution, serviceProvider);
         this.messageIdentifier = messageAcknowledgement.getMessageIdentifier();
         this.deviceMessageStatus = messageAcknowledgement.getDeviceMessageStatus();
+        this.sentDate = messageAcknowledgement.getSentDate();
         this.protocolInfo = messageAcknowledgement.getProtocolInfo();
     }
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        comServerDAO.updateDeviceMessageInformation(this.messageIdentifier, this.deviceMessageStatus, this.protocolInfo);
         Optional<OfflineDeviceMessage> offlineDeviceMessage = comServerDAO.findOfflineDeviceMessage(this.messageIdentifier);
         if (offlineDeviceMessage.isPresent()) {
-            comServerDAO.updateDeviceMessageInformation(this.messageIdentifier, this.deviceMessageStatus, this.protocolInfo);
-        }
-        else {
+            comServerDAO.updateDeviceMessageInformation(this.messageIdentifier, this.deviceMessageStatus, this.sentDate, this.protocolInfo);
+        } else {
             this.addIssue(
                     CompletionCode.ConfigurationWarning,
                     this.getIssueService().newWarning(
@@ -65,6 +66,7 @@ public class UpdateDeviceMessage extends DeviceCommandImpl<UpdateDeviceMessageEv
             builder.addProperty("message status").append(this.deviceMessageStatus);
         }
         if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.DEBUG)) {
+            builder.addProperty("sent date").append(this.sentDate);
             builder.addProperty("protocolInfo").append(this.protocolInfo);
         }
     }
@@ -74,7 +76,7 @@ public class UpdateDeviceMessage extends DeviceCommandImpl<UpdateDeviceMessageEv
     }
 
     protected Optional<UpdateDeviceMessageEvent> newEvent(List<Issue> issues) {
-        UpdateDeviceMessageEvent event  =  new UpdateDeviceMessageEvent(new ComServerEventServiceProvider(), this.messageIdentifier, this.deviceMessageStatus, protocolInfo);
+        UpdateDeviceMessageEvent event = new UpdateDeviceMessageEvent(new ComServerEventServiceProvider(), this.messageIdentifier, this.deviceMessageStatus, protocolInfo);
         event.addIssues(issues);
         return Optional.of(event);
     }

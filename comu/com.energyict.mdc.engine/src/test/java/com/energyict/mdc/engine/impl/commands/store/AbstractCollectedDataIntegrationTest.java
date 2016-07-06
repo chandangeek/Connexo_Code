@@ -31,6 +31,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -140,6 +141,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new TransactionModule(),
                 new DomainUtilModule(),
                 new NlsModule(),
+                new WebServicesModule(),
                 new AppServiceModule(),
                 new UserModule(),
                 new FiniteStateMachineModule(),

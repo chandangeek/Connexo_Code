@@ -109,7 +109,7 @@ public class PreStoreLoadProfile {
 
     private IntervalReading getMultipliedReading(BigDecimal multiplier, IntervalReading intervalReading) {
         if (!Checks.is(multiplier).equalValue(BigDecimal.ONE)) {
-            return IntervalReadingImpl.of(intervalReading.getTimeStamp(), intervalReading.getValue().multiply(multiplier), intervalReading.getProfileStatus());
+            return IntervalReadingImpl.of(intervalReading.getTimeStamp(), intervalReading.getValue().multiply(multiplier), intervalReading.getReadingQualities());
         }
         else {
             return intervalReading;
@@ -121,7 +121,7 @@ public class PreStoreLoadProfile {
             return intervalReading;
         } else {
             BigDecimal scaledValue = intervalReading.getValue().scaleByPowerOfTen(scaler);
-            return IntervalReadingImpl.of(intervalReading.getTimeStamp(), scaledValue, intervalReading.getProfileStatus());
+            return IntervalReadingImpl.of(intervalReading.getTimeStamp(), scaledValue, intervalReading.getReadingQualities());
         }
     }
 

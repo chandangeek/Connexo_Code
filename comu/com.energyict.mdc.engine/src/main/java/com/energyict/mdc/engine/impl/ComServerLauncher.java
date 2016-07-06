@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Counter;
@@ -246,6 +247,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     }
 
     private class ComServerDaoServiceProvider implements ComServerDAOImpl.ServiceProvider {
+
+        @Override
+        public Thesaurus thesaurus() {
+            return serviceProvider.thesaurus();
+        }
 
         @Override
         public Clock clock() {
