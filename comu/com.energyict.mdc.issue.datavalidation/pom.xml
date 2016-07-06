@@ -293,5 +293,10 @@
       <artifactId>util</artifactId>
       <version>2.1.0${revision}</version>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>appserver</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
