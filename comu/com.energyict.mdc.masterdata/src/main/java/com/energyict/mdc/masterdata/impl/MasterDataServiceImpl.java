@@ -290,7 +290,7 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(MasterDataService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", MasterDataService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
