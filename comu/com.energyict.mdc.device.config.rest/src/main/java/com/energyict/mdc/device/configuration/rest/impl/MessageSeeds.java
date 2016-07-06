@@ -136,7 +136,6 @@ public enum MessageSeeds implements MessageSeed {
     CALENDAR_OPTION_SEND_SPECIAL_DAYS_CONTRACT_DATE(221, Keys.CALENDAR_OPTION_SEND_SPECIAL_DAYS_CONTRACT_DATE, "Send special days calendar with contract and activation date"),
     CALENDAR_OPTION_CLEAR_DISABLE_TARIFF(222, Keys.CALENDAR_OPTION_CLEAR_DISABLE_TARIFF, "Clear and disable passive tariff"),
     CALENDAR_OPTION_ACTIVATE_PASSIVE(223, Keys.CALENDAR_OPTION_ACTIVATE_PASSIVE, "Activate passive calendar"),
-    WRITE_CONTRACTS_FROM_XML_USERFILE(224, Keys.WRITE_CONTRACTS_FROM_XML_USERFILE, "Write contract from file"),
     ;
 
     private final int number;
@@ -277,7 +276,6 @@ public enum MessageSeeds implements MessageSeed {
         private static final String CALENDAR_OPTION_SEND_SPECIAL_DAYS_CONTRACT_DATE = ProtocolSupportedCalendarOptions.SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE.getId();
         private static final String CALENDAR_OPTION_CLEAR_DISABLE_TARIFF = ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF.getId();
         private static final String CALENDAR_OPTION_ACTIVATE_PASSIVE = ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR.getId();
-        private static final String WRITE_CONTRACTS_FROM_XML_USERFILE = ProtocolSupportedCalendarOptions.WRITE_CONTRACTS_FROM_XML_USERFILE.getId();
     }
 
 }
