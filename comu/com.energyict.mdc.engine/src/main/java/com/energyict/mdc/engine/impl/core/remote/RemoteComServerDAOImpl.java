@@ -274,6 +274,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void cleanupOutdatedComTaskExecutionTriggers() {
+
+    }
+
+    @Override
     public void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecution.getId());

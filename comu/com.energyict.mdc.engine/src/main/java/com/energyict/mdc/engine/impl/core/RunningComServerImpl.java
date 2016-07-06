@@ -1,5 +1,14 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -27,12 +36,14 @@ import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
-import com.energyict.mdc.engine.impl.monitor.*;
-import com.energyict.mdc.engine.monitor.ComServerMonitor;
+import com.energyict.mdc.engine.impl.monitor.ComServerOperationalStatisticsImpl;
+import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
+import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
 import com.energyict.mdc.engine.impl.web.DefaultEmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServer;
 import com.energyict.mdc.engine.impl.web.EmbeddedWebServerFactory;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactoryImpl;
+import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SocketService;
@@ -42,15 +53,6 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import org.joda.time.DateTimeConstants;
 
 import java.sql.SQLException;
@@ -138,6 +140,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
     private DeviceCommandExecutorImpl deviceCommandExecutor;
     private CleanupDuringStartup cleanupDuringStartup;
     private TimeOutMonitor timeOutMonitor;
+    private ComServerCleanupProcess cleanupProcess;
     private ComServerMonitor operationalMonitor;
     private LoggerHolder loggerHolder;
 
@@ -159,6 +162,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
         this.initializeDeviceCommandExecutor(comServer);
         this.initializeTimeoutMonitor(comServer);
+        this.initializeCleanupProcess(comServer);
         this.addOutboundComPorts(comServer.getOutboundComPorts());
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
@@ -176,6 +180,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
         this.initializeDeviceCommandExecutor(comServer);
         this.initializeTimeoutMonitor(comServer);
+        this.initializeCleanupProcess(comServer);
         this.addOutboundComPorts(comServer.getOutboundComPorts());
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
@@ -198,6 +203,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
         this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
         this.initializeTimeoutMonitor(comServer);
+        this.initializeCleanupProcess(comServer);
         this.addOutboundComPorts(comServer.getOutboundComPorts());
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
@@ -211,6 +217,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.initialize(comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup);
         this.initializeDeviceCommandExecutor(comServer.getName(), comServer.getServerLogLevel(), DEFAULT_STORE_TASK_QUEUE_SIZE, DEFAULT_NUMBER_OF_THREADS, Thread.NORM_PRIORITY);
         this.initializeTimeoutMonitor(comServer);
+        this.initializeCleanupProcess(comServer);
         this.addOutboundComPorts(comServer.getOutboundComPorts());
         this.addInboundComPorts(comServer.getInboundComPorts());
     }
@@ -238,6 +245,10 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
 
     private void initializeTimeoutMonitor(OutboundCapableComServer comServer) {
         this.timeOutMonitor = new TimeOutMonitorImpl(comServer, this.comServerDAO, this.threadFactory);
+    }
+
+    private void initializeCleanupProcess(OutboundCapableComServer comServer) {
+        this.cleanupProcess = new ComServerCleanupProcessImpl(comServer, this.comServerDAO, this.threadFactory);
     }
 
     private void addOutboundComPorts(List<OutboundComPort> outboundComPorts) {
@@ -376,6 +387,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.startOutboundComPorts();
         this.startInboundComPorts();
         this.timeOutMonitor.start();
+        this.cleanupProcess.start();
         self = this.threadFactory.newThread(this);
         self.setName("Changes monitor for " + this.comServer.getName());
         self.start();
@@ -441,6 +453,7 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
         this.shutdownComServerDAO(immediate);
         this.shutdownEventMechanism(immediate);
         this.shutdownTimeOutMonitor(immediate);
+        this.shutdownCleanupProcess(immediate);
         this.shutdownOutboundComPorts(immediate);
         this.shutdownInboundComPorts(immediate);
         this.shutdownDeviceCommandExecutor(immediate);
@@ -471,6 +484,14 @@ public abstract class RunningComServerImpl implements RunningComServer, Runnable
             this.timeOutMonitor.shutdownImmediate();
         } else {
             this.timeOutMonitor.shutdown();
+        }
+    }
+
+    private void shutdownCleanupProcess(boolean immediate) {
+        if (immediate) {
+            this.cleanupProcess.shutdownImmediate();
+        } else {
+            this.cleanupProcess.shutdown();
         }
     }
 
