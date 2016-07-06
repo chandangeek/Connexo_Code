@@ -5,7 +5,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
@@ -43,19 +43,19 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
     }
 
     @Override
-    public Optional<PassiveEffectiveCalendar> getPassive() {
+    public Optional<PassiveCalendar> getPassive() {
         return this.device.getPassiveCalendar();
     }
 
     @Override
-    public Optional<PassiveEffectiveCalendar> getPlannedPassive() {
+    public Optional<PassiveCalendar> getPlannedPassive() {
         return this.device.getPlannedPassiveCalendar();
     }
 
     @Override
     public void setPassive(AllowedCalendar passiveCalendar, Instant activationDate, DeviceMessage deviceMessage) {
         this.validateCalendarAllowed(passiveCalendar);
-        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
+        PassiveCalendarImpl passiveEffectiveCalendar = new PassiveCalendarImpl();
         passiveEffectiveCalendar.setDeviceMessage(deviceMessage);
         passiveEffectiveCalendar.setAllowedCalendar(passiveCalendar);
         passiveEffectiveCalendar.setActivationDate(activationDate);
@@ -138,7 +138,7 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
 
     private boolean notPassiveYet(String calendarName) {
         return !this.device.getPassiveCalendar()
-                    .map(PassiveEffectiveCalendar::getAllowedCalendar)
+                    .map(PassiveCalendar::getAllowedCalendar)
                     .map(AllowedCalendar::getName)
                     .map(allowedCalendarName -> allowedCalendarName.equals(calendarName))
                     .orElse(false);
@@ -146,12 +146,12 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
 
     private void setPassiveCalendar(AllowedCalendar passiveCalendar, Instant now) {
         this.validateCalendarAllowed(passiveCalendar);
-        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
+        PassiveCalendarImpl passiveEffectiveCalendar = new PassiveCalendarImpl();
         passiveEffectiveCalendar.setAllowedCalendar(passiveCalendar);
         passiveEffectiveCalendar.setActivationDate(now);
         this.dataModel.persist(passiveEffectiveCalendar);
         this.device.setPassiveCalendar(passiveEffectiveCalendar);
-        Optional<AllowedCalendar> plannedAllowedCalendar = this.device.getPlannedPassiveCalendar().map(PassiveEffectiveCalendar::getAllowedCalendar);
+        Optional<AllowedCalendar> plannedAllowedCalendar = this.device.getPlannedPassiveCalendar().map(PassiveCalendar::getAllowedCalendar);
         if (is(plannedAllowedCalendar).presentAndEqualTo(Optional.of(passiveCalendar))) {
             this.device.clearPlannedPassiveCalendar();
         }

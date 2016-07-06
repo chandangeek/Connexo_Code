@@ -567,21 +567,21 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         Optional<ActiveEffectiveCalendar> getActive();
 
         /**
-         * Gets the {@link PassiveEffectiveCalendar} as reported by the actual device
+         * Gets the {@link PassiveCalendar} as reported by the actual device
          * while status information was obtained.
          *
          * @return The actual passive calendar as reported by the actual device
          */
-        Optional<PassiveEffectiveCalendar> getPassive();
+        Optional<PassiveCalendar> getPassive();
 
         /**
-         * Gets the {@link PassiveEffectiveCalendar} that is planned to be sent
+         * Gets the {@link PassiveCalendar} that is planned to be sent
          * to the actual device. Note that this PassiveEffectiveCalendar
          * will be linked to a DeviceMessage.
          *
          * @return The actual passive calendar that is planned to be sent to the actual device
          */
-        Optional<PassiveEffectiveCalendar> getPlannedPassive();
+        Optional<PassiveCalendar> getPlannedPassive();
 
         void updateCalendars(CollectedCalendarInformation collectedData);
 
