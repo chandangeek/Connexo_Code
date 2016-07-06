@@ -111,6 +111,7 @@ public class DeviceMessageConstants {
     public static final String readFrequencyInMinutesAttributeName = "LoadBalanceDeviceMessage.parameters.readFrequencyInMinutes";
     public static final String monitoredValueAttributeName = "LoadBalanceDeviceMessage.parameters.monitoredValue";
     public static final String normalThresholdAttributeName = "LoadBalanceDeviceMessage.parameters.normalthreshold";
+    public static final String unitAttributeName = "LoadBalanceDeviceMessage.parameters.unit";
     public static final String tariffsAttributeName = "LoadBalanceDeviceMessage.parameters.tariffs";
     public static final String readingTypeAttributeName = "LoadBalanceDeviceMessage.parameters.readingType";
     public static final String controlThreshold1dAttributeName = "LoadBalanceDeviceMessage.controlThreshold1";

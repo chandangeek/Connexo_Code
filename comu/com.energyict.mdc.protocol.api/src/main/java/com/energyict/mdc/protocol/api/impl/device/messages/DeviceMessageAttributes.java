@@ -23,6 +23,7 @@ public enum DeviceMessageAttributes implements TranslationKey {
     controlThreshold5dAttributeName(DeviceMessageConstants.controlThreshold5dAttributeName, "ControlThreshold 5"),
     controlThreshold6dAttributeName(DeviceMessageConstants.controlThreshold6dAttributeName, "ControlThreshold 6"),
     normalThresholdAttributeName(DeviceMessageConstants.normalThresholdAttributeName, "Normal threshold"),
+    unitAttributeName(DeviceMessageConstants.unitAttributeName, "Unit"),
     tariffsAttributeName(DeviceMessageConstants.tariffsAttributeName, "Tariff(s)"),
     readingTypeAttributeName(DeviceMessageConstants.readingTypeAttributeName, "Reading type"),
     emergencyThresholdAttributeName(DeviceMessageConstants.emergencyThresholdAttributeName, "Emergency threshold"),
