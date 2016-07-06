@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum ModemConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum ModemConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetDialCommand(DeviceMessageId.MODEM_CONFIGURATION_SET_DIAL_COMMAND, "Set dial command") {
         @Override

@@ -16,7 +16,7 @@ import java.util.stream.Stream;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum MBusSetupDeviceMessage implements DeviceMessageSpecEnum {
+enum MBusSetupDeviceMessage implements DeviceMessageSpecEnum {
 
     Decommission(DeviceMessageId.MBUS_SETUP_DECOMMISSION, "Decommission"),
     DataReadout(DeviceMessageId.MBUS_SETUP_DATA_READOUT, "Data readout"),

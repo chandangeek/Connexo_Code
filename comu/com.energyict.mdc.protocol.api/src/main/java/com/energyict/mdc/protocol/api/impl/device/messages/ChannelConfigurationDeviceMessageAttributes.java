@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum ChannelConfigurationDeviceMessageAttributes implements TranslationKey {
+enum ChannelConfigurationDeviceMessageAttributes implements TranslationKey {
 
     ID("ChannelConfigurationDeviceMessage." + DeviceMessageConstants.id, "ID"),
     SetFunctionAttributeName(DeviceMessageConstants.SetFunctionAttributeName, "Set function"),

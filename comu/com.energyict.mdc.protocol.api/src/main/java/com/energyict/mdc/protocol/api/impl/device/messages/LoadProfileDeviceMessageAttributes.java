@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum LoadProfileDeviceMessageAttributes implements TranslationKey {
+enum LoadProfileDeviceMessageAttributes implements TranslationKey {
 
     loadProfileAttributeName("LoadProfileDeviceMessage." + DeviceMessageConstants.loadProfileAttributeName, "LoadProfile"),
     LoadProfileMessageFromDate("LoadProfileDeviceMessage." + DeviceMessageConstants.fromDateAttributeName, "From"),

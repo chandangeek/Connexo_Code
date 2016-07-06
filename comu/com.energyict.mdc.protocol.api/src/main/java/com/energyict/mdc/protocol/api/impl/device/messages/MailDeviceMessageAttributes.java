@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum MailDeviceMessageAttributes implements TranslationKey {
+enum MailDeviceMessageAttributes implements TranslationKey {
 
     SetPOPUsernameAttributeName(DeviceMessageConstants.SetPOPUsernameAttributeName, "Set POPUsername"),
     SetPOPPasswordAttributeName(DeviceMessageConstants.SetPOPPasswordAttributeName, "Set POPPassword"),

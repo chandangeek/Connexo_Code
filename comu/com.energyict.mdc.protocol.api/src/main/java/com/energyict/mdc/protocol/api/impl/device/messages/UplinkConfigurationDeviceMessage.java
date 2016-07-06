@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 12/8/14
  * Time: 12:08 PM
  */
-public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecEnum {
     EnableUplinkPing(DeviceMessageId.UPLINK_CONFIGURATION_ENABLE_PING, "Enable uplink ping"){
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {

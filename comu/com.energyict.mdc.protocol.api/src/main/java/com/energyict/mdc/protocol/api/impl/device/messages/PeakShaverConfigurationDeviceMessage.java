@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetActiveChannel(DeviceMessageId.PEAK_SHAVING_SET_ACTIVE_CHANNEL, "Set active channel") {
         @Override

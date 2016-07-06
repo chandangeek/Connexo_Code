@@ -17,7 +17,7 @@ import java.util.List;
  * Date: 11/03/13
  * Time: 11:59
  */
-public enum DeviceActionMessage implements DeviceMessageSpecEnum {
+enum DeviceActionMessage implements DeviceMessageSpecEnum {
 
     BILLING_RESET(DeviceMessageId.DEVICE_ACTIONS_BILLING_RESET, "Billing reset"),
     GLOBAL_METER_RESET(DeviceMessageId.DEVICE_ACTIONS_GLOBAL_METER_RESET, "Global meter reset"),

@@ -19,7 +19,7 @@ import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConsta
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum LogBookDeviceMessage implements DeviceMessageSpecEnum {
+enum LogBookDeviceMessage implements DeviceMessageSpecEnum {
 
     SetInputChannel(DeviceMessageId.LOG_BOOK_SET_INPUT_CHANNEL, "Set input channel") {
         @Override

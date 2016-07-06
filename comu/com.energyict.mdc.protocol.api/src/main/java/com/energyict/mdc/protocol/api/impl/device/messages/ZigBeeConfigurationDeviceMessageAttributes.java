@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum ZigBeeConfigurationDeviceMessageAttributes implements TranslationKey {
+enum ZigBeeConfigurationDeviceMessageAttributes implements TranslationKey {
 
     ZigBeeConfigurationSASPanIdAttributeName(DeviceMessageConstants.ZigBeeConfigurationSASPanIdAttributeName, "SAS PanId"),
     ZigBeeConfigurationForceRemovalAttributeName(DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName, "Force removal"),

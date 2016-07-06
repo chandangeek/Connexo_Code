@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * Date: 3/04/13
  * Time: 9:43
  */
-public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
+enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
 
     WriteControlThresholds(DeviceMessageId.LOAD_BALANCING_WRITE_CONTROL_THRESHOLDS, "Write control thresholds") {
         @Override

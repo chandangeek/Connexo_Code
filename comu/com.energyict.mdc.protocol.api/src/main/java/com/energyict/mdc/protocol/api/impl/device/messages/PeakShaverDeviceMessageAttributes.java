@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum PeakShaverDeviceMessageAttributes implements TranslationKey {
+enum PeakShaverDeviceMessageAttributes implements TranslationKey {
 
     id("PeakShaverConfigurationDeviceMessage." + DeviceMessageConstants.loadIdAttributeName, "loadId"),
     loadIdAttributeName(DeviceMessageConstants.loadIdAttributeName, "loadId"),

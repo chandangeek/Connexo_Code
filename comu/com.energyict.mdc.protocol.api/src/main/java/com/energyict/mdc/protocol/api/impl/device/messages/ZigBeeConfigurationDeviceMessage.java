@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum ZigBeeConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     CreateHANNetwork(DeviceMessageId.ZIGBEE_CONFIGURATION_CREATE_HAN_NETWORK, "Create HAN network"),
     RemoveHANNetwork(DeviceMessageId.ZIGBEE_CONFIGURATION_REMOVE_HAN_NETWORK, "Remove HAN network"),

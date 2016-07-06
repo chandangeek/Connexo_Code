@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum PPPConfigurationDeviceMessageAttributes implements TranslationKey {
+enum PPPConfigurationDeviceMessageAttributes implements TranslationKey {
 
     SetISP1PhoneAttributeName(DeviceMessageConstants.SetISP1PhoneAttributeName, "Set ISP1Phone"),
     SetISP1UsernameAttributeName(DeviceMessageConstants.SetISP1UsernameAttributeName, "Set ISP1Username"),

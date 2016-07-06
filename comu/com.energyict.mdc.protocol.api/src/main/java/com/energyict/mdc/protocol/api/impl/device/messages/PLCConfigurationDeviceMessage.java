@@ -16,7 +16,7 @@ import java.util.stream.Stream;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     ForceManualRescanPLCBus(DeviceMessageId.PLC_CONFIGURATION_FORCE_MANUAL_RESCAN_PLC_BUS, "Force manual rescan of PLC bus"),
     SetMulticastAddresses(DeviceMessageId.PLC_CONFIGURATION_SET_MULTICAST_ADDRESSES, "Set multicast addresses") {

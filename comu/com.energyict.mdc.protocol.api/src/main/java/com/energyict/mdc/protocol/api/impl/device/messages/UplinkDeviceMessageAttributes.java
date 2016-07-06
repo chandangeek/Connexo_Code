@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum UplinkDeviceMessageAttributes implements TranslationKey {
+enum UplinkDeviceMessageAttributes implements TranslationKey {
 
     enableUplinkPing(DeviceMessageConstants.enableUplinkPing, "Enable uplink ping"),
     uplinkPingDestinationAddress(DeviceMessageConstants.uplinkPingDestinationAddress, "Uplink ping destination dddress"),

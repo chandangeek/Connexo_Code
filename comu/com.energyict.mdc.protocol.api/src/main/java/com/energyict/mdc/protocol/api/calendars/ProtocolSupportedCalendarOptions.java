@@ -14,8 +14,7 @@ public enum ProtocolSupportedCalendarOptions {
     SEND_SPECIAL_DAYS_CALENDAR_WITH_TYPE("sendSpecialDaysWithType"),
     SEND_SPECIAL_DAYS_CALENDAR_WITH_CONTRACT_AND_DATE("sendSpecialDaysWithContractAndDate"),
     CLEAR_AND_DISABLE_PASSIVE_TARIFF("clearAndDisablePassiveTariff"),
-    ACTIVATE_PASSIVE_CALENDAR("activatePassive"),
-    WRITE_CONTRACTS_FROM_XML_USERFILE("writeContractsFromXmlFile");
+    ACTIVATE_PASSIVE_CALENDAR("activatePassive");
 
     private String id;
 
