@@ -47,6 +47,7 @@ public interface TopologyService {
     /**
      * Clears the physical gateway of the slave {@link Device},
      * i.e. removes to physical gateway on the specified Device.
+     * We use the current timestamp to remove the gateway, but round it down to the previous minute.
      *
      * @param slave The slave Device
      */
