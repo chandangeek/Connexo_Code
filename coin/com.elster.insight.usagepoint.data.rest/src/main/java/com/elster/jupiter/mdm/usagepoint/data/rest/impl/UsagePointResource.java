@@ -280,7 +280,7 @@ public class UsagePointResource {
                                                 MetrologyConfigurationInfo info) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
 
-        if (usagePoint.getMetrologyConfiguration().isPresent()) {
+        if (usagePoint.getMetrologyConfiguration(usagePoint.getInstallationTime()).isPresent()) {
             throw resourceHelper.throwUsagePointLinkedException(mrid);
         }
 
@@ -310,7 +310,7 @@ public class UsagePointResource {
         }
 
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
-        usagePoint.apply(usagePointMetrologyConfiguration);
+        usagePoint.apply(usagePointMetrologyConfiguration, usagePoint.getInstallationTime());
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
                     .getPropertySet(customPropertySetInfo.id);
