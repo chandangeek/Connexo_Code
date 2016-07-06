@@ -218,8 +218,7 @@ public class ValidationInfoFactory {
     private List<ReadingQuality> getMdcReadingQualities(Collection<? extends ReadingQuality> readingQualities) {
         return readingQualities
                 .stream()
-                .filter(readingQuality -> readingQuality.getType().system().isPresent())
-                .filter(readingQuality -> readingQuality.getType().system().get() == QualityCodeSystem.MDC)
+                .filter(readingQuality -> readingQuality.getType().getSystemCode() == QualityCodeSystem.MDC.ordinal())
                 .collect(Collectors.toList());
     }
 
@@ -250,7 +249,7 @@ public class ValidationInfoFactory {
                 .filter(type -> type.system().isPresent())
                 .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
-                .filter(type -> type.system().get() != QualityCodeSystem.MDM && type.hasValidationCategory())
+                .filter(type -> type.system().get() != QualityCodeSystem.MDM || !type.hasValidationCategory())
                 .map(type -> ReadingQualityInfo.fromReadingQualityType(thesaurus, type))
                 .collect(Collectors.toList());
     }
@@ -264,7 +263,7 @@ public class ValidationInfoFactory {
                 .stream())
                 .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                 .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
-                .sorted(Comparator.<ValidationAction>reverseOrder())
+                .sorted(Comparator.reverseOrder())
                 .findFirst()
                 .orElse(null);
         veeReadingInfo.estimatedByRule = dataValidationStatus.getReadingQualities().stream()
@@ -283,7 +282,7 @@ public class ValidationInfoFactory {
                     .stream())
                     .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                     .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
-                    .sorted(Comparator.<ValidationAction>reverseOrder())
+                    .sorted(Comparator.reverseOrder())
                     .findFirst()
                     .orElse(null);
             veeReadingInfo.estimatedByRule = dataValidationStatus.getBulkReadingQualities().stream()
@@ -360,7 +359,7 @@ public class ValidationInfoFactory {
                 .stream())
                 .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                 .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
-                .sorted(Comparator.<ValidationAction>reverseOrder())
+                .sorted(Comparator.reverseOrder())
                 .findFirst()
                 .orElse(null);
         veeReadingInfo.estimatedByRule = dataValidationStatus.getReadingQualities().stream()
@@ -377,7 +376,7 @@ public class ValidationInfoFactory {
                     .stream())
                     .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                     .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
-                    .sorted(Comparator.<ValidationAction>reverseOrder())
+                    .sorted(Comparator.reverseOrder())
                     .findFirst()
                     .orElse(null);
             veeReadingInfo.estimatedByRule = dataValidationStatus.getBulkReadingQualities().stream()
