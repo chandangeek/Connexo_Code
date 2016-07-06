@@ -69,4 +69,33 @@ public class SpatialCoordinates {
     public String toString() {
         return latitude.toString() + " : " + longitude.toString() + " : " + elevation.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        SpatialCoordinates that = (SpatialCoordinates) o;
+
+        if (!latitude.equals(that.latitude)) {
+            return false;
+        }
+        if (!longitude.equals(that.longitude)) {
+            return false;
+        }
+        return elevation.equals(that.elevation);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = latitude.hashCode();
+        result = 31 * result + longitude.hashCode();
+        result = 31 * result + elevation.hashCode();
+        return result;
+    }
 }
