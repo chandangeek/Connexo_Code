@@ -51,7 +51,6 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import com.google.common.collect.ImmutableList;
@@ -60,18 +59,15 @@ import com.google.common.collect.Range;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.Size;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @ValidChangesWithExistingConfigurations(groups = {Save.Update.class})
@@ -111,7 +107,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
     @Valid
-    private List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
+    private List<ServerDeviceConfiguration> deviceConfigurations = new ArrayList<>();
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
@@ -186,10 +182,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.loadProfileTypeUsages.clear();
         this.logBookTypeUsages.clear();
         this.deviceMessageFiles.clear();
-        Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
+        Iterator<ServerDeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
         while (iterator.hasNext()) {
-            ServerDeviceConfiguration deviceConfiguration = (ServerDeviceConfiguration) iterator.next();
+            ServerDeviceConfiguration deviceConfiguration = iterator.next();
             deviceConfiguration.notifyDelete();
             deviceConfiguration.prepareDelete();
             iterator.remove();
@@ -499,18 +495,25 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void addCalendar(Calendar calendar) {
-        AllowedCalendar allowedCalendar = getDataModel().getInstance(AllowedCalendarImpl.class)
-                .initialize(calendar, this);
-        this.allowedCalendars.add(allowedCalendar);
+    public AllowedCalendar addCalendar(Calendar calendar) {
+        return this.addCalendar(this.getDataModel().getInstance(AllowedCalendarImpl.class).initialize(calendar, this));
     }
 
     @Override
-    public void removeCalendar(long allowedCalendarId) {
-        Optional<AllowedCalendar> allowedCalendar = allowedCalendars.stream()
-                .filter(cal -> cal.getId() == allowedCalendarId)
-                .findFirst();
-        allowedCalendar.ifPresent(calendar -> allowedCalendars.remove(calendar));
+    public AllowedCalendar addGhostCalendar(String name) {
+        return this.addCalendar(this.getDataModel().getInstance(AllowedCalendarImpl.class).initialize(name, this));
+    }
+
+    private AllowedCalendar addCalendar(AllowedCalendar calendar) {
+        this.allowedCalendars.add(calendar);
+        this.touch();
+        return calendar;
+    }
+
+    @Override
+    public void removeCalendar(AllowedCalendar allowedCalendar) {
+        this.allowedCalendars.remove(allowedCalendar);
+        this.touch();
     }
 
     @Override
@@ -756,15 +759,15 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return ImmutableList.copyOf(this.deviceConfigurations);
     }
 
-    private void addConfiguration(DeviceConfiguration deviceConfiguration) {
+    private void addConfiguration(ServerDeviceConfiguration deviceConfiguration) {
         this.deviceConfigurations.add(deviceConfiguration);
     }
 
     @Override
     public void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete) {
-        Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
+        Iterator<ServerDeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         while (iterator.hasNext()) {
-            ServerDeviceConfiguration configuration = (ServerDeviceConfiguration) iterator.next();
+            ServerDeviceConfiguration configuration = iterator.next();
             if (configuration.getId() == deviceConfigurationToDelete.getId()) {
                 configuration.notifyDelete();
                 configuration.prepareDelete();
@@ -799,9 +802,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void disableFileManagement() {
         if (this.fileManagementEnabled) {
             this.fileManagementEnabled = false;
-            this.deviceMessageFiles.clear();
+            this.fileManagementDisabled();
             this.update();
         }
+    }
+
+    private void fileManagementDisabled() {
+        this.deviceMessageFiles.clear();
+        this.deviceConfigurations.forEach(ServerDeviceConfiguration::fileManagementDisabled);
     }
 
     @Override
