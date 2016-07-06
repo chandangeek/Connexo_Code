@@ -18,6 +18,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
@@ -27,7 +28,6 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -70,6 +70,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     Clock clock;
     @Mock
     MeteringService meteringService;
+    @Mock
+    LocationService locationService;
     @Mock
     RestQueryService restQueryService;
     @Mock
@@ -118,6 +120,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMeteringService(meteringService);
+        application.setLocationService(locationService);
         application.setRestQueryService(restQueryService);
         application.setClockService(clock);
         application.setMeteringGroupService(meteringGroupsService);
@@ -158,7 +161,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         return readingType;
     }
 
-    public MetrologyConfiguration mockMetrologyConfiguration(long id, String name) {
+    public UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name) {
         UsagePointMetrologyConfiguration mock = mock(UsagePointMetrologyConfiguration.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
