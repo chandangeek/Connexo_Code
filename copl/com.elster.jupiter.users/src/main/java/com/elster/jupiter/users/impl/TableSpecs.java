@@ -26,7 +26,7 @@ public enum TableSpecs {
             table.map(ResourceImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("COMPONENT").type("varchar2(3)").notNull().map("componentName").add();
+            table.column("COMPONENT").varChar(3).notNull().map("componentName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
             table.primaryKey("USR_PK_RESOURCE").on(idColumn).add();
@@ -64,17 +64,17 @@ public enum TableSpecs {
             Table<UserDirectory> table = dataModel.addTable(name(), UserDirectory.class);
             table.map(AbstractUserDirectoryImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
-            Column domain = table.column("DOMAIN").type("varchar(128)").notNull().map("name").add();
+            Column domain = table.column("DOMAIN").varChar(128).notNull().map("name").add();
             table.addDiscriminatorColumn("DIRECTORY_TYPE", "char(3)");
             table.column("IS_DEFAULT").bool().map("isDefault").add();
             table.column("GROUPS_INTERNAL").type("char(1)").conversion(CHAR2BOOLEAN).map("manageGroupsInternal").add();
-            table.column("DIRECTORY_USER").type("varchar(128)").map("directoryUser").add();
-            table.column("PASSWORD").type("varchar(128)").map("password").add();
-            table.column("URL").type("varchar(4000)").map("url").add();
-            table.column("BACKUPURL").type("varchar(4000)").map("backupUrl").add();
-            table.column("SECURITY").type("varchar(4)").map("securityProtocol").add();
-            table.column("BASE_USER").type("varchar(4000)").map("baseUser").add();
-            table.column("BASE_GROUP").type("varchar(4000)").map("baseGroup").add();
+            table.column("DIRECTORY_USER").varChar(128).map("directoryUser").add();
+            table.column("PASSWORD").varChar(128).map("password").add();
+            table.column("URL").varChar(4000).map("url").add();
+            table.column("BACKUPURL").varChar(4000).map("backupUrl").add();
+            table.column("SECURITY").varChar(4).map("securityProtocol").add();
+            table.column("BASE_USER").varChar(4000).map("baseUser").add();
+            table.column("BASE_GROUP").varChar(4000).map("baseGroup").add();
             table.addAuditColumns();
             table.primaryKey("USR_PK_USERDIRECTORY").on(idColumn).add();
             table.unique("IDS_U_UDNAME").on(domain).add();
@@ -87,9 +87,9 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column authenticationNameColumn = table.column("AUTHNAME").varChar(NAME_LENGTH).notNull().map("authenticationName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
-            table.column("HA1").type("varchar2(65)").map("ha1").add();
+            table.column("HA1").varChar(65).map("ha1").add();
             table.column("SALT").number().conversion(NUMBER2INT).map("salt").add();
-            table.column("LANGUAGETAG").type("varchar2(64)").map("languageTag").add();
+            table.column("LANGUAGETAG").varChar(64).map("languageTag").add();
             Column userDirColumn = table.column("USER_DIRECTORY").number().notNull().add();
             table.column("Active").type("char(1)").conversion(CHAR2BOOLEAN).map("status").add();
             table.column("LASTSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastSuccessfulLogin").add();
@@ -107,7 +107,7 @@ public enum TableSpecs {
             Table<PrivilegeInGroup> table = dataModel.addTable(name(), PrivilegeInGroup.class);
             table.map(PrivilegeInGroup.class);
             Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
-            Column applicationColumn = table.column("APPLICATION").type("varchar2(10)").notNull().map("applicationName").add();
+            Column applicationColumn = table.column("APPLICATION").varChar(10).notNull().map("applicationName").add();
 
             Column privilegeIdColumn = table.column("PRIVILEGENAME").varChar(NAME_LENGTH).notNull().map("privilegeName").add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
