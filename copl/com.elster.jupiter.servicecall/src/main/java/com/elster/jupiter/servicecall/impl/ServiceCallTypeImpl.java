@@ -39,7 +39,7 @@ public class ServiceCallTypeImpl implements IServiceCallType {
     private LogLevel logLevel;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
     @Size(min = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRED_FIELD + "}")
-    @IsRegisteredHandler(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.UNKNOWN_HANDLER + "}")
+//    @IsRegisteredHandler has been removed, as handlers who are not yet registered on the white board should not cause validation errors
     private String serviceCallHandler;
     private Reference<IServiceCallLifeCycle> serviceCallLifeCycle = Reference.empty();
     private DefaultState currentLifeCycleState;
