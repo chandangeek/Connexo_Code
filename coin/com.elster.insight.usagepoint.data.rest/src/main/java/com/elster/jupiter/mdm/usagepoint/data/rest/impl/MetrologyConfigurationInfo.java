@@ -119,7 +119,7 @@ public class MetrologyConfigurationInfo {
 
     private PurposeInfo asDetailedInfo(MetrologyContract metrologyContract, UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
         PurposeInfo info = new PurposeInfo();
-        info.id = metrologyContract.getMetrologyPurpose().getId();
+        info.id = metrologyContract.getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
         info.required = metrologyContract.isMandatory();
         info.active = info.required;

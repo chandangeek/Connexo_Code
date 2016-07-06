@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
@@ -48,6 +49,8 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.validation.ValidationContextImpl;
+import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.Range;
 
@@ -99,10 +102,12 @@ public class UsagePointResource {
     private final Provider<GoingOnResource> goingOnResourceProvider;
 
     private final UsagePointInfoFactory usagePointInfoFactory;
+    private final OutputChannelDataInfoFactory outputChannelDataInfoFactory;
     private final LocationInfoFactory locationInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final ValidationService validationService;
 
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
@@ -118,7 +123,9 @@ public class UsagePointResource {
                               Thesaurus thesaurus,
                               ResourceHelper resourceHelper,
                               MetrologyConfigurationService metrologyConfigurationService,
-                              Provider<GoingOnResource> goingOnResourceProvider) {
+                              Provider<GoingOnResource> goingOnResourceProvider,
+                              ValidationService validationService,
+                              OutputChannelDataInfoFactory outputChannelDataInfoFactory) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.clock = clock;
@@ -135,6 +142,8 @@ public class UsagePointResource {
         this.resourceHelper = resourceHelper;
         this.goingOnResourceProvider = goingOnResourceProvider;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.validationService = validationService;
+        this.outputChannelDataInfoFactory = outputChannelDataInfoFactory;
     }
 
     @GET
@@ -575,7 +584,7 @@ public class UsagePointResource {
             List<MetrologyContract> metrologyContractList = usagePoint.getMetrologyConfiguration().get().getContracts();
             purposeInfoList = metrologyContractList
                     .stream()
-                    .map(metrologyContract -> PurposeInfo.asInfo(metrologyContract, usagePoint))
+                    .map(metrologyContract -> PurposeInfo.asInfo(metrologyContract, usagePoint, validationService))
                     .collect(Collectors.toList());
 
         } else {
@@ -592,7 +601,7 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
         MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
                 .stream()
-                .filter(mc -> mc.getMetrologyPurpose().getId() == id)
+                .filter(mc -> mc.getId() == id)
                 .findFirst()
                 .get();
         List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
@@ -611,7 +620,7 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
         MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
                 .stream()
-                .filter(mc -> mc.getMetrologyPurpose().getId() == purposeId)
+                .filter(mc -> mc.getId() == purposeId)
                 .findFirst()
                 .get();
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables()
@@ -633,7 +642,7 @@ public class UsagePointResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
         MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
                 .stream()
-                .filter(mc -> mc.getMetrologyPurpose().getId() == purposeId)
+                .filter(mc -> mc.getId() == purposeId)
                 .findFirst()
                 .get();
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables()
@@ -646,7 +655,7 @@ public class UsagePointResource {
             try {
                 CalculatedMetrologyContractData calculatedMetrologyContractData = dataAggregationService.calculate(usagePoint, metrologyContract, range);
                 List<? extends BaseReadingRecord> channelData = calculatedMetrologyContractData.getCalculatedDataFor(readingTypeDeliverable);
-                outputChannelDataInfoList = channelData.stream().map(OutputChannelDataInfo::asInfo).collect(Collectors.toList());
+                outputChannelDataInfoList = channelData.stream().map(baseReadingRecord -> outputChannelDataInfoFactory.createChannelDataInfo(baseReadingRecord)).collect(Collectors.toList());
             } catch (MetrologyContractDoesNotApplyToUsagePointException | UnderlyingSQLFailedException ex) {
                 outputChannelDataInfoList = Collections.emptyList();
             }
@@ -662,5 +671,19 @@ public class UsagePointResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public Response getLocationAttributes(@PathParam("locationId") long locationId) {
         return Response.ok(locationInfoFactory.from(locationId)).build();
+    }
+
+    @PUT
+    @Path("/{mrid}/purposes/{purposeId}/validate")
+    @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
+    public Response validateMetrologyContract(@PathParam("mrid") String mrid, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
+        MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(purposeInfo);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+        usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract)
+                .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(Collections.singleton(QualityCodeSystem.MDM), channelsContainer)
+                        .setMetrologyContract(metrologyContract), Instant.ofEpochMilli(purposeInfo.lastChecked)));
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 }
