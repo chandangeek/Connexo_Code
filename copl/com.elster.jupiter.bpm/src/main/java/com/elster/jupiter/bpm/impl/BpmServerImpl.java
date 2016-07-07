@@ -16,7 +16,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Base64;
-import java.util.Optional;
 
 public class BpmServerImpl implements BpmServer {
 
@@ -113,11 +112,10 @@ public class BpmServerImpl implements BpmServer {
 
             int responseCode = httpConnection.getResponseCode();
             if (responseCode < 200 || responseCode >= 300) {
-                if(responseCode == 409){
-                    BufferedReader br = new BufferedReader(new InputStreamReader(
-                            (httpConnection.getErrorStream())));
-                    String output;
+                if (responseCode == 409 || responseCode == 500) {
+                    BufferedReader br = new BufferedReader(new InputStreamReader((httpConnection.getErrorStream())));
                     StringBuilder jsonContent = new StringBuilder();
+                    String output;
                     while ((output = br.readLine()) != null) {
                         jsonContent.append(output);
                     }
