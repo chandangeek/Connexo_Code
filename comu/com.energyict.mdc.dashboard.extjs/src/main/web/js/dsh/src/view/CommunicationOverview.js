@@ -50,7 +50,6 @@ Ext.define('Dsh.view.CommunicationOverview', {
                     {
                         xtype: 'summary',
                         flex: 2.05,
-                        wTitle: Uni.I18n.translate('communication.widget.summary.title', 'DSH', 'Communications summary'),
                         parent: 'communications',
                         router: me.router
                     },
