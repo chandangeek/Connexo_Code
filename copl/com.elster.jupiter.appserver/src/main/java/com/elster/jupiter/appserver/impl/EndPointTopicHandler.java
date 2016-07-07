@@ -56,6 +56,6 @@ public class EndPointTopicHandler implements TopicHandler {
 
     @Override
     public String getTopicMatcher() {
-        return EventType.WEB_SERVICE_CHANGED.topic();
+        return EventType.ENDPOINT_CONFIGURATION_CHANGED.topic();
     }
 }

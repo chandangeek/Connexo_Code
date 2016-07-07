@@ -286,7 +286,7 @@ class AppServerImpl implements AppServer {
         if (!supportedEndPoints().contains(endPointConfiguration)) {
             EndPointForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
             link.save();
-            eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+            eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
         }
     }
 
@@ -302,7 +302,7 @@ class AppServerImpl implements AppServer {
         if (!links.isEmpty()) {
             dataModel.mapper(WebServiceForAppServer.class).remove(links.get(0)); // there can only be one anyway
         }
-        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+        eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
     }
 
     @Override
