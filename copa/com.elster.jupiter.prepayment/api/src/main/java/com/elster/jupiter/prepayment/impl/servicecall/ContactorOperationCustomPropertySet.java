@@ -5,9 +5,14 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.prepayment.impl.PrepaymentApplication;
 import com.elster.jupiter.prepayment.impl.PrepaymentChecklist;
+import com.elster.jupiter.prepayment.impl.TranslationSeeds;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -35,13 +40,16 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
 
     public static final String CUSTOM_PROPERTY_SET_NAME = "contactoroperation";
 
+    private volatile Thesaurus thesaurus;
     public volatile PropertySpecService propertySpecService;
 
     public ContactorOperationCustomPropertySet() {
     }
 
     @Inject
-    public ContactorOperationCustomPropertySet(CustomPropertySetService customPropertySetService) {
+    public ContactorOperationCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
 
@@ -58,6 +66,11 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         customPropertySetService.addCustomPropertySet(this);
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(PrepaymentApplication.COMPONENT_NAME, Layer.REST);
     }
 
     @Override
@@ -100,8 +113,9 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
         return Collections.singletonList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName(), ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName())
-                        .describedAs("Callback URL")
+                        .named(ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName(), TranslationSeeds.CALL_BACK_URL)
+                        .describedAs(TranslationSeeds.CALL_BACK_URL)
+                        .fromThesaurus(thesaurus)
                         .finish());
     }
 

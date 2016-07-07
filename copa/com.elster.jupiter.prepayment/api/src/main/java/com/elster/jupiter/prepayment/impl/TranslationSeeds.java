@@ -12,6 +12,7 @@ public enum TranslationSeeds implements TranslationKey {
     CONNECTION_TASK_STATUS_INACTIVE("Inactive", "Inactive"),
     MINIMIZE_CONNECTIONS("MinimizeConnections", "Minimize connections"),
     AS_SOON_AS_POSSIBLE("AsSoonAsPossible", "As soon as possible"),
+    CALL_BACK_URL("callback", "Callback URL"),
     ;
     private String key;
     private final String defaultFormat;
