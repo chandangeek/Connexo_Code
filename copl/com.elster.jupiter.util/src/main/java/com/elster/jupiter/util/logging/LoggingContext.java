@@ -34,7 +34,7 @@ public final class LoggingContext implements LogContext, AutoCloseable {
         return context;
     }
 
-    public static LogContext get() {
+    public static LoggingContext get() {
         return LoggingContext.context.get();
     }
 
