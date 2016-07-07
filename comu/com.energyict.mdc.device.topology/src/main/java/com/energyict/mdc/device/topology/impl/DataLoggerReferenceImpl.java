@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Predicates.not;
+
 /**
  * Represents the link between a Data Logger and its gateway
  * Copyrights EnergyICT
@@ -160,7 +162,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         }
 
         private boolean noIntervals(){
-            return getIntervalBlocks().stream().filter((block) -> block.getIntervals().isEmpty()).findAny().isPresent();
+            return !getIntervalBlocks().stream().filter(not(block -> block.getIntervals().isEmpty())).findAny().isPresent();
         }
 
         @Override
