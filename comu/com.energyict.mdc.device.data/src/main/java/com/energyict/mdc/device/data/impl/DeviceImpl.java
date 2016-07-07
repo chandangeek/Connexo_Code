@@ -24,7 +24,6 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LifecycleDates;
@@ -43,7 +42,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -57,6 +55,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -92,7 +91,7 @@ import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
@@ -267,8 +266,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private List<ProtocolDialectPropertiesImpl> dialectPropertiesList = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> newDialectProperties = new ArrayList<>();
     private List<ProtocolDialectPropertiesImpl> dirtyDialectProperties = new ArrayList<>();
-    private Reference<PassiveEffectiveCalendar> passiveCalendar = ValueReference.absent();
-    private Reference<PassiveEffectiveCalendar> plannedPassiveCalendar = ValueReference.absent();
+    private Reference<PassiveCalendar> passiveCalendar = ValueReference.absent();
+    private Reference<PassiveCalendar> plannedPassiveCalendar = ValueReference.absent();
     private TemporalReference<ServerActiveEffectiveCalendar> activeCalendar = Temporals.absent();
 
     private Map<SecurityPropertySet, TypedProperties> dirtySecurityProperties = new HashMap<>();
@@ -280,7 +279,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private transient BigDecimal multiplier;
 
     private Optional<Location> location = Optional.empty();
-    private Optional<GeoCoordinates> geoCoordinates = Optional.empty();
+    private Optional<SpatialCoordinates> spatialCoordinates = Optional.empty();
     private boolean dirtyMeter = false;
     private static Map<Predicate<Class<? extends ProtocolTask>>, Integer> scorePerProtocolTask;
 
@@ -381,7 +380,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         foundMeter.setMRID(getmRID());
                     }
                     this.location.ifPresent(foundMeter::setLocation);
-                    this.geoCoordinates.ifPresent(foundMeter::setGeoCoordinates);
+                    this.spatialCoordinates.ifPresent(foundMeter::setSpatialCoordinates);
                     foundMeter.update();
                 });
             }
@@ -394,7 +393,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Save.CREATE.save(dataModel, this);
             Meter meter = this.createKoreMeter();
             this.location.ifPresent(meter::setLocation);
-            this.geoCoordinates.ifPresent(meter::setGeoCoordinates);
+            this.spatialCoordinates.ifPresent(meter::setSpatialCoordinates);
             this.createMeterConfiguration(meter, this.clock.instant(), false);
             this.saveNewDialectProperties();
             this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
@@ -430,22 +429,21 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public Optional<GeoCoordinates> getGeoCoordinates() {
+    public Optional<SpatialCoordinates> getSpatialCoordinates() {
         Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
         if (meter.isPresent()) {
-            return meter.get().getGeoCoordinates();
+            return meter.get().getSpatialCoordinates();
         }
-        return this.geoCoordinates;
+        return this.spatialCoordinates;
     }
 
-    @Override
-    public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
+    public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
         Optional<Meter> meter = findKoreMeter(getMdcAmrSystem());
         if (meter.isPresent()) {
-            meter.get().setGeoCoordinates(geoCoordinates);
+            meter.get().setSpatialCoordinates(spatialCoordinates);
             this.dirtyMeter = true;
         } else {
-            this.geoCoordinates = Optional.ofNullable(geoCoordinates);
+            this.spatialCoordinates = Optional.ofNullable(spatialCoordinates);
         }
     }
 
@@ -1407,7 +1405,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
                 loadProfileReading.setChannelData(mdcChannel, meterReading);
-                loadProfileReading.setFlags(getFlagsFromProfileStatus(meterReading.getProfileStatus()));
+                loadProfileReading.setReadingQualities(mdcChannel, meterReading.getReadingQualities());
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
 
@@ -1432,16 +1430,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
         }
         return meterHasData;
-    }
-
-    private List<ProfileStatus.Flag> getFlagsFromProfileStatus(ProfileStatus profileStatus) {
-        List<ProfileStatus.Flag> flags = new ArrayList<>();
-        for (ProfileStatus.Flag flag : ProfileStatus.Flag.values()) {
-            if (profileStatus.get(flag)) {
-                flags.add(flag);
-            }
-        }
-        return flags;
     }
 
     /**
@@ -1714,9 +1702,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             setLocation(loc);
                         }
                     });
-                    usagePoint.getGeoCoordinates().ifPresent(geo -> {
-                        if (!geoCoordinates.isPresent()) {
-                            setGeoCoordinates(geo);
+                    usagePoint.getSpatialCoordinates().ifPresent(geo -> {
+                        if(!spatialCoordinates.isPresent()) {
+                            setSpatialCoordinates(geo);
                         }
                     });
                 }
@@ -2020,11 +2008,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.activeCalendar;
     }
 
-    Optional<PassiveEffectiveCalendar> getPassiveCalendar() {
+    Optional<PassiveCalendar> getPassiveCalendar() {
         return this.passiveCalendar.getOptional();
     }
 
-    void setPassiveCalendar(PassiveEffectiveCalendar calendar) {
+    void setPassiveCalendar(PassiveCalendar calendar) {
         this.clearPassiveCalendar();
         this.passiveCalendar.set(calendar);
     }
@@ -2034,11 +2022,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.getPassiveCalendar().ifPresent(this.dataModel::remove);
     }
 
-    Optional<PassiveEffectiveCalendar> getPlannedPassiveCalendar() {
+    Optional<PassiveCalendar> getPlannedPassiveCalendar() {
         return this.plannedPassiveCalendar.getOptional();
     }
 
-    void setPlannedPassiveCalendar(PassiveEffectiveCalendar calendar) {
+    void setPlannedPassiveCalendar(PassiveCalendar calendar) {
         this.clearPlannedPassiveCalendar();
         this.plannedPassiveCalendar.set(calendar);
     }
@@ -2116,8 +2104,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Integer[] determineScore(List<ProtocolTask> protocolTasks) {
         return protocolTasks.stream()
                 .map(protocolTask -> score(protocolTask.getClass()))
-                .sorted(Integer::compareTo)
-                .sorted(Comparator.reverseOrder())
+                .sorted(Comparator.<Integer>naturalOrder().reversed())
                 .toArray(Integer[]::new);
     }
 

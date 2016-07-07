@@ -31,4 +31,12 @@ public class NoSuchElementException extends LocalizedException implements Suppli
     public static NoSuchElementException comTaskEnablementWithIdNotFound(Thesaurus thesaurus, long comTaskEnablementId) {
         return new NoSuchElementException(thesaurus, MessageSeeds.NO_SUCH_COMTASK_ENABLEMENT, comTaskEnablementId);
     }
+
+    public static NoSuchElementException endDeviceControlTypeWithMRIDNotFound(Thesaurus thesaurus, String mRID) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.NO_SUCH_END_DEVICE_CONTROL_TYPE, mRID);
+    }
+
+    public static NoSuchElementException deviceMessageSpecWithIdNotFound(Thesaurus thesaurus, long deviceMessageId) {
+        return new NoSuchElementException(thesaurus, MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC, deviceMessageId);
+    }
 }

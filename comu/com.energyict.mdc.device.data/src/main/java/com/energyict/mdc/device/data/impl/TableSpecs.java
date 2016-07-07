@@ -27,7 +27,7 @@ import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
@@ -36,6 +36,7 @@ import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
+import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionTriggerImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionJournalEntryImpl;
@@ -44,6 +45,7 @@ import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionI
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
@@ -774,12 +776,13 @@ public enum TableSpecs {
     DDC_PASSIVE_CALENDAR {
         @Override
         void addTo(DataModel dataModel) {
-            Table<PassiveEffectiveCalendar> table = dataModel.addTable(name(), PassiveEffectiveCalendar.class);
-            table.map(PassiveEffectiveCalendarImpl.class);
+            Table<PassiveCalendar> table = dataModel.addTable(name(), PassiveCalendar.class);
+            table.map(PassiveCalendarImpl.class);
+            table.since(version(10, 2));
 
             Column idColumn = table.addAutoIdColumn();
             Column calendar = table.column("ALLOWED_CALENDAR").number().notNull().add();
-            table.column("ACTIVATION_DATE").number().conversion(NUMBER2INSTANT).map(PassiveEffectiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
+            table.column("ACTIVATION_DATE").number().conversion(NUMBER2INSTANT).map(PassiveCalendarImpl.Fields.ACTIVATIONDATE.fieldName()).add();
             Column deviceMessage = table.column("DEVICE_MESSAGE").number().conversion(NUMBER2LONG).add();
 
             table.primaryKey("PK_DDC_PASSIVE_CAL").on(idColumn).add();
@@ -787,12 +790,12 @@ public enum TableSpecs {
                     .references(AllowedCalendar.class)
                     .on(calendar)
                     .onDelete(CASCADE)
-                    .map(PassiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName())
+                    .map(PassiveCalendarImpl.Fields.CALENDAR.fieldName())
                     .add();
             table.foreignKey("FK_DDC_PASSCAL_DEVICEMSG")
                     .on(deviceMessage)
                     .references(DDC_DEVICEMESSAGE.name())
-                    .map(PassiveEffectiveCalendarImpl.Fields.DEVICEMESSAGE.fieldName())
+                    .map(PassiveCalendarImpl.Fields.DEVICEMESSAGE.fieldName())
                     .add();
         }
     },
@@ -801,6 +804,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<?> table = dataModel.getTable(DDC_DEVICE.name());
             Column passiveCalendar = table.column("PASSIVE_CAL").number().conversion(NUMBER2LONG).add();
+            passiveCalendar.since(version(10, 2));
             table.foreignKey("FK_DDC_DEVICE_PASSIVECAL")
                     .references(DDC_PASSIVE_CALENDAR.name())
                     .on(passiveCalendar)
@@ -820,6 +824,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ActiveEffectiveCalendar> table = dataModel.addTable(name(), ActiveEffectiveCalendar.class);
             table.map(ActiveEffectiveCalendarImpl.class);
+            table.since(version(10, 2));
 
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName());
@@ -868,6 +873,31 @@ public enum TableSpecs {
                     references(ReadingType.class).
                     map("readingType").
                     add();
+        }
+    },
+    DDC_COMTASKEXEC_TRIGGERS {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ComTaskExecutionTrigger> table = dataModel.addTable(name(), ComTaskExecutionTrigger.class);
+            table.since(version(10, 2));
+            table.map(ComTaskExecutionTriggerImpl.class);
+
+            Column comTaskExecution = table.column("COMTASKEXEC").number().notNull().add();
+            Column triggerTimestamp = table.column("TIMESTAMP")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBERINUTCSECONDS2INSTANT)
+                    .map(ComTaskExecutionTriggerImpl.Fields.TRIGGER_TIMESTAMP.fieldName())
+                    .add();
+            table.primaryKey("PK_DDC_CTEXECTRIGGER").on(comTaskExecution, triggerTimestamp).add();
+            table.foreignKey("FK_DDC_CTEXECTRIGGER_CTEXEC")
+                    .on(comTaskExecution)
+                    .references(DDC_COMTASKEXEC.name())
+                    .map(ComTaskExecutionTriggerImpl.Fields.COMTASK_EXECUTION.fieldName())
+                    .reverseMap("comTaskExecutionTriggers")
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
         }
     };
 

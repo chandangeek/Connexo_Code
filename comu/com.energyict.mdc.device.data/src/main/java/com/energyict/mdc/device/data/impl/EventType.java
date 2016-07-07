@@ -51,8 +51,18 @@ public enum EventType {
                     .withProperty("maxId", ValueType.LONG, "maxId").withProperty("comScheduleId", ValueType.LONG, "comScheduleId");
         }
     },
+    COMTASKEXECUTIONTRIGGER_CREATED("comtaskexecutiontrigger/CREATED"),
+    COMTASKEXECUTIONTRIGGER_UPDATED("comtaskexecutiontrigger/UPDATED"),
+    COMTASKEXECUTIONTRIGGER_DELETED("comtaskexecutiontrigger/DELETED"),
     DEVICEMESSAGE_CREATED("deviceMessage/CREATED"),
-    DEVICEMESSAGE_UPDATED("deviceMessage/UPDATED"),
+    DEVICEMESSAGE_UPDATED("deviceMessage/UPDATED") {
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
+            EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
+            eventTypeBuilder.withProperty("oldDeviceMessageStatus", ValueType.INTEGER, "oldDeviceMessageStatus");
+            return eventTypeBuilder;
+        }
+    },
     DEVICEMESSAGE_DELETED("deviceMessage/DELETED"),
     FIRMWARE_COMTASKEXECUTION_STARTED("firmwarecomtaskexecution/STARTED"),
     FIRMWARE_COMTASKEXECUTION_COMPLETED("firmwarecomtaskexecution/COMPLETED"),

@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>mdc.device.data</artifactId>
-    <version>3.2.0${revision}</version>
+    <version>4.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.device.data [init DDC]</name>
     <description>
@@ -180,6 +180,10 @@
             <artifactId>mdc.tasks</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
@@ -259,6 +263,11 @@
         <dependency>
           <groupId>com.google.inject</groupId>
           <artifactId>guice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>appserver</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

@@ -19,6 +19,7 @@ import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertySer
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
+
 import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -164,12 +165,12 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
         Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> customPropertySet = getDeviceProtocolCustomPropertySet(device);
-        return !customPropertySet.isPresent() || !this.customPropertySetService.hasValueForPropertySpecs(
+        return !securityPropertySet.getPropertySpecs().isEmpty() && (!customPropertySet.isPresent() || !this.customPropertySetService.hasValueForPropertySpecs(
                 customPropertySet.get(),
                 device, this.clock.instant(),
                 getAllRequiredProperties(securityPropertySet),
                 securityPropertySet
-        );
+        ));
     }
 
     @Override

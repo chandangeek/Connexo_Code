@@ -4,7 +4,6 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -15,6 +14,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.AllowedCalendar;
@@ -79,9 +79,9 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void setLocation(Location location);
 
-    Optional<GeoCoordinates> getGeoCoordinates();
+    Optional<SpatialCoordinates> getSpatialCoordinates();
 
-    void setGeoCoordinates(GeoCoordinates geoCoordinates);
+    void setSpatialCoordinates(SpatialCoordinates geoCoordinates);
 
     /**
      * Gets the name of the Device.
@@ -567,21 +567,21 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
         Optional<ActiveEffectiveCalendar> getActive();
 
         /**
-         * Gets the {@link PassiveEffectiveCalendar} as reported by the actual device
+         * Gets the {@link PassiveCalendar} as reported by the actual device
          * while status information was obtained.
          *
          * @return The actual passive calendar as reported by the actual device
          */
-        Optional<PassiveEffectiveCalendar> getPassive();
+        Optional<PassiveCalendar> getPassive();
 
         /**
-         * Gets the {@link PassiveEffectiveCalendar} that is planned to be sent
+         * Gets the {@link PassiveCalendar} that is planned to be sent
          * to the actual device. Note that this PassiveEffectiveCalendar
          * will be linked to a DeviceMessage.
          *
          * @return The actual passive calendar that is planned to be sent to the actual device
          */
-        Optional<PassiveEffectiveCalendar> getPlannedPassive();
+        Optional<PassiveCalendar> getPlannedPassive();
 
         void updateCalendars(CollectedCalendarInformation collectedData);
 
