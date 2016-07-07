@@ -1,7 +1,6 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -12,7 +11,6 @@ import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -192,7 +190,6 @@ public class StandardDataSelectorImplTest {
 
     @Test
     public void testSelectWithUpdate() {
-
         StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
@@ -232,7 +229,6 @@ public class StandardDataSelectorImplTest {
 
     @Test
     public void testSelectWithUpdateAndWindow() {
-
         StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
@@ -275,7 +271,6 @@ public class StandardDataSelectorImplTest {
 
     @Test
     public void testSelectWithComplete() {
-
         when(meter1.toList(eq(readingType), any())).thenReturn(Arrays.asList(END.toInstant()));
         when(meter2.toList(eq(readingType), any())).thenReturn(Arrays.asList(START.toInstant(), END.toInstant()));
 
@@ -290,12 +285,10 @@ public class StandardDataSelectorImplTest {
         List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(1);
-
     }
 
     @Test
     public void testSelectWithUpdateAndWindowAndComplete() {
-
         when(meter1.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
@@ -335,7 +328,6 @@ public class StandardDataSelectorImplTest {
         assertThat(collect.get(2)).isInstanceOf(MeterReadingData.class);
         MeterReadingData meterReadingData3 = (MeterReadingData) collect.get(2);
         assertThat(meterReadingData3.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "export"));
-
     }
 
     @Test
@@ -347,7 +339,7 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(suspectReadingQuality));
+        when(meter1.getReadingQualities(Collections.emptySet(), QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.singletonList(suspectReadingQuality));
         when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
@@ -404,7 +396,7 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Collections.emptyList());
+        when(meter1.getReadingQualities(Collections.emptySet(), QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.emptyList());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
         when(validationEvaluator.getLastChecked(meter1, readingType)).thenReturn(Optional.of(END.minusMinutes(5).toInstant()));
@@ -461,7 +453,7 @@ public class StandardDataSelectorImplTest {
         when(meter2.toList(readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(END.toInstant()));
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
-        when(meter1.getReadingQualities(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, EXPORTED_INTERVAL)).thenReturn(Arrays.asList(suspectReadingQuality));
+        when(meter1.getReadingQualities(Collections.emptySet(), QualityCodeIndex.SUSPECT, readingType, EXPORTED_INTERVAL)).thenReturn(Collections.singletonList(suspectReadingQuality));
         when(suspectReadingQuality.getReadingTimestamp()).thenReturn(END.toInstant());
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
@@ -502,8 +494,6 @@ public class StandardDataSelectorImplTest {
         assertThat(meterReadingData4.getStructureMarker().getStructurePath()).isEqualTo(Arrays.asList("meter2", "", READING_TYPE_MRID, "update"));
         assertThat(meterReadingData4.getMeterReading().getReadings()).hasSize(2);
     }
-
-
 
     private static class FakeRefAny implements RefAny {
         private final Object value;
