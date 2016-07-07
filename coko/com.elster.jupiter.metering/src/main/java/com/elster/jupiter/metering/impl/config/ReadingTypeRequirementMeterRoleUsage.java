@@ -74,9 +74,9 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
             context.disableDefaultConstraintViolation();
             String formattedTemplate = this.thesaurus.getFormat(MessageSeeds.ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION).format(this.getMeterRole().getDisplayName(), metrologyConfiguration.getName());
             context
-                .buildConstraintViolationWithTemplate(formattedTemplate)
-                .addPropertyNode(Fields.METER_ROLE.fieldName())
-                .addConstraintViolation();
+                    .buildConstraintViolationWithTemplate(formattedTemplate)
+                    .addPropertyNode(Fields.METER_ROLE.fieldName())
+                    .addConstraintViolation();
             return false;
         }
         return true;

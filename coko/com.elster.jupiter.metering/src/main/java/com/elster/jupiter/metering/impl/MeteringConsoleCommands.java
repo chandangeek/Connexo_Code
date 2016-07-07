@@ -174,7 +174,7 @@ public class MeteringConsoleCommands {
     }
 
     private String toString(MeterActivation meterActivation) {
-        String channels = meterActivation.getChannels().stream()
+        String channels = meterActivation.getChannelsContainer().getChannels().stream()
                 .map(channel -> channel.getId() + " " + channel.getMainReadingType().getMRID())
                 .collect(java.util.stream.Collectors.joining("\n\t"));
         return meterActivation.getRange().toString() + "\n\t" + channels;
@@ -655,7 +655,8 @@ public class MeteringConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO)
+                    .parse(formulaString);
 
             deliverable.setName(name);
             deliverable.setReadingType(readingType);
@@ -698,7 +699,8 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO)
+                    .parse(formulaString);
 
             deliverable.getFormula().updateExpression(node);
             deliverable.update();

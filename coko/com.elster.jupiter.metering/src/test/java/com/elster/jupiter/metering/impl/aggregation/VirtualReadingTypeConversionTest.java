@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * <li>{@link VirtualReadingType#withMetricMultiplier(MetricMultiplier)}</li>
  * <li>{@link VirtualReadingType#withUnit(ReadingTypeUnit)}</li>
  * </ul>
+ *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-04-26 (12:21
  */

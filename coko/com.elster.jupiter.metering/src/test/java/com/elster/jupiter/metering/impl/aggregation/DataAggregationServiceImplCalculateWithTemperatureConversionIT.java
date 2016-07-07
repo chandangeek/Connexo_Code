@@ -113,6 +113,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     private static ReadingType F_daily;
     private static ServiceCategory ELECTRICITY;
     private static MetrologyPurpose METROLOGY_PURPOSE;
+    private static MeterRole METER_ROLE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
@@ -155,7 +156,6 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         setupServices();
         setupReadingTypes();
         setupMetrologyPurpose();
-        ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
     }
 
     private static void setupServices() {
@@ -188,7 +188,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new BasicPropertiesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -242,6 +243,9 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
+            ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+            METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+            ELECTRICITY.addMeterRole(METER_ROLE);
             ctx.commit();
         }
     }
@@ -276,14 +280,14 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     /**
      * Tests the unit conversion K -> °C
      * Metrology configuration
-     *    requirements:
-     *       T ::= any temperature (15m)
-     *    deliverables:
-     *       averageTemperature (daily °C) ::= T + 10
+     * requirements:
+     * T ::= any temperature (15m)
+     * deliverables:
+     * averageTemperature (daily °C) ::= T + 10
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           T -> 15 min K
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * T -> 15 min K
      * In other words, the requirement is provided by exactly
      * one matching channel from a single meter activation
      * but the temparature channel needs to be converted from
@@ -333,15 +337,15 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp,.*");
@@ -363,14 +367,14 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     /**
      * Tests the unit conversion K -> °C
      * Metrology configuration
-     *    requirements:
-     *       T ::= any temperature (15m)
-     *    deliverables:
-     *       averageTemperature (daily °F) ::= T + 10
+     * requirements:
+     * T ::= any temperature (15m)
+     * deliverables:
+     * averageTemperature (daily °F) ::= T + 10
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           T -> 15 min K
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * T -> 15 min K
      * In other words, the requirement is provided by exactly
      * one matching channel from a single meter activation
      * but the temparature channel needs to be converted from
@@ -421,15 +425,15 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp,.*");
@@ -451,16 +455,16 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     /**
      * Tests the unit conversion to K
      * Metrology configuration
-     *    requirements:
-     *       minT ::= any temperature (15m)
-     *       maxT ::= any temperature (15m)
-     *    deliverables:
-     *       averageTemperature (daily K) ::= (minT + maxT) / 2
+     * requirements:
+     * minT ::= any temperature (15m)
+     * maxT ::= any temperature (15m)
+     * deliverables:
+     * averageTemperature (daily K) ::= (minT + maxT) / 2
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           minT -> 15 min °C
-     *           maxT -> 15 min °F
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * minT -> 15 min °C
+     * maxT -> 15 min °F
      * In other words, the requirement is provided by exactly
      * one matching channel from a single meter activation
      * but the temparature channel needs to be converted from
@@ -473,8 +477,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.setupMeter("celciusAndFahrenheitToKelvin");
         this.setupUsagePoint("celciusAndFahrenheitToKelvin");
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        Channel minTChannel = this.meterActivation.createChannel(C_15min);
-        Channel maxTChannel = this.meterActivation.createChannel(F_15min);
+        Channel minTChannel = this.meterActivation.getChannelsContainer().createChannel(C_15min);
+        Channel maxTChannel = this.meterActivation.getChannelsContainer().createChannel(F_15min);
 
         // Setup MetrologyConfiguration
         MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
@@ -520,21 +524,21 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(minTemperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature2RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature2RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(maxTemperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp,.*");
@@ -589,7 +593,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
     private void activateMeter(ReadingType readingType) {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.temperatureChannel = this.meterActivation.createChannel(readingType);
+        this.temperatureChannel = this.meterActivation.getChannelsContainer().createChannel(readingType);
     }
 
     private String mRID2GrepPattern(String mRID) {

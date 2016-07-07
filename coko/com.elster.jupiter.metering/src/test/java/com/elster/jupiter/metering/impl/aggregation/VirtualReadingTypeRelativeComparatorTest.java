@@ -26,7 +26,7 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isEqualTo(0);
+                .isEqualTo(0);
     }
 
     @Test
@@ -38,11 +38,11 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
     }
 
     @Test
@@ -54,27 +54,27 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.DAY1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.DAY1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.DAY1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MONTH1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MONTH1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.DAY1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
     }
 
     @Test
@@ -86,35 +86,35 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.MEGA, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.MEGA, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.MILLI, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.MILLI, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
     }
 
     @Test
@@ -126,31 +126,31 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED)))
-            .isEqualTo(0);
+                .isEqualTo(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED)))
-            .isEqualTo(0);
+                .isEqualTo(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isEqualTo(0);
+                .isEqualTo(0);
     }
 
     @Test
@@ -162,39 +162,39 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED)))
-            .isEqualTo(0);
+                .isEqualTo(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED)))
-            .isEqualTo(0);
+                .isEqualTo(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isEqualTo(0);
+                .isEqualTo(0);
     }
 
     @Test
@@ -206,31 +206,31 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED)))
-            .isEqualTo(0);
+                .isEqualTo(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_SECONDARY_METERED)))
-            .isEqualTo(0);
+                .isEqualTo(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isEqualTo(0);
+                .isEqualTo(0);
     }
 
     @Test
@@ -242,19 +242,19 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
     }
 
     @Test
@@ -266,19 +266,19 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE10, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
     }
 
     @Test
@@ -290,15 +290,15 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.BAR, Accumulation.BULKQUANTITY, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.MMMERCURY, Accumulation.BULKQUANTITY, Commodity.NOTAPPLICABLE)))
-            .isEqualTo(0);
+                .isEqualTo(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.BAR, Accumulation.BULKQUANTITY, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.MMMERCURY, Accumulation.BULKQUANTITY, Commodity.NOTAPPLICABLE)))
-            .isLessThan(0);
+                .isLessThan(0);
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.BAR, Accumulation.BULKQUANTITY, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.ZERO, ReadingTypeUnit.MMMERCURY, Accumulation.BULKQUANTITY, Commodity.NOTAPPLICABLE)))
-            .isGreaterThan(0);
+                .isGreaterThan(0);
     }
 
     @Test
@@ -310,7 +310,7 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, Accumulation.BULKQUANTITY, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESFAHRENHEIT, Accumulation.BULKQUANTITY, Commodity.NOTAPPLICABLE)))
-            .isEqualTo(0);
+                .isEqualTo(0);
     }
 
     @Test
@@ -322,7 +322,7 @@ public class VirtualReadingTypeRelativeComparatorTest {
         assertThat(comparator.compare(
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.VOLT, Accumulation.BULKQUANTITY, Commodity.NOTAPPLICABLE),
                 VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.AMPERE, Accumulation.BULKQUANTITY, Commodity.NOTAPPLICABLE)))
-            .isEqualTo(0);
+                .isEqualTo(0);
     }
 
 }

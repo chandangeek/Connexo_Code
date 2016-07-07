@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.Counter;
 import com.elster.jupiter.util.Counters;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
 import java.util.ArrayDeque;
@@ -49,7 +50,7 @@ public class ExpressionNodeParser {
 
     private List<ServerExpressionNode> nodes = new ArrayList<>();
 
-    private List<Counter> argumentCounters = new ArrayList<> ();
+    private List<Counter> argumentCounters = new ArrayList<>();
 
     public ServerExpressionNode parse(String input) {
         StringBuilder builder = new StringBuilder();
@@ -75,8 +76,7 @@ public class ExpressionNodeParser {
                 }
             } else if (value == ' ') {
                 // Ignore whitespace
-            }
-            else {
+            } else {
                 builder.append(value);
             }
         }
@@ -109,7 +109,7 @@ public class ExpressionNodeParser {
     private void handleDeliverableNode(String value) {
         long id;
         try {
-            id =  Integer.parseInt(value);
+            id = Integer.parseInt(value);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(value + " is not number");
         }
@@ -119,7 +119,7 @@ public class ExpressionNodeParser {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.get().getId());
             }
             if ((isAutoMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
-                    (isExpertMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.AUTO))){
+                    (isExpertMode() && readingTypeDeliverable.get().getFormula().getMode().equals(Formula.Mode.AUTO))) {
                 throw new InvalidNodeException(thesaurus, MessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
             }
             nodes.add(new ReadingTypeDeliverableNodeImpl(readingTypeDeliverable.get()));
@@ -188,7 +188,9 @@ public class ExpressionNodeParser {
     }
 
     private boolean isNumerical(PropertySpec propertySpec) {
-        return Number.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
+        Class valueType = propertySpec.getValueFactory().getValueType();
+        return Number.class.isAssignableFrom(valueType)
+            || Quantity.class.isAssignableFrom(valueType);
     }
 
     private void handleNullNode() {
@@ -232,10 +234,10 @@ public class ExpressionNodeParser {
         }
         FunctionCallNodeImpl functionCallNode =
                 new FunctionCallNodeImpl(
-                    nodes.subList(nodes.size() - numberOfArguments, nodes.size()),
-                    function,
-                    aggregationLevel,
-                    thesaurus);
+                        nodes.subList(nodes.size() - numberOfArguments, nodes.size()),
+                        function,
+                        aggregationLevel,
+                        thesaurus);
         for (int i = 0; i < numberOfArguments; i++) {
             nodes.remove(nodes.size() - 1);
         }

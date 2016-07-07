@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -73,7 +74,8 @@ class MeterActivationSetImpl implements MeterActivationSet {
     public List<Channel> getChannels() {
         return this.meterActivations
                 .stream()
-                .map(MeterActivation::getChannels)
+                .map(MeterActivation::getChannelsContainer)
+                .map(ChannelsContainer::getChannels)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
@@ -82,6 +84,7 @@ class MeterActivationSetImpl implements MeterActivationSet {
     public List<Channel> getMatchingChannelsFor(ReadingTypeRequirement requirement) {
         Stream<MeterActivation> meterActivations = this.getMeterActivationsFor(requirement);
         return meterActivations
+                .map(MeterActivation::getChannelsContainer)
                 .map(requirement::getMatchingChannelsFor)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());

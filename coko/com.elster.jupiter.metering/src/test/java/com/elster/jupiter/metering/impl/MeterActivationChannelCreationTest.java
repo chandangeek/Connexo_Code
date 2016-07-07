@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
@@ -74,7 +73,7 @@ public class MeterActivationChannelCreationTest {
     @Mock
     private IdsService idsService;
     @Mock
-    private MeteringService meteringService;
+    private ServerMeteringService meteringService;
     @Mock
     private Clock clock;
     @Mock
@@ -114,19 +113,9 @@ public class MeterActivationChannelCreationTest {
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(RT2, "readingType2");
         readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(RT3, "readingType3");
 
-        final Provider<ChannelImpl> channelFactory = new Provider<ChannelImpl>() {
-            @Override
-            public ChannelImpl get() {
-                return new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
-            }
-        };
-
-        channelBuilder = new Provider<ChannelBuilder>() {
-            @Override
-            public ChannelBuilder get() {
-                return new ChannelBuilderImpl(dataModel, channelFactory);
-            }
-        };
+        Provider<ChannelImpl> channelFactory = () -> new ChannelImpl(dataModel, idsService, meteringService, clock, eventService);
+        channelBuilder = () -> new ChannelBuilderImpl(dataModel, channelFactory);
+        when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilder));
         when(usagePoint.getId()).thenReturn(USAGEPOINT_ID);
         when(meter.getId()).thenReturn(METER_ID);
         when(meter.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
@@ -137,10 +126,10 @@ public class MeterActivationChannelCreationTest {
         when(vault.createIrregularTimeSeries(eq(recordSpec), eq(ACTIVATION_TIME_BASE.getZone()))).thenReturn(timeSeries);
         when(timeSeries.getZoneId()).thenReturn(ACTIVATION_TIME_BASE.getZone());
         when(clock.getZone()).thenReturn(ACTIVATION_TIME_BASE.getZone());
+        when(clock.instant()).thenReturn(ACTIVATION_TIME);
         when(usagePoint.getConfiguration(any())).thenReturn(Optional.empty());
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
-
-
+        when(meteringService.getClock()).thenReturn(clock);
     }
 
     private MeterActivationImpl createMeterActivationOnMeter() {
@@ -148,7 +137,7 @@ public class MeterActivationChannelCreationTest {
     }
 
     private MeterActivationImpl getTestInstance() {
-        return new MeterActivationImpl(dataModel, eventService, clock, channelBuilder, thesaurus);
+        return new MeterActivationImpl(dataModel, eventService, clock, thesaurus);
     }
 
     @Test
@@ -156,8 +145,8 @@ public class MeterActivationChannelCreationTest {
         when(headEndInterface.getCapabilities(meter)).thenAnswer(invocationOnMock -> new EndDeviceCapabilities(Arrays.asList(deltaRt1, readingType2, readingType3), Collections.emptyList()));
         MeterActivationImpl meterActivation = createMeterActivationOnMeter();
 
-        assertThat(meterActivation.getChannels()).hasSize(3);
-        assertThat(meterActivation.getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(deltaRt1, readingType2, readingType3);
+        assertThat(meterActivation.getChannelsContainer().getChannels()).hasSize(3);
+        assertThat(meterActivation.getChannelsContainer().getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(deltaRt1, readingType2, readingType3);
     }
 
     @Test
@@ -165,8 +154,8 @@ public class MeterActivationChannelCreationTest {
         when(headEndInterface.getCapabilities(eq(meter))).thenAnswer(invocationOnMock -> new EndDeviceCapabilities(Arrays.asList(deltaRt1, readingType2, deltaRt1), Collections.emptyList()));
         MeterActivationImpl meterActivation = createMeterActivationOnMeter();
 
-        assertThat(meterActivation.getChannels()).hasSize(2);
-        assertThat(meterActivation.getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(deltaRt1, readingType2);
+        assertThat(meterActivation.getChannelsContainer().getChannels()).hasSize(2);
+        assertThat(meterActivation.getChannelsContainer().getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(deltaRt1, readingType2);
     }
 
     @Test
@@ -178,8 +167,8 @@ public class MeterActivationChannelCreationTest {
         when(headEndInterface.getCapabilities(eq(meter))).thenAnswer(invocationOnMock -> new EndDeviceCapabilities(Arrays.asList(deltaRt1, bulkRT1), Collections.emptyList()));
         MeterActivationImpl meterActivation = createMeterActivationOnMeter();
 
-        assertThat(meterActivation.getChannels()).hasSize(1);
-        assertThat(meterActivation.getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(deltaRt1);
+        assertThat(meterActivation.getChannelsContainer().getChannels()).hasSize(1);
+        assertThat(meterActivation.getChannelsContainer().getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(deltaRt1);
     }
 
     @Test
@@ -192,8 +181,8 @@ public class MeterActivationChannelCreationTest {
         when(headEndInterface.getCapabilities(eq(meter))).thenAnswer(invocationOnMock -> new EndDeviceCapabilities(Arrays.asList(readingType2, readingType3), Collections.emptyList()));
         MeterActivationImpl meterActivation = createMeterActivationOnMeter();
 
-        assertThat(meterActivation.getChannels()).hasSize(1);
-        assertThat(meterActivation.getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(readingType3);
+        assertThat(meterActivation.getChannelsContainer().getChannels()).hasSize(1);
+        assertThat(meterActivation.getChannelsContainer().getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(readingType3);
     }
 
     @Test
@@ -206,8 +195,8 @@ public class MeterActivationChannelCreationTest {
         when(headEndInterface.getCapabilities(eq(meter))).thenAnswer(invocationOnMock -> new EndDeviceCapabilities(Arrays.asList(readingType2, readingType3), Collections.emptyList()));
         MeterActivationImpl meterActivation = createMeterActivationOnMeter();
 
-        assertThat(meterActivation.getChannels()).hasSize(1);
-        assertThat(meterActivation.getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(readingType2);
+        assertThat(meterActivation.getChannelsContainer().getChannels()).hasSize(1);
+        assertThat(meterActivation.getChannelsContainer().getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(readingType2);
     }
 
     @Test
@@ -223,8 +212,8 @@ public class MeterActivationChannelCreationTest {
         when(headEndInterface.getCapabilities(eq(meter))).thenAnswer(invocationOnMock -> new EndDeviceCapabilities(Arrays.asList(readingType2, deltaRt1), Collections.emptyList()));
         MeterActivationImpl meterActivation = createMeterActivationOnMeter();
 
-        assertThat(meterActivation.getChannels()).hasSize(1);
-        assertThat(meterActivation.getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(deltaRt1);
+        assertThat(meterActivation.getChannelsContainer().getChannels()).hasSize(1);
+        assertThat(meterActivation.getChannelsContainer().getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(deltaRt1);
     }
 
     @Test
@@ -238,8 +227,8 @@ public class MeterActivationChannelCreationTest {
         when(dataMapperMock.getOptional(eq(DELTADELTA_RT))).thenReturn(Optional.of(deltaRt1));
 
         MeterActivationImpl meterActivation = createMeterActivationOnMeter();
-        assertThat(meterActivation.getChannels()).hasSize(1);
-        assertThat(meterActivation.getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(deltaRt1);
+        assertThat(meterActivation.getChannelsContainer().getChannels()).hasSize(1);
+        assertThat(meterActivation.getChannelsContainer().getChannels().stream().map(Channel::getMainReadingType).collect(Collectors.toList())).contains(deltaRt1);
 
     }
 }

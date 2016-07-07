@@ -49,7 +49,7 @@ public class DeliverableNodesFromExpressionNode implements ExpressionNode.Visito
     }
 
     @Override
-     public List<ReadingTypeDeliverableNode> visitFunctionCall(FunctionCallNode functionCall) {
+    public List<ReadingTypeDeliverableNode> visitFunctionCall(FunctionCallNode functionCall) {
         return getDeliverableNodesFromChildren(functionCall);
     }
 

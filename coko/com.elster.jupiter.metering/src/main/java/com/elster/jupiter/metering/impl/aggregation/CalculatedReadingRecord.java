@@ -71,7 +71,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     }
 
     private static BigDecimal mergeValue(AggregationFunction function, BigDecimal v1, BigDecimal v2) {
-        if (v1 != null && v2!= null) {
+        if (v1 != null && v2 != null) {
             return function.applyTo(v1, v2);
         } else if (v1 == null) {
             return v2;
@@ -163,7 +163,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     }
 
     @Override
-    public ProcessStatus getProcesStatus() {
+    public ProcessStatus getProcessStatus() {
         return this.processStatus;
     }
 
@@ -210,7 +210,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
                 .stream()
                 .findFirst()
                 .get();
-        ZoneId zoneId = meterActivation.getZoneId();
+        ZoneId zoneId = meterActivation.getChannelsContainer().getZoneId();
         IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
         Instant startCandidate = intervalLength.truncate(this.getTimeStamp(), zoneId);
         if (startCandidate.equals(this.getTimeStamp())) {
@@ -221,7 +221,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
                 .stream()
                 .findFirst();
         if (meterActivationAtStart.isPresent()) {
-            if (zoneId.equals(meterActivationAtStart.get().getZoneId())) {
+            if (zoneId.equals(meterActivationAtStart.get().getChannelsContainer().getZoneId())) {
                 // Same ZoneId
                 return Optional.of(Range.openClosed(startCandidate, this.getTimeStamp()));
             } else {

@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
@@ -312,7 +313,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public ReadingTypeDeliverableBuilderImpl newReadingTypeDeliverable(String name, ReadingType readingType, Formula.Mode mode) {
-        return new ReadingTypeDeliverableBuilderImpl(this, name, readingType, mode, this.customPropertySetService, this.metrologyConfigurationService.getDataModel(), this.metrologyConfigurationService.getThesaurus());
+        return new ReadingTypeDeliverableBuilderImpl(this, name, readingType, mode, this.customPropertySetService, this.metrologyConfigurationService.getDataModel(), this.metrologyConfigurationService
+                .getThesaurus());
     }
 
     @Override

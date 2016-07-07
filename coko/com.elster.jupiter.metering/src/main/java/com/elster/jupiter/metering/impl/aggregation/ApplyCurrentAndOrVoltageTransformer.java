@@ -138,9 +138,9 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     @Override
     public ServerExpressionNode visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
         return new TimeBasedAggregationNode(
-                        aggregationNode.getAggregatedExpression().accept(this),
-                        aggregationNode.getFunction(),
-                        aggregationNode.getIntervalLength());
+                aggregationNode.getAggregatedExpression().accept(this),
+                aggregationNode.getFunction(),
+                aggregationNode.getIntervalLength());
     }
 
     private class Context {
@@ -175,9 +175,9 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
             @Override
             ServerExpressionNode apply(Context context) {
                 return context
-                    .getMultiplier(MultiplierType.StandardType.VT)
-                    .map(context::multiply)
-                    .orElse(context.node);
+                        .getMultiplier(MultiplierType.StandardType.VT)
+                        .map(context::multiply)
+                        .orElse(context.node);
             }
         },
 
@@ -229,8 +229,8 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
                 Optional<BigDecimal> vtMultiplier = context.getMultiplier(MultiplierType.StandardType.VT);
                 if (ctMultiplier.isPresent() && vtMultiplier.isPresent()) {
                     return Operator.MULTIPLY.node(
-                                Operator.DIVIDE.node(ctMultiplier.get(), vtMultiplier.get()),
-                                context.node);
+                            Operator.DIVIDE.node(ctMultiplier.get(), vtMultiplier.get()),
+                            context.node);
                 } else {
                     return context.node;
                 }

@@ -112,6 +112,7 @@ public class DataAggregationServiceImplExpertModeIT {
     private static ReadingType ENERGY_daily;
     private static ServiceCategory ELECTRICITY;
     private static MetrologyPurpose METROLOGY_PURPOSE;
+    private static MeterRole METER_ROLE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
@@ -188,7 +189,8 @@ public class DataAggregationServiceImplExpertModeIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new BasicPropertiesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -241,6 +243,9 @@ public class DataAggregationServiceImplExpertModeIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
+            ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+            METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+            ELECTRICITY.addMeterRole(METER_ROLE);
             ctx.commit();
         }
     }
@@ -281,18 +286,18 @@ public class DataAggregationServiceImplExpertModeIT {
      * where Normalized volume is calculated as: volume * (temperature / pressure * normalized-temperature / normalized-pressure).
      * Both normalized-temperature and normalized-pressure are in fact constants.
      * Metrology configuration
-     *    requirements:
-     *       T ::= Celcius  (15m)
-     *       P ::= millibar (15m)
-     *       V ::= m3       (15m)
-     *    deliverables:
-     *       Energy (15min °C) ::= V * (T / P * 1013.25 / 288.15)
+     * requirements:
+     * T ::= Celcius  (15m)
+     * P ::= millibar (15m)
+     * V ::= m3       (15m)
+     * deliverables:
+     * Energy (15min °C) ::= V * (T / P * 1013.25 / 288.15)
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           T -> 15 min °C
-     *           P -> 15 min millibar
-     *           V -> 15 min m3
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * T -> 15 min °C
+     * P -> 15 min millibar
+     * V -> 15 min m3
      * In other words, all requirements are provided by exactly
      * one matching channel from a single meter activation.
      */
@@ -350,27 +355,27 @@ public class DataAggregationServiceImplExpertModeIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(pressureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(volumeWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
             assertThat(deliverableWithClauseSql)
@@ -392,18 +397,18 @@ public class DataAggregationServiceImplExpertModeIT {
      * where Normalized volume is calculated as: volume * (temperature / pressure * normalized-temperature / normalized-pressure).
      * Both normalized-temperature and normalized-pressure are in fact constants.
      * Metrology configuration
-     *    requirements:
-     *       T ::= Celcius  (15m)
-     *       P ::= millibar (15m)
-     *       V ::= m3       (15m)
-     *    deliverables:
-     *       Energy (daily °C) ::= V * (T / P * 1013.25 / 288.15)
+     * requirements:
+     * T ::= Celcius  (15m)
+     * P ::= millibar (15m)
+     * V ::= m3       (15m)
+     * deliverables:
+     * Energy (daily °C) ::= V * (T / P * 1013.25 / 288.15)
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           T -> 15 min °C
-     *           P -> 15 min millibar
-     *           V -> 15 min m3
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * T -> 15 min °C
+     * P -> 15 min millibar
+     * V -> 15 min m3
      * In other words, all requirements are provided by exactly
      * one matching channel from a single meter activation.
      */
@@ -435,18 +440,18 @@ public class DataAggregationServiceImplExpertModeIT {
                 Formula.Mode.EXPERT);
         ReadingTypeDeliverable energy =
                 builder.build(
-                    builder.aggregate(   // Note how the expert is required to define when the aggregation is done
-                        builder.multiply(
-                            builder.constant(BigDecimal.valueOf(40L)),   // calorific value
-                            builder.multiply(
-                                builder.requirement(volume),
+                        builder.aggregate(   // Note how the expert is required to define when the aggregation is done
                                 builder.multiply(
-                                    builder.divide(
-                                        builder.requirement(temperature),
-                                        builder.requirement(pressure)),
-                                    builder.divide(
-                                        builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
-                                        builder.constant(BigDecimal.valueOf(15L))))))));     // 15 normalized gas is measured at 15 °Celcius
+                                        builder.constant(BigDecimal.valueOf(40L)),   // calorific value
+                                        builder.multiply(
+                                                builder.requirement(volume),
+                                                builder.multiply(
+                                                        builder.divide(
+                                                                builder.requirement(temperature),
+                                                                builder.requirement(pressure)),
+                                                        builder.divide(
+                                                                builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
+                                                                builder.constant(BigDecimal.valueOf(15L))))))));     // 15 normalized gas is measured at 15 °Celcius
         this.deliverableId = energy.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -466,27 +471,27 @@ public class DataAggregationServiceImplExpertModeIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(pressureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(volumeWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
             assertThat(deliverableWithClauseSql).startsWith("SELECT -1,");
@@ -514,18 +519,18 @@ public class DataAggregationServiceImplExpertModeIT {
      * where Normalized volume is calculated as: volume * (temperature / pressure * normalized-temperature / normalized-pressure).
      * Both normalized-temperature and normalized-pressure are in fact constants.
      * Metrology configuration
-     *    requirements:
-     *       T ::= Celcius  (15m)
-     *       P ::= millibar (daily)
-     *       V ::= m3       (15m)
-     *    deliverables:
-     *       Energy (daily °C) ::= sum(V, day) * (avg(T, day) / P * 1013.25 / 288.15)
+     * requirements:
+     * T ::= Celcius  (15m)
+     * P ::= millibar (daily)
+     * V ::= m3       (15m)
+     * deliverables:
+     * Energy (daily °C) ::= sum(V, day) * (avg(T, day) / P * 1013.25 / 288.15)
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           T -> 15 min °C
-     *           P -> 15 min millibar
-     *           V -> 15 min m3
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * T -> 15 min °C
+     * P -> 15 min millibar
+     * V -> 15 min m3
      * In other words, all requirements are provided by exactly
      * one matching channel from a single meter activation.
      */
@@ -560,17 +565,17 @@ public class DataAggregationServiceImplExpertModeIT {
                 Formula.Mode.EXPERT);
         ReadingTypeDeliverable energy =
                 builder.build(
-                    builder.multiply(
-                        builder.constant(BigDecimal.valueOf(40L)),   // calorific value
                         builder.multiply(
-                            builder.sum(AggregationLevel.DAY, builder.requirement(volume)),
-                            builder.multiply(
-                                builder.divide(
-                                    builder.average(AggregationLevel.DAY, builder.requirement(temperature)),
-                                    builder.requirement(pressure)),
-                                builder.divide(
-                                    builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
-                                    builder.constant(BigDecimal.valueOf(15L)))))));     // 15 normalized gas is measured at 15 °Celcius
+                                builder.constant(BigDecimal.valueOf(40L)),   // calorific value
+                                builder.multiply(
+                                        builder.sum(AggregationLevel.DAY, builder.requirement(volume)),
+                                        builder.multiply(
+                                                builder.divide(
+                                                        builder.average(AggregationLevel.DAY, builder.requirement(temperature)),
+                                                        builder.requirement(pressure)),
+                                                builder.divide(
+                                                        builder.constant(BigDecimal.valueOf(101325L, 2)),    // 1013,25 normal pressure at sea level
+                                                        builder.constant(BigDecimal.valueOf(15L)))))));     // 15 normalized gas is measured at 15 °Celcius
         this.deliverableId = energy.getId();
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
@@ -590,27 +595,27 @@ public class DataAggregationServiceImplExpertModeIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperatureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + pressureRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(pressureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + volumeRequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(volumeWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
             assertThat(deliverableWithClauseSql).startsWith("SELECT -1,");
@@ -659,9 +664,9 @@ public class DataAggregationServiceImplExpertModeIT {
 
     private void activateMeter() {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.temperatureChannel = this.meterActivation.createChannel(CELCIUS_15min);
-        this.pressureChannel = this.meterActivation.createChannel(PRESSURE_15min);
-        this.volumeChannel = this.meterActivation.createChannel(VOLUME_15min);
+        this.temperatureChannel = this.meterActivation.getChannelsContainer().createChannel(CELCIUS_15min);
+        this.pressureChannel = this.meterActivation.getChannelsContainer().createChannel(PRESSURE_15min);
+        this.volumeChannel = this.meterActivation.getChannelsContainer().createChannel(VOLUME_15min);
     }
 
     private String mRID2GrepPattern(String mRID) {

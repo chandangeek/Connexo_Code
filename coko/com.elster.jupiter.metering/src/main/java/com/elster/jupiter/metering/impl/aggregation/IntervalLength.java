@@ -471,7 +471,7 @@ public enum IntervalLength {
 
         @Override
         Instant truncate(Instant instant, ZoneId zone) {
-            return  instant.atZone(zone).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1).toInstant();
+            return instant.atZone(zone).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1).toInstant();
         }
 
         @Override
@@ -618,6 +618,7 @@ public enum IntervalLength {
      * <pre><code>
      *     intervalLength.truncate(timestamp).plus(intervalLength.toTemporalAmount()) &ge; instant
      * </code></pre>
+     *
      * @param instant The Instant wich remain unaffected by this call
      * @param zone The ZoneId
      * @return The copy of the Instant truncated to this IntervalLength

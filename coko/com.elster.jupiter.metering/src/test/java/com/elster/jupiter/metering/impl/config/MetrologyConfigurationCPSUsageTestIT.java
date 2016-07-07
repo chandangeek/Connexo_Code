@@ -39,7 +39,7 @@ public class MetrologyConfigurationCPSUsageTestIT {
     }
 
     @After
-    public void afterTest(){
+    public void afterTest() {
         inTransaction(ctx -> {
             findMetrologyConfiguration().ifPresent(MetrologyConfiguration::delete);
             ctx.commit();

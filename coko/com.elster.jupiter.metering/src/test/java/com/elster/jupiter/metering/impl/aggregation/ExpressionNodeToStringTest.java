@@ -243,7 +243,7 @@ public class ExpressionNodeToStringTest {
         when(deliverable.getReadingType()).thenReturn(hourlyWattHours);
         VirtualReadingTypeRequirement virtualRequirement = mock(VirtualReadingTypeRequirement.class);
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(deliverable), any(VirtualReadingType.class)))
-            .thenReturn(virtualRequirement);
+                .thenReturn(virtualRequirement);
         MeterActivationSet meterActivationSet = mock(MeterActivationSet.class);
         when(meterActivationSet.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         VirtualRequirementNode node =

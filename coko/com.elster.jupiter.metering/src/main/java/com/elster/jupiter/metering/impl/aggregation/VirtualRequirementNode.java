@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * for a reference to a {@link VirtualReadingTypeRequirement}
  * in an expression tree that defines the calculation for
  * a {@link ReadingTypeDeliverable}.
- *
+ * <p>
  * It will participate in generating a "with" clause that will
  * do time based aggregation if the interval of the target reading
  * type &gt; interval of the most appropriate channel.
@@ -87,14 +87,13 @@ class VirtualRequirementNode implements ServerExpressionNode {
         if (preferredReadingType.isPresent()) {
             Loggers.ANALYSIS.debug(() ->
                     MessageFormat.format(
-                        "Preferred reading type for requirement ''{0}'' in meter activation {1} for the calculation of deliverable ''{2}'' : {3}",
-                        this.requirement.getName() + "-" + this.requirementReadingTypeForLogging(),
-                        this.meterActivationSet.getRange(),
-                        this.deliverable.getName() + "-" + targetReadingType,
-                        preferredReadingType.get().toString()));
+                            "Preferred reading type for requirement ''{0}'' in meter activation {1} for the calculation of deliverable ''{2}'' : {3}",
+                            this.requirement.getName() + "-" + this.requirementReadingTypeForLogging(),
+                            this.meterActivationSet.getRange(),
+                            this.deliverable.getName() + "-" + targetReadingType,
+                            preferredReadingType.get().toString()));
             return preferredReadingType.get();
-        }
-        else {
+        } else {
             Loggers.ANALYSIS.severe(() ->
                     MessageFormat.format(
                             "Unable to find matching channel for the requirement ''{0}'' in meter activation {1} as part of calculation for deliverable ''{2}''",
@@ -120,11 +119,11 @@ class VirtualRequirementNode implements ServerExpressionNode {
         List<Channel> channels = meterActivationSet.getChannels();
         if (!channels.isEmpty()) {
             return "The following (main) reading types are available:\n\t"
-                 + channels
-                        .stream()
-                        .map(Channel::getMainReadingType)
-                        .map(ReadingType::getMRID)
-                        .collect(Collectors.joining(",\n\t"));
+                    + channels
+                    .stream()
+                    .map(Channel::getMainReadingType)
+                    .map(ReadingType::getMRID)
+                    .collect(Collectors.joining(",\n\t"));
         } else {
             return "No channels are available in the meter activation";
         }
@@ -202,6 +201,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
 
     /**
      * Ensures that the {@link ReadingTypeRequirement} is virtualized
+     *
      * @see #virtualize()
      */
     private void ensureVirtualized() {

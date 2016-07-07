@@ -13,15 +13,25 @@ interface ServerExpressionNode {
 
     interface Visitor<T> {
         T visitNull(NullNode nullNode);
+
         T visitConstant(NumericalConstantNode constant);
+
         T visitConstant(StringConstantNode constant);
+
         T visitProperty(CustomPropertyNode property);
+
         T visitSqlFragment(SqlFragmentNode variable);
+
         T visitVirtualRequirement(VirtualRequirementNode requirement);
+
         T visitVirtualDeliverable(VirtualDeliverableNode deliverable);
+
         T visitUnitConversion(UnitConversionNode unitConversionNode);
+
         T visitOperation(OperationNode operationNode);
+
         T visitFunctionCall(FunctionCallNode functionCall);
+
         T visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode);
     }
 

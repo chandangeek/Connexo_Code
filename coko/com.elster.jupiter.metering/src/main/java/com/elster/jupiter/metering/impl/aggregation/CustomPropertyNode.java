@@ -56,12 +56,13 @@ class CustomPropertyNode implements ServerExpressionNode {
     }
 
     private String sqlComment() {
-        return "Value for custom property '" + this.propertySpec.getName() + "' of set '" + this.getCustomPropertySet().getName() + "' (id=" + this.customPropertySet.getId() + ") in " + this.meterActivationSet
+        return "Value for custom property '" + this.propertySpec.getName() + "' of set '" + this.getCustomPropertySet()
+                .getName() + "' (id=" + this.customPropertySet.getId() + ") in " + this.meterActivationSet
                 .getRange();
     }
 
     private String[] withClauseSqlNames() {
-        return new String[] {
+        return new String[]{
                 "starttime",
                 "endtime",
                 SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),

@@ -61,8 +61,8 @@ class ProcessStatusFromExpressionNode implements ServerExpressionNode.Visitor<St
     @Override
     public String visitOperation(OperationNode operationNode) {
         return this.findFirst(Arrays.asList(
-                        operationNode.getLeftOperand(),
-                        operationNode.getRightOperand()));
+                operationNode.getLeftOperand(),
+                operationNode.getRightOperand()));
     }
 
     @Override

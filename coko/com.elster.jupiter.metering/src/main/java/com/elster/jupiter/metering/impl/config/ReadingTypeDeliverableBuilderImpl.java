@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -59,7 +60,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
         }
         if ((isAutoMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
-            (isExpertMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.AUTO))){
+                (isExpertMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.AUTO))) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
         }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.deliverable(readingTypeDeliverable));
@@ -102,12 +103,13 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     private boolean isNumerical(PropertySpec propertySpec) {
-        return Number.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
+        Class valueType = propertySpec.getValueFactory().getValueType();
+        return Number.class.isAssignableFrom(valueType)
+            || Quantity.class.isAssignableFrom(valueType);
     }
 
     @Override
-    public
-    FormulaBuilder nullValue(){
+    public FormulaBuilder nullValue() {
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.nullValue());
     }
 
@@ -165,7 +167,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
                 Stream.of(
                         Stream.of(firstTerm),
                         Stream.of(remainingTerms))
-                    .flatMap(Function.identity()));
+                        .flatMap(Function.identity()));
     }
 
     private List<ExpressionNodeBuilder> toExpressionNodeBuilders(FormulaBuilder firstTerm, FormulaBuilder secondTerm, FormulaBuilder... remainingTerms) {
@@ -173,7 +175,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
                 Stream.of(
                         Stream.of(firstTerm, secondTerm),
                         Stream.of(remainingTerms))
-                    .flatMap(Function.identity()));
+                        .flatMap(Function.identity()));
     }
 
     private List<ExpressionNodeBuilder> allToExpressionNodeBuilders(FormulaBuilder... terms) {

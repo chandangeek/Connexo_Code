@@ -179,7 +179,7 @@ public class ReadingTypeTemplateImplTestIT {
                 .done();
         int persistedAttributes = getPersistedAttributes().size();
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME, null).done();
-        assertThat(getPersistedAttributes()).hasSize(persistedAttributes-1);
+        assertThat(getPersistedAttributes()).hasSize(persistedAttributes - 1);
     }
 
     @Test

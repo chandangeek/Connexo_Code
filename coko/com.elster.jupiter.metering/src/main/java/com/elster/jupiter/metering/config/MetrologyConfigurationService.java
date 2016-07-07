@@ -21,8 +21,6 @@ import java.util.Optional;
 @ProviderType
 public interface MetrologyConfigurationService {
 
-    String COMPONENT_NAME = "MCF";
-
     MetrologyConfigurationBuilder newMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
@@ -36,8 +34,6 @@ public interface MetrologyConfigurationService {
     UsagePointMetrologyConfigurationBuilder newUsagePointMetrologyConfiguration(String name, ServiceCategory serviceCategory);
 
     List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint);
-
-    Optional<MetrologyContract> findMetrologyContract(long id);
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 
@@ -67,4 +63,8 @@ public interface MetrologyConfigurationService {
 
     void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws
             CustomUsagePointMeterActivationValidationException;
+
+    Optional<MetrologyContract> findMetrologyContract(long id);
+
+    Optional<MetrologyContract> findAndLockMetrologyContract(long id, long version);
 }

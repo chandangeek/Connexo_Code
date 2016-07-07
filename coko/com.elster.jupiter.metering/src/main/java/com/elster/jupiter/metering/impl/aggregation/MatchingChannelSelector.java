@@ -118,9 +118,9 @@ class MatchingChannelSelector {
     }
 
     private boolean areCompatibleInUnitConversion(VirtualReadingType first, VirtualReadingType second) {
-        return this.areCompatible(first,  second)
-            || (first.isFlowRelated() && second.isFlowRelated())
-            || (first.isVolumeRelated() && second.isVolumeRelated());
+        return this.areCompatible(first, second)
+                || (first.isFlowRelated() && second.isFlowRelated())
+                || (first.isVolumeRelated() && second.isVolumeRelated());
     }
 
     private boolean areCompatible(Channel channel, VirtualReadingType intervalLength) {
@@ -156,36 +156,30 @@ class MatchingChannelSelector {
                 if (il1ComparedToTarget == 0) {
                     // Both are equal to the target reading type, consider them equal for now
                     return 0;
-                }
-                else if (il1ComparedToTarget < 0) {
+                } else if (il1ComparedToTarget < 0) {
                     // Both are smaller, sort them in descending order
                     return -rt1.compareTo(rt2);
-                }
-                else {
+                } else {
                     // Both are bigger, sort them in ascending order
                     return rt1.compareTo(rt2);
                 }
-            }
-            else if (il1ComparedToTarget == 0) {
+            } else if (il1ComparedToTarget == 0) {
                 // rt2 != target reading type
                 return -1;
-            }
-            else if (il2ComparedToTarget == 0) {
+            } else if (il2ComparedToTarget == 0) {
                 // rt1 != target reading type
                 return 1;
-            }
-            else if (il1ComparedToTarget < 0) {
+            } else if (il1ComparedToTarget < 0) {
                 // rt1 < target reading type < rt2
                 return -1;
-            }
-            else {
+            } else {
                 // rt2 < target readng type < rt1
                 return 1;
             }
         }
 
         private boolean compareSameToTargetReadingType(int il1ComparedToTarget, int il2ComparedToTarget) {
-            return (il1ComparedToTarget < 0 && il2ComparedToTarget <0)
+            return (il1ComparedToTarget < 0 && il2ComparedToTarget < 0)
                     || (il1ComparedToTarget == 0 && il2ComparedToTarget == 0)
                     || (il1ComparedToTarget > 0 && il2ComparedToTarget > 0);
         }

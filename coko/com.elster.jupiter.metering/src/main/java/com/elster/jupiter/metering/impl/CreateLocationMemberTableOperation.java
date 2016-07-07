@@ -32,7 +32,7 @@ public final class CreateLocationMemberTableOperation {
                             try (
                                     PreparedStatement setIndexesStatement = buildStatement(conn, setIndexesSQL(column.getName()));
                                     PreparedStatement setIndexesForVirtualColumnsStatement = buildStatement(conn, setIndexesSQL("upper" + column
-                                    .getName()));
+                                            .getName()));
                             ) {
                                 setIndexesStatement.execute();
                                 setIndexesForVirtualColumnsStatement.execute();

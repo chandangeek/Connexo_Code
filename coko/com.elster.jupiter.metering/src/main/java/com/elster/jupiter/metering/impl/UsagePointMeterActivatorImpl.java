@@ -9,12 +9,12 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.impl.config.ReadingTypeRequirementChecker;
 import com.elster.jupiter.metering.impl.config.SelfObjectValidator;
 import com.elster.jupiter.metering.impl.config.SelfValid;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -158,9 +158,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         boolean result = true;
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(this.activationTime);
         if (effectiveMetrologyConfiguration.isPresent()) {
-            UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) effectiveMetrologyConfiguration
-                    .get()
-                    .getMetrologyConfiguration();
+            UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.get().getMetrologyConfiguration();
             List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = getMandatoryReadingTypeRequirements(metrologyConfiguration);
             for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
                 if (mappingEntry.getValue() == null) {

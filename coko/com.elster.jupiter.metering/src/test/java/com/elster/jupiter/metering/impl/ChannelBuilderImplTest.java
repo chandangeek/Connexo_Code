@@ -10,18 +10,13 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.Vault;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -29,8 +24,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -50,7 +54,7 @@ public class ChannelBuilderImplTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private IMeterActivation meterActivation;
+    private ChannelsContainer channelsContainer;
     @Mock
     private Meter meter;
     @Mock
@@ -68,8 +72,8 @@ public class ChannelBuilderImplTest {
 
     @Before
     public void setUp() {
-        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
-        when(meterActivation.getUsagePoint()).thenReturn(Optional.empty());
+        when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
+        when(channelsContainer.getUsagePoint()).thenReturn(Optional.empty());
         when(meter.getConfiguration(any())).thenReturn(Optional.of(configuration));
         when(configuration.getReadingTypeConfigs()).thenReturn(Arrays.asList(readingTypeConfigRegular, readingTypeConfigRegister));
         when(readingTypeConfigRegular.getMeasured()).thenReturn(rtSecondaryBulk);
@@ -112,7 +116,7 @@ public class ChannelBuilderImplTest {
         when(rtPrimaryRegister.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(rtPrimaryRegister.getIntervalLength()).thenReturn(Optional.empty());
         when(idsService.getVault(eq(MeteringService.COMPONENTNAME), anyInt())).thenReturn(Optional.of(vault));
-        when(meterActivation.getZoneId()).thenReturn(TimeZoneNeutral.getMcMurdo());
+        when(channelsContainer.getZoneId()).thenReturn(TimeZoneNeutral.getMcMurdo());
         when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, RecordSpecs.BULKQUANTITYINTERVAL.ordinal() + 1)).thenReturn(Optional.of(recordSpec));
         when(idsService.getRecordSpec(MeteringService.COMPONENTNAME, RecordSpecs.BASEREGISTER_WITH_MULTIPLIED_REGISTER.ordinal() + 1)).thenReturn(Optional.of(recordSpec));
 
@@ -126,7 +130,7 @@ public class ChannelBuilderImplTest {
 
     @Test
     public void testBuildWithMultiplier() {
-        channelBuilder.meterActivation(meterActivation);
+        channelBuilder.channelsContainer(channelsContainer);
 
         channelBuilder.readingTypes(rtSecondaryBulk);
         ChannelImpl channel = channelBuilder.build();
@@ -138,9 +142,9 @@ public class ChannelBuilderImplTest {
 
     @Test
     public void testBuildWithoutMultiplier() {
-        when(meterActivation.getMeter()).thenReturn(Optional.empty());
+        when(channelsContainer.getMeter()).thenReturn(Optional.empty());
 
-        channelBuilder.meterActivation(meterActivation);
+        channelBuilder.channelsContainer(channelsContainer);
 
         channelBuilder.readingTypes(rtSecondaryBulk);
         ChannelImpl channel = channelBuilder.build();
@@ -152,7 +156,7 @@ public class ChannelBuilderImplTest {
 
     @Test
     public void testDontAddIfExplicitlyAdded() {
-        channelBuilder.meterActivation(meterActivation);
+        channelBuilder.channelsContainer(channelsContainer);
 
         channelBuilder.readingTypes(rtSecondaryDelta, rtSecondaryBulk);
         ChannelImpl channel = channelBuilder.build();
@@ -164,7 +168,7 @@ public class ChannelBuilderImplTest {
 
     @Test
     public void testBuildRegisterWithMultiplier() {
-        channelBuilder.meterActivation(meterActivation);
+        channelBuilder.channelsContainer(channelsContainer);
 
         channelBuilder.readingTypes(rtSecondaryRegister);
         ChannelImpl channel = channelBuilder.build();

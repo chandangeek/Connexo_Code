@@ -176,7 +176,9 @@ public class MetrologyConfigurationCrudTest {
     @Transactional
     public void testDeactivateLinkedMetrologyConfiguration() {
         // Business method
-        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("Name", getServiceCategory()).withDescription("Description").create();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("Name", getServiceCategory())
+                .withDescription("Description")
+                .create();
         UsagePoint usagePoint = getServiceCategory().newUsagePoint("Usage point", Instant.now()).create();
 
         metrologyConfiguration.activate();
