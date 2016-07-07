@@ -9,11 +9,21 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
     itemId: 'mdc-dataLoggerSlavesPanel',
     device: null,
     ui: 'tile',
-    title: Uni.I18n.translate('device.dataLoggerSlaves.title', 'MDC', 'Data logger slaves: most recently added'),
+    title: Uni.I18n.translate('device.dataLoggerSlaves.title', 'MDC', 'Data logger slaves'),
 
     setSlaveStore: function(slaveStore) {
         var me = this,
             slavesCount = slaveStore.getCount(),
+            label = {
+                xtype: 'displayfield',
+                labelAlign: 'left',
+                labelWidth: 200,
+                fieldLabel: Uni.I18n.translate('deviceCommunicationTopology.MostRecentlyAddedSlaves', 'MDC', 'Most recently added slaves'),
+                margin: slavesCount>0 ? '0 0 0 7' : '0 0 10 7',
+                renderer: function() {
+                    return slavesCount>0 ? '' : '-';
+                }
+            },
             grid = {
                 xtype: 'gridpanel',
                 margin: '5 6 0 6',
@@ -61,16 +71,9 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
 
         me.removeAll();
         if (slavesCount) {
-            me.add(grid, manageSlavesLink);
+            me.add(label, grid, manageSlavesLink);
         } else {
-            me.add({
-                xtype: 'form',
-                items: {
-                    xtype: 'uni-form-empty-message',
-                    margin: '7 0 15 7',
-                    text: Uni.I18n.translate('general.dataLogger.noSlaves', 'MDC', 'This data logger has no data logger slaves.')
-                }
-            }, manageSlavesLink);
+            me.add(label, manageSlavesLink);
         }
     }
 });
