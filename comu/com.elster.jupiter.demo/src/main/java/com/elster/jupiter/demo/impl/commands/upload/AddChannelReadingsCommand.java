@@ -3,6 +3,7 @@ package com.elster.jupiter.demo.impl.commands.upload;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -13,6 +14,7 @@ import com.energyict.mdc.device.data.LoadProfile;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +50,7 @@ public abstract class AddChannelReadingsCommand extends ReadDataFromFileCommand 
     @Override
     protected void saveRecord(ReadingType readingType, String controlValue, Double value) {
         Instant timeForReading = getTimeForReading(readingType, getStart(), controlValue);
-        IntervalReadingImpl intervalReading = IntervalReadingImpl.of(timeForReading, BigDecimal.valueOf(value));
+        IntervalReadingImpl intervalReading = IntervalReadingImpl.of(timeForReading, BigDecimal.valueOf(value), Collections.<ReadingQuality>emptyList());
         blocks.get(readingType.getMRID()).addIntervalReading(intervalReading);
 
         //System.out.println("\t" + timeForReading + " - (" + readingType.getMRID() + ") -\tvalue = " + value);
