@@ -3,6 +3,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
 
 import javax.inject.Inject;
@@ -17,8 +18,8 @@ public final class InboundEndPointConfigurationImpl extends EndPointConfiguratio
     private Reference<Group> group = Reference.empty();
 
     @Inject
-    public InboundEndPointConfigurationImpl(DataModel dataModel, Clock clock) {
-        super(clock, dataModel);
+    public InboundEndPointConfigurationImpl(DataModel dataModel, Clock clock, TransactionService transactionService) {
+        super(clock, dataModel, transactionService);
     }
 
     @Override

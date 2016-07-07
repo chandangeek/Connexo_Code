@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.transaction.TransactionService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -21,8 +22,8 @@ public final class OutboundEndPointConfigurationImpl extends EndPointConfigurati
     private String password;
 
     @Inject
-    public OutboundEndPointConfigurationImpl(DataModel dataModel, Clock clock) {
-        super(clock, dataModel);
+    public OutboundEndPointConfigurationImpl(DataModel dataModel, Clock clock, TransactionService transactionService) {
+        super(clock, dataModel, transactionService);
     }
 
     public String getUsername() {
