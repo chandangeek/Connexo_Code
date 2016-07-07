@@ -36,10 +36,13 @@ public class WebServiceRegistrationTopicHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         String webServiceName = (String) localEvent.getSource();
-        appService.getAppServer().filter(AppServer::isActive).ifPresent(as -> as.supportedEndPoints()
+        appService.getAppServer()
+                .filter(AppServer::isActive)
+                .ifPresent(as -> as.supportedEndPoints()
                 .stream()
                 .filter(EndPointConfiguration::isActive)
                 .filter(epc -> epc.getWebServiceName().equals(webServiceName))
+                        .filter(epc -> !webServicesService.isPublished(epc))
                 .forEach(webServicesService::publishEndPoint));
     }
 
