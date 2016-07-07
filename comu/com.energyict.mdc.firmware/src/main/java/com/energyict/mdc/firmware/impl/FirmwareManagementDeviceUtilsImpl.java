@@ -249,21 +249,20 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public boolean cancelPendingFirmwareUpdates(FirmwareType firmwareType) {
-        boolean someUpdatesAreOngoing = false;
+        boolean noUpdatesAreOngoing = true;
         for (DeviceMessage<Device> firmwareMessage : getFirmwareMessages()) {
             Optional<FirmwareVersion> targetFirmwareVersion = getFirmwareVersionFromMessage(firmwareMessage);
             if (targetFirmwareVersion.isPresent()
                     && firmwareType.equals(targetFirmwareVersion.get().getFirmwareType())
                     && FirmwareManagementDeviceUtilsImpl.PENDING_STATUSES.contains(firmwareMessage.getStatus())) {
                 if (!DeviceMessageStatus.WAITING.equals(firmwareMessage.getStatus()) && firmwareUploadTaskIsBusy()) {
-                    someUpdatesAreOngoing = true;
+                    noUpdatesAreOngoing = false;
                 } else {
                     firmwareMessage.revoke();
-                    firmwareMessage.save();
                 }
             }
         }
-        return !someUpdatesAreOngoing;
+        return noUpdatesAreOngoing;
     }
 
     @Override
