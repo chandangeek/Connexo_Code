@@ -7,7 +7,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -31,7 +30,7 @@ public class AllDataValidated extends TranslatableServerMicroCheck {
         Optional<? extends MeterActivation> current = device.getCurrentMeterActivation();
         if (current.isPresent()) {
             if (validationService.validationEnabled(current.get().getMeter().get())) {
-                return (this.validationService.getEvaluator().isAllDataValidated(current.get()) ? Optional.empty() : Optional.of(newViolation()));
+                return (this.validationService.getEvaluator().isAllDataValidated(current.get().getChannelsContainer()) ? Optional.empty() : Optional.of(newViolation()));
             }else{
                 return Optional.empty();
             }

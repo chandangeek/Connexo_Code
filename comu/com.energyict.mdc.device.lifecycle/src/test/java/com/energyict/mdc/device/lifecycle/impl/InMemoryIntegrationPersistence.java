@@ -35,6 +35,8 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -60,6 +62,8 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.events.DeviceLifeCycleChangeEventHandler;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -159,6 +163,7 @@ public class InMemoryIntegrationPersistence {
                 new UserModule(),
                 new IdsModule(),
                 new OrmModule(),
+                new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new InMemoryMessagingModule(),
                 new FiniteStateMachineModule(),
@@ -200,7 +205,9 @@ public class InMemoryIntegrationPersistence {
             this.propertySpecService = this.injector.getInstance(PropertySpecService.class);
             this.injector.getInstance(UserService.class);
             this.injector.getInstance(ThreadPrincipalService.class);
+            this.injector.getInstance(ServiceCallService.class);
             this.injector.getInstance(CustomPropertySetService.class);
+            initializeCustomPropertySets();
             StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(this.injector
                     .getInstance(EventService.class));
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
@@ -219,6 +226,11 @@ public class InMemoryIntegrationPersistence {
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(deviceLifeCycleChangeEventHandler);
             ctx.commit();
         }
+    }
+
+    private void initializeCustomPropertySets() {
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
     }
 
     public DeviceLifeCycleChangeEventHandler getDeviceLifeCycleChangeEventHandler() {
