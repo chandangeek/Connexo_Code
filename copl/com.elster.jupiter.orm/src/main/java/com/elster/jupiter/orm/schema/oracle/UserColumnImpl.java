@@ -24,6 +24,7 @@ public class UserColumnImpl implements ExistingColumn {
     private int characterLength;
     private String dataDefault;
     private String virtual;
+    private String hidden;
 
     private Reference<UserTableImpl> table = ValueReference.absent();
 
@@ -135,5 +136,9 @@ public class UserColumnImpl implements ExistingColumn {
     @Override
     public boolean isVirtual() {
         return "YES".equalsIgnoreCase(virtual);
+    }
+
+    public boolean isHidden() {
+        return "YES".equalsIgnoreCase(hidden);
     }
 }
