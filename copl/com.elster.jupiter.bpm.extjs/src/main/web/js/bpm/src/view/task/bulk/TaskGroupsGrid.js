@@ -32,10 +32,7 @@ Ext.define('Bpm.view.task.bulk.TaskGroupsGrid', {
                 dataIndex: 'name',
                 flex: 1,
                 renderer: function (value) {
-                    if(value != 'null')
-                        return value;
-                    else
-                        return '';
+                    return Ext.isEmpty(value) ? '-' : value;
                 }
             },
             {
