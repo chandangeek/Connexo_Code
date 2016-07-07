@@ -17,7 +17,6 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -27,11 +26,8 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.elster.jupiter.validation.ValidationVersionStatus;
-import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -71,15 +67,13 @@ public class MetrologyConfigurationResource {
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
-    private final ValidationRuleInfoFactory validationRuleInfoFactory;
 
     private final MetrologyConfigurationService metrologyConfigurationService;
-    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
 
     @Inject
     public MetrologyConfigurationResource(ResourceHelper resourceHelper, MeteringService meteringService, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService,
                                           CustomPropertySetService customPropertySetService, CustomPropertySetInfoFactory customPropertySetInfoFactory, MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
-                                          MetrologyConfigurationService metrologyConfigurationService, ValidationRuleInfoFactory validationRuleInfoFactory, TimeService timeService, Thesaurus thesaurus) {
+                                          MetrologyConfigurationService metrologyConfigurationService, TimeService timeService, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.meteringService = meteringService;
         this.usagePointConfigurationService = usagePointConfigurationService;
@@ -88,7 +82,6 @@ public class MetrologyConfigurationResource {
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
-        this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.timeService = timeService;
         this.thesaurus = thesaurus;
     }
@@ -219,7 +212,9 @@ public class MetrologyConfigurationResource {
                     validationRuleSetInfos.add(validationRuleSetInfo);
                 }
             }
-            metrologyContractInfos.add(new MetrologyContractInfo(metrologyContract, validationRuleSetInfos));
+            MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
+            metrologyContractInfo.addValidationRuleSets(validationRuleSetInfos);
+            metrologyContractInfos.add(metrologyContractInfo);
         }
         return PagedInfoList.fromCompleteList("contracts", metrologyContractInfos, queryParameters);
     }
@@ -257,7 +252,9 @@ public class MetrologyConfigurationResource {
                         usagePointConfigurationService.getValidationRuleSets(metrologyContract)))
                 .map(ValidationRuleSetInfo::new)
                 .collect(Collectors.toList());
-        return new MetrologyContractInfo(metrologyContract, linkableValidationRuleSets);
+        MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
+        metrologyContractInfo.addValidationRuleSets(linkableValidationRuleSets);
+        return metrologyContractInfo;
     }
 
     @GET
@@ -343,17 +340,19 @@ public class MetrologyConfigurationResource {
     @Path("/{id}/schedule")
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public PagedInfoList getValidationScheduleOnMetrologyConfiguration(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getValidationScheduleOnMetrologyConfiguration(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         List<MetrologyContractInfo> metrologyContractInfos = new ArrayList<>();
         for (MetrologyContract metrologyContract : resourceHelper.getMetrologyConfigOrThrowException(id).getContracts()) {
             List<DataValidationTaskInfo> dataValidationTaskInfos = validationService.findValidationTasks()
                     .stream()
-                    .filter(task -> task.getApplication().equals(applicationName))
+                    .filter(task -> task.getQualityCodeSystem().equals(QualityCodeSystem.MDM))
                     .filter(task -> task.getMetrologyContract().isPresent())
                     .filter(task -> task.getMetrologyContract().get().getId() == metrologyContract.getId())
                     .map(dataValidationTask -> new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService))
                     .collect(Collectors.toList());
-            metrologyContractInfos.add(new MetrologyContractInfo(metrologyContract, dataValidationTaskInfos));
+            MetrologyContractInfo metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
+            metrologyContractInfo.addValidationTasks(dataValidationTaskInfos);
+            metrologyContractInfos.add(metrologyContractInfo);
         }
         return PagedInfoList.fromCompleteList("contracts", metrologyContractInfos, queryParameters);
     }

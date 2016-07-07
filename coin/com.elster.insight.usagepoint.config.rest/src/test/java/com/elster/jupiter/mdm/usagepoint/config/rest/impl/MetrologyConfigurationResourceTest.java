@@ -85,7 +85,8 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         ValidationRuleSetVersion validationRuleSetVersion2 = mockValidationRuleSetVersion(vrs2);
         ValidationRuleSetVersion validationRuleSetVersion3 = mockValidationRuleSetVersion(vrs3);
         metrologyContract = config1.getContracts().stream().findFirst().get();
-        metrologyContractInfo = new MetrologyContractInfo(metrologyContract, Collections.singletonList(new ValidationRuleSetInfo(vrs3)));
+        metrologyContractInfo = new MetrologyContractInfo(metrologyContract);
+        metrologyContractInfo.addValidationRuleSets(Collections.singletonList(new ValidationRuleSetInfo(vrs3)));
         when(vrs3.getId()).thenReturn(2L);
         when(vrs3.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         doReturn(Collections.singletonList(validationRuleSetVersion3)).when(vrs3).getRuleSetVersions();
@@ -564,7 +565,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(15L, "Residential", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
         DataValidationTask validationTask = mock(DataValidationTask.class);
         when(validationTask.getId()).thenReturn(1L);
-        when(validationTask.getApplication()).thenReturn("INS");
+        when(validationTask.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
         when(validationTask.getMetrologyContract()).thenReturn(Optional.of(metrologyContract));
         when(validationTask.getEndDeviceGroup()).thenReturn(Optional.empty());
         when(validationTask.getScheduleExpression()).thenReturn(Never.NEVER);
@@ -572,7 +573,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(validationTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(validationService.findValidationTasks()).thenReturn(Collections.singletonList(validationTask));
         when(metrologyConfigurationService.findMetrologyConfiguration(15)).thenReturn(Optional.of(metrologyConfiguration));
-        String json = target("metrologyconfigurations/15/schedule").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get(String.class);
+        String json = target("metrologyconfigurations/15/schedule").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<Integer>get("$.contracts[0].validationTasks[0].id")).isEqualTo(1);

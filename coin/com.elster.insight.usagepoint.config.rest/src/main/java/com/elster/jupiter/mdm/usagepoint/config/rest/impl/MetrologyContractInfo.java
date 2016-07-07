@@ -29,13 +29,11 @@ public class MetrologyContractInfo {
         this.mandatory = metrologyContract.isMandatory();
     }
 
-    public MetrologyContractInfo(MetrologyContract metrologyContract, List<DataValidationTaskInfo> validationTaskInfos) {
-        this(metrologyContract);
+    public void addValidationTasks(List<DataValidationTaskInfo> validationTaskInfos) {
         this.validationTasks = validationTaskInfos;
     }
 
-    public MetrologyContractInfo(MetrologyContract metrologyContract, List<ValidationRuleSetInfo> validationRuleSets) {
-        this(metrologyContract);
+    public void addValidationRuleSets(List<ValidationRuleSetInfo> validationRuleSets) {
         this.validationRuleSets = validationRuleSets;
     }
 }
