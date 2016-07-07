@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
@@ -299,5 +300,12 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public Optional<MetrologyContract> findAndLockMetrologyContract(long id, long version) {
         return this.getDataModel().mapper(MetrologyContract.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Finder<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationFinderFor(MetrologyContract contract) {
+        return DefaultFinder.of(EffectiveMetrologyConfigurationOnUsagePoint.class,
+                where("metrologyConfiguration").isEqualTo(contract.getMetrologyConfiguration()),
+                dataModel, UsagePoint.class, MetrologyConfiguration.class);
     }
 }
