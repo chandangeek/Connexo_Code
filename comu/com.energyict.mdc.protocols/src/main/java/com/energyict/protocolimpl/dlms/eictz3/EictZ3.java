@@ -1,21 +1,12 @@
 package com.energyict.protocolimpl.dlms.eictz3;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dialer.connection.IEC1107HHUConnection;
-import com.energyict.dlms.*;
-import com.energyict.dlms.aso.*;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.Register;
 import com.energyict.mdc.common.BaseUnit;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.*;
-import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
@@ -37,7 +28,6 @@ import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
-import com.energyict.mdc.protocol.api.messaging.*;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
 import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
@@ -48,7 +38,6 @@ import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
 import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
-import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.protocols.util.ProtocolUtils;
@@ -102,12 +91,13 @@ import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.Z3.AARQ;
-import com.energyict.protocolimpl.dlms.nta.eventhandling.*;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.DisconnectControlLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.EventsLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.FraudDetectionLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.MbusLog;
+import com.energyict.protocolimpl.dlms.nta.eventhandling.PowerFailureLog;
 import com.energyict.protocolimpl.generic.messages.MessageHandler;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
-import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
-import com.energyict.protocols.util.CacheMechanism;
-import com.energyict.protocols.util.ProtocolUtils;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -121,7 +111,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1993,7 +1991,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
                     return MessageResult.createFailed(messageEntry);
                 }
             } else {
-                logger.log(Level.WARNING, "The message did not contain a user file to use for the upgrade, message fails...");
+                logger.log(Level.WARNING, "The message did not contain a file to use for the upgrade, message fails...");
 
                 return MessageResult.createFailed(messageEntry);
             }

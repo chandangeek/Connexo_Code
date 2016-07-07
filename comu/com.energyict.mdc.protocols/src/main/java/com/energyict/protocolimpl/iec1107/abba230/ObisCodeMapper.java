@@ -25,8 +25,6 @@ import java.util.logging.Logger;
 
 public class ObisCodeMapper {
 
-	SystemStatus systemStatus=null;
-
     private ABBA230RegisterFactory rFactory;
 
     /** Creates a new instance of ObisCodeMapping */

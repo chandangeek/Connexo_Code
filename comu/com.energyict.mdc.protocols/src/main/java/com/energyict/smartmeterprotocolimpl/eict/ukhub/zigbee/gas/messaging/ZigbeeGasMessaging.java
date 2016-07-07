@@ -28,7 +28,7 @@ public class ZigbeeGasMessaging extends GenericMessaging {
     private static final String SET_STANDING_CHARGE = "SetStandingCharge";
     private static final String SET_CALORIFIC_VALUE = "SetCalorificValue";
     private static final String SET_CONVERSION_FACTOR = "SetConversionFactor";
-    private static final String ID_OF_USER_FILE = "ID of user file containing the price information";
+    private static final String ID_OF_USER_FILE = "Unique identifier of file containing the price information";
     private static final String ACTIVATION_DATE = "Activation date (dd/mm/yyyy hh:mm:ss) (optional)";
     private static final String STANDING_CHARGE = "Standing charge";
     private static final String CALORIFIC_VALUE = "Calorific value";

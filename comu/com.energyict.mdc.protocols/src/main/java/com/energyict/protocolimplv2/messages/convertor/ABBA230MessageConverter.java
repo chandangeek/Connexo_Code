@@ -4,7 +4,10 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.energyict.protocolimpl.generic.messages.GenericMessaging;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.ABBA230UserFileMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocols.messaging.DeviceMessageFileStringContentConsumer;
 
@@ -58,7 +61,12 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
         registry.put(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE, new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE));
 
         registry.put(DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_METER_SCHEME, new ABBA230UserFileMessageEntry(UPGRADE_METER_SCHEME));
+
+        registry.put(DeviceMessageId.LOAD_BALANCING_DISABLE_LOAD_LIMITING, new MultipleAttributeMessageEntry("DISABLE_LOAD_LIMITING"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_DURATION, new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_DURATION", "Duration"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD, new MultipleAttributeMessageEntry("SET_LOAD_LIMIT_TRESHOLD", "Threshold", "Unit"));
+        registry.put(DeviceMessageId.LOAD_BALANCING_CONFIGURE_LOAD_LIMIT_THRESHOLD_AND_DURATION, new MultipleAttributeMessageEntry("CONFIGURE_LOAD_LIMIT", "Threshold", "Unit", "Duration"));
+
         return registry;
     }
-
 }

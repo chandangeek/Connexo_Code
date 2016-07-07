@@ -44,12 +44,14 @@ import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpecFactory;
 import com.energyict.mdc.protocol.api.messaging.Message;
 import com.energyict.mdc.protocol.api.messaging.MessageAttribute;
+import com.energyict.mdc.protocol.api.messaging.MessageAttributeSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageCategorySpec;
 import com.energyict.mdc.protocol.api.messaging.MessageElement;
 import com.energyict.mdc.protocol.api.messaging.MessageSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageTag;
 import com.energyict.mdc.protocol.api.messaging.MessageTagSpec;
 import com.energyict.mdc.protocol.api.messaging.MessageValue;
+import com.energyict.mdc.protocol.api.messaging.MessageValueSpec;
 import com.energyict.protocols.util.CacheMechanism;
 import com.energyict.protocols.util.EventMapper;
 import com.energyict.protocols.util.ProtocolUtils;
@@ -105,6 +107,8 @@ import java.util.logging.Logger;
 public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHUEnabler, SerialNumber, MeterExceptionInfo,
         RegisterProtocol, MessageProtocol, EventMapper {
 
+    private LoadLimitingController loadLimitingController;
+
     @Override
     public String getProtocolDescription() {
         return "Elster AS230 IEC1107";
@@ -129,6 +133,9 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     private static final String FIRMWAREPROGRAM_DISPLAY = "Upgrade Meter Firmware";
     private static final String BILLINGRESET_DISPLAY = "Billing reset";
 
+    protected static final String DURATION_ATTRIBUTE = "Duration";
+    protected static final String THRESHOLD_ATTRIBUTE = "Threshold";
+    protected static final String UNIT_ATTRIBUTE = "Unit";
 
     /**
      * Property keys specific for AS230 protocol.
@@ -338,18 +345,18 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
     public List getOptionalKeys() {
         return Arrays.asList(
-                    "Timeout",
-                    "Retries",
-                    "SecurityLevel",
-                    "EchoCancelling",
-                    "IEC1107Compatible",
-                    "ExtendedLogging",
-                    "EventMapperEnabled",
-                    "Software7E1",
-                    "ScriptingEnabled",
-                    "ForcedDelay",
-                    "DisableLogOffCommand",
-                    "InstrumentationProfileMode");
+                "Timeout",
+                "Retries",
+                "SecurityLevel",
+                "EchoCancelling",
+                "IEC1107Compatible",
+                "ExtendedLogging",
+                "EventMapperEnabled",
+                "Software7E1",
+                "ScriptingEnabled",
+                "ForcedDelay",
+                "DisableLogOffCommand",
+                "InstrumentationProfileMode");
     }
 
     /* (non-Javadoc)
@@ -624,7 +631,8 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     /* (non-Javadoc)
       * @see com.energyict.protocol.HHUEnabler#enableHHUSignOn(com.energyict.dialer.core.SerialCommunicationChannel, boolean)
       */
-    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws ConnectionException {
+    public void enableHHUSignOn(SerialCommunicationChannel commChannel, boolean datareadout) throws
+            ConnectionException {
         HHUSignOn hhuSignOn =
                 new IEC1107HHUConnection(commChannel, this.pTimeout, this.pRetries, 300, this.pEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
@@ -1196,6 +1204,11 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
         msgSpec = addBasicMsg(FIRMWAREPROGRAM_DISPLAY, FIRMWAREPROGRAM, true);
         cat.addMessageSpec(msgSpec);
 
+        cat.addMessageSpec(addBasicMsg("Disable load limiting", "DISABLE_LOAD_LIMITING", false));
+        cat.addMessageSpec(addBasicMsgWithAttributes("Set load limit duration", "SET_LOAD_LIMIT_DURATION", false, DURATION_ATTRIBUTE));
+        cat.addMessageSpec(addBasicMsgWithAttributes("Set load limit threshold", "SET_LOAD_LIMIT_TRESHOLD", false, THRESHOLD_ATTRIBUTE, UNIT_ATTRIBUTE));
+        cat.addMessageSpec(addBasicMsgWithAttributes("Configure the load limit settings", "CONFIGURE_LOAD_LIMIT", false, THRESHOLD_ATTRIBUTE, UNIT_ATTRIBUTE, DURATION_ATTRIBUTE));
+
         theCategories.add(cat);
         return theCategories;
     }
@@ -1203,6 +1216,20 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     private MessageSpec addBasicMsg(String keyId, String tagName, boolean advanced) {
         MessageSpec msgSpec = new MessageSpec(keyId, advanced);
         MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    private static MessageSpec addBasicMsgWithAttributes(String displayName, String tagName, boolean advanced, String... attributes) {
+        MessageSpec msgSpec = new MessageSpec(displayName, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+
+        for (String attribute : attributes) {
+            tagSpec.add(new MessageAttributeSpec(attribute, true));
+        }
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" "); //Disable this field
+        tagSpec.add(msgVal);
         msgSpec.add(tagSpec);
         return msgSpec;
     }
@@ -1266,23 +1293,23 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
 
         try {
-            if (messageEntry.getContent().contains("<" + DISCONNECT)) {
+            if (isThisMessage(messageEntry, DISCONNECT)) {
                 ContactorController cc = new ABBA230ContactorController(this);
                 cc.doDisconnect();
-            } else if (messageEntry.getContent().contains("<" + CONNECT)) {
+            } else if (isThisMessage(messageEntry, CONNECT)) {
                 ContactorController cc = new ABBA230ContactorController(this);
                 cc.doConnect();
-            } else if (messageEntry.getContent().contains("<" + ARM)) {
+            } else if (isThisMessage(messageEntry, ARM)) {
                 ContactorController cc = new ABBA230ContactorController(this);
                 cc.doArm();
-            } else if (messageEntry.getContent().contains("<" + TARIFFPROGRAM)) {
+            } else if (isThisMessage(messageEntry, TARIFFPROGRAM)) {
                 this.logger.info("*************************** PROGRAM TARIFF *****************************");
                 int start = messageEntry.getContent().indexOf(TARIFFPROGRAM) + TARIFFPROGRAM.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(TARIFFPROGRAM) - 2;
                 String tariffXMLData = messageEntry.getContent().substring(start, end);
                 TariffSaxParser o = new TariffSaxParser(this.rFactory.getABBA230DataIdentityFactory());
                 o.start(tariffXMLData, false);
-            } else if (messageEntry.getContent().contains("<" + FIRMWAREPROGRAM)) {
+            } else if (isThisMessage(messageEntry, FIRMWAREPROGRAM)) {
                 this.logger.info("*************************** FIRMWARE UPGRADE ***************************");
                 int start = messageEntry.getContent().indexOf(FIRMWAREPROGRAM) + FIRMWAREPROGRAM.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(FIRMWAREPROGRAM) - 2;
@@ -1302,7 +1329,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
                 activate();
                 this.firmwareUpgrade = true;
-            } else if (messageEntry.getContent().contains("<" + BILLINGRESET)) {
+            } else if (isThisMessage(messageEntry, BILLINGRESET)) {
                 this.logger.info("************************* MD RESET *************************");
                 int start = messageEntry.getContent().indexOf(BILLINGRESET) + BILLINGRESET.length() + 1;
                 int end = messageEntry.getContent().lastIndexOf(BILLINGRESET) - 2;
@@ -1314,11 +1341,40 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
                     return MessageResult.createFailed(messageEntry);
                 }
 
+            } else if (isThisMessage(messageEntry, "DISABLE_LOAD_LIMITING")) {
+                checkSecurityLevelSufficient("Disable load limiting");
+                getLoadLimitingController().disableLoadLimiting(messageEntry);
+            } else if (isThisMessage(messageEntry, "SET_LOAD_LIMIT_DURATION")) {
+                checkSecurityLevelSufficient("Set load limit duration");
+                getLoadLimitingController().setLoadLimitDuration(messageEntry);
+            } else if (isThisMessage(messageEntry, "SET_LOAD_LIMIT_TRESHOLD")) {
+                checkSecurityLevelSufficient("Set load limit threshold");
+                getLoadLimitingController().setLoadLimitThreshold(messageEntry);
+            } else if (isThisMessage(messageEntry, "CONFIGURE_LOAD_LIMIT")) {
+                checkSecurityLevelSufficient("Configure the load limit settings");
+                getLoadLimitingController().configureLoadLimitSettings(messageEntry);
             }
             return MessageResult.createSuccess(messageEntry);
         } catch (IOException e) {
             return MessageResult.createFailed(messageEntry);
         }
+    }
+
+    private void checkSecurityLevelSufficient(String message) throws IOException {
+        if (pSecurityLevel < 3) {
+            throw new IOException("Message '" + message + "' needs at least security level 3. Current level: " + pSecurityLevel);
+        }
+    }
+
+    private LoadLimitingController getLoadLimitingController() {
+        if (loadLimitingController == null) {
+            loadLimitingController = new LoadLimitingController(this);
+        }
+        return loadLimitingController;
+    }
+
+    private static boolean isThisMessage(MessageEntry messageEntry, String messagetype) {
+        return messageEntry.getContent().contains(messagetype);
     }
 
     private void executeDefaultScript() {

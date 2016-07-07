@@ -4,7 +4,6 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.DeviceMessageFileService;
 import com.energyict.mdc.protocol.api.device.data.MessageEntry;
 import com.energyict.mdc.protocol.api.device.data.MessageResult;
-import com.energyict.protocols.messaging.DeviceMessageFileByteContentConsumer;
 import com.energyict.protocols.messaging.FirmwareUpdateMessageBuilder;
 
 import com.energyict.dlms.DlmsSession;
@@ -51,7 +50,7 @@ public class FirmwareUpgrade extends PrimeMessageExecutor {
             builder.initFromXml(messageEntry.getContent());
 
             if (builder.getFirmwareBytes() == null) {
-                String message = "The message did not contain a user file to use for the upgrade, message fails...";
+                String message = "The message did not contain a file to use for the upgrade, message fails...";
                 getLogger().severe(message);
                 throw new IOException(message);
             }
