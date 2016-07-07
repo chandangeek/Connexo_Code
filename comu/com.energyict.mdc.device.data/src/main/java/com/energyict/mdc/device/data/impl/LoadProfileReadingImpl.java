@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfileReading;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;

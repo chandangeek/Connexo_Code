@@ -33,6 +33,8 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -58,6 +60,8 @@ import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
@@ -197,6 +201,7 @@ public class DataCollectionKpiImplTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new OrmModule(),
+                new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new DataVaultModule(),
                 new EventsModule(),
@@ -236,7 +241,10 @@ public class DataCollectionKpiImplTest {
         );
         transactionService = injector.getInstance(TransactionService.class);
         endDeviceGroup = transactionService.execute(() -> {
+            injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
             injector.getInstance(MessageService.class);
             taskService = injector.getInstance(TaskService.class);
             kpiService = injector.getInstance(KpiService.class);
@@ -248,7 +256,6 @@ public class DataCollectionKpiImplTest {
             deviceService = deviceDataModelService.deviceService();
             return meteringGroupsService.createEnumeratedEndDeviceGroup().setName("static device group").create();
         });
-
     }
 
     @AfterClass
