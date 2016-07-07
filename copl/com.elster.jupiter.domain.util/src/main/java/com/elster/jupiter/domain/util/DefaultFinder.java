@@ -18,6 +18,7 @@ import java.util.stream.StreamSupport;
 
 /**
  * Builder for paged, sortable queries using the datamapper's Query
+ *
  * @param <T>
  */
 public final class DefaultFinder<T> implements Finder<T> {
@@ -33,30 +34,30 @@ public final class DefaultFinder<T> implements Finder<T> {
     private Integer maxPageSize = null;
     private Thesaurus thesaurus;
 
-    public static <T> DefaultFinder<T> of(Class<T> clazz, DataModel dataModel, Class<?> ... eagers) {
+    public static <T> DefaultFinder<T> of(Class<T> clazz, DataModel dataModel, Class<?>... eagers) {
         return of(clazz, Condition.TRUE, dataModel, eagers);
     }
 
-    public static <T> DefaultFinder<T> of(Class<T> clazz, Condition condition, DataModel dataModel, Class<?> ... eagers) {
+    public static <T> DefaultFinder<T> of(Class<T> clazz, Condition condition, DataModel dataModel, Class<?>... eagers) {
         return new DefaultFinder<>(clazz, condition, dataModel, eagers);
     }
 
-    private DefaultFinder(Class<T> clazz, Condition condition, DataModel dataModel, Class<?> ... eagers) {
+    private DefaultFinder(Class<T> clazz, Condition condition, DataModel dataModel, Class<?>... eagers) {
         query = dataModel.query(clazz, eagers);
         this.condition = condition;
     }
 
     @Override
     public Finder<T> paged(int start, int pageSize) {
-        this.start=start;
-        this.pageSize=pageSize;
+        this.start = start;
+        this.pageSize = pageSize;
         return this;
     }
 
     @Override
     public Finder<T> sorted(String fieldName, boolean ascending) {
-        if (fieldName!=null && !fieldName.isEmpty()) {
-            this.sortingColumns.add(ascending?Order.ascending(fieldName):Order.descending(fieldName));
+        if (fieldName != null && !fieldName.isEmpty()) {
+            this.sortingColumns.add(ascending ? Order.ascending(fieldName) : Order.descending(fieldName));
         }
         return this;
     }
@@ -68,16 +69,16 @@ public final class DefaultFinder<T> implements Finder<T> {
 
     @Override
     public List<T> find() {
-        if (sortingColumns.isEmpty() && defaultSort!=null) {
+        if (sortingColumns.isEmpty() && defaultSort != null) {
             sortingColumns.add(defaultSort);
         }
-        if (start==null || pageSize ==null) {
-            if (maxPageSize!=null) {
+        if (start == null || pageSize == null) {
+            if (maxPageSize != null) {
                 throw new UnpagedNotAllowed(thesaurus, maxPageSize);
             }
             return query.select(condition, sortingColumns.toArray(new Order[sortingColumns.size()]));
         } else {
-            if (maxPageSize!=null && pageSize>this.maxPageSize) {
+            if (maxPageSize != null && pageSize > this.maxPageSize) {
                 throw new MaxPageSizeExceeded(thesaurus, maxPageSize);
             }
 
@@ -100,10 +101,10 @@ public final class DefaultFinder<T> implements Finder<T> {
     @Override
     public Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) {
         this.thesaurus = thesaurus;
-        if (this.maxPageSize!=null) {
+        if (this.maxPageSize != null) {
             throw new IllegalArgumentException("Maximum page size has already been set");
         }
-        if (maxPageSize<=0) {
+        if (maxPageSize <= 0) {
             throw new IllegalArgumentException("Maximum page size must be greater than 0");
         }
         this.maxPageSize = maxPageSize;
@@ -112,7 +113,11 @@ public final class DefaultFinder<T> implements Finder<T> {
 
     @Override
     public Subquery asSubQuery(String... fieldNames) {
-        return query.asSubquery(condition,fieldNames);
+        if (start == null || pageSize == null) {
+            return query.asSubquery(condition, fieldNames);
+        } else {
+            return query.asSubquery(condition, start + 1, start + pageSize + 1, fieldNames);
+        }
     }
 
     @Override
@@ -122,7 +127,7 @@ public final class DefaultFinder<T> implements Finder<T> {
 
     @Override
     public Stream<T> stream() {
-        if (start!=null && pageSize!=null) {
+        if (start != null && pageSize != null) {
             return Finder.super.stream();
         }
         Iterable<T> iterable = PagingIterator::new;
@@ -134,9 +139,9 @@ public final class DefaultFinder<T> implements Finder<T> {
      * The iterator will use paging to avoid loading all results in a list
      */
     private class PagingIterator<E> implements Iterator<E> {
-        private final int pageSize=maxPageSize==null? DEFAULT_MAX_PAGE_SIZE :Math.min(DEFAULT_MAX_PAGE_SIZE,maxPageSize);
-        private int currentPage=0;
-        private int currentItemInPage =0;
+        private final int pageSize = maxPageSize == null ? DEFAULT_MAX_PAGE_SIZE : Math.min(DEFAULT_MAX_PAGE_SIZE, maxPageSize);
+        private int currentPage = 0;
+        private int currentItemInPage = 0;
         private List<E> items = null;
 
         @Override
@@ -144,7 +149,7 @@ public final class DefaultFinder<T> implements Finder<T> {
             if (needsToLoadNewPage()) {
                 loadNextPage();
             }
-            return currentItemInPage<items.size() || items.size()>pageSize;
+            return currentItemInPage < items.size() || items.size() > pageSize;
         }
 
         @Override
@@ -156,7 +161,7 @@ public final class DefaultFinder<T> implements Finder<T> {
         }
 
         private boolean needsToLoadNewPage() {
-            return items==null || ( this.currentItemInPage==pageSize && items.size() == pageSize + 1 );
+            return items == null || (this.currentItemInPage == pageSize && items.size() == pageSize + 1);
         }
 
         private void loadNextPage() {
