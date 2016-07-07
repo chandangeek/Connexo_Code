@@ -5,8 +5,8 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -16,6 +16,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -36,6 +37,7 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     private static final Logger LOGGER = Logger.getLogger(RecurrentTaskImpl.class.getName());
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private String application;
     @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY  + "}")
@@ -56,9 +58,13 @@ class RecurrentTaskImpl implements RecurrentTask {
     private final DataModel dataModel;
     private final JsonService jsonService;
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     @Inject
@@ -292,8 +298,12 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     @Override
     public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RecurrentTaskImpl)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RecurrentTaskImpl)) {
+            return false;
+        }
         RecurrentTaskImpl that = (RecurrentTaskImpl) o;
         return Objects.equals(id, that.id);
     }
@@ -313,4 +323,5 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.name = name;
         this.save();
     }
+
 }
