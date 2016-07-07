@@ -1,8 +1,9 @@
 package com.elster.jupiter.util;
 
-import org.junit.Test;
-
 import java.time.Instant;
+import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -98,6 +99,51 @@ public class ChecksTest {
     @Test
     public void testInTrueForNull() {
         assertThat(Checks.is((Object) null).in("A", null, "T", "C")).isTrue();
+    }
+
+    @Test
+    public void emptyEqualsEmpty() {
+        assertThat(Checks.is(Optional.empty()).equalTo(Optional.empty())).isTrue();
+    }
+
+    @Test
+    public void presentNotEqualsEmpty() {
+        assertThat(Checks.is(Optional.of("NotEmpty")).equalTo(Optional.empty())).isFalse();
+    }
+
+    @Test
+    public void emptyNotEqualsPresent() {
+        assertThat(Checks.is(Optional.empty()).equalTo(Optional.of("NotEmpty"))).isFalse();
+    }
+
+    @Test
+    public void nonEqualOptionals() {
+        assertThat(Checks.is(Optional.of("One")).equalTo(Optional.of("Two"))).isFalse();
+    }
+
+    @Test
+    public void equalOptionals() {
+        assertThat(Checks.is(Optional.of("One")).equalTo(Optional.of("One"))).isTrue();
+    }
+
+    @Test
+    public void presentAndEquals() {
+        assertThat(Checks.is(Optional.of("One")).presentAndEqualTo(Optional.of("One"))).isTrue();
+    }
+
+    @Test
+    public void presentAndEqualsForDifferentValues() {
+        assertThat(Checks.is(Optional.of("One")).presentAndEqualTo(Optional.of("Two"))).isFalse();
+    }
+
+    @Test
+    public void presentAndEqualsWithFirstEmpty() {
+        assertThat(Checks.is(Optional.empty()).presentAndEqualTo(Optional.of("One"))).isFalse();
+    }
+
+    @Test
+    public void presentAndEqualsWithSecondEmpty() {
+        assertThat(Checks.is(Optional.of("One")).presentAndEqualTo(Optional.empty())).isFalse();
     }
 
 }

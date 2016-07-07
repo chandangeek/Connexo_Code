@@ -5,6 +5,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -52,4 +53,12 @@ public interface OptionalServiceContainer<S> {
      * @return list of registered services
      */
     List<S> getServices();
+
+    /**
+     * Whenever a service is registered that matches the matcher, it is passed to the given Consumer.
+     * Services already registered are passed immediately upon calling this method.
+     * @param matcher
+     * @param consumer
+     */
+    void onRegistration(Predicate<? super S> matcher, Consumer<S> consumer);
 }

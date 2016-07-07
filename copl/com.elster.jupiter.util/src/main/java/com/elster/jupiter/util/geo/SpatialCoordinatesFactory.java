@@ -42,9 +42,9 @@ public class SpatialCoordinatesFactory {
 
                 NUMBER SDO_GTYPE = new NUMBER(2001);  //point = 2001
                 NUMBER SDO_SRID = new NUMBER(8307);   //datum = 8307
-                NUMBER x = new NUMBER((object.getLatitude()).getValue());  // latitude
-                NUMBER y = new NUMBER((object.getLongitude()).getValue());    //longitude
-                NUMBER z = new NUMBER((object.getElevation()).getValue());;
+                NUMBER x = new NUMBER((object.getLatitude()).getValue());  //latitude
+                NUMBER y = new NUMBER((object.getLongitude()).getValue()); //longitude
+                NUMBER z = new NUMBER((object.getElevation()).getValue()); //elevation
                 Object[] pointAttributes = {x, y, z};
                 Struct SDO_POINT = conn.createStruct("MDSYS.SDO_POINT_TYPE", pointAttributes);
 
@@ -52,8 +52,7 @@ public class SpatialCoordinatesFactory {
                 Array SDO_ORDINATES = null;
 
                 Object[] geometryAttributes = {SDO_GTYPE, SDO_SRID, SDO_POINT, SDO_ELEM_INFO, SDO_ORDINATES};
-                Struct SDO_GEOMETRY = conn.createStruct("MDSYS.SDO_GEOMETRY", geometryAttributes);
-                return SDO_GEOMETRY;
+                return conn.createStruct("MDSYS.SDO_GEOMETRY", geometryAttributes);
             } catch (SQLException e) {
                 throw new RuntimeException(e);//ApplicationException(e);
             }
@@ -86,7 +85,7 @@ public class SpatialCoordinatesFactory {
 
 
     public SpatialCoordinates fromStringValue(String stringValue) {
-        if (stringValue == null || stringValue.length() == 0 || stringValue.indexOf(SEPARATOR) == -1) {
+        if (stringValue == null || stringValue.isEmpty() || !stringValue.contains(SEPARATOR)) {
             return null;
         }
         String[] parts = stringValue.split(SEPARATOR);
@@ -104,7 +103,7 @@ public class SpatialCoordinatesFactory {
         BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
         BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
         BigDecimal numericElevation = BigDecimal.ZERO;
-        if(parts.length == 3 && !parts[2].equals("null")){
+        if (parts.length == 3 && !"null".equals(parts[2])) {
             numericElevation = new BigDecimal(parts[2]);
         }
         if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
@@ -127,10 +126,9 @@ public class SpatialCoordinatesFactory {
             return "";
         }
         // string representation: <latitude as BigDecimal>:<longitude as BigDecimal>
-        SpatialCoordinates spatialCoordinates = object;
-        Latitude latitude = spatialCoordinates.getLatitude();
-        Longitude longitude = spatialCoordinates.getLongitude();
-        Elevation elevation = spatialCoordinates.getElevation();
+        Latitude latitude = object.getLatitude();
+        Longitude longitude = object.getLongitude();
+        Elevation elevation = object.getElevation();
         return latitude.getValue() + SEPARATOR + longitude.getValue() + SEPARATOR + elevation.getValue();
     }
 
