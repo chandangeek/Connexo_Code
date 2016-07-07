@@ -123,7 +123,9 @@ public class MetrologyConfigurationInfoFactory {
         FormulaInfo info = new FormulaInfo();
         info.description = formula.getDescription();
         info.readingTypeRequirements = asInfoList(formula.getExpressionNode());
-        info.customProperties = Collections.emptyList(); //not supported yet
+        FormulaVisitor visitor = new FormulaVisitor();
+        formula.getExpressionNode().accept(visitor);
+        info.customProperties = visitor.getCustomPropertiesInfos();
         return info;
     }
 
@@ -170,6 +172,55 @@ public class MetrologyConfigurationInfoFactory {
             }
         }
         return info;
+    }
+
+    private class FormulaVisitor implements ExpressionNode.Visitor<Void> {
+
+        private List<CustomPropertiesInfo> customProperties = new ArrayList<>();
+
+        @Override
+        public Void visitConstant(ConstantNode constant) {
+            return null;
+        }
+
+        @Override
+        public Void visitRequirement(ReadingTypeRequirementNode requirement) {
+            return null;
+        }
+
+        @Override
+        public Void visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+            return null;
+        }
+
+        public List<CustomPropertiesInfo> getCustomPropertiesInfos() {
+            return customProperties;
+        }
+
+        @Override
+        public Void visitProperty(CustomPropertyNode property) {
+            CustomPropertiesInfo customProperty = new CustomPropertiesInfo();
+            customProperty.name = property.getPropertySpec().getDescription();
+            customProperty.key = property.getPropertySpec().getDisplayName();
+            customProperty.customPropertySet = new IdWithNameInfo(property.getCustomPropertySet().getId(), property.getCustomPropertySet().getName());
+            this.customProperties.add(customProperty);
+            return null;
+        }
+
+        @Override
+        public Void visitOperation(OperationNode operationNode) {
+            return null;
+        }
+
+        @Override
+        public Void visitFunctionCall(FunctionCallNode functionCall) {
+            return null;
+        }
+
+        @Override
+        public Void visitNull(NullNode nullNode) {
+            return null;
+        }
     }
 
     private class ReadingTypeVisitor implements ExpressionNode.Visitor<Void> {
