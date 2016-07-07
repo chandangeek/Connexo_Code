@@ -145,13 +145,7 @@ Ext.define('Imt.controller.History', {
                                     action: 'showServiceCallHistory'
                                 }
                             }
-                        },
-           			    datavalidation: {
-                            title: Uni.I18n.translate('general.label.usagepoint.validation.configuration', 'IMT', 'Validation configuration'),
-                            route: 'datavalidation',
-                            controller: 'Imt.validation.controller.UsagePointDataValidation',
-                            action: 'showUsagePointDataValidationMainView',
-           			    },
+                        },           			    
                         device: {
                              title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
                              route: 'device/{deviceMRID}',
@@ -306,18 +300,20 @@ Ext.define('Imt.controller.History', {
                                         }
                                     }
                                 },
-                                associatedvalidationrulesets: {
-                                    title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.associated', 'IMT', 'Linked validation rule sets'),
-                                    route: 'associatedvalidationrulesets',
-                                    controller: 'Imt.metrologyconfiguration.controller.ValidationRuleSets',
-                                    action: 'showValidationRuleSetsOverview',
+                                validation: {
+                                    title: Uni.I18n.translate('usagepoint.dataValidation.validationConfiguration', 'IMT', 'Validation configuration'),
+                                    route: 'validation',
+                                    controller: 'Imt.metrologyconfiguration.controller.ValidationConfiguration',
+                                    action: 'showValidationConfiguration',
+                                    privileges: Imt.privileges.MetrologyConfig.viewValidation,
 	                                items: {
-	                                	addruleset: {
-	                                        title: Uni.I18n.translate('general.label.metrologyconfiguration.addValRule', 'IMT', 'Add validation rule set'),
-	                                        route: 'addruleset',
-	                                        controller: 'Imt.metrologyconfiguration.controller.ValidationRuleSets',
-	                                        action: 'showAddValidationRuleSets'
-	                                    },
+	                                	add: {
+	                                        title: Uni.I18n.translate('validation.addRuleSet', 'IMT', 'Add validation rule set'),
+	                                        route: 'add',
+	                                        controller: 'Imt.metrologyconfiguration.controller.ValidationConfiguration',
+	                                        action: 'showAddValidationRuleSets',
+                                            privileges: Imt.privileges.MetrologyConfig.adminValidation
+	                                    }
 	                                }
                                 }
                             }

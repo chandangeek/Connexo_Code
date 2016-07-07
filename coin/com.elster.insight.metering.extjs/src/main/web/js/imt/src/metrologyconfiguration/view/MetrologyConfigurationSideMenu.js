@@ -50,14 +50,14 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
                 ]
             },
             {
-                title: Uni.I18n.translate('general.readingQualities', 'IMT', 'Reading qualities'),
-                xtype: 'menu',
+                title: Uni.I18n.translate('channels.readingqualities.title', 'IMT', 'Reading qualities'),
+                privileges: Imt.privileges.MetrologyConfig.viewValidation,
                 items: [
                     {
-                        text: Uni.I18n.translate('metrologyconfiguration.label.validationRuleSets', 'IMT', 'Validation Rule Sets'),
-                        privileges: Imt.privileges.UsagePoint.admin,
-                        itemId: 'metrology-configuration-validation-rulesets-link',
-                        href: me.router.getRoute('administration/metrologyconfiguration/view/manage').buildUrl({mcid: me.mcid})
+                        text: Uni.I18n.translate('usagepoint.dataValidation.validationConfiguration', 'IMT', 'Validation configuration'),
+                        itemId: 'metrology-configuration-validation-link',
+                        privileges: Imt.privileges.MetrologyConfig.viewValidation,
+                        href: me.router.getRoute('administration/metrologyconfiguration/view/validation').buildUrl()
                     }
                 ]
             }

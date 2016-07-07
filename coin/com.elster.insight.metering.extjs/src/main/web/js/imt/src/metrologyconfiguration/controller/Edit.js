@@ -2,36 +2,23 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
     extend: 'Ext.app.Controller',
 
     requires: [
-       'Uni.controller.history.Router',
-       'Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup',
-       'Imt.metrologyconfiguration.view.MetrologyConfigurationEdit',
-       'Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit',
-       //'Imt.metrologyconfiguration.store.MetrologyConfiguration',
-       'Imt.metrologyconfiguration.store.LinkedValidationRulesSet',
-       'Imt.metrologyconfiguration.store.LinkableValidationRulesSet',
+        'Uni.controller.history.Router',
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationEdit',
         'Imt.metrologyconfiguration.view.DefineMetrologyConfiguration'
     ],
     models: [
              'Imt.metrologyconfiguration.model.MetrologyConfiguration',
-             'Imt.metrologyconfiguration.model.LinkedValidationRulesSet',
-             'Imt.metrologyconfiguration.model.LinkableValidationRulesSet',
              'Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'
     ],
     stores: [
-             'Imt.metrologyconfiguration.store.LinkedValidationRulesSet',
-             'Imt.metrologyconfiguration.store.LinkableValidationRulesSet',
              'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations'
     ],
     refs: [
-           {ref: 'metrologyConfigurationEditPage', selector: 'metrologyConfigurationEdit'},
-           {ref: 'metrologyConfigurationNameLabel', selector: '#metrology-configuration-name-label'},
-           {ref: 'metrologyConfigValRulesSetEditForm', selector: '#metrologyConfigValRulesSetEditForm'},
-           {ref: 'metrologyConfigValRulesSetSetup', selector: '#metrologyConfigValRulesSetSetup'},
-           {ref: 'overviewLink', selector: '#metrology-configuration-overview-link'},
-           {ref: 'metrologyConfigValRulesSetEditPanel', selector: '#metrologyConfigValRulesSetEditPanel'},
-           {ref: 'metrologyConfigValRulesSetEditPage', selector: 'metrologyConfigValRulesSetEdit'},
-           {ref: 'wizard', selector: 'define-metrology-configuration define-metrology-configuration-wizard'},
-           {ref: 'navigationMenu', selector: 'define-metrology-configuration navigation-menu'},
+        {ref: 'metrologyConfigurationEditPage', selector: 'metrologyConfigurationEdit'},
+        {ref: 'metrologyConfigurationNameLabel', selector: '#metrology-configuration-name-label'},
+        {ref: 'overviewLink', selector: '#metrology-configuration-overview-link'},
+        {ref: 'wizard', selector: 'define-metrology-configuration define-metrology-configuration-wizard'},
+        {ref: 'navigationMenu', selector: 'define-metrology-configuration navigation-menu'}
     ],
 
     returnLink: null,
@@ -44,18 +31,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             'metrologyConfigurationEdit button[action=cancelButton]': {
                 click: this.saveMetrologyConfiguration
             },
-            'metrologyConfigValRulesSetEdit button[action=addRulesSet]': {
-                click: this.addRulesSetsToMetrologyConfiguration
-            },
-            'metrologyConfigValRulesSetEdit button[action=removeRulesSet]': {
-                click: this.removeRulesSetsFromMetrologyConfiguration
-            },
-            'metrologyConfigValRulesSetEdit button[action=saveModel]': {
-                click: this.saveRulesSetsToMetrologyConfiguration
-            },
-            'metrologyConfigValRulesSetEdit button[action=cancelButton]': {
-                click: this.saveRulesSetsToMetrologyConfiguration
-            },
             'define-metrology-configuration define-metrology-configuration-wizard button[navigationBtn=true]': {
                 click: this.moveTo
             },
@@ -67,25 +42,25 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             },
             'define-metrology-configuration-wizard #metrology-configuration-combo': {
                 change: this.onMetrologyConfigurationChange
-            },
+            }
         });
     },
-    createMetrologyConfiguration: function() {
-    	var me = this,
-    	    widget = Ext.widget('metrologyConfigurationEdit');
-    	me.getApplication().fireEvent('changecontentevent', widget);
+    createMetrologyConfiguration: function () {
+        var me = this,
+            widget = Ext.widget('metrologyConfigurationEdit');
+        me.getApplication().fireEvent('changecontentevent', widget);
     },
-    editMetrologyConfiguration: function(mcid) {
-    	var me = this,
-    		router = me.getController('Uni.controller.history.Router'),
-    	    widget,
-    	    model = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration');
-    	 widget = Ext.widget('metrologyConfigurationEdit', {
-    		 mcid: mcid,
-             edit: true,
-         });
-    	me.getApplication().fireEvent('changecontentevent', widget);
-    	widget.setEdit(true, '#');
+    editMetrologyConfiguration: function (mcid) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            widget,
+            model = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration');
+        widget = Ext.widget('metrologyConfigurationEdit', {
+            mcid: mcid,
+            edit: true,
+        });
+        me.getApplication().fireEvent('changecontentevent', widget);
+        widget.setEdit(true, '#');
         widget.setLoading(true);
         model.load(mcid, {
             success: function (record) {
@@ -101,22 +76,21 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         });
 
 
-
     },
 
     saveMetrologyConfiguration: function (button) {
         var me = this,
-        router = me.getController('Uni.controller.history.Router'),
-        route;
+            router = me.getController('Uni.controller.history.Router'),
+            route;
 
         switch (button.action) {
-        	case 'cancelButton':
-        		route = 'administration/metrologyconfiguration';
-        		break;
-        	case 'saveModel':
-        		route = 'administration/metrologyconfiguration';
-        		me.saveModel(button);
-        		break;
+            case 'cancelButton':
+                route = 'administration/metrologyconfiguration';
+                break;
+            case 'saveModel':
+                route = 'administration/metrologyconfiguration';
+                me.saveModel(button);
+                break;
 
         }
 
@@ -124,39 +98,39 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
 
     },
-    saveModel: function(button) {
+    saveModel: function (button) {
 
         var me = this,
-        page = me.getMetrologyConfigurationEditPage(),
-        form = page.down('form'),
-        formErrorsPanel = form.down('uni-form-error-message'),
-        model;
+            page = me.getMetrologyConfigurationEditPage(),
+            form = page.down('form'),
+            formErrorsPanel = form.down('uni-form-error-message'),
+            model;
 
-	    if (form.getForm().isValid()) {
-	        model = me.formToModel();
+        if (form.getForm().isValid()) {
+            model = me.formToModel();
 
 //	        button.setDisabled(true);
-	        page.setLoading('Saving...');
-	        formErrorsPanel.hide();
-	        model.save({
-	            callback: function (model, operation, success) {
-	                page.setLoading(false);
+            page.setLoading('Saving...');
+            formErrorsPanel.hide();
+            model.save({
+                callback: function (model, operation, success) {
+                    page.setLoading(false);
 //	                button.setDisabled(false);
 
-	                if (success) {
-	                    me.onSuccessSaving(operation.action, model.get('name'));
-	                } else {
-	                    me.onFailureSaving(operation.response);
-	                }
-	            }
-	        });
-	    } else {
-	        formErrorsPanel.show();
-	    }
+                    if (success) {
+                        me.onSuccessSaving(operation.action, model.get('name'));
+                    } else {
+                        me.onFailureSaving(operation.response);
+                    }
+                }
+            });
+        } else {
+            formErrorsPanel.show();
+        }
     },
-    modelToForm: function(model, form) {
+    modelToForm: function (model, form) {
         var data = model.getData(),
-            basicForm  = form.getForm(),
+            basicForm = form.getForm(),
             values = {};
         form.loadRecord(model);
 
@@ -171,7 +145,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         basicForm.setValues(values);
     },
     formToModel: function () {
-        var me=this,
+        var me = this,
             form = this.getMetrologyConfigurationEditPage().down('form'),
             values = form.getValues(),
             model = form.getRecord();
@@ -214,179 +188,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 basicForm.markInvalid(responseText.errors);
                 formErrorsPanel.show();
             } else {
-            	basicForm.markInvalid(response.responseText);
-            	formErrorsPanel.show();
-            }
-        }
-    },
-    manageValidationRuleSets: function(id) {
-      var me = this,
-      	router = me.getController('Uni.controller.history.Router'),
-          pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-      	metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
-      	linkedStore=Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
-      	linkableStore=Ext.getStore('Imt.metrologyconfiguration.store.LinkableValidationRulesSet');
-
-      linkedStore.getProxy().setUrl(id);
-      linkedStore.load();
-      linkableStore.getProxy().setUrl(id);
-      linkableStore.load();
-
-        pageMainContent.setLoading();
-        metrologyConfigurationModel.load(id, {
-            success: function (record) {
-                var view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup',{router: router, mcid: id, metrologyConfig: record});
-                me.getApplication().fireEvent('changecontentevent', view);
-                view.down('#metrologyConfigValRulesSetEditForm').getForm().findField('mcid').setValue(id);
-                view.down('#metrologyConfigValRulesSetEditForm').getForm().findField('name').setValue(record.get('name'));
-                var form = view.down('form');
-                if (form) {
-                    form.setTitle("Link validation rule sets to '" + record.get('name') + "'");
-                }
-            },
-            callback: function () {
-                pageMainContent.setLoading(false);
-            }
-        });
-
-    },
-	addRulesSetsToMetrologyConfiguration: function(mcid) {
-		var me = this,
-		linkedStore = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkedValidationRulesSets').getStore();
-		linkableStore = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkableValidationRulesSets').getStore();
-		addItems = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkableValidationRulesSets').getValue();
-
-		var arrayModels = new Array();
-		addItems.forEach(function(entry) {
-				var rec = linkedStore.findRecord('id', entry);
-				if (rec == null) {
-					model = Ext.create('Imt.metrologyconfiguration.model.LinkedValidationRulesSet');
-					rec = linkableStore.findRecord('id', entry);
-					model.beginEdit();
-					model.set('id', rec.get('id'));
-					model.set('name', rec.get('name'));
-					model.endEdit();
-					arrayModels.push(model);
-				}
-				linkableStore.remove(rec);
-		});
-		linkedStore.loadData(arrayModels, true);
-		me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkableValidationRulesSets').clearValue();
-	},
-	removeRulesSetsFromMetrologyConfiguration: function(mcid) {
-
-		var me = this,
-		linkedStore = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkedValidationRulesSets').getStore();
-		linkableStore = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkableValidationRulesSets').getStore();
-		removeItems = me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkedValidationRulesSets').getValue();
-
-		var arrayModels = new Array();
-		removeItems.forEach(function(entry) {
-				var rec = linkableStore.findRecord('id', entry);
-				if (rec == null) {
-					model = Ext.create('Imt.metrologyconfiguration.model.LinkableValidationRulesSet');
-					rec = linkedStore.findRecord('id', entry);
-					model.beginEdit();
-					model.set('id', rec.get('id'));
-					model.set('name', rec.get('name'));
-					model.endEdit();
-					arrayModels.push(model);
-				}
-				linkedStore.remove(rec);
-		});
-		linkableStore.loadData(arrayModels, true);
-		me.getMetrologyConfigValRulesSetEditForm().getForm().findField('linkedValidationRulesSets').clearValue();
-	},
-    saveRulesSetsToMetrologyConfiguration: function (button) {
-        var me = this,
-        router = me.getController('Uni.controller.history.Router'),
-        route;
-        switch (button.action) {
-        	case 'cancelButton':
-        		route = 'administration/metrologyconfiguration';
-        		break;
-        	case 'saveModel':
-        		me.saveMetrologyConfigValRuleSetsModel(button);
-
-        		break;
-
-        }
-
-        route && (route = router.getRoute(route));
-        route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
-
-    },
-
-    saveMetrologyConfigValRuleSetsModel: function(button) {
-
-        var me = this,
-        page = me.getMetrologyConfigValRulesSetEditPage(),
-        form = page.down('form'),
-        values = form.getValues(),
-        linkedStore = form.getForm().findField('linkedValidationRulesSets').getStore(),
-        assignedValidationRuleSets = Ext.create('Imt.metrologyconfiguration.model.LinkedValidationRulesSet'),
-        formErrorsPanel = form.down('uni-form-error-message'),
-        model,
-        assignedRuleSetModelArray = new Array();
-
-	    if (form.getForm().isValid()) {
-	    	 linkedStore.each(function(record) {
-	         	model = Ext.create('Imt.metrologyconfiguration.model.ValidationRuleSet');
-	         	model.set('id',record.get('id'));
-	         	model.set('name',record.get('name'))
-	         	assignedRuleSetModelArray.push(model.getData());
-	         })
-
-	         assignedValidationRuleSets.set('ruleSets', assignedRuleSetModelArray);
-	    	 button.setDisabled(true);
-	    	 page.setLoading('Saving...');
-	    	 formErrorsPanel.hide();
-	    	 assignedValidationRuleSets.getProxy().setUrl(values['mcid']);
-	    	 assignedValidationRuleSets.save({
-	            callback: function (model, operation, success) {
-	                page.setLoading(false);
-	                button.setDisabled(false);
-
-	                if (success) {
-	                    me.onSuccessSavingValRuleSet(operation.action, model.get('name'));
-	                } else {
-	                    me.onFailureSavingvalRuleSet(operation.response);
-	                }
-	            }
-	        });
-	    } else {
-	        formErrorsPanel.show();
-	    }
-    },
-    onSuccessSavingValRuleSet: function (action) {
-        var router = this.getController('Uni.controller.history.Router'),
-            messageText;
-
-        switch (action) {
-            case 'create':
-                messageText = Uni.I18n.translate('metrologyconfiguration.acknowledge.valrulesets.add.success', 'IMT', 'Validation rule sets added to metrology configuration');
-                break;
-            case 'update':
-                messageText = Uni.I18n.translate('metrologyconfiguration.acknowledge.valrulesets.update.success', 'IMT', 'Validation rule sets updated to metrology configuration');
-                break;
-        }
-        this.getApplication().fireEvent('acknowledge', messageText);
-        router.getRoute().forward();
-    },
-    onFailureSavingvalRuleSet: function (response) {
-        var form = this.getMetrologyConfigurationEditPage().down('form'),
-            formErrorsPanel = form.down('uni-form-error-message'),
-            basicForm = form.getForm(),
-            responseText;
-
-        if (response.status == 400) {
-            responseText = Ext.decode(response.responseText, true);
-            if (responseText && responseText.errors) {
-                basicForm.markInvalid(responseText.errors);
+                basicForm.markInvalid(response.responseText);
                 formErrorsPanel.show();
-            } else {
-            	basicForm.markInvalid(response.responseText);
-            	formErrorsPanel.show();
             }
         }
     },
@@ -451,7 +254,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
                 nextStep = button;
             }
         }
-        if(currentStep == 1){
+        if (currentStep == 1) {
             wizard.getRecord().customPropertySets().removeAll();
         }
 
@@ -483,21 +286,21 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         record.phantom = false;       // force 'PUT' method for request otherwise 'POST' will be performed
         modelProxy.appendId = false; // remove 'id' part from request url
         record.save(Ext.merge({
-            callback: function () {
-                wizard.setLoading(false);
-            },
-            failure: function (record, options) {
-                var response = options.response,
-                    errors = Ext.decode(response.responseText, true);
+                callback: function () {
+                    wizard.setLoading(false);
+                },
+                failure: function (record, options) {
+                    var response = options.response,
+                        errors = Ext.decode(response.responseText, true);
 
-                if (errors && Ext.isArray(errors.errors)) {
-                    wizard.markInvalid(errors.errors);
+                    if (errors && Ext.isArray(errors.errors)) {
+                        wizard.markInvalid(errors.errors);
+                    }
                 }
-            }
             }, Ext.merge(options, {
-            params: {
-                upVersion: wizard.upVersion
-            },
+                params: {
+                    upVersion: wizard.upVersion
+                },
                 dontTryAgain: true,
                 backUrl: me.returnLink
             })
@@ -549,7 +352,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             navigation.remove(currentMenuItems[j], true);
         }
         wizard.getRecord().customPropertySets().removeAll();
-        if(configuration){
+        if (configuration) {
             configuration.customPropertySets().each(function (record) {
                 stepNumber++;
                 stepsToAdd.push({
@@ -567,7 +370,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             });
         }
 
-        if(navigationItemsToAdd.length){
+        if (navigationItemsToAdd.length) {
             addBtn.hide();
             nextBtn.show();
         } else {
