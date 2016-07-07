@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.time.ScheduleExpression;
@@ -13,7 +14,7 @@ public interface DataValidationTaskBuilder {
 
     DataValidationTaskBuilder setName(String name);
 
-    DataValidationTaskBuilder setApplication(String application);
+    DataValidationTaskBuilder setQualityCodeSystem(QualityCodeSystem qualityCodeSystem);
 
     DataValidationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 

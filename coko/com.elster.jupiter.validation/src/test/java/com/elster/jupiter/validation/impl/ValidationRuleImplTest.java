@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
@@ -28,13 +30,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import javax.inject.Provider;
-import javax.validation.ConstraintViolation;
 import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -57,18 +59,16 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ValidationRuleImplTest extends EqualsContractTest {
 
+    private static final String IMPLEMENTATION = "test";
+    private static final long ID = 2415151L;
+    private static final long OTHER_ID = 615585L;
 
-    public static final int POSITION = 1;
-    public static final String IMPLEMENTATION = "test";
-    public static final long ID = 2415151L;
-    public static final long OTHER_ID = 615585L;
-
-    public static final String PROPERTY_NAME = "min";
-    public static final String PROPERTY_NAME_2 = "max";
-    public static final String PROPERTY_NAME_3 = "other_property";
-    public static final Quantity PROPERTY_VALUE = Unit.UNITLESS.amount(new BigDecimal(100));
-    public static final Instant START = ZonedDateTime.of(2012, 12, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-    public static final Instant END = ZonedDateTime.of(2012, 12, 5, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final String PROPERTY_NAME = "min";
+    private static final String PROPERTY_NAME_2 = "max";
+    private static final String PROPERTY_NAME_3 = "other_property";
+    private static final Quantity PROPERTY_VALUE = Unit.UNITLESS.amount(new BigDecimal(100));
+    private static final Instant START = ZonedDateTime.of(2012, 12, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
+    private static final Instant END = ZonedDateTime.of(2012, 12, 5, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
     private static final Range<Instant> INTERVAL = Ranges.closed(START, END);
     private static final Instant DATE1 = ZonedDateTime.of(2012, 12, 3, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
 
@@ -113,37 +113,37 @@ public class ValidationRuleImplTest extends EqualsContractTest {
     @Mock
     private EventService eventService;
     @Mock
-    private PropertySpec properySpec;
+    private PropertySpec propertySpec;
     @Mock
     private ValueFactory valueFactory;
     private Provider<ReadingTypeInValidationRuleImpl> provider = () -> new ReadingTypeInValidationRuleImpl(meteringService);
 
     @Before
     public void setUp() {
-        when(channel.findReadingQuality(new ReadingQualityType("2.6." + ID), DATE1)).thenReturn(Optional.<ReadingQualityRecord>empty(), Optional.of(readingQuality));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(javaxValidator);
-        when(javaxValidator.validate(any(javax.validation.Validator.class), any(), any())).thenReturn(new HashSet<ConstraintViolation<javax.validation.Validator>>());
+        when(javaxValidator.validate(any(javax.validation.Validator.class), any(), any())).thenReturn(new HashSet<>());
         when(dataModel.mapper(ReadingTypeInValidationRule.class)).thenReturn(readingTypesInRuleFactory);
         when(dataModel.mapper(ValidationRuleProperties.class)).thenReturn(rulePropertiesFactory);
         when(validatorCreator.getValidator(eq(IMPLEMENTATION), any(Map.class))).thenReturn(validator);
         when(validatorCreator.getTemplateValidator(eq(IMPLEMENTATION))).thenReturn(validator);
-        when(validator.getPropertySpecs()).thenReturn(Arrays.asList(properySpec));
-        when(properySpec.getName()).thenReturn(PROPERTY_NAME);
-        when(properySpec.getValueFactory()).thenReturn(valueFactory);
+        when(validator.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(propertySpec.getName()).thenReturn(PROPERTY_NAME);
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
         doReturn(Optional.empty()).when(validator).getReadingQualityCodeIndex();
-        when(channel.getIntervalReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(intervalReadingRecord));
-        when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Arrays.asList(readingRecord));        
+        when(channel.getIntervalReadings(readingType2, INTERVAL)).thenReturn(Collections.singletonList(intervalReadingRecord));
+        when(channel.getRegisterReadings(readingType2, INTERVAL)).thenReturn(Collections.singletonList(readingRecord));
+        when(ruleSetVersion.getRuleSet()).thenReturn(ruleSet);
     }
 
     private ValidationRuleImpl newRule() {
-    	return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, provider);
+        return new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, provider);
     }
     
     @Override
     protected Object getInstanceA() {
         if (validationRule == null) {
-        	validationRule = setId(newRule().init(ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename"),ID);
+            validationRule = setId(newRule().init(ruleSetVersion, ValidationAction.FAIL, IMPLEMENTATION, "rulename"), ID);
         }
         return validationRule;
     }
@@ -216,7 +216,7 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         PropertySpec propertySpec3 = mock(PropertySpec.class);
         when(propertySpec3.getName()).thenReturn(PROPERTY_NAME_3);
         when(propertySpec3.getValueFactory()).thenReturn(valueFactory);
-        when(validator.getPropertySpecs()).thenReturn(Arrays.asList(properySpec, propertySpec2, propertySpec3));
+        when(validator.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec, propertySpec2, propertySpec3));
         ValidationRuleProperties property1 = validationRule.addProperty(PROPERTY_NAME, PROPERTY_VALUE);
         ValidationRuleProperties property2 = validationRule.addProperty(PROPERTY_NAME_2, PROPERTY_VALUE);
         when(rulePropertiesFactory.find()).thenReturn(Arrays.asList(property1, property2));
@@ -266,10 +266,17 @@ public class ValidationRuleImplTest extends EqualsContractTest {
         validationRule.save();
 
         verify(dataModel).update(validationRule);
-
     }
 
-
-
-
+    @Test
+    public void testReadingQualityCode() {
+        when(validator.getReadingQualityCodeIndex()).thenReturn(Optional.empty()).thenReturn(Optional.of(QualityCodeIndex.ZEROUSAGE));
+        when(ruleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        assertThat(validationRule.getReadingQualityType()).isEqualTo(ReadingQualityType.defaultCodeForRuleId(QualityCodeSystem.MDM, ID));
+        assertThat(validationRule.getReadingQualityType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ZEROUSAGE));
+        when(validator.getReadingQualityCodeIndex()).thenReturn(Optional.empty()).thenReturn(Optional.of(QualityCodeIndex.USAGEABOVE));
+        when(ruleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        assertThat(validationRule.getReadingQualityType()).isEqualTo(ReadingQualityType.defaultCodeForRuleId(QualityCodeSystem.MDC, ID));
+        assertThat(validationRule.getReadingQualityType()).isEqualTo(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.USAGEABOVE));
+    }
 }

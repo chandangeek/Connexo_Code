@@ -84,25 +84,24 @@ class ChannelValidator {
     }
 
     private Stream<ValidatedResult> validatedResults(Validator validator, ReadingType channelReadingType) {
-        if (channel.isRegular()) {
-            return intervalReadings.stream()
-                    .map(intervalReading -> new ReadingTarget(intervalReading, validator.validate(intervalReading), channelReadingType));
-        }
-        return registerReadings.stream()
-                .map(readingRecord -> new ReadingTarget(readingRecord, validator.validate(readingRecord), channelReadingType));
+        return channel.isRegular() ?
+                intervalReadings.stream()
+                        .map(intervalReading -> new ReadingTarget(intervalReading, validator.validate(intervalReading), channelReadingType)) :
+                registerReadings.stream()
+                        .map(readingRecord -> new ReadingTarget(readingRecord, validator.validate(readingRecord), channelReadingType));
     }
 
     private final ListMultimap<Instant, ReadingQualityRecord> getExistingReadingQualities() {
-        List<ReadingQualityRecord> readingQualities = channel.findReadingQuality(range);
+        List<ReadingQualityRecord> readingQualities = channel.findReadingQualities().inTimeInterval(range).collect();
         return ArrayListMultimap.create(Multimaps.index(readingQualities, ReadingQualityRecord::getReadingTimestamp));
     }
 
     private void handleValidationResult(ValidatedResult target) {
         if (target.ruleFailed()) {
             handleRuleFailed(target);
-            return;
+        } else {
+            handleRulePassed(target);
         }
-        handleRulePassed(target);
     }
 
     private void handleRulePassed(ValidatedResult target) {
@@ -116,21 +115,19 @@ class ChannelValidator {
         if (!isEditedConfirmedOrEstimated(target.getTimestamp())) {
             setValidationQuality(target);
             if (ValidationAction.FAIL.equals(rule.getAction())) {
-                setSuspectQuality(target);
+                setSuspectQuality(target, rule.getRuleSet().getQualityCodeSystem());
             }
         }
     }
 
-    private void setSuspectQuality(ValidatedResult target) {
+    private void setSuspectQuality(ValidatedResult target, QualityCodeSystem qualityCodeSystem) {
         Optional<ReadingQualityRecord> suspectQuality = existingReadingQualities.get(target.getTimestamp()).stream()
                 .filter(ReadingQualityRecord::isSuspect)
                 .filter(readingQualityRecord -> readingQualityRecord.getReadingType().equals(target.getReadingType()))
+                .filter(readingQualityRecord -> readingQualityRecord.getType().getSystemCode() == qualityCodeSystem.ordinal())
                 .findFirst();
-        ReadingQualityRecord suspectQualityRecord = suspectQuality.orElseGet(() -> {
-            ReadingQualityRecord record = saveNewReadingQuality(channel, target, ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT));
-            existingReadingQualities.put(target.getTimestamp(), record);
-            return record;
-        });
+        ReadingQualityRecord suspectQualityRecord = suspectQuality.orElseGet(() ->
+                saveNewReadingQuality(channel, target, ReadingQualityType.of(qualityCodeSystem, QualityCodeIndex.SUSPECT)));
         if (!suspectQualityRecord.isActual()) {
             suspectQualityRecord.makeActual();
         }
@@ -142,13 +139,11 @@ class ChannelValidator {
             if (!existingQualityForType.get().isActual()) {
                 existingQualityForType.get().makeActual();
             }
-            return;
+        } else {
+            saveNewReadingQuality(channel, target, rule.getReadingQualityType());
+            target.getReadingRecord().ifPresent(r -> r.setProcessingFlags(ProcessStatus.Flag.SUSPECT));
         }
-        ReadingQualityRecord readingQualityRecord = saveNewReadingQuality(channel, target, rule.getReadingQualityType());
-        existingReadingQualities.put(target.getTimestamp(), readingQualityRecord);
-        target.getReadingRecord().ifPresent(r -> r.setProcessingFlags(ProcessStatus.Flag.SUSPECT));
     }
-
 
     private Optional<ReadingQualityRecord> getExistingReadingQualityForType(Instant timeStamp, ReadingType readingType) {
         return existingReadingQualities.get(timeStamp).stream()

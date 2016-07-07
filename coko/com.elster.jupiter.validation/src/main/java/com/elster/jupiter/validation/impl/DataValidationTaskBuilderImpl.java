@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
@@ -21,7 +22,7 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     private EndDeviceGroup endDeviceGroup;
     private MetrologyContract metrologyContract;
     private ValidationService dataValidationService;
-    private String application;
+    private QualityCodeSystem qualityCodeSystem;
 
     public DataValidationTaskBuilderImpl(DataModel dataModel, ValidationService dataValidationService) {
         this.dataModel = dataModel;
@@ -36,8 +37,8 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     }
 
     @Override
-    public DataValidationTaskBuilder setApplication(String application) {
-        this.application = application;
+    public DataValidationTaskBuilder setQualityCodeSystem(QualityCodeSystem qualityCodeSystem) {
+        this.qualityCodeSystem = qualityCodeSystem;
         return this;
     }
 
@@ -74,7 +75,7 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
 
     @Override
     public DataValidationTask create() {
-        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, application);
+        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, qualityCodeSystem);
         task.setScheduleImmediately(scheduleImmediately);
         task.setScheduleExpression(scheduleExpression);
         task.setEndDeviceGroup(endDeviceGroup);

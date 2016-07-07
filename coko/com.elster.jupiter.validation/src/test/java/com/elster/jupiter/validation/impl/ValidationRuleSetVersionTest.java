@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
@@ -37,7 +38,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
     private static final long ID = 651L;
     private static final long OTHER_ID = 426294L;
     private static final String NAME = "name";
-    private static final String APPLICATION = "MDC";
+    private static final QualityCodeSystem DEFAULT_QUALITY_SYSTEM = QualityCodeSystem.MDC;
     private ValidationRuleSetImpl validationRuleSet;
     private ValidationRuleSetVersionImpl validationRuleSetVersion;
 
@@ -81,7 +82,7 @@ public class ValidationRuleSetVersionTest extends EqualsContractTest {
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(queryExecutor);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
-        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, APPLICATION, null);
+        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, DEFAULT_QUALITY_SYSTEM, null);
         validationRuleSetVersion = new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider).init(validationRuleSet, null, null);
     }
     @After

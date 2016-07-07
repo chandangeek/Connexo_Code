@@ -9,13 +9,21 @@ import java.time.Instant;
  * Date: 2/10/2014
  * Time: 15:00
  */
-public interface IChannelValidation {
-	long getId();
-    IMeterActivationValidation getMeterActivationValidation();
+public interface ChannelValidation {
+
+    long getId();
+
+    ChannelsContainerValidation getChannelsContainerValidation();
+
     Instant getLastChecked();
+
     Channel getChannel();
+
     boolean hasActiveRules();
+
     boolean updateLastChecked(Instant date);
+
     boolean moveLastCheckedBefore(Instant date);
+
     void validate();
 }

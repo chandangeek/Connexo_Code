@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -42,6 +43,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -193,12 +195,12 @@ public class ValidationOnStoreIT {
                 AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
                 meter = amrSystem.newMeter("2331").create();
                 meterActivation = meter.activate(date1);
-                meterActivation.createChannel(bulkReadingType);
+                meterActivation.getChannelsContainer().createChannel(bulkReadingType);
 
                 ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
                 validationService.addResource(validatorFactory);
 
-                final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "MDC");
+                final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
                 ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
                 zeroesRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, CONSECUTIVE_ZEROES, "consecutivezeros")
                         .withReadingType(deltaReadingType)
@@ -215,7 +217,7 @@ public class ValidationOnStoreIT {
 
                 validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                     @Override
-                    public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
+                    public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
                         return Arrays.asList(validationRuleSet);
                     }
 

@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -28,11 +29,11 @@ public class ValidationConsoleCommands {
     }
 
     public void availableValidators() {
-        System.out.println("Usage: availableValidators <applicationName: INS, MDC>");
+        System.out.println("Usage: availableValidators <qualityCodeSystem: MDM, MDC, OTHER>");
     }
 
-    public void availableValidators(String applicationName) {
-        validationService.getAvailableValidators(applicationName).stream()
+    public void availableValidators(String qualityCodeSystem) {
+        validationService.getAvailableValidators(QualityCodeSystem.of(qualityCodeSystem)).stream()
                 .peek(est -> System.out.println(est.getDefaultFormat()))
                 .flatMap(est -> est.getPropertySpecs().stream())
                 .map(spec -> spec.getName() + ' ' + spec.getValueFactory().getValueType().toString())
@@ -40,15 +41,15 @@ public class ValidationConsoleCommands {
     }
 
     public void createRuleSet() {
-        System.out.println("Usage: createRuleSet <ruleSetName> <applicationName: INS, MDC>");
+        System.out.println("Usage: createRuleSet <ruleSetName> <qualityCodeSystem: MDM, MDC, OTHER>");
     }
 
-    public void createRuleSet(String name, String applicationName) {
+    public void createRuleSet(String name, String qualityCodeSystem) {
         try {
             transactionService.builder()
                     .principal(() -> "console")
                     .run(() -> {
-                        validationService.createValidationRuleSet(name, applicationName);
+                        validationService.createValidationRuleSet(name, QualityCodeSystem.of(qualityCodeSystem));
                     });
         } catch (Exception e) {
             e.printStackTrace();

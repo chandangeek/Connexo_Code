@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -18,6 +19,7 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Instant;
@@ -49,9 +51,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Size(min = 0, max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     private Instant obsoleteTime;
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class})
-    @Size(min = 0, max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
-    private String applicationName;
+    @NotNull(groups = {Save.Create.class, Save.Update.class})
+    private QualityCodeSystem qualityCodeSystem;
 
     private long version;
     private Instant createTime;
@@ -73,13 +74,13 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
         this.validationRuleSetVersionProvider = validationRuleSetValidationProvider;
     }
 
-    ValidationRuleSetImpl init(String name, String applicationName) {
-        return init(name, applicationName, null);
+    ValidationRuleSetImpl init(String name, QualityCodeSystem qualityCodeSystem) {
+        return init(name, qualityCodeSystem, null);
     }
 
-    ValidationRuleSetImpl init(String name, String applicationName, String description) {
+    ValidationRuleSetImpl init(String name, QualityCodeSystem qualityCodeSystem, String description) {
         this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
-        this.applicationName = Checks.is(applicationName).emptyOrOnlyWhiteSpace() ? null : applicationName.trim();
+        this.qualityCodeSystem = qualityCodeSystem;
         this.description = description;
         return this;
     }
@@ -105,8 +106,8 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     }
 
     @Override
-    public String getApplicationName() {
-        return applicationName;
+    public QualityCodeSystem getQualityCodeSystem() {
+        return this.qualityCodeSystem;
     }
 
     @Override
@@ -122,11 +123,6 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     @Override
     public void setName(String name) {
         this.name = name != null ? name.trim() : null;
-    }
-
-    @Override
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName != null ? applicationName.trim() : null;
     }
 
     @Override

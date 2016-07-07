@@ -4,8 +4,8 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -22,8 +23,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,149 +38,145 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractValidationEvaluator implements ValidationEvaluator {
 
-    public static final ReadingQualityType VALIDATED_AND_OK = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.VALIDATED);
-
-    public boolean isAllDataValid(MeterActivation meterActivation){
-        ReadingQualityType suspect = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT);
-        return meterActivation.getChannels().stream()
-                .flatMap(channel -> channel.findActualReadingQuality(suspect, meterActivation.getRange()).stream())
-                .count() == 0;
-    }
     @Override
-    public List<DataValidationStatus> getValidationStatus(CimChannel channel, List<? extends BaseReading> readings) {
-        return getValidationStatus(channel, readings, getInterval(readings));
+    public boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer) {
+        return channelsContainer.getChannels().stream()
+                .anyMatch(channel -> channel.findReadingQualities()
+                        .ofQualitySystems(qualityCodeSystems)
+                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                        .inTimeInterval(channelsContainer.getRange())
+                        .actual()
+                        .findFirst()
+                        .isPresent());
     }
 
+    /**
+     * @param channels supports only 1 or 2 cim channels due to {@link #createDataValidationStatusListFor(Instant, boolean, Iterator, Iterator)},
+     * 1st must be main channel, 2nd must be bulk.
+     */
     @Override
-    public List<DataValidationStatus> getValidationStatus(CimChannel channel, List<? extends BaseReading> readings, Range<Instant> interval) {
+    public List<DataValidationStatus> getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, List<CimChannel> channels,
+                                                          List<? extends BaseReading> readings, Range<Instant> interval) {
         List<DataValidationStatus> result = new ArrayList<>();
-        ChannelValidationContainer channelValidations = getChannelValidationContainer(channel.getChannel());
-        boolean configured = !channelValidations.isEmpty();
-
-        Instant lastChecked = channelValidations.getLastChecked().orElse(null);
-
-        Multimap<String, IValidationRule> validationRuleMap = getMapQualityToRule(channelValidations);
-
-        ListMultimap<Instant, ReadingQualityRecord> readingQualities = getActualReadingQualities(channel, interval);
-
-        Set<Instant> timesWithReadings = new HashSet<>();
-
-        for (BaseReading reading : readings) {
-            boolean containsKey = readingQualities.containsKey(reading.getTimeStamp());
-            List<ReadingQualityRecord> qualities = (containsKey ? new ArrayList<>(readingQualities.get(reading.getTimeStamp())) : new ArrayList<>());
-            timesWithReadings.add(reading.getTimeStamp());
-            boolean fullyValidated = configured && wasValidated(lastChecked, reading.getTimeStamp());
-            if (fullyValidated) {
-                addValidatedAndOkReadingQuality(reading.getTimeStamp(), channel, qualities);
-            }
-            result.add(createDataValidationStatusListFor(reading.getTimeStamp(), fullyValidated, qualities, Collections.emptyList(), validationRuleMap, null));
-        }
-
-        Set<Instant> timesWithoutReadings = new HashSet<>(readingQualities.keySet());
-        timesWithoutReadings.removeAll(timesWithReadings);
-
-        timesWithoutReadings.forEach(readingTimestamp -> {
-            List<ReadingQualityRecord> qualities = new ArrayList<>(readingQualities.get(readingTimestamp));
-            boolean fullyValidated = configured && wasValidated(lastChecked, readingTimestamp);
-            if (fullyValidated) {
-                addValidatedAndOkReadingQuality(readingTimestamp, channel, qualities);
-            }
-            result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, Collections.emptyList(), validationRuleMap, null));
-        });
-//        result.sort(Comparator.comparing(DataValidationStatus::getReadingTimestamp));
-        return result;
-    }
-
-    @Override
-    public List<DataValidationStatus> getValidationStatus(CimChannel mainChannel, CimChannel bulkChannel, List<? extends BaseReading> readings) {
-        return getValidationStatus(mainChannel, bulkChannel, readings, getInterval(readings));
-    }
-
-    @Override
-    public List<DataValidationStatus> getValidationStatus(CimChannel mainChannel, CimChannel bulkChannel, List<? extends BaseReading> readings, Range<Instant> interval) {
-        List<DataValidationStatus> result = new ArrayList<>();
-        ChannelValidationContainer mainChannelValidations = getChannelValidationContainer(mainChannel.getChannel());
-        ChannelValidationContainer bulkChannelValidations = getChannelValidationContainer(bulkChannel.getChannel());
-        boolean configured = !mainChannelValidations.isEmpty();
-
-        Instant lastChecked = mainChannelValidations.getLastChecked().orElse(null);
-
-        Multimap<String, IValidationRule> validationRuleMap = getMapQualityToRule(mainChannelValidations);
-        Multimap<String, IValidationRule> bulkValidationRuleMap = getMapQualityToRule(bulkChannelValidations);
-
-        ListMultimap<Instant, ReadingQualityRecord> readingQualities = getActualReadingQualities(mainChannel, interval);
-        ListMultimap<Instant, ReadingQualityRecord> bulkReadingQualities = getActualReadingQualities(bulkChannel, interval);
-
-        Set<Instant> timesWithReadings = new HashSet<>();
-
-        for (BaseReading reading : readings) {
-            boolean containsKey = readingQualities.containsKey(reading.getTimeStamp());
-            List<ReadingQualityRecord> qualities = (containsKey ? new ArrayList<>(readingQualities.get(reading.getTimeStamp())) : new ArrayList<>());
-            boolean bulkContainsKey = bulkReadingQualities.containsKey(reading.getTimeStamp());
-            List<ReadingQualityRecord> bulkQualities = (bulkContainsKey ? new ArrayList<>(bulkReadingQualities.get(reading.getTimeStamp())) : new ArrayList<>());
-            timesWithReadings.add(reading.getTimeStamp());
-            boolean fullyValidated = configured && wasValidated(lastChecked, reading.getTimeStamp());
-            if (fullyValidated) {
-                addValidatedAndOkReadingQuality(reading.getTimeStamp(), mainChannel, qualities);
-                addValidatedAndOkReadingQuality(reading.getTimeStamp(), bulkChannel, bulkQualities);
-            }
-            result.add(createDataValidationStatusListFor(reading.getTimeStamp(), fullyValidated, qualities, bulkQualities, validationRuleMap, bulkValidationRuleMap));
-        }
-
-        Set<Instant> timesWithoutReadings = new HashSet<>();
-        timesWithoutReadings.addAll(readingQualities.keySet());
-        timesWithoutReadings.addAll(bulkReadingQualities.keySet());
-        timesWithoutReadings.removeAll(timesWithReadings);
-
-        timesWithoutReadings.forEach(readingTimestamp -> {
-            List<ReadingQualityRecord> qualities = readingQualities.containsKey(readingTimestamp) ? new ArrayList<>(readingQualities.get(readingTimestamp)) : new ArrayList();
-            List<ReadingQualityRecord> bulkQualities = bulkReadingQualities.containsKey(readingTimestamp) ? new ArrayList<>(bulkReadingQualities.get(readingTimestamp)): new ArrayList<>();
-            boolean fullyValidated = configured && wasValidated(lastChecked, readingTimestamp);
-            if (fullyValidated) {
-                addValidatedAndOkReadingQuality(readingTimestamp, mainChannel, qualities);
-                addValidatedAndOkReadingQuality(readingTimestamp, bulkChannel, bulkQualities);
-            }
-            result.add(createDataValidationStatusListFor(readingTimestamp, fullyValidated, qualities, bulkQualities, validationRuleMap, bulkValidationRuleMap));
-        });
-        return result;
-    }
-
-    private void addValidatedAndOkReadingQuality(Instant readingTimeStamp, CimChannel channel, List<ReadingQualityRecord> qualities) {
-        if (qualities.stream().noneMatch(ReadingQualityRecord::isSuspect)) {
-            qualities.add(new TransientReadingQuality(channel, VALIDATED_AND_OK, readingTimeStamp));
-        }
-    }
-
-    protected ListMultimap<Instant, ReadingQualityRecord> getActualReadingQualities(CimChannel channel, Range<Instant> interval) {
-        List<ReadingQualityRecord> readingQualities = channel.findActualReadingQuality(interval)
-                .stream()
-                .filter(readingQualityRecord -> readingQualityRecord.getType().system().orElse(null).equals(QualityCodeSystem.MDC))
+        List<ChannelValidationContainer> channelValidations = channels.stream()
+                .map(channel -> getChannelValidationContainer(channel.getChannel()))
                 .collect(Collectors.toList());
-        return Multimaps.index(readingQualities, ReadingQualityRecord::getReadingTimestamp);
+        // cannot validate only one cim channel from GUI in case there're related main & bulk channels,
+        // so we find out if they are validated by one (main) channel only
+        ChannelValidationContainer mainChannelValidations = channelValidations.get(0);
+        boolean configured = !mainChannelValidations.isEmpty();
+        int requestedQCSNumber = qualityCodeSystems == null ? 0 : qualityCodeSystems.size();
+        Multimap<QualityCodeSystem, ChannelValidation> mainChannelValidationsPerSystemMultimap
+                = indexValidationsBySystem(mainChannelValidations, requestedQCSNumber, qualityCodeSystems);
+
+        List<Multimap<String, IValidationRule>> validationRuleMaps = channelValidations.stream()
+                .map(this::getMapQualityToRule)
+                .collect(Collectors.toList());
+
+        List<ListMultimap<Instant, ReadingQualityRecord>> readingQualityMaps = channels.stream()
+                .map(channel -> getActualReadingQualities(channel, interval, qualityCodeSystems))
+                .collect(Collectors.toList());
+
+        Set<Instant> unprocessedQualityTimes = readingQualityMaps.stream()
+                .map(ListMultimap::keySet)
+                .flatMap(Set::stream)
+                .collect(Collectors.toSet());
+
+        readings.forEach(reading -> {
+            Instant timeStamp = reading.getTimeStamp();
+            unprocessedQualityTimes.remove(timeStamp);
+            result.add(getValidationStatusForTimeStamp(timeStamp, channels, configured,
+                    readingQualityMaps, validationRuleMaps, mainChannelValidationsPerSystemMultimap));
+        });
+
+        unprocessedQualityTimes.forEach(timeStamp -> result.add(getValidationStatusForTimeStamp(timeStamp, channels, configured,
+                readingQualityMaps, validationRuleMaps, mainChannelValidationsPerSystemMultimap)));
+        return result;
     }
 
-    Range<Instant> getInterval(List<? extends BaseReading> readings) {
-        return readings.stream()
-                .map(BaseReading::getTimeStamp)
-                .map(Range::singleton)
-                .reduce(Range::span)
-                .orElse(null);
+    /**
+     * @param timeStamp
+     * @param channels must be of the same length as validationRuleMaps and readingQualityMaps, all of 1 or 2 elements, 1st is main channel, 2nd is bulk.
+     * @param validationConfigured
+     * @param readingQualityMaps must be of the same length as validationRuleMaps and channels, all of 1 or 2 elements, 1st is main channel, 2nd is bulk.
+     * @param validationRuleMaps must be of the same length as channels and readingQualityMaps, all of 1 or 2 elements, 1st is main channel, 2nd is bulk.
+     * @param mainChannelValidationsPerSystemMultimap
+     * @return
+     */
+    private static DataValidationStatus getValidationStatusForTimeStamp(Instant timeStamp,
+                                                                        List<CimChannel> channels,
+                                                                        boolean validationConfigured,
+                                                                        List<ListMultimap<Instant, ReadingQualityRecord>> readingQualityMaps,
+                                                                        List<Multimap<String, IValidationRule>> validationRuleMaps,
+                                                                        Multimap<QualityCodeSystem, ChannelValidation> mainChannelValidationsPerSystemMultimap) {
+        List<List<ReadingQualityRecord>> qualities = readingQualityMaps.stream()
+                .map(readingQualityMap -> readingQualityMap.get(timeStamp))
+                .map(ArrayList::new)
+                .collect(Collectors.toList());
+        boolean fullyValidated = validationConfigured && mainChannelValidationsPerSystemMultimap.asMap().entrySet().stream().map(entry -> {
+            boolean validated = wasValidated(ChannelValidationContainer.getLastChecked(entry.getValue().stream()).orElse(null), timeStamp);
+            if (validated) {
+                int i = 0;
+                for (CimChannel channel : channels) {
+                    addValidatedAndOkReadingQuality(entry.getKey(), timeStamp, channel, qualities.get(i++));
+                }
+            }
+            return validated;
+        }).reduce(Boolean::logicalAnd).orElse(false);
+        return createDataValidationStatusListFor(timeStamp, fullyValidated, qualities.iterator(), validationRuleMaps.iterator());
     }
 
-    List<IValidationRule> filterDuplicates(Collection<IValidationRule> iValidationRules) {
+    private static Multimap<QualityCodeSystem, ChannelValidation> indexValidationsBySystem(ChannelValidationContainer channelValidations,
+                                                                                           int requestedQCSNumber, Set<QualityCodeSystem> qualityCodeSystems) {
+        Multimap<QualityCodeSystem, ChannelValidation> validationsPerSystemMultimap
+                = ArrayListMultimap.create(requestedQCSNumber == 0 ? QualityCodeSystem.values().length : requestedQCSNumber, 3); // default number of values is 3
+        channelValidations.stream().forEach(validation -> {
+            QualityCodeSystem validationQualityCodeSystem = validation.getChannelsContainerValidation().getRuleSet().getQualityCodeSystem();
+            if (requestedQCSNumber == 0 || qualityCodeSystems.contains(validationQualityCodeSystem)) {
+                validationsPerSystemMultimap.put(validationQualityCodeSystem, validation);
+            }
+        });
+        return validationsPerSystemMultimap;
+    }
+
+    private static void addValidatedAndOkReadingQuality(QualityCodeSystem qualityCodeSystem, Instant readingTimeStamp,
+                                                        CimChannel channel, List<ReadingQualityRecord> qualities) {
+        if (qualities.stream().noneMatch(ReadingQualityRecord::isSuspect)) {
+            qualities.add(new TransientReadingQuality(channel, ReadingQualityType.of(qualityCodeSystem, QualityCodeIndex.VALIDATED), readingTimeStamp));
+        }
+    }
+
+    private static ListMultimap<Instant, ReadingQualityRecord> getActualReadingQualities(CimChannel channel, Range<Instant> interval,
+                                                                                         Set<QualityCodeSystem> qualityCodeSystems) {
+        return Multimaps.index(channel.findReadingQualities()
+                .ofQualitySystems(qualityCodeSystems)
+                .inTimeInterval(interval)
+                .actual()
+                .collect(), ReadingQualityRecord::getReadingTimestamp);
+    }
+
+    private static List<IValidationRule> filterDuplicates(Collection<IValidationRule> iValidationRules) {
         Map<String, IValidationRule> collect = iValidationRules.stream()
-                .collect(Collectors.toMap(IValidationRule::getImplementation, Function.<IValidationRule>identity(), (a, b) -> a.isObsolete() ? b : a));
+                .collect(Collectors.toMap(IValidationRule::getImplementation, Function.identity(), (a, b) -> a.isObsolete() ? b : a));
         return new ArrayList<>(collect.values());
     }
 
-    DataValidationStatus createDataValidationStatusListFor(Instant timeStamp, boolean completelyValidated, List<? extends ReadingQuality> qualities, List<? extends ReadingQuality> bulkQualities,
-                                                           Multimap<String, IValidationRule> validationRuleMap, Multimap<String, IValidationRule> bulkValidationRuleMap) {
+    /**
+     * @param timeStamp
+     * @param completelyValidated
+     * @param qualities must be of the same length as validationRuleMaps, both of 1 or 2 elements, 1st is main channel, 2nd is bulk.
+     * @param validationRuleMaps must be of the same length as qualities, both of 1 or 2 elements, 1st is main channel, 2nd is bulk.
+     * @return
+     */
+    private static DataValidationStatus createDataValidationStatusListFor(Instant timeStamp, boolean completelyValidated,
+                                                                          Iterator<? extends List<? extends ReadingQuality>> qualities,
+                                                                          Iterator<Multimap<String, IValidationRule>> validationRuleMaps) {
         DataValidationStatusImpl validationStatus = new DataValidationStatusImpl(timeStamp, completelyValidated);
-        for (ReadingQuality quality : qualities) {
-            validationStatus.addReadingQuality(quality, filterDuplicates(validationRuleMap.get(quality.getTypeCode())));
-        }
-        for (ReadingQuality quality : bulkQualities) {
-            validationStatus.addBulkReadingQuality(quality, filterDuplicates(bulkValidationRuleMap.get(quality.getTypeCode())));
+        Multimap<String, IValidationRule> validationRuleMap = validationRuleMaps.next();
+        qualities.next().forEach(quality -> validationStatus.addReadingQuality(quality, filterDuplicates(validationRuleMap.get(quality.getTypeCode()))));
+        if (qualities.hasNext()) {
+            Multimap<String, IValidationRule> bulkValidationRuleMap = validationRuleMaps.next();
+            qualities.next().forEach(quality -> validationStatus.addBulkReadingQuality(quality, filterDuplicates(bulkValidationRuleMap.get(quality.getTypeCode()))));
         }
         return validationStatus;
     }
@@ -189,7 +185,7 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
 
     abstract Multimap<String, IValidationRule> getMapQualityToRule(ChannelValidationContainer channelValidations);
 
-    boolean wasValidated(Instant lastChecked, Instant readingTimestamp) {
+    private static boolean wasValidated(Instant lastChecked, Instant readingTimestamp) {
         return lastChecked != null && readingTimestamp.compareTo(lastChecked) <= 0;
     }
 

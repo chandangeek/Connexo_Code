@@ -1,15 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-
+import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -17,27 +8,37 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
+
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
-final class ChannelValidationImpl implements IChannelValidation {
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+final class ChannelValidationImpl implements ChannelValidation {
 
     private long id;
     private long channelId;
-    private Reference<IMeterActivationValidation> meterActivationValidation = ValueReference.absent();
+    private Reference<ChannelsContainerValidation> channelsContainerValidation = ValueReference.absent();
     private Instant lastChecked;
     @SuppressWarnings("unused")
-	private boolean activeRules;
+    private boolean activeRules;
     private Channel channel;
 
     @Inject
     ChannelValidationImpl() {
     }
 
-    ChannelValidationImpl init(IMeterActivationValidation meterActivationValidation, Channel channel) {
-        if (!channel.getMeterActivation().equals(meterActivationValidation.getMeterActivation())) {
+    ChannelValidationImpl init(ChannelsContainerValidation channelsContainerValidation, Channel channel) {
+        if (!channel.getChannelsContainer().equals(channelsContainerValidation.getChannelsContainer())) {
             throw new IllegalArgumentException();
         }
-        this.meterActivationValidation.set(meterActivationValidation);
+        this.channelsContainerValidation.set(channelsContainerValidation);
         this.channelId = channel.getId();
         this.channel = channel;
         this.lastChecked = minLastChecked();
@@ -51,8 +52,8 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
 
     @Override
-    public IMeterActivationValidation getMeterActivationValidation() {
-        return meterActivationValidation.get();
+    public ChannelsContainerValidation getChannelsContainerValidation() {
+        return channelsContainerValidation.get();
     }
 
     @Override
@@ -61,13 +62,13 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
 
     public Channel getChannel() {
-    	if (channel == null) {
-    		channel = meterActivationValidation.get().getChannels().stream()
-        		.filter(channel -> channel.getId() == channelId)
-        		.findFirst()
-        		.get();
-    	}
-    	return channel;
+        if (channel == null) {
+            channel = channelsContainerValidation.get().getChannelsContainer().getChannels().stream()
+                    .filter(channel -> channel.getId() == channelId)
+                    .findFirst()
+                    .get();
+        }
+        return channel;
     }
 
     @Override
@@ -76,14 +77,14 @@ final class ChannelValidationImpl implements IChannelValidation {
     }
 
     private List<IValidationRule> activeRules() {
-    	return getMeterActivationValidation().getRuleSet().getRules().stream()
-    			.map(IValidationRule.class::cast)
-    			.filter(rule -> rule.appliesTo(getChannel()))    			
+        return getChannelsContainerValidation().getRuleSet().getRules().stream()
+                .map(IValidationRule.class::cast)
+                .filter(rule -> rule.appliesTo(getChannel()))
                 .collect(Collectors.toList());
     }
 
     private List<IValidationRule> activeRulesOfVersion(IValidationRuleSetVersion version) {
-        return  version.getRules().stream()
+        return version.getRules().stream()
                 .map(IValidationRule.class::cast)
                 .filter(rule -> rule.appliesTo(getChannel()))
                 .collect(Collectors.toList());
@@ -101,71 +102,67 @@ final class ChannelValidationImpl implements IChannelValidation {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        return channelId == ((ChannelValidationImpl) o).channelId && meterActivationValidation.equals(((ChannelValidationImpl) o).meterActivationValidation);
+        return channelId == ((ChannelValidationImpl) o).channelId && channelsContainerValidation.equals(((ChannelValidationImpl) o).channelsContainerValidation);
 
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(channelId, meterActivationValidation);
+        return Objects.hash(channelId, channelsContainerValidation);
     }
-    
+
     private final Instant minLastChecked() {
-    	return meterActivationValidation.get().getMeterActivation().getStart();
+        return channelsContainerValidation.get().getChannelsContainer().getStart();
     }
-    
+
     @Override
     public boolean updateLastChecked(Instant instant) {
-    	if (lastChecked.equals(Objects.requireNonNull(instant))) {
-    		return false;
-    	}
-    	Instant newValue = Objects.requireNonNull(instant).isBefore(minLastChecked()) ? minLastChecked() : instant;
-    	if (lastChecked.isAfter(newValue)) {
-    		getChannel().findReadingQuality(Range.greaterThan(newValue)).stream()
-    			.filter(this::isRelevant)
-    			.forEach(ReadingQualityRecord::delete);
-    	}
-    	this.lastChecked = newValue;
-    	return true;
+        if (lastChecked.equals(Objects.requireNonNull(instant))) {
+            return false;
+        }
+        Instant newValue = instant.isBefore(minLastChecked()) ? minLastChecked() : instant;
+        if (lastChecked.isAfter(newValue)) {
+            getChannel().findReadingQualities()
+                    .ofQualitySystem(channelsContainerValidation.get().getRuleSet().getQualityCodeSystem())
+                    .inTimeInterval(Range.greaterThan(newValue))
+                    .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.REASONABILITY, QualityCodeCategory.VALIDATION))
+                    .collect()
+                    .forEach(ReadingQualityRecord::delete);
+        }
+        this.lastChecked = newValue;
+        return true;
     }
-    
+
     @Override
     public boolean moveLastCheckedBefore(Instant instant) {
-    	if (instant.isAfter(lastChecked)) {
-    		return false;
-    	}
-    	Optional<BaseReadingRecord> reading = getChannel().getReadingsBefore(instant, 1).stream().findFirst();
-    	return updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));    	
+        if (instant.isAfter(lastChecked)) {
+            return false;
+        }
+        Optional<BaseReadingRecord> reading = getChannel().getReadingsBefore(instant, 1).stream().findFirst();
+        return updateLastChecked(reading.map(BaseReading::getTimeStamp).orElseGet(this::minLastChecked));
     }
-    
-    private boolean isRelevant(ReadingQualityRecord readingQuality) {
-    	return readingQuality.hasReasonabilityCategory() || readingQuality.hasValidationCategory(); 
-    }
-    
+
     @Override
     public void validate() {
         Instant end = getChannel().getLastDateTime();
-    	if (end == null || !lastChecked.isBefore(end)) {
-    		return;
-    	}
-    	Range<Instant> dataRange = Range.openClosed(lastChecked, end);
-        List<? extends ValidationRuleSetVersion>  versions = getMeterActivationValidation().getRuleSet().getRuleSetVersions();
+        if (end != null && lastChecked.isBefore(end)) {
+            Range<Instant> dataRange = Range.openClosed(lastChecked, end);
+            List<? extends ValidationRuleSetVersion> versions = getChannelsContainerValidation().getRuleSet().getRuleSetVersions();
 
-        Instant newLastChecked = versions.stream()
-                .map(IValidationRuleSetVersion.class::cast)
-                .filter(cv -> dataRange.isConnected(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())))
-                .flatMap(currentVersion ->
-                {
-                    Range<Instant> versionRange = dataRange.intersection(Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate()));
-                    Range<Instant> rangeToValidate = dataRange.intersection(versionRange);
-                    ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
-                    return activeRulesOfVersion(currentVersion).stream()
-                            .map(validator::validateRule);
-                })
-                .min(Comparator.naturalOrder()).orElse(end);
+            Instant newLastChecked = versions.stream()
+                    .map(IValidationRuleSetVersion.class::cast)
+                    .filter(cv -> dataRange.isConnected(Range.openClosed(cv.getNotNullStartDate(), cv.getNotNullEndDate())))
+                    .flatMap(currentVersion ->
+                    {
+                        Range<Instant> versionRange = dataRange.intersection(Range.openClosed(currentVersion.getNotNullStartDate(), currentVersion.getNotNullEndDate()));
+                        Range<Instant> rangeToValidate = dataRange.intersection(versionRange);
+                        ChannelValidator validator = new ChannelValidator(getChannel(), rangeToValidate);
+                        return activeRulesOfVersion(currentVersion).stream()
+                                .map(validator::validateRule);
+                    })
+                    .min(Comparator.naturalOrder()).orElse(end);
 
-        updateLastChecked(newLastChecked);
-
+            updateLastChecked(newLastChecked);
+        }
     }
-
 }

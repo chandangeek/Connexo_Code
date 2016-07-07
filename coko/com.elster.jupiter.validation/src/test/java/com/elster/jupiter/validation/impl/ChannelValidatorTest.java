@@ -8,8 +8,11 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.Validator;
 
 import com.google.common.collect.ImmutableSet;
@@ -17,12 +20,13 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -31,20 +35,21 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChannelValidatorTest {
 
     private static final ZonedDateTime START_TIME = ZonedDateTime.of(2014, 1, 14, 14, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime END_TIME = ZonedDateTime.of(2014, 1, 14, 14, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
-    public static final Range<Instant> RANGE = Range.closedOpen(START_TIME.toInstant(), END_TIME.toInstant());
-
-    private ReadingQualityType readingQualityType;
+    private static final Range<Instant> RANGE = Range.closedOpen(START_TIME.toInstant(), END_TIME.toInstant());
 
     @Mock
     private Channel channel;
     @Mock
     private IValidationRule rule;
+    @Mock
+    private ValidationRuleSet ruleSet;
     @Mock
     private ReadingType readingType;
     @Mock
@@ -53,18 +58,23 @@ public class ChannelValidatorTest {
     private ReadingQualityRecord readingQualityRecord, newReadingQualityRecord;
     @Mock
     private IntervalReadingRecord readingRecord;
-
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private ReadingQualityWithTypeFilter filter;
 
     @Before
     public void setUp() {
         doReturn(ImmutableSet.of(readingType)).when(rule).getReadingTypes();
-        doReturn(Arrays.asList(readingType)).when(channel).getReadingTypes();
+        doReturn(Collections.singletonList(readingType)).when(channel).getReadingTypes();
         doReturn(validator).when(rule).createNewValidator();
-        doReturn(Arrays.asList(readingQualityRecord)).when(channel).findReadingQuality(RANGE);
+        doReturn(ValidationAction.FAIL).when(rule).getAction();
+        doReturn(ruleSet).when(rule).getRuleSet();
+        doReturn(QualityCodeSystem.MDC).when(ruleSet).getQualityCodeSystem();
+        doReturn(filter).when(channel).findReadingQualities();
+        when(filter.inTimeInterval(RANGE).collect()).thenReturn(Collections.singletonList(readingQualityRecord));
         doReturn(START_TIME.toInstant()).when(readingQualityRecord).getReadingTimestamp();
         doReturn(false).when(readingQualityRecord).isActual();
         doReturn(true).when(channel).isRegular();
-        doReturn(Arrays.asList(readingRecord)).when(channel).getIntervalReadings(RANGE);
+        doReturn(Collections.singletonList(readingRecord)).when(channel).getIntervalReadings(RANGE);
         doReturn(newReadingQualityRecord).when(channel).createReadingQuality(any(), eq(readingType), eq(readingRecord));
         doReturn(START_TIME.toInstant()).when(newReadingQualityRecord).getReadingTimestamp();
         doReturn(START_TIME.toInstant()).when(readingRecord).getTimeStamp();
@@ -74,7 +84,6 @@ public class ChannelValidatorTest {
 
     @After
     public void tearDown() {
-
     }
 
     @Test
@@ -90,6 +99,24 @@ public class ChannelValidatorTest {
         channelValidator.validateRule(rule);
 
         verify(channel).createReadingQuality(validationQuality, readingType, readingRecord);
+        verify(channel).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, readingRecord);
+    }
+
+    @Test
+    public void testMdmValidateRule() throws Exception {
+        doReturn(QualityCodeSystem.MDM).when(ruleSet).getQualityCodeSystem();
+        setUpPreExistingQualityType(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT));
+        ReadingQualityType validationQuality = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1001);
+        setUpNewQualityType(validationQuality);
+
+        doReturn(ValidationResult.SUSPECT).when(validator).validate(readingRecord);
+
+        ChannelValidator channelValidator = new ChannelValidator(channel, RANGE);
+
+        channelValidator.validateRule(rule);
+
+        verify(channel).createReadingQuality(validationQuality, readingType, readingRecord);
+        verify(channel).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT), readingType, readingRecord);
     }
 
     @Test
@@ -160,8 +187,7 @@ public class ChannelValidatorTest {
     }
 
     private void setUpPreExistingQualityType(ReadingQualityType type) {
-        readingQualityType = type;
-        doReturn(readingQualityType).when(readingQualityRecord).getType();
+        doReturn(type).when(readingQualityRecord).getType();
     }
 
     private void setUpNewQualityType(ReadingQualityType type) {
