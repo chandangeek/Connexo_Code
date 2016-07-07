@@ -92,4 +92,8 @@ public interface OfflineLoadProfile extends Offline {
 
     public LoadProfileIdentifier getLoadProfileIdentifier();
 
+    default boolean isDataLoggerSlaveLoadProfile(){
+        return false;
+    }
+
 }
