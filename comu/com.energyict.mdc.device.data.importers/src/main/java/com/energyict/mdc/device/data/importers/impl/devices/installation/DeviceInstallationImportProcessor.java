@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
@@ -40,8 +41,8 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
         List<String> geoCoordinatesData = data.getGeoCoordinates();
         EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
-        if (locationData!=null && !locationData.isEmpty()) {
-            LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
+        if(locationData!=null && !locationData.isEmpty()){
+            LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder();
             Map<String, Integer> ranking = super.getContext()
                     .getMeteringService()
                     .getLocationTemplate()
@@ -73,7 +74,7 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
                             }
                         });
             }
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData
                     .get(ranking.get("locale")));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), data, ranking);
@@ -83,9 +84,8 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
             endDevice.setLocation(builder.create());
         }
 
-        if (geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && validateGeoCoordinatesData(geoCoordinatesData)) {
-            endDevice.setGeoCoordinates(super.getContext().getMeteringService()
-                    .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
+        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)){
+            endDevice.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
         endDevice.update();
     }
@@ -193,15 +193,4 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
                 .setLocale(data.getLocation().get(ranking.get("locale")));
         return builder;
     }
-
-    private boolean validateGeoCoordinatesData(List<String> geoCoordinatesData){
-        int count = 0;
-        for (String geoElement : geoCoordinatesData) {
-            if (geoElement == null){
-                count++;
-            }
-        }
-        return count < 2;
-    }
-
 }

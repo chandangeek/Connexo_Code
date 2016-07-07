@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -34,11 +35,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DeviceReadingsImportProcessor implements FileImportProcessor<DeviceReadingsImportRecord> {
@@ -211,7 +208,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
 
     private void addReading(ReadingType readingType, BigDecimal value, Instant timeStamp) {
         if (readingType.isRegular()) {
-            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value));
+            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value, Collections.<ReadingQuality>emptyList()));
             if (!lastReadingPerChannel.containsKey(readingType) || timeStamp.isAfter(lastReadingPerChannel.get(readingType))) {
                 lastReadingPerChannel.put(readingType, timeStamp);
             }
