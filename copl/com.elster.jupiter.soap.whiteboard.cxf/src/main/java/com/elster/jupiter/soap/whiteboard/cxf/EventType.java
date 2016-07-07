@@ -2,7 +2,7 @@ package com.elster.jupiter.soap.whiteboard.cxf;
 
 public enum EventType {
 
-    WEB_SERVICE_CHANGED("endpoint/CHANGED"),;
+    ENDPOINT_CONFIGURATION_CHANGED("endpoint/CHANGED"),;
 
     private static final String NAMESPACE = "com/elster/jupiter/webservices/";
     private final String topic;

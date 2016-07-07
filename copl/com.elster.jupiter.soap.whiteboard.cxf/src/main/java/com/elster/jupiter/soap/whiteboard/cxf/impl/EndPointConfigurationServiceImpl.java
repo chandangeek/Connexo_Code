@@ -166,7 +166,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         ((EndPointConfigurationImpl) endPointConfiguration).setActive(true);
         endPointConfiguration.save();
         endPointConfiguration.log(LogLevel.INFO, "Endpoint was activated");
-        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+        eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
     }
 
     @Override
@@ -175,13 +175,13 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         ((EndPointConfigurationImpl) endPointConfiguration).setActive(false);
         endPointConfiguration.save();
         endPointConfiguration.log(LogLevel.INFO, "Endpoint was de-activated");
-        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+        eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
     }
 
     @Override
     public void delete(EndPointConfiguration endPointConfiguration) {
         ((EndPointConfigurationImpl) endPointConfiguration).delete();
-        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+        eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
     }
 
     @Override
