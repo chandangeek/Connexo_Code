@@ -18,6 +18,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,10 +28,10 @@ import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -512,6 +513,9 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void clearDataLoggerTest(){
+        Instant linkingDate = Instant.now();
+        when(clock.instant()).thenReturn(linkingDate);
+
         setUpForDataLoggerEnabledDevice();
         setUpForSlave1Device();
         setUpForSlave2Device();
@@ -525,17 +529,19 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         channelMapping1.put(slave1.getChannels().get(1), dataLogger.getChannels().get(1));
         channelMapping1.put(slave1.getChannels().get(2), dataLogger.getChannels().get(2));
         HashMap<Register, Register> registerMapping1 = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), channelMapping1, registerMapping1);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave1, dataLogger, linkingDate, channelMapping1, registerMapping1);
 
         HashMap<Channel, Channel> channelMapping2 = new HashMap<>();
         channelMapping2.put(slave2.getChannels().get(0), dataLogger.getChannels().get(4));
         HashMap<Register, Register> registerMapping2 = new HashMap<>();
-        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), channelMapping2, registerMapping2);
+        inMemoryPersistence.getTopologyService().setDataLogger(slave2, dataLogger, linkingDate, channelMapping2, registerMapping2);
 
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isTrue();
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isTrue();
 
-        inMemoryPersistence.getTopologyService().clearDataLogger(slave1, Instant.now());
+        Instant unlinkDate = linkingDate.plus(1, ChronoUnit.HOURS);
+        when(clock.instant()).thenReturn(unlinkDate);
+        inMemoryPersistence.getTopologyService().clearDataLogger(slave1, unlinkDate);
 
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(0))).isFalse();
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isTrue();
@@ -543,7 +549,7 @@ public class DataLoggerChannelUsageImplTest extends PersistenceIntegrationTest {
         assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerChannelUsageImpl.class).select(Condition.TRUE)).hasSize(4);
         assertThat(inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE)).hasSize(2);
 
-        inMemoryPersistence.getTopologyService().clearDataLogger(slave2, Instant.now());
+        inMemoryPersistence.getTopologyService().clearDataLogger(slave2, unlinkDate);
         assertThat(inMemoryPersistence.getTopologyService().isReferenced(dataLogger.getChannels().get(4))).isFalse();
     }
 }

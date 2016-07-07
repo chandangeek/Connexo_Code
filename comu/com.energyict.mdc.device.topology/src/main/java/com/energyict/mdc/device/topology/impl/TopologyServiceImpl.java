@@ -57,6 +57,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -339,12 +340,13 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public void setDataLogger(Device slave, Device dataLogger, Instant linkingDate, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap) {
-        Optional<PhysicalGatewayReference> existingGatewayReference = this.getPhysicalGatewayReference(slave, linkingDate);
+        Instant linkDate = generalizeDataloggerLinkingDate(linkingDate);
+        Optional<PhysicalGatewayReference> existingGatewayReference = this.getPhysicalGatewayReference(slave, linkDate);
         if (existingGatewayReference.isPresent()) {
-            throw DataLoggerLinkException.slaveWasAlreadyLinkedToOtherDatalogger(thesaurus, slave, existingGatewayReference.get().getGateway(), linkingDate);
+            throw DataLoggerLinkException.slaveWasAlreadyLinkedToOtherDatalogger(thesaurus, slave, existingGatewayReference.get().getGateway(), linkDate);
         }
-        validateUniqueKeyConstraintForDataloggerReference(dataLogger, linkingDate, slave);
-        final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, linkingDate);
+        validateUniqueKeyConstraintForDataloggerReference(dataLogger, linkDate, slave);
+        final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, linkDate);
         slaveDataLoggerChannelMap.forEach((slaveChannel, dataLoggerChannel) -> this.addChannelDataLoggerUsage(dataLoggerReference, slaveChannel, dataLoggerChannel));
         slaveDataLoggerRegisterMap.forEach((slaveRegister, dataLoggerRegister) -> this.addRegisterDataLoggerUsage(dataLoggerReference, slaveRegister, dataLoggerRegister));
         Save.CREATE.validate(this.dataModel, dataLoggerReference);
@@ -491,11 +493,23 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     public void clearDataLogger(Device slave, Instant when) {
-        getPhysicalGatewayReference(slave, clock.instant()).map(dataloggerReference -> {
-            terminateTemporal(dataloggerReference, when);
+        Instant unlinkTimeStamp = generalizeDataloggerLinkingDate(when);
+        getPhysicalGatewayReference(slave, unlinkTimeStamp).map(dataloggerReference -> {
+            terminateTemporal(dataloggerReference, unlinkTimeStamp);
             this.slaveTopologyChanged(slave, Optional.empty());
             return true;
-        }).orElseThrow(() -> DataLoggerLinkException.slaveWasNotLinkedAt(thesaurus, slave, when));
+        }).orElseThrow(() -> DataLoggerLinkException.slaveWasNotLinkedAt(thesaurus, slave, unlinkTimeStamp));
+    }
+
+    /**
+     * We truncate the link and unlink dates of a datalogger to 0 seconds.
+     * This way we prevent unintentional misconfiguration of unlinking before linking (within the same minute)
+     *
+     * @param when the date to generalize
+     * @return the truncated date
+     */
+    private Instant generalizeDataloggerLinkingDate(Instant when) {
+        return when.truncatedTo(ChronoUnit.MINUTES);
     }
 
     private void addChannelDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Channel slave, Channel dataLogger) {

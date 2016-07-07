@@ -7,7 +7,6 @@ import com.energyict.mdc.device.topology.TopologyTimeslice;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -58,12 +57,7 @@ public class TopologyTimelineImpl implements TopologyTimeline {
 
     private void addAndSort(List<? extends ServerTopologyTimeslice> slices) {
         this.slices.addAll(slices);
-        Collections.sort(this.slices, new Comparator<TopologyTimeslice>() {
-            @Override
-            public int compare(TopologyTimeslice ts1, TopologyTimeslice ts2) {
-                return ts1.getPeriod().lowerEndpoint().compareTo(ts2.getPeriod().lowerEndpoint());
-            }
-        });
+        Collections.sort(this.slices, (ts1, ts2) -> ts1.getPeriod().lowerEndpoint().compareTo(ts2.getPeriod().lowerEndpoint()));
     }
 
     private void add(CompleteTopologyTimesliceImpl timeslice) {
