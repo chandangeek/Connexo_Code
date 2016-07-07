@@ -174,8 +174,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                             .getString(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT.getKey(), MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT.getDefaultFormat());
                     String errorMessage = new MessageFormat(messageTemplate).format(unmatchedRequirements.stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", "))).toString();
 
-//                    String errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT)
-//                            .format(unmatchedRequirements.stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", ")));
                     context.buildConstraintViolationWithTemplate(errorMessage)
                             .addPropertyNode(mappingEntry.getKey().getKey())
                             .addConstraintViolation();
