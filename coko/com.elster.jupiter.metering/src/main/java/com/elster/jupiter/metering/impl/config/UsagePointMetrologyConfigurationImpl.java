@@ -10,8 +10,6 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
-import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
 import javax.inject.Inject;
@@ -26,16 +24,16 @@ import java.util.stream.Collectors;
 class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
     public static final String TYPE_IDENTIFIER = "U";
 
-    private final SearchDomain searchDomain;
+    private final UsagePointRequirementsSearchDomain searchDomain;
 
     private List<MetrologyConfigurationMeterRoleUsageImpl> meterRoles = new ArrayList<>();
     private List<ReadingTypeRequirementMeterRoleUsage> requirementToRoleUsages = new ArrayList<>();
     private List<UsagePointRequirement> usagePointRequirements = new ArrayList<>();
 
     @Inject
-    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain, SearchService searchService) {
+    UsagePointMetrologyConfigurationImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService, CustomPropertySetService customPropertySetService, UsagePointRequirementsSearchDomain searchDomain) {
         super(metrologyConfigurationService, eventService, customPropertySetService);
-        this.searchDomain = searchService.findDomain(searchDomain.getId()).get();
+        this.searchDomain = searchDomain;
     }
 
     @Override
