@@ -152,13 +152,13 @@ public class UnitConversionSupport {
     }
 
     public static boolean isValidForAggregation(ReadingTypeUnit unit) {
-        return (!unit.equals(ReadingTypeUnit.BOOLEAN)) &&  //109
-                (!unit.equals(ReadingTypeUnit.BOOLEANARRAY)) &&  //110
-                (!unit.equals(ReadingTypeUnit.ENCODEDVALUE)) &&  //114
-                (!unit.equals(ReadingTypeUnit.CHARACTERS)) &&  //76
-                (!unit.equals(ReadingTypeUnit.TIMESTAMP)) && //108
-                (!unit.equals(ReadingTypeUnit.ENDDEVICEEVENTCODE)) && //118
-                (!unit.equals(ReadingTypeUnit.NOTAPPLICABLE)); //0
+        return (!unit.equals(ReadingTypeUnit.BOOLEAN)) &&
+                (!unit.equals(ReadingTypeUnit.BOOLEANARRAY)) &&
+                (!unit.equals(ReadingTypeUnit.ENCODEDVALUE)) &&
+                (!unit.equals(ReadingTypeUnit.CHARACTERS)) &&
+                (!unit.equals(ReadingTypeUnit.TIMESTAMP)) &&
+                (!unit.equals(ReadingTypeUnit.ENDDEVICEEVENTCODE)) &&
+                (!unit.equals(ReadingTypeUnit.NOTAPPLICABLE));
     }
 
     public static boolean isAssignable(IntervalLength deliverableIntervalLength, IntervalLength formulaIntervalLength) {
@@ -244,35 +244,35 @@ public class UnitConversionSupport {
             /* Converting from SI to other
              * value = (siValue - siDelta) * siDivisor / siMultiplier. */
             return fromZeroMultiplier(
-                        Operator.DIVIDE.node(
+                    Operator.DIVIDE.node(
                             Operator.MULTIPLY.node(
                                     Operator.MINUS.node(
                                             toZeroMultiplier(value, sourceMetricMultiplier),
                                             target.getSiDelta()),
                                     target.getSiDivisor()),
                             target.getSiMultiplier()),
-                        targetMetricMultiplier);
+                    targetMetricMultiplier);
         } else if (target.equals(siUnit)) {
             /* Converting to SI
              * siValue = (value * siMultiplier / siDivisor) + siDelta. */
             return fromZeroMultiplier(
-                        Operator.PLUS.node(
+                    Operator.PLUS.node(
                             Operator.DIVIDE.node(
                                     Operator.MULTIPLY.node(
                                             toZeroMultiplier(value, sourceMetricMultiplier),
                                             source.getSiMultiplier()),
                                     source.getSiDivisor()),
                             source.getSiDelta()),
-                        targetMetricMultiplier);
+                    targetMetricMultiplier);
         } else {
             /* Convert to source to si and si to target */
             return unitConversion(
-                        unitConversion(
-                                value,
-                                source, sourceMetricMultiplier,
-                                siUnit, MetricMultiplier.ZERO),
-                        siUnit, MetricMultiplier.ZERO,
-                        target, targetMetricMultiplier);
+                    unitConversion(
+                            value,
+                            source, sourceMetricMultiplier,
+                            siUnit, MetricMultiplier.ZERO),
+                    siUnit, MetricMultiplier.ZERO,
+                    target, targetMetricMultiplier);
         }
     }
 
@@ -331,6 +331,7 @@ public class UnitConversionSupport {
     }
 
     // Hide utility class constructor
-    private UnitConversionSupport() {}
+    private UnitConversionSupport() {
+    }
 
 }

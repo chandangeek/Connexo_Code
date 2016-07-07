@@ -15,9 +15,9 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.time.RangeInstantBuilder;
 import com.elster.jupiter.util.units.Quantity;
 
+import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -38,6 +38,7 @@ import java.util.NoSuchElementException;
         "osgi.command.function=matchingChannels",
         "osgi.command.function=showData"
 }, immediate = true)
+@SuppressWarnings("unused")
 public class DataAggregationCommands {
 
     private volatile DataAggregationService dataAggregationService;
@@ -92,7 +93,7 @@ public class DataAggregationCommands {
                     .orElseThrow(() -> new NoSuchElementException("Deliverable not found on contract"));
 
             Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
-            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), null));
+            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now()));
 
             List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
             System.out.println("records found for deliverable:" + dataForDeliverable.size());
@@ -117,7 +118,7 @@ public class DataAggregationCommands {
                     .orElseThrow(() -> new NoSuchElementException("Deliverable not found on contract"));
 
             Instant start = ZonedDateTime.ofInstant(Instant.parse(startDate + "T00:00:00Z"), ZoneOffset.UTC).withZoneSameLocal(ZoneId.systemDefault()).toInstant();
-            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), null));
+            CalculatedMetrologyContractData data = dataAggregationService.calculate(usagePoint, contract, Range.openClosed(start, Instant.now()));
 
             List<? extends BaseReadingRecord> dataForDeliverable = data.getCalculatedDataFor(deliverable);
             dataForDeliverable.forEach(this::showReading);
@@ -159,10 +160,12 @@ public class DataAggregationCommands {
                     .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
                     .map(UsagePointMetrologyConfiguration.class::cast)
                     .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"));
-//            if (!metrologyConfigurationService.findLinkableMetrologyConfigurations(usagePoint).contains(configuration))
-//                throw new IllegalArgumentException("Metrology configuration no linkable to usage point");
-            usagePoint.apply(configuration);
-
+            if (configuration instanceof UsagePointMetrologyConfiguration) {
+                UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) configuration;
+                usagePoint.apply(usagePointMetrologyConfiguration);
+            } else {
+                throw new NoSuchElementException("No such metrology configuration");
+            }
             context.commit();
         }
     }
@@ -192,4 +195,5 @@ public class DataAggregationCommands {
                 .map(ch -> ch.getMainReadingType().getMRID() + " " + ch.getMainReadingType().getFullAliasName())
                 .forEach(System.out::println);
     }
+
 }

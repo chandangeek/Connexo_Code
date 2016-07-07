@@ -13,11 +13,9 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
@@ -39,8 +37,7 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     private ChannelContract persistedChannel;
     private ReadingTypeDeliverable deliverable;
-    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration;
-    private MetrologyContract metrologyContract;
+    private EffectiveMetrologyContractOnUsagePoint effectiveMetrologyContract;
 
     @Inject
     public AggregatedChannelImpl(DataAggregationService dataAggregationService) {
@@ -49,12 +46,10 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     public AggregatedChannelImpl init(ChannelContract channel,
                                       ReadingTypeDeliverable deliverable,
-                                      EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
-                                      MetrologyContract metrologyContract) {
+                                      EffectiveMetrologyContractOnUsagePoint effectiveMetrologyContract) {
         this.persistedChannel = channel;
         this.deliverable = deliverable;
-        this.effectiveMetrologyConfiguration = effectiveMetrologyConfiguration;
-        this.metrologyContract = metrologyContract;
+        this.effectiveMetrologyContract = effectiveMetrologyContract;
         return this;
     }
 
@@ -149,7 +144,8 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     private <T extends BaseReadingRecord> List<T> getReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
         // TODO  merge records with edited/estimated/deleted records which are stored in persistedChannel
-        return this.dataAggregationService.calculate(this.effectiveMetrologyConfiguration.getUsagePoint(), this.metrologyContract, interval)
+        return this.dataAggregationService.calculate(this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint()
+                .getUsagePoint(), this.effectiveMetrologyContract.getMetrologyContract(), interval)
                 .getCalculatedDataFor(this.deliverable)
                 .stream()
                 .map(mapper::apply)
@@ -229,8 +225,8 @@ public class AggregatedChannelImpl implements ChannelContract {
     @Override
     public Instant getFirstDateTime() {
         Instant persistedChannelFirstDateTime = this.persistedChannel.getFirstDateTime();
-        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.effectiveMetrologyConfiguration.getUsagePoint(), this.metrologyContract,
-                this.effectiveMetrologyConfiguration.getRange());
+        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
+                this.effectiveMetrologyContract.getMetrologyContract(), this.effectiveMetrologyContract.getRange());
         if (!calculatedMetrologyContractData.isEmpty()) {
             List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
             if (!deliverableData.isEmpty()) {
@@ -244,8 +240,8 @@ public class AggregatedChannelImpl implements ChannelContract {
     @Override
     public Instant getLastDateTime() {
         Instant persistedChannelLastDateTime = this.persistedChannel.getLastDateTime();
-        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.effectiveMetrologyConfiguration.getUsagePoint(), this.metrologyContract,
-                this.effectiveMetrologyConfiguration.getRange());
+        CalculatedMetrologyContractData calculatedMetrologyContractData = this.dataAggregationService.calculate(this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
+                this.effectiveMetrologyContract.getMetrologyContract(), this.effectiveMetrologyContract.getRange());
         if (!calculatedMetrologyContractData.isEmpty()) {
             List<? extends BaseReadingRecord> deliverableData = calculatedMetrologyContractData.getCalculatedDataFor(this.deliverable);
             if (!deliverableData.isEmpty()) {
@@ -395,11 +391,6 @@ public class AggregatedChannelImpl implements ChannelContract {
         @Override
         public Optional<Range<Instant>> getTimePeriod() {
             return record.getTimePeriod();
-        }
-
-        @Override
-        public ProfileStatus getProfileStatus() {
-            return new ProfileStatus(0L);
         }
     }
 }

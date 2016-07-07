@@ -9,7 +9,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 
 /**
  * Provides an implementation for the {@link ExpressionNode} interface
- * for a reference to a {@link ReadingTypeDeliverableForMeterActivation}.
+ * for a reference to a {@link ReadingTypeDeliverableForMeterActivationSet}.
  * <p>
  * It will participate in generating a "with" clause that will
  * do time based aggregation if the interval of the target reading
@@ -24,10 +24,10 @@ import com.elster.jupiter.util.sql.SqlBuilder;
  */
 class VirtualDeliverableNode implements ServerExpressionNode {
 
-    private final ReadingTypeDeliverableForMeterActivation deliverable;
+    private final ReadingTypeDeliverableForMeterActivationSet deliverable;
     private VirtualReadingType targetReadingType;
 
-    VirtualDeliverableNode(ReadingTypeDeliverableForMeterActivation deliverable) {
+    VirtualDeliverableNode(ReadingTypeDeliverableForMeterActivationSet deliverable) {
         super();
         this.deliverable = deliverable;
         this.targetReadingType = VirtualReadingType.from(this.deliverable.getReadingType());

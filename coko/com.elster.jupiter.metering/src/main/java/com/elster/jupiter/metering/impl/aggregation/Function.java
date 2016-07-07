@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rvk)
  * @since 2016-02-19
  */
-public enum Function {
+enum Function {
     SUM,
     MIN,
     MAX,

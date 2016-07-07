@@ -6,8 +6,12 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
+import com.elster.jupiter.metering.config.ExpressionNode;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -17,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link CalculatedMetrologyContractData} interface.
@@ -24,20 +29,22 @@ import java.util.TreeMap;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-04-04 (10:24)
  */
-public class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContractData {
+class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContractData {
 
     private final UsagePoint usagePoint;
     private final MetrologyContract contract;
+    private final Range<Instant> period;
     private final Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords;
 
-    public CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+    CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
         this.usagePoint = usagePoint;
         this.contract = contract;
+        this.period = period;
         this.injectUsagePoint(calculatedReadingRecords);
-        this.calculatedReadingRecords = this.mergeMeterActivations(calculatedReadingRecords);
+        this.calculatedReadingRecords = this.generateConstantsAsTimeSeries(contract, this.mergeMeterActivations(calculatedReadingRecords));
     }
 
-    protected void injectUsagePoint(Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+    private void injectUsagePoint(Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
         calculatedReadingRecords
                 .values()
                 .stream()
@@ -97,6 +104,54 @@ public class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyC
         merged.compute(
                 endOfInterval,
                 (timestamp, existingRecord) -> existingRecord == null ? record : CalculatedReadingRecord.merge(existingRecord, record, endOfInterval));
+    }
+
+    /**
+     * Generates the single record that was produced for a deliverable
+     * whose formula only contains constants, as a timeseries that
+     * produces that constant value at every expected interval.
+     *
+     * @param contract The MetrologyContract
+     * @param calculatedReadingRecords The List of CalculatedReadingRecord
+     * @return The Map that will now contain a List of CalculatedReadingRecord instead of a single CalculatedReadingRecord
+     * for the ReadingTypes whose formula only contains constants
+     */
+    private Map<ReadingType, List<CalculatedReadingRecord>> generateConstantsAsTimeSeries(MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+        return calculatedReadingRecords
+                        .keySet()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                java.util.function.Function.identity(),
+                                readingType -> this.generateConstantsAsTimeSeries(
+                                                    contract,
+                                                    readingType,
+                                                    calculatedReadingRecords.get(readingType))));
+    }
+
+    private List<CalculatedReadingRecord> generateConstantsAsTimeSeries(MetrologyContract contract, ReadingType readingType, List<CalculatedReadingRecord> calculatedReadingRecords) {
+        if (calculatedReadingRecords.size() == 1) {
+            ExpressionNode expressionNode =
+                    contract
+                            .getDeliverables()
+                            .stream()
+                            .filter(deliverable -> deliverable.getReadingType().getMRID().equals(readingType.getMRID()))
+                            .map(ReadingTypeDeliverable::getFormula)
+                            .map(Formula::getExpressionNode)
+                            .findFirst()    // Guaranteed to find one: reading type is result from sql that was generated from the list of deliverables
+                            .get();
+            if (expressionNode.accept(new ContainsOnlyConstants())) {
+                CalculatedReadingRecord record = calculatedReadingRecords.get(0);
+                return IntervalLength
+                        .from(readingType)
+                        .toTimeSeries(this.period, this.usagePoint.getZoneId())
+                        .map(record::atTimeStamp)
+                        .collect(Collectors.toList());
+            } else {
+                return calculatedReadingRecords;
+            }
+        } else {
+            return calculatedReadingRecords;
+        }
     }
 
     @Override

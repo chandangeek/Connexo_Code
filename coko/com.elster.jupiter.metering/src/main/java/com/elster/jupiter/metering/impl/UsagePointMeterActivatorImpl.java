@@ -158,9 +158,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         boolean result = true;
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(this.activationTime);
         if (effectiveMetrologyConfiguration.isPresent()) {
-            UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) effectiveMetrologyConfiguration
-                    .get()
-                    .getMetrologyConfiguration();
+            UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.get().getMetrologyConfiguration();
             List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = getMandatoryReadingTypeRequirements(metrologyConfiguration);
             for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
                 if (mappingEntry.getValue() == null) {

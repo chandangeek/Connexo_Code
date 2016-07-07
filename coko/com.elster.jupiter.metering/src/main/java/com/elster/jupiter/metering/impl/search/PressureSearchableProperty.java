@@ -89,7 +89,8 @@ class PressureSearchableProperty implements SearchableUsagePointProperty {
                 .specForValuesOf(new QuantityValueFactory())
                 .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_PRESSURE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(BigDecimal.ZERO, 0, "Pa"),
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "Pa"),
                         Quantity.create(BigDecimal.ZERO, 3, "Pa"),
                         Quantity.create(BigDecimal.ZERO, 6, "Pa"))
                 .finish();

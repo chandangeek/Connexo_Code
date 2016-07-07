@@ -1,13 +1,10 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.conditions.Condition;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -16,8 +13,6 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.logging.Logger;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Responds to {@link StateTransitionChangeEvent} and effectively changes the
@@ -69,18 +64,10 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
         StateTransitionChangeEvent event = (StateTransitionChangeEvent) localEvent.getSource();
         String mRID = event.getSourceId();
         try {
-//              need for correct 'Remove' state transition
-            Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
-            Condition condition = where("mRID").isEqualTo(mRID);
-            endDeviceQuery.select(condition)
-                    .stream()
-                    .findFirst()
-                    .ifPresent(d -> this.handle(event, (ServerEndDevice) d));
-//            todo: Remove it. The old version, device state did not transite to "Removed" state in Insight
-//            this.meteringService
-//                    .findEndDevice(mRID)
-//                    .map(ServerEndDevice.class::cast)
-//                    .ifPresent(d -> this.handle(event, d));
+            this.meteringService
+                    .findEndDevice(mRID)
+                    .map(ServerEndDevice.class::cast)
+                    .ifPresent(d -> this.handle(event, d));
         }
         catch (NumberFormatException e) {
             this.logger.fine(() -> "Unable to parse end device id '" + mRID + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());

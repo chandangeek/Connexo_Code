@@ -257,7 +257,7 @@ public final class MeterActivationImpl implements IMeterActivation {
         if (this.usagePoint.isPresent()) {
             throw new MeterAlreadyLinkedToUsagePoint(thesaurus, this);
         }
-        Optional<? extends MeterActivation> overlappingActivation = usagePoint.getMeterActivations().stream()
+        Optional<MeterActivation> overlappingActivation = usagePoint.getMeterActivations().stream()
                 .filter(overlaps())
                 .findAny();
         overlappingActivation.ifPresent(activation -> {

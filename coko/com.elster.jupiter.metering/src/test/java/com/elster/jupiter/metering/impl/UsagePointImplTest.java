@@ -135,6 +135,7 @@ public class UsagePointImplTest {
         final Provider<ChannelBuilder> channelBuilderProvider = () -> channelBuilder;
         when(dataModel.getInstance(MeterActivationChannelsContainerImpl.class)).then(invocation -> new MeterActivationChannelsContainerImpl(meteringService, eventService, channelBuilderProvider));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(dataModel.getInstance(UsagePointConnectionStateImpl.class)).thenReturn(new UsagePointConnectionStateImpl());
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(meterActivationProvider.get()).thenAnswer(invocationOnMock -> new MeterActivationImpl(dataModel, eventService, clock, thesaurus));
         when(accountabilityProvider.get()).thenAnswer(invocationOnMock -> new UsagePointAccountabilityImpl(clock));
@@ -146,6 +147,7 @@ public class UsagePointImplTest {
 
         usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider, customPropertySetService, meteringService, metrologyConfigurationService)
                 .init(MR_ID, serviceCategory);
+        usagePoint.setInstallationTime(Instant.EPOCH);
     }
 
     @After
@@ -218,7 +220,9 @@ public class UsagePointImplTest {
 
     @Test
     public void testGetConnectionState() {
-        assertThat(usagePoint.getConnectionState()).isEqualTo(ConnectionState.UNDER_CONSTRUCTION);
+        usagePoint.setConnectionState(ConnectionState.CONNECTED);
+
+        assertThat(usagePoint.getConnectionState()).isEqualTo(ConnectionState.CONNECTED);
     }
 
     @Test

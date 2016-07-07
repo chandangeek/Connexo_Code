@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyConfigurationCrudTest {
 
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @Rule
     public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -177,7 +177,8 @@ public class MetrologyConfigurationCrudTest {
     public void testDeactivateLinkedMetrologyConfiguration() {
         // Business method
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("Name", getServiceCategory())
-                .withDescription("Description").create();
+                .withDescription("Description")
+                .create();
         UsagePoint usagePoint = getServiceCategory().newUsagePoint("Usage point", Instant.now()).create();
 
         metrologyConfiguration.activate();

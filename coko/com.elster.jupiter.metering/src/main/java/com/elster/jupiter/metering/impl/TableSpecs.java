@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -25,6 +24,7 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -44,6 +44,8 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.FormulaImpl;
 import com.elster.jupiter.metering.impl.config.MeterRoleImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
@@ -134,7 +136,11 @@ public enum TableSpecs {
             table.column("EAUSERID").varChar(NAME_LENGTH).map("electronicAddress.userID").add();
             table.column("EAWEB").varChar(NAME_LENGTH).map("electronicAddress.web").add();
             table.column("GEOINFOREFERENCE").varChar(NAME_LENGTH).map("geoInfoReference").add();
-            table.column("MASTATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("mainAddress.status.dateTime").add();
+            table.column("MASTATUSDATETIME")
+                    .number()
+                    .conversion(NUMBER2INSTANT)
+                    .map("mainAddress.status.dateTime")
+                    .add();
             table.column("MASTATUSREASON").varChar(NAME_LENGTH).map("mainAddress.status.reason").add();
             table.column("MASTATUSREMARK").varChar(NAME_LENGTH).map("mainAddress.status.remark").add();
             table.column("MASTATUSVALUE").varChar(NAME_LENGTH).map("mainAddress.status.value").add();
@@ -163,7 +169,11 @@ public enum TableSpecs {
             table.column("PHONE2COUNTRY").varChar(NAME_LENGTH).map("phone2.countryCode").add();
             table.column("PHONE2EXTENSION").varChar(NAME_LENGTH).map("phone2.extension").add();
             table.column("PHONE2LOCALNUMBER").varChar(NAME_LENGTH).map("phone2.localNumber").add();
-            table.column("SASTATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("secondaryAddress.status.dateTime").add();
+            table.column("SASTATUSDATETIME")
+                    .number()
+                    .conversion(NUMBER2INSTANT)
+                    .map("secondaryAddress.status.dateTime")
+                    .add();
             table.column("SASTATUSREASON").varChar(NAME_LENGTH).map("secondaryAddress.status.reason").add();
             table.column("SASTATUSREMARK").varChar(NAME_LENGTH).map("secondaryAddress.status.remark").add();
             table.column("SASTATUSVALUE").varChar(NAME_LENGTH).map("secondaryAddress.status.value").add();
@@ -182,7 +192,7 @@ public enum TableSpecs {
             table.column("SATOWNNAME").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.name").add();
             table.column("SATOWNSECTION").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.section").add();
             table.column("SATOWNSTATE").varChar(NAME_LENGTH).map("secondaryAddress.townDetail.stateOrProvince").add();
-            table.column("STATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("status.dateTime").add();
+            table.column("STATUSDATETIME").number().conversion(NUMBER2INSTANT).map("status.dateTime").add();
             table.column("STATUSREASON").varChar(NAME_LENGTH).map("status.reason").add();
             table.column("STATUSREMARK").varChar(NAME_LENGTH).map("status.remark").add();
             table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
@@ -235,26 +245,6 @@ public enum TableSpecs {
             TableBuilder.buildLocationMemberTable(table, MeteringServiceImpl.getLocationTemplateMembers());
         }
     },
-
-    MTR_GEOCOORDINATES {
-        @Override
-        void addTo(DataModel dataModel) {
-            Table<GeoCoordinates> table = dataModel.addTable(name(), GeoCoordinates.class);
-            table.since(version(10, 2));
-            table.map(GeoCoordinatesImpl.class);
-            Column idColumn = table.addAutoIdColumn();
-            table.column("GEOCOORDINATES")
-                    .sdoGeometry()
-                    .notNull()
-                    .conversion(SDOGEOMETRY2SPATIALGEOOBJ)
-                    .map("coordinates")
-                    .add();
-            table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.addModTimeColumn("MODTIME", "modTime");
-            table.primaryKey("MTR_PK_GEOCOORDS").on(idColumn).add();
-
-        }
-    },
     MTR_AMRSYSTEM {
         @Override
         void addTo(DataModel dataModel) {
@@ -289,7 +279,6 @@ public enum TableSpecs {
             table.column("READROUTE").varChar(NAME_LENGTH).map("readRoute").add();
             table.column("SERVICEPRIORITY").varChar(NAME_LENGTH).map("servicePriority").add();
             table.column("SERVICEDELIVERYREMARK").varChar(SHORT_DESCRIPTION_LENGTH).map("serviceDeliveryRemark").since(version(10, 2)).add();
-            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").add();
             table.column("INSTALLATIONTIME")
                     .number()
                     .notNull()
@@ -301,14 +290,10 @@ public enum TableSpecs {
             Column locationIdColumn = table.column("LOCATIONID")
                     .number()
                     .conversion(NUMBER2LONGNULLZERO)
+                    .map("location")
                     .since(version(10, 2))
                     .add();
-            Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID")
-                    .number()
-                    .conversion(NUMBER2LONGNULLZERO)
-                    .since(version(10, 2))
-                    .add();
-
+            table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
@@ -330,13 +315,6 @@ public enum TableSpecs {
                     .references(Location.class)
                     .onDelete(RESTRICT)
                     .map("upLocation", LocationMember.class)
-                    .since(version(10, 2))
-                    .add();
-            table.foreignKey("MTR_FK_USAGEPOINTGEOCOORDS")
-                    .on(geoCoordinatesIdColumn)
-                    .references(GeoCoordinates.class)
-                    .onDelete(RESTRICT)
-                    .map("geoCoordinates")
                     .since(version(10, 2))
                     .add();
         }
@@ -367,7 +345,12 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("ENDDEVICETYPE", "char(1)");
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
-            Column amrSystemIdColumn = table.column("AMRSYSTEMID").type("number").notNull().conversion(NUMBER2INT).map("amrSystemId").add();
+            Column amrSystemIdColumn = table.column("AMRSYSTEMID")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INT)
+                    .map("amrSystemId")
+                    .add();
             Column amrIdColumn = table.column("AMRID").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("amrId").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
@@ -391,8 +374,7 @@ public enum TableSpecs {
             Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column stateMachine = table.column("FSM").number().add();
             Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
-            Column geoCoordinatesIdColumn = table.column("GEOCOORDINATESID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
-
+            table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_METER").on(idColumn).add();
             table.unique("MTR_U_METER").on(mRIDColumn, obsoleteTime).add();
@@ -413,13 +395,6 @@ public enum TableSpecs {
                     .references(Location.class)
                     .onDelete(RESTRICT)
                     .map("location", LocationMember.class)
-                    .since(version(10, 2))
-                    .add();
-            table.foreignKey("MTR_FK_ENDDEVICEGEOCOORDS")
-                    .on(geoCoordinatesIdColumn)
-                    .references(GeoCoordinates.class)
-                    .onDelete(RESTRICT)
-                    .map("geoCoordinates")
                     .since(version(10, 2))
                     .add();
             table.index("MTR_IDX_ENDDEVICE_NAME").on(nameColumn).add();
@@ -471,11 +446,16 @@ public enum TableSpecs {
             Table<MeterActivation> table = dataModel.addTable(name(), MeterActivation.class);
             table.map(MeterActivationImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONGNULLZERO).add();
-            Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONGNULLZERO).add();
+            Column usagePointIdColumn = table.column("USAGEPOINTID")
+                    .number()
+                    .conversion(NUMBER2LONGNULLZERO)
+                    .add();
+            Column meterIdColumn = table.column("METERID")
+                    .number()
+                    .conversion(NUMBER2LONGNULLZERO)
+                    .add();
             Column meterRoleIdColumn = table.column("METERROLE")
-                    .type(MeterRoleImpl.Fields.KEY.name())
-                    .varChar(NAME_LENGTH)
+                    .varChar(Table.NAME_LENGTH)
                     .since(version(10, 2))
                     .add();
             table.addIntervalColumns("interval");
@@ -513,8 +493,12 @@ public enum TableSpecs {
             Table<UsagePointAccountability> table = dataModel.addTable(name(), UsagePointAccountability.class);
             table.map(UsagePointAccountabilityImpl.class);
             table.setJournalTableName("MTR_UPACCOUNTABILITYJRNL");
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONG).add();
-            Column partyIdColumn = table.column("PARTYID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column usagePointIdColumn = table.column("USAGEPOINTID")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column partyIdColumn = table.column("PARTYID").number().notNull().conversion(NUMBER2LONG).add();
             Column roleMRIDColumn = table.column("ROLEMRID").varChar(NAME_LENGTH).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
@@ -560,9 +544,14 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndDeviceEventRecord> table = dataModel.addTable(name(), EndDeviceEventRecord.class);
             table.map(EndDeviceEventRecordImpl.class);
-            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().conversion(NUMBER2LONG).add();
+            Column endDeviceColumn = table.column("ENDDEVICEID").number().notNull().conversion(NUMBER2LONG).add();
             Column eventTypeColumn = table.column("EVENTTYPE").varChar(NAME_LENGTH).notNull().add();
-            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2INSTANT).map("createdDateTime").add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("createdDateTime")
+                    .add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
@@ -571,13 +560,13 @@ public enum TableSpecs {
             table.column("SEVERITY").varChar(NAME_LENGTH).map("severity").add();
             table.column("ISSUERID").varChar(NAME_LENGTH).map("issuerID").add();
             table.column("ISSUERTRACKINGID").varChar(NAME_LENGTH).map("issuerTrackingID").add();
-            table.column("STATUSDATETIME").type("number").conversion(NUMBER2INSTANT).map("status.dateTime").add();
+            table.column("STATUSDATETIME").number().conversion(NUMBER2INSTANT).map("status.dateTime").add();
             table.column("STATUSREASON").varChar(NAME_LENGTH).map("status.reason").add();
             table.column("STATUSREMARK").varChar(NAME_LENGTH).map("status.remark").add();
             table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
-            table.column("PROCESSINGFLAGS").type("number").map("processingFlags").conversion(NUMBER2LONG).add();
-            table.column("LOGBOOKID").type("number").map("logBookId").conversion(NUMBER2LONG).add();
-            table.column("LOGBOOKPOSITION").type("number").map("logBookPosition").conversion(NUMBER2INT).add();
+            table.column("PROCESSINGFLAGS").number().map("processingFlags").conversion(NUMBER2LONG).add();
+            table.column("LOGBOOKID").number().map("logBookId").conversion(NUMBER2LONG).add();
+            table.column("LOGBOOKPOSITION").number().map("logBookPosition").conversion(NUMBER2INT).add();
             table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTRECORD")
@@ -603,9 +592,23 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndDeviceEventRecordImpl.EndDeviceEventDetailRecord> table = dataModel.addTable(name(), EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
             table.map(EndDeviceEventRecordImpl.EndDeviceEventDetailRecord.class);
-            Column endDeviceColumn = table.column("ENDDEVICEID").type("number").notNull().map("endDeviceId").conversion(NUMBER2LONG).add();
-            Column eventTypeColumn = table.column("EVENTTYPE").varChar(NAME_LENGTH).notNull().map("eventTypeCode").add();
-            Column createdDateTimeColumn = table.column("CREATEDDATETIME").type("number").notNull().conversion(NUMBER2INSTANT).map("createdDateTime").add();
+            Column endDeviceColumn = table.column("ENDDEVICEID")
+                    .number()
+                    .notNull()
+                    .map("endDeviceId")
+                    .conversion(NUMBER2LONG)
+                    .add();
+            Column eventTypeColumn = table.column("EVENTTYPE")
+                    .varChar(NAME_LENGTH)
+                    .notNull()
+                    .map("eventTypeCode")
+                    .add();
+            Column createdDateTimeColumn = table.column("CREATEDDATETIME")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2INSTANT)
+                    .map("createdDateTime")
+                    .add();
             Column keyColumn = table.column("KEY").varChar(NAME_LENGTH).notNull().map("key").add();
             table.column("DETAIL_VALUE").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("value").add();
             table.primaryKey("MTR_PK_ENDDEVICEEVENTDETAIL")
@@ -627,7 +630,11 @@ public enum TableSpecs {
             Table<UsagePointDetail> table = dataModel.addTable(name(), UsagePointDetail.class);
             table.map(UsagePointDetailImpl.IMPLEMENTERS);
             table.setJournalTableName("MTR_USAGEPOINTDETAILJRNL");
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").notNull().conversion(NUMBER2LONGNULLZERO).add();
+            Column usagePointIdColumn = table.column("USAGEPOINTID")
+                    .number()
+                    .notNull()
+                    .conversion(NUMBER2LONGNULLZERO)
+                    .add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
 
             table.addDiscriminatorColumn("SERVICECATEGORY", "varchar2(1)");
@@ -666,6 +673,26 @@ public enum TableSpecs {
                     .onDelete(RESTRICT)
                     .map("usagePoint")
                     .reverseMap("detail")
+                    .composition()
+                    .add();
+        }
+    },
+    MTR_USAGEPOINTSTATE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointConnectionState> table = dataModel.addTable(name(), UsagePointConnectionState.class);
+            table.map(UsagePointConnectionStateImpl.class);
+            Column usagePoint = table.column("USAGEPOINT").notNull().number().add();
+            List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addAuditColumns();
+            table.column("CONNECTIONSTATE").type("varchar2(30)").conversion(CHAR2ENUM).map("connectionState").since(version(10, 2)).add();
+            table.primaryKey("PK_MTR_USAGEPOINTSTATE").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("FK_MTR_USAGEPOINTSTATE")
+                    .on(usagePoint)
+                    .references(UsagePoint.class)
+                    .onDelete(CASCADE)
+                    .map("usagePoint")
+                    .reverseMap("connectionState")
                     .composition()
                     .add();
         }
@@ -747,7 +774,7 @@ public enum TableSpecs {
             Table<EffectiveMetrologyConfigurationOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyConfigurationOnUsagePoint.class);
             table.map(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
             table.since(version(10, 2));
-            Column usagePoint = table.column("USAGEPOINT").type("number").notNull().add();
+            Column usagePoint = table.column("USAGEPOINT").number().notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
@@ -812,7 +839,7 @@ public enum TableSpecs {
 
             table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
             Column idColumn = table.addAutoIdColumn();
-            Column meterIdColumn = table.column("METERID").type("number").conversion(NUMBER2LONG).add();
+            Column meterIdColumn = table.column("METERID").number().conversion(NUMBER2LONG).add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
 
@@ -876,7 +903,7 @@ public enum TableSpecs {
 
             table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
             Column idColumn = table.addAutoIdColumn();
-            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONG).add();
+            Column usagePointIdColumn = table.column("USAGEPOINTID").number().conversion(NUMBER2LONG).add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
 
@@ -993,12 +1020,28 @@ public enum TableSpecs {
 
             // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
             table.column("READINGTYPE_DELIVERABLE").number().add();
+
             // ReadingTypeRequirementNodeImpl readingTypeRequirement value
             table.column("READINGTYPE_REQUIREMENT").number().add();
 
+            // CustomPropertyNodeImpl
+            table.column("PROPERTY_SPEC_NAME").map("propertySpecName").varChar().add();
+            Column customPropertySet = table.column("CUSTOM_PROPERTY_SET").number().add();
+
             table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
-            table.foreignKey("MTR_VALIDCHILD").references(MTR_FORMULA_NODE.name()).on(parentColumn).onDelete(CASCADE)
-                    .map("parent").reverseMap("children").reverseMapOrder("argumentIndex").add();
+            table.foreignKey("MTR_FORMULANODE_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .map("customPropertySet")
+                    .add();
+            table.foreignKey("MTR_VALIDCHILD")
+                    .references(MTR_FORMULA_NODE.name())
+                    .on(parentColumn)
+                    .onDelete(CASCADE)
+                    .map("parent")
+                    .reverseMap("children")
+                    .reverseMapOrder("argumentIndex")
+                    .add();
         }
     },
     MTR_FORMULA {
@@ -1340,6 +1383,7 @@ public enum TableSpecs {
                     .map(MetrologyContractImpl.Fields.MANDATORY.fieldName())
                     .add();
 
+            table.addAuditColumns();
             table.primaryKey("MTR_METROLOGY_CONTRACT_PK").on(idColumn).add();
             table.unique("MTR_METROLOGY_CONTRACT_UQ").on(metrologyConfigColumn, metrologyPurposeColumn).add();
             table.foreignKey("MTR_CONTRACT_TO_M_CONFIG")
@@ -1510,6 +1554,35 @@ public enum TableSpecs {
                     .add();
         }
     },
+    MTR_EFFECTIVE_CONTRACT {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<EffectiveMetrologyContractOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyContractOnUsagePoint.class);
+            table.map(EffectiveMetrologyContractOnUsagePointImpl.class);
+            table.since(version(10, 2));
+
+            Column idColumn = table.addAutoIdColumn();
+            List<Column> intervalColumns = table.addIntervalColumns(EffectiveMetrologyContractOnUsagePointImpl.Fields.INTERVAL.fieldName());
+            Column effectiveConfColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name()).number().add();
+            Column metrologyContractColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.name()).number().add();
+
+            table.primaryKey("MTR_EFFECTIVE_CONTRACT_PK").on(idColumn).add();
+            table.foreignKey("MTR_EF_CONTRACT_2_EF_CONF")
+                    .on(effectiveConfColumn, intervalColumns.get(0))
+                    .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
+                    .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.fieldName())
+                    .reverseMap("effectiveContracts")
+                    .composition()
+                    .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("MTR_EF_CONTRACT_2_CONTRACT")
+                    .on(metrologyContractColumn)
+                    .references(MetrologyContract.class)
+                    .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                    .onDelete(CASCADE)
+                    .add();
+        }
+    },
     MTR_CHANNEL_CONTAINER {
         @Override
         void addTo(DataModel dataModel) {
@@ -1522,12 +1595,9 @@ public enum TableSpecs {
             table.map(implementers);
 
             Column idColumn = table.addAutoIdColumn();
-            Column startUsagePointTime = table.column("STARTTIME").number().add();
             table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar(80)");
             Column meterActivationColumn = table.column("METER_ACTIVATION").number().add();
-
-            Column effectiveMetrologyConfigurationUsagePointColumn = table.column("USAGE_POINT").number().add();
-            Column metrologyContractColumn = table.column("METROLOGY_CONTRACT").number().add();
+            Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT").number().add();
 
             table.addAuditColumns();
 
@@ -1540,22 +1610,13 @@ public enum TableSpecs {
                     .reverseMap("channelsContainer")
                     .composition()
                     .add();
-            table.foreignKey("MTR_CH_CONTAINER_2_MC")
-                    .on(metrologyContractColumn)
-                    .references(MetrologyContract.class)
-                    .map(MetrologyContractChannelsContainerImpl.Fields.METROLOGY_CONTRACT.fieldName())
-                    .onDelete(CASCADE)
-                    .add();
-            table.foreignKey("MTR_CH_CONTAINER_2_UP")
-                    .on(effectiveMetrologyConfigurationUsagePointColumn, startUsagePointTime)
-                    .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
-                    .map(MetrologyContractChannelsContainerImpl.Fields.METROLOGY_CONFIG.fieldName())
-                    .reverseMap("channelsContainers")
+            table.unique("MTR_CH_CONTAINER_EF_CONTR_UK").on(effectiveMetrologyContractColumn).add();
+            table.foreignKey("MTR_CH_CONTAINER_2_EF_CONTR")
+                    .on(effectiveMetrologyContractColumn)
+                    .references(EffectiveMetrologyContractOnUsagePoint.class)
+                    .map(MetrologyContractChannelsContainerImpl.Fields.EFFECTIVE_CONTRACT.fieldName())
+                    .reverseMap(EffectiveMetrologyContractOnUsagePointImpl.Fields.CHANNELS_CONTAINER.fieldName())
                     .composition()
-                    .onDelete(CASCADE)
-                    .add();
-            table.unique("UQ_CH_CT_FOR_M_CONTRACT")
-                    .on(effectiveMetrologyConfigurationUsagePointColumn, startUsagePointTime, metrologyContractColumn)
                     .add();
         }
     },

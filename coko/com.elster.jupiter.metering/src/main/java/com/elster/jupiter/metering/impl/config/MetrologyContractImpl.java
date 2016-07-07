@@ -20,6 +20,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +47,7 @@ public class MetrologyContractImpl implements MetrologyContract {
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
+    @SuppressWarnings("unused")
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
@@ -53,6 +55,10 @@ public class MetrologyContractImpl implements MetrologyContract {
     private final Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
     private boolean mandatory;
     private List<MetrologyContractReadingTypeDeliverableUsage> deliverables = new ArrayList<>();
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
 
     @Inject
     public MetrologyContractImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
@@ -130,6 +136,18 @@ public class MetrologyContractImpl implements MetrologyContract {
     }
 
     @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public void update() {
+        if (this.getId() > 0) {
+            this.metrologyConfigurationService.getDataModel().touch(this);
+        }
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -144,26 +162,6 @@ public class MetrologyContractImpl implements MetrologyContract {
     @Override
     public int hashCode() {
         return Long.hashCode(this.id);
-    }
-
-    private static class StatusImpl implements Status {
-        private final Thesaurus thesaurus;
-        private final MetrologyContractStatusKey statusKey;
-
-        public StatusImpl(Thesaurus thesaurus, MetrologyContractStatusKey statusKey) {
-            this.thesaurus = thesaurus;
-            this.statusKey = statusKey;
-        }
-
-        @Override
-        public String getKey() {
-            return this.statusKey.name();
-        }
-
-        @Override
-        public String getName() {
-            return this.thesaurus.getFormat(this.statusKey.getTranslation()).format();
-        }
     }
 
     MetrologyContractStatusKey getMetrologyContractStatusKey(UsagePoint usagePoint) {
@@ -198,6 +196,26 @@ public class MetrologyContractImpl implements MetrologyContract {
         return MetrologyContractStatusKey.UNKNOWN;
     }
 
+    private static class StatusImpl implements Status {
+        private final Thesaurus thesaurus;
+        private final MetrologyContractStatusKey statusKey;
+
+        private StatusImpl(Thesaurus thesaurus, MetrologyContractStatusKey statusKey) {
+            this.thesaurus = thesaurus;
+            this.statusKey = statusKey;
+        }
+
+        @Override
+        public String getKey() {
+            return this.statusKey.name();
+        }
+
+        @Override
+        public String getName() {
+            return this.thesaurus.getFormat(this.statusKey.getTranslation()).format();
+        }
+    }
+
     enum MetrologyContractStatusKey {
         COMPLETE(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_COMPLETE),
         INCOMPLETE(DefaultMetrologyPurpose.Translation.METROLOGY_CONTRACT_STATUS_INCOMPLETE),
@@ -213,5 +231,4 @@ public class MetrologyContractImpl implements MetrologyContract {
             return this.statusTranslation;
         }
     }
-
 }

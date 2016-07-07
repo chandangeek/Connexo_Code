@@ -87,6 +87,23 @@ public class ClauseAwareSqlBuilderImplTest {
         assertThat(sql).isEqualToIgnoringWhitespace("WITH w1(id, value) AS (/* dataset1 */ SELECT 1, 2 from dual), w2(id, value) AS (/* dataset2 */ SELECT 1, 20 from dual) SELECT w1.value - w2.value from w1 join w2 on w2.id = w1.id UNION ALL SELECT w1.value * w2.value from w1 join w2 on w2.id = w1.id");
     }
 
+    @Test
+    public void withClauseDoesNotExist() {
+        ClauseAwareSqlBuilderImpl sqlBuilder = testInstance();
+
+        // Business method && asserts
+        assertThat(sqlBuilder.withExists("no")).isFalse();
+    }
+
+    @Test
+    public void withClauseExists() {
+        ClauseAwareSqlBuilderImpl sqlBuilder = testInstance();
+        sqlBuilder.with("yes", Optional.empty());
+
+        // Business method && asserts
+        assertThat(sqlBuilder.withExists("yes")).isTrue();
+    }
+
     private ClauseAwareSqlBuilderImpl testInstance() {
         return new ClauseAwareSqlBuilderImpl();
     }

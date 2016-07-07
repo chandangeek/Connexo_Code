@@ -1,20 +1,17 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
-import com.google.common.collect.Range;
-
 import java.math.BigDecimal;
-import java.time.Instant;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,24 +23,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ReadingTypeDeliverableForMeterActivation#appendReferenceTo(SqlBuilder, VirtualReadingType)} method.
+ * Tests the {@link ReadingTypeDeliverableForMeterActivationSet#appendReferenceTo(SqlBuilder, VirtualReadingType)} method.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-04-25 (09:17)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ReadingTypeDeliverableForMeterActivationReferenceTest {
+public class ReadingTypeDeliverableForMeterActivationSetReferenceTest {
 
-    public static final long DELIVERABLE_ID = 97L;
+    private static final long DELIVERABLE_ID = 97L;
 
     @Mock
     private ReadingTypeDeliverable deliverable;
     @Mock
     private ReadingType readingType;
     @Mock
-    private MeterActivation meterActivation;
+    private MeterActivationSet meterActivationSet;
 
-    private Range<Instant> aggregationPeriod = Range.openClosed(Instant.ofEpochMilli(1456786800000L), Instant.ofEpochMilli(1459461600000L));
     private ServerExpressionNode expressionNode = new NumericalConstantNode(BigDecimal.TEN);
 
     @Before
@@ -59,8 +55,8 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithSameSourceAndTargetReadingType() {
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(targetReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(targetReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -72,10 +68,10 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithDownScaling() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -87,10 +83,10 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithUpScaling() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -102,11 +98,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithFlowToVolumeConversion() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -118,11 +114,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithFlowToVolumeConversionWithDownScaling() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATT, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -134,11 +130,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithFlowToVolumeConversionWithUpScaling() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.WATT);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -150,11 +146,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithVolumeToFlowConversion() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Commodity.ELECTRICITY_PRIMARY_METERED);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -166,11 +162,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithVolumeToFlowConversionWithDownScaling() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Commodity.ELECTRICITY_PRIMARY_METERED);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -182,11 +178,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithVolumeToFlowConversionWithUpScaling() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATT, Commodity.ELECTRICITY_PRIMARY_METERED);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATT, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -198,11 +194,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithLiterToCubicMeterConversion() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.LITRE, Commodity.POTABLEWATER);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.LITRE, Accumulation.DELTADELTA, Commodity.POTABLEWATER);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.LITRE);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.CUBICMETER, Commodity.POTABLEWATER);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.CUBICMETER, Accumulation.DELTADELTA, Commodity.POTABLEWATER);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -214,11 +210,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithLiterToCubicMeterConversionAndDownScaling() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.MEGA, ReadingTypeUnit.LITRE, Commodity.POTABLEWATER);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.MEGA, ReadingTypeUnit.LITRE, Accumulation.DELTADELTA, Commodity.POTABLEWATER);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.MEGA);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.LITRE);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.CUBICMETER, Commodity.POTABLEWATER);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.CUBICMETER, Accumulation.DELTADELTA, Commodity.POTABLEWATER);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -230,11 +226,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToWithLiterToCubicMeterConversionAndUpScaling() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.LITRE, Commodity.POTABLEWATER);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.LITRE, Accumulation.DELTADELTA, Commodity.POTABLEWATER);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.LITRE);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.CUBICMETER, Commodity.POTABLEWATER);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.CUBICMETER, Accumulation.DELTADELTA, Commodity.POTABLEWATER);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -246,11 +242,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test
     public void appendReferenceToInExpertMode() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.LITRE, Commodity.POTABLEWATER);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.LITRE, Accumulation.DELTADELTA, Commodity.POTABLEWATER);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.LITRE);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, Commodity.WEATHER);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(Formula.Mode.EXPERT, sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, Accumulation.BULKQUANTITY, Commodity.WEATHER);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(Formula.Mode.EXPERT, sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -262,11 +258,11 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void appendReferenceToForBogusRequest() {
-        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.LITRE, Commodity.POTABLEWATER);
+        VirtualReadingType sourceReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.LITRE, Accumulation.DELTADELTA, Commodity.POTABLEWATER);
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.LITRE);
-        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, Commodity.WEATHER);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(sourceReadingType);
+        VirtualReadingType targetReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.ZERO, ReadingTypeUnit.DEGREESCELSIUS, Accumulation.BULKQUANTITY, Commodity.WEATHER);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(sourceReadingType);
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         // Business method
@@ -275,16 +271,15 @@ public class ReadingTypeDeliverableForMeterActivationReferenceTest {
         // Asserts: silly requests in auto mode should always produce exception
     }
 
-    private ReadingTypeDeliverableForMeterActivation testInstance(VirtualReadingType virtualReadingType) {
+    private ReadingTypeDeliverableForMeterActivationSet testInstance(VirtualReadingType virtualReadingType) {
         return this.testInstance(Formula.Mode.AUTO, virtualReadingType);
     }
 
-    private ReadingTypeDeliverableForMeterActivation testInstance(Formula.Mode mode, VirtualReadingType virtualReadingType) {
-        return new ReadingTypeDeliverableForMeterActivation(
+    private ReadingTypeDeliverableForMeterActivationSet testInstance(Formula.Mode mode, VirtualReadingType virtualReadingType) {
+        return new ReadingTypeDeliverableForMeterActivationSet(
                 mode,
                 this.deliverable,
-                this.meterActivation,
-                this.aggregationPeriod,
+                this.meterActivationSet,
                 1,
                 this.expressionNode,
                 virtualReadingType);

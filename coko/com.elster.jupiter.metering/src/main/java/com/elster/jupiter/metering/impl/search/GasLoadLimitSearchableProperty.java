@@ -32,4 +32,5 @@ class GasLoadLimitSearchableProperty extends LoadLimitSearchableProperty {
                 .addValues(Quantity.create(BigDecimal.ZERO, 0, "m3/h"))
                 .finish();
     }
+
 }

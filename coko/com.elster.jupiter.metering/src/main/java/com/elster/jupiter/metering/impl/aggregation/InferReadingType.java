@@ -60,6 +60,11 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
     }
 
     @Override
+    public VirtualReadingType visitProperty(CustomPropertyNode property) {
+        return VirtualReadingType.dontCare();
+    }
+
+    @Override
     public VirtualReadingType visitNull(NullNode nullNode) {
         return VirtualReadingType.dontCare();
     }
@@ -101,18 +106,18 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
     private VirtualReadingType visitChildren(List<ServerExpressionNode> children, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
         List<VirtualReadingType> preferredReadingTypes =
                 children
-                    .stream()
-                    .map(this::getPreferredReadingType)
-                    .filter(Predicates.not(VirtualReadingType::isDontCare))
-                    .distinct()
-                    .collect(Collectors.toList());
+                        .stream()
+                        .map(this::getPreferredReadingType)
+                        .filter(Predicates.not(VirtualReadingType::isDontCare))
+                        .distinct()
+                        .collect(Collectors.toList());
         if (preferredReadingTypes.isEmpty()) {
             /* All child nodes have indicated not to care about the reading type
              * so we should be able to enforce the target onto each. */
             return this.enforceReadingType(children, this.requestedReadingType);
         } else {
             if (preferredReadingTypes.stream().anyMatch(VirtualReadingType::isUnsupported)) {
-                throw unsupportedOperationExceptionSupplier.get();
+                throw new UnsupportedOperationException("At least one of the expression nodes represents an unsupported reading type");
             }
             if (preferredReadingTypes.size() == 1) {
                 // All child nodes are fine with the same reading type, simply enforce that one
@@ -141,7 +146,7 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
      * <ol>
      * <li>check if every node can agree on the actual requested target interval and use that if that is the case</li>
      * <li>check all preferred intervals, starting with the smallest interval
-     *     one and enforce the first one that every node can agrees on</li>
+     * one and enforce the first one that every node can agrees on</li>
      * </ol>
      *
      * @param nodes The expression nodes
@@ -224,6 +229,11 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
         }
 
         @Override
+        public Void visitProperty(CustomPropertyNode property) {
+            return null;
+        }
+
+        @Override
         public Void visitNull(NullNode nullNode) {
             return null;
         }
@@ -302,6 +312,11 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
 
         @Override
         public Void visitConstant(StringConstantNode constant) {
+            return null;
+        }
+
+        @Override
+        public Void visitProperty(CustomPropertyNode property) {
             return null;
         }
 

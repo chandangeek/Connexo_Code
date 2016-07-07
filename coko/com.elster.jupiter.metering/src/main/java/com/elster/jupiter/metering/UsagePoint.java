@@ -2,14 +2,18 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.units.Quantity;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -117,20 +121,18 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     Optional<UsagePointConfiguration> getConfiguration(Instant time);
 
-    long getLocationId();
-
     Optional<Location> getLocation();
 
     void setLocation(long locationId);
 
-    long getGeoCoordinatesId();
+    Optional<SpatialCoordinates> getSpatialCoordinates();
 
-    Optional<GeoCoordinates> getGeoCoordinates();
+    void setSpatialCoordinates(SpatialCoordinates spatialCoordinates);
 
-    void setGeoCoordinates(GeoCoordinates geoCoordinates);
+    LocationBuilder updateLocation();
 
     /**
-     * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
+     * Applies the specified {@link UsagePointMetrologyConfiguration} to this UsagePoint
      * from this point in time onward.
      *
      * @param metrologyConfiguration The UsagePointMetrologyConfiguration
@@ -188,6 +190,18 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     void setConnectionState(ConnectionState connectionState);
 
+    void setConnectionState(ConnectionState connectionState, Instant instant);
+
+    List<CompletionOptions> connect(Instant when, ServiceCall serviceCall);
+
+    List<CompletionOptions> disconnect(Instant when, ServiceCall serviceCall);
+
+    List<CompletionOptions> enableLoadLimit(Instant when, Quantity loadLimit, ServiceCall serviceCall);
+
+    List<CompletionOptions> disableLoadLimit(Instant when, ServiceCall serviceCall);
+
+    List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall);
+
     void update();
 
     void delete();
@@ -203,6 +217,8 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * Returns collection which contains one MeterActivation per meter role.
      */
     List<MeterActivation> getMeterActivations(Instant when);
+
+    List<MeterActivation> getMeterActivations();
 
     /**
      * Returns collection which contains effective meter activations per meter role.
@@ -250,10 +266,4 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     }
 
     ZoneId getZoneId();
-
-    // TODO delete start (methods from ReadingContainer) =============================================================
-
-    // TODO delete end ===============================================================================================
-
-    List<? extends MeterActivation> getMeterActivations();
 }

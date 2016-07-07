@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 
@@ -17,8 +16,8 @@ import java.time.Instant;
 public class ReadingTypeDeliverableForMeterActivationFactoryImpl implements ReadingTypeDeliverableForMeterActivationFactory {
 
     @Override
-    public ReadingTypeDeliverableForMeterActivation from(Formula.Mode mode, ReadingTypeDeliverable deliverable, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
-        return new ReadingTypeDeliverableForMeterActivation(mode, deliverable, meterActivation, requestedPeriod,  meterActivationSequenceNumber, expressionNode, expressionReadingType);
+    public ReadingTypeDeliverableForMeterActivationSet from(Formula.Mode mode, ReadingTypeDeliverable deliverable, MeterActivationSet meterActivationSet, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
+        return new ReadingTypeDeliverableForMeterActivationSet(mode, deliverable, meterActivationSet, meterActivationSequenceNumber, expressionNode, expressionReadingType);
     }
 
 }

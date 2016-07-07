@@ -18,10 +18,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
-    private ReadingQualityFilterImpl filter;
+    private static final String ANY_INDEX = "\\d+\\.\\d+";
     private String systemsRegexp = "";
     private String indicesRegexp = "";
+    private String compoundIndicesRegexp = "";
     private String readingQualityTypeRegexp = "^(";
+    private ReadingQualityFilterImpl filter;
 
     ReadingQualityWithTypeFilterImpl(ReadingQualityFilterImpl filter) {
         this.filter = filter;
@@ -37,7 +39,7 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
 
     @Override
     public ReadingQualityWithTypeFilter ofQualityIndices(Set<QualityCodeIndex> indices) {
-        this.indicesRegexp += indices.stream()
+        this.indicesRegexp = indices.stream()
                 .map(index -> Integer.toString(index.category().ordinal()) + "\\." + Integer.toString(index.index()))
                 .collect(Collectors.joining("|"));
         return this;
@@ -45,7 +47,7 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
 
     @Override
     public ReadingQualityWithTypeFilter ofQualityIndices(QualityCodeCategory category, Set<Integer> indices) {
-        this.indicesRegexp += Integer.toString(category.ordinal()) + "\\." +
+        this.indicesRegexp = Integer.toString(category.ordinal()) + "\\." +
                 (indices.isEmpty() ? "\\d+" : "(" + indices.stream()
                         .map(index -> Integer.toString(index))
                         .collect(Collectors.joining("|")) + ")");
@@ -54,7 +56,7 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
 
     @Override
     public ReadingQualityWithTypeFilter ofAnyQualityIndexInCategories(Set<QualityCodeCategory> categories) {
-        this.indicesRegexp += categories.stream()
+        this.indicesRegexp = categories.stream()
                 .map(category -> Integer.toString(category.ordinal()) + "\\.\\d+")
                 .collect(Collectors.joining("|"));
         return this;
@@ -68,33 +70,35 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
 
     @Override
     public ReadingQualityWithTypeFilter ofQualityIndex(QualityCodeIndex index) {
-        this.indicesRegexp += Integer.toString(index.category().ordinal()) + "\\." + Integer.toString(index.index());
+        this.indicesRegexp = Integer.toString(index.category().ordinal()) + "\\." + Integer.toString(index.index());
         return this;
     }
 
     @Override
     public ReadingQualityWithTypeFilter ofQualityIndex(QualityCodeCategory category, int index) {
-        this.indicesRegexp += Integer.toString(category.ordinal()) + "\\." + Integer.toString(index);
+        this.indicesRegexp = Integer.toString(category.ordinal()) + "\\." + Integer.toString(index);
         return this;
     }
 
     @Override
     public ReadingQualityWithTypeFilter ofAnyQualityIndexInCategory(QualityCodeCategory category) {
-        this.indicesRegexp += Integer.toString(category.ordinal()) + "\\.\\d+";
+        this.indicesRegexp = Integer.toString(category.ordinal()) + "\\.\\d+";
         return this;
     }
 
     @Override
     public ReadingQualityTypeFilter orOfAnotherType() {
-        readingQualityTypeRegexp += buildRegexp() + "|";
+        readingQualityTypeRegexp += buildCurrentRegexp() + "|";
         systemsRegexp = "";
+        compoundIndicesRegexp = "";
         indicesRegexp = "";
         return this;
     }
 
     @Override
     public ReadingQualityIndexFilter orOfAnotherTypeInSameSystems() {
-        indicesRegexp += "|";
+        compoundIndicesRegexp += buildCurrentIndicesRegexp() + "|";
+        indicesRegexp = "";
         return this;
     }
 
@@ -134,15 +138,23 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
         return filter.findFirst();
     }
 
-    private String buildRegexp() {
+    private String buildCurrentIndicesRegexp() {
+        return indicesRegexp.isEmpty() ? ANY_INDEX : indicesRegexp;
+    }
+
+    private String buildCurrentRegexp() {
+        // compound indices regexp is always either empty or unfinished
+        compoundIndicesRegexp = compoundIndicesRegexp.isEmpty() ? indicesRegexp :
+                compoundIndicesRegexp + buildCurrentIndicesRegexp();
         return (systemsRegexp.isEmpty() ? "\\d+" : "(" + systemsRegexp + ")")
                 + "\\." + (indicesRegexp.isEmpty() ? "\\d+\\.\\d+" : "(" + indicesRegexp + ")");
+                + "\\." + (compoundIndicesRegexp.isEmpty() ? ANY_INDEX : "(" +  compoundIndicesRegexp + ")");
     }
 
     /**
-     * Must be called before all terminal operations!
+     * Must be called at the very end before any terminal operation!
      */
     private void finalizeRegexp() {
-        filter.ofTypeCode(readingQualityTypeRegexp + buildRegexp() + ")$");
+        filter.ofTypeCode(readingQualityTypeRegexp + buildCurrentRegexp() + ")$");
     }
 }

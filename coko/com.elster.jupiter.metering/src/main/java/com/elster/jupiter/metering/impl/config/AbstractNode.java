@@ -126,15 +126,15 @@ public abstract class AbstractNode implements ServerExpressionNode {
 
     static Map<String, Class<? extends ExpressionNode>> getImplementers() {
         ImmutableMap.Builder<String, Class<? extends ExpressionNode>> builder = ImmutableMap.builder();
-        builder.put(com.elster.jupiter.metering.impl.config.NullNodeImpl.TYPE_IDENTIFIER, NullNodeImpl.class)
-                .put(com.elster.jupiter.metering.impl.config.ConstantNodeImpl.TYPE_IDENTIFIER, ConstantNodeImpl.class)
-                .put(com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl.TYPE_IDENTIFIER, FunctionCallNodeImpl.class)
-                .put(com.elster.jupiter.metering.impl.config.OperationNodeImpl.TYPE_IDENTIFIER, OperationNodeImpl.class)
-                .put(com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableNodeImpl.TYPE_IDENTIFIER, ReadingTypeDeliverableNodeImpl.class)
-                .put(com.elster.jupiter.metering.impl.config.ReadingTypeRequirementNodeImpl.TYPE_IDENTIFIER, ReadingTypeRequirementNodeImpl.class);
+        builder
+                .put(NullNodeImpl.TYPE_IDENTIFIER, NullNodeImpl.class)
+                .put(ConstantNodeImpl.TYPE_IDENTIFIER, ConstantNodeImpl.class)
+                .put(FunctionCallNodeImpl.TYPE_IDENTIFIER, FunctionCallNodeImpl.class)
+                .put(OperationNodeImpl.TYPE_IDENTIFIER, OperationNodeImpl.class)
+                .put(ReadingTypeDeliverableNodeImpl.TYPE_IDENTIFIER, ReadingTypeDeliverableNodeImpl.class)
+                .put(ReadingTypeRequirementNodeImpl.TYPE_IDENTIFIER, ReadingTypeRequirementNodeImpl.class)
+                .put(CustomPropertyNodeImpl.TYPE_IDENTIFIER, CustomPropertyNodeImpl.class);
         return builder.build();
     }
-
-
 
 }

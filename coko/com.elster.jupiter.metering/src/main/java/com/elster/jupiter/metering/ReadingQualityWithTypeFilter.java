@@ -19,7 +19,7 @@ public interface ReadingQualityWithTypeFilter extends ReadingQualityFilter {
 
     /**
      * Starts declaration of an alternative {@link ReadingQualityType} criteria group to look for,
-     * keeping previously defined {@link QualityCodeSystem QualityCodeSystems} related criteria.
+     * keeping previously defined {@link QualityCodeSystem QualityCodeSystems} related criterion.
      * Logically 'or' applies here to {@link QualityCodeCategory}
      * and {@link QualityCodeIndex} related criteria only.
      *

@@ -17,7 +17,7 @@ import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -34,7 +34,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,7 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MeterReadingStorerTest {
     private static final String EVENTTYPECODE = "3.7.12.242";
     public static final Clock clock = Clock.system(ZoneId.of("Europe/Athens"));
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule(clock, "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withClockAndReadingTypes(clock, "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
 
     @BeforeClass
     public static void beforeClass() {
@@ -133,11 +135,11 @@ public class MeterReadingStorerTest {
         meterReading.addIntervalBlock(block);
         final Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         block.addIntervalReading(IntervalReadingImpl.of(instant, BigDecimal.valueOf(1000)));
-        ProfileStatus status = ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW);
-        IntervalReadingImpl reading = IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100), status);
+        HashSet<ReadingQualityType> readingQualityTypes = new HashSet<>(Arrays.asList(ProtocolReadingQualities.BATTERY_LOW.getReadingQualityType()));
+        IntervalReadingImpl reading = IntervalReadingImpl.of(instant.plusSeconds(15 * 60L), BigDecimal.valueOf(1100), readingQualityTypes);
         reading.addQuality("3.6.1");
         block.addIntervalReading(reading);
-        reading = IntervalReadingImpl.of(instant.plusSeconds(30 * 60L), BigDecimal.valueOf(1200), status);
+        reading = IntervalReadingImpl.of(instant.plusSeconds(30 * 60L), BigDecimal.valueOf(1200), readingQualityTypes);
         reading.addQuality("3.6.2");
         block.addIntervalReading(reading);
         meter.store(meterReading);
@@ -146,14 +148,16 @@ public class MeterReadingStorerTest {
         assertThat(readings).hasSize(2);
         assertThat(readings.get(0).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1000));
         assertThat(readings.get(1).getQuantity(0).getValue()).isEqualTo(BigDecimal.valueOf(1100));
-        assertThat(((IntervalReadingRecord) readings.get(1)).getProfileStatus()).isEqualTo(status);
+        assertThat(readings.get(1).getReadingQualities()).hasSize(2);
+        assertThat(readings.get(1).getReadingQualities().get(0).getTypeCode()).isEqualTo(ProtocolReadingQualities.BATTERY_LOW.getCimCode());
         Range<Instant> range = Range.closed(instant.minusSeconds(15 * 60L), instant.plusSeconds(30 * 60L));
-        assertThat(channel.findReadingQualities().inTimeInterval(range).collect()).hasSize(2);
+        assertThat(channel.findReadingQualities().inTimeInterval(range).collect()).hasSize(4);
         channel.removeReadings(readings);
         assertThat(channel.getReadings(range)).hasSize(1);
-        List<ReadingQualityRecord> qualities = channel.findReadingQualities().inTimeInterval(range).sorted().collect();
-        assertThat(qualities).hasSize(3);
-        assertThat(qualities.get(1).getType().qualityIndex().get()).isSameAs(QualityCodeIndex.REJECTED);
+        List<ReadingQualityRecord> readingQualities = channel.findReadingQualities().inTimeInterval(range).sorted().collect();
+        assertThat(readingQualities).hasSize(4);
+        assertThat(readingQualities.get(0).getType().qualityIndex().get()).isEqualTo(QualityCodeIndex.REJECTED);
+        assertThat(readingQualities.get(1).getType().qualityIndex().get()).isEqualTo(QualityCodeIndex.REJECTED);
     }
 
     @Test

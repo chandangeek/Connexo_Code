@@ -136,11 +136,6 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     }
 
     @Override
-    public Optional<MetrologyContract> findMetrologyContract(long id) {
-        return this.getDataModel().mapper(MetrologyContract.class).getOptional(id);
-    }
-
-    @Override
     public ServerFormulaBuilder newFormulaBuilder(Formula.Mode mode) {
         return new FormulaBuilderImpl(mode, getDataModel(), getThesaurus());
     }
@@ -294,5 +289,15 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException {
         this.meteringDataModelService.validateUsagePointMeterActivation(meterRole, meter, usagePoint);
+    }
+
+    @Override
+    public Optional<MetrologyContract> findMetrologyContract(long id) {
+        return this.getDataModel().mapper(MetrologyContract.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<MetrologyContract> findAndLockMetrologyContract(long id, long version) {
+        return this.getDataModel().mapper(MetrologyContract.class).lockObjectIfVersion(version, id);
     }
 }

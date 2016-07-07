@@ -87,7 +87,8 @@ class NominalServiceVoltageSearchableProperty implements SearchableUsagePointPro
                 .specForValuesOf(new QuantityValueFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_NOMINALVOLTAGE)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(BigDecimal.ZERO, 0, "V"),
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "V"),
                         Quantity.create(BigDecimal.ZERO, 3, "V"),
                         Quantity.create(BigDecimal.ZERO, 6, "V"),
                         Quantity.create(BigDecimal.ZERO, 9, "V"))

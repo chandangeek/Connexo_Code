@@ -30,8 +30,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     private boolean active;
-
-    private List<MetrologyContractChannelsContainerImpl> channelsContainers = new ArrayList<>();
+    private List<EffectiveMetrologyContractOnUsagePointImpl> effectiveContracts = new ArrayList<>();
 
     @Inject
     public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
@@ -83,17 +82,17 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
 
     @Override
     public Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract) {
-        return this.channelsContainers.stream()
-                .filter(channelsContainer -> channelsContainer.getMetrologyContract().equals(metrologyContract))
-                .map(ChannelsContainer.class::cast)
+        return this.effectiveContracts.stream()
+                .filter(effectiveContract -> effectiveContract.getMetrologyContract().equals(metrologyContract))
+                .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
                 .findAny();
     }
 
-    public void createChannelsContainers() {
+    public void createEffectiveMetrologyContracts() {
         getMetrologyConfiguration().getContracts()
                 .stream()
                 .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
-                .forEach(metrologyContract -> this.channelsContainers.add(this.dataModel.getInstance(MetrologyContractChannelsContainerImpl.class)
+                .forEach(metrologyContract -> this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
                         .init(this, metrologyContract)));
     }
 
@@ -101,7 +100,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     public String toString() {
         return toStringHelper(this)
                 .add("usagePoint", this.usagePoint)
-                .add("metrologyConfiguration", this.metrologyConfiguration)
+                .add("configuration", this.metrologyConfiguration)
                 .toString();
     }
 }

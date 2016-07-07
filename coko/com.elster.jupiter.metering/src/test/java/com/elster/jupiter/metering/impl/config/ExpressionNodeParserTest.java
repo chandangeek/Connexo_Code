@@ -1,16 +1,31 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.OperationNode;
+import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.QuantityValueFactory;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -20,6 +35,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -33,6 +51,8 @@ public class ExpressionNodeParserTest {
     @Mock
     private MetrologyConfiguration config;
     @Mock
+    private CustomPropertySetService customPropertySetService;
+    @Mock
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private ReadingTypeRequirement readingTypeRequirement1;
@@ -45,6 +65,9 @@ public class ExpressionNodeParserTest {
         when(this.metrologyConfigurationService.findReadingTypeRequirement(11)).thenReturn(Optional.of(this.readingTypeRequirement2));
         when(this.readingTypeRequirement1.getMetrologyConfiguration()).thenReturn(this.config);
         when(this.readingTypeRequirement2.getMetrologyConfiguration()).thenReturn(this.config);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit tests");
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -52,7 +75,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "sum(R(10))";
 
         // Business method
-        new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts: see expected exception rule
     }
@@ -62,7 +85,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "sum(R(10), month)";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -76,7 +99,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "sum(R(10), MONTH)";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -90,7 +113,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "sum(R(10), MontH)";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -104,7 +127,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "maxOf(R(10), week)";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -118,7 +141,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "minOf(R(10), week)";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -132,7 +155,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "max(constant(100), constant(10), constant(5))";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -156,7 +179,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "min(constant(100), constant(10), constant(5))";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -180,7 +203,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "sqrt(constant(100))";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -198,7 +221,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "power(constant(10), constant(3))";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -219,7 +242,7 @@ public class ExpressionNodeParserTest {
         String formulaString = "max(sum(R(10), day), sum(R(11), hour))";
 
         // Business method
-        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, config, Formula.Mode.EXPERT).parse(formulaString);
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts
         assertThat(node).isInstanceOf(FunctionCallNode.class);
@@ -237,6 +260,149 @@ public class ExpressionNodeParserTest {
         assertThat(sumR11.getFunction()).isEqualTo(Function.SUM);
         assertThat(sumR11.getAggregationLevel()).contains(AggregationLevel.HOUR);
         assertThat(sumR11.getChildren()).hasSize(1);
+    }
+
+    @Test
+    public void existingProperties() {
+        PropertySpec antennaPower = mock(PropertySpec.class);
+        when(antennaPower.getName()).thenReturn("antennaPower");
+        when(antennaPower.getValueFactory()).thenReturn(new BigDecimalFactory());
+        PropertySpec antennaCount = mock(PropertySpec.class);
+        when(antennaCount.getName()).thenReturn("antennaCount");
+        when(antennaCount.getValueFactory()).thenReturn(new BigDecimalFactory());
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
+        when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(antennaPower, antennaCount));
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(this.config.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        String formulaString = "multiply(property(c.e.j.metering.cps.ExampleCPS, antennaPower), property(c.e.j.metering.cps.ExampleCPS, antennaCount))";
+
+        // Business method
+        ExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+        // Asserts
+        assertThat(node).isInstanceOf(OperationNode.class);
+        OperationNode multiplication = (OperationNode) node;
+        assertThat(multiplication.getOperator()).isEqualTo(Operator.MULTIPLY);
+        ExpressionNode leftOperand = multiplication.getLeftOperand();
+        assertThat(leftOperand).isInstanceOf(CustomPropertyNode.class);
+        CustomPropertyNode antennaPowerNode = (CustomPropertyNode) leftOperand;
+        assertThat(antennaPowerNode.getPropertySpec().getName()).isEqualTo(antennaPower.getName());
+        assertThat(antennaPowerNode.getCustomPropertySet()).isEqualTo(customPropertySet);
+        ExpressionNode rightOperand = multiplication.getRightOperand();
+        assertThat(rightOperand).isInstanceOf(CustomPropertyNode.class);
+        CustomPropertyNode antennaCountNode = (CustomPropertyNode) rightOperand;
+        assertThat(antennaCountNode.getPropertySpec().getName()).isEqualTo(antennaCount.getName());
+        assertThat(antennaCountNode.getCustomPropertySet()).isEqualTo(customPropertySet);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void propertyOfNonRegisteredSet() {
+        PropertySpec antennaPower = mock(PropertySpec.class);
+        when(antennaPower.getName()).thenReturn("antennaPower");
+        when(antennaPower.getValueFactory()).thenReturn(new BigDecimalFactory());
+        PropertySpec antennaCount = mock(PropertySpec.class);
+        when(antennaCount.getName()).thenReturn("antennaCount");
+        when(antennaCount.getValueFactory()).thenReturn(new BigDecimalFactory());
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
+        when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(antennaPower, antennaCount));
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.empty());
+        String formulaString = "multiply(property(c.e.j.metering.cps.ExampleCPS, antennaPower), property(c.e.j.metering.cps.ExampleCPS, antennaCount))";
+
+        // Business method
+        new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test(expected = InvalidNodeException.class)
+    public void nonVersionedProperty() {
+        PropertySpec antennaPower = mock(PropertySpec.class);
+        when(antennaPower.getName()).thenReturn("antennaPower");
+        when(antennaPower.getValueFactory()).thenReturn(new BigDecimalFactory());
+        PropertySpec antennaCount = mock(PropertySpec.class);
+        when(antennaCount.getName()).thenReturn("antennaCount");
+        when(antennaCount.getValueFactory()).thenReturn(new BigDecimalFactory());
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
+        when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(antennaPower, antennaCount));
+        when(customPropertySet.isVersioned()).thenReturn(false);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(this.config.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        String formulaString = "multiply(property(c.e.j.metering.cps.ExampleCPS, antennaPower), property(c.e.j.metering.cps.ExampleCPS, antennaCount))";
+
+        try {
+            // Business method
+            new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+            // Asserts: see expected exception rule
+        } catch (InvalidNodeException e) {
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_SET_NOT_VERSIONED);
+            throw e;
+        }
+    }
+
+    @Test
+    public void quantityProperty() {
+        PropertySpec quantity = mock(PropertySpec.class);
+        when(quantity.getName()).thenReturn("quantity");
+        when(quantity.getValueFactory()).thenReturn(new QuantityValueFactory());
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(quantity));
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(this.config.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        String formulaString = "property(c.e.j.metering.cps.ExampleCPS, quantity)";
+
+        // Business method
+        ServerExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+        // Asserts
+        assertThat(node).isInstanceOf(CustomPropertyNode.class);
+        CustomPropertyNode customPropertyNode = (CustomPropertyNode) node;
+        assertThat(customPropertyNode.getPropertySpec().getName()).isEqualTo(quantity.getName());
+        assertThat(customPropertyNode.getCustomPropertySet()).isEqualTo(customPropertySet);
+    }
+
+    @Test(expected = InvalidNodeException.class)
+    public void nonNumericalProperty() {
+        PropertySpec firstName = mock(PropertySpec.class);
+        when(firstName.getName()).thenReturn("firstName");
+        when(firstName.getValueFactory()).thenReturn(new StringFactory());
+        PropertySpec lastName = mock(PropertySpec.class);
+        when(lastName.getName()).thenReturn("lastName");
+        when(lastName.getValueFactory()).thenReturn(new StringFactory());
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("c.e.j.metering.cps.ExampleCPS");
+        when(customPropertySet.getPropertySpecs()).thenReturn(Arrays.asList(firstName, lastName));
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(this.customPropertySetService.findActiveCustomPropertySet("c.e.j.metering.cps.ExampleCPS")).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(this.config.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        String formulaString = "multiply(property(c.e.j.metering.cps.ExampleCPS, firstName), property(c.e.j.metering.cps.ExampleCPS, lastName))";
+
+        try {
+            // Business method
+            new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+            // Asserts: see expected exception rule
+        } catch (InvalidNodeException e) {
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
+            throw e;
+        }
     }
 
 }

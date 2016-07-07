@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -30,7 +31,8 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -48,20 +50,23 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     private volatile ServerMeteringService meteringService;
     private SqlBuilderFactory sqlBuilderFactory;
     private VirtualFactory virtualFactory;
+    private CustomPropertySetService customPropertySetService;
     private ReadingTypeDeliverableForMeterActivationFactory readingTypeDeliverableForMeterActivationFactory;
 
     // For OSGi only
     @SuppressWarnings("unused")
-    public DataAggregationServiceImpl(ServerMeteringService meteringService) {
+    public DataAggregationServiceImpl(ServerMeteringService meteringService, CustomPropertySetService customPropertySetService) {
         this(SqlBuilderFactoryImpl::new, VirtualFactoryImpl::new, ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
         this.meteringService = meteringService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     // For testing purposes only
     @Inject
-    public DataAggregationServiceImpl(ServerMeteringService meteringService, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
+    public DataAggregationServiceImpl(CustomPropertySetService customPropertySetService, ServerMeteringService meteringService, Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
         this(sqlBuilderFactoryProvider, virtualFactoryProvider, readingTypeDeliverableForMeterActivationFactoryProvider);
         this.meteringService = meteringService;
+        this.customPropertySetService = customPropertySetService;
     }
 
     private DataAggregationServiceImpl(Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
@@ -76,19 +81,24 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         List<EffectiveMetrologyConfigurationOnUsagePoint> effectivities = this.getEffectiveMetrologyConfigurationForUsagePointInPeriod(usagePoint, period);
         this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
         Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
-        Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation = new HashMap<>();
-        this.getOverlappingMeterActivations(usagePoint, clippedPeriod)
-                .forEach(meterActivation -> this.prepare(meterActivation, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
-        try {
-            return this.postProcess(
-                    usagePoint,
-                    contract,
-                    this.execute(
-                            this.generateSql(
-                                    this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
-                                    deliverablesPerMeterActivation)));
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
+        Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new LinkedHashMap<>();
+        this.getMeterActivationSets(usagePoint, clippedPeriod)
+                .forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
+        if (deliverablesPerMeterActivation.isEmpty()) {
+            return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap());
+        } else {
+            try {
+                return this.postProcess(
+                        usagePoint,
+                        contract,
+                        period,
+                        this.execute(
+                                this.generateSql(
+                                        this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
+                                        deliverablesPerMeterActivation)));
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
         }
     }
 
@@ -119,14 +129,17 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         return each.getMetrologyConfiguration().getContracts().contains(contract);
     }
 
-    private Stream<? extends MeterActivation> getOverlappingMeterActivations(UsagePoint usagePoint, Range<Instant> period) {
-        return usagePoint.getMeterActivations().stream().filter(each -> each.overlaps(period));
+    private Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
+        return new MeterActivationSetStreamBuilder(usagePoint, period).build();
     }
 
-    private void prepare(MeterActivation meterActivation, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
-        virtualFactory.nextMeterActivation(meterActivation, period);
-        deliverablesPerMeterActivation.put(meterActivation, new ArrayList<>());
-        contract.getDeliverables().stream().forEach(deliverable -> this.prepare(meterActivation, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
+    private void prepare(UsagePoint usagePoint, MeterActivationSet meterActivationSet, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
+        virtualFactory.nextMeterActivationSet(meterActivationSet, period);
+        deliverablesPerMeterActivation.put(meterActivationSet, new ArrayList<>());
+        contract
+                .getDeliverables()
+                .stream()
+                .forEach(deliverable -> this.prepare(usagePoint, meterActivationSet, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
     }
 
     /**
@@ -140,12 +153,13 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      * an appropriate {@link IntervalLength} that best matches the available data
      * and the requested target interval of the deliverable.<br>
      *
-     * @param meterActivation The MeterActivation
+     * @param usagePoint The UsagePoint
+     * @param meterActivationSet The MeterActivationSet
      * @param deliverable The ReadingTypeDeliverable
      * @param period The requested period in time
      */
-    private void prepare(MeterActivation meterActivation, ReadingTypeDeliverable deliverable, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
-        ServerExpressionNode copied = this.copy(deliverable, meterActivation, virtualFactory, deliverablesPerMeterActivation, deliverable.getFormula().getMode());
+    private void prepare(UsagePoint usagePoint, MeterActivationSet meterActivationSet, ReadingTypeDeliverable deliverable, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
+        ServerExpressionNode copied = this.copy(deliverable, usagePoint, meterActivationSet, virtualFactory, deliverablesPerMeterActivation, deliverable.getFormula().getMode());
         copied.accept(new FinishRequirementAndDeliverableNodes());
         ServerExpressionNode withUnitConversion;
         VirtualReadingType readingType;
@@ -156,16 +170,16 @@ public class DataAggregationServiceImpl implements DataAggregationService {
             withUnitConversion = copied;
             readingType = VirtualReadingType.from(deliverable.getReadingType());
         }
-        ServerExpressionNode withMultipliers = withUnitConversion.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivation));
+        ServerExpressionNode withMultipliers = withUnitConversion.accept(new ApplyCurrentAndOrVoltageTransformer(this.meteringService, meterActivationSet));
         deliverablesPerMeterActivation
-                .get(meterActivation)
+                .get(meterActivationSet)
                 .add(this.readingTypeDeliverableForMeterActivationFactory
                         .from(
                                 deliverable.getFormula().getMode(),
                                 deliverable,
-                                meterActivation,
+                                meterActivationSet,
                                 period,
-                                virtualFactory.meterActivationSequenceNumber(),
+                                virtualFactory.sequenceNumber(),
                                 withMultipliers,
                                 readingType));
     }
@@ -174,19 +188,22 @@ public class DataAggregationServiceImpl implements DataAggregationService {
      * Copies the formula of the {@link ReadingTypeDeliverable} as described by {@link Copy}.
      *
      * @param deliverable The ReadingTypeDeliverable
-     * @param meterActivation The MeterActivation
-     * @param deliverablesPerMeterActivation The Map that provides a {@link ReadingTypeDeliverableForMeterActivation} for each {@link MeterActivation}
+     * @param usagePoint The UsagePoint
+     * @param meterActivationSet The MeterActivationSet
+     * @param deliverablesPerMeterActivationSet The Map that provides a {@link ReadingTypeDeliverableForMeterActivationSet} for each {@link MeterActivation}
      * @param mode The mode  @return The copied formula with virtual requirements and deliverables
      */
-    private ServerExpressionNode copy(ReadingTypeDeliverable deliverable, MeterActivation meterActivation, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation, Formula.Mode mode) {
+    private ServerExpressionNode copy(ReadingTypeDeliverable deliverable, UsagePoint usagePoint, MeterActivationSet meterActivationSet, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivationSet, Formula.Mode mode) {
         ServerFormula formula = (ServerFormula) deliverable.getFormula();
         Copy visitor =
                 new Copy(
                         mode,
                         virtualFactory,
-                        new ReadingTypeDeliverablePerMeterActivationProviderImpl(deliverablesPerMeterActivation),
+                        this.customPropertySetService,
+                        new ReadingTypeDeliverablePerMeterActivationSetProviderImpl(deliverablesPerMeterActivationSet),
                         deliverable,
-                        meterActivation);
+                        usagePoint,
+                        meterActivationSet);
         return formula.getExpressionNode().accept(visitor);
     }
 
@@ -208,19 +225,20 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         return expressionTree.accept(new InferReadingType(VirtualReadingType.from(deliverable.getReadingType())));
     }
 
-    private SqlBuilder generateSql(ClauseAwareSqlBuilder sqlBuilder, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
-        this.appendAllToSqlBuilder(sqlBuilder, this.virtualFactory, deliverablesPerMeterActivation);
+    private SqlBuilder generateSql(ClauseAwareSqlBuilder sqlBuilder, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivationSet) {
+        this.appendAllToSqlBuilder(sqlBuilder, this.virtualFactory, deliverablesPerMeterActivationSet);
         SqlBuilder fullSqlBuilder = sqlBuilder.finish();
         fullSqlBuilder.append("\n ORDER BY 3 DESC, 1");
         return fullSqlBuilder;
     }
 
-    private void appendAllToSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, VirtualFactory virtualFactory, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
+    private void appendAllToSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivationSet) {
         /* Oracle requires that all WITH clauses are generated in the correct order,
          * i.e. one WITH clause can only refer to an already defined with clause.
-         * It suffices to append the definition for all requirements and deliverables. */
+         * It suffices to append the definition for all requirements first
+         * as those are not referring to another requirement. */
         virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendDefinitionTo(sqlBuilder));
-        deliverablesPerMeterActivation
+        deliverablesPerMeterActivationSet
                 .values()
                 .stream()
                 .flatMap(Collection::stream)
@@ -235,8 +253,8 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         }
     }
 
-    private CalculatedMetrologyContractData postProcess(UsagePoint usagePoint, MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
-        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, calculatedReadingRecords);
+    private CalculatedMetrologyContractData postProcess(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, calculatedReadingRecords);
     }
 
     private DataModel getDataModel() {
@@ -253,16 +271,16 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         }
     }
 
-    private static class ReadingTypeDeliverablePerMeterActivationProviderImpl implements ReadingTypeDeliverableForMeterActivationProvider {
-        private final Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
+    private static class ReadingTypeDeliverablePerMeterActivationSetProviderImpl implements ReadingTypeDeliverableForMeterActivationSetProvider {
+        private final Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivationSet;
 
-        private ReadingTypeDeliverablePerMeterActivationProviderImpl(Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
-            this.deliverablesPerMeterActivation = deliverablesPerMeterActivation;
+        private ReadingTypeDeliverablePerMeterActivationSetProviderImpl(Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivationSet) {
+            this.deliverablesPerMeterActivationSet = deliverablesPerMeterActivationSet;
         }
 
         @Override
-        public ReadingTypeDeliverableForMeterActivation from(ReadingTypeDeliverable deliverable, MeterActivation meterActivation) {
-            List<ReadingTypeDeliverableForMeterActivation> candidates = this.deliverablesPerMeterActivation.get(meterActivation);
+        public ReadingTypeDeliverableForMeterActivationSet from(ReadingTypeDeliverable deliverable, MeterActivationSet meterActivationSet) {
+            List<ReadingTypeDeliverableForMeterActivationSet> candidates = this.deliverablesPerMeterActivationSet.get(meterActivationSet);
             return candidates
                     .stream()
                     .filter(candidate -> candidate.getDeliverable().equals(deliverable))

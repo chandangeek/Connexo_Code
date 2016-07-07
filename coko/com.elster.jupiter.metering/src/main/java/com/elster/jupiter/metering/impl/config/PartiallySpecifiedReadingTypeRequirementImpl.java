@@ -31,7 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequirementImpl implements PartiallySpecifiedReadingTypeRequirement {
+class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeRequirementImpl implements PartiallySpecifiedReadingTypeRequirement {
     public static final String TYPE_IDENTIFIER = "PRT";
 
     private final DataModel dataModel;
@@ -44,7 +44,7 @@ public class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeReq
     private Dimension dimension;
 
     @Inject
-    public PartiallySpecifiedReadingTypeRequirementImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService) {
+    PartiallySpecifiedReadingTypeRequirementImpl(DataModel dataModel, ServerMetrologyConfigurationService metrologyConfigurationService) {
         super(metrologyConfigurationService);
         this.dataModel = dataModel;
     }
@@ -239,7 +239,7 @@ public class PartiallySpecifiedReadingTypeRequirementImpl extends ReadingTypeReq
                 : rt -> true;
     }
 
-    void touch() {
+    private void touch() {
         this.dataModel.touch(this);
     }
 

@@ -25,9 +25,10 @@ class ThermalPhysicalCapacitySearchableProperty extends PhysicalCapacitySearchab
     public PropertySpec getSpecification() {
         return this.propertySpecService
                 .specForValuesOf(new QuantityValueFactory())
-                .named(FIELD_NAME + "." + "serviceKind.heat", PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
+                .named(FIELD_NAME + ".serviceKind.heat", PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(BigDecimal.ZERO, 0, "Wh"),
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "Wh"),
                         Quantity.create(BigDecimal.ZERO, 3, "Wh"),
                         Quantity.create(BigDecimal.ZERO, 6, "Wh"),
                         Quantity.create(BigDecimal.ZERO, 9, "Wh"))

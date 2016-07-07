@@ -489,9 +489,10 @@ public class MeterActivationImplIT {
                 .create();
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("Requirement")
-                .withMeterRole(meterRole)
-                .withReadingType(readingType);
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement =
+                metrologyConfiguration
+                        .newReadingTypeRequirement("Requirement", meterRole)
+                        .withReadingType(readingType);
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("Deliverable", readingType, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable = builder.build(builder.requirement(readingTypeRequirement));
         metrologyConfiguration.addMandatoryMetrologyContract(metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)

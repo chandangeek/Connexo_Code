@@ -32,6 +32,12 @@ class FinishRequirementAndDeliverableNodes implements ServerExpressionNode.Visit
     }
 
     @Override
+    public Void visitProperty(CustomPropertyNode property) {
+        // Nothing to finish here
+        return null;
+    }
+
+    @Override
     public Void visitSqlFragment(SqlFragmentNode variable) {
         // Nothing to finish here
         return null;
