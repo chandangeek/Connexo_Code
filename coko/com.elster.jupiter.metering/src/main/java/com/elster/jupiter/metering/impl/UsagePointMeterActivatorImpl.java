@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationServi
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -169,8 +170,12 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 List<ReadingTypeRequirement> unmatchedRequirements = getUnmatchedMeterReadingTypeRequirements(metrologyConfiguration, mandatoryReadingTypeRequirements, mappingEntry);
                 if (!unmatchedRequirements.isEmpty()) {
                     result = false;
-                    String errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT)
-                            .format(unmatchedRequirements.stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", ")));
+                    String messageTemplate = this.metrologyConfigurationService.getThesaurus()
+                            .getString(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT.getKey(), MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT.getDefaultFormat());
+                    String errorMessage = new MessageFormat(messageTemplate).format(unmatchedRequirements.stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", "))).toString();
+
+//                    String errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT)
+//                            .format(unmatchedRequirements.stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", ")));
                     context.buildConstraintViolationWithTemplate(errorMessage)
                             .addPropertyNode(mappingEntry.getKey().getKey())
                             .addConstraintViolation();
@@ -179,6 +184,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
         return result;
     }
+
 
     private boolean validateByCustomValidators(ConstraintValidatorContext context) {
         boolean result = true;
