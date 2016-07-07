@@ -1,52 +1,49 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
-
-import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
-    UPC_MCVALRULESETUSAGE {
+    UPC_MC_VALRULESETUSAGE {
         void addTo(DataModel dataModel) {
-            Table<MetrologyConfigurationValidationRuleSetUsage> table = dataModel
-                    .addTable(name(), MetrologyConfigurationValidationRuleSetUsage.class);
+            Table<MetrologyContractValidationRuleSetUsage> table = dataModel
+                    .addTable(name(), MetrologyContractValidationRuleSetUsage.class);
             table.since(version(10, 2));
-            table.map(MetrologyConfigurationValidationRuleSetUsageImpl.class);
-            table.setJournalTableName("UPC_MCVALRULESETUSAGEJRNL");
-            Column validationRule = table
+            table.map(MetrologyContractValidationRuleSetUsageImpl.class);
+            table.setJournalTableName("UPC_MC_VALRULESETUSAGEJRNL");
+            Column validationRuleSet = table
                     .column("VALIDATIONRULESETID")
-                    .number()
+                    .type("number")
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
-            Column metrologyConfiguration = table
-                    .column("METROLOGYCONFIGID")
-                    .number()
+            Column metrologyContract = table
+                    .column("METROLOGYCONTRACTID")
+                    .type("number")
                     .notNull()
                     .conversion(NUMBER2LONG)
                     .add();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
 
-            table.primaryKey("UPC_PK_SETCONFIGUSAGE")
-                    .on(validationRule, metrologyConfiguration, intervalColumns.get(0))
+            table.primaryKey("UPC_PK_RULESETCONTRACT")
+                    .on(validationRuleSet, metrologyContract)
                     .add();
             table.foreignKey("UPC_FK_RULESET")
                     .references(ValidationRuleSet.class)
                     .onDelete(RESTRICT)
-                    .map(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName())
-                    .on(validationRule)
+                    .map(MetrologyContractValidationRuleSetUsageImpl.Fields.VALIDATION_RULE_SET.fieldName())
+                    .on(validationRuleSet)
                     .add();
-            table.foreignKey("UPC_FK_METROLOGYCONFIG")
-                    .references(MetrologyConfiguration.class)
-                    .map(MetrologyConfigurationValidationRuleSetUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
-                    .on(metrologyConfiguration)
+            table.foreignKey("UPC_FK_METROLOGYCONTRACT")
+                    .references(MetrologyContract.class)
+                    .map(MetrologyContractValidationRuleSetUsageImpl.Fields.METROLOGY_CONTRACT.fieldName())
+                    .on(metrologyContract)
                     .add();
         }
     };
