@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -21,6 +20,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -34,7 +34,6 @@ import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -42,7 +41,6 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -1389,7 +1387,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * @param interval The interval over which meter readings are requested
      * @param meter The meter for which readings are requested
      * @param mdcChannel The meter's channel for which readings are requested
-     * @param sortedLoadProfileReadingMap The map to add the readings too in the correct timeslot
+     * @param sortedLoadProfileReadingMap The map to add the readings to in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
     private boolean addChannelDataToMap(Range<Instant> interval, Meter meter, Channel mdcChannel, Map<Instant, LoadProfileReadingImpl> sortedLoadProfileReadingMap) {
@@ -1410,7 +1408,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 loadProfileReading.setReadingTime(meterReading.getReportedDateTime());
             }
 
-            Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation, readingType);
+            Optional<com.elster.jupiter.metering.Channel> koreChannel = this.getChannel(meterActivation.getChannelsContainer(), readingType);
             if (koreChannel.isPresent()) {
                 List<DataValidationStatus> validationStatus = forValidation().getValidationStatus(mdcChannel, meterReadings, meterActivationInterval);
                 validationStatus.stream()
@@ -1420,14 +1418,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             if (loadProfileReading != null) {
                                 loadProfileReading.setDataValidationStatus(mdcChannel, s);
                                 //code below is the processing of removed readings
-                                Optional<? extends ReadingQuality> readingQuality = s.getReadingQualities()
+                                s.getReadingQualities()
                                         .stream()
-                                        .filter(rq -> rq.getType()
-                                                .equals(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED)))
-                                        .findAny();
-                                if (readingQuality.isPresent()) {
-                                    loadProfileReading.setReadingTime(((ReadingQualityRecord) readingQuality.get()).getTimestamp());
-                                }
+                                        .filter(rq -> rq.getType().qualityIndex().orElse(null) == QualityCodeIndex.REJECTED)
+                                        .findAny()
+                                        .map(ReadingQualityRecord.class::cast)
+                                        .ifPresent(readingQuality -> loadProfileReading.setReadingTime(readingQuality.getTimestamp()));
                             }
                         });
             }
@@ -1449,21 +1445,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         // TODO: what if there are gaps in the meter activations
         Map<Instant, LoadProfileReadingImpl> loadProfileReadingMap = new TreeMap<>();
         TemporalAmount intervalLength = this.intervalLength(loadProfile);
-        List<MeterActivation> allMeterActivations = new ArrayList<>(meter.getMeterActivations());
-        allMeterActivations
+        meter.getChannelsContainers()
                 .stream()
-                .filter(ma -> ma.overlaps(requestedInterval))
-                .forEach(affectedMeterActivation -> {
-                    Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedMeterActivation
-                            .getRange());
-                    ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedMeterActivation.getZoneId(), requestedIntervalClippedToMeterActivation);
+                .filter(channelContainer -> channelContainer.overlaps(requestedInterval))
+                .forEach(affectedChannelContainer -> {
+                    Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedChannelContainer.getRange());
+                    ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedChannelContainer.getZoneId(), requestedIntervalClippedToMeterActivation);
                     ZonedDateTime requestEnd =
                             ZonedDateTime.ofInstant(
                                     this.lastReadingClipped(loadProfile, requestedInterval),
-                                    affectedMeterActivation.getZoneId());
+                                    affectedChannelContainer.getZoneId());
                     if (!requestEnd.isBefore(requestStart)) {
-                        Range<Instant> meterActivationInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
-                        while (meterActivationInterval.contains(requestStart.toInstant())) {
+                        Range<Instant> channelContainerInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
+                        while (channelContainerInterval.contains(requestStart.toInstant())) {
                             ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
                             LoadProfileReadingImpl value = new LoadProfileReadingImpl();
                             value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
@@ -1659,7 +1653,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
         ReadingType readingType = register.getRegisterSpec().getRegisterType().getReadingType();
         for (MeterActivation meterActivation : this.getSortedMeterActivations(meter)) {
-            Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation, readingType);
+            Optional<com.elster.jupiter.metering.Channel> channel = this.getChannel(meterActivation.getChannelsContainer(), readingType);
             if (channel.isPresent()) {
                 Instant lastReadingDate = channel.get().getLastDateTime();
                 if (lastReadingDate != null) {
@@ -1856,7 +1850,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Optional<com.elster.jupiter.metering.Channel> findKoreChannel(Meter meter, Supplier<ReadingType> readingTypeSupplier, Instant when) {
         Optional<? extends MeterActivation> meterActivation = meter.getMeterActivation(when);
         if (meterActivation.isPresent()) {
-            return Optional.ofNullable(getChannel(meterActivation.get(), readingTypeSupplier.get()).orElse(null));
+            return Optional.ofNullable(getChannel(meterActivation.get().getChannelsContainer(), readingTypeSupplier.get()).orElse(null));
         } else {
             return Optional.empty();
         }
@@ -1885,22 +1879,23 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when, ReadingType readingType) {
         Optional<MeterActivation> meterActivation = this.getMeterActivation(when);
         if (meterActivation.isPresent()) {
-            return this.getChannel(meterActivation.get(), readingType)
-                    .orElseGet(() -> meterActivation.get().createChannel(readingType));
+            return this.getChannel(meterActivation.get().getChannelsContainer(), readingType)
+                    .orElseGet(() -> meterActivation.get().getChannelsContainer().createChannel(readingType));
         } else {
             throw this.noMeterActivationAt(when).get();
         }
     }
 
     private List<com.elster.jupiter.metering.Channel> findKoreChannels(Supplier<ReadingType> readingTypeSupplier, Meter meter) {
-        return meter.getMeterActivations().stream()
-                .map(m -> getChannel(m, readingTypeSupplier.get()))
+        return meter.getChannelsContainers()
+                .stream()
+                .map(channelContainer -> getChannel(channelContainer, readingTypeSupplier.get()))
                 .flatMap(asStream())
                 .collect(Collectors.toList());
     }
 
-    private Optional<com.elster.jupiter.metering.Channel> getChannel(MeterActivation meterActivation, ReadingType readingType) {
-        return meterActivation.getChannels()
+    private Optional<com.elster.jupiter.metering.Channel> getChannel(ChannelsContainer channelsContainer, ReadingType readingType) {
+        return channelsContainer.getChannels()
                 .stream()
                 .filter(channel -> channel.getReadingTypes().contains(readingType))
                 .findFirst();
@@ -2108,8 +2103,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Integer[] determineScore(List<ProtocolTask> protocolTasks) {
         return protocolTasks.stream()
                 .map(protocolTask -> score(protocolTask.getClass()))
-                .sorted(Integer::compareTo)
-                .sorted(Comparator.reverseOrder())
+                .sorted(Comparator.<Integer>naturalOrder().reversed())
                 .toArray(Integer[]::new);
     }
 
@@ -2953,7 +2947,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-
     @Override
     public String getmRID() {
         return mRID;
@@ -2979,7 +2972,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getConnectionTaskImpls().collect(Collectors.toList());
     }
 
-
     @Override
     public List<ScheduledConnectionTask> getScheduledConnectionTasks() {
         return this.getConnectionTaskImpls()
@@ -3004,7 +2996,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
         this.connectionTasks
@@ -3015,12 +3006,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .ifPresent(ServerConnectionTask::makeObsolete);
     }
 
-
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
         return comTaskExecutions.stream().filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate()).collect(Collectors.toList());
     }
-
 
     @Override
     public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
@@ -3087,12 +3076,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getDeviceConfiguration().getProtocolDialectConfigurationPropertiesList();
     }
 
-
     @Override
     public boolean hasSecurityProperties(SecurityPropertySet securityPropertySet) {
         return this.hasSecurityProperties(clock.instant(), securityPropertySet);
     }
-
 
     @Override
     public boolean securityPropertiesAreValid() {
@@ -3154,7 +3141,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public List<OpenIssue> getOpenIssues() {
         return getListMeterAspect(this::getOpenIssuesForMeter);
     }
-
 
     @Override
     public State getState() {
