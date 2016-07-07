@@ -17,17 +17,17 @@ import org.osgi.service.component.annotations.Reference;
 import java.util.Properties;
 
 /**
- * Changed to and EndPointConfiguration are propagated to this handler through PubSub, and from this handler onwards
+ * Changes to an EndPointConfiguration are propagated to this handler through PubSub, and from this handler onwards
  * re-published using the MessageService.
  * Created by bvn on 5/6/16.
  */
 @Component(name = "com.elster.jupiter.webservices.endpoint.eventhandler", service = TopicHandler.class, immediate = true)
-public class EndPointTopicHandler implements TopicHandler {
+public class EndPointConfigurationTopicHandler implements TopicHandler {
 
     private MessageService messageService;
     private JsonService jsonService;
 
-    public EndPointTopicHandler() {
+    public EndPointConfigurationTopicHandler() {
     }
 
     @Reference
