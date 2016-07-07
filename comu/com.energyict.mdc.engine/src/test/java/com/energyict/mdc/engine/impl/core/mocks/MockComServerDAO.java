@@ -509,6 +509,11 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void cleanupOutdatedComTaskExecutionTriggers() {
+
+    }
+
+    @Override
     public ServerProcessStatus getStatus () {
         return null;
     }

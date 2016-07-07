@@ -435,4 +435,9 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
 
     void updateCalendars(CollectedCalendar collectedCalendar);
 
+    /**
+     * Request cleanup of all outdated {@link com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger}s<br/>
+     * More specific, all ComTaskExecutionTriggers who have a trigger date more than 1 day in the past will be removed from the database
+     */
+    void cleanupOutdatedComTaskExecutionTriggers();
 }

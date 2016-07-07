@@ -298,6 +298,10 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void cleanupOutdatedComTaskExecutionTriggers() {
+    }
+
+    @Override
     public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
         return this.actual.createComSession(builder, successIndicator);
     }
@@ -386,6 +390,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void updateCalendars(CollectedCalendar collectedCalendar) {
+
+        }
+
+        @Override
+        public void cleanupOutdatedComTaskExecutionTriggers() {
+
         }
 
         @Override
