@@ -18,6 +18,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintWriter;
 import java.time.Clock;
 import java.time.Instant;
@@ -209,7 +210,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void setTraceFile(String traceFile) {
-        this.traceFile = traceFile;
+        this.traceFile = traceFile.startsWith(File.separator)?traceFile.substring(1):traceFile;
     }
 
     @Override

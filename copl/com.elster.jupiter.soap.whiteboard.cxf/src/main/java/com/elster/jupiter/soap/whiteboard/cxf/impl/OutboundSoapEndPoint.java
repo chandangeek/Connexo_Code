@@ -79,8 +79,7 @@ public final class OutboundSoapEndPoint implements ManagedEndpoint {
             }
             features.add(accessLogFeatureProvider.get().init(endPointConfiguration));
             if (endPointConfiguration.isTracing()) {
-                String logFile = "file:" + logDirectory + File.separator + endPointConfiguration.getTraceFile();
-                features.add(new LoggingFeature(logFile, logFile));
+                features.add(new TracingFeature(logDirectory, endPointConfiguration.getTraceFile()));
             }
             Service service = Service.create(new URL(endPointConfiguration.getUrl()), endPointProvider.get()
                     .getServiceName());
