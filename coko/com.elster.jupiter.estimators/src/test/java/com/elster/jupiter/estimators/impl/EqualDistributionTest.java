@@ -24,10 +24,12 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -40,6 +42,7 @@ import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +59,7 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -157,8 +161,27 @@ public class EqualDistributionTest {
         doReturn(Optional.of(intervalReadingRecord1)).when(bulkCimChannel).getReading(BEFORE.toInstant());
         doReturn(Optional.of(intervalReadingRecord2)).when(bulkCimChannel).getReading(ESTIMATABLE3.toInstant());
         doReturn(Optional.of(intervalReadingRecord2)).when(bulkCimChannel).getReading(AFTER.toInstant());
-        doReturn(ProfileStatus.of(ProfileStatus.Flag.POWERDOWN)).when(intervalReadingRecord1).getProfileStatus();
-        doReturn(ProfileStatus.of(ProfileStatus.Flag.POWERUP)).when(intervalReadingRecord2).getProfileStatus();
+        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.POWERDOWN.getCimCode()))).when(intervalReadingRecord1).getReadingQualities();
+        doReturn(Arrays.asList(mockReadingQuality(ProtocolReadingQualities.POWERUP.getCimCode()))).when(intervalReadingRecord2).getReadingQualities();
+
+        when(intervalReadingRecord1.hasReadingQuality(Matchers.<ReadingQualityType>any())).then(invocationOnMock -> {
+            for (ReadingQuality readingQuality : intervalReadingRecord1.getReadingQualities()) {
+                if (readingQuality.getTypeCode().equals(((ReadingQualityType) invocationOnMock.getArguments()[0]).getCode())) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        when(intervalReadingRecord2.hasReadingQuality(Matchers.<ReadingQualityType>any())).then(invocationOnMock -> {
+            for (ReadingQuality readingQuality : intervalReadingRecord2.getReadingQualities()) {
+                if (readingQuality.getTypeCode().equals(((ReadingQualityType) invocationOnMock.getArguments()[0]).getCode())) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(5014, 2))).when(intervalReadingRecord1).getQuantity(bulkReadingType);
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(54897, 3))).when(intervalReadingRecord2).getQuantity(bulkReadingType);
         doReturn(BigDecimal.valueOf(5014, 2)).when(intervalReadingRecord1).getValue();
@@ -237,6 +260,15 @@ public class EqualDistributionTest {
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
         LoggingContext.getCloseableContext().with("rule", "rule");
+    }
+
+    private ReadingQualityRecord mockReadingQuality(String code) {
+        ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
+        ReadingQualityType readingQualityType = new ReadingQualityType(code);
+        when(readingQuality.getType()).thenReturn(readingQualityType);
+        when(readingQuality.isActual()).thenReturn(true);
+        when(readingQuality.getTypeCode()).thenReturn(code);
+        return readingQuality;
     }
 
     @After
