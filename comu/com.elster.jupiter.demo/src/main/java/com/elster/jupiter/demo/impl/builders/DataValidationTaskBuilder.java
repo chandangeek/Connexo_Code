@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl.builders;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
@@ -46,7 +47,7 @@ public class DataValidationTaskBuilder extends NamedBuilder<DataValidationTask, 
         Log.write(this);
         com.elster.jupiter.validation.DataValidationTaskBuilder taskBuilder = validationService.newTaskBuilder();
         taskBuilder.setName(getName());
-        taskBuilder.setApplication("Admin");
+        taskBuilder.setQualityCodeSystem(QualityCodeSystem.MDC);
         taskBuilder.setEndDeviceGroup(deviceGroup);
         taskBuilder.setScheduleExpression(scheduleExpression);
 

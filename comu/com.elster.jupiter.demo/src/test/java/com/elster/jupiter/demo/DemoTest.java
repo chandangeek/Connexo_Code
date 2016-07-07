@@ -61,6 +61,8 @@ import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
@@ -100,6 +102,8 @@ import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
@@ -289,6 +293,8 @@ public class DemoTest {
                         "13.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0",
                         "13.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0"
                         ),
+                new ServiceCallModule(),
+                new CustomPropertySetsModule(),
                 new DataVaultModule(),
                 new PartyModule(),
                 new EventsModule(),
@@ -337,7 +343,6 @@ public class DemoTest {
                 new FileImportModule(),
                 new MailModule(),
                 new DemoModule(),
-                new CustomPropertySetsModule(),
                 new CalendarModule()
         );
         doPreparations();
@@ -752,9 +757,11 @@ public class DemoTest {
 
     protected void doPreparations() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DataVaultServiceImpl.class);
             injector.getInstance(FiniteStateMachineService.class);
+            initializeCustomPropertySets();
             createRequiredProtocols();
             createDefaultStuff();
             injector.getInstance(DemoServiceImpl.class);
@@ -762,6 +769,11 @@ public class DemoTest {
             ctx.commit();
         }
         tuneDeviceCountForSpeedTest();
+    }
+
+    private void initializeCustomPropertySets() {
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
     }
 
     private void createRequiredProtocols() {
