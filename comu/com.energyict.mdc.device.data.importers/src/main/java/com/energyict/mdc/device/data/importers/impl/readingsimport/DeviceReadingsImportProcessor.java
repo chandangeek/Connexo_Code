@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
@@ -59,7 +60,8 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
             ReadingType readingType = this.context.getMeteringService().getReadingType(readingTypeMRID)
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeMRID));
             ZoneId deviceZoneId = getMeterActivationEffectiveAt(device.getMeterActivationsMostRecentFirst(), data.getReadingDateTime().toInstant())
-                    .map(MeterActivation::getZoneId)
+                    .map(MeterActivation::getChannelsContainer)
+                    .map(ChannelsContainer::getZoneId)
                     .orElse(data.getReadingDateTime().getZone());
             validateReadingType(readingType, data.getReadingDateTime().withZoneSameInstant(deviceZoneId), data.getLineNumber());
             if (i < data.getValues().size()) {
