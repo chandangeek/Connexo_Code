@@ -33,15 +33,12 @@ Ext.define('Dsh.view.OperatorDashboard', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                style: {
-                    marginRight: '28px'
-                },
                 title:  me.router.getRoute().title,
                 tools: [
                     {
                         xtype: 'toolbar',
                         style: {
-                            marginRight: '20px',
+                            marginRight: '20px'
                         },
                         items: [
                             '->',
@@ -51,8 +48,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                                 width: 150,
                                 style: {
                                     'font': 'normal 13px/17px Lato',
-                                    'color': '#686868',
-                                    'margin-right': '10px'
+                                    'color': '#686868'
                                 }
                             },
                             {
@@ -72,10 +68,6 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     align: 'stretch'
                 },
                 defaults: {
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    },
                     flex: 1
                 },
                 items: []
@@ -97,11 +89,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                 },
                 height: 500,
                 defaults: {
-                    flex: 1,
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    }
+                    flex: 1
                 },
                 items: [],
                 dockedItems: [{
