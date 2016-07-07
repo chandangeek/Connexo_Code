@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import static java.util.stream.Collectors.toList;
@@ -45,7 +46,9 @@ import static java.util.stream.Collectors.toList;
 public class WebServicesServiceImpl implements WebServicesService {
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
+    private final Object lock = new Object();
     private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
+    private List<EndPointConfiguration> webServiceObservers = new CopyOnWriteArrayList<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
     private volatile SoapProviderSupportFactory soapProviderSupportFactory;
     private volatile BundleContext bundleContext;
@@ -114,7 +117,8 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public Optional<WebService> getWebService(String webServiceName) {
-        if (webServices.containsKey(webServiceName)) {
+        final EndPointFactory endPointFactory = webServices.get(webServiceName);
+        if (endPointFactory != null) {
             return Optional.of(new WebService() {
                 @Override
                 public String getName() {
@@ -123,7 +127,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
                 @Override
                 public boolean isInbound() {
-                    return webServices.get(webServiceName).isInbound();
+                    return endPointFactory.isInbound();
                 }
             });
         } else {
@@ -149,10 +153,16 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public void publishEndPoint(EndPointConfiguration endPointConfiguration) {
-        if (webServices.containsKey(endPointConfiguration.getWebServiceName())) {
+        EndPointFactory endPointFactory = null;
+        synchronized (lock) {
+            endPointFactory = webServices.get(endPointConfiguration.getWebServiceName());
+            if (endPointFactory == null) {
+                webServiceObservers.add(endPointConfiguration);
+            }
+        }
+        if (endPointFactory != null) {
             try {
-                ManagedEndpoint managedEndpoint = webServices.get(endPointConfiguration.getWebServiceName())
-                        .createEndpoint(endPointConfiguration);
+                ManagedEndpoint managedEndpoint = endPointFactory.createEndpoint(endPointConfiguration);
                 managedEndpoint.publish();
                 endpoints.put(endPointConfiguration, managedEndpoint);
             } catch (Exception e) {
@@ -183,8 +193,9 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public boolean isInbound(String webServiceName) {
-        if (webServices.containsKey(webServiceName)) {
-            return webServices.get(webServiceName).isInbound();
+        EndPointFactory endPointFactory = webServices.get(webServiceName);
+        if (endPointFactory != null) {
+            return endPointFactory.isInbound();
         } else {
             throw new IllegalArgumentException("No such web service");
         }
@@ -192,7 +203,8 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public boolean isPublished(EndPointConfiguration endPointConfiguration) {
-        return endpoints.containsKey(endPointConfiguration) && endpoints.get(endPointConfiguration).isPublished();
+        ManagedEndpoint managedEndpoint = endpoints.get(endPointConfiguration);
+        return managedEndpoint != null && managedEndpoint.isPublished();
     }
 
     // called by whiteboard
@@ -207,8 +219,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     // called by whiteboard
     public void unregister(String webServiceName) {
-        if (webServices.containsKey(webServiceName)) {
-            webServices.remove(webServiceName);
+        if (webServices.remove(webServiceName) != null) {
             List<EndPointConfiguration> endPointConfigurations = endpoints.keySet()
                     .stream()
                     .filter(e -> e.getWebServiceName().equals(webServiceName))
