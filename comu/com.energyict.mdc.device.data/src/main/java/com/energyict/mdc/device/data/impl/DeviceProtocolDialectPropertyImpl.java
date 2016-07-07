@@ -41,10 +41,10 @@ public class DeviceProtocolDialectPropertyImpl extends PluggableClassUsageProper
         if (other == null || getClass() != other.getClass()) {
             return false;
         }
-        return this.equals((DeviceProtocolDialectPropertyImpl) other);
+        return this.doEquals((DeviceProtocolDialectPropertyImpl) other);
     }
 
-    private boolean equals (DeviceProtocolDialectPropertyImpl otherDialectProperty) {
+    private boolean doEquals(DeviceProtocolDialectPropertyImpl otherDialectProperty) {
         return this.getName().equals(otherDialectProperty.getName())
                 && is(this.getValue()).equalTo(otherDialectProperty.getValue())
                 && is(this.getPluggableClass()).equalTo(otherDialectProperty.getPluggableClass())

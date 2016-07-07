@@ -1,24 +1,21 @@
 package com.energyict.mdc.device.data.impl.ami;
 
-import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.EndDeviceControlTypeMapping;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
+import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.units.Quantity;
+import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.UnsupportedCommandException;
+import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
+import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -30,35 +27,33 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.sql.Date;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactory",
-        service = {CommandFactory.class, TranslationKeyProvider.class},
+        service = {EndDeviceCommandFactory.class},
         property = "name=EndDeviceCommandFactory", immediate = true)
-public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationKeyProvider {
+public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
+
+    private static final String UNDEFINED_UNIT = "undefined";
+
+    private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
     private volatile DeviceService deviceService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
-    private volatile NlsService nlsService;
-    private volatile Thesaurus thesaurus;
-    private volatile PropertySpecService propertySpecService;
 
-
+    //For OSGI purposes
     public EndDeviceCommandFactoryImpl() {
     }
 
-    public EndDeviceCommandFactoryImpl(MeteringService meteringService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, NlsService nlsService, Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public EndDeviceCommandFactoryImpl(MeteringService meteringService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.meteringService = meteringService;
         this.deviceService = deviceService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-        this.nlsService = nlsService;
-        this.thesaurus = thesaurus;
-        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
@@ -71,200 +66,104 @@ public class EndDeviceCommandFactoryImpl implements CommandFactory, TranslationK
         this.deviceService = deviceService;
     }
 
-
     @Reference
     public void setDeviceMessageSpecificationService(DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
-    @Reference
-    public final void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
     @Activate
     public void activate() {
-        System.out.println("Activatiing Head End Command Factory");
     }
-
 
     @Override
-    public EndDeviceCommand createCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, Instant activationDate, Quantity limit) {
-        EndDeviceCommand endDeviceCommand = null;
-
-        //beautify using switch with enum
-        if (endDeviceControlType.equals(EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_OPEN
-                .getControlType(meteringService)
-                .get())) {
-            endDeviceCommand = createArmCommand(endDevice, true, activationDate);
+    public EndDeviceCommand createCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType) {
+        EndDeviceControlTypeMapping endDeviceControlTypeMapping = EndDeviceControlTypeMapping.getMappingFor(endDeviceControlType);
+        if (!multiSenseDeviceHasSupportForEndDeviceControlType(endDevice, endDeviceControlTypeMapping)) {
+            throw new UnsupportedCommandException(thesaurus, endDeviceControlType.getName(), endDevice.getMRID());
         }
-        if (endDeviceControlType.equals(EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_CLOSURE
-                .getControlType(meteringService)
-                .get())) {
-            endDeviceCommand = createArmCommand(endDevice, false, activationDate);
-        }
-        if (endDeviceControlType.equals(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH
-                .getControlType(meteringService)
-                .get())) {
-            endDeviceCommand = createConnectCommand(endDevice, activationDate);
-        }
-        if (endDeviceControlType.equals(EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH
-                .getControlType(meteringService)
-                .get())) {
-            endDeviceCommand = createDisconnectCommand(endDevice, activationDate);
-        }
-        if (endDeviceControlType.equals(EndDeviceControlTypeMapping.LOAD_CONTROL_INITITATE
-                .getControlType(meteringService)
-                .get())) {
-            endDeviceCommand = createEnableLoadLimitCommand(endDevice, limit);
-        }
-        return endDeviceCommand;
+        return endDeviceControlTypeMapping.getNewEndDeviceCommand(
+                endDevice,
+                endDeviceControlType,
+                endDeviceControlTypeMapping.getPossibleDeviceMessageIds(),
+                deviceService,
+                deviceMessageSpecificationService,
+                thesaurus).orElseThrow(() -> new UnsupportedCommandException(thesaurus, endDeviceControlType.getName(), endDevice.getMRID()));
     }
 
+    /**
+     * Finds out if the multisense device supports execution of the necessary device commands, who are
+     * associated with the given endDeviceControlTypeMapping.
+     *
+     * @param endDevice
+     * @param endDeviceControlTypeMapping
+     * @return true in case the device supports the given EndDeviceControlType, false otherwise
+     */
+    private boolean multiSenseDeviceHasSupportForEndDeviceControlType(EndDevice endDevice, EndDeviceControlTypeMapping endDeviceControlTypeMapping) {
+        Set<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
+        return endDeviceControlTypeMapping.getPossibleDeviceMessageIdGroups().stream().anyMatch(supportedMessages::containsAll);
+    }
 
     @Override
     public EndDeviceCommand createArmCommand(EndDevice endDevice, boolean armForOpen, Instant activationDate) {
-        EndDeviceCommand endDeviceCommand;
-        String commandName = EndDeviceCommandImpl.EndDeviceCommandType.ARM.getName();
-        List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        deviceMessageIds.add(activationDate != null ? DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_ARM);
-        if (armForOpen) {
-            deviceMessageIds.add(activationDate != null ? DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_OPEN);
-            endDeviceCommand = new EndDeviceCommandImpl(commandName, endDevice, supportsCommand(endDevice, EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_OPEN
-                    .getControlType(meteringService)
-                    .get()), deviceMessageIds, propertySpecService, deviceMessageSpecificationService).init();
-        } else {
-            deviceMessageIds.add(activationDate != null ? DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_CLOSE);
-            endDeviceCommand = new EndDeviceCommandImpl(commandName, endDevice, supportsCommand(endDevice, EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_CLOSURE
-                    .getControlType(meteringService)
-                    .get()), deviceMessageIds, propertySpecService, deviceMessageSpecificationService).init();
-        }
+        EndDeviceControlType endDeviceControlType = armForOpen
+                ? findEndDeviceControlType(EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_OPEN)
+                : findEndDeviceControlType(EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_CLOSURE);
+        EndDeviceCommand command = this.createCommand(endDevice, endDeviceControlType);
         if (activationDate != null) {
-            updateCommandPropertySpec(endDeviceCommand, DeviceMessageConstants.contactorActivationDateAttributeName, Date
-                    .from(activationDate));
+            command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.contactorActivationDateAttributeName), Date.from(activationDate));
         }
-        return endDeviceCommand;
+        return command;
     }
-
 
     @Override
     public EndDeviceCommand createConnectCommand(EndDevice endDevice, Instant activationDate) {
-        String commandName = EndDeviceCommandImpl.EndDeviceCommandType.CONNECT.getName();
-        Map<String, Object> attributes = new HashMap<>();
-        List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-
-        deviceMessageIds.add(activationDate != null ? DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_CLOSE);
-
-        EndDeviceCommand endDeviceCommand = new EndDeviceCommandImpl(commandName, endDevice, supportsCommand(endDevice, EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH
-                .getControlType(meteringService)
-                .get()), deviceMessageIds, propertySpecService, deviceMessageSpecificationService).init();
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH));
         if (activationDate != null) {
-            updateCommandPropertySpec(endDeviceCommand, DeviceMessageConstants.contactorActivationDateAttributeName, Date
-                    .from(activationDate));
+            command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.contactorActivationDateAttributeName), Date.from(activationDate));
         }
-        return endDeviceCommand;
+        return command;
     }
 
     @Override
     public EndDeviceCommand createDisconnectCommand(EndDevice endDevice, Instant activationDate) {
-        String commandName = EndDeviceCommandImpl.EndDeviceCommandType.DISCONNECT.getName();
-        List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        deviceMessageIds.add(activationDate != null ? DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_OPEN);
-        EndDeviceCommand endDeviceCommand = new EndDeviceCommandImpl(commandName, endDevice, supportsCommand(endDevice, EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH
-                .getControlType(meteringService)
-                .get()), deviceMessageIds, propertySpecService, deviceMessageSpecificationService).init();
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH));
         if (activationDate != null) {
-            updateCommandPropertySpec(endDeviceCommand, DeviceMessageConstants.contactorActivationDateAttributeName, Date
-                    .from(activationDate));
+            command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.contactorActivationDateAttributeName), Date.from(activationDate));
         }
-        return endDeviceCommand;
+        return command;
     }
 
     @Override
-    public EndDeviceCommand createEnableLoadLimitCommand(EndDevice endDevice, Quantity limit) {
-        String commandName = EndDeviceCommandImpl.EndDeviceCommandType.ENABLE_LOAD_LIMIT.getName();
-        //TODO: improve by handling load balancing
-        List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        //deviceMessageIds.add(tariffs != null ? DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS : DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD);
-        deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_ENABLE_LOAD_LIMITING);
-        EndDeviceCommand endDeviceCommand = new EndDeviceCommandImpl(commandName, endDevice, supportsCommand(endDevice, EndDeviceControlTypeMapping.LOAD_CONTROL_INITITATE
-                .getControlType(meteringService)
-                .get()), deviceMessageIds, propertySpecService, deviceMessageSpecificationService).init();
-        if (limit != null) {
-            updateCommandPropertySpec(endDeviceCommand, DeviceMessageConstants.normalThresholdAttributeName, limit);
-        }
-        return endDeviceCommand;
+    public EndDeviceCommand createEnableLoadLimitCommand(EndDevice endDevice, Quantity quantity) {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.LOAD_CONTROL_INITIATE));
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.normalThresholdAttributeName), quantity.getValue());
+        Unit unit = Unit.get(quantity.getUnit().getSymbol(), quantity.getMultiplier());
+        command.setPropertyValue(
+                getCommandArgumentSpec(command, DeviceMessageConstants.unitAttributeName),
+                unit.isUndefined() ? UNDEFINED_UNIT : unit.toString()
+        );
+        return command;
     }
 
     @Override
     public EndDeviceCommand createDisableLoadLimitCommand(EndDevice endDevice) {
-        String commandName = EndDeviceCommandImpl.EndDeviceCommandType.DISABLE_LOAD_LIMIT.getName();
-        List<DeviceMessageId> deviceMessageIds = new ArrayList<>();
-        deviceMessageIds.add(DeviceMessageId.LOAD_BALANCING_DISABLE_LOAD_LIMITING);
-        return new EndDeviceCommandImpl(commandName, endDevice, supportsCommand(endDevice, EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE
-                .getControlType(meteringService)
-                .get()), deviceMessageIds, propertySpecService, deviceMessageSpecificationService).init();
+        return this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE));
     }
 
-    private EndDeviceControlType supportsCommand(EndDevice endDevice, EndDeviceControlType type) {
-        Device device = findDeviceForEndDevice(endDevice);
-        int endDeviceType = EndDeviceType.get(Math.toIntExact(device.getDeviceConfiguration().getDeviceType().getId()))
-                .getValue();
-        List<EndDeviceControlType> controlTypes = new ArrayList<>();
-        Stream.of(EndDeviceControlTypeMapping.values()).forEach(typ -> {
-            if (typ.getEndDeviceControlTypeMRID().startsWith(String.valueOf(endDeviceType) + ".")
-                    || typ.getEndDeviceControlTypeMRID().startsWith("0.")) {
-                meteringService.getEndDeviceControlType(typ.getEndDeviceControlTypeMRID())
-                        .ifPresent(found -> controlTypes.add(found));
-            }
-        });
-        return controlTypes.stream()
-                .filter(controlType ->
-                        controlType.equals(type))
-                .findFirst()
-                .orElseThrow(() -> new UnsupportedCommandException(thesaurus, type.toString(), endDevice
-                        .getMRID()));
+    private EndDeviceControlType findEndDeviceControlType(EndDeviceControlTypeMapping controlTypeMapping) {
+        String mrid = controlTypeMapping.getEndDeviceControlTypeMRID();
+        return meteringService.getEndDeviceControlType(mrid).orElseThrow(NoSuchElementException.endDeviceControlTypeWithMRIDNotFound(thesaurus, mrid));
     }
 
     private Device findDeviceForEndDevice(EndDevice endDevice) {
-        return deviceService.findByUniqueMrid(endDevice.getMRID())
-                .orElseThrow(() -> new IllegalArgumentException(MessageSeeds.NO_SUCH_DEVICE.getDefaultFormat() + " " + endDevice
-                        .getMRID()));
+        return deviceService.findByUniqueMrid(endDevice.getMRID()).orElseThrow(NoSuchElementException.deviceWithMRIDNotFound(thesaurus, endDevice.getMRID()));
     }
 
-    private void updateCommandPropertySpec(EndDeviceCommand endDeviceCommand, String propertySpecName, Object value) {
-        Optional<PropertySpec> propertySpec = endDeviceCommand.getCommandArgumentSpecs()
-                .stream()
-                .filter(spec -> spec.getName()
-                        .equals(propertySpecName))
-                .findFirst();
-        //will only update an existing one
-        if (propertySpec.isPresent()) {
-            endDeviceCommand.setPropertyValue(propertySpec.get(), value);
-        }
-    }
-
-
-    @Override
-    public String getComponentName() {
-        return DeviceDataServices.COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        //TBD
-        List<TranslationKey> keys = new ArrayList<>();
-        return keys;
+    private PropertySpec getCommandArgumentSpec(EndDeviceCommand endDeviceCommand, String commandArgumentName) {
+        return endDeviceCommand.getCommandArgumentSpecs().stream()
+                .filter(propertySpec -> propertySpec.getName().equals(commandArgumentName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_ARGUMENT_SPEC_NOT_FOUND)
+                        .format(commandArgumentName, endDeviceCommand.getEndDeviceControlType().getName())));
     }
 }

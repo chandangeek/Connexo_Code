@@ -10,6 +10,8 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -33,11 +35,13 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -48,13 +52,22 @@ import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
+import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
+import com.energyict.mdc.device.data.impl.tasks.AbstractComTaskExecutionImplTest;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
+import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.ProtocolTask;
 
 import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
@@ -2260,5 +2273,98 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .flow(FlowDirection.REVERSE)
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
+    }
+
+    @Test
+    @Transactional
+    @Expected(NoStatusInformationTaskException.class)
+    public void testNoStatusInformationTaskAvailable() {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        device.runStatusInformationTask(ComTaskExecution::runNow);
+    }
+
+    @Test
+    @Transactional
+    public void runStatusInformationComTaskTest() {
+        createComTaskWithStatusInformation();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        assertThat(device.getComTaskExecutions()).hasSize(0);
+        assertThat(device.getDeviceConfiguration().getComTaskEnablements()).hasSize(2);
+        device.runStatusInformationTask(ComTaskExecution::runNow);
+        assertThat(device.getComTaskExecutions()).hasSize(1);
+        assertThat(device.getComTaskExecutions().get(0).getProtocolTasks()).hasSize(2);
+        boolean containsClockTask = false;
+        for(ProtocolTask protocolTask: device.getComTaskExecutions().get(0).getProtocolTasks()) {
+            if(protocolTask instanceof ClockTask) {
+                containsClockTask = true;
+            }
+        }
+        assertThat(containsClockTask).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void runStatusInformationComTaskTwiceTest() {
+        createComTaskWithStatusInformation();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        device.runStatusInformationTask(ComTaskExecution::runNow);
+        assertThat(device.getComTaskExecutions()).hasSize(1);
+        assertThat(device.getComTaskExecutions().get(0).getProtocolTasks()).hasSize(2);
+        Instant plannedTime = device.getComTaskExecutions().get(0).getPlannedNextExecutionTimestamp();
+        device.runStatusInformationTask(ComTaskExecution::runNow);
+        assertThat(device.getComTaskExecutions()).hasSize(1);
+        assertThat(device.getComTaskExecutions().get(0).getProtocolTasks()).hasSize(2);
+        assertThat(plannedTime.isBefore(device.getComTaskExecutions().get(0).getPlannedNextExecutionTimestamp()));
+    }
+
+    protected void createComTaskWithStatusInformation() {
+        ComTask comTask1 = inMemoryPersistence.getTaskService().newComTask("StatusInformationComTaskAndTopology");
+        comTask1.setStoreData(true);
+        comTask1.setMaxNrOfTries(3);
+        comTask1.createStatusInformationTask();
+        comTask1.createTopologyTask(TopologyAction.UPDATE);
+        comTask1.save();
+        ComTask comTask2 = inMemoryPersistence.getTaskService().newComTask("StatusInformationAndClock");
+        comTask2.setStoreData(true);
+        comTask2.setMaxNrOfTries(3);
+        comTask2.createStatusInformationTask();
+        comTask2.createClockTask(ClockTaskType.SETCLOCK)
+                .maximumClockDifference(TimeDuration.days(1))
+                .minimumClockDifference(TimeDuration.NONE)
+                .add();
+        comTask2.save();
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
+        deviceConfiguration.save();
+        enableComTask(comTask1, configDialect);
+        enableComTask(comTask2, configDialect);
+    }
+
+    private void enableComTask(ComTask comTask1, ProtocolDialectConfigurationProperties configDialect) {
+        deviceConfiguration.enableComTask(comTask1, this.securityPropertySet, configDialect)
+                .useDefaultConnectionTask(true)
+                .setPriority(213)
+                .add();
+    }
+
+    protected class ComTaskExecutionDialect implements DeviceProtocolDialect {
+
+        @Override
+        public String getDeviceProtocolDialectName() {
+            return "ProtocolDialectName";
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "It's a Dell Display";
+        }
+
+        @Override
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.empty();
+        }
+
     }
 }
