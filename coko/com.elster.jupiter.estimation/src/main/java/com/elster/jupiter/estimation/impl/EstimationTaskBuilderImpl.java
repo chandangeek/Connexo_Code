@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskBuilder;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -19,7 +20,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     private boolean scheduleImmediately;
     private String name;
     private EndDeviceGroup endDeviceGroup;
-    private String application;
+    private QualityCodeSystem qualityCodeSystem;
 
     public EstimationTaskBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -38,8 +39,8 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
     }
 
     @Override
-    public EstimationTaskBuilder setApplication(String application) {
-        this.application = application;
+    public EstimationTaskBuilder setQualityCodeSystem(QualityCodeSystem qualityCodeSystem) {
+        this.qualityCodeSystem = qualityCodeSystem;
         return this;
     }
 
@@ -51,7 +52,7 @@ class EstimationTaskBuilderImpl implements EstimationTaskBuilder {
 
     @Override
     public EstimationTask create() {
-        IEstimationTask task = EstimationTaskImpl.from(dataModel, name, endDeviceGroup, scheduleExpression, nextExecution, application);
+        IEstimationTask task = EstimationTaskImpl.from(dataModel, name, endDeviceGroup, scheduleExpression, nextExecution, qualityCodeSystem);
         task.setScheduleImmediately(scheduleImmediately);
         if (period != null) {
             task.setPeriod(period);

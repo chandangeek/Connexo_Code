@@ -1,6 +1,7 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationBlock;
@@ -211,20 +212,20 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
-    public List<String> getAvailableEstimatorImplementations(String targetApplication) {
+    public List<String> getAvailableEstimatorImplementations(QualityCodeSystem qualityCodeSystem) {
         return estimatorFactories.stream()
                 .flatMap(factory -> factory.available().stream()
-                        .filter(implementation -> factory.createTemplate(implementation).getSupportedApplications().contains(targetApplication)))
+                        .filter(implementation -> factory.createTemplate(implementation).getSupportedQualityCodeSystems().contains(qualityCodeSystem)))
                 .distinct()
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Estimator> getAvailableEstimators(String targetApplication) {
+    public List<Estimator> getAvailableEstimators(QualityCodeSystem qualityCodeSystem) {
         return estimatorFactories.stream()
                 .flatMap(factory -> factory.available().stream()
                         .map(factory::createTemplate)
-                        .filter(estimator -> estimator.getSupportedApplications().contains(targetApplication)))
+                        .filter(estimator -> estimator.getSupportedQualityCodeSystems().contains(qualityCodeSystem)))
                 .collect(Collectors.toList());
     }
 
@@ -245,13 +246,13 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
-    public EstimationReport estimate(MeterActivation meterActivation, Range<Instant> period) {
-        return estimate(meterActivation, period, LOGGER);
+    public EstimationReport estimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period) {
+        return estimate(system, meterActivation, period, LOGGER);
     }
 
     @Override
-    public EstimationReport estimate(MeterActivation meterActivation, Range<Instant> period, Logger logger) {
-        EstimationReportImpl report = previewEstimate(meterActivation, period, logger);
+    public EstimationReport estimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, Logger logger) {
+        EstimationReportImpl report = previewEstimate(system, meterActivation, period, logger);
         estimationEngine.applyEstimations(report);
         logEstimationReport(meterActivation, period, logger, report);
         postEvents(report);
@@ -267,7 +268,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                 .map(EstimationResult::estimated)
                 .flatMap(Collection::stream)
                 .count();
-        DateTimeFormatter formatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(meterActivation.getZoneId()).withLocale(Locale.ENGLISH);
+        DateTimeFormatter formatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(meterActivation.getChannelsContainer().getZoneId()).withLocale(Locale.ENGLISH);
         String from = formatter.format(period.hasLowerBound() ? period.lowerEndpoint() : meterActivation.getStart());
         String to = period.hasUpperBound() ? formatter.format(period.upperEndpoint()) : "now";
         String message = "{0} blocks estimated.\nSuccessful estimations {1}, failed estimations {2}\nPeriod of estimation from {3} until {4}";
@@ -282,11 +283,16 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
-    public EstimationReportImpl previewEstimate(MeterActivation meterActivation, Range<Instant> period, Logger logger) {
+    public EstimationReportImpl previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period) {
+        return previewEstimate(system, meterActivation, period, LOGGER);
+    }
+
+    @Override
+    public EstimationReportImpl previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, Logger logger) {
         EstimationReportImpl report = new EstimationReportImpl();
 
         meterActivation.getReadingTypes().forEach(readingType -> {
-            EstimationReport subReport = this.previewEstimate(meterActivation, period, readingType, logger);
+            EstimationReport subReport = this.previewEstimate(system, meterActivation, period, readingType, logger);
             report.add(subReport);
         });
 
@@ -302,22 +308,17 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
-    public EstimationReportImpl previewEstimate(MeterActivation meterActivation, Range<Instant> period) {
-        return previewEstimate(meterActivation, period, LOGGER);
+    public EstimationReport previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
+        return previewEstimate(system, meterActivation, period, readingType, LOGGER);
     }
 
     @Override
-    public EstimationReport previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
-        return previewEstimate(meterActivation, period, readingType, LOGGER);
-    }
-
-    @Override
-    public EstimationReport previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Logger logger) {
-        UpdatableHolder<EstimationResult> result = new UpdatableHolder<>(getInitialBlocksToEstimateAsResult(meterActivation, period, readingType));
+    public EstimationReportImpl previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Logger logger) {
+        UpdatableHolder<EstimationResult> result = new UpdatableHolder<>(getInitialBlocksToEstimateAsResult(system, meterActivation, period, readingType));
 
         EstimationReportImpl report = new EstimationReportImpl();
 
-        determineEstimationRules(meterActivation)
+        determineEstimationRules(system, meterActivation)
                 .filter(EstimationRule::isActive)
                 .filter(rule -> rule.getReadingTypes().contains(readingType))
                 .forEach(rule -> {
@@ -328,7 +329,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
                         estimator.init(logger);
                         EstimationResult estimationResult = result.get();
                         estimationResult.estimated().stream().forEach(block -> report.reportEstimated(readingType, block));
-                        EstimationResult newResult = estimator.estimate(estimationResult.remainingToBeEstimated());
+                        EstimationResult newResult = estimator.estimate(estimationResult.remainingToBeEstimated(), system);
                         newResult.estimated().stream().forEach(block -> loggingContext.info(logger, "Successful estimation with {rule}: block {0}", EstimationBlockFormatter.getInstance().format(block)));
                         result.update(newResult);
                     }
@@ -339,23 +340,24 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
-    public EstimationResult previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Estimator estimator) {
+    public EstimationResult previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period,
+                                            ReadingType readingType, Estimator estimator) {
         try (LoggingContext parentContext = LoggingContext.getCloseableContext();
              LoggingContext loggingContext = parentContext.with("rule", estimator.getDisplayName())) {
-            return estimator.estimate(getBlocksToEstimate(meterActivation, period, readingType));
+            return estimator.estimate(getBlocksToEstimate(system, meterActivation, period, readingType), system);
         }
     }
 
     @Override
-    public EstimationRuleSet createEstimationRuleSet(String name, String applicationName) {
-        EstimationRuleSetImpl set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, applicationName);
+    public EstimationRuleSet createEstimationRuleSet(String name, QualityCodeSystem qualityCodeSystem) {
+        EstimationRuleSetImpl set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, qualityCodeSystem);
         set.save();
         return set;
     }
 
     @Override
-    public EstimationRuleSet createEstimationRuleSet(String name, String applicationName, String description) {
-        EstimationRuleSet set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, applicationName, description);
+    public EstimationRuleSet createEstimationRuleSet(String name, QualityCodeSystem qualityCodeSystem, String description) {
+        EstimationRuleSet set = dataModel.getInstance(EstimationRuleSetImpl.class).init(name, qualityCodeSystem, description);
         set.save();
         return set;
     }
@@ -425,10 +427,10 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     }
 
     @Override
-    public List<? extends EstimationTask> findEstimationTasks(String application) {
+    public List<? extends EstimationTask> findEstimationTasks(QualityCodeSystem qualityCodeSystem) {
         return getEstimationTaskQuery().select(Condition.TRUE, Order.descending("lastRun").nullsLast())
                 .stream()
-                .filter(task -> task.getApplication().equals(application))
+                .filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem))
                 .collect(Collectors.toList());
     }
 
@@ -481,25 +483,27 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
         return Collections.unmodifiableList(resolvers);
     }
 
-    private EstimationResult getInitialBlocksToEstimateAsResult(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
-        return asInitialResult(getBlocksToEstimate(meterActivation, period, readingType));
+    private EstimationResult getInitialBlocksToEstimateAsResult(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
+        return asInitialResult(getBlocksToEstimate(system, meterActivation, period, readingType));
     }
 
     private EstimationResult asInitialResult(List<EstimationBlock> blocksToEstimate) {
         return new InitialEstimationResult(blocksToEstimate);
     }
 
-    private Stream<IEstimationRule> determineEstimationRules(MeterActivation meterActivation) {
+    private Stream<IEstimationRule> determineEstimationRules(QualityCodeSystem system, MeterActivation meterActivation) {
         return decorate(resolvers.stream())
                 .sorted(Comparator.comparing(EstimationResolver::getPriority).reversed())
                 .flatMap(resolver -> resolver.resolve(meterActivation).stream())
                 .map(IEstimationRuleSet.class::cast)
+                .filter(set -> set.getQualityCodeSystem() == system)
                 .distinct(EstimationRuleSet::getId)
                 .flatMap(set -> set.getRules().stream());
     }
 
-    private List<EstimationBlock> getBlocksToEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType) {
-        return estimationEngine.findBlocksToEstimate(meterActivation, period, readingType);
+    private List<EstimationBlock> getBlocksToEstimate(QualityCodeSystem system, MeterActivation meterActivation,
+                                                      Range<Instant> period, ReadingType readingType) {
+        return estimationEngine.findBlocksToEstimate(system, meterActivation, period, readingType);
     }
 
     @Reference

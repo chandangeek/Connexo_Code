@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
@@ -21,7 +22,7 @@ public interface EstimationTask extends HasName, HasAuditInfo {
 
     Instant getNextExecution();
 
-    String getApplication();
+    QualityCodeSystem getQualityCodeSystem();
 
     EndDeviceGroup getEndDeviceGroup();
 

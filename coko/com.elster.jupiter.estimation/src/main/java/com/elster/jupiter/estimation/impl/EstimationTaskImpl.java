@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.estimation.EstimationTaskOccurrenceFinder;
@@ -20,7 +21,6 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 
 import javax.inject.Inject;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,27 +28,6 @@ import java.util.Optional;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 final class EstimationTaskImpl implements IEstimationTask {
-
-    public enum ApplicationsNames {
-        MULTISENSE("MDC", "MultiSense"),
-        INSIGHT("INS", "Insight");
-
-        ApplicationsNames(String appKey, String appName) {
-            this.appKey = appKey;
-            this.appName = appName;
-        }
-
-        private final String appKey;
-        private final String appName;
-
-        public String appKey() {
-            return appKey;
-        }
-
-        public String appName() {
-            return appName;
-        }
-    }
 
     private final IEstimationService estimationService;
     private final TaskService taskService;
@@ -72,7 +51,7 @@ final class EstimationTaskImpl implements IEstimationTask {
     private Instant modTime;
     private String userName;
 
-    public String application;
+    public QualityCodeSystem qualityCodeSystem;
 
     @Inject
     public EstimationTaskImpl(DataModel dataModel, IEstimationService estimationService, TaskService taskService) {
@@ -81,16 +60,16 @@ final class EstimationTaskImpl implements IEstimationTask {
         this.dataModel = dataModel;
     }
 
-    static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution, String application) {
-        return dataModel.getInstance(EstimationTaskImpl.class).init(name, endDeviceGroup, scheduleExpression, nextExecution, application);
+    static IEstimationTask from(DataModel dataModel, String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
+        return dataModel.getInstance(EstimationTaskImpl.class).init(name, endDeviceGroup, scheduleExpression, nextExecution, qualityCodeSystem);
     }
 
-    private EstimationTaskImpl init(String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution, String application) {
+    private EstimationTaskImpl init(String name, EndDeviceGroup endDeviceGroup, ScheduleExpression scheduleExpression, Instant nextExecution, QualityCodeSystem qualityCodeSystem) {
         this.name = name;
         this.endDeviceGroup.set(endDeviceGroup);
         this.scheduleExpression = scheduleExpression;
         this.nextExecution = nextExecution;
-        this.application = application;
+        this.qualityCodeSystem = qualityCodeSystem;
         return this;
     }
 
@@ -115,8 +94,8 @@ final class EstimationTaskImpl implements IEstimationTask {
     }
 
     @Override
-    public String getApplication() {
-        return application;
+    public QualityCodeSystem getQualityCodeSystem() {
+        return qualityCodeSystem;
     }
 
     @Override
@@ -129,16 +108,10 @@ final class EstimationTaskImpl implements IEstimationTask {
         recurrentTaskDirty = false;
     }
 
-    private String findApplicationName(String application) {
-        return Arrays.stream(ApplicationsNames.values())
-                .filter(app -> app.appKey().equals(application))
-                .map(ApplicationsNames::appName)
-                .findFirst().orElse(application);
-    }
 
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
-                .setApplication(findApplicationName(application))
+                .setApplication(qualityCodeSystem != null ? qualityCodeSystem.name() : null)
                 .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(estimationService.getDestination())
@@ -296,8 +269,12 @@ final class EstimationTaskImpl implements IEstimationTask {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         EstimationTaskImpl that = (EstimationTaskImpl) o;
         return id == that.id;
     }

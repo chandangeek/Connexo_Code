@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationTask;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -58,6 +59,7 @@ class EstimationTaskExecutor implements TaskExecutor {
     private void tryExecute(TaskOccurrence occurrence, Logger taskLogger) {
         EstimationTask estimationTask = getEstimationTask(occurrence);
         RelativePeriod relativePeriod = estimationTask.getPeriod().orElseGet(timeService::getAllRelativePeriod);
+        QualityCodeSystem system = estimationTask.getQualityCodeSystem();
 
         estimationTask.getEndDeviceGroup().getMembers(occurrence.getTriggerTime()).stream()
                 .filter(device -> device instanceof Meter)
@@ -65,12 +67,13 @@ class EstimationTaskExecutor implements TaskExecutor {
                 .filter(meter -> estimationService.getEstimationResolvers().stream().anyMatch(resolver -> resolver.isEstimationActive(meter)))
                 .map(meter -> meter.getMeterActivation(occurrence.getTriggerTime()))
                 .flatMap(Functions.asStream())
-                .forEach((meterActivation) -> estimationService.estimate(meterActivation, period(meterActivation, relativePeriod, occurrence.getTriggerTime()), taskLogger));
+                .forEach(meterActivation -> estimationService.estimate(system, meterActivation,
+                        period(meterActivation, relativePeriod, occurrence.getTriggerTime()), taskLogger));
         estimationTask.updateLastRun(occurrence.getTriggerTime());
     }
 
     private Range<Instant> period(MeterActivation meterActivation, RelativePeriod relativePeriod, Instant triggerTime) {
-        ZonedDateTime referenceDate = ZonedDateTime.ofInstant(triggerTime, meterActivation.getZoneId());
+        ZonedDateTime referenceDate = ZonedDateTime.ofInstant(triggerTime, meterActivation.getChannelsContainer().getZoneId());
         return relativePeriod.getOpenClosedInterval(referenceDate);
     }
 

@@ -22,12 +22,14 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsService;
@@ -36,9 +38,9 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 
 import com.google.common.collect.ImmutableList;
@@ -49,8 +51,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,6 +68,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -74,6 +80,7 @@ import static org.mockito.Mockito.when;
 public class EstimationServiceImplTest {
     private static final Logger LOGGER = Logger.getLogger(EstimationServiceImplTest.class.getName());
 
+    private static final Set<QualityCodeSystem> MDC_SET = Collections.singleton(QualityCodeSystem.MDC);
     private final ReadingQualityType readingQualityType1 = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1);
     private final ReadingQualityType readingQualityType2 = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2);
     private EstimationServiceImpl estimationService;
@@ -107,6 +114,8 @@ public class EstimationServiceImplTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private ReadingType readingType1, readingType2;
     @Mock
     private EstimationResolver resolver;
@@ -138,11 +147,16 @@ public class EstimationServiceImplTest {
     private RelativePeriod relativePeriod;
     @Mock
     private UpgradeService upgradeService;
+    @Mock
+    private ReadingQualityWithTypeFilter filter;
+    @Mock
+    private ReadingQualityWithTypeFilter emptyFilter;
 
     private LogRecorder logRecorder;
 
     @Before
     public void setUp() {
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(messageService.getQueueTableSpec(any(String.class))).thenReturn(Optional.of(queueTableSpec));
         when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
         doNothing().when(destinationSpec).save();
@@ -174,27 +188,36 @@ public class EstimationServiceImplTest {
         when(factory.createTemplate(estimator2Name)).thenReturn(estimator2);
 
         doReturn(Arrays.asList(readingType1, readingType2)).when(meterActivation).getReadingTypes();
-        doReturn(Arrays.asList(ruleSet)).when(resolver).resolve(meterActivation);
+        doReturn(Collections.singletonList(ruleSet)).when(resolver).resolve(meterActivation);
+        doReturn(QualityCodeSystem.MDC).when(ruleSet).getQualityCodeSystem();
         doReturn(Priority.NORMAL).when(resolver).getPriority();
         doReturn(Arrays.asList(rule1, rule2)).when(ruleSet).getRules();
         doReturn(ImmutableSet.of(readingType1, readingType2)).when(rule1).getReadingTypes();
         doReturn(ImmutableSet.of(readingType1, readingType2)).when(rule2).getReadingTypes();
-        doReturn(Arrays.asList(channel)).when(meterActivation).getChannels();
+        doReturn(Collections.singletonList(channel)).when(channelsContainer).getChannels();
         doReturn(Arrays.asList(readingType1, readingType2)).when(channel).getReadingTypes();
         doReturn(true).when(channel).isRegular();
         List<ReadingQualityRecord> readingQualityRecords = readingQualities();
-        doReturn(readingQualityRecords).when(channel).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+        doReturn(filter).when(channel).findReadingQualities();
+        doReturn(filter).when(filter).ofQualitySystems(Collections.singleton(QualityCodeSystem.MDC));
+        doReturn(emptyFilter).when(filter).ofQualitySystems(Collections.singleton(QualityCodeSystem.MDM));
+        doReturn(filter).when(filter).ofQualityIndex(any(QualityCodeIndex.class));
+        doReturn(emptyFilter).when(emptyFilter).ofQualityIndex(any(QualityCodeIndex.class));
+        doReturn(filter).when(filter).inTimeInterval(Range.all());
+        doReturn(emptyFilter).when(emptyFilter).inTimeInterval(Range.all());
+        doReturn(readingQualityRecords).when(filter).collect();
+        doReturn(Collections.emptyList()).when(emptyFilter).collect();
         doReturn(Optional.of(cimChannel1)).when(channel).getCimChannel(readingType1);
         doReturn(Optional.of(cimChannel2)).when(channel).getCimChannel(readingType2);
-        doReturn(readingQualityRecords).when(cimChannel1).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all());
-        doReturn(readingQualityRecords).when(cimChannel2).findReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), Range.<Instant>all());
+        doReturn(filter).when(cimChannel1).findReadingQualities();
+        doReturn(filter).when(cimChannel2).findReadingQualities();
         doAnswer(invocation -> ((Instant) invocation.getArguments()[0]).plus(Duration.ofMinutes(15))).when(channel).getNextDateTime(any());
         doReturn(estimator1).when(rule1).createNewEstimator();
         doReturn(estimator2).when(rule2).createNewEstimator();
         doReturn(true).when(rule1).isActive();
         doReturn(true).when(rule2).isActive();
-        doReturn(meterActivation).when(channel).getMeterActivation();
-        doReturn(Optional.of(meter)).when(meterActivation).getMeter();
+        doReturn(channelsContainer).when(channel).getChannelsContainer();
+        doReturn(Optional.of(meter)).when(channelsContainer).getMeter();
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
@@ -204,7 +227,7 @@ public class EstimationServiceImplTest {
             });
             estimationBlocks.stream().skip(1).forEach(builder::addRemaining);
             return builder.build();
-        }).when(estimator1).estimate(any());
+        }).when(estimator1).estimate(anyListOf(EstimationBlock.class), eq(QualityCodeSystem.MDC));
         doAnswer(invocation -> {
             List<EstimationBlock> estimationBlocks = (List<EstimationBlock>) invocation.getArguments()[0];
             SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
@@ -214,7 +237,7 @@ public class EstimationServiceImplTest {
             });
             estimationBlocks.subList(0, Math.max(0, estimationBlocks.size() - 1)).stream().forEach(builder::addRemaining);
             return builder.build();
-        }).when(estimator2).estimate(any());
+        }).when(estimator2).estimate(anyListOf(EstimationBlock.class), eq(QualityCodeSystem.MDC));
 
         logRecorder = new LogRecorder(Level.ALL);
         LOGGER.addHandler(logRecorder);
@@ -251,7 +274,7 @@ public class EstimationServiceImplTest {
 
     @Test
     public void testPreviewEstimate() {
-        EstimationReport report = estimationService.previewEstimate(meterActivation, Range.<Instant>all(), LOGGER);
+        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);
@@ -264,11 +287,17 @@ public class EstimationServiceImplTest {
     }
 
     @Test
+    public void testPreviewEstimateFromOtherSystem() {
+        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDM, meterActivation, Range.all(), LOGGER);
+        assertThat(report.getResults()).isEmpty(); // no suspects, no rules
+    }
+
+    @Test
     public void testPreviewEstimateWhenRuleIsNotActive() {
         doReturn(false).when(rule1).isActive();
         doReturn(false).when(rule2).isActive();
 
-        EstimationReport report = estimationService.previewEstimate(meterActivation, Range.<Instant>all(), LOGGER);
+        EstimationReport report = estimationService.previewEstimate(QualityCodeSystem.MDC, meterActivation, Range.all(), LOGGER);
         assertThat(report.getResults()).hasSize(2).containsKey(readingType1).containsKey(readingType2);
 
         EstimationResult estimationResult = report.getResults().get(readingType1);
@@ -280,31 +309,31 @@ public class EstimationServiceImplTest {
 
     @Test
     public void testGetAvailableEstimators() {
-        when(estimator1.getSupportedApplications()).thenReturn(ImmutableSet.of("APP", "APP1"));
-        when(estimator2.getSupportedApplications()).thenReturn(ImmutableSet.of("APP"));
-        assertThat(estimationService.getAvailableEstimators("APP"))
-                .as("Both estimators must be supported for APP")
+        when(estimator1.getSupportedQualityCodeSystems()).thenReturn(ImmutableSet.of(QualityCodeSystem.ENDDEVICE, QualityCodeSystem.EXTERNAL));
+        when(estimator2.getSupportedQualityCodeSystems()).thenReturn(ImmutableSet.of(QualityCodeSystem.ENDDEVICE));
+        assertThat(estimationService.getAvailableEstimators(QualityCodeSystem.ENDDEVICE))
+                .as("Both estimators must be supported for ENDDEVICE")
                 .containsExactly(estimator1, estimator2);
-        assertThat(estimationService.getAvailableEstimators("APP1"))
-                .as("Only estimator1 must be supported for APP1")
+        assertThat(estimationService.getAvailableEstimators(QualityCodeSystem.EXTERNAL))
+                .as("Only estimator1 must be supported for EXTERNAL")
                 .containsExactly(estimator1);
-        assertThat(estimationService.getAvailableEstimators("NoAPP"))
-                .as("No estimator must be supported for NoAPP")
+        assertThat(estimationService.getAvailableEstimators(QualityCodeSystem.OTHER))
+                .as("No estimator must be supported for OTHER")
                 .isEmpty();
     }
 
     @Test
     public void testGetAvailableEstimatorImplementations() {
-        when(estimator1.getSupportedApplications()).thenReturn(ImmutableSet.of("APP"));
-        when(estimator2.getSupportedApplications()).thenReturn(ImmutableSet.of("APP", "APP1"));
-        assertThat(estimationService.getAvailableEstimatorImplementations("APP"))
-                .as("Both estimators must be supported for APP")
+        when(estimator1.getSupportedQualityCodeSystems()).thenReturn(ImmutableSet.of(QualityCodeSystem.ENDDEVICE));
+        when(estimator2.getSupportedQualityCodeSystems()).thenReturn(ImmutableSet.of(QualityCodeSystem.ENDDEVICE, QualityCodeSystem.EXTERNAL));
+        assertThat(estimationService.getAvailableEstimatorImplementations(QualityCodeSystem.ENDDEVICE))
+                .as("Both estimators must be supported for ENDDEVICE")
                 .containsExactly("Estimator1", "Estimator2");
-        assertThat(estimationService.getAvailableEstimatorImplementations("APP1"))
-                .as("Only estimator2 must be supported for APP1")
+        assertThat(estimationService.getAvailableEstimatorImplementations(QualityCodeSystem.EXTERNAL))
+                .as("Only estimator2 must be supported for EXTERNAL")
                 .containsExactly("Estimator2");
-        assertThat(estimationService.getAvailableEstimatorImplementations("NoAPP"))
-                .as("No estimator must be supported for NoAPP")
+        assertThat(estimationService.getAvailableEstimatorImplementations(QualityCodeSystem.OTHER))
+                .as("No estimator must be supported for OTHER")
                 .isEmpty();
     }
 }

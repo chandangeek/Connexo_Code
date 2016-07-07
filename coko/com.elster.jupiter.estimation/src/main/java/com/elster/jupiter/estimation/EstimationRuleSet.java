@@ -1,6 +1,7 @@
 package com.elster.jupiter.estimation;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.collections.KPermutation;
 
@@ -41,5 +42,7 @@ public interface EstimationRuleSet extends IdentifiedObject {
 
     List<? extends EstimationRule> getRules(Set<? extends ReadingType> readingTypes);
 
-    public Instant getObsoleteDate();
+    Instant getObsoleteDate();
+
+    QualityCodeSystem getQualityCodeSystem();
 }

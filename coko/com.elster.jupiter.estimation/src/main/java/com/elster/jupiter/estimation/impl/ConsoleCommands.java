@@ -1,8 +1,10 @@
 package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
+import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleProperties;
@@ -79,14 +81,20 @@ public class ConsoleCommands {
     private volatile CompositeScheduleExpressionParser scheduleExpressionParser;
     private volatile MeteringGroupsService meteringGroupsService;
 
-    public void estimationBlocks(long meterId) {
+    public void estimationBlocks() {
+        System.out.println("Usage: estimationBlocks <meterId> <applicationName: INS, MDC>");
+    }
+
+    public void estimationBlocks(long meterId, String qualityCodeSystem) {
         try {
             EstimationEngine estimationEngine = new EstimationEngine();
             Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
             meter.getCurrentMeterActivation().ifPresent(meterActivation -> {
-                meterActivation.getChannels().stream()
+                QualityCodeSystem system = QualityCodeSystem.of(qualityCodeSystem);
+                meterActivation.getChannelsContainer().getChannels().stream()
                         .flatMap(channel -> channel.getReadingTypes().stream())
-                        .flatMap(readingType -> estimationEngine.findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType).stream())
+                        .flatMap(readingType -> estimationEngine.findBlocksToEstimate(system, meterActivation,
+                                Range.all(), readingType).stream())
                         .map(this::print)
                         .forEach(System.out::println);
             });
@@ -96,11 +104,11 @@ public class ConsoleCommands {
     }
 
     public void availableEstimators() {
-        System.out.println("Usage: availableEstimators <applicationName: INS, MDC>");
+        System.out.println("Usage: availableEstimators <qualityCodeSystem: MDM, MDC, OTHER>");
     }
 
-    public void availableEstimators(String applicationName) {
-        estimationService.getAvailableEstimators(applicationName).stream()
+    public void availableEstimators(String qualityCodeSystem) {
+        estimationService.getAvailableEstimators(QualityCodeSystem.of(qualityCodeSystem)).stream()
                 .peek(est -> System.out.println(est.getDefaultFormat()))
                 .flatMap(est -> est.getPropertySpecs().stream())
                 .map(spec -> spec.getName() + ' ' + spec.getValueFactory().getValueType().toString())
@@ -108,14 +116,14 @@ public class ConsoleCommands {
     }
 
     public void createRuleSet() {
-        System.out.println("Usage: createRuleSet <ruleSetName> <applicationName: INS, MDC>");
+        System.out.println("Usage: createRuleSet <ruleSetName> <qualityCodeSystem: MDM, MDC, OTHER>");
     }
 
-    public void createRuleSet(String name, String applicationName) {
+    public void createRuleSet(String name, String qualityCodeSystem) {
         threadPrincipalService.set(() -> "Console");
         try {
             transactionService.execute(VoidTransaction.of(() -> {
-                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name, applicationName);
+                EstimationRuleSet estimationRuleSet = estimationService.createEstimationRuleSet(name, QualityCodeSystem.of(qualityCodeSystem));
                 estimationRuleSet.save();
                 System.out.println(print(estimationRuleSet));
             }));
@@ -247,7 +255,11 @@ public class ConsoleCommands {
         return props;
     }
 
-    public void estimate(long meterId, String estimatorName, String... properties) {
+    public void estimate() {
+        System.out.println("Usage: estimate <meterId> <qualityCodeSystem: MDM, MDC, OTHER> [<estimatorName>] [<properties>...]");
+    }
+
+    public void estimate(long meterId, String qualityCodeSystem, String estimatorName, String... properties) {
         try {
             Optional<Estimator> optionalEstimatorTemplate = estimationService.getEstimator(estimatorName);
             if (!optionalEstimatorTemplate.isPresent()) {
@@ -262,8 +274,9 @@ public class ConsoleCommands {
                 System.out.println("no meter activation present or meter " + meter.getName());
             } else {
                 MeterActivation meterActivation = meterActivationOptional.get();
-                for (Channel channel : meterActivation.getChannels()) {
-                    estimate(channel, estimator, meterActivation);
+                QualityCodeSystem system = QualityCodeSystem.of(qualityCodeSystem);
+                for (Channel channel : meterActivation.getChannelsContainer().getChannels()) {
+                    estimate(system, channel, estimator, meterActivation);
                 }
             }
         } catch (RuntimeException e) {
@@ -271,14 +284,14 @@ public class ConsoleCommands {
         }
     }
 
-    private void estimate(Channel channel, Estimator estimator, MeterActivation meterActivation) {
+    private void estimate(QualityCodeSystem system, Channel channel, Estimator estimator, MeterActivation meterActivation) {
         EstimationEngine estimationEngine = new EstimationEngine();
         System.out.println("Handling channel id " + channel.getId());
         for (ReadingType readingType : channel.getReadingTypes()) {
             System.out.println("Handling reading type " + readingType.getAliasName());
-            List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(meterActivation, Range.<Instant>all(), readingType);
+            List<EstimationBlock> blocks = estimationEngine.findBlocksToEstimate(system, meterActivation, Range.all(), readingType);
             estimator.init(Logger.getLogger(ConsoleCommands.class.getName()));
-            EstimationResult result = estimator.estimate(blocks);
+            EstimationResult result = estimator.estimate(blocks, system);
             List<EstimationBlock> estimated = result.estimated();
             List<EstimationBlock> remaining = result.remainingToBeEstimated();
             for (EstimationBlock block : estimated) {
@@ -300,13 +313,34 @@ public class ConsoleCommands {
         }
     }
 
+    public void estimate(long meterId, String qualityCodeSystem) {
+        Meter meter = meteringService.findMeter(meterId).orElseThrow(IllegalArgumentException::new);
+        meter.getCurrentMeterActivation()
+                .map(meterActivation -> estimationService.estimate(QualityCodeSystem.of(qualityCodeSystem), meterActivation, Range.all()))
+                .map(EstimationReport::getResults)
+                .ifPresent(map -> {
+                    map.entrySet().stream()
+                            .peek(entry -> System.out.println("ReadingType : " + entry.getKey().getMRID()))
+                            .map(Map.Entry::getValue)
+                            .forEach(result -> {
+                                result.estimated().stream()
+                                        .flatMap(block -> block.estimatables().stream())
+                                        .map(estimatable -> "Estimated value " + estimatable.getEstimation() + " for " + estimatable.getTimestamp())
+                                        .forEach(System.out::println);
+                                result.remainingToBeEstimated().stream()
+                                        .flatMap(block -> block.estimatables().stream())
+                                        .map(estimatable -> "No estimated value for " + estimatable.getTimestamp())
+                                        .forEach(System.out::println);
+                            });
+                });
+    }
 
     public void createEstimationTask(String name, long nextExecution, String scheduleExpression, long groupId) {
         threadPrincipalService.set(() -> "console");
         try (TransactionContext context = transactionService.getContext()) {
             EstimationTask estimationTask = estimationService.newBuilder()
                     .setName(name)
-                    .setApplication("MDC")
+                    .setQualityCodeSystem(QualityCodeSystem.MDC)
                     .setNextExecution(Instant.ofEpochMilli(nextExecution))
                     .setEndDeviceGroup(endDeviceGroup(groupId))
                     .setScheduleExpression(parse(scheduleExpression)).create();
@@ -325,7 +359,6 @@ public class ConsoleCommands {
     private EndDeviceGroup endDeviceGroup(long groupId) {
         return meteringGroupsService.findEndDeviceGroup(groupId).orElseThrow(IllegalArgumentException::new);
     }
-
 
     @Reference
     public void setMeteringService(MeteringService meteringService) {

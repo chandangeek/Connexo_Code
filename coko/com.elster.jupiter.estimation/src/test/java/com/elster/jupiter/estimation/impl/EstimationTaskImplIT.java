@@ -2,6 +2,7 @@ package com.elster.jupiter.estimation.impl;
 
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
@@ -315,7 +316,7 @@ public class EstimationTaskImplIT {
         return estimationService.newBuilder()
                 .scheduleImmediately()
                 .setName(name)
-                .setApplication("MDC")
+                .setQualityCodeSystem(QualityCodeSystem.MDC)
                 .setEndDeviceGroup(endDeviceGroup)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .create();

@@ -1,5 +1,7 @@
 package com.elster.jupiter.estimation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
@@ -14,13 +16,13 @@ import java.util.logging.Logger;
 /**
  * Decorates an Estimator with the ability to mark EstimationBlocks with the ReadingQualityType associated with the estimation, if estimation was applied.
  */
-class ReadingQualityTypedEstimator implements Estimator {
+class RuleTypedEstimator implements Estimator {
 
-    private final ReadingQualityType readingQualityType;
+    private final int ruleId;
     private final Estimator decorated;
 
-    ReadingQualityTypedEstimator(Estimator decorated, ReadingQualityType readingQualityType) {
-        this.readingQualityType = readingQualityType;
+    RuleTypedEstimator(Estimator decorated, int ruleId) {
+        this.ruleId = ruleId;
         this.decorated = decorated;
     }
 
@@ -30,8 +32,9 @@ class ReadingQualityTypedEstimator implements Estimator {
     }
 
     @Override
-    public EstimationResult estimate(List<EstimationBlock> estimationBlock) {
-        EstimationResult result = decorated.estimate(estimationBlock);
+    public EstimationResult estimate(List<EstimationBlock> estimationBlocks, QualityCodeSystem system) {
+        EstimationResult result = decorated.estimate(estimationBlocks, system);
+        ReadingQualityType readingQualityType = ReadingQualityType.of(system, QualityCodeCategory.ESTIMATED, ruleId);
         result.estimated().forEach(block -> block.setReadingQualityType(readingQualityType));
         return result;
     }
@@ -62,8 +65,8 @@ class ReadingQualityTypedEstimator implements Estimator {
     }
 
     @Override
-    public Set<String> getSupportedApplications() {
-        return decorated.getSupportedApplications();
+    public Set<QualityCodeSystem> getSupportedQualityCodeSystems() {
+        return decorated.getSupportedQualityCodeSystems();
     }
 
 }

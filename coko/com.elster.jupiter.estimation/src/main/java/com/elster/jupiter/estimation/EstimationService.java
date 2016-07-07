@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -19,34 +20,34 @@ public interface EstimationService {
     String COMPONENTNAME = "EST";
 
     /**
-     * Filters estimators and returns names of implementations supporting a given <code>targetApplication</code>.
-     * @param targetApplication a string representation of target application.
-     * @return the list of estimator implementation names supporting a given <code>targetApplication</code>.
+     * Filters estimators and returns names of implementations supporting a given <code>qualityCodeSystem</code>.
+     * @param qualityCodeSystem a target QualityCodeSystem.
+     * @return the list of estimator implementation names supporting a given <code>qualityCodeSystem</code>.
      */
-    List<String> getAvailableEstimatorImplementations(String targetApplication);
+    List<String> getAvailableEstimatorImplementations(QualityCodeSystem qualityCodeSystem);
 
     /**
-     * Filters estimators and returns ones supporting a given <code>targetApplication</code>.
-     * @param targetApplication a string representation of target application.
-     * @return the list of estimators supporting a given <code>targetApplication</code>.
+     * Filters estimators and returns ones supporting a given <code>qualityCodeSystem</code>.
+     * @param qualityCodeSystem a target QualityCodeSystem.
+     * @return the list of estimators supporting a given <code>qualityCodeSystem</code>.
      */
-    List<Estimator> getAvailableEstimators(String targetApplication);
+    List<Estimator> getAvailableEstimators(QualityCodeSystem qualityCodeSystem);
 
     Optional<Estimator> getEstimator(String implementation);
 
     Optional<Estimator> getEstimator(String implementation, Map<String, Object> props);
 
-    EstimationReport estimate(MeterActivation meterActivation, Range<Instant> period);
+    EstimationReport estimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period);
 
-    EstimationReport previewEstimate(MeterActivation meterActivation, Range<Instant> period);
+    EstimationReport previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period);
 
-    EstimationReport previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType);
+    EstimationReport previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, ReadingType readingType);
 
-    EstimationResult previewEstimate(MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Estimator estimator);
+    EstimationResult previewEstimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, ReadingType readingType, Estimator estimator);
 
-    EstimationRuleSet createEstimationRuleSet(String name, String applicationName);
+    EstimationRuleSet createEstimationRuleSet(String name, QualityCodeSystem qualityCodeSystem);
 
-    EstimationRuleSet createEstimationRuleSet(String name, String applicationName, String description);
+    EstimationRuleSet createEstimationRuleSet(String name, QualityCodeSystem qualityCodeSystem, String description);
 
     List<? extends EstimationRuleSet> getEstimationRuleSets();
 
@@ -64,7 +65,7 @@ public interface EstimationService {
 
     EstimationTaskBuilder newBuilder();
 
-    List<? extends EstimationTask> findEstimationTasks(String application);
+    List<? extends EstimationTask> findEstimationTasks(QualityCodeSystem qualityCodeSystem);
 
     Optional<? extends EstimationTask> findEstimationTask(long id);
 

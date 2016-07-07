@@ -15,6 +15,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.RelativePeriod;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
@@ -34,7 +35,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
-            table.column("APPLICATION").varChar(NAME_LENGTH).notNull().map("applicationName").add();
+            table.column("QUALITY_SYSTEM").number().conversion(NUMBER2ENUM).notNull().map("qualityCodeSystem").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
@@ -116,7 +117,7 @@ public enum TableSpecs {
             Column relativePeriod = table.column("PERIOD").number().add();
 
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
-            table.column("APPLICATION").varChar(NAME_LENGTH).map("application").add();
+            table.column("QUALITY_SYSTEM").number().conversion(NUMBER2ENUM).notNull().map("qualityCodeSystem").add();
             table.addAuditColumns();
 
             table.foreignKey("EST_FK_ETSK_RECURRENTTASK")
