@@ -19,6 +19,15 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                 title: router.getRoute().getTitle(),
                 itemId: 'channelTabPanel',
                 activeTab: 'output-' + me.tab,
+                listeners: {
+                    tabchange: function(){
+                        var toolbar = this.down('previous-next-navigation-toolbar');
+                        Ext.suspendLayouts();
+                        toolbar.removeAll();
+                        toolbar.initToolbar(Ext.getStore(toolbar.store));
+                        Ext.resumeLayouts(true);
+                    }
+                },
                 items: [
                     {
                         title: Uni.I18n.translate('deviceloadprofiles.specifications', 'MDC', 'Specifications'),

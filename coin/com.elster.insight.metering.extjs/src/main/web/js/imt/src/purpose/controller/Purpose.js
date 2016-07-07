@@ -75,7 +75,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             prevNextListLink = me.makeLinkToOutputs(router);
 
         if (!tab) {
-            router.getRoute('usagepoints/view/purpose/output').forward({tab: 'specifications'});
+            router.getRoute('usagepoints/view/purpose/output').forward({tab: 'readings'});
         } else {
             mainView.setLoading();
             usagePointsController.loadUsagePoint(mRID, {
@@ -136,7 +136,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
         Uni.util.History.suspendEventsForNextCall();
         Uni.util.History.setParsePath(false);
-        router.getRoute('usagepoints/view/purpose/output').forward({tab: 'specifications'});
+        router.arguments.tab = 'specifications';
+        router.getRoute('usagepoints/view/purpose/output').forward();
     },
 
     showReadingsTab: function(panel) {
@@ -148,7 +149,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
         Uni.util.History.suspendEventsForNextCall();
         Uni.util.History.setParsePath(false);
-        router.getRoute('usagepoints/view/purpose/output').forward({tab: 'readings'});
+        router.arguments.tab = 'readings';
+        router.getRoute('usagepoints/view/purpose/output').forward();
 
         readingsStore.getProxy().extraParams = {
             mRID: panel.usagePoint.get('mRID'),

@@ -58,6 +58,7 @@ Ext.define('Imt.usagepointsetup.controller.MetrologyConfig', {
                                             });
                                             meterRole.fieldLabel = meterRole.name;
                                             meterRole.name = meterRole.id;
+                                            meterRole.itemId = 'meterRoleCombobox-' + meterRole.id;
                                         });
 
                                         widget = Ext.widget('usagePointActivateMeters', {

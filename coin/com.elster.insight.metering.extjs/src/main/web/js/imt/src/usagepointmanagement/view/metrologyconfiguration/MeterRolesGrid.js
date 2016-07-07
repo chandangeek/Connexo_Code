@@ -26,11 +26,11 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.MeterRolesGrid'
                 text: Uni.I18n.translate('general.meter', 'IMT', 'Meter'),
                 dataIndex: 'mRID',
                 flex: 1,
-                renderer: function (value) {
+                renderer: function (value, metaData, record) {
                     var deviceLink;
                     if (value) {
-                        if (Uni.store.Apps.checkApp('Multisense')) {
-                            deviceLink = Ext.String.format('<a href="{0}">{1}</a>', Ext.String.format('{0}/devices/{1}', Uni.store.Apps.getAppUrl('Multisense'), encodeURIComponent(value)), Ext.String.htmlEncode(value));
+                        if (record.get('url')) {
+                            deviceLink = Ext.String.format('<a href="{0}" target="_blank">{1}</a>', record.get('url'), Ext.String.htmlEncode(value));
                         } else {
                             deviceLink = Ext.String.htmlEncode(value);
                         }

@@ -209,8 +209,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointMetrologyConfig', {
                                             + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
                                             + tooltip
                                             + '"></i>',
-                                        url = Ext.String.format('{0}/devices/{1}', Uni.store.Apps.getAppUrl('MultiSense'), encodeURIComponent(value.mRID)),
-                                        link = '<a href="' + url + '">' + Ext.String.htmlEncode(value.mRID) + '</a>',
+                                        link = value.url ? '<a href="' + value.url + '" target="_blank">' + Ext.String.htmlEncode(value.mRID) + '</a>' : Ext.String.htmlEncode(value.mRID),
                                         activationTime = meterActivation.get('meterRole').activationTime;
                                     result += gotConfig.status ? link + icon : link;
 

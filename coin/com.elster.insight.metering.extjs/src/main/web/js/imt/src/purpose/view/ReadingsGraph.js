@@ -59,7 +59,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             zoomLevelsStore = Ext.getStore('Uni.store.DataIntervalAndZoomLevels'),
             readingType = output.get('readingType'),
             channelName = readingType && readingType.fullAliasName ? readingType.fullAliasName : '',
-            unitOfMeasure = readingType.unit,
+            unitOfMeasure = readingType.names ? readingType.names.unitOfMeasure : readingType.unit,
             seriesObject = {
                 marker: {
                     enabled: false

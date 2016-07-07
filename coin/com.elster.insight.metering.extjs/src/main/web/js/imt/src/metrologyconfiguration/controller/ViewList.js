@@ -57,6 +57,9 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
                 case 'activateMetrologyConfiguration':
                     me.activateMetrologyConfiguration(menu.record);
                     break;
+                case 'deprecateMetrologyConfiguration':
+                    me.deprecateMetrologyConfiguration(menu.record);
+                    break;
             }
         }
 
@@ -97,6 +100,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             menu = previewPanel.down('#metrology-configuration-list-action-menu');
 
         Ext.suspendLayouts();
+        previewPanel.disableActionsButton(record.get('status').id == "deprecated");
         previewPanel.setTitle(record.get('name'));
         previewPanel.loadRecord(record);
         Ext.resumeLayouts(true);
@@ -193,7 +197,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
             config: {},
             fn: function (state) {
                 if (state === 'confirm') {
-                    me.activateOperation(record);
+                    me.metrologyConfigurationPutOperation(record, 'activate');
                 } else if (state === 'cancel') {
                     this.close();
                 }
@@ -201,17 +205,55 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
         });
     },
 
-    activateOperation: function(record){
+    deprecateMetrologyConfiguration: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation',{
+                confirmText: Uni.I18n.translate('general.deprecate', 'IMT', 'Deprecate')
+            });
+        confirmationWindow.show({
+            msg: Uni.I18n.translate(
+                'metrologyconfiguration.general.deprecate.msg',
+                'IMT',
+                'You will not be able to link this metrology configuration to usage points anymore.' +
+                ' But all the existing usage points with such metrology configuration will not be modified and it will be still possible to monitor data on these usage points'
+            ),
+            title: Uni.I18n.translate('metrologyconfiguration.general.deprecate.title', 'IMT', "Deprecate '{0}'?", record.get('name')),
+            config: {},
+            fn: function (state) {
+                if (state === 'confirm') {
+                    me.metrologyConfigurationPutOperation(record, 'deprecate');
+                } else if (state === 'cancel') {
+                    this.close();
+                }
+            }
+        });
+    },
+
+    metrologyConfigurationPutOperation: function(record, action){
         var me =this,
+            url,
+            acknowledgeMsg,
             router = me.getController('Uni.controller.history.Router');
+
+        switch (action){
+            case 'activate': {
+                url = '/api/ucr/metrologyconfigurations/{0}/activate';
+                acknowledgeMsg = Uni.I18n.translate('metrologyconfiguration.general.activated', 'IMT', 'Metrology configuration activated')
+            }
+                break;
+            case 'deprecate': {
+                url = '/api/ucr/metrologyconfigurations/{0}/deprecate';
+                acknowledgeMsg = Uni.I18n.translate('metrologyconfiguration.general.deprecated', 'IMT', 'Metrology configuration deprecated')
+            }
+        }
         Ext.Ajax.request({
-            url: Ext.String.format('/api/ucr/metrologyconfigurations/{0}/activate', record.get('id')),
+            url: Ext.String.format(url, record.get('id')),
             method: 'PUT',
             jsonData: record.getData(),
             isNotEdit: true,
             success: function () {
                 router.getRoute().forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.general.activated', 'IMT', 'Metrology configuration activated'));
+                me.getApplication().fireEvent('acknowledge', acknowledgeMsg);
             }
         });
     }

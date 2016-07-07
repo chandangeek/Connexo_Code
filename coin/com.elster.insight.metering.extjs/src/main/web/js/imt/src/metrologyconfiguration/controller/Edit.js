@@ -7,7 +7,11 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         'Imt.metrologyconfiguration.view.DefineMetrologyConfiguration'
     ],
     models: [
-        'Imt.metrologyconfiguration.model.MetrologyConfiguration'
+             'Imt.metrologyconfiguration.model.MetrologyConfiguration',
+             'Imt.metrologyconfiguration.model.LinkableMetrologyConfiguration'
+    ],
+    stores: [
+             'Imt.metrologyconfiguration.store.LinkableMetrologyConfigurations'
     ],
     refs: [
         {ref: 'metrologyConfigurationEditPage', selector: 'metrologyConfigurationEdit'},

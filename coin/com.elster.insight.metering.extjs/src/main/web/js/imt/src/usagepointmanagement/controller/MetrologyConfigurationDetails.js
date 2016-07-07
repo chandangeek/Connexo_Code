@@ -68,11 +68,11 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
         Ext.Array.each(record.get('meterRoles'), function (meterRole) {
             var deviceLink;
             if (meterRole.mRID) {
-                if (Uni.store.Apps.checkApp('Multisense')) {
-                    deviceLink = Ext.String.format('<a href="{0}">{1}</a>', Ext.String.format('{0}/devices/{1}', Uni.store.Apps.getAppUrl('Multisense'), encodeURIComponent(meterRole.mRID)), Ext.String.htmlEncode(meterRole.mRID));
+                if (meterRole.url) {
+                    deviceLink = Ext.String.format('<a href="{0}" target="_blank">{1}</a>', meterRole.url, Ext.String.htmlEncode(meterRole.mRID));
                 } else {
                     deviceLink = Ext.String.htmlEncode(meterRole.mRID);
-                }                
+                }
             } else {
                 deviceLink = '-';
             }

@@ -57,6 +57,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                 hidden: !isComplete,
                 grid: {
                     xtype: 'readings-list',
+                    output: me.output,
                     router: me.router
                 },
                 emptyComponent: {
