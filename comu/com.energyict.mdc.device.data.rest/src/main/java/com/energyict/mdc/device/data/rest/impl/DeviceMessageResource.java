@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.Checks.is;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
@@ -143,11 +144,13 @@ public class DeviceMessageResource {
     public DeviceMessageInfo updateDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
         deviceMessageInfo.id = deviceMessageId;
         DeviceMessage deviceMessage = resourceHelper.lockDeviceMessageOrThrowException(deviceMessageInfo);
-        deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);
         if (deviceMessageInfo.status != null && DeviceMessageStatus.REVOKED.name().equals(deviceMessageInfo.status.value)) {
             deviceMessage.revoke();
         }
-        deviceMessage.save();
+        if (!is(deviceMessage.getReleaseDate()).equalTo(deviceMessageInfo.releaseDate)) {
+            deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);
+            deviceMessage.save();
+        }
         DeviceMessage reloaded = resourceHelper.findDeviceMessageOrThrowException(deviceMessageId);
         return deviceMessageInfoFactory.asInfo(reloaded, uriInfo);
     }

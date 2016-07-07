@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 
-
 import javax.inject.Inject;
 
 public class LocationInfoFactory {
