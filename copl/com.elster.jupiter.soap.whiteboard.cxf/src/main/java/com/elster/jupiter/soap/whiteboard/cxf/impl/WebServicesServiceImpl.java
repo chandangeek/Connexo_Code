@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
@@ -34,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import static java.util.stream.Collectors.toList;
@@ -46,9 +46,7 @@ import static java.util.stream.Collectors.toList;
 public class WebServicesServiceImpl implements WebServicesService {
     private static final Logger logger = Logger.getLogger("WebServicesServiceImpl");
 
-    private final Object lock = new Object();
     private Map<String, EndPointFactory> webServices = new ConcurrentHashMap<>();
-    private List<EndPointConfiguration> webServiceObservers = new CopyOnWriteArrayList<>();
     private final Map<EndPointConfiguration, ManagedEndpoint> endpoints = new ConcurrentHashMap<>();
     private volatile SoapProviderSupportFactory soapProviderSupportFactory;
     private volatile BundleContext bundleContext;
@@ -153,13 +151,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public void publishEndPoint(EndPointConfiguration endPointConfiguration) {
-        EndPointFactory endPointFactory = null;
-        synchronized (lock) {
-            endPointFactory = webServices.get(endPointConfiguration.getWebServiceName());
-            if (endPointFactory == null) {
-                webServiceObservers.add(endPointConfiguration);
-            }
-        }
+        EndPointFactory endPointFactory = webServices.get(endPointConfiguration.getWebServiceName());
         if (endPointFactory != null) {
             try {
                 ManagedEndpoint managedEndpoint = endPointFactory.createEndpoint(endPointConfiguration);
@@ -210,11 +202,13 @@ public class WebServicesServiceImpl implements WebServicesService {
     // called by whiteboard
     public void register(String name, InboundEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(InboundEndPointFactoryImpl.class).init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
     public void register(String name, OutboundEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(OutboundEndPointFactoryImpl.class).init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
