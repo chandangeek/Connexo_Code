@@ -78,7 +78,9 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
                         rulesStore: rulesStore
                     });
                     app.fireEvent('changecontentevent', widget);
-                    widget.down('#metrology-config-add-validation-rule-set-btn').setDisabled(metrologyConfiguration.get('status').id == 'deprecated');
+                    if (widget.down('#metrology-config-add-validation-rule-set-btn')) {
+                        widget.down('#metrology-config-add-validation-rule-set-btn').setDisabled(metrologyConfiguration.get('status').id == 'deprecated');
+                    }
                     pageMainContent.setLoading(false);
                 });
             },
