@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering;
 
 import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 public interface MeterBuilder {
 
@@ -15,5 +16,11 @@ public interface MeterBuilder {
     MeterBuilder setName(String name);
 
     MeterBuilder setSerialNumber(String serialNumber);
+
+    MeterBuilder setLocation (Location location);
+
+    MeterBuilder setSpatialCoordinates(SpatialCoordinates spatialCoordinates);
+
+    LocationBuilder newLocationBuilder();
 
 }

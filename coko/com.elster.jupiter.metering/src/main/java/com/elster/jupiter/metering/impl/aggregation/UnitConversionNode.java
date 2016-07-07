@@ -33,7 +33,8 @@ class UnitConversionNode implements ServerExpressionNode {
         this.expressionNode = expressionNode;
         this.intermediateDimension = IntermediateDimension.of(dimension);
         VirtualReadingType candidate = expressionNode.accept(new GetSourceReadingType(targetReadingType, dimension));
-        this.sourceReadingType = VirtualReadingType.from(candidate.getIntervalLength(), dimension, candidate.getCommodity()).withMetricMultiplier(candidate.getUnitMultiplier());
+        this.sourceReadingType = VirtualReadingType.from(candidate.getIntervalLength(), dimension, candidate.getAccumulation(), candidate.getCommodity())
+                .withMetricMultiplier(candidate.getUnitMultiplier());
         this.targetReadingType = targetReadingType;
     }
 

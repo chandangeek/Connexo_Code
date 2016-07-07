@@ -14,6 +14,7 @@ enum BackflowMarker implements BackflowListener {
 
     @Override
     public void backflowOccurred(CimChannel cimChannel, Instant timestamp, BigDecimal value, BigDecimal overflowValue) {
+        // TODO: refactor in scope of estimation/confirm/edit/import refactoring (CXO-1443/CXO-1447/CXO-1449)
         ReadingQualityType backflowQuality = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REVERSEROTATION);
         cimChannel.createReadingQuality(backflowQuality, timestamp);
     }

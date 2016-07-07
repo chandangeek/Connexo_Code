@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.HasId;
@@ -47,11 +48,11 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      * Return the List of {@link ReadingType}s from the
      * specified {@link MeterActivation} that match this requirement.
      *
-     * @param meterActivation The MeterActivation
+     * @param channelsContainer The ChannelsContainer
      * @return The List of matching ReadingTypes
      */
-    default List<ReadingType> getMatchesFor(MeterActivation meterActivation) {
-        return this.getMatchingChannelsFor(meterActivation)
+    default List<ReadingType> getMatchesFor(ChannelsContainer channelsContainer) {
+        return this.getMatchingChannelsFor(channelsContainer)
                 .stream()
                 .map(Channel::getMainReadingType)
                 .collect(Collectors.toList());
@@ -61,10 +62,10 @@ public interface ReadingTypeRequirement extends HasId, HasName {
      * Return the List of {@link Channel}s from the specified
      * {@link MeterActivation} that can provide data for this requirement.
      *
-     * @param meterActivation The MeterActivation
+     * @param channelsContainer The ChannelsContainer
      * @return The List of matching ReadingTypes
      */
-    List<Channel> getMatchingChannelsFor(MeterActivation meterActivation);
+    List<Channel> getMatchingChannelsFor(ChannelsContainer channelsContainer);
 
     /**
      * <p>

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 
-public class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {
+class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private UsagePointSearchDomain domain;
@@ -30,7 +30,7 @@ public class LocationSearchableProperty extends AbstractSearchableUsagePointProp
     private static final String FIELDNAME = "location";
 
     @Inject
-    public LocationSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus, Clock clock) {
+    LocationSearchableProperty(UsagePointSearchDomain domain, PropertySpecService propertySpecService, Thesaurus thesaurus, Clock clock) {
         super(thesaurus);
         this.domain = domain;
         this.thesaurus = thesaurus;

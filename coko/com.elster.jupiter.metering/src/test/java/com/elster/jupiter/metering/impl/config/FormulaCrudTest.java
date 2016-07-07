@@ -2,6 +2,12 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.PersistenceSupport;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -9,10 +15,12 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.Function;
 import com.elster.jupiter.metering.config.FunctionCallNode;
@@ -29,8 +37,18 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.TableSpecs;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.QuantityValueFactory;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.util.time.Interval;
 
 import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,6 +67,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FormulaCrudTest {
@@ -62,7 +83,7 @@ public class FormulaCrudTest {
     @Mock
     private MetrologyConfiguration config;
 
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryBootstrapModule.getTransactionService());
@@ -153,8 +174,8 @@ public class FormulaCrudTest {
 
         ExpressionNodeBuilder nodeBuilder =
                 builder.maximum(Arrays.asList(
-                    builder.constant(10),
-                    builder.constant(0)));
+                        builder.constant(10),
+                        builder.constant(0)));
         Formula formula = builder.init(nodeBuilder).build();
 
         long formulaId = formula.getId();
@@ -192,10 +213,10 @@ public class FormulaCrudTest {
 
         ExpressionNodeBuilder nodeBuilder =
                 builder.maximum(Arrays.asList(
-                            builder.constant(10),
-                            builder.plus(
-                                    builder.constant(10),
-                                    builder.constant(0))));
+                        builder.constant(10),
+                        builder.plus(
+                                builder.constant(10),
+                                builder.constant(0))));
         Formula formula = builder.init(nodeBuilder).build();
 
         long formulaId = formula.getId();
@@ -228,7 +249,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.EXPERT;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse("constant(10)");
+        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("constant(10)");
 
         Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
         long formulaId = formula.getId();
@@ -252,7 +273,7 @@ public class FormulaCrudTest {
         Function myFunction = Function.MAX;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("max(constant(10), constant(0))");
+        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("max(constant(10), constant(0))");
 
         Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
@@ -288,7 +309,7 @@ public class FormulaCrudTest {
         Function myFunction = Function.MAX;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse("max(constant(1), plus(constant(2), constant(3)))");
+        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("max(constant(1), plus(constant(2), constant(3)))");
 
         Formula formula = service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
 
@@ -327,7 +348,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.AUTO;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         try {
-            new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("maxOf(max(constant(1), constant(2)), plus(constant(2), constant(3)))");
+            new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("maxOf(max(constant(1), constant(2)), plus(constant(2), constant(3)))");
         } catch (InvalidNodeException e) {
             assertEquals(e.getMessageSeed(), MessageSeeds.FUNCTION_NOT_ALLOWED_IN_AUTOMODE);
             assertEquals(e.get("Function"), Function.MAX_AGG);
@@ -343,7 +364,7 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         String formulaString = "max(constant(1), min(constant(2), constant(3), constant(4)))";
-        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, myMode).parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
+        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse("max(constant(1), min(constant(2), constant(3), constant(4)))");
 
         Formula formula = service.newFormulaBuilder(myMode).init(node).build();
 
@@ -363,19 +384,19 @@ public class FormulaCrudTest {
     @Transactional
     public void testParser() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        List<Formula> formulasBefore = service.findFormulas();
         String formulaString = "multiply(sum(hour, max(hour, constant(10), constant(0)), constant(5), constant(3)), constant(2))";
-        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, config, Formula.Mode.EXPERT).parse(formulaString);
+        ServerExpressionNode node = new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.EXPERT).parse(formulaString);
         service.newFormulaBuilder(Formula.Mode.EXPERT).init(node).build();
+
         List<Formula> formulas = service.findFormulas();
-        for (Formula f : formulas) {
-            System.out.println(f.toString());
-        }
+        assertThat(formulas.size()).isEqualTo(formulasBefore.size() + 1);
     }
 
     @Test
-     @Transactional
-     // formula = 10 (constant)
-     public void testDelete() {
+    @Transactional
+    // formula = 10 (constant)
+    public void testDelete() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         ServerFormulaBuilder builder = service.newFormulaBuilder(Formula.Mode.EXPERT);
@@ -551,9 +572,9 @@ public class FormulaCrudTest {
             builder.build(builder.requirement(req));
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
-                    "The readingtype \"" + readingTypeDeliverable .getMRID() + " (" + readingTypeDeliverable.getFullAliasName() +
+                    "The readingtype \"" + readingTypeDeliverable.getMRID() + " (" + readingTypeDeliverable.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
-                            "deliverable" + " = " +  req.getName()
+                            "deliverable" + " = " + req.getName()
                             + "\".");
             throw e;
         }
@@ -593,10 +614,10 @@ public class FormulaCrudTest {
             fail("ConstraintViolationException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
-                    "The readingtype \"" + temperatureRT .getMRID() + " (" + temperatureRT.getFullAliasName() +
+                    "The readingtype \"" + temperatureRT.getMRID() + " (" + temperatureRT.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
-                            deliverable1.getName() + " = " +  deliverable1.getFormula().getExpressionNode().toString()
-                    + "\".");
+                            deliverable1.getName() + " = " + deliverable1.getFormula().getExpressionNode().toString()
+                            + "\".");
         }
 
         ReadingType conskWhMonthlyRT =
@@ -661,9 +682,9 @@ public class FormulaCrudTest {
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
-                    "The readingtype \"" + temperatureRT .getMRID() + " (" + temperatureRT.getFullAliasName() +
+                    "The readingtype \"" + temperatureRT.getMRID() + " (" + temperatureRT.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
-                            deliverable1.getName() + " = " +  deliverable1.getFormula().getExpressionNode().toString()
+                            deliverable1.getName() + " = " + deliverable1.getFormula().getExpressionNode().toString()
                             + "\".");
         }
 
@@ -683,10 +704,9 @@ public class FormulaCrudTest {
         }
     }
 
-    @Test(expected = ConstraintViolationException.class)
+    @Test
     @Transactional
-    // formula = Requirement
-    public void testIrregularReadingTypeOfDeliverable() {
+    public void testIrregularDeliverableWithConstantsOnly() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
@@ -695,84 +715,106 @@ public class FormulaCrudTest {
                 service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
-        ReadingType regRT =
+        ReadingType irregularRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0", "regRT");
-        assertThat(regRT).isNotNull();
+                        "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.72.0", "irregularRT");
+        assertThat(irregularRT).isNotNull();
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Irregular", irregularRT, Formula.Mode.AUTO);
 
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("DelOnReg", regRT, Formula.Mode.AUTO);
+        // Business method
+        ReadingTypeDeliverable deliverable = builder.build(builder.constant(10));
+
+        // Asserts
+        assertThat(deliverable).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void testIrregularDeliverableWithIrregularRequirement() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory).isPresent();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config).isNotNull();
+        ReadingType irregularRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.72.0", "irregularRT");
+        FullySpecifiedReadingTypeRequirement regularRequirement = config.newReadingTypeRequirement("Irregular").withReadingType(irregularRT);
+        assertThat(irregularRT).isNotNull();
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("IrregularDelOnIregularReq", irregularRT, Formula.Mode.AUTO);
+
+        // Business method
+        ReadingTypeDeliverable deliverable = builder.build(builder.requirement(regularRequirement));
+
+        // Asserts
+        assertThat(deliverable).isNotNull();
+    }
+
+    @Test(expected = ConstraintViolationException.class)
+    @Transactional
+    // formula = Requirement
+    public void testIrregularDeliverableWithRegularRequirement() {
+        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        assertThat(serviceCategory).isPresent();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config).isNotNull();
+        ReadingType regularRT =
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh"));
+        FullySpecifiedReadingTypeRequirement regularRequirement = config.newReadingTypeRequirement("Regular").withReadingType(regularRT);
+        ReadingType irregularRT =
+                inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.12.0.0.1.2.12.0.0.0.0.0.0.0.0.0.72.0", "irregularRT");
+        assertThat(irregularRT).isNotNull();
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Irregular", irregularRT, Formula.Mode.AUTO);
 
         try {
-            builder.build(builder.constant(10));
+            // Business method
+            builder.build(builder.requirement(regularRequirement));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "Irregular readingtypes are not allowed for a deliverable.");
+            // Asserts
+            assertThat(e.getMessage()).contains(MessageSeeds.IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS.getDefaultFormat());
             throw e;
         }
     }
 
-    @Test(expected = InvalidNodeException.class)
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
-    public void testIrregularReadingTypeOfRequirementByBuilder() {
+    public void testRegularDeliverableWithIrregularRequirement() {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         Optional<ServiceCategory> serviceCategory =
                 inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
         assertThat(serviceCategory).isPresent();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
-                service.newMetrologyConfiguration("config2", serviceCategory.get());
+                service.newMetrologyConfiguration("config3", serviceCategory.get());
         MetrologyConfiguration config = metrologyConfigurationBuilder.create();
         assertThat(config).isNotNull();
-        ReadingType regRT =
+        ReadingType regularRT =
+                inMemoryBootstrapModule.getMeteringService().getReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh"));
+        ReadingType irregularRT =
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0", "regRT");
-        assertThat(regRT).isNotNull();
-
-        config.newReadingTypeRequirement("Req2").withReadingType(regRT);
-
-        assertThat(config.getRequirements()).hasSize(1);
-        ReadingTypeRequirement req = service.findReadingTypeRequirement(
-                config.getRequirements().get(0).getId()).get();
-
-
-        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del3", regRT, Formula.Mode.AUTO);
-        try {
-            builder.build(builder.requirement(req));
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a requirement.");
-            throw e;
-        }
-    }
-
-    @Test(expected = InvalidNodeException.class)
-    @Transactional
-    // formula = Requirement
-    public void testIrregularReadingTypeOfRequirementByParser() {
-        ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
-        Optional<ServiceCategory> serviceCategory =
-                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
-        assertThat(serviceCategory).isPresent();
-        MetrologyConfigurationBuilder metrologyConfigurationBuilder =
-                service.newMetrologyConfiguration("config2", serviceCategory.get());
-        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
-        assertThat(config).isNotNull();
-        ReadingType regRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "0.12.0.0.1.9.58.0.0.0.0.0.0.0.0.0.0.0", "regRT");
-        assertThat(regRT).isNotNull();
-
-        config.newReadingTypeRequirement("ReqWithIrregularRT").withReadingType(regRT);
-        ReadingType conskWhMonthlyRT =
-                inMemoryBootstrapModule.getMeteringService().createReadingType(
-                        "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhMonthlyRT");
-        assertThat(conskWhMonthlyRT).isNotNull();
-
-        ReadingTypeRequirement req = service.findReadingTypeRequirement(
-                config.getRequirements().get(0).getId()).get();
+                        "0.12.0.0.1.2.12.0.0.0.0.0.0.0.0.0.72.0", "irregularRT");
+        FullySpecifiedReadingTypeRequirement regularRequirement = config.newReadingTypeRequirement("Irregular").withReadingType(irregularRT);
+        assertThat(irregularRT).isNotNull();
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Regular", regularRT, Formula.Mode.AUTO);
 
         try {
-            new ExpressionNodeParser(service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
-        } catch (InvalidNodeException e) {
-            assertEquals(e.getMessage(), "Irregular readingtypes are not allowed for a requirement.");
+            // Business method
+            builder.build(builder.requirement(regularRequirement));
+        } catch (ConstraintViolationException e) {
+            // Asserts
+            assertThat(e.getMessage()).contains(MessageSeeds.REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS.getDefaultFormat());
             throw e;
         }
     }
@@ -812,7 +854,10 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.requirement(req));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+            assertEquals(e.getConstraintViolations()
+                    .iterator()
+                    .next()
+                    .getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
             throw e;
         }
     }
@@ -897,12 +942,15 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+            assertEquals(e.getConstraintViolations()
+                    .iterator()
+                    .next()
+                    .getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
             throw e;
         }
     }
 
-    @Test(expected=ConstraintViolationException.class)
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     // formula = Requirement
     public void test30MinDeliverableOn15MinAndWildcardRequirement() {
@@ -990,7 +1038,7 @@ public class FormulaCrudTest {
                 config.getRequirements().get(1).getId()).get();
 
         try {
-        //30 min = 15 min + 5min
+            //30 min = 15 min + 5min
             ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("deliverable", thirtyMinTR, Formula.Mode.AUTO);
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
@@ -1043,7 +1091,10 @@ public class FormulaCrudTest {
         try {
             builder.build(builder.plus(builder.requirement(req1), builder.requirement(req2)));
         } catch (ConstraintViolationException e) {
-            assertEquals(e.getConstraintViolations().iterator().next().getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
+            assertEquals(e.getConstraintViolations()
+                    .iterator()
+                    .next()
+                    .getMessage(), "The interval of the output reading type should be larger or equal to interval of the requirements in the formula.");
             throw e;
         }
     }
@@ -1139,7 +1190,7 @@ public class FormulaCrudTest {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
                     "The readingtype \"" + conskWhRT60min.getMRID() + " (" + conskWhRT60min.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
-                            deliverable2.getName() + " = " +  deliverable2.getFormula().getExpressionNode().toString()
+                            deliverable2.getName() + " = " + deliverable2.getFormula().getExpressionNode().toString()
                             + "\".");
             throw e;
         }
@@ -1159,7 +1210,7 @@ public class FormulaCrudTest {
         assertThat(config).isNotNull();
         ReadingType conskWhRT15min =
                 inMemoryBootstrapModule.getMeteringService().getReadingType(
-                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(()-> inMemoryBootstrapModule.getMeteringService().createReadingType(
+                        "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").orElseGet(() -> inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "conskWh"));
         assertThat(conskWhRT15min).isNotNull();
         config.newReadingTypeRequirement("Req1").withReadingType(conskWhRT15min);
@@ -1342,7 +1393,7 @@ public class FormulaCrudTest {
                 config.getRequirements().get(0).getId()).get();
 
         try {
-            new ExpressionNodeParser(service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
+            new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
         } catch (InvalidNodeException e) {
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
             throw e;
@@ -1375,7 +1426,7 @@ public class FormulaCrudTest {
                 config.getRequirements().get(0).getId()).get();
 
         try {
-            new ExpressionNodeParser(service.getThesaurus(), service, config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
+            new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, Formula.Mode.AUTO).parse("R(" + req.getId() + ")");
         } catch (InvalidNodeException e) {
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
             throw e;
@@ -1391,7 +1442,7 @@ public class FormulaCrudTest {
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
         ServerExpressionNode node =
-                new ExpressionNodeParser(service.getThesaurus(), service, config, myMode)
+                new ExpressionNodeParser(service.getThesaurus(), service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode)
                         .parse("minus(constant(10), constant(5))");
 
         Formula formula = service.newFormulaBuilder(myMode).init(node).build();
@@ -1713,9 +1764,9 @@ public class FormulaCrudTest {
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
-                    "The readingtype \"" + otherRT .getMRID() + " (" + otherRT.getFullAliasName() +
+                    "The readingtype \"" + otherRT.getMRID() + " (" + otherRT.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
-                            deliverable2.getName() + " = " +  deliverable2.getFormula().getExpressionNode().toString()
+                            deliverable2.getName() + " = " + deliverable2.getFormula().getExpressionNode().toString()
                             + "\".");
         }
     }
@@ -1776,9 +1827,9 @@ public class FormulaCrudTest {
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
-                    "The readingtype \"" + otherRT .getMRID() + " (" + otherRT.getFullAliasName() +
+                    "The readingtype \"" + otherRT.getMRID() + " (" + otherRT.getFullAliasName() +
                             ")\" is not compatible with the dimension of the formula of deliverable \"" +
-                            deliverable2.getName() + " = " +  deliverable2.getFormula().getExpressionNode().toString()
+                            deliverable2.getName() + " = " + deliverable2.getFormula().getExpressionNode().toString()
                             + "\".");
         }
     }
@@ -1821,7 +1872,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.AUTO;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse(
+        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse(
                 "safe_divide(constant(10), constant(20), constant(30))");
 
         Formula formula = service.newFormulaBuilder(myMode).init(node).build();
@@ -1837,7 +1888,7 @@ public class FormulaCrudTest {
         OperationNode operationNode = (OperationNode) myNode;
         assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
         assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
-        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
         assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
         assertThat(operationNode.getChildren().get(2)).isInstanceOf(ConstantNodeImpl.class);
@@ -1851,7 +1902,7 @@ public class FormulaCrudTest {
         Formula.Mode myMode = Formula.Mode.AUTO;
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
 
-        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, config, myMode).parse(
+        ServerExpressionNode node = new ExpressionNodeParser(thesaurus, service, inMemoryBootstrapModule.getCustomPropertySetService(), config, myMode).parse(
                 "safe_divide(constant(10), constant(20), null)");
 
         Formula formula = service.newFormulaBuilder(myMode).init(node).build();
@@ -1867,7 +1918,7 @@ public class FormulaCrudTest {
         OperationNode operationNode = (OperationNode) myNode;
         assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
         assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
-        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
         assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
         assertThat(operationNode.getChildren().get(2)).isInstanceOf(NullNodeImpl.class);
@@ -1905,7 +1956,7 @@ public class FormulaCrudTest {
         OperationNode operationNode = (OperationNode) myNode;
         assertThat(operationNode.getOperator()).isEqualTo(Operator.SAFE_DIVIDE);
         assertThat(operationNode.getLeftOperand()).isInstanceOf(ConstantNodeImpl.class);
-        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(new BigDecimal(10));
+        assertThat(((ConstantNode) operationNode.getLeftOperand()).getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNodeImpl.class);
         assertThat(((ConstantNode) operationNode.getRightOperand()).getValue()).isEqualTo(new BigDecimal(20));
         assertThat(operationNode.getChildren().get(2)).isInstanceOf(NullNodeImpl.class);
@@ -1914,7 +1965,7 @@ public class FormulaCrudTest {
     @Test(expected = InvalidNodeException.class)
     @Transactional
     public void minimumAggregationOfRequirement() {
-        Optional<ServiceCategory> serviceCategory =inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
@@ -1939,7 +1990,7 @@ public class FormulaCrudTest {
     @Test(expected = InvalidNodeException.class)
     @Transactional
     public void maximumAggregationOfRequirement() {
-        Optional<ServiceCategory> serviceCategory =inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
@@ -1964,7 +2015,7 @@ public class FormulaCrudTest {
     @Test(expected = InvalidNodeException.class)
     @Transactional
     public void averageAggregationOfRequirement() {
-        Optional<ServiceCategory> serviceCategory =inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
@@ -1989,7 +2040,7 @@ public class FormulaCrudTest {
     @Test(expected = InvalidNodeException.class)
     @Transactional
     public void sumAggregationOfRequirement() {
-        Optional<ServiceCategory> serviceCategory =inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
         ServerMetrologyConfigurationService service = getMetrologyConfigurationService();
         MetrologyConfigurationBuilder metrologyConfigurationBuilder =
                 service.newMetrologyConfiguration("config11", serviceCategory.get());
@@ -2055,6 +2106,304 @@ public class FormulaCrudTest {
             // Asserts
             assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.INVALID_ARGUMENTS_AT_LEAST_ONE_CHILD_REQUIRED);
             throw e;
+        }
+    }
+
+    @Test(expected = InvalidNodeException.class)
+    @Transactional
+    public void customPropertySetNotConfiguredOnMetroglogyConfiguration() {
+        Optional<ServiceCategory> serviceCategory =
+                inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        assertThat(config).isNotNull();
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("dummy");
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("customPropertySetNotConfiguredOnMetroglogyConfiguration");
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+
+        try {
+            // Business method
+            builder.property(customPropertySet, propertySpec);
+        } catch (InvalidNodeException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION);
+            throw e;
+        }
+    }
+
+    @Test(expected = InvalidNodeException.class)
+    @Transactional
+    public void customPropertySetNoLongerActive() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("dummy");
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
+        PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
+        when(persistenceSupport.componentName()).thenReturn("TST");
+        when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
+        when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
+        when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
+        when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
+        when(persistenceSupport.module()).thenReturn(Optional.empty());
+        when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPS.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("customPropertySetNoLongerActive");
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
+        when(customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
+        CustomPropertySetService customPropertySetService = inMemoryBootstrapModule.getCustomPropertySetService();
+        customPropertySetService.addCustomPropertySet(customPropertySet);
+        RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId()).get();
+
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        config.addCustomPropertySet(registeredCustomPropertySet);
+        assertThat(config).isNotNull();
+        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+
+        // Now unregister the CustomPropertySet
+        customPropertySetService.removeCustomPropertySet(customPropertySet);
+
+        try {
+            // Business method
+            builder.property(customPropertySet, propertySpec);
+        } catch (InvalidNodeException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE);
+            throw e;
+        }
+    }
+
+    @Test(expected = InvalidNodeException.class)
+    @Transactional
+    public void customPropertySetNotVersioned() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("dummy");
+        PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
+        when(persistenceSupport.componentName()).thenReturn("TST");
+        when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
+        when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
+        when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
+        when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
+        when(persistenceSupport.module()).thenReturn(Optional.empty());
+        when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPS.class);
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("customPropertySetNotVersioned");
+        when(customPropertySet.isVersioned()).thenReturn(false);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
+        when(customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
+        CustomPropertySetService customPropertySetService = inMemoryBootstrapModule.getCustomPropertySetService();
+        customPropertySetService.addCustomPropertySet(customPropertySet);
+        RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId()).get();
+
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        config.addCustomPropertySet(registeredCustomPropertySet);
+        assertThat(config).isNotNull();
+        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+
+        try {
+            // Business method
+            builder.property(customPropertySet, propertySpec);
+        } catch (InvalidNodeException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_SET_NOT_VERSIONED);
+            throw e;
+        }
+    }
+
+    @Test
+    @Transactional
+    public void customProperty() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("dummy");
+        when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
+        PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
+        when(persistenceSupport.componentName()).thenReturn("TST");
+        when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
+        when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
+        when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
+        when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
+        when(persistenceSupport.module()).thenReturn(Optional.empty());
+        when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPS.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("customProperty");
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
+        when(customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
+        CustomPropertySetService customPropertySetService = inMemoryBootstrapModule.getCustomPropertySetService();
+        customPropertySetService.addCustomPropertySet(customPropertySet);
+        RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId()).get();
+
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        config.addCustomPropertySet(registeredCustomPropertySet);
+        assertThat(config).isNotNull();
+        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+
+        // Business method
+        FormulaBuilder property = builder.property(customPropertySet, propertySpec);
+        ReadingTypeDeliverable deliverable = builder.build(property);
+
+        // Asserts
+        assertThat(property).isNotNull();
+        assertThat(deliverable).isNotNull();
+    }
+
+    @Test
+    @Transactional
+    public void quantityCustomProperty() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("quantity");
+        when(propertySpec.getValueFactory()).thenReturn(new QuantityValueFactory());
+        PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
+        when(persistenceSupport.componentName()).thenReturn("TST");
+        when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
+        when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
+        when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
+        when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
+        when(persistenceSupport.module()).thenReturn(Optional.empty());
+        when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPSWithStringProperty.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("customPropertySetNoLongerActive");
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
+        when(customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
+        CustomPropertySetService customPropertySetService = inMemoryBootstrapModule.getCustomPropertySetService();
+        customPropertySetService.addCustomPropertySet(customPropertySet);
+        RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId()).get();
+
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        config.addCustomPropertySet(registeredCustomPropertySet);
+        assertThat(config).isNotNull();
+        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+
+        // Business method
+        FormulaBuilder property = builder.property(customPropertySet, propertySpec);
+        ReadingTypeDeliverable deliverable = builder.build(property);
+
+        // Asserts
+        assertThat(property).isNotNull();
+        assertThat(deliverable).isNotNull();
+    }
+
+    @Test(expected = InvalidNodeException.class)
+    @Transactional
+    public void nonNumericalCustomProperty() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn("dummy");
+        when(propertySpec.getValueFactory()).thenReturn(new StringFactory());
+        PersistenceSupport persistenceSupport = mock(PersistenceSupport.class);
+        when(persistenceSupport.componentName()).thenReturn("TST");
+        when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
+        when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
+        when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
+        when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
+        when(persistenceSupport.module()).thenReturn(Optional.empty());
+        when(persistenceSupport.persistenceClass()).thenReturn(UsagePointCPSWithStringProperty.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getId()).thenReturn("customPropertySetNoLongerActive");
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(customPropertySet.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(customPropertySet.getDomainClass()).thenReturn(UsagePoint.class);
+        when(customPropertySet.getPersistenceSupport()).thenReturn(persistenceSupport);
+        CustomPropertySetService customPropertySetService = inMemoryBootstrapModule.getCustomPropertySetService();
+        customPropertySetService.addCustomPropertySet(customPropertySet);
+        RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId()).get();
+
+        Optional<ServiceCategory> serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY);
+        ServerMetrologyConfigurationService service = this.getMetrologyConfigurationService();
+        MetrologyConfigurationBuilder metrologyConfigurationBuilder = service.newMetrologyConfiguration("config12", serviceCategory.get());
+        MetrologyConfiguration config = metrologyConfigurationBuilder.create();
+        config.addCustomPropertySet(registeredCustomPropertySet);
+        assertThat(config).isNotNull();
+        ReadingType AplusRT = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "AplusRT");
+        ReadingTypeDeliverableBuilder builder = config.newReadingTypeDeliverable("Del1", AplusRT, Formula.Mode.AUTO);
+
+        try {
+            // Business method
+            FormulaBuilder property = builder.property(customPropertySet, propertySpec);
+            ReadingTypeDeliverable deliverable = builder.build(property);
+        } catch (InvalidNodeException e) {
+            // Asserts
+            assertThat(e.getMessageSeed()).isEqualTo(MessageSeeds.CUSTOM_PROPERTY_MUST_BE_NUMERICAL);
+            throw e;
+        }
+    }
+
+    private static class UsagePointCPS implements PersistentDomainExtension<UsagePoint> {
+        @NotNull
+        @SuppressWarnings("unused")
+        private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
+        @NotNull
+        @SuppressWarnings("unused")
+        private Reference<UsagePoint> usagePoint = ValueReference.absent();
+        private Interval interval;
+        private BigDecimal dummy;
+
+        @Override
+        public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+        }
+
+        @Override
+        public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
+        }
+
+        @Override
+        public void validateDelete() {
+        }
+    }
+
+    private static class UsagePointCPSWithStringProperty implements PersistentDomainExtension<UsagePoint> {
+        @NotNull
+        @SuppressWarnings("unused")
+        private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
+        @NotNull
+        @SuppressWarnings("unused")
+        private Reference<UsagePoint> usagePoint = ValueReference.absent();
+        private Interval interval;
+        @Size(max = 125)
+        private String dummy;
+
+        @Override
+        public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
+        }
+
+        @Override
+        public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
+        }
+
+        @Override
+        public void validateDelete() {
         }
     }
 

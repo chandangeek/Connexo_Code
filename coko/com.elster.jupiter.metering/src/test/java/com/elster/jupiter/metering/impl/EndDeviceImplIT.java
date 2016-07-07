@@ -17,15 +17,9 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -36,6 +30,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -43,7 +45,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceImplIT {
     private static Clock clock = mock(Clock.class);
-    static MeteringInMemoryBootstrapModule inMemoryPersistentModule = new MeteringInMemoryBootstrapModule(clock, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+    static MeteringInMemoryBootstrapModule inMemoryPersistentModule = MeteringInMemoryBootstrapModule.withClockAndReadingTypes(clock, "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
 
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(inMemoryPersistentModule.getTransactionService());

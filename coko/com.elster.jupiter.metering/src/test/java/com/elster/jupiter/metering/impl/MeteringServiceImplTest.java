@@ -83,9 +83,7 @@ public class MeteringServiceImplTest {
         when(dataModel.mapper(ReadingType.class)).thenReturn(readingTypeFactory);
         when(dataModel.mapper(ServiceLocation.class)).thenReturn(serviceLocationFactory);
         when(dataModel.mapper(ServiceCategory.class)).thenReturn(serviceCategoryTypeCache);
-        meteringService = new MeteringServiceImpl();
-        meteringService.setOrmService(ormService);
-        meteringService.setIdsService(idsService);
+        meteringService = new MeteringServiceImpl(null, dataModel, null, null, idsService, null, null, null, null, null);
     }
 
     @After
@@ -160,7 +158,7 @@ public class MeteringServiceImplTest {
     @Test
     public void testTranslationKeys() {
         Set<String> uniqueKeys = new HashSet<>();
-        for (TranslationKey entry : meteringService.getKeys()) {
+        for (TranslationKey entry : new MeteringDataModelServiceImpl().getKeys()) {
             String key = entry.getKey();
             String defaultFormat = entry.getDefaultFormat();
             String translation = "Translation (" + key + "=" + defaultFormat + ")";

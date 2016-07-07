@@ -14,13 +14,13 @@ public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements Read
     static final String TYPE_IDENTIFIER = "DEL";
 
     // For ORM layer
-    @SuppressWarnings("unused")
-    public ReadingTypeDeliverableNodeImpl() {}
+    public ReadingTypeDeliverableNodeImpl() {
+    }
 
     private Reference<ReadingTypeDeliverable> readingTypeDeliverable = ValueReference.absent();
 
     public ReadingTypeDeliverableNodeImpl(ReadingTypeDeliverable readingTypeDeliverable) {
-        super();
+        this();
         this.readingTypeDeliverable.set(readingTypeDeliverable);
     }
 

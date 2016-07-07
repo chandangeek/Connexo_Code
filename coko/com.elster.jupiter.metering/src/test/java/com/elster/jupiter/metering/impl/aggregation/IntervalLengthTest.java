@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
@@ -643,49 +644,53 @@ public class IntervalLengthTest {
         assertThat(intervalLength).isEqualTo(IntervalLength.MONTH1);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void seasonIsNotSupported() {
+    public void seasonIsNotRegular() {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.SEASONAL);
 
         // Business method
-        IntervalLength.from(readingType);
+        IntervalLength intervalLength = IntervalLength.from(readingType);
 
-        // Asserts: see expected exception rule
+        // Asserts
+        assertThat(intervalLength).isNotNull();
+        assertThat(intervalLength).isEqualTo(IntervalLength.NOT_SUPPORTED);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void billingPeriodIsNotSupported() {
+    public void billingPeriodIsNotRegular() {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.BILLINGPERIOD);
 
         // Business method
-        IntervalLength.from(readingType);
+        IntervalLength intervalLength = IntervalLength.from(readingType);
 
-        // Asserts: see expected exception rule
+        // Asserts
+        assertThat(intervalLength).isNotNull();
+        assertThat(intervalLength).isEqualTo(IntervalLength.NOT_SUPPORTED);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void specifiedPeriodIsNotSupported() {
+    public void specifiedPeriodIsNotRegular() {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.SPECIFIEDPERIOD);
 
         // Business method
-        IntervalLength.from(readingType);
+        IntervalLength intervalLength = IntervalLength.from(readingType);
 
-        // Asserts: see expected exception rule
+        // Asserts
+        assertThat(intervalLength).isNotNull();
+        assertThat(intervalLength).isEqualTo(IntervalLength.NOT_SUPPORTED);
     }
 
-    @Test(expected = IllegalArgumentException.class)
     public void specifiedIntervalIsNotSupported() {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.SPECIFIEDINTERVAL);
 
         // Business method
-        IntervalLength.from(readingType);
+        IntervalLength intervalLength = IntervalLength.from(readingType);
 
-        // Asserts: see expected exception rule
+        // Asserts
+        assertThat(intervalLength).isNotNull();
+        assertThat(intervalLength).isEqualTo(IntervalLength.NOT_SUPPORTED);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -736,16 +741,18 @@ public class IntervalLengthTest {
         // Asserts: see expected exception rule
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void notEnoughDetails() {
+    public void register() {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
+        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
 
         // Business method
-        IntervalLength.from(readingType);
+        IntervalLength intervalLength = IntervalLength.from(readingType);
 
-        // Asserts: see expected exception rule
+        // Asserts
+        assertThat(intervalLength).isNotNull();
+        assertThat(intervalLength).isEqualTo(IntervalLength.NOT_SUPPORTED);
     }
 
     @Test
@@ -822,8 +829,8 @@ public class IntervalLengthTest {
                 IntervalLength.HOUR4,
                 IntervalLength.HOUR6,
                 IntervalLength.HOUR12)
-            .stream()
-            .forEach(this::doFlowVolumeConversionFactorForHourOrLess);
+                .stream()
+                .forEach(this::doFlowVolumeConversionFactorForHourOrLess);
     }
 
     private void doFlowVolumeConversionFactorForHourOrLess(IntervalLength intervalLength) {

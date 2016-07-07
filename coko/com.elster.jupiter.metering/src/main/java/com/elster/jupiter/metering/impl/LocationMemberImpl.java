@@ -1,14 +1,16 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
 
 import javax.inject.Inject;
 import java.time.Instant;
 
 
 public class LocationMemberImpl implements LocationMember {
-    private long locationId;
+    private Reference<Location> location = Reference.empty();
     private String countryCode;
     private String countryName;
     private String administrativeArea;
@@ -33,7 +35,7 @@ public class LocationMemberImpl implements LocationMember {
         this.dataModel = dataModel;
     }
 
-    LocationMemberImpl init(long locationId,
+    LocationMemberImpl init(Location location,
                             String countryCode,
                             String countryName,
                             String administrativeArea,
@@ -50,7 +52,7 @@ public class LocationMemberImpl implements LocationMember {
                             boolean defaultLocation,
                             String locale) {
 
-        this.locationId = locationId;
+        this.location.set(location);
         this.countryCode = countryCode;
         this.countryName = countryName;
         this.administrativeArea = administrativeArea;
@@ -70,7 +72,7 @@ public class LocationMemberImpl implements LocationMember {
     }
 
     static LocationMemberImpl from(DataModel dataModel,
-                                   long locationId,
+                                   Location location,
                                    String countryCode,
                                    String countryName,
                                    String administrativeArea,
@@ -86,14 +88,16 @@ public class LocationMemberImpl implements LocationMember {
                                    String zipCode,
                                    boolean defaultLocation,
                                    String locale) {
-        return dataModel.getInstance(LocationMemberImpl.class).init(locationId,countryCode, countryName, administrativeArea, locality, subLocality,
+        return dataModel.getInstance(LocationMemberImpl.class).init(location, countryCode, countryName, administrativeArea, locality, subLocality,
                 streetType, streetName, streetNumber, establishmentType, establishmentName, establishmentNumber, addressDetail, zipCode,
                 defaultLocation, locale);
     }
 
 
     @Override
-    public long getLocationId() {return locationId;}
+    public long getLocationId() {
+        return location.get().getId();
+    }
 
     @Override
     public String getCountryCode() {
@@ -190,15 +194,10 @@ public class LocationMemberImpl implements LocationMember {
         dataModel.mapper(LocationMember.class).persist(this);
     }
 
-    private boolean hasId() {
-        return locationId!= 0L;
-    }
 
     @Override
     public void remove() {
-        if (hasId()) {
             dataModel.mapper(LocationMember.class).remove(this);
-        }
     }
 
 
