@@ -414,7 +414,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         final TimeDuration newDelayAfterConnect = new TimeDuration(30);
         final TimeDuration newDelayBeforeSend = new TimeDuration(2);
         final TimeDuration newAtCommandTimeout = new TimeDuration(10);
-        final BigDecimal newAtCommandTry = new BigDecimal(10);
+        final BigDecimal newAtCommandTry = BigDecimal.TEN;
         final List<String> newModemInitStrings = new ArrayList<String>() {{
             add("ATM1");
         }};
