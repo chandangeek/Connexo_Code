@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import java.io.File;
+import java.net.URI;
 
 /**
  * This endpoint manager knows how to set up and tear down an inbound SOAP endpoint. Features are added as configured on the endpoint configuration.
@@ -67,8 +68,7 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
             svrFactory.setAddress(endPointConfiguration.getUrl());
             svrFactory.setServiceBean(implementor);
             if (endPointConfiguration.isTracing()) {
-                String logFile = "file:" + logDirectory + File.separator + endPointConfiguration.getTraceFile();
-                svrFactory.getFeatures().add(new LoggingFeature(logFile, logFile));
+                svrFactory.getFeatures().add(new TracingFeature(logDirectory, endPointConfiguration.getTraceFile()));
             }
             if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
                 svrFactory.getInInterceptors()

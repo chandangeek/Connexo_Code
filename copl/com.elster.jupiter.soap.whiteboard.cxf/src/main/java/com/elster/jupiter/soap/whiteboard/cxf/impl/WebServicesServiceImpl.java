@@ -31,6 +31,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -249,6 +250,9 @@ public class WebServicesServiceImpl implements WebServicesService {
         String logDirectory = this.bundleContext.getProperty("com.elster.jupiter.webservices.log.directory");
         if (logDirectory == null) {
             logDirectory = System.getProperty("java.io.tmpdir");
+        }
+        if(!logDirectory.endsWith(File.separator)){
+            logDirectory=logDirectory + File.separator;
         }
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME), dataModel,
