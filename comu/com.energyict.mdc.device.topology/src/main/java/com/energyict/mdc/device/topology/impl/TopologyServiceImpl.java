@@ -343,7 +343,6 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         if (existingGatewayReference.isPresent()) {
             throw DataLoggerLinkException.slaveWasAlreadyLinkedToOtherDatalogger(thesaurus, slave, existingGatewayReference.get().getGateway(), linkingDate);
         }
-        existingGatewayReference.ifPresent(r -> terminateTemporal(r, linkingDate));
         validateUniqueKeyConstraintForDataloggerReference(dataLogger, linkingDate, slave);
         final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, linkingDate);
         slaveDataLoggerChannelMap.forEach((slaveChannel, dataLoggerChannel) -> this.addChannelDataLoggerUsage(dataLoggerReference, slaveChannel, dataLoggerChannel));
