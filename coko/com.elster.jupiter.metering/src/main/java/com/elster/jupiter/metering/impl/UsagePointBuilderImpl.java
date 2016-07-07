@@ -66,7 +66,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordinates){
+    public UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordinates) {
         this.spatialCoordinates = geoCoordinates;
         return this;
     }
@@ -126,7 +126,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public LocationBuilder newLocationBuilder(){
+    public LocationBuilder newLocationBuilder() {
         return new LocationBuilderImpl(dataModel);
     }
 

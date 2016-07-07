@@ -1,4 +1,5 @@
 package com.elster.jupiter.metering;
+
 import java.util.Optional;
 
 public interface LocationService {
