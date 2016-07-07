@@ -221,7 +221,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         return this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile);
     }
 
-    private void setAllLoadProfileChannels(final List<OfflineLoadProfileChannel> allLoadProfileChannels) {
+    protected void setAllLoadProfileChannels(final List<OfflineLoadProfileChannel> allLoadProfileChannels) {
         this.allLoadProfileChannels = allLoadProfileChannels;
     }
 

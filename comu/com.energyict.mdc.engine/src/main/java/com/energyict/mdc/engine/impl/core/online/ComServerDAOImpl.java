@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.online;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
@@ -92,6 +93,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
 
 /**
  * Provides a default implementation for the {@link ComServerDAO} interface
@@ -685,11 +687,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LoadProfileIdentifier loadProfileIdentifier) {
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(loadProfileIdentifier.findLoadProfile().getDevice());
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public DeviceIdentifier<Device> getDeviceIdentifierFor(LogBookIdentifier logBookIdentifier) {
         return this.serviceProvider.identificationService().createDeviceIdentifierForAlreadyKnownDevice(((LogBook) logBookIdentifier.getLogBook()).getDevice());
     }
@@ -809,9 +813,23 @@ public class ComServerDAOImpl implements ComServerDAO {
                     if (!dataLoggerChannelUsages.isEmpty()){
                         dataLoggerChannelUsages.forEach(usage -> {
                             Device slave = usage.getDataLoggerReference().getOrigin();
-                            Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
+                            List<? extends ReadingType> slaveChannelReadingTypes = usage.getSlaveChannel().getReadingTypes();
+                            Optional<Channel> slaveChannel = slave.getChannels().stream().filter((c) -> slaveChannelReadingTypes.contains(c.getReadingType())).findFirst();
                             if (slaveChannel.isPresent()) {
-                               linkedOffLineLoadProfiles.add(Pair.of(new OfflineLoadProfileImpl(slaveChannel.get().getLoadProfile(), this.serviceProvider.topologyService(),this.serviceProvider.identificationService()), usage.getRange().intersection(dataPeriod)));
+                               OfflineLoadProfile dataLoggerSlaveOfflineLoadProfile = new OfflineLoadProfileImpl(slaveChannel.get().getLoadProfile(), this.serviceProvider.topologyService(),this.serviceProvider.identificationService()){
+                                   protected void goOffline() {
+                                       super.goOffline();
+                                       // To avoid to have to retrieve the involved slave channels again
+                                       setAllLoadProfileChannels(convertToOfflineChannels(Collections.singletonList(slaveChannel.get())));
+                                   }
+
+                                   @Override
+                                   public boolean isDataLoggerSlaveLoadProfile() {
+                                       return true;
+                                   }
+                               };
+
+                               linkedOffLineLoadProfiles.add(Pair.of(dataLoggerSlaveOfflineLoadProfile, usage.getRange().intersection(dataPeriod)));
                             }
                         });
                     }

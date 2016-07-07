@@ -15,6 +15,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 
 import com.google.common.collect.Range;
 
@@ -152,10 +153,17 @@ public class PreStoreLoadProfile {
         }
 
         protected IntervalBlock processBlock(IntervalBlock intervalBlock, ChannelInfo channelInfo,  Range<Instant> rangeToProcess){
-            Unit configuredUnit = mdcReadingTypeUtilService.getMdcUnitFor(channelInfo.getReadingTypeMRID());
-            int scaler = getScaler(channelInfo.getUnit(), configuredUnit);
-            BigDecimal multiplier = channelInfo.getMultiplier();
-            IntervalBlockImpl processingBlock = IntervalBlockImpl.of(channelInfo.getReadingTypeMRID());
+            return this.processBlock(intervalBlock, channelInfo.getReadingTypeMRID(), channelInfo.getUnit(), channelInfo.getMultiplier(), rangeToProcess);
+        }
+
+        protected IntervalBlock processBlock(IntervalBlock intervalBlock, OfflineLoadProfileChannel offlineChannel, BigDecimal multiplier, Range<Instant> rangeToProcess){
+             return this.processBlock(intervalBlock, offlineChannel.getReadingType().getMRID(), offlineChannel.getUnit(), multiplier, rangeToProcess);
+         }
+
+        private IntervalBlock processBlock(IntervalBlock intervalBlock, String readingTypeMRID, Unit unit, BigDecimal multiplier,  Range<Instant> rangeToProcess){
+            Unit configuredUnit = mdcReadingTypeUtilService.getMdcUnitFor(readingTypeMRID);
+            int scaler = getScaler(unit, configuredUnit);
+            IntervalBlockImpl processingBlock = IntervalBlockImpl.of(readingTypeMRID);
             for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
                 if (rangeToProcess.contains(intervalReading.getTimeStamp())) {
                     IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
@@ -202,12 +210,6 @@ public class PreStoreLoadProfile {
             }
         }
 
-//        final protected void updateLastReadingIfLater(IntervalReading intervalReading) {
-//            if (this.lastReading == null || intervalReading.getTimeStamp().isAfter(this.lastReading)) {
-//                this.lastReading = intervalReading.getTimeStamp();
-//            }
-//        }
-
         final protected void checkIfYouHaveAnEmptyChannel(List<IntervalBlock> processedBlocks) {
             final Optional<IntervalBlock> blockWithNoIntervals = processedBlocks.stream().filter(intervalBlock -> intervalBlock.getIntervals().isEmpty()).findAny();
             if (blockWithNoIntervals.isPresent()) {
@@ -232,8 +234,16 @@ public class PreStoreLoadProfile {
             for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
                 IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
                 ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
+                String readingType = channelInfo.getReadingTypeMRID();
                 comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), getRangeForNewIntervalStorage(intervalStorageEnd)).forEach(pair -> {
-                    IntervalBlock processed = processBlock(intervalBlock, channelInfo, pair.getLast());
+                    IntervalBlock processed = null;
+                    if (pair.getFirst().isDataLoggerSlaveLoadProfile()) {
+                        OfflineLoadProfileChannel offlineLoadProfileChannel = pair.getFirst().getAllChannels().get(0);
+                        processed = processBlock(intervalBlock, offlineLoadProfileChannel, channelInfo.getMultiplier(), pair.getLast());
+                    }
+                    if (processed == null){
+                        processed = processBlock(intervalBlock, channelInfo, pair.getLast());
+                    }
                     if (!processed.getIntervals().isEmpty()) {
                         PreStoredLoadProfile preStoredLoadProfile = findOrCreatePreStoredLoadProfile(pair.getFirst());
                         if (preStoredLoadProfile.addIntervalBlock(processed)){
