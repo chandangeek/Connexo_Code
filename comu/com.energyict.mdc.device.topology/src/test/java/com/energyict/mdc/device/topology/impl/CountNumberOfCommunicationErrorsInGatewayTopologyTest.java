@@ -31,6 +31,8 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -51,6 +53,8 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -160,6 +164,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new MockModule(),
                 this.bootstrapModule,
                 new ThreadSecurityModule(principal),
+                new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new EventsModule(),
                 new PubSubModule(),
@@ -201,7 +206,10 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(EventService.class);
+            injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
             injector.getInstance(OrmService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MasterDataService.class);
