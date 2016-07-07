@@ -15,9 +15,11 @@ import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
 import com.elster.jupiter.estimators.AbstractEstimator;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -46,7 +48,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.streams.Predicates.either;
+
 
 class EqualDistribution extends AbstractEstimator implements Estimator {
     static final String ADVANCE_READINGS_SETTINGS = TranslationKeys.ADVANCE_READINGS_SETTINGS.getKey();
@@ -409,6 +411,10 @@ class EqualDistribution extends AbstractEstimator implements Estimator {
                         .findFirst()
                         .isPresent())
                 .flatMap(baseReadingRecord -> Optional.ofNullable(baseReadingRecord.getValue()));
+    }
+
+    private boolean isOverflow(IntervalReadingRecord intervalReadingRecord) {
+        return intervalReadingRecord.hasReadingQuality(ProtocolReadingQualities.OVERFLOW.getReadingQualityType());
     }
 
     @Override
