@@ -7,7 +7,6 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -150,14 +149,6 @@ public class FilteredReadingTest {
     @Test
     public void testGetValues() {
         assertThat(filteredReading.getQuantities()).isEqualTo(Arrays.asList(VALUE2, VALUE4, VALUE1));
-    }
-
-    @Test
-    public void testGetProfileStatus() {
-        ProfileStatus profileStatus = ProfileStatus.of(ProfileStatus.Flag.BADTIME);
-        when(source.getProfileStatus()).thenReturn(ProfileStatus.of(ProfileStatus.Flag.BADTIME));
-
-        assertThat(filteredReading.getProfileStatus()).isEqualTo(profileStatus);
     }
 
 }

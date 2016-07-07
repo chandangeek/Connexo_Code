@@ -55,7 +55,7 @@ class ApplyCurrentAndOrVoltageTransformer implements ServerExpressionNode.Visito
     }
 
     private boolean readingTypeIsElectricity(ReadingType readingType) {
-        Commodity commodity = VirtualReadingType.from(readingType).getCommodity();
+        Commodity commodity = readingType.getCommodity();
         return EnumSet.of(
                 Commodity.ELECTRICITY_PRIMARY_METERED,
                 Commodity.ELECTRICITY_SECONDARY_METERED)

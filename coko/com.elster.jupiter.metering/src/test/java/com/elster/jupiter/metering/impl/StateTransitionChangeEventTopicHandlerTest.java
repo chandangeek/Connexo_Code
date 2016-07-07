@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
@@ -10,7 +9,6 @@ import com.elster.jupiter.metering.MeteringService;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -19,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,8 +40,6 @@ public class StateTransitionChangeEventTopicHandlerTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private Query endDeviceQuery;
-    @Mock
     private LocalEvent localEvent;
     @Mock
     private StateTransitionChangeEvent event;
@@ -61,8 +57,6 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.event.getNewState()).thenReturn(this.state);
         when(this.meteringService.findEndDevice(MISSING_END_DEVICE_MRID)).thenReturn(Optional.<EndDevice>empty());
         when(this.meteringService.findEndDevice(END_DEVICE_MRID)).thenReturn(Optional.of(this.endDevice));
-        when(this.meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
-        when(this.endDeviceQuery.select(any())).thenReturn(Collections.singletonList(endDevice));
         when(this.endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(this.endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
     }
@@ -73,7 +67,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
         this.getTestInstance().handle(this.localEvent);
 
         // Asserts
-        verify(this.endDeviceQuery).select(any());
+        verify(this.meteringService).findEndDevice(anyString());
     }
 
     @Test

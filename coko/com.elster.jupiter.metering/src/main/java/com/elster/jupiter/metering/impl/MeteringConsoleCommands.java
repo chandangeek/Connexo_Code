@@ -6,7 +6,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
 import com.elster.jupiter.metering.Meter;
@@ -39,6 +38,8 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -403,8 +404,9 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             EndDevice endDevice = meteringService.findEndDevice(mRID)
                     .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
-            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude + ":" + elevation);
-            endDevice.setGeoCoordinates(geoCoordinates);
+
+            SpatialCoordinates spatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(latitude + ":" + longitude + ":" + elevation);
+            endDevice.setSpatialCoordinates(spatialCoordinates);
             endDevice.update();
             context.commit();
         }
@@ -420,8 +422,8 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
                     .orElseThrow(() -> new RuntimeException("No usage point with mRID " + mRID + "!"));
-            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude + ":" + elevation);
-            usagePoint.setGeoCoordinates(geoCoordinates);
+            SpatialCoordinates spatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(latitude + ":" + longitude + ":" + elevation);
+            usagePoint.setSpatialCoordinates(spatialCoordinates);
             usagePoint.update();
             context.commit();
         }
@@ -454,8 +456,8 @@ public class MeteringConsoleCommands {
         } else {
             IntStream.range(0, args.length)
                     .forEach(i -> location.put(templateElements.get(i), args[i]));
-            LocationBuilder builder = meteringService.newLocationBuilder();
-            Optional<LocationMemberBuilder> memberBuilder = builder.getMember(location.get("locale"));
+            LocationBuilder builder = new LocationBuilderImpl(dataModel);
+            Optional<LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(location.get("locale"));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), location);
 

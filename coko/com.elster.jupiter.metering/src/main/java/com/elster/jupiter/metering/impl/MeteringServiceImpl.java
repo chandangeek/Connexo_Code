@@ -13,10 +13,8 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
@@ -56,7 +54,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
@@ -71,8 +68,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -583,93 +578,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
-    public LocationBuilder newLocationBuilder() {
-        return new LocationBuilderImpl(dataModel);
-    }
-
-
-    @Override
-    public Optional<Location> findLocation(long id) {
-        return dataModel.mapper(Location.class).getOptional(id);
-    }
-
-    @Override
-    public List<List<String>> getFormattedLocationMembers(long id) {
-        Optional<Location> optional = dataModel.mapper(Location.class).getOptional(id);
-        List<List<String>> formattedLocation = new LinkedList<>();
-        if (optional.isPresent() && !optional.get().getMembers().isEmpty()) {
-            LocationMember member = optional.get().getMembers().get(0);
-            Map<String, String> memberValues = new LinkedHashMap<>();
-            memberValues.put("countryCode", member.getCountryCode());
-            memberValues.put("countryName", member.getCountryName());
-            memberValues.put("administrativeArea", member.getAdministrativeArea());
-            memberValues.put("locality", member.getLocality());
-            memberValues.put("subLocality", member.getSubLocality());
-            memberValues.put("streetType", member.getStreetType());
-            memberValues.put("streetName", member.getStreetName());
-            memberValues.put("streetNumber", member.getStreetNumber());
-            memberValues.put("establishmentType", member.getEstablishmentType());
-            memberValues.put("establishmentName", member.getEstablishmentName());
-            memberValues.put("establishmentNumber", member.getEstablishmentNumber());
-            memberValues.put("addressDetail", member.getAddressDetail());
-            memberValues.put("zipCode", member.getZipCode());
-
-            formattedLocation = locationTemplate.getTemplateMembers()
-                    .stream()
-                    .sorted((m1, m2) -> Integer.compare(m1.getRanking(), m2.getRanking()))
-                    .filter(m -> !"locale".equalsIgnoreCase(m.getName()))
-                    .collect(() -> {
-                                List<List<String>> list = new ArrayList<>();
-                                list.add(new ArrayList<>());
-                                return list;
-                            },
-                            (list, s) -> {
-                                if (locationTemplate.getSplitLineElements().contains(s.getAbbreviation())) {
-                                    list.add(new ArrayList<String>() {{
-                                        add(memberValues.get(s.getName()));
-                                    }});
-
-                                } else {
-                                    list.get(list.size() - 1).add(memberValues.get(s.getName()));
-                                }
-                            },
-                            (list1, list2) -> {
-                                list1.get(list1.size() - 1).addAll(list2.remove(0));
-                                list1.addAll(list2);
-                            });
-        }
-
-        return formattedLocation;
-    }
-
-    @Override
-    public Optional<Location> findDeviceLocation(String mRID) {
-        return findMeter(mRID).isPresent() ? findMeter(mRID).get().getLocation() : Optional.empty();
-    }
-
-    @Override
-    public Optional<Location> findDeviceLocation(long id) {
-        return findMeter(id).isPresent() ? findMeter(id).get().getLocation() : Optional.empty();
-    }
-
-    @Override
-    public Optional<Location> findUsagePointLocation(String mRID) {
-        return findUsagePoint(mRID).isPresent() ? findUsagePoint(mRID).get().getLocation() : Optional.empty();
-    }
-
-    @Override
-    public Optional<Location> findUsagePointLocation(long id) {
-        return findUsagePoint(id).isPresent() ? findUsagePoint(id).get().getLocation() : Optional.empty();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Query<LocationMember> getLocationMemberQuery() {
-        QueryExecutor<?> executor = dataModel.query(LocationMember.class);
-        return queryService.wrap((QueryExecutor<LocationMember>) executor);
-    }
-
-    @Override
     public void createLocationTemplate() {
         LocationTemplateImpl.from(dataModel, locationTemplate.getTemplateFields(), locationTemplate.getMandatoryFields())
                 .doSave();
@@ -716,48 +624,6 @@ public class MeteringServiceImpl implements ServerMeteringService {
         locationTemplate = new LocationTemplateImpl(dataModel).init(locationElements, locationElements);
         locationTemplate
                 .parseTemplate(locationElements, locationElements);
-    }
-
-    @Override
-    public GeoCoordinates createGeoCoordinates(String coordinates) {
-        GeoCoordinatesImpl geoCoordinates = GeoCoordinatesImpl
-                .from(dataModel, new SpatialCoordinatesFactory().fromStringValue(coordinates));
-        geoCoordinates.doSave();
-        return geoCoordinates;
-    }
-
-    @Override
-    public Optional<GeoCoordinates> findGeoCoordinates(long id) {
-        return dataModel.mapper(GeoCoordinates.class).getOptional(id);
-    }
-
-
-    @Override
-    public Optional<GeoCoordinates> findDeviceGeoCoordinates(String mRID) {
-        return findMeter(mRID).isPresent() ? findMeter(mRID).get().getGeoCoordinates() : Optional.empty();
-    }
-
-
-    @Override
-    public Optional<GeoCoordinates> findDeviceGeoCoordinates(long id) {
-        return findMeter(id).isPresent() ? findMeter(id).get().getGeoCoordinates() : Optional.empty();
-    }
-
-    @Override
-    public Optional<GeoCoordinates> findUsagePointGeoCoordinates(String mRID) {
-        return findUsagePoint(mRID).isPresent() ? findUsagePoint(mRID).get().getGeoCoordinates() : Optional.empty();
-    }
-
-    @Override
-    public Optional<GeoCoordinates> findUsagePointGeoCoordinates(long id) {
-        return findUsagePoint(id).isPresent() ? findUsagePoint(id).get().getGeoCoordinates() : Optional.empty();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Query<GeoCoordinates> getGeoCoordinatesQuery() {
-        QueryExecutor<?> executor = dataModel.query(GeoCoordinates.class);
-        return queryService.wrap((QueryExecutor<GeoCoordinates>) executor);
     }
 
     @Override

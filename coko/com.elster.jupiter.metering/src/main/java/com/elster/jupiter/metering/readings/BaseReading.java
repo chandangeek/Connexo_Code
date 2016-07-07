@@ -1,5 +1,7 @@
 package com.elster.jupiter.metering.readings;
 
+import com.elster.jupiter.metering.ReadingQualityType;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -15,4 +17,13 @@ public interface BaseReading {
 	String getSource();
 	Optional<Range<Instant>> getTimePeriod();
 	List<? extends ReadingQuality> getReadingQualities();
+
+	default boolean hasReadingQuality(ReadingQualityType readingQualityType) {
+		for (ReadingQuality readingQuality : getReadingQualities()) {
+			if (readingQuality.getTypeCode().equals(readingQualityType.getCode())) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

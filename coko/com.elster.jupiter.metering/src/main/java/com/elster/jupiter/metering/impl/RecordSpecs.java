@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 
@@ -33,17 +32,13 @@ public enum RecordSpecs {
             recordSpec.addFieldSpec(VALUE, NUMBER);
         }
 
-        private Object[] toArray(BaseReading reading, ProcessStatus status) {
-            Object[] result = new Object[3];
-            result[0] = status.getBits();
-            if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
-                result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
-            } else {
-                result[1] = 0L;
-            }
-            result[2] = reading.getValue();
-            return result;
-        }
+		private Object[] toArray(BaseReading reading, ProcessStatus status) {
+			Object[] result = new Object[3];
+			result[0] = status.getBits();
+			result[1] = 0L;			////The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
+			result[2] = reading.getValue();
+			return result;
+		}
 
         @Override
         Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
@@ -71,21 +66,17 @@ public enum RecordSpecs {
             recordSpec.addFieldSpec(BULK, NUMBER);
         }
 
-        @Override
-        Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
-            if (slotIndex != 0 && slotIndex != 1) {
-                throw new IllegalArgumentException();
-            }
-            Object[] result = new Object[4];
-            result[0] = status.getBits();
-            if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
-                result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
-            } else {
-                result[1] = 0L;
-            }
-            result[2 + slotIndex] = reading.getValue();
-            return result;
-        }
+		@Override
+		Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
+			if (slotIndex != 0 && slotIndex != 1) {
+				throw new IllegalArgumentException();
+			}
+			Object[] result = new Object[4];
+			result[0] = status.getBits();
+			result[1] = 0L;			//The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
+			result[2 + slotIndex] = reading.getValue();
+			return result;
+		}
 
         @Override
         int slotOffset() {
@@ -108,21 +99,17 @@ public enum RecordSpecs {
             recordSpec.addFieldSpec("Value6", NUMBER);
         }
 
-        @Override
-        Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
-            if (slotIndex < 0 || slotIndex > 5) {
-                throw new IllegalArgumentException();
-            }
-            Object[] result = new Object[8];
-            result[0] = status.getBits();
-            if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
-                result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
-            } else {
-                result[1] = 0L;
-            }
-            result[2 + slotIndex] = reading.getValue();
-            return result;
-        }
+		@Override
+		Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
+			if (slotIndex < 0 || slotIndex > 5) {
+				throw new IllegalArgumentException();
+			}
+			Object[] result = new Object[8];
+			result[0] = status.getBits();
+			result[1] = 0L;			//The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
+			result[2 + slotIndex] = reading.getValue();
+			return result;
+		}
 
         @Override
         int slotOffset() {
@@ -283,11 +270,7 @@ public enum RecordSpecs {
             }
             Object[] result = new Object[4];
             result[0] = status.getBits();
-            if (reading instanceof IntervalReading && ((IntervalReading) reading).getProfileStatus() != null) {
-                result[1] = ((IntervalReading) reading).getProfileStatus().getBits();
-            } else {
-                result[1] = 0L;
-            }
+			result[1] = 0L;			//The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
             result[2 + slotIndex] = reading.getValue();
             return result;
         }

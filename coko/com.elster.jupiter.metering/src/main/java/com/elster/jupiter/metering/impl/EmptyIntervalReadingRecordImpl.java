@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
@@ -19,19 +18,12 @@ public class EmptyIntervalReadingRecordImpl extends IntervalReadingRecordImpl {
 
     private Instant timeStamp;
     private ReadingType readingType;
-    private ProfileStatus profileStatus;
 
     EmptyIntervalReadingRecordImpl(ReadingType readingType, Instant timeStamp) {
-        super(null, null);
-        this.timeStamp = timeStamp;
-        this.readingType = readingType;
-        this.profileStatus = new ProfileStatus(256);
-    }
-
-    @Override
-    public ProfileStatus getProfileStatus() {
-        return profileStatus;
-    }
+		super(null,null);
+		this.timeStamp=timeStamp;
+		this.readingType=readingType;
+	}
 
     @Override
     int getReadingTypeOffset() {

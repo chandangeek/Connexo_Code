@@ -96,10 +96,10 @@ public class CustomPropertyNodeTest {
         String sqlName = testInstance.sqlName();
 
         // Asserts
+        verify(this.propertySpec).getName();
+        assertThat(sqlName.length()).isLessThanOrEqualTo(30);
         assertThat(sqlName).contains(String.valueOf(REGISTERED_CPS_ID));
         assertThat(sqlName).contains(String.valueOf(METER_ACTIVATION_SET_SEQUENCE_NUMBER));
-        verify(this.propertySpec).getName();
-        assertThat(sqlName).contains(PROPERTY_NAME);
     }
 
     @Test

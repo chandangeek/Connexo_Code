@@ -117,18 +117,15 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
      * for the ReadingTypes whose formula only contains constants
      */
     private Map<ReadingType, List<CalculatedReadingRecord>> generateConstantsAsTimeSeries(MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
-        Map<ReadingType, List<CalculatedReadingRecord>> withGeneratedTimeSeries = new HashMap<>();
-        calculatedReadingRecords
-                .keySet()
-                .stream()
-                .forEach(readingType ->
-                        withGeneratedTimeSeries.put(
-                                readingType,
-                                this.generateConstantsAsTimeSeries(
-                                        contract,
-                                        readingType,
-                                        calculatedReadingRecords.get(readingType))));
-        return withGeneratedTimeSeries;
+        return calculatedReadingRecords
+                        .keySet()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                java.util.function.Function.identity(),
+                                readingType -> this.generateConstantsAsTimeSeries(
+                                                    contract,
+                                                    readingType,
+                                                    calculatedReadingRecords.get(readingType))));
     }
 
     private List<CalculatedReadingRecord> generateConstantsAsTimeSeries(MetrologyContract contract, ReadingType readingType, List<CalculatedReadingRecord> calculatedReadingRecords) {
@@ -138,9 +135,9 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
                             .getDeliverables()
                             .stream()
                             .filter(deliverable -> deliverable.getReadingType().getMRID().equals(readingType.getMRID()))
-                            .findFirst()    // Guaranteed to find one: reading type is result from sql that was generated from the list of deliverables
                             .map(ReadingTypeDeliverable::getFormula)
                             .map(Formula::getExpressionNode)
+                            .findFirst()    // Guaranteed to find one: reading type is result from sql that was generated from the list of deliverables
                             .get();
             if (expressionNode.accept(new ContainsOnlyConstants())) {
                 CalculatedReadingRecord record = calculatedReadingRecords.get(0);

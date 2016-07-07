@@ -1,13 +1,14 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import java.time.Instant;
 
@@ -28,7 +29,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     private String serviceLocationString;
     private Instant installationTime;
     private long locationId;
-    private GeoCoordinates geoCoordinates;
+    private SpatialCoordinates spatialCoordinates;
 
     private ServiceCategory serviceCategory;
     private ServiceLocation serviceLocation;
@@ -65,8 +66,8 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
-    public UsagePointBuilder withGeoCoordinates(GeoCoordinates geoCoordinates){
-        this.geoCoordinates = geoCoordinates;
+    public UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordinates){
+        this.spatialCoordinates = geoCoordinates;
         return this;
     }
 
@@ -125,6 +126,11 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
     }
 
     @Override
+    public LocationBuilder newLocationBuilder(){
+        return new LocationBuilderImpl(dataModel);
+    }
+
+    @Override
     public UsagePoint create() {
         UsagePointImpl usagePoint = this.build();
         usagePoint.doSave();
@@ -150,7 +156,7 @@ public class UsagePointBuilderImpl implements UsagePointBuilder {
         usagePoint.setInstallationTime(installationTime);
         usagePoint.setServiceDeliveryRemark(serviceDeliveryRemark);
         usagePoint.setServiceLocationString(serviceLocationString);
-        usagePoint.setGeoCoordinates(geoCoordinates);
+        usagePoint.setSpatialCoordinates(spatialCoordinates);
         usagePoint.setLocation(locationId);
         return usagePoint;
     }

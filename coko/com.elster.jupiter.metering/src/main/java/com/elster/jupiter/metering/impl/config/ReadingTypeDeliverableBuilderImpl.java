@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -102,7 +103,9 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     private boolean isNumerical(PropertySpec propertySpec) {
-        return Number.class.isAssignableFrom(propertySpec.getValueFactory().getValueType());
+        Class valueType = propertySpec.getValueFactory().getValueType();
+        return Number.class.isAssignableFrom(valueType)
+            || Quantity.class.isAssignableFrom(valueType);
     }
 
     @Override
