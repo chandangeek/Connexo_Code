@@ -3,14 +3,10 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.topology.DeviceTopology;
-import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.collect.Range;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -28,45 +24,26 @@ public class DeviceTopologyInfo {
     public long creationTime;
     public String state;
 
-    public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, TopologyService topologyService, Clock clock, Thesaurus thesaurus) {
+    public static List<DeviceTopologyInfo> from(TopologyTimeline timeline, Thesaurus thesaurus) {
         return timeline.getAllDevices().stream()
                 .sorted(new DeviceRecentlyAddedComporator(timeline))
-                .map(d -> from(d, timeline.mostRecentlyAddedOn(d), topologyService, clock, thesaurus))
+                .map(d -> from(d, timeline.mostRecentlyAddedOn(d), thesaurus))
                 .collect(Collectors.toList());
     }
 
-    public static List<DeviceTopologyInfo> from(List<Device> devices) {
-        return devices.stream().map(DeviceTopologyInfo::from).collect(Collectors.toList());
-    }
-
-    public static DeviceTopologyInfo from(Device device, Optional<Instant> addTime, TopologyService topologyService, Clock clock, Thesaurus thesaurus) {
+    public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, Thesaurus thesaurus) {
         DeviceTopologyInfo info = new DeviceTopologyInfo();
         info.id = device.getId();
         info.mRID = device.getmRID();
         info.deviceTypeName = device.getDeviceType().getName();
         info.deviceConfigurationName = device.getDeviceConfiguration().getName();
         info.serialNumber = device.getSerialNumber();
-        info.creationTime = addTime.orElse(Instant.EPOCH).toEpochMilli();
-        if (device.getDeviceType().isDataloggerSlave()) {
-            info.linkingTimeStamp = topologyService.findCurrentDataloggerReference(device, clock.instant())
-                    .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint().toEpochMilli())
-                    .orElse(null);
-        } else {
-            topologyService.getPhysicalGateway(device).ifPresent(gateway -> {
-                DeviceTopology physicalTopology = topologyService.getPhysicalTopology(gateway, Range.atMost(clock.instant()));
-                physicalTopology.timelined().mostRecentlyAddedOn(device).ifPresent(instant -> info.linkingTimeStamp = instant.toEpochMilli());
-            });
-
+        info.creationTime = device.getCreateTime().toEpochMilli();
+        if (linkingTimeStamp.isPresent()) {
+            info.linkingTimeStamp = linkingTimeStamp.get().toEpochMilli();
         }
         String key = DefaultState.from(device.getState()).get().getKey();
         info.state = thesaurus.getString(key, key);
-        return info;
-    }
-
-    public static DeviceTopologyInfo from(Device device) {
-        DeviceTopologyInfo info = new DeviceTopologyInfo();
-        info.id = device.getId();
-        info.mRID = device.getmRID();
         return info;
     }
 

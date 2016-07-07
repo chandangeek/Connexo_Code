@@ -1287,7 +1287,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceTopology.timelined()).thenReturn(topologyTimeline);
         when(topologyService.getPysicalTopologyTimeline(gateway)).thenReturn(topologyTimeline);
 
-        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline, topologyService, clock, thesaurus);
+        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline, thesaurus);
 
         assertThat(infos.size()).isEqualTo(5);
         assertThat(infos.get(0).mRID).isEqualTo("slave7");
@@ -1298,7 +1298,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         slaves = new HashSet<>(Arrays.<Device>asList(slave1));
         when(topologyTimeline.getAllDevices()).thenReturn(slaves);
-        infos = DeviceTopologyInfo.from(topologyTimeline, topologyService, clock, thesaurus);
+        infos = DeviceTopologyInfo.from(topologyTimeline, thesaurus);
         assertThat(infos.size()).isEqualTo(1);
     }
 

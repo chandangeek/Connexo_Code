@@ -425,9 +425,9 @@ public class DeviceResource {
     private List<DeviceTopologyInfo> getSlaveDevicesForDevice(Device device) {
         List<DeviceTopologyInfo> slaves;
         if (GatewayType.LOCAL_AREA_NETWORK.equals(device.getConfigurationGatewayType())) {
-            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), topologyService, clock, resourceHelper.getThesaurus());
+            slaves = DeviceTopologyInfo.from(topologyService.getPhysicalTopologyTimelineAdditions(device, RECENTLY_ADDED_COUNT), resourceHelper.getThesaurus());
         } else {
-            slaves = DeviceTopologyInfo.from(topologyService.findPhysicalConnectedDevices(device));
+            slaves = DeviceTopologyInfo.from(topologyService.getPysicalTopologyTimeline(device), resourceHelper.getThesaurus());
         }
         return slaves;
     }
@@ -846,7 +846,7 @@ public class DeviceResource {
         if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
             stream = stream.skip(queryParameters.getStart().get());
         }
-        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), topologyService, clock, resourceHelper.getThesaurus()))
+        List<DeviceTopologyInfo> topologyList = stream.map(d -> DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), resourceHelper.getThesaurus()))
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
     }

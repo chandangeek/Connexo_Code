@@ -15,7 +15,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -95,7 +94,7 @@ public class DeviceTopologyInfoTest {
         when(deviceConfiguration.getName()).thenReturn(DEVICE_CONFIGURATION_NAME);
 
 
-        DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), topologyService, clock, thesaurus);
+        DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), thesaurus);
 
         assertThat(info.id).isEqualTo(DEVICE_ID);
         assertThat(info.mRID).isEqualTo(DEVICE_MRID);

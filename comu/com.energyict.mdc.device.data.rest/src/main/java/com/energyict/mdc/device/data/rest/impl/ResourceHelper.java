@@ -1078,7 +1078,12 @@ public class ResourceHelper {
 
     public List<DeviceTopologyInfo> getDataLoggerSlaves(Device device) {
         List<Device> slaves = topologyService.findDataLoggerSlaves(device);
-        return slaves.stream().map((slave) -> DeviceTopologyInfo.from(slave, Optional.of(slave.getCreateTime()), topologyService, clock, thesaurus)).collect(Collectors.toList());
+        return slaves.stream().map((slave) -> DeviceTopologyInfo.from(slave, getLinkingDate(slave), thesaurus)).collect(Collectors.toList());
+    }
+
+    private Optional<Instant> getLinkingDate(Device slave) {
+        return topologyService.findCurrentDataloggerReference(slave, clock.instant())
+                .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
     }
 
     /**
