@@ -1166,7 +1166,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public Optional<UsagePoint> getUsagePoint() {
         return koreHelper.getUsagePoint();
-        // return this.getOptionalMeterAspect(getUsagePointFromMeterActivation);
     }
 
     @Override
@@ -1310,7 +1309,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         for (MeterActivation meterActivation : meterActivations) {
             Range<Instant> meterActivationInterval = meterActivation.getInterval().toOpenClosedRange().intersection(interval);
             meterHasData |= meterActivationInterval.lowerEndpoint() != meterActivationInterval.upperEndpoint();
-            ReadingType readingType = mdcChannel.getChannelSpec().getReadingType();
+            ReadingType readingType = mdcChannel.getReadingType(); // getChannelSpec().getReadingType();
             List<IntervalReadingRecord> meterReadings = (List<IntervalReadingRecord>) meter.getReadings(meterActivationInterval, readingType);
             for (IntervalReadingRecord meterReading : meterReadings) {
                 LoadProfileReadingImpl loadProfileReading = sortedLoadProfileReadingMap.get(meterReading.getTimeStamp());
