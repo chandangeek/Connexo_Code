@@ -22,7 +22,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -250,7 +249,7 @@ public class ValidationOnStoreIT {
     @Test
     public void testValidationFailsOnMinMax() {
         transactionService.execute(VoidTransaction.of(() -> {
-            IntervalReadingImpl intervalReading = IntervalReadingImpl.of(ZONED_DATE_TIME.plusHours(1).toInstant(), BigDecimal.valueOf(400), ProfileStatus.of());
+            IntervalReadingImpl intervalReading = IntervalReadingImpl.of(ZONED_DATE_TIME.plusHours(1).toInstant(), BigDecimal.valueOf(400), Collections.emptySet());
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
             intervalBlock.addIntervalReading(intervalReading);
