@@ -34,6 +34,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.RelativeDate;
@@ -49,6 +50,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
 
@@ -74,7 +76,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -84,7 +85,6 @@ import static com.elster.jupiter.time.RelativeField.HOUR;
 import static com.elster.jupiter.time.RelativeField.MINUTES;
 import static com.elster.jupiter.time.RelativeField.MONTH;
 import static com.elster.jupiter.time.RelativeField.YEAR;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -101,7 +101,6 @@ public class EstimationTaskImplIT {
 
         @Override
         protected void configure() {
-            bind(UserService.class).toInstance(userService);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
@@ -121,8 +120,6 @@ public class EstimationTaskImplIT {
 
     @Mock
     private BundleContext bundleContext;
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private UserService userService;
     @Mock
     private EventAdmin eventAdmin;
     @Mock
@@ -168,7 +165,7 @@ public class EstimationTaskImplIT {
 
     @Before
     public void setUp() throws SQLException {
-        when(userService.findUser(anyString())).thenReturn(Optional.of(user));
+//        when(userService.findUser(anyString())).thenReturn(Optional.of(user));
         when(user.getName()).thenReturn("estimation");
 
         try {
@@ -197,6 +194,8 @@ public class EstimationTaskImplIT {
                     new TaskModule(),
                     new MeteringGroupsModule(),
                     new SearchModule(),
+                    new UserModule(),
+                    new WebServicesModule(),
                     new AppServiceModule(),
                     new DataVaultModule(),
                     new CustomPropertySetsModule(),
@@ -289,7 +288,8 @@ public class EstimationTaskImplIT {
 
         transactionService.builder().principal(() -> "ut")
                 .run(() -> {
-                    User user = injector.getInstance(UserService.class).findUser(EstimationServiceImpl.ESTIMATION_TASKS_USER).get();
+                    UserService userService = injector.getInstance(UserService.class);
+                    User user = userService.findUser(EstimationServiceImpl.ESTIMATION_TASKS_USER).get();
                     estimationTask.getRecurrentTask().runNow(new EstimationTaskExecutor(estimationService, transactionService, null, timeService, threadPrincipalService, userService, user));
                 });
 
