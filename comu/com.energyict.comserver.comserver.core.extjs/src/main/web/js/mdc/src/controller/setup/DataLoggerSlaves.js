@@ -115,7 +115,6 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
                 me.wizardInformation = {};
-                me.wizardInformation.minimalLinkingDate = device.get('shipmentDate');
                 me.wizardInformation.noData = true;
                 me.wizardInformation.dataLogger = device;
                 me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').push(Ext.create('Mdc.model.DataLoggerSlaveDevice'));
@@ -326,7 +325,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         if (step1RadioGroup.getValue().useExisting) {
             var slaveCombo = me.getStep1Panel().down('#mdc-step1-slave-combo'),
-                slaveDevice = slaveCombo.getStore().findRecord('mRID', slaveCombo.getValue());
+                slaveDevice = slaveCombo.getStore().getAt(slaveCombo.getStore().findExact('mRID', slaveCombo.getValue()));
 
             slaveCombo.allowBlank = false;
             if (!slaveCombo.validate()) {
@@ -335,6 +334,10 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 slaveCombo.allowBlank = true;
                 me.clearPreviousWizardInfoWhenNeeded(slaveDevice.get('deviceTypeId'), slaveDevice.get('deviceConfigurationId'));
                 me.wizardInformation.useExisting = true;
+                me.wizardInformation.minimalLinkingDates = [];
+                me.wizardInformation.minimalLinkingDates.push(me.wizardInformation.dataLogger.get('shipmentDate'));
+                me.wizardInformation.minimalLinkingDates.push(slaveDevice.get('shipmentDate'));
+                me.wizardInformation.minimalLinkingDates.push(slaveDevice.get('unlinkingTimeStamp'));
 
                 var slaveDeviceModel = me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices')[me.wizardInformation.dataLogger.get('dataLoggerSlaveDevices').length-1];
                 slaveDeviceModel.id = slaveDevice.get('id');
@@ -388,9 +391,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                             slaveDeviceModel.yearOfCertification = formRecord.get('yearOfCertification');
                             slaveDeviceModel.batch = formRecord.get('batch');
                             slaveDeviceModel.shipmentDate = wizard.down('#deviceAdd #deviceAddShipmentDate').getValue().getTime();
-                            if (me.wizardInformation.minimalLinkingDate < slaveDeviceModel.shipmentDate) {
-                                me.wizardInformation.minimalLinkingDate = slaveDeviceModel.shipmentDate;
-                            }
+                            me.wizardInformation.minimalLinkingDates = [];
+                            me.wizardInformation.minimalLinkingDates.push(me.wizardInformation.dataLogger.get('shipmentDate'));
+                            me.wizardInformation.minimalLinkingDates.push(slaveDeviceModel.shipmentDate);
                             slaveDeviceModel.version = formRecord.get('version');
 
                             me.wizardInformation.slaveMRID = formRecord.get('mRID');
@@ -501,10 +504,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             Ext.Array.forEach(Object.keys(channelsMapped), function(channelId) {
                 if (channelId in me.wizardInformation.channelAvailabilityDates) {
                     var availabilityDate = me.wizardInformation.channelAvailabilityDates[channelId];
-                    if ( Ext.isEmpty(me.wizardInformation.minimalLinkingDate) || me.wizardInformation.minimalLinkingDate < availabilityDate ) {
-                        me.wizardInformation.minimalLinkingDate = availabilityDate;
-                        me.wizardInformation.noData = false;
-                    }
+                    me.wizardInformation.minimalLinkingDates.push(availabilityDate);
+                    me.wizardInformation.noData = false;
                 }
             }, me);
 
@@ -618,10 +619,8 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
             Ext.Array.forEach(Object.keys(registersMapped), function(registerId) {
                 if (registerId in me.wizardInformation.registerAvailabilityDates) {
                     var availabilityDate = me.wizardInformation.registerAvailabilityDates[registerId];
-                    if ( Ext.isEmpty(me.wizardInformation.minimalLinkingDate) || me.wizardInformation.minimalLinkingDate < availabilityDate ) {
-                        me.wizardInformation.minimalLinkingDate = availabilityDate;
-                        me.wizardInformation.noData = false;
-                    }
+                    me.wizardInformation.minimalLinkingDates.push(availabilityDate);
+                    me.wizardInformation.noData = false;
                 }
             }, me);
 
@@ -650,41 +649,33 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
     },
 
     prepareStep4: function() {
-        // a. Determine the minimal linking date
         var me = this,
-            wizard = me.getWizard(),
-            minimalLinkingDateMidnight = 0,
-            linkingDateToSuggest = new Date();
+            earliestLinkingDate = Ext.isEmpty(me.wizardInformation.minimalLinkingDates) ? 0 : Ext.Array.max(me.wizardInformation.minimalLinkingDates),
+            linkingDateToSuggest;
 
-        if ( !Ext.isEmpty(me.wizardInformation.minimalLinkingDate) && me.wizardInformation.minimalLinkingDate!==0 ) {
-            // To avoid the disabling of certain hours, we (should) pass midnight:
-            var momentOfDate = moment(me.wizardInformation.minimalLinkingDate);
-            momentOfDate.startOf('day');
-            minimalLinkingDateMidnight = momentOfDate.unix() * 1000;
-        }
-
-        // b. Determine the linking date to suggest
+        // Determine the linking date to suggest
         if (me.wizardInformation) {
-            if (me.wizardInformation.linkingDate) {
+            if (me.wizardInformation.linkingDate) { // There's one chosen previously
                 linkingDateToSuggest = me.wizardInformation.linkingDate;
-            } else if (me.wizardInformation.noData) {
-                if (me.wizardInformation.useExisting) {
-                    linkingDateToSuggest = me.wizardInformation.slaveShipmentDate;
-                }
+            } else if (me.wizardInformation.useExisting) { // Link an existing slave
+                linkingDateToSuggest = earliestLinkingDate;
+            } else if (me.wizardInformation.noData) { // No availability dates for the mapped channels/registers
+                linkingDateToSuggest = new Date();
             } else {
-                linkingDateToSuggest = me.wizardInformation.minimalLinkingDate;
+                linkingDateToSuggest = earliestLinkingDate;
             }
         }
-        // c. Don't suggest an invalid date
-        if (minimalLinkingDateMidnight>0 && linkingDateToSuggest < me.wizardInformation.minimalLinkingDate) {
-            linkingDateToSuggest = me.wizardInformation.minimalLinkingDate;
-        }
-        wizard.down('dataloggerslave-link-wizard-step4').initialize(minimalLinkingDateMidnight, linkingDateToSuggest);
+        // To avoid the disabling of certain hours in the linking date picker, we (should) pass midnight:
+        var momentOfDate = moment(earliestLinkingDate);
+        momentOfDate.startOf('day');
+        var earliestLinkingDateMidnight = momentOfDate.unix() * 1000;
+        me.getWizard().down('dataloggerslave-link-wizard-step4').initialize(earliestLinkingDateMidnight, linkingDateToSuggest);
     },
 
     validateStep4: function(callback) {
         var me = this,
             dateField = me.getWizard().down('#mdc-step4-linking-date'),
+            earliestLinkingDate = Ext.isEmpty(me.wizardInformation.minimalLinkingDates) ? 0 : Ext.Array.max(me.wizardInformation.minimalLinkingDates),
             errorMsg,
             endMethod = function() {
                 if (Ext.isFunction(callback)) {
@@ -694,18 +685,18 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
 
         me.wizardInformation.linkingDate = dateField.getValue().getTime();
 
-        if (me.wizardInformation.linkingDate < me.wizardInformation.minimalLinkingDate) {
+        if (me.wizardInformation.linkingDate < earliestLinkingDate) {
             me.getStep4FormErrorMessage().show();
 
             if (me.wizardInformation.noData) {
                 errorMsg = Uni.I18n.translate('general.linkingDateShouldLieAfterShipmentDateX', 'MDC',
                     'The linking date should be equal to or lie after the shipment date of the data logger ({0})',
-                    Uni.DateTime.formatDateTime(new Date(me.wizardInformation.minimalLinkingDate), Uni.DateTime.SHORT, Uni.DateTime.SHORT)
+                    Uni.DateTime.formatDateTime(new Date(earliestLinkingDate), Uni.DateTime.SHORT, Uni.DateTime.SHORT)
                 );
             } else {
                 errorMsg = Uni.I18n.translate('general.linkingDateShouldLieAfterReadingDateX', 'MDC',
                     'The linking date should be equal to or lie after the date of the most recent unlinked reading of the channels and registers of the data logger ({0})',
-                    Uni.DateTime.formatDateTime(new Date(me.wizardInformation.minimalLinkingDate), Uni.DateTime.SHORT, Uni.DateTime.SHORT)
+                    Uni.DateTime.formatDateTime(new Date(earliestLinkingDate), Uni.DateTime.SHORT, Uni.DateTime.SHORT)
                 );
             }
             me.getWizard().down('#mdc-step4-linking-date').markInvalid(errorMsg);
@@ -807,7 +798,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                 !Ext.isEmpty(me.wizardInformation.mappedChannels) ||
                 !Ext.isEmpty(me.wizardInformation.mappedRegisters) ||
                 !Ext.isEmpty(me.wizardInformation.linkingDate) ||
-                !Ext.isEmpty(me.wizardInformation.minimalLinkingDate);
+                !Ext.isEmpty(me.wizardInformation.minimalLinkingDates);
 
         if (!thereIsSomethingToClear) {
             return;
@@ -826,7 +817,7 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
         this.wizardInformation.mappedChannels = undefined;
         this.wizardInformation.mappedRegisters = undefined;
         this.wizardInformation.linkingDate = undefined;
-        this.wizardInformation.minimalLinkingDate = 0;
+        this.wizardInformation.minimalLinkingDates = [];
     },
 
     onUnlinkDataLoggerSlave: function(unlinkButton) {
