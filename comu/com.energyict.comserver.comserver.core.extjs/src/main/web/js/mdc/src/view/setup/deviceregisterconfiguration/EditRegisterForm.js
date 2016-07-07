@@ -11,6 +11,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
         align: 'stretch' // in order to completely see the error messages
     },
     returnLink: null,
+    defaults: {
+        labelWidth: 250,
+        maxWidth: 600
+    },
 
     initComponent: function () {
         var me = this;
@@ -27,7 +31,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
                 xtype: 'fieldcontainer',
                 itemId: 'obis-code-container',
                 required: true,
-                width: 450,
                 layout: 'hbox',
                 margin: '20 0 0 0',
                 fieldLabel: Uni.I18n.translate('general.obisCode', 'MDC', 'OBIS code'),
@@ -54,7 +57,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
                 xtype: 'fieldcontainer',
                 itemId: 'overflowValue-container',
                 required: true,
-                width: 450,
                 layout: 'hbox',
                 margin: '10 0 0 0',
                 fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
@@ -84,7 +86,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditRegisterForm', {
                 xtype: 'fieldcontainer',
                 itemId: 'fractionDigits-container',
                 required: true,
-                width: 450,
                 layout: 'hbox',
                 margin: '10 0 0 0',
                 fieldLabel: Uni.I18n.translate('registerConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),

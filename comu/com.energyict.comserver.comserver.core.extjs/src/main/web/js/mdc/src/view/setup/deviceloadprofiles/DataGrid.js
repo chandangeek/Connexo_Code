@@ -33,7 +33,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                         ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateShort(value),Uni.DateTime.formatTimeShort(value)])
                         : '';
                 },
-                width: 200
+                flex: 1
             }
         ];
         me.dockedItems = [
@@ -50,50 +50,69 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
                 ]
             }
         ];
+
         Ext.Array.each(me.channels, function (channel) {
             var channelHeader = !Ext.isEmpty(channel.calculatedReadingType)
                 ? channel.calculatedReadingType.fullAliasName
                 : channel.readingType.fullAliasName;
 
+            // value column
             me.columns.push({
                 header: channelHeader,
+                tooltip: channelHeader,
                 dataIndex: 'channelData',
                 align: 'right',
-                minWidth: 150,
                 flex: 1,
+                renderer: function (data) {
+                    return !Ext.isEmpty(data[channel.id]) ? Uni.Number.formatNumber(data[channel.id], -1) : '-';
+                }
+            });
+
+            // icons column
+            me.columns.push({
+                header: '',
+                dataIndex: 'channelData',
+                maxWidth: 60,
+                align: 'left',
+                style: {
+                    padding: '8px 0px 8px 0px' // Doesn't seem to work
+                },
                 renderer: function (data, metaData, record) {
-                    var validationData = record.get('channelValidationData'),
-                        icon = '';
+                    var icon = '<span class="icon-flag5" style="margin-left:10px; display:inline-block; color:rgba(0,0,0,0.0);"></span>', // invisible,
+                        validationData = record.get('channelValidationData'),
+                        readingQualities = record.get('readingQualities'),
+                        deviceQualityTooltipContent = '',
+                        deviceQualityIcon = '<span class="icon-price-tags" style="margin-left:3px; display:inline-block; color:rgba(0,0,0,0.0);"></span>'; // invisible
+
+                    if (readingQualities && !Ext.isEmpty(readingQualities[channel.id])) {
+                        Ext.Array.forEach(readingQualities[channel.id], function (readingQualityName) {
+                            deviceQualityTooltipContent += (readingQualityName + '<br>');
+                        });
+                        deviceQualityTooltipContent += '<br>';
+                        deviceQualityTooltipContent += Uni.I18n.translate('general.deviceQuality.tooltip.moreMessage', 'MDC', 'View reading quality details for more information.');
+
+                        deviceQualityIcon = '<span class="icon-price-tags" style="margin-left:3px; display:inline-block;" data-qtitle="'
+                            + Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality') + '" data-qtip="' + deviceQualityTooltipContent + '"></span>';
+                    }
 
                     if (validationData && validationData[channel.id]) {
                         var status = validationData[channel.id].mainValidationInfo && validationData[channel.id].mainValidationInfo.validationResult
-                                ? validationData[channel.id].mainValidationInfo.validationResult.split('.')[1]
-                                : 'unknown';
+                            ? validationData[channel.id].mainValidationInfo.validationResult.split('.')[1]
+                            : 'unknown';
                         if (status === 'suspect') {
-                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+                            icon = '<span class="icon-flag5" style="display:inline-block; color:red;"></span>';
                         }
                         if (status === 'notValidated') {
-                            icon = '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+                            icon = '<span class="icon-flag6" style="display:inline-block;"></span>';
                         }
                         if (validationData[channel.id].mainValidationInfo.estimatedByRule) {
-                            icon = '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:#33CC33;"></span>';
+                            icon = '<span class="icon-flag5" style="display:inline-block; color:#33CC33;"></span>';
                         }
                     }
-
-                    return !Ext.isEmpty(data[channel.id])
-                        ? Uni.Number.formatNumber(data[channel.id], -1) + icon
-                        : '';
+                    return !Ext.isEmpty(data[channel.id]) ? icon + deviceQualityIcon : '';
                 }
             });
         });
-        /* Commented for now because of JP-5561
-         me.columns.push({
-         xtype: 'uni-actioncolumn',
-         menu: {
-         xtype: 'deviceLoadProfilesDataActionMenu'
-         }
-         });
-         */
 
         me.callParent(arguments);
     }
