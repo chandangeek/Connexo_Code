@@ -241,6 +241,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
         if (complete) {
             startupFinishedListeners
                     .forEach(StartupFinishedListener::onStartupComplete);
+            startupFinishedListeners.clear();
         }
         String remaining = checkLists.getServices()
                 .stream()
