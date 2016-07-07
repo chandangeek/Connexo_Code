@@ -47,7 +47,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class}, property = "name=" + OrmService.COMPONENTNAME)
-public class OrmServiceImpl implements OrmService {
+public final class OrmServiceImpl implements OrmService {
 
     private volatile DataSource dataSource;
     private volatile ThreadPrincipalService threadPrincipalService;

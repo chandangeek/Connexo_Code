@@ -222,7 +222,7 @@ public class TableImpl<T> implements Table<T> {
         return columns
                 .stream()
                 .filter((column) -> column.getName().equalsIgnoreCase(name))
-                .filter(test(Column::isInVersion).with(getDataModel().getVersion()))
+//                .filter(test(Column::isInVersion).with(getDataModel().getVersion()))
                 .findFirst();
     }
 

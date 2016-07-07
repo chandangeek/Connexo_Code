@@ -1,5 +1,9 @@
 package com.elster.jupiter.orm.query.impl;
 
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.sql.SqlBuilder;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,10 +11,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 final class JoinExecutor<T> {
 		
@@ -50,7 +50,7 @@ final class JoinExecutor<T> {
 		appendSelectClause(selectColumns);
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder, null);
-		return from == 0 ? builder : builder.asPageBuilder(from, to);
+		return from == 0 ? builder : builder.asPageBuilder(from, to, fieldNames);
 	}
 	
 	private void appendSql(Condition condition , Order[] orderBy) {

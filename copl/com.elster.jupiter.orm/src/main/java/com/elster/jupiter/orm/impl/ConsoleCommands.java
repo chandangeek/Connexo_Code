@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.util.time.StopWatch;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
@@ -21,12 +22,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.Format;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.LongSummaryStatistics;
 
 @Component(name = "com.elster.jupiter.orm.console", service = ConsoleCommands.class,
         property = {"osgi.command.scope=orm", "osgi.command.function=ddl",
                 "osgi.command.function=executeQuery",
-                "osgi.command.function=listDataModels"}, immediate = true)
+                "osgi.command.function=listDataModels", "osgi.command.function=pingDb"}, immediate = true)
 public class ConsoleCommands {
 
     private volatile BundleContext context;
@@ -116,6 +122,31 @@ public class ConsoleCommands {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void pingDb(int times) {
+        Format format = new DecimalFormat("##0.00");
+        double NANOSECONDS_IN_MS = 1_000_000.0d;
+        List<Long> stats = new ArrayList<>(times);
+        try (Connection connection = dataSource.getConnection()) {
+            String jdbcUrl = connection.getMetaData().getURL();
+            try (PreparedStatement statement = connection.prepareStatement("select 1 from DUAL")) {
+                for (int i = 0; i < times; i++) {
+                    StopWatch watch = new StopWatch();
+                    statement.execute();
+                    watch.stop();
+                    stats.add(watch.getElapsed());
+                    System.out.println("  Reply from " + jdbcUrl + ": time=" + format.format(watch.getElapsed() / NANOSECONDS_IN_MS) + "ms");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        LongSummaryStatistics longSummaryStatistics = stats.stream().mapToLong(l -> l).summaryStatistics();
+        System.out.println("Approximate round trip times in milli-seconds (on " + longSummaryStatistics.getCount() + " times)");
+        System.out.println("   Minimum = " + format.format(longSummaryStatistics.getMin() / NANOSECONDS_IN_MS) + "ms, " +
+                "Maximum = " + format.format(longSummaryStatistics.getMax() / NANOSECONDS_IN_MS) + "ms, " +
+                "Average = " + format.format(longSummaryStatistics.getAverage() / NANOSECONDS_IN_MS) + "ms");
     }
 
     class ResultSetPrinter {

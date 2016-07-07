@@ -30,7 +30,7 @@ import static com.elster.jupiter.util.Ranges.intersection;
 
 public abstract class TableConstraintImpl<S extends TableConstraint> implements TableConstraint {
 
-    public static final Map<String, Class<? extends TableConstraint>> implementers = ImmutableMap.<String, Class<? extends TableConstraint>>of(
+    public static final Map<String, Class<? extends TableConstraint>> implementers = ImmutableMap.of(
             "PRIMARYKEY", PrimaryKeyConstraintImpl.class,
             "UNIQUE", UniqueConstraintImpl.class,
             "FOREIGNKEY", ForeignKeyConstraintImpl.class);
@@ -111,7 +111,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     public boolean isForeignKey() {
         return false;
     }
-    
+
     @Override
     public boolean noDdl() {
     	return false;
@@ -125,8 +125,9 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     @Override
     public boolean isNotNull() {
         for (Column each : getColumns()) {
-            if (!each.isNotNull())
+            if (!each.isNotNull()) {
                 return false;
+            }
         }
         return true;
     }
@@ -152,7 +153,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
         // do nothing by default;
     }
 
-    final public String getDdl() {
+    public final String getDdl() {
         StringBuilder sb = new StringBuilder("constraint ");
         sb.append(name);
         sb.append(" ");
@@ -197,7 +198,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
         }
         return true;
     }
-    
+
     public boolean delayDdl() {
     	return false;
     }

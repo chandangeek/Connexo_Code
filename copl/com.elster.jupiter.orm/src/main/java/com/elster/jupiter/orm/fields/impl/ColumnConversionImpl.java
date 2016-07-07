@@ -509,7 +509,7 @@ public enum ColumnConversionImpl {
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value){
 			try {
-				return value == null ? null : new SpatialCoordinatesFactory().valueToDb((SpatialCoordinates) value,column.getTable().getDataModel().getConnection(false));
+				return new SpatialCoordinatesFactory().valueToDb((SpatialCoordinates) value,column.getTable().getDataModel().getConnection(false));
 			} catch (SQLException e) {
 				throw new UnderlyingSQLFailedException(e);
 			}
@@ -517,8 +517,7 @@ public enum ColumnConversionImpl {
 
 		@Override
 		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
-			Object sdoGeometry = rs.getObject(index);
-			return sdoGeometry == null ? null : new SpatialCoordinatesFactory().valueFromDb(rs.getObject(index));
+			return new SpatialCoordinatesFactory().valueFromDb(rs.getObject(index));
 		}
 
         @Override
