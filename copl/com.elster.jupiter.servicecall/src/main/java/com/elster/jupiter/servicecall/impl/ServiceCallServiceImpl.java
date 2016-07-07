@@ -75,7 +75,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         property = "name=" + ServiceCallService.COMPONENT_NAME,
         immediate = true)
 @LiteralSql
-public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
+public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
     static final String SERIVCE_CALLS_DESTINATION_NAME = "SerivceCalls";
     static final String SERIVCE_CALLS_SUBSCRIBER_NAME = "SerivceCalls";
@@ -95,6 +95,7 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
 
     @Inject
     public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService) {
+        this();
         setFiniteStateMachineService(finiteStateMachineService);
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -369,35 +370,35 @@ public class ServiceCallServiceImpl implements IServiceCallService, MessageSeedP
     private Condition createConditionFromFilter(ServiceCallFilter filter) {
         Condition condition = Condition.TRUE;
 
-        if (filter.getReference() != null) {
-            condition = condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(filter.getReference()).or(where("internalReference").like(filter.getReference())));
+        if (filter.reference != null) {
+            condition = condition.and(where(ServiceCallImpl.Fields.externalReference.fieldName()).like(filter.reference).or(where("internalReference").like(filter.reference)));
         }
-        if (!filter.getTypes().isEmpty()) {
-            condition = condition.and(ofAnyType(filter.getTypes()));
+        if (!filter.types.isEmpty()) {
+            condition = condition.and(ofAnyType(filter.types));
         }
-        if (!filter.getStates().isEmpty()) {
-            condition = condition.and(ofAnyState(filter.getStates()));
+        if (!filter.states.isEmpty()) {
+            condition = condition.and(ofAnyState(filter.states));
         }
-        if (filter.getReceivedDateFrom() != null) {
+        if (filter.receivedDateFrom != null) {
             Range<Instant> interval =
-                    Range.closed(filter.getReceivedDateFrom(),filter.getReceivedDateTo() != null ? filter.getReceivedDateTo() : Instant.now());
+                    Range.closed(filter.receivedDateFrom, filter.receivedDateTo != null ? filter.receivedDateTo : Instant.now());
             condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
-        } else if (filter.getReceivedDateTo() != null) {
+        } else if (filter.receivedDateTo != null) {
             Range<Instant> interval =
-                    Range.closed(Instant.EPOCH,filter.getReceivedDateTo());
-            condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
-        }
-        if(filter.getModificationDateFrom() != null) {
-            Range<Instant> interval =
-                    Range.closed(filter.getModificationDateFrom(),filter.getModificationDateTo() != null ? filter.getModificationDateTo() : Instant.now());
-            condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
-        } else if (filter.getModificationDateTo() != null) {
-            Range<Instant> interval =
-                    Range.closed(Instant.EPOCH, filter.getModificationDateTo());
+                    Range.closed(Instant.EPOCH, filter.receivedDateTo);
             condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
         }
-        if (filter.getParent() != null) {
-            condition = condition.and(where(ServiceCallImpl.Fields.parent.fieldName()).isEqualTo(filter.getParent()));
+        if (filter.modificationDateFrom != null) {
+            Range<Instant> interval =
+                    Range.closed(filter.modificationDateFrom, filter.modificationDateTo != null ? filter.modificationDateTo : Instant.now());
+            condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
+        } else if (filter.modificationDateTo != null) {
+            Range<Instant> interval =
+                    Range.closed(Instant.EPOCH, filter.modificationDateTo);
+            condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
+        }
+        if (filter.parent != null) {
+            condition = condition.and(where(ServiceCallImpl.Fields.parent.fieldName()).isEqualTo(filter.parent));
         }
 
         return condition;

@@ -121,4 +121,12 @@ public interface ServiceCallService {
     Set<ServiceCall> findServiceCalls(Object targetObject, Set<DefaultState> inState);
 
     void cancelServiceCallsFor(Object target);
+
+    /**
+     * Registers the specified {@link ServiceCallHandler} on this service's whiteboard.
+     *
+     * @param serviceCallHandler
+     * @param properties
+     */
+    void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
 }

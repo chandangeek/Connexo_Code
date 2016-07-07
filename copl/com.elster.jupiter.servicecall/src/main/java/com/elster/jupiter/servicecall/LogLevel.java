@@ -10,8 +10,8 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum LogLevel implements TranslationKey {
     SEVERE("Severe"),
     WARNING("Warning"),
-    INFO("Info"),
-    CONFIG("Config"),
+    INFO("Information"),
+    CONFIG("Configuration"),
     FINE("Fine"),
     FINER("Finer"),
     FINEST("Finest");

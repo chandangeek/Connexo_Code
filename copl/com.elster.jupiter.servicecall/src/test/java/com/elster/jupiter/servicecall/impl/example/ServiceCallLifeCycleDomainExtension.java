@@ -6,6 +6,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
 
 import javax.validation.constraints.Size;
@@ -43,6 +45,7 @@ public class ServiceCallLifeCycleDomainExtension implements PersistentDomainExte
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
     private String testString;
     private boolean testBoolean;
+    private Reference<ServiceCall> serviceCall = ValueReference.absent();
 
     public ServiceCallLifeCycleDomainExtension() {
         super();
