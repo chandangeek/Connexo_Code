@@ -79,8 +79,7 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         when(metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())).thenReturn(Optional.of(meterRole));
         when(meteringService.findReadingTypes(Collections.singletonList(READING_TYPE_MRID))).thenReturn(Collections.singletonList(readingType));
         UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder requirementBuilder = mock(UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder.class);
-        when(metrologyConfiguration.newReadingTypeRequirement(readingType.getFullAliasName())).thenReturn(requirementBuilder);
-        when(requirementBuilder.withMeterRole(meterRole)).thenReturn(requirementBuilder);
+        when(metrologyConfiguration.newReadingTypeRequirement(readingType.getFullAliasName(), meterRole)).thenReturn(requirementBuilder);
         FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
         when(requirementBuilder.withReadingType(readingType)).thenReturn(fullySpecifiedReadingTypeRequirement);
         ReadingTypeDeliverableBuilder deliverableBuilder = mock(ReadingTypeDeliverableBuilder.class);

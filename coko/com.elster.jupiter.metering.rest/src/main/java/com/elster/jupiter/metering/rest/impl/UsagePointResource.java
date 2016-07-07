@@ -45,6 +45,7 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -165,19 +166,19 @@ public class UsagePointResource {
     }
 
     private MeterActivation fetchMeterActivation(UsagePoint usagePoint, long activationId) {
-        for (MeterActivation meterActivation : usagePoint.getMeterActivations()) {
-            if (meterActivation.getId() == activationId) {
-                return meterActivation;
-            }
-        }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
+        return usagePoint
+                .getMeterActivations()
+                .stream()
+                .filter(meterActivation -> meterActivation.getId() == activationId)
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/meteractivations/{activationId}/channels/{channelId}/intervalreadings")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public ReadingInfos getIntervalReadings(@PathParam("mRID") String mRID, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
+    public ReadingInfos getIntervalReadings(@PathParam("mRID") String mRID, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId, @QueryParam("from") long from, @QueryParam("to") long to) {
         if (from == 0 || to == 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
@@ -263,10 +264,12 @@ public class UsagePointResource {
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
         Set<ReadingType> readingTypes = new LinkedHashSet<>();
-        List<? extends MeterActivation> meterActivations = usagePoint.getMeterActivations();
-        for (MeterActivation meterActivation : meterActivations) {
-            readingTypes.addAll(meterActivation.getReadingTypes());
-        }
+        usagePoint
+                .getMeterActivations()
+                .stream()
+                .map(MeterActivation::getReadingTypes)
+                .flatMap(Collection::stream)
+                .forEach(readingTypes::add);
         return readingTypes;
     }
 
