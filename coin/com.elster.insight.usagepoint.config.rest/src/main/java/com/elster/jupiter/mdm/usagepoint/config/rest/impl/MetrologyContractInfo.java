@@ -14,7 +14,9 @@ public class MetrologyContractInfo {
     public long id;
     public String name;
     public boolean mandatory;
+    public Long version;
     public List<ReadingTypeDeliverablesInfo> readingTypeDeliverables;
+    public List<ValidationRuleSetInfo> validationRuleSets;
     public List<DataValidationTaskInfo> validationTasks;
 
     public MetrologyContractInfo() {
@@ -23,12 +25,18 @@ public class MetrologyContractInfo {
     public MetrologyContractInfo(MetrologyContract metrologyContract) {
         this.id = metrologyContract.getId();
         this.name = metrologyContract.getMetrologyPurpose().getName();
+        this.version = metrologyContract.getVersion();
         this.mandatory = metrologyContract.isMandatory();
     }
 
     public MetrologyContractInfo(MetrologyContract metrologyContract, List<DataValidationTaskInfo> validationTaskInfos) {
         this(metrologyContract);
         this.validationTasks = validationTaskInfos;
+    }
+
+    public MetrologyContractInfo(MetrologyContract metrologyContract, List<ValidationRuleSetInfo> validationRuleSets) {
+        this(metrologyContract);
+        this.validationRuleSets = validationRuleSets;
     }
 }
 

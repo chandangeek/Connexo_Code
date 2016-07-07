@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
@@ -28,9 +29,10 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.ValidationVersionStatus;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -38,7 +40,6 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -64,32 +65,56 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     @Mock
     private UsagePointMetrologyConfiguration config1, config2;
     @Mock
-    private ValidationRuleSet vrs, vrs2;
+    private ValidationRuleSet vrs, vrs2, vrs3;
     @Mock
     private ServiceCategory serviceCategory;
     @Mock
     private MetrologyContract metrologyContract;
+    @Mock
+    private MetrologyContractInfo metrologyContractInfo;
 
     @Before
     public void setUpStubs() {
-        UsagePointMetrologyConfiguration config1 = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
-        UsagePointMetrologyConfiguration config2 = mockMetrologyConfiguration(2L, "config2", ServiceKind.WATER, MetrologyConfigurationStatus.ACTIVE);
-
+        config1 = mockMetrologyConfiguration(1L, "config1", ServiceKind.ELECTRICITY, MetrologyConfigurationStatus.INACTIVE);
+        config2 = mockMetrologyConfiguration(2L, "config2", ServiceKind.WATER, MetrologyConfigurationStatus.ACTIVE);
         when(metrologyConfigurationService.findAllMetrologyConfigurations()).thenReturn(Arrays.asList(config1, config2));
         when(metrologyConfigurationService.findMetrologyConfiguration(1)).thenReturn(Optional.of(config1));
         when(metrologyConfigurationService.findMetrologyConfiguration(2)).thenReturn(Optional.of(config2));
 
-        List<ValidationRuleSet> ruleSets = new ArrayList<>();
-        ruleSets.add(vrs);
+        ValidationRuleSetVersion validationRuleSetVersion = mockValidationRuleSetVersion(vrs);
+        ValidationRuleSetVersion validationRuleSetVersion2 = mockValidationRuleSetVersion(vrs2);
+        ValidationRuleSetVersion validationRuleSetVersion3 = mockValidationRuleSetVersion(vrs3);
+        metrologyContract = config1.getContracts().stream().findFirst().get();
+        metrologyContractInfo = new MetrologyContractInfo(metrologyContract, Collections.singletonList(new ValidationRuleSetInfo(vrs3)));
+        when(vrs3.getId()).thenReturn(2L);
+        when(vrs3.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        doReturn(Collections.singletonList(validationRuleSetVersion3)).when(vrs3).getRuleSetVersions();
         when(vrs.getName()).thenReturn("ValidationRuleSet");
         when(vrs.getId()).thenReturn(1L);
-        when(usagePointConfigurationService.getValidationRuleSets(config1)).thenReturn(ruleSets);
-
-        List<ValidationRuleSet> assignableRuleSets = new ArrayList<>();
-        assignableRuleSets.add(vrs2);
-        when(vrs2.getName()).thenReturn("AssignableValidationRuleSet");
+        when(vrs.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        doReturn(Collections.singletonList(validationRuleSetVersion)).when(vrs).getRuleSetVersions();
+        when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.of(metrologyContract));
+        when(metrologyConfigurationService.findMetrologyContract(1L)).thenReturn(Optional.of(metrologyContract));
+        when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(vrs));
+        when(vrs2.getName()).thenReturn("LinkableValidationRuleSet");
         when(vrs2.getId()).thenReturn(31L);
-        when(validationService.getValidationRuleSets()).thenReturn(assignableRuleSets);
+        when(vrs2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDM);
+        doReturn(Collections.singletonList(validationRuleSetVersion2)).when(vrs2).getRuleSetVersions();
+        doReturn(Optional.of(vrs3)).when(validationService).getValidationRuleSet(anyLong());
+        when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(vrs, vrs2));
+        when(usagePointConfigurationService.isLinkableValidationRuleSet(metrologyContract, vrs2, Collections.singletonList(vrs))).thenReturn(true);
+    }
+
+    private ValidationRuleSetVersion mockValidationRuleSetVersion(ValidationRuleSet validationRuleSet) {
+        ValidationRuleSetVersion validationRuleSetVersion = mock(ValidationRuleSetVersion.class);
+        ValidationRule validationRule = mock(ValidationRule.class);
+        ReadingType readingType = mockReadingType();
+        when(validationRuleSetVersion.getStatus()).thenReturn(ValidationVersionStatus.CURRENT);
+        when(validationRuleSetVersion.getRuleSet()).thenReturn(validationRuleSet);
+        doReturn(Collections.singleton(readingType)).when(validationRule).getReadingTypes();
+        when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
+        doReturn(Collections.singletonList(validationRule)).when(validationRuleSetVersion).getRules();
+        return validationRuleSetVersion;
     }
 
     private UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name, ServiceKind serviceKind, MetrologyConfigurationStatus status) {
@@ -109,7 +134,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(role.getDisplayName()).thenReturn(DefaultMeterRole.DEFAULT.getDefaultFormat());
         when(mock.getMeterRoles()).thenReturn(Collections.singletonList(role));
 
-        ReadingType readingType = mock(ReadingType.class);
+        ReadingType readingType = mockReadingType();
 
         MetrologyPurpose purpose = mock(MetrologyPurpose.class);
         when(purpose.getId()).thenReturn(1L);
@@ -128,6 +153,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(formula.getExpressionNode()).thenReturn(requirementNode);
         when(deliverable.getFormula()).thenReturn(formula);
         when(metrologyContract.getId()).thenReturn(1L);
+        when(metrologyContract.getVersion()).thenReturn(1L);
         when(metrologyContract.getMetrologyPurpose()).thenReturn(purpose);
         when(metrologyContract.getMetrologyConfiguration()).thenReturn(mock);
         when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
@@ -194,35 +220,52 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     }
 
     @Test
-    public void testAssignedValidationRuleSets() {
-        String json = target("metrologyconfigurations/1/assignedvalidationrulesets").request().get(String.class);
+    public void testLinkedValidationRuleSetsOfMetrologyContract() {
+        String json = target("/metrologyconfigurations/1/contracts").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Integer>get("$.assignedvalidationrulesets[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.assignedvalidationrulesets[0].name")).isEqualTo("ValidationRuleSet");
+        assertThat(jsonModel.<Integer>get("$.contracts[0].validationRuleSets[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.contracts[0].validationRuleSets[0].name")).isEqualTo("ValidationRuleSet");
     }
 
     @Test
-    public void testAssignableValidationRuleSets() {
-        String json = target("metrologyconfigurations/1/assignablevalidationrulesets").request().get(String.class);
+    public void testLinkableValidationRuleSetsOfMetrologyContract() {
+        String json = target("/metrologyconfigurations/1/contracts/1").request().header("X-CONNEXO-APPLICATION-NAME", "INS").get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Integer>get("$.assignablevalidationrulesets[0].id")).isEqualTo(31);
-        assertThat(jsonModel.<String>get("$.assignablevalidationrulesets[0].name")).isEqualTo("AssignableValidationRuleSet");
+        assertThat(jsonModel.<Integer>get("$.validationRuleSets[0].id")).isEqualTo(31);
+        assertThat(jsonModel.<String>get("$.validationRuleSets[0].name")).isEqualTo("LinkableValidationRuleSet");
     }
 
     @Test
-    public void testAssignValidationRuleSets() {
-        ValidationRuleSetInfos validationRuleSetInfos = new ValidationRuleSetInfos();
-        ValidationRuleSetInfo info = new ValidationRuleSetInfo();
-        info.id = 1;
-        validationRuleSetInfos.ruleSets.add(info);
-        doReturn(Optional.of(vrs)).when(validationService).getValidationRuleSet(info.id);
+    public void testAddValidationRuleSetsToMetrologyContract() {
+        Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
+        Response response = target("/metrologyconfigurations/1/contracts/1").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        verify(usagePointConfigurationService).addValidationRuleSet(metrologyContract, vrs3);
+    }
 
-        Entity<ValidationRuleSetInfos> json = Entity.json(validationRuleSetInfos);
+    @Test
+    public void testAddValidationRuleSetsConcurrencyCheck() {
+        when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.empty());
+        Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
+        Response response = target("/metrologyconfigurations/1/contracts/1").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
 
-        Response response = target("/metrologyconfigurations/1/assignedvalidationrulesets").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    @Test
+    public void testRemoveValidationRuleSetFromMetrologyContract() {
+        Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
+        Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        verify(usagePointConfigurationService).removeValidationRuleSet(metrologyContract, vrs3);
+    }
+
+    @Test
+    public void testRemoveValidationRuleSetConcurrencyCheck() {
+        when(metrologyConfigurationService.findAndLockMetrologyContract(metrologyContractInfo.id, metrologyContractInfo.version)).thenReturn(Optional.empty());
+        Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
+        Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test

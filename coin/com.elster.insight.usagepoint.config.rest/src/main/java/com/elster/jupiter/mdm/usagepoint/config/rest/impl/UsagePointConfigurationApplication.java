@@ -17,6 +17,8 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.PropertyUtils;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -156,6 +158,8 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(meteringService).to(MeteringService.class);
+            bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+            bind(PropertyUtils.class).to(PropertyUtils.class);
         }
     }
 }
