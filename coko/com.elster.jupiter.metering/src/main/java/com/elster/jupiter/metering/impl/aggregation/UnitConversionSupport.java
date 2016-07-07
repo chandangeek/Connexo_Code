@@ -244,35 +244,35 @@ public class UnitConversionSupport {
             /* Converting from SI to other
              * value = (siValue - siDelta) * siDivisor / siMultiplier. */
             return fromZeroMultiplier(
-                        Operator.DIVIDE.node(
+                    Operator.DIVIDE.node(
                             Operator.MULTIPLY.node(
                                     Operator.MINUS.node(
                                             toZeroMultiplier(value, sourceMetricMultiplier),
                                             target.getSiDelta()),
                                     target.getSiDivisor()),
                             target.getSiMultiplier()),
-                        targetMetricMultiplier);
+                    targetMetricMultiplier);
         } else if (target.equals(siUnit)) {
             /* Converting to SI
              * siValue = (value * siMultiplier / siDivisor) + siDelta. */
             return fromZeroMultiplier(
-                        Operator.PLUS.node(
+                    Operator.PLUS.node(
                             Operator.DIVIDE.node(
                                     Operator.MULTIPLY.node(
                                             toZeroMultiplier(value, sourceMetricMultiplier),
                                             source.getSiMultiplier()),
                                     source.getSiDivisor()),
                             source.getSiDelta()),
-                        targetMetricMultiplier);
+                    targetMetricMultiplier);
         } else {
             /* Convert to source to si and si to target */
             return unitConversion(
-                        unitConversion(
-                                value,
-                                source, sourceMetricMultiplier,
-                                siUnit, MetricMultiplier.ZERO),
-                        siUnit, MetricMultiplier.ZERO,
-                        target, targetMetricMultiplier);
+                    unitConversion(
+                            value,
+                            source, sourceMetricMultiplier,
+                            siUnit, MetricMultiplier.ZERO),
+                    siUnit, MetricMultiplier.ZERO,
+                    target, targetMetricMultiplier);
         }
     }
 
@@ -331,6 +331,7 @@ public class UnitConversionSupport {
     }
 
     // Hide utility class constructor
-    private UnitConversionSupport() {}
+    private UnitConversionSupport() {
+    }
 
 }

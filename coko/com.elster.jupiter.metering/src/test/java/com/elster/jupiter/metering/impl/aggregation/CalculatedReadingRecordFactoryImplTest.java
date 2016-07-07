@@ -143,7 +143,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         assertThat(fifteenMinuteRecord.getQuantities()).hasSize(1);
         assertThat(fifteenMinuteRecord.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity1);
         assertThat(fifteenMinuteRecord.getQuantity(monthlyNetConsumption)).isNull();
-        assertThat(fifteenMinuteRecord.getProcesStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(fifteenMinuteRecord.getProcessStatus()).isEqualTo(expectedProcessStatus);
         assertThat(fifteenMinuteRecord.getCount()).isEqualTo(expectedCountFor15minRecord);
         assertThat(recordsByReadingType).containsKey(monthlyNetConsumption);
         List<CalculatedReadingRecord> monthlyRecords = recordsByReadingType.get(monthlyNetConsumption);
@@ -157,7 +157,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         assertThat(monthlyRecord.getQuantities()).hasSize(1);
         assertThat(monthlyRecord.getQuantity(monthlyNetConsumption)).isEqualTo(expectedQuantity2);
         assertThat(monthlyRecord.getQuantity(fifteenMinutesNetConsumption)).isNull();
-        assertThat(monthlyRecord.getProcesStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(monthlyRecord.getProcessStatus()).isEqualTo(expectedProcessStatus);
         assertThat(monthlyRecord.getCount()).isEqualTo(expectedCountForMonthlyRecord);
     }
 
@@ -196,7 +196,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         assertThat(readingRecord1.getReadingType(0)).isEqualTo(fifteenMinutesNetConsumption);
         assertThat(readingRecord1.getQuantities()).hasSize(1);
         assertThat(readingRecord1.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity1);
-        assertThat(readingRecord1.getProcesStatus()).isEqualTo(expectedProcessStatus1);
+        assertThat(readingRecord1.getProcessStatus()).isEqualTo(expectedProcessStatus1);
         assertThat(readingRecord1.getCount()).isEqualTo(1L);
         CalculatedReadingRecord readingRecord2 = fifteenMinuteRecords.get(1);
         assertThat(readingRecord2.getLocalDate()).isEqualTo(ts2);
@@ -206,7 +206,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         assertThat(readingRecord2.getReadingType(0)).isEqualTo(fifteenMinutesNetConsumption);
         assertThat(readingRecord2.getQuantities()).hasSize(1);
         assertThat(readingRecord2.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity2);
-        assertThat(readingRecord2.getProcesStatus()).isEqualTo(expectedProcessStatus2);
+        assertThat(readingRecord2.getProcessStatus()).isEqualTo(expectedProcessStatus2);
         assertThat(readingRecord2.getCount()).isEqualTo(1L);
     }
 

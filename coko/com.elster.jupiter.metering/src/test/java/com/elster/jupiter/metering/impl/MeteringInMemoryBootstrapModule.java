@@ -13,8 +13,7 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeDeletionVetoEventHandler;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsService;
@@ -55,6 +54,7 @@ public class MeteringInMemoryBootstrapModule {
     private final Clock clock;
     private final String[] readingTypeRequirements;
     private CustomPropertySetService customPropertySetService;
+    private DataAggregationService dataAggregationService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
@@ -94,6 +94,10 @@ public class MeteringInMemoryBootstrapModule {
         this.readingTypeRequirements = requiredReadingTypes;
     }
 
+    public MeteringInMemoryBootstrapModule withDataAggregationService(DataAggregationService dataAggregation) {
+        this.dataAggregationService = dataAggregation;
+        return this;
+    }
 
     public void activate() {
         List<Module> modules = new ArrayList<>();
@@ -101,7 +105,9 @@ public class MeteringInMemoryBootstrapModule {
         modules.add(new MockModule());
         modules.add(inMemoryBootstrapModule);
         modules.add(new IdsModule());
-        modules.add(this.readingTypeRequirements != null ? new MeteringModule(readingTypeRequirements) : new MeteringModule());
+        modules.add(this.readingTypeRequirements != null
+                ? new MeteringModule(readingTypeRequirements).withDataAggregationService(dataAggregationService)
+                : new MeteringModule().withDataAggregationService(dataAggregationService));
         modules.add(new PartyModule());
         modules.add(new FiniteStateMachineModule());
         modules.add(new UserModule());
@@ -125,8 +131,6 @@ public class MeteringInMemoryBootstrapModule {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(PropertySpecService.class);
-            injector.getInstance(MeteringService.class);
-            injector.getInstance(MetrologyConfigurationService.class);
             addMessageHandlers();
             ctx.commit();
         }
@@ -184,6 +188,7 @@ public class MeteringInMemoryBootstrapModule {
     public NlsService getNlsService() {
         return injector.getInstance(NlsService.class);
     }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {

@@ -25,7 +25,8 @@ public class FunctionCallNodeImpl extends AbstractNode implements FunctionCallNo
 
     // For ORM layer
     @SuppressWarnings("unused")
-    public FunctionCallNodeImpl() {}
+    public FunctionCallNodeImpl() {
+    }
 
     FunctionCallNodeImpl(List<? extends ServerExpressionNode> children, Function function, AggregationLevel aggregationLevel, Thesaurus thesaurus) {
         super(children);

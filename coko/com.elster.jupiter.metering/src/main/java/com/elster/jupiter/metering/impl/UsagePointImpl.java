@@ -14,7 +14,6 @@ import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
-import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -33,13 +32,12 @@ import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
-import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -52,8 +50,8 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -74,7 +72,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -136,7 +133,7 @@ public class UsagePointImpl implements UsagePoint {
     private final EventService eventService;
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
-    private final Provider<IMeterActivation> meterActivationFactory;
+    private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     private final CustomPropertySetService customPropertySetService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
@@ -145,7 +142,7 @@ public class UsagePointImpl implements UsagePoint {
     @Inject
     UsagePointImpl(
             Clock clock, DataModel dataModel, EventService eventService,
-            Thesaurus thesaurus, Provider<IMeterActivation> meterActivationFactory,
+            Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
             CustomPropertySetService customPropertySetService, MeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.clock = clock;
@@ -434,7 +431,13 @@ public class UsagePointImpl implements UsagePoint {
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
     }
 
-    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when) {
+    @Override
+    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration() {
+        return getEffectiveMetrologyConfiguration(clock.instant());
+    }
+
+    @Override
+    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when) {
         return this.metrologyConfiguration.effective(when);
     }
 
@@ -455,10 +458,11 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
         this.removeMetrologyConfiguration(when);
-        this.metrologyConfiguration.add(
-                this.dataModel
-                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                        .initAndSave(this, metrologyConfiguration, when));
+        EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfiguration = this.dataModel
+                .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
+        effectiveMetrologyConfiguration.init(this, metrologyConfiguration, when);
+        this.metrologyConfiguration.add(effectiveMetrologyConfiguration);
+        effectiveMetrologyConfiguration.createEffectiveMetrologyContracts();
     }
 
     @Override
@@ -693,7 +697,12 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ZoneId getZoneId() {
-        return ZoneId.systemDefault();
+        return getCurrentMeterActivations()
+                .stream()
+                .filter(ma -> ma.getMeter().isPresent())
+                .map(ma -> ma.getMeter().get().getZoneId())
+                .findAny()
+                .orElse(ZoneId.systemDefault());
     }
 
     void addConfiguration(UsagePointConfigurationImpl usagePointConfiguration) {
@@ -763,16 +772,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<MeterActivation> getCurrentMeterActivation() {
-        return getCurrentMeterActivations().stream()
-                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole()
-                        .get()
-                        .getKey()
-                        .equals(DefaultMeterRole.DEFAULT.getKey()))
-                .findFirst();
-    }
-
-    @Override
     public List<MeterActivation> getCurrentMeterActivations() {
         return this.meterActivations.stream()
                 .filter(MeterActivation::isCurrent)
@@ -795,7 +794,7 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public MeterActivation activate(Meter meter, MeterRole meterRole, Instant from) {
         MeterActivationImpl result = meterActivationFactory.get().init(meter, meterRole, this, from);
-        dataModel.persist(result);
+        result.save();
         adopt(result);
         return result;
     }

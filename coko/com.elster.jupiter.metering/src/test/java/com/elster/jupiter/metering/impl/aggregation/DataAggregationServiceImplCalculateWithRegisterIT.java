@@ -261,14 +261,14 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     /**
      * Tests the simplest case:
      * Metrology configuration
-     *    requirements:
-     *       A- ::= Wh bulk quantity register (0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0)
-     *    deliverables:
-     *       netConsumptionIndex (Wh) ::= A-
+     * requirements:
+     * A- ::= Wh bulk quantity register (0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0)
+     * deliverables:
+     * netConsumptionIndex (Wh) ::= A-
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           A- -> Wh bulk quantity register
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * A- -> Wh bulk quantity register
      * In other words, expose the register as a value on the contract.
      */
     @Test
@@ -313,15 +313,15 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + this.consumptionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + this.consumptionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(this.consumptionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that the requirement is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.timestamp,.*");
@@ -357,7 +357,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
 
     private void activateMeterWithBulkWattRegister() {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.meterActivation.createChannel(netConsumptionIndex);
+        this.meterActivation.getChannelsContainer().createChannel(netConsumptionIndex);
     }
 
     private String mRID2GrepPattern(String mRID) {

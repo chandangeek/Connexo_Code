@@ -62,7 +62,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         return this.deliverable;
     }
 
-    ReadingType getReadingType () {
+    ReadingType getReadingType() {
         return this.deliverable.getReadingType();
     }
 
@@ -76,7 +76,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
      *
      * @return The id for SQL statements
      */
-    String sqlName () {
+    String sqlName() {
         return "rod" + this.getId() + "_" + this.getMeterActivationSequenceNumber();
     }
 
@@ -131,12 +131,12 @@ class ReadingTypeDeliverableForMeterActivationSet {
         Flatten visitor = new Flatten();
         this.expressionNode.accept(visitor);
         visitor
-            .getFlattened()
-            .stream()
-            .filter(each -> each instanceof CustomPropertyNode)
-            .map(CustomPropertyNode.class::cast)
-            .filter(each -> !sqlBuilder.withExists(each.sqlName()))
-            .forEach(each -> each.appendDefinitionTo(sqlBuilder));
+                .getFlattened()
+                .stream()
+                .filter(each -> each instanceof CustomPropertyNode)
+                .map(CustomPropertyNode.class::cast)
+                .filter(each -> !sqlBuilder.withExists(each.sqlName()))
+                .forEach(each -> each.appendDefinitionTo(sqlBuilder));
     }
 
     private void appendWithClause(SqlBuilder withClauseBuilder) {
@@ -203,8 +203,8 @@ class ReadingTypeDeliverableForMeterActivationSet {
         if (this.resultValueNeedsTimeBasedAggregation()) {
             Loggers.SQL.debug(() ->
                     "Statement for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivationSet.getRange() +
-                    " requires time based aggregation because raw data interval length is " + this.expressionReadingType.getIntervalLength() +
-                    " and target interval length is " + this.targetReadingType.getIntervalLength());
+                            " requires time based aggregation because raw data interval length is " + this.expressionReadingType.getIntervalLength() +
+                            " and target interval length is " + this.targetReadingType.getIntervalLength());
             sqlBuilder.append(this.targetReadingType.aggregationFunction().sqlName());
             sqlBuilder.append("(");
             sqlBuilder.append(
@@ -278,8 +278,8 @@ class ReadingTypeDeliverableForMeterActivationSet {
     private void appendAggregatedProcessStatus(SqlBuilder sqlBuilder) {
         AggregationFunction.AGGREGATE_FLAGS
                 .appendTo(
-                    sqlBuilder, Collections.singletonList(
-                    new TextFragment(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName())));
+                        sqlBuilder, Collections.singletonList(
+                                new TextFragment(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName())));
     }
 
     private void appendGroupByClauseIfApplicable(SqlBuilder sqlBuilder) {
@@ -295,8 +295,8 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     private boolean resultValueNeedsTimeBasedAggregation() {
         return !this.expressionReadingType.isDontCare()
-            && Formula.Mode.AUTO.equals(this.mode)
-            && (   this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength()
+                && Formula.Mode.AUTO.equals(this.mode)
+                && (this.expressionReadingType.getIntervalLength() != this.targetReadingType.getIntervalLength()
                 || this.unitConversionNodeRequiresTimeBasedAggregation());
     }
 

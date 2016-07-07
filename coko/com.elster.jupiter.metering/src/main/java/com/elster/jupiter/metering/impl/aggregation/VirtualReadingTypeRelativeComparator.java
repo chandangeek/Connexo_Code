@@ -156,7 +156,7 @@ class VirtualReadingTypeRelativeComparator implements Comparator<VirtualReadingT
 
     private boolean sameUnitAndMultiplierAsTarget(VirtualReadingType other) {
         return this.sameUnitAsTarget(other)
-            && other.getUnitMultiplier().equals(this.target.getUnitMultiplier());
+                && other.getUnitMultiplier().equals(this.target.getUnitMultiplier());
     }
 
     private boolean bothSameUnitAsTarget(VirtualReadingType x, VirtualReadingType y) {

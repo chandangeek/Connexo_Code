@@ -47,15 +47,15 @@ class RegularDeliverableComplexityAnalyzer implements ExpressionNode.Visitor<Boo
     @Override
     public Boolean visitOperation(OperationNode operationNode) {
         return operationNode.getLeftOperand().accept(this)
-            && operationNode.getRightOperand().accept(this);
+                && operationNode.getRightOperand().accept(this);
     }
 
     @Override
     public Boolean visitFunctionCall(FunctionCallNode functionCall) {
         return functionCall
-                    .getChildren()
-                    .stream()
-                    .allMatch(argument -> argument.accept(this));
+                .getChildren()
+                .stream()
+                .allMatch(argument -> argument.accept(this));
     }
 
 }

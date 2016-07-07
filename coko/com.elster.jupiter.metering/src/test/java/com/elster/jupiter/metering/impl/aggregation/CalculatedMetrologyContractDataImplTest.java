@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -66,6 +67,8 @@ public class CalculatedMetrologyContractDataImplTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private ReadingTypeDeliverable deliverable;
 
     @Before
@@ -81,7 +84,8 @@ public class CalculatedMetrologyContractDataImplTest {
         when(this.monthlyNetConsumption.toQuantity(BigDecimal.ZERO)).thenReturn(Quantity.create(BigDecimal.ZERO, "Wh"));
         when(this.monthlyNetConsumption.toQuantity(BigDecimal.TEN)).thenReturn(Quantity.create(BigDecimal.TEN, "Wh"));
         when(this.usagePoint.getMeterActivation(any(Instant.class))).thenReturn(Optional.of(this.meterActivation));
-        when(this.meterActivation.getZoneId()).thenReturn(zoneId);
+        when(this.meterActivation.getChannelsContainer()).thenReturn(this.channelsContainer);
+        when(this.channelsContainer.getZoneId()).thenReturn(zoneId);
         when(this.deliverable.getReadingType()).thenReturn(this.monthlyNetConsumption);
         Formula formula = mock(Formula.class);
         when(formula.getExpressionNode()).thenReturn(new ReadingTypeDeliverableNodeImpl(this.deliverable));

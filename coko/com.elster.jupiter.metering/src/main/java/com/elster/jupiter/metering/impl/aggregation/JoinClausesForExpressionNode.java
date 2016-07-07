@@ -103,8 +103,8 @@ class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void>
     @Override
     public Void visitOperation(OperationNode operationNode) {
         this.visitAll(Arrays.asList(
-                        operationNode.getLeftOperand(),
-                        operationNode.getRightOperand()));
+                operationNode.getLeftOperand(),
+                operationNode.getRightOperand()));
         return null;
     }
 
@@ -134,6 +134,7 @@ class JoinClausesForExpressionNode implements ServerExpressionNode.Visitor<Void>
 
     private interface JoinClause {
         String tableName();
+
         String joinWith(String prefix, String joinTableName);
     }
 

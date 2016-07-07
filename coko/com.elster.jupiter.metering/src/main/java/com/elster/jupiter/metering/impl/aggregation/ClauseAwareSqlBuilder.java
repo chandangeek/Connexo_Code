@@ -55,7 +55,7 @@ interface ClauseAwareSqlBuilder {
      *
      * @param alias The name of the with clause
      * @param columnAliasNames An optional list of aliases for the name of the columns that are selected
-     *                         by the sql of the with clause
+     * by the sql of the with clause
      * @return The SqlBuilder
      */
     SqlBuilder with(String alias, Optional<String> comment, String... columnAliasNames);

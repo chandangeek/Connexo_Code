@@ -14,7 +14,8 @@ public class ReadingTypeDeliverableNodeImpl extends AbstractNode implements Read
     static final String TYPE_IDENTIFIER = "DEL";
 
     // For ORM layer
-    public ReadingTypeDeliverableNodeImpl() {}
+    public ReadingTypeDeliverableNodeImpl() {
+    }
 
     private Reference<ReadingTypeDeliverable> readingTypeDeliverable = ValueReference.absent();
 

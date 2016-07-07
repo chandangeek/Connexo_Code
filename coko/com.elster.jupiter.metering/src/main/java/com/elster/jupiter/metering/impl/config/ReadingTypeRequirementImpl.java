@@ -2,8 +2,8 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
@@ -129,8 +129,8 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     }
 
     @Override
-    public List<Channel> getMatchingChannelsFor(MeterActivation meterActivation) {
-        return meterActivation
+    public List<Channel> getMatchingChannelsFor(ChannelsContainer channelsContainer) {
+        return channelsContainer
                 .getChannels()
                 .stream()
                 .filter(this::matches)
@@ -138,7 +138,7 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     }
 
     private boolean matches(Channel channel) {
-        return this.matches(channel.getMainReadingType());
+        return channel.getReadingTypes().stream().anyMatch(this::matches);
     }
 
     @Override

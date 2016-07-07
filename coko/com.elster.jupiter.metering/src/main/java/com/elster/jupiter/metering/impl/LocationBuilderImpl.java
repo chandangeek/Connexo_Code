@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
-import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.orm.DataModel;
 
 import java.util.ArrayList;

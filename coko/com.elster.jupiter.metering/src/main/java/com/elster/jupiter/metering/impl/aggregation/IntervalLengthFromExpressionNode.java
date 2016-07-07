@@ -61,8 +61,8 @@ class IntervalLengthFromExpressionNode implements ServerExpressionNode.Visitor<I
     @Override
     public IntervalLength visitOperation(OperationNode operationNode) {
         return this.findFirst(Arrays.asList(
-                        operationNode.getLeftOperand(),
-                        operationNode.getRightOperand()));
+                operationNode.getLeftOperand(),
+                operationNode.getRightOperand()));
     }
 
     @Override

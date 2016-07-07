@@ -311,19 +311,19 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     /**
      * Tests the case that uses only custom property values:
      * Metrology configuration
-     *    custom properties:
-     *       number of antenna's (antennaCount)
-     *       antenna power (antennaPower)
-     *    requirements: none
-     *    deliverables:
-     *       netConsumption (monthly kWh) ::= antennaCount * antennaPower * 30
+     * custom properties:
+     * number of antenna's (antennaCount)
+     * antenna power (antennaPower)
+     * requirements: none
+     * deliverables:
+     * netConsumption (monthly kWh) ::= antennaCount * antennaPower * 30
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever: no specific data needed
-     *    custom properties:
-     *       Jan 1st 2016 -> forever
-     *           antennaCount -> 2
-     *           antennaPower -> 30
+     * meter activations:
+     * Jan 1st 2016 -> forever: no specific data needed
+     * custom properties:
+     * Jan 1st 2016 -> forever
+     * antennaCount -> 2
+     * antennaPower -> 30
      */
     @Test
     @Transactional
@@ -348,11 +348,11 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
-                    builder.multiply(
-                        builder.constant(BigDecimal.valueOf(30)),
                         builder.multiply(
-                            builder.property(registeredCustomPropertySet.getCustomPropertySet(), antennaCountPropertySpec),
-                            builder.property(registeredCustomPropertySet.getCustomPropertySet(), antennaPowerPropertySpec))));
+                                builder.constant(BigDecimal.valueOf(30)),
+                                builder.multiply(
+                                        builder.property(registeredCustomPropertySet.getCustomPropertySet(), antennaCountPropertySpec),
+                                        builder.property(registeredCustomPropertySet.getCustomPropertySet(), antennaPowerPropertySpec))));
 
         this.netConsumptionDeliverableId = netConsumption.getId();
         System.out.println("monthlyNetConsumption::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
@@ -384,12 +384,13 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                         any(Optional.class),
                         anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
-            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName().toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
+            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
+                    .toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
             assertThat(netConsumptionSql).matches(".*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName().hashCode()) + "_1\\.value \\* cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1\\.value.*");
             // Assert that the with clauses for both properties are joined on the utc timestamp
@@ -407,20 +408,20 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     /**
      * Tests the case that combines custom property values with 15min values:
      * Metrology configuration
-     *    custom properties:
-     *       number of antenna's (antennaCount) - not used in this case
-     *       antenna power (antennaPower)
-     *    requirements:
-     *       localPower ::= any W  with flow = forward
-     *    deliverables:
-     *       netConsumption (15min kWh) ::= antennaPower + localPower
+     * custom properties:
+     * number of antenna's (antennaCount) - not used in this case
+     * antenna power (antennaPower)
+     * requirements:
+     * localPower ::= any W  with flow = forward
+     * deliverables:
+     * netConsumption (15min kWh) ::= antennaPower + localPower
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever: no specific data needed
-     *    custom properties:
-     *       Jan 1st 2016 -> forever
-     *           antennaCount -> 2
-     *           antennaPower -> 30
+     * meter activations:
+     * Jan 1st 2016 -> forever: no specific data needed
+     * custom properties:
+     * Jan 1st 2016 -> forever
+     * antennaCount -> 2
+     * antennaPower -> 30
      */
     @Test
     @Transactional
@@ -451,9 +452,9 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
-                    builder.plus(
-                        builder.requirement(localPower),
-                        builder.property(registeredCustomPropertySet.getCustomPropertySet(), antennaPowerPropertySpec)));
+                        builder.plus(
+                                builder.requirement(localPower),
+                                builder.property(registeredCustomPropertySet.getCustomPropertySet(), antennaPowerPropertySpec)));
 
         this.netConsumptionDeliverableId = netConsumption.getId();
         System.out.println("15minNetConsumption::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
@@ -479,12 +480,13 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                         any(Optional.class),
                         anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
-            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName().toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
+            assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
+                    .toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + this.netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + this.netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
             assertThat(netConsumptionSql).matches(".*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value \\+ cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1\\.value.*");
             // Assert that the with clauses for both properties are joined on the utc timestamp
@@ -537,7 +539,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private void activateMeterWith15MinPower() {
         this.activateMeter();
-        this.meterActivation.createChannel(fifteenMinuteskWForward);
+        this.meterActivation.getChannelsContainer().createChannel(fifteenMinuteskWForward);
     }
 
     private String mRID2GrepPattern(String mRID) {
@@ -740,17 +742,17 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             EnumSet.of(AntennaFields.POWER, AntennaFields.COUNT)
-                   .stream()
-                   .forEach(field -> this.addCustomPropertyColumnsTo(table, field));
+                    .stream()
+                    .forEach(field -> this.addCustomPropertyColumnsTo(table, field));
         }
 
         private void addCustomPropertyColumnsTo(Table table, AntennaFields field) {
             table
-                .column(field.databaseName())
-                .number()
-                .map(field.javaName())
-                .notNull()
-                .add();
+                    .column(field.databaseName())
+                    .number()
+                    .map(field.javaName())
+                    .notNull()
+                    .add();
         }
 
         @Override

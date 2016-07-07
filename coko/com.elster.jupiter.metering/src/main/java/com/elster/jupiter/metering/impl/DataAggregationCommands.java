@@ -156,7 +156,9 @@ public class DataAggregationCommands {
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
-            MetrologyConfiguration configuration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+            UsagePointMetrologyConfiguration configuration = metrologyConfigurationService.findMetrologyConfiguration(metrologyConfigId)
+                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                    .map(UsagePointMetrologyConfiguration.class::cast)
                     .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"));
             if (configuration instanceof UsagePointMetrologyConfiguration) {
                 UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) configuration;
@@ -187,6 +189,7 @@ public class DataAggregationCommands {
                 .getMatchingChannelsFor(meteringService.findMeter(meterMRID)
                         .orElseThrow(() -> new NoSuchElementException("No such meter"))
                         .getCurrentMeterActivation()
+                        .map(MeterActivation::getChannelsContainer)
                         .orElseThrow(() -> new NoSuchElementException("No current meter activation")))
                 .stream()
                 .map(ch -> ch.getMainReadingType().getMRID() + " " + ch.getMainReadingType().getFullAliasName())

@@ -829,8 +829,8 @@ public class IntervalLengthTest {
                 IntervalLength.HOUR4,
                 IntervalLength.HOUR6,
                 IntervalLength.HOUR12)
-            .stream()
-            .forEach(this::doFlowVolumeConversionFactorForHourOrLess);
+                .stream()
+                .forEach(this::doFlowVolumeConversionFactorForHourOrLess);
     }
 
     private void doFlowVolumeConversionFactorForHourOrLess(IntervalLength intervalLength) {

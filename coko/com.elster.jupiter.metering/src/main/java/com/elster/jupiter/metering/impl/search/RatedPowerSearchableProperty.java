@@ -42,6 +42,7 @@ class RatedPowerSearchableProperty implements SearchableUsagePointProperty {
         this.clock = clock;
         return this;
     }
+
     @Override
     public SearchDomain getDomain() {
         return domain;

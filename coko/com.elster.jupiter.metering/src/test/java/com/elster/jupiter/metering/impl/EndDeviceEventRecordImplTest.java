@@ -83,7 +83,11 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         ServerMeteringService meteringService = getMeteringService();
         DataModel dataModel = meteringService.getDataModel();
         Instant date = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode();
+        String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER)
+                .domain(EndDeviceDomain.BATTERY)
+                .subDomain(EndDeviceSubDomain.CHARGE)
+                .eventOrAction(EndDeviceEventOrAction.DECREASED)
+                .toCode();
         EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
 
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
@@ -108,7 +112,11 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
         ServerMeteringService meteringService = getMeteringService();
         DataModel dataModel = meteringService.getDataModel();
         Instant date = ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-        String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER).domain(EndDeviceDomain.BATTERY).subDomain(EndDeviceSubDomain.CHARGE).eventOrAction(EndDeviceEventOrAction.DECREASED).toCode();
+        String code = EndDeviceEventTypeCodeBuilder.type(EndDeviceType.ELECTRIC_METER)
+                .domain(EndDeviceDomain.BATTERY)
+                .subDomain(EndDeviceSubDomain.CHARGE)
+                .eventOrAction(EndDeviceEventOrAction.DECREASED)
+                .toCode();
         EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
 
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();

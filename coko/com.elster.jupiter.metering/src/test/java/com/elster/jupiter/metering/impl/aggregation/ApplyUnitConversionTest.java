@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
@@ -56,6 +57,8 @@ public class ApplyUnitConversionTest {
     private ReadingType deliverableReadingType;
     @Mock
     private MeterActivationSet meterActivationSet;
+    @Mock
+    private ChannelsContainer channelsContainer;
     @Mock
     private ReadingTypeDeliverableForMeterActivationSetProvider readingTypeDeliverableForMeterActivationSetProvider;
     @Mock

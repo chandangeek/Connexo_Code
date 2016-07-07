@@ -92,8 +92,8 @@ public class UnitConversionNodeTest {
         when(this.virtualReadingTypeRequirement2.getSourceReadingType()).thenReturn(fifteenMin_kWhVirtualReadingType);
         OperationNode operationNode =
                 Operator.PLUS.node(
-                    this.requirementNode(this.requirement1),
-                    this.requirementNode(this.requirement2));
+                        this.requirementNode(this.requirement1),
+                        this.requirementNode(this.requirement2));
         VirtualReadingType expectedTargetReadingType = VirtualReadingType.from(
                 IntervalLength.MONTH1,
                 MetricMultiplier.KILO,

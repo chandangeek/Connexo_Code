@@ -2,10 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationMember;
-import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.conditions.Operator;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -17,8 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class LocationImpl implements Location {
 

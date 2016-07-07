@@ -130,8 +130,8 @@ class ExpressionNodeToSql implements ServerExpressionNode.Visitor<SqlFragment> {
         aggregationNode
                 .getFunction()
                 .appendTo(
-                    fragment,
-                    Collections.singletonList(aggregationNode.getAggregatedExpression().accept(this)));
+                        fragment,
+                        Collections.singletonList(aggregationNode.getAggregatedExpression().accept(this)));
         return fragment;
     }
 

@@ -61,8 +61,8 @@ class LocalDateFromExpressionNode implements ServerExpressionNode.Visitor<String
     @Override
     public String visitOperation(OperationNode operationNode) {
         return this.findFirst(Arrays.asList(
-                        operationNode.getLeftOperand(),
-                        operationNode.getRightOperand()));
+                operationNode.getLeftOperand(),
+                operationNode.getRightOperand()));
     }
 
     @Override

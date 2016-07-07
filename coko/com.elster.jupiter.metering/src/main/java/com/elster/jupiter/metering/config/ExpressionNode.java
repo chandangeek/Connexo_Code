@@ -44,11 +44,17 @@ public interface ExpressionNode {
 
     interface Visitor<T> {
         T visitConstant(ConstantNode constant);
+
         T visitRequirement(ReadingTypeRequirementNode requirement);
+
         T visitDeliverable(ReadingTypeDeliverableNode deliverable);
+
         T visitProperty(CustomPropertyNode property);
+
         T visitOperation(OperationNode operationNode);
+
         T visitFunctionCall(FunctionCallNode functionCall);
+
         T visitNull(NullNode nullNode);
     }
 

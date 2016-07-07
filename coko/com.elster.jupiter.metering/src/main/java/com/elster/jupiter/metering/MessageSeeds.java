@@ -87,7 +87,8 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_INCORRECT_STATE(7001, Constants.USAGE_POINT_INCORRECT_STATE, "Usage point ''{0}'' should be in ''Under construction'' state to activate meters"),
     THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT(7002, Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT, "The same meter can''t be specified for different meter roles."),
     UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}."),
-    CHANNEL_DATA_PRESENT(7004, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time");
+    CHANNEL_DATA_PRESENT(7004, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
+    UNSUPPORTED_COMMAND(7005, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device with MRID {1}"),;
 
 
     private final int number;
@@ -204,6 +205,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String USAGE_POINT_INCORRECT_STATE = "usage.point.incorrect.state";
         public static final String THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT = "the.same.meter.activated.twice.on.usage.point";
         public static final String UNSATISFIED_METROLOGY_REQUIREMENT = "unsatisfied.metrology.requirement";
+        public static final String UNSPPORTED_COMMAND = "Unsupported.Command.for.enddevice";
     }
 
 }

@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -86,11 +87,12 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         return new ArrayList<>(merged.values());
     }
 
-    private void merge(CalculatedReadingRecord record,  IntervalLength intervalLength, Map<Instant,CalculatedReadingRecord> merged) {
+    private void merge(CalculatedReadingRecord record, IntervalLength intervalLength, Map<Instant, CalculatedReadingRecord> merged) {
         ZoneId zone = this.getUsagePoint()
-                            .getMeterActivation(record.getTimeStamp())
-                            .map(MeterActivation::getZoneId)
-                            .orElseGet(this.usagePoint::getZoneId);
+                .getMeterActivation(record.getTimeStamp())
+                .map(MeterActivation::getChannelsContainer)
+                .map(ChannelsContainer::getZoneId)
+                .orElseGet(this.usagePoint::getZoneId);
         final Instant endOfInterval;
         Instant endOfIntervalCandidate = intervalLength.truncate(record.getTimeStamp(), zone);
         if (!endOfIntervalCandidate.equals(record.getTimeStamp())) {
@@ -112,7 +114,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
      * @param contract The MetrologyContract
      * @param calculatedReadingRecords The List of CalculatedReadingRecord
      * @return The Map that will now contain a List of CalculatedReadingRecord instead of a single CalculatedReadingRecord
-     *         for the ReadingTypes whose formula only contains constants
+     * for the ReadingTypes whose formula only contains constants
      */
     private Map<ReadingType, List<CalculatedReadingRecord>> generateConstantsAsTimeSeries(MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
         return calculatedReadingRecords
@@ -130,20 +132,20 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         if (calculatedReadingRecords.size() == 1) {
             ExpressionNode expressionNode =
                     contract
-                        .getDeliverables()
-                        .stream()
-                        .filter(deliverable -> deliverable.getReadingType().getMRID().equals(readingType.getMRID()))
-                        .map(ReadingTypeDeliverable::getFormula)
-                        .map(Formula::getExpressionNode)
-                        .findFirst()    // Guaranteed to find one: reading type is result from sql that was generated from the list of deliverables
-                        .get();
+                            .getDeliverables()
+                            .stream()
+                            .filter(deliverable -> deliverable.getReadingType().getMRID().equals(readingType.getMRID()))
+                            .map(ReadingTypeDeliverable::getFormula)
+                            .map(Formula::getExpressionNode)
+                            .findFirst()    // Guaranteed to find one: reading type is result from sql that was generated from the list of deliverables
+                            .get();
             if (expressionNode.accept(new ContainsOnlyConstants())) {
                 CalculatedReadingRecord record = calculatedReadingRecords.get(0);
                 return IntervalLength
-                            .from(readingType)
-                            .toTimeSeries(this.period, this.usagePoint.getZoneId())
-                            .map(record::atTimeStamp)
-                            .collect(Collectors.toList());
+                        .from(readingType)
+                        .toTimeSeries(this.period, this.usagePoint.getZoneId())
+                        .map(record::atTimeStamp)
+                        .collect(Collectors.toList());
             } else {
                 return calculatedReadingRecords;
             }

@@ -86,8 +86,8 @@ class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<Void> 
     @Override
     public Void visitOperation(OperationNode operationNode) {
         return this.acceptAll(Arrays.asList(
-                        operationNode.getLeftOperand(),
-                        operationNode.getRightOperand()));
+                operationNode.getLeftOperand(),
+                operationNode.getRightOperand()));
     }
 
     @Override

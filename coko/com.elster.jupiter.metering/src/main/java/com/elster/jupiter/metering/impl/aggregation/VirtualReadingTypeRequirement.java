@@ -64,7 +64,7 @@ class VirtualReadingTypeRequirement {
      *
      * @return The id for SQL statements
      */
-    String sqlName () {
+    String sqlName() {
         return "rid" + this.requirement.getId() + "_" + this.deliverable.getId() + "_" + this.meterActivationSequenceNumber;
     }
 
@@ -172,13 +172,13 @@ class VirtualReadingTypeRequirement {
 
     private Optional<ChannelContract> findPreferredChannel() {
         return new MatchingChannelSelector(this.matchingChannels, this.mode)
-                    .getPreferredChannel(this.targetReadingType)
-                    .map(ChannelContract.class::cast);
+                .getPreferredChannel(this.targetReadingType)
+                .map(ChannelContract.class::cast);
     }
 
     private boolean aggregationIsRequired() {
         return Formula.Mode.AUTO.equals(this.mode)
-            && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
+                && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
     }
 
     void appendSimpleReferenceTo(SqlBuilder sqlBuilder) {
@@ -188,10 +188,10 @@ class VirtualReadingTypeRequirement {
     void appendReferenceTo(SqlBuilder sqlBuilder) {
         VirtualReadingType sourceReadingType = this.getSourceReadingType();
         sqlBuilder.append(
-            sourceReadingType.buildSqlUnitConversion(
-                    this.mode,
-                    this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
-                    this.targetReadingType));
+                sourceReadingType.buildSqlUnitConversion(
+                        this.mode,
+                        this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),
+                        this.targetReadingType));
     }
 
     VirtualReadingType getSourceReadingType() {

@@ -12,19 +12,21 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
+
 import com.google.common.collect.Range;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,7 +62,7 @@ public class CumulativeChannelTest {
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR)
                 .code();
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
-        Channel channel = activation.createChannel(readingType);
+        Channel channel = activation.getChannelsContainer().createChannel(readingType);
         assertThat(channel.getBulkQuantityReadingType().isPresent()).isTrue();
         ReadingStorer storer = meteringService.createOverrulingStorer();
         Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
