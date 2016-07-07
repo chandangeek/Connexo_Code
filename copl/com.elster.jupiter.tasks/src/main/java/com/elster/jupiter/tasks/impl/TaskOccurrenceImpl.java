@@ -152,11 +152,11 @@ class TaskOccurrenceImpl implements TaskOccurrence {
         return this;
     }
 
-    void hasRun(boolean succesfull) {
+    void hasRun(boolean successful) {
         if (!status.isFinal()) {
             this.endDate = clock.instant();
             ((RecurrentTaskImpl) getRecurrentTask()).updateLastRun(getTriggerTime());
-            this.status = succesfull ? this.status.success() : this.status.fail();
+            this.status = successful ? this.status.success() : this.status.fail();
             save();
         }
     }
