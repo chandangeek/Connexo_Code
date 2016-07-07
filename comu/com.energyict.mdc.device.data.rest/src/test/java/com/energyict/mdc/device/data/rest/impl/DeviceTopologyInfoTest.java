@@ -92,7 +92,7 @@ public class DeviceTopologyInfoTest {
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(deviceConfiguration.getName()).thenReturn(DEVICE_CONFIGURATION_NAME);
-
+        when(device.getCreateTime()).thenReturn(initialTimestamp);
 
         DeviceTopologyInfo info = DeviceTopologyInfo.from(device, Optional.of(initialTimestamp), thesaurus);
 
