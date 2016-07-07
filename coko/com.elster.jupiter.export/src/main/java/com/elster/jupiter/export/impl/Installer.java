@@ -73,7 +73,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 logger
         );
         doTry(
-                "",
+                "Create relative periods",
                 this::createRelativePeriods,
                 logger
         );
