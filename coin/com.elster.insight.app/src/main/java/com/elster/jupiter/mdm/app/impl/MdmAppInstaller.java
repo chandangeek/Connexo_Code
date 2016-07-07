@@ -96,6 +96,7 @@ public class MdmAppInstaller {
                     //validation
                     com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
                     com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL,
+                    com.elster.jupiter.mdm.usagepoint.config.security.Privileges.Constants.VIEW_VALIDATION_ON_METROLOGY_CONFIGURATION,
 
                     //metrology configuration
                     com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION,
