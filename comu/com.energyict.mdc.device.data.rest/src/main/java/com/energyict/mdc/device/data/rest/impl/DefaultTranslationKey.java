@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -17,26 +16,6 @@ public enum DefaultTranslationKey implements TranslationKey {
     CONNECTION_TASK_STATUS_INCOMPLETE(Keys.CONNECTION_TASK_STATUS_INCOMPLETE, "Incomplete"),
     CONNECTION_TASK_STATUS_ACTIVE(Keys.CONNECTION_TASK_STATUS_ACTIVE, "Active"),
     CONNECTION_TASK_STATUS_INACTIVE(Keys.CONNECTION_TASK_STATUS_INACTIVE, "Inactive"),
-    POWERDOWN(ProfileStatus.Flag.POWERDOWN.name(), "Power down"),
-    POWERUP(ProfileStatus.Flag.POWERUP.name(), "Power up"),
-    SHORTLONG(ProfileStatus.Flag.SHORTLONG.name(), "Short long"),
-    WATCHDOGRESET(ProfileStatus.Flag.WATCHDOGRESET.name(), "Watchdog reset"),
-    CONFIGURATIONCHANGE(ProfileStatus.Flag.CONFIGURATIONCHANGE.name(), "Configuration change"),
-    CORRUPTED(ProfileStatus.Flag.CORRUPTED, "Corrupted"),
-    OVERFLOW(ProfileStatus.Flag.OVERFLOW, "Overflow"),
-    RESERVED1(ProfileStatus.Flag.RESERVED1, "Reserved 1"),
-    RESERVED4(ProfileStatus.Flag.RESERVED4, "Reserved 4"),
-    RESERVED5(ProfileStatus.Flag.RESERVED5, "Reserved 5"),
-    MISSING(ProfileStatus.Flag.MISSING, "Missing"),
-    SHORT(ProfileStatus.Flag.SHORT, "Short"),
-    LONG(ProfileStatus.Flag.LONG, "Long"),
-    OTHER(ProfileStatus.Flag.OTHER, "Other"),
-    REVERSERUN(ProfileStatus.Flag.REVERSERUN, "Reverse run"),
-    PHASEFAILURE(ProfileStatus.Flag.PHASEFAILURE, "Phase failure"),
-    BADTIME(ProfileStatus.Flag.BADTIME, "Bad time"),
-    DEVICE_ERROR(ProfileStatus.Flag.DEVICE_ERROR, "Device error"),
-    BATTERY_LOW(ProfileStatus.Flag.BATTERY_LOW, "Battery low"),
-    TEST(ProfileStatus.Flag.TEST, "Test"),
     DEFAULT("Default", "Default"),
     DEFAULT_NOT_DEFINED("DefaultNotDefined", "Default (not defined yet)"),
     INDIVIDUAL("Individual", "Individual"),
@@ -149,10 +128,6 @@ public enum DefaultTranslationKey implements TranslationKey {
     DefaultTranslationKey(String key, String defaultFormat) {
         this.key = key;
         this.defaultFormat = defaultFormat;
-    }
-
-    DefaultTranslationKey(ProfileStatus.Flag profileStatusFlag, String defaultFormat) {
-        this("ProfileStatusFlag." + profileStatusFlag.name(), defaultFormat);
     }
 
     @Override

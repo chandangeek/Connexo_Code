@@ -26,6 +26,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -174,6 +175,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
 
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
+    @Mock
+    LocationService locationService;
 
     @Before
     public void setup() {
@@ -241,6 +244,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setThreadPrincipalService(threadPrincipalService);
         application.setCalendarInfoFactory(calendarInfoFactory);
         application.setCalendarService(calendarService);
+        application.setLocationService(locationService);
         return application;
     }
 
