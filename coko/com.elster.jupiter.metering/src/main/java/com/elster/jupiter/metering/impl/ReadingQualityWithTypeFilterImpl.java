@@ -147,8 +147,7 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
         compoundIndicesRegexp = compoundIndicesRegexp.isEmpty() ? indicesRegexp :
                 compoundIndicesRegexp + buildCurrentIndicesRegexp();
         return (systemsRegexp.isEmpty() ? "\\d+" : "(" + systemsRegexp + ")")
-                + "\\." + (indicesRegexp.isEmpty() ? "\\d+\\.\\d+" : "(" + indicesRegexp + ")");
-        +"\\." + (compoundIndicesRegexp.isEmpty() ? ANY_INDEX : "(" + compoundIndicesRegexp + ")");
+                + "\\." + (compoundIndicesRegexp.isEmpty() ? ANY_INDEX : "(" + compoundIndicesRegexp + ")");
     }
 
     /**
