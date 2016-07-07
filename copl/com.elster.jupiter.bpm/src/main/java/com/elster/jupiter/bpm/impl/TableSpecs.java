@@ -38,7 +38,7 @@ public enum TableSpecs {
             table.since(version(10, 2));
 
             Column nameColumn = table.column("NAME").map("name").varChar(NAME_LENGTH).notNull().add();
-            Column processColumn = table.column("PROCESSID").type("number").conversion(NUMBER2LONG).notNull().add();
+            Column processColumn = table.column("PROCESSID").number().conversion(NUMBER2LONG).notNull().add();
             table.column("VALUE").map("value").varChar(DESCRIPTION_LENGTH).notNull().add();
             table.addAuditColumns();
 

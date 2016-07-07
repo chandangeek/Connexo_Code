@@ -9,9 +9,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
-import com.elster.jupiter.users.UserService;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -35,11 +34,15 @@ public class BpmAppServiceImpl implements BpmAppService , TranslationKeyProvider
     private volatile BpmService bpmService;
     private volatile License license;
 
+    // For OSGi purposes
     public BpmAppServiceImpl() {
+        super();
     }
 
+    // For testing purposes
     @Inject
     public BpmAppServiceImpl(BpmService bpmService, BundleContext context) {
+        this();
         setBpmService(bpmService);
         activate(context);
     }
