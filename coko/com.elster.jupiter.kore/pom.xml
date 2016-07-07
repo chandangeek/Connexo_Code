@@ -317,9 +317,7 @@
             <id>test-kore-bundles</id>
             <modules>
                 <module>../com.elster.jupiter.gogo</module>
-                <!--
-                                <module>../com.elster.jupiter.metering.cps</module>
-                -->
+                <module>../com.elster.jupiter.metering.cps</module>
             </modules>
         </profile>
     </profiles>
