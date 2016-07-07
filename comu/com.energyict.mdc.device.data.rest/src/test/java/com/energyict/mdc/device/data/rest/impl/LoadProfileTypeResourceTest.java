@@ -8,13 +8,15 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.impl.DataValidationStatusImpl;
 import com.elster.jupiter.validation.impl.IValidationRule;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -30,12 +32,15 @@ import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,12 +54,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJerseyTest {
 
-    public static final String BATTERY_LOW = "BATTERY_LOW";
+    public static final String BATTERY_LOW = "Battery low";
+    public static final String BAD_TIME = "Clock error";
     public static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
     public static final Instant LAST_READING = Instant.ofEpochMilli(1410786196000L);
     public static final Date LAST_CHECKED = new Date(1409570229000L);
@@ -104,16 +111,35 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
+        when(loadProfile.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
+        when(device.getChannels()).thenReturn(Arrays.asList(channel1, channel2));
         when(loadProfile.getId()).thenReturn(1L);
         when(loadProfile.getVersion()).thenReturn(1L);
         Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
         when(loadProfile.getChannelData(interval)).thenReturn(asList(loadProfileReading));
+        Range<Instant> firstInterval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart - 900000), Instant.ofEpochMilli(intervalStart));
+        when(loadProfile.getChannelData(firstInterval)).thenReturn(Arrays.asList(loadProfileReading));
         when(loadProfileReading.getRange()).thenReturn(interval);
-        when(loadProfileReading.getFlags()).thenReturn(Arrays.asList(ProfileStatus.Flag.BATTERY_LOW));
+
+        when(channel1.getChannelData(firstInterval)).thenReturn(Arrays.asList(loadProfileReading));
+        when(channel2.getChannelData(firstInterval)).thenReturn(Arrays.asList(loadProfileReading));
+
+        ReadingQualityRecord readingQualityBatteryLow = mockReadingQuality(ProtocolReadingQualities.BATTERY_LOW.getCimCode());
+        ReadingQualityRecord readingQualityBadTime = mockReadingQuality(ProtocolReadingQualities.BADTIME.getCimCode());
+        List<ReadingQualityRecord> readingQualities = Arrays.asList(readingQualityBatteryLow, readingQualityBadTime);
+        Map<Channel, List<ReadingQualityRecord>> readingQualitiesPerChannel = new HashMap<>();
+        readingQualitiesPerChannel.put(channel1, readingQualities);
+        readingQualitiesPerChannel.put(channel2, readingQualities);
+
+        doReturn(readingQualitiesPerChannel).when(loadProfileReading).getReadingQualities();
+        doReturn(readingQualities).when(readingRecord1).getReadingQualities();
+        doReturn(readingQualities).when(readingRecord2).getReadingQualities();
+
         doReturn(BATTERY_LOW).when(thesaurus).getString(BATTERY_LOW, BATTERY_LOW);
 
         ReadingType readingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
         ReadingType calculatedReadingType = mockReadingType("1.2.3.4.5.6.7.8.9.10.11.12.13.14.15.16.17.18");
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.of(calculatedReadingType));
 
         when(loadProfileReading.getChannelValues()).thenReturn(ImmutableMap.of(channel1, readingRecord1, channel2, readingRecord2));
         when(clock.instant()).thenReturn(NOW);
@@ -131,14 +157,17 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(channel1.getCalculatedReadingType(any())).thenReturn(Optional.of(calculatedReadingType));
         when(channel1.getId()).thenReturn(CHANNEL_ID1);
         when(channel1.getChannelSpec()).thenReturn(channelSpec);
+        when(channel1.getInterval()).thenReturn(new TimeDuration(900));
         when(channel1.getNrOfFractionDigits()).thenReturn(3);
         when(channel2.getDevice()).thenReturn(device);
         when(channel2.getReadingType()).thenReturn(readingType);
         when(channel2.getCalculatedReadingType(any())).thenReturn(Optional.of(calculatedReadingType));
         when(channel2.getId()).thenReturn(CHANNEL_ID2);
         when(channel2.getChannelSpec()).thenReturn(channelSpec);
+        when(channel2.getInterval()).thenReturn(new TimeDuration(900));
         when(channel2.getNrOfFractionDigits()).thenReturn(3);
         when(device.forValidation()).thenReturn(deviceValidation);
+        when(device.getZone()).thenReturn(ZoneId.systemDefault());
         when(deviceValidation.isValidationActive(channel1, NOW)).thenReturn(true);
         when(deviceValidation.isValidationActive(channel2, NOW)).thenReturn(true);
 
@@ -153,6 +182,9 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
         when(rule1.getImplementation()).thenReturn("isPrime");
         when(rule1.getDisplayName()).thenReturn("Primes only");
+        ValidationRuleSetVersion validationRuleSetVersion = mock(ValidationRuleSetVersion.class);
+        when(validationRuleSetVersion.getRuleSet()).thenReturn(mock(ValidationRuleSet.class));
+        when(rule1.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(3);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.SUSPECT);
 
@@ -163,7 +195,7 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRule.getName()).thenReturn("EstimationRule");
-        ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int)estimationRule.getId());
+        ReadingQualityType readingQualityType = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityType);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
 
@@ -171,6 +203,52 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(loadProfileService.findById(loadProfile.getId())).thenReturn(Optional.of(loadProfile));
         when(loadProfileService.findAndLockLoadProfileByIdAndVersion(loadProfile.getId(), loadProfile.getVersion())).thenReturn(Optional.of(loadProfile));
         when(device.getLoadProfileUpdaterFor(loadProfile)).thenReturn(loadProfileUpdater);
+    }
+
+    private ReadingQualityRecord mockReadingQuality(String code) {
+        ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
+        ReadingQualityType readingQualityType = new ReadingQualityType(code);
+        when(readingQuality.getType()).thenReturn(readingQualityType);
+        when(readingQuality.isActual()).thenReturn(true);
+        return readingQuality;
+    }
+
+    @Test
+    public void test1IntervalOfLPData() throws UnsupportedEncodingException {
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data/1410774630000/validation")
+                .request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<List<?>>get("$.readingQualities")).hasSize(2);
+
+        assertThat(jsonModel.<String>get("$.readingQualities[0].cimCode")).isEqualTo("1.1.1");
+        assertThat(jsonModel.<String>get("$.readingQualities[0].indexName")).isEqualTo("Battery low");
+        assertThat(jsonModel.<String>get("$.readingQualities[0].systemName")).isEqualTo("Device");
+        assertThat(jsonModel.<String>get("$.readingQualities[0].categoryName")).isEqualTo("Diagnostics");
+
+        assertThat(jsonModel.<String>get("$.readingQualities[1].cimCode")).isEqualTo("1.1.9");
+        assertThat(jsonModel.<String>get("$.readingQualities[1].indexName")).isEqualTo("Clock error");
+        assertThat(jsonModel.<String>get("$.readingQualities[1].systemName")).isEqualTo("Device");
+        assertThat(jsonModel.<String>get("$.readingQualities[1].categoryName")).isEqualTo("Diagnostics");
+
+
+        String json2 = target("devices/1/channels/" + CHANNEL_ID2 + "/data/1410774630000/validation")
+                .request().get(String.class);
+
+        JsonModel jsonModel2 = JsonModel.create(json2);
+
+        assertThat(jsonModel2.<List<?>>get("$.readingQualities")).hasSize(2);
+
+        assertThat(jsonModel2.<String>get("$.readingQualities[0].cimCode")).isEqualTo("1.1.1");
+        assertThat(jsonModel2.<String>get("$.readingQualities[0].indexName")).isEqualTo("Battery low");
+        assertThat(jsonModel2.<String>get("$.readingQualities[0].systemName")).isEqualTo("Device");
+        assertThat(jsonModel2.<String>get("$.readingQualities[0].categoryName")).isEqualTo("Diagnostics");
+
+        assertThat(jsonModel2.<String>get("$.readingQualities[1].cimCode")).isEqualTo("1.1.9");
+        assertThat(jsonModel2.<String>get("$.readingQualities[1].indexName")).isEqualTo("Clock error");
+        assertThat(jsonModel2.<String>get("$.readingQualities[1].systemName")).isEqualTo("Device");
+        assertThat(jsonModel2.<String>get("$.readingQualities[1].categoryName")).isEqualTo("Diagnostics");
     }
 
     @Test
@@ -187,8 +265,18 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(1);
         assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(1410774630000L);
         assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1410828630000L);
-        assertThat(jsonModel.<List<?>>get("$.data[0].intervalFlags")).hasSize(1);
-        assertThat(jsonModel.<String>get("$.data[0].intervalFlags[0]")).isEqualTo(BATTERY_LOW);
+        Map<String, List<String>> map = jsonModel.<Map<String, List<String>>>get("$.data[0].readingQualities");
+
+        List<String> readingQualitiesChannel1 = map.get(String.valueOf(CHANNEL_ID1));
+        assertThat(readingQualitiesChannel1).hasSize(2);
+        assertThat(readingQualitiesChannel1.get(0)).isEqualTo(BATTERY_LOW);
+        assertThat(readingQualitiesChannel1.get(1)).isEqualTo(BAD_TIME);
+
+        List<String> readingQualitiesChannel2 = map.get(String.valueOf(CHANNEL_ID2));
+        assertThat(readingQualitiesChannel2).hasSize(2);
+        assertThat(readingQualitiesChannel2.get(0)).isEqualTo(BATTERY_LOW);
+        assertThat(readingQualitiesChannel2.get(1)).isEqualTo(BAD_TIME);
+
         Map collectedValues = jsonModel.<Map>get("$.data[0].channelData");
         assertThat(collectedValues).contains(entry(String.valueOf(CHANNEL_ID1), "200.000"));
         assertThat(collectedValues).contains(entry(String.valueOf(CHANNEL_ID2), "250.000"));

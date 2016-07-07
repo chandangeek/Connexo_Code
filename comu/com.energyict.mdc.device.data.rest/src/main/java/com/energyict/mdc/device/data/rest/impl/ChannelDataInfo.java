@@ -4,11 +4,13 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,8 +23,8 @@ public class ChannelDataInfo {
     public Instant readingTime;
     @JsonProperty("reportedDateTime")
     public Instant reportedDateTime;
-    @JsonProperty("intervalFlags")
-    public List<String> intervalFlags;
+    @JsonProperty("readingQualities")
+    public List<String> readingQualities;
     @JsonProperty("value")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal value;
@@ -46,14 +48,14 @@ public class ChannelDataInfo {
     public BigDecimal multiplier;
 
     public BaseReading createNew() {
-        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, null);
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, Collections.emptyList());
     }
 
     public BaseReading createNewBulk() {
-        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.collectedValue, null);
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.collectedValue, Collections.emptyList());
     }
 
     public BaseReading createConfirm() {
-        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), null, null);
+        return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), null, Collections.emptyList());
     }
 }

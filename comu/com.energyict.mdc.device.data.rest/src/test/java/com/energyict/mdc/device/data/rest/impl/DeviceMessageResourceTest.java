@@ -40,6 +40,7 @@ import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.TrackingCategory;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -108,6 +109,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     @Before
     public void initDependenciesOnPropertySpecService() {
         when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory, thesaurus, propertySpecService)).collect(Collectors.toList()));
+        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory, thesaurus, propertySpecService)).collect(Collectors.toList()));
         deviceMessageCategoryDeviceActions = new DeviceMessageCategoryImpl(DeviceMessageCategories.DEVICE_ACTIONS, thesaurus, propertySpecService);
         deviceMessageCategoryActivityCalendar = new DeviceMessageCategoryImpl(DeviceMessageCategories.ACTIVITY_CALENDAR, thesaurus, propertySpecService);
         deviceMessageCategoryClock = new DeviceMessageCategoryImpl(DeviceMessageCategories.CLOCK, thesaurus, propertySpecService);
@@ -533,7 +535,6 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         Response response = target("/devices/ZABF010000080004/devicemessages/2").request().put(Entity.json(deviceMessageInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(msg2, times(1)).revoke();
-        verify(msg2, times(1)).save();
     }
 
     @Test
@@ -548,18 +549,20 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         DeviceMessage msg3 = mockDeviceMessage(3L, device);
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
 
+        Instant expectedReleaseDate = LocalDateTime.of(2014, 10, 1, 11, 22, 33).toInstant(ZoneOffset.UTC);
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
         deviceMessageInfo.version = 1L;
         deviceMessageInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
         deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
         deviceMessageInfo.messageSpecification.name = "some";
+        deviceMessageInfo.releaseDate = expectedReleaseDate;
 
         Response response = target("/devices/ZABF010000080004/devicemessages/3").request().put(Entity.json(deviceMessageInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         ArgumentCaptor<Instant> argumentCaptor = ArgumentCaptor.forClass(Instant.class);
         verify(msg3, times(1)).setReleaseDate(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue()).isEqualTo(deviceMessageInfo.releaseDate);
+        assertThat(argumentCaptor.getValue()).isEqualTo(expectedReleaseDate);
 
         verify(msg3, times(1)).save();
     }
@@ -873,6 +876,11 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
 
         @Override
         public CollectedBreakerStatus getBreakerStatus() {
+            return null;
+        }
+
+        @Override
+        public CollectedCalendar getCollectedCalendar() {
             return null;
         }
     }
