@@ -2,8 +2,8 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.Formula;
