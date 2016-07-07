@@ -488,7 +488,7 @@ public enum TableSpecs {
             Table<ComTaskExecutionJournalEntry> table = dataModel.addTable(name(), ComTaskExecutionJournalEntry.class);
             table.map(ComTaskExecutionJournalEntryImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-            table.addDiscriminatorColumn("DISCRIMINATOR", "varchar(1 char)");
+            table.addDiscriminatorColumn("DISCRIMINATOR", "varchar2(1 char)");
             Column comtaskexecsession = table.column("COMTASKEXECSESSION").number().notNull().add();
             table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
             table.column("ERRORDESCRIPTION").type("CLOB").conversion(CLOB2STRING).map("errorDescription").add();
