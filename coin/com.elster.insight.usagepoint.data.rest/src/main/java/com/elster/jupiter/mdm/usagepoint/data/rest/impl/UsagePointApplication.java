@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -27,7 +28,6 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
-
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -53,6 +53,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile MeteringService meteringService;
+    private volatile LocationService locationService;
     private volatile RestQueryService restQueryService;
     private volatile Clock clock;
     private volatile MeteringGroupsService meteringGroupsService;
@@ -204,6 +205,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
+    @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -212,6 +218,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(meteringService).to(MeteringService.class);
+            bind(locationService).to(LocationService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(clock).to(Clock.class);

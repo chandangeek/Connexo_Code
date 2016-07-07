@@ -74,6 +74,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
@@ -178,7 +179,7 @@ public class UsagePointResource {
         validateLocation(validationBuilder, "location", info.extendedLocation);
         validationBuilder.validate();
 
-        usagePoint.setGeoCoordinates(usagePointInfoFactory.getGeoCoordinates(info));
+        usagePoint.setSpatialCoordinates(usagePointInfoFactory.getGeoCoordinates(info));
         Location location = usagePointInfoFactory.getLocation(info);
         if (location != null) {
             usagePoint.setLocation(location.getId());
@@ -279,7 +280,7 @@ public class UsagePointResource {
                                                 MetrologyConfigurationInfo info) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
 
-        if (usagePoint.getMetrologyConfiguration().isPresent()) {
+        if (usagePoint.getMetrologyConfiguration(usagePoint.getInstallationTime()).isPresent()) {
             throw resourceHelper.throwUsagePointLinkedException(mrid);
         }
 
@@ -309,7 +310,7 @@ public class UsagePointResource {
         }
 
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = resourceHelper.findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(info.id, info.version);
-        usagePoint.apply(usagePointMetrologyConfiguration);
+        usagePoint.apply(usagePointMetrologyConfiguration, usagePoint.getInstallationTime());
         for (CustomPropertySetInfo customPropertySetInfo : info.customPropertySets) {
             UsagePointPropertySet propertySet = usagePoint.forCustomProperties()
                     .getPropertySet(customPropertySetInfo.id);
@@ -492,10 +493,12 @@ public class UsagePointResource {
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
         Set<ReadingType> readingTypes = new LinkedHashSet<>();
-        List<? extends MeterActivation> meterActivations = usagePoint.getMeterActivations();
-        for (MeterActivation meterActivation : meterActivations) {
-            readingTypes.addAll(meterActivation.getReadingTypes());
-        }
+        usagePoint
+                .getMeterActivations()
+                .stream()
+                .map(MeterActivation::getReadingTypes)
+                .flatMap(Collection::stream)
+                .forEach(readingTypes::add);
         return readingTypes;
     }
 
