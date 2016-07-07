@@ -1,10 +1,10 @@
 package com.elster.jupiter.demo.impl.builders;
 
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -20,7 +20,7 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
     private ServiceKind serviceKind = ServiceKind.ELECTRICITY;
     private Instant installationTime;
     private Location location;
-    private GeoCoordinates geoCoordiantes;
+    private SpatialCoordinates geoCoordiantes;
 
     public UsagePointBuilder(MeteringService meteringService){
         super(UsagePointBuilder.class);
@@ -47,7 +47,7 @@ public class UsagePointBuilder extends NamedBuilder<UsagePoint, UsagePointBuilde
         return this;
     }
 
-    public UsagePointBuilder withGeoCoordinates(GeoCoordinates geoCoordiantes){
+    public UsagePointBuilder withGeoCoordinates(SpatialCoordinates geoCoordiantes){
         this.geoCoordiantes = geoCoordiantes;
         return this;
     }

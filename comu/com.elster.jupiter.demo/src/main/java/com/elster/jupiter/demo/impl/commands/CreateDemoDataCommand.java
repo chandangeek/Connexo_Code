@@ -5,8 +5,8 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.upload.UploadAllCommand;
 import com.elster.jupiter.demo.impl.commands.upload.ValidateStartDateCommand;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -36,7 +36,7 @@ public class CreateDemoDataCommand {
     private String startDate;
     private Integer devicesPerType = null;
     private Location location;
-    private GeoCoordinates geoCoordinates;
+    private SpatialCoordinates geoCoordinates;
     private boolean skipFirmwareMamanagementData;
 
     @Inject
@@ -81,7 +81,7 @@ public class CreateDemoDataCommand {
         this.location = location;
     }
 
-    public void setGeoCoordinates(GeoCoordinates geoCoordinates){
+    public void setGeoCoordinates(SpatialCoordinates geoCoordinates){
        this.geoCoordinates = geoCoordinates;
     }
 
@@ -159,7 +159,7 @@ public class CreateDemoDataCommand {
         command.setHost(this.host);
         command.setDevicesPerType(this.devicesPerType);
         command.setLocation(location);
-        command.setGeoCoordinates(geoCoordinates);
+        command.setSpatialCoordinates(geoCoordinates);
         command.run();
     }
 

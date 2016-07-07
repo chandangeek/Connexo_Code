@@ -20,4 +20,5 @@ public class SecurityPropertiesDevicePostBuilder implements Consumer<Device> {
             device.save();
         }
     }
+
 }
