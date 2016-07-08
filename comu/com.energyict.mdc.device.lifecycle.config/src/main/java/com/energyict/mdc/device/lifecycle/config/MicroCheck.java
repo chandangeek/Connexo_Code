@@ -93,7 +93,12 @@ public enum MicroCheck {
     /**
      * Check if at least one connection is available on the device with the status: "Active".
      */
-    AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(MicroCategory.COMMUNICATION);
+    AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(MicroCategory.COMMUNICATION),
+
+    /**
+     * Check if no active service calls exist for the device.
+     */
+    NO_ACTIVE_SERVICE_CALLS(MicroCategory.SERVICECALLS);
 
     private MicroCategory category;
 

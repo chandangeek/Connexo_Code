@@ -10,5 +10,6 @@ public enum MicroCategory {
     ISSUES,
     INSTALLATION,
     DECOMISSION,
-    RETENTION;
+    RETENTION,
+    SERVICECALLS;
 }
