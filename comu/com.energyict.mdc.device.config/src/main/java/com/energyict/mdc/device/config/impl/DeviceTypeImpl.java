@@ -1152,7 +1152,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     class DataloggerSlaveLogBookBehavior implements LogBookBehavior {
         @Override
         public void addLogBookTypes(List<LogBookType> logBookTypes) {
-            throw DataloggerSlaveException.logbookTypesAreNotSupported(getThesaurus(), DeviceTypeImpl.this);
+            if (!logBookTypes.isEmpty()) {
+                throw DataloggerSlaveException.logbookTypesAreNotSupported(getThesaurus(), DeviceTypeImpl.this);
+            }
         }
 
         @Override
@@ -1203,7 +1205,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public DeviceTypeBuilder withLogBookTypes(List<LogBookType> logBookTypes) {
-            underConstruction.addLogBookTypes(logBookTypes);
+            if (!logBookTypes.isEmpty()) {
+                underConstruction.addLogBookTypes(logBookTypes);
+            }
             return this;
         }
 
