@@ -29,6 +29,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.http.HttpService;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -59,6 +60,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile TransactionService transactionService;
+    private volatile HttpService httpService;
 
     // OSGi
     public WebServicesServiceImpl() {
@@ -67,7 +69,8 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Inject // For test purposes only
     public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService,
                                   UpgradeService upgradeService, BundleContext bundleContext, EventService eventService,
-                                  UserService userService, NlsService nlsService, TransactionService transactionService) {
+                                  UserService userService, NlsService nlsService, TransactionService transactionService,
+                                  HttpService httpService) {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
@@ -75,6 +78,7 @@ public class WebServicesServiceImpl implements WebServicesService {
         setNlsService(nlsService);
         setUserService(userService);
         setTransactionService(transactionService);
+        setHttpService(httpService);
         start(bundleContext);
     }
 
@@ -86,6 +90,11 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Reference
     public void setSoapProviderSupportFactory(SoapProviderSupportFactory soapProviderSupportFactory) {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
+    }
+
+    @Reference
+    public void setHttpService(HttpService httpService) {
+        this.httpService = httpService;
     }
 
     @Reference
@@ -284,6 +293,7 @@ public class WebServicesServiceImpl implements WebServicesService {
                 bind(UserService.class).toInstance(userService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
+                bind(HttpService.class).toInstance(httpService);
             }
         };
     }
