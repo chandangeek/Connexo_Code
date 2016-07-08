@@ -587,7 +587,8 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter, readingTypes, when, serviceCall)))
+                        .filter(he -> he.getCapabilities(meter).getConfiguredReadingTypes().retainAll(readingTypes))
+                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter, readingTypes, when)))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
