@@ -167,7 +167,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(issueFinder.find()).thenReturn(Collections.emptyList());
         when(issueService.findOpenIssuesForDevice(any(String.class))).thenReturn(issueFinder);
         when(batchService.findBatch(any(Device.class))).thenReturn(Optional.empty());
-        when(topologyService.findCurrentDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findDataLoggerChannelUsages(any(Channel.class), any(Range.class))).thenReturn(Collections.emptyList());
     }

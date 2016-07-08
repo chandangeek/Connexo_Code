@@ -1082,7 +1082,7 @@ public class ResourceHelper {
     }
 
     private Optional<Instant> getLinkingDate(Device slave) {
-        return topologyService.findCurrentDataloggerReference(slave, clock.instant())
+        return topologyService.findDataloggerReference(slave, clock.instant())
                 .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint());
     }
 

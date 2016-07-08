@@ -418,7 +418,8 @@ public class DeviceInfoFactoryTest {
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(lifecycleDates.getReceivedDate()).thenReturn(Optional.of(LocalDateTime.of(2015, 7, 13, 12, 0).toInstant(ZoneOffset.UTC)));
         when(dataLogger.getLifecycleDates()).thenReturn(lifecycleDates);
-        when(topologyService.findCurrentDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
     }
 
     private OpenIssue mockIssue(IssueType dataCollectionIssueType) {

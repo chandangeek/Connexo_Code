@@ -187,7 +187,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(firmwareComTask.isUserComTask()).thenReturn(false);
         when(topologyService.availabilityDate(any(Channel.class))).thenReturn(Optional.empty());
         when(topologyService.availabilityDate(any(Register.class))).thenReturn(Optional.empty());
-        when(topologyService.findCurrentDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.findLastDataloggerReference(any(Device.class))).thenReturn(Optional.empty());
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState() {

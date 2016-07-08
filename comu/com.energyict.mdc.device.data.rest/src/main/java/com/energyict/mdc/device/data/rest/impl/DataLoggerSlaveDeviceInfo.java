@@ -23,6 +23,7 @@ public class DataLoggerSlaveDeviceInfo {
     public String mRID;
     public String deviceTypeName;
     public long deviceConfigurationId;
+    public long deviceTypeId;
     public String deviceConfigurationName;
     public String serialNumber;
     public int yearOfCertification;
@@ -75,6 +76,7 @@ public class DataLoggerSlaveDeviceInfo {
         info.id = device.getId();
         info.mRID = device.getmRID();
         info.deviceTypeName = device.getDeviceType().getName();
+        info.deviceTypeId = device.getDeviceType().getId();
         info.deviceConfigurationId = device.getDeviceConfiguration().getId();
         info.deviceConfigurationName = device.getDeviceConfiguration().getName();
         info.serialNumber = device.getSerialNumber();
@@ -82,9 +84,14 @@ public class DataLoggerSlaveDeviceInfo {
         info.version = device.getVersion();
         info.fromExistingLink = true;
         info.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
-        info.linkingTimeStamp = topologyService.findCurrentDataloggerReference(device, clock.instant())
+        info.linkingTimeStamp = topologyService.findDataloggerReference(device, clock.instant())
                 .map(dataLoggerReference -> dataLoggerReference.getRange().lowerEndpoint().toEpochMilli())
                 .orElse(null);
+        topologyService.findLastDataloggerReference(device).ifPresent(dataLoggerReference -> {
+            if (dataLoggerReference.isTerminated()) {
+                info.unlinkingTimeStamp = dataLoggerReference.getRange().upperEndpoint().toEpochMilli();
+            }
+        });
         device.getLifecycleDates().getReceivedDate().ifPresent((shipmentDate) -> info.shipmentDate = shipmentDate.toEpochMilli());
         return info;
     }

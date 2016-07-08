@@ -99,4 +99,9 @@ public class DataLoggerSlaveDeviceInfoFactory {
         return slaveDeviceInfos;
     }
 
+    public DataLoggerSlaveDeviceInfos forDataLoggerSlaves(List<Device> devices) {
+        DataLoggerSlaveDeviceInfos dataLoggerSlaveDeviceInfos = new DataLoggerSlaveDeviceInfos(topologyService, clock, batchService);
+        dataLoggerSlaveDeviceInfos.addAll(devices);
+        return dataLoggerSlaveDeviceInfos;
+    }
 }

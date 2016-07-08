@@ -59,7 +59,7 @@ public class DeviceTopologyInfoTest {
 
     @Before
     public void setup() {
-        when(topologyService.findCurrentDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
 
     }
 

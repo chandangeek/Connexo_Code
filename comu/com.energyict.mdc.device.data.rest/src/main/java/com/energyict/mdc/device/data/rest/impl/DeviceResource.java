@@ -127,6 +127,7 @@ public class DeviceResource {
     private final TimeOfUseInfoFactory timeOfUseInfoFactory;
     private final CalendarService calendarService;
     private final Clock clock;
+    private final DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
 
     @Inject
     public DeviceResource(
@@ -166,7 +167,9 @@ public class DeviceResource {
             ServiceCallService serviceCallService,
             CalendarInfoFactory calendarInfoFactory,
             TimeOfUseInfoFactory timeOfUseInfoFactory,
-            CalendarService calendarService, Clock clock) {
+            CalendarService calendarService,
+            Clock clock,
+            DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -205,6 +208,7 @@ public class DeviceResource {
         this.timeOfUseInfoFactory = timeOfUseInfoFactory;
         this.calendarService = calendarService;
         this.clock = clock;
+        this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
     }
 
     @GET @Transactional
@@ -867,16 +871,15 @@ public class DeviceResource {
     @Path("/unlinkeddataloggerslaves")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public DeviceInfos getUnlinkedSlaves(@BeanParam JsonQueryParameters queryParameters) {
+    public DataLoggerSlaveDeviceInfos getUnlinkedSlaves(@BeanParam JsonQueryParameters queryParameters) {
         String searchText = queryParameters.getLike();
         if (searchText != null && !searchText.isEmpty()) {
-            return new DeviceInfos(
-                deviceService.findAllDevices(getUnlinkedSlaveDevicesCondition(searchText)).stream()
-                .limit(50)
-                .collect(Collectors.<Device>toList())
-            );
+            return dataLoggerSlaveDeviceInfoFactory.forDataLoggerSlaves(deviceService.findAllDevices(getUnlinkedSlaveDevicesCondition(searchText))
+                    .stream()
+                    .limit(50)
+                    .collect(Collectors.<Device>toList()));
         }
-        return new DeviceInfos();
+        return dataLoggerSlaveDeviceInfoFactory.forDataLoggerSlaves(Collections.emptyList());
     }
 
     private Condition getUnlinkedSlaveDevicesCondition(String dbSearchText) {
