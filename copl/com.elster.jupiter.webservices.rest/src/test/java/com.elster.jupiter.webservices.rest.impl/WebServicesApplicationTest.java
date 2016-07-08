@@ -8,7 +8,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
@@ -83,8 +82,6 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(endPointConfigurationService.getEndPointConfiguration(id)).thenReturn(Optional.of(mock));
         when(endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, version)).thenReturn(Optional
                 .of(mock));
-        WebService webService = mock(WebService.class);
-        when(webServicesService.getWebService(webServiceName)).thenReturn(Optional.of(webService));
         return mock;
     }
 
@@ -111,8 +108,6 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         when(endPointConfigurationService.getEndPointConfiguration(id)).thenReturn(Optional.of(mock));
         when(endPointConfigurationService.findAndLockEndPointConfigurationByIdAndVersion(id, version)).thenReturn(Optional
                 .of(mock));
-        WebService webService = mock(WebService.class);
-        when(webServicesService.getWebService(webServiceName)).thenReturn(Optional.of(webService));
         return mock;
     }
 

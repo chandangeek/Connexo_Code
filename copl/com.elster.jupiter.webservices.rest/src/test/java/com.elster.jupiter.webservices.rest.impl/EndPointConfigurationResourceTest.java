@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.users.Group;
 
 import com.jayway.jsonpath.JsonModel;
@@ -37,13 +38,15 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
 
     private InboundEndPointConfiguration inboundEndPointConfiguration;
     private OutboundEndPointConfiguration outboundEndPointConfiguration;
+    private InboundEndPointConfiguration inboundRestEndPointConfiguration;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        inboundEndPointConfiguration = mockInboundEndPointConfig(1L, 901L, "metering", "/cim", "CIM");
-        outboundEndPointConfiguration = mockOutboundEndPointConfig(2L, 902L, "currency", "http://xe.xom/xe", "XE");
+        inboundEndPointConfiguration = mockInboundEndPointConfig(1L, 901L, "metering", "/cim", "someInboundService");
+        outboundEndPointConfiguration = mockOutboundEndPointConfig(2L, 902L, "currency", "http://xe.xom/xe", "someOutboundService");
+        inboundRestEndPointConfiguration = mockInboundEndPointConfig(3L, 903L, "metering/rest", "/cim", "someRestService");
         when(webServicesService.getWebService("someInboundService")).thenReturn(Optional.of(new WebService() {
             @Override
             public String getName() {
@@ -53,6 +56,11 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
             @Override
             public boolean isInbound() {
                 return true;
+            }
+
+            @Override
+            public WebServiceProtocol getProtocol() {
+                return WebServiceProtocol.SOAP;
             }
         }));
         when(webServicesService.getWebService("someOutboundService")).thenReturn(Optional.of(new WebService() {
@@ -64,6 +72,27 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
             @Override
             public boolean isInbound() {
                 return false;
+            }
+
+            @Override
+            public WebServiceProtocol getProtocol() {
+                return WebServiceProtocol.SOAP;
+            }
+        }));
+        when(webServicesService.getWebService("someRestService")).thenReturn(Optional.of(new WebService() {
+            @Override
+            public String getName() {
+                return "someRestService";
+            }
+
+            @Override
+            public boolean isInbound() {
+                return true;
+            }
+
+            @Override
+            public WebServiceProtocol getProtocol() {
+                return WebServiceProtocol.REST;
             }
         }));
     }
@@ -110,9 +139,33 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         assertThat(jsonModel.<String>get("password")).isNull();
         assertThat(jsonModel.<Boolean>get("tracing")).isTrue();
         assertThat(jsonModel.<String>get("traceFile")).isEqualTo("webservices.log");
-        assertThat(jsonModel.<String>get("webServiceName")).isEqualTo("CIM");
+        assertThat(jsonModel.<String>get("webServiceName")).isEqualTo("someInboundService");
         assertThat(jsonModel.<String>get("url")).isEqualTo("/cim");
         assertThat(jsonModel.<String>get("previewUrl")).isEqualTo("http://localhost:9998/soap/cim");
+        assertThat(jsonModel.<String>get("logLevel.id")).isEqualTo("INFO");
+        assertThat(jsonModel.<String>get("logLevel.localizedValue")).isEqualTo("Information");
+    }
+
+    @Test
+    public void testGetInboundRestEndpointById() throws Exception {
+        Response response = target("/endpointconfigurations/3").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("id")).isEqualTo(3);
+        assertThat(jsonModel.<Integer>get("version")).isEqualTo(903);
+        assertThat(jsonModel.<String>get("name")).isEqualTo("metering/rest");
+        assertThat(jsonModel.<String>get("authenticationMethod.id")).isEqualTo("NONE");
+        assertThat(jsonModel.<Boolean>get("tracing")).isEqualTo(Boolean.TRUE);
+        assertThat(jsonModel.<Boolean>get("active")).isEqualTo(Boolean.TRUE);
+        assertThat(jsonModel.<Boolean>get("available")).isEqualTo(Boolean.TRUE);
+        assertThat(jsonModel.<Boolean>get("httpCompression")).isEqualTo(Boolean.TRUE);
+        assertThat(jsonModel.<String>get("username")).isNull();
+        assertThat(jsonModel.<String>get("password")).isNull();
+        assertThat(jsonModel.<Boolean>get("tracing")).isTrue();
+        assertThat(jsonModel.<String>get("traceFile")).isEqualTo("webservices.log");
+        assertThat(jsonModel.<String>get("webServiceName")).isEqualTo("someRestService");
+        assertThat(jsonModel.<String>get("url")).isEqualTo("/cim");
+        assertThat(jsonModel.<String>get("previewUrl")).isEqualTo("http://localhost:9998/rest/cim");
         assertThat(jsonModel.<String>get("logLevel.id")).isEqualTo("INFO");
         assertThat(jsonModel.<String>get("logLevel.localizedValue")).isEqualTo("Information");
     }
@@ -132,7 +185,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.url = "/srv";
         info.active = false;
 
-        InboundEndPointConfiguration endPointConfig = mockInboundEndPointConfig(10, 11, "new", "/url", "new service");
+        InboundEndPointConfiguration endPointConfig = mockInboundEndPointConfig(10, 11, "new", "/url", "someInboundService");
         EndPointConfigurationService.InboundEndPointConfigBuilder builder = FakeBuilder.initBuilderStub(endPointConfig, EndPointConfigurationService.InboundEndPointConfigBuilder.class);
         when(endPointConfigurationService.newInboundEndPointConfiguration(anyString(), anyString(), anyString())).thenReturn(builder);
 
@@ -159,7 +212,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.active = false;
         when(userService.getGroup(1L)).thenReturn(Optional.of(group));
 
-        InboundEndPointConfiguration endPointConfig = mockInboundEndPointConfig(10, 11, "new", "/url", "new service");
+        InboundEndPointConfiguration endPointConfig = mockInboundEndPointConfig(10, 11, "new", "/url", "someInboundService");
         EndPointConfigurationService.InboundEndPointConfigBuilder builder = FakeBuilder.initBuilderStub(endPointConfig, EndPointConfigurationService.InboundEndPointConfigBuilder.class);
         when(endPointConfigurationService.newInboundEndPointConfiguration(anyString(), anyString(), anyString())).thenReturn(builder);
 
