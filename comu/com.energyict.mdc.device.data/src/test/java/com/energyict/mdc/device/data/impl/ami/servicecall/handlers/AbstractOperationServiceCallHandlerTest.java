@@ -182,6 +182,9 @@ public class AbstractOperationServiceCallHandlerTest {
         when(deviceMessage1.getId()).thenReturn(DEVICE_MESSAGE_ID_1);
         when(deviceMessage2.getId()).thenReturn(DEVICE_MESSAGE_ID_2);
         when(deviceMessage3.getId()).thenReturn(DEVICE_MESSAGE_ID_3);
+        when(deviceMessage1.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
+        when(deviceMessage2.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
+        when(deviceMessage3.getStatus()).thenReturn(DeviceMessageStatus.WAITING);
         when(device.getMessagesByState(DeviceMessageStatus.PENDING)).thenReturn(new ArrayList<>(Arrays.asList(deviceMessage1, deviceMessage3)));
         when(device.getMessagesByState(DeviceMessageStatus.WAITING)).thenReturn(new ArrayList<>(Collections.singletonList(deviceMessage2)));
         doReturn(Optional.of(device)).when(serviceCall).getTargetObject();
@@ -211,6 +214,9 @@ public class AbstractOperationServiceCallHandlerTest {
         when(deviceMessage1.getId()).thenReturn(DEVICE_MESSAGE_ID_1);
         when(deviceMessage2.getId()).thenReturn(DEVICE_MESSAGE_ID_2);
         when(deviceMessage3.getId()).thenReturn(DEVICE_MESSAGE_ID_3);
+        when(deviceMessage1.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
+        when(deviceMessage2.getStatus()).thenReturn(DeviceMessageStatus.WAITING);
+        when(deviceMessage3.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         ConstraintViolation constraintViolation = mock(ConstraintViolation.class);
         ConstraintViolationException constraintViolationException = mock(ConstraintViolationException.class);
         when(constraintViolation.getMessage()).thenReturn(CONSTRAINT_VIOLATION_MESSAGE);

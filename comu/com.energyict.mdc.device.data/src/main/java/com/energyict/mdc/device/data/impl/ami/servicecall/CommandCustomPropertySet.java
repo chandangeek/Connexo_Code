@@ -5,6 +5,9 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
@@ -12,6 +15,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.device.data.DeviceDataServices;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -37,13 +41,15 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
 
     public static final String CUSTOM_PROPERTY_SET_NAME = "CommandCustomPropertySet";
 
+    private volatile Thesaurus thesaurus;
     public volatile PropertySpecService propertySpecService;
 
     public CommandCustomPropertySet() {
     }
 
     @Inject
-    public CommandCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+    public CommandCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
@@ -61,6 +67,11 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         customPropertySetService.addCustomPropertySet(this);
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Activate
@@ -107,25 +118,28 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(CommandServiceCallDomainExtension.FieldNames.RELEASE_DATE.javaName(), CommandServiceCallDomainExtension.FieldNames.RELEASE_DATE.javaName())
-                        .describedAs("Release date")
+                        .named(CommandServiceCallDomainExtension.FieldNames.RELEASE_DATE.javaName(), CustomPropertySetsTranslationKeys.RELEASE_DATE)
+                        .describedAs(CustomPropertySetsTranslationKeys.RELEASE_DATE)
+                        .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(CommandServiceCallDomainExtension.FieldNames.DEVICE_MSG.javaName(), CommandServiceCallDomainExtension.FieldNames.DEVICE_MSG.javaName())
-                        .describedAs("Device commands")
+                        .named(CommandServiceCallDomainExtension.FieldNames.DEVICE_MSG.javaName(), CustomPropertySetsTranslationKeys.DEVICE_MSG)
+                        .describedAs(CustomPropertySetsTranslationKeys.DEVICE_MSG)
+                        .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .longSpec()
-                        .named(CommandServiceCallDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.javaName(), CommandServiceCallDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS
-                                .javaName())
-                        .describedAs("Nr of unconfirmed device commands")
+                        .named(CommandServiceCallDomainExtension.FieldNames.NR_OF_UNCONFIRMED_DEVICE_COMMANDS.javaName(), CustomPropertySetsTranslationKeys.NR_OF_UNCONFIRMED_DEVICE_COMMANDS)
+                        .describedAs(CustomPropertySetsTranslationKeys.NR_OF_UNCONFIRMED_DEVICE_COMMANDS)
+                        .fromThesaurus(thesaurus)
                         .setDefaultValue(0L)
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(CommandServiceCallDomainExtension.FieldNames.STATUS.javaName(), CommandServiceCallDomainExtension.FieldNames.STATUS.javaName())
-                        .describedAs("Status")
+                        .named(CommandServiceCallDomainExtension.FieldNames.STATUS.javaName(), CustomPropertySetsTranslationKeys.STATUS)
+                        .describedAs(CustomPropertySetsTranslationKeys.STATUS)
+                        .fromThesaurus(thesaurus)
                         .finish());
     }
 
