@@ -65,7 +65,7 @@ Ext.define('Mdc.view.setup.device.DataLoggerSlavesPanel', {
             },
             manageSlavesLink = {
                 xtype: 'container',
-                margin: '0 0 0 7',
+                margin: '0 0 4 7',
                 html: '<a href="' + me.router.getRoute('devices/device/dataloggerslaves').buildUrl({mRID: me.router.arguments.mRID}) + '">' + Uni.I18n.translate('general.manageDataLoggerSlaves', 'MDC', 'Manage data logger slaves') + '</a>'
             };
 

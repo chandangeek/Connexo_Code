@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
             isDirectlyAddressable = device.get('isDirectlyAddressed'),
             manageTopologyLink  = {
                 xtype: 'container',
-                margin: '0 0 0 7',
+                margin: '0 0 4 7',
                 html: Ext.String.format('<a href="{0}">{1}</a>',
                     me.router.getRoute('devices/device/topology').buildUrl({mRID: me.router.arguments.mRID}),
                     Uni.I18n.translate('deviceCommunicationTopology.manageLinkText', 'MDC', 'Manage communication topology')

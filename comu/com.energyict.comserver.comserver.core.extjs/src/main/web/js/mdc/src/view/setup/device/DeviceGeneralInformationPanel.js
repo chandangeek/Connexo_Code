@@ -21,17 +21,24 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                 itemId: 'deviceGeneralInformationForm',
                 router: me.router,
                 dataLoggerSlave: me.dataLoggerSlave
-            },
-            {
-                xtype: 'button',
-                text: Uni.I18n.translate('deviceGeneralInformation.manageLinkText', 'MDC', 'Manage device attributes'),
-                ui: 'link',
-                itemId: 'view-more-general-information-link',
-                handler: function() {
-                    me.router.getRoute('devices/device/attributes').forward();
-                }
             }
         ];
+
+        me.bbar = {
+            xtype: 'container',
+            itemId: 'mdc-device-summary-bbar',
+            items: [
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('deviceGeneralInformation.manageLinkText', 'MDC', 'Manage device attributes'),
+                    ui: 'link',
+                    itemId: 'view-more-general-information-link',
+                    handler: function() {
+                        me.router.getRoute('devices/device/attributes').forward();
+                    }
+                }
+            ]
+        };
 
         me.callParent(arguments);
     }
