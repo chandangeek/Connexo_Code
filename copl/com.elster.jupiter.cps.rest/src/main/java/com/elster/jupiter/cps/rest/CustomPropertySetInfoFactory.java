@@ -99,8 +99,10 @@ public class CustomPropertySetInfoFactory {
                             metrologyConfiguration.getContracts()
                                     .stream()
                                     .filter(MetrologyContract::isMandatory)
-                                    .flatMap(contract -> contract.getDeliverables().stream())
-                                    .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(checker));
+                                    .forEach(contract -> contract.getDeliverables()
+                                            .stream()
+                                            .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(checker))
+                                    );
                             ((BasicPropertySpec) spec).setRequired(checker.getCustomPropertiesUsages().get(rcps).getName().equals(spec.getName()));
                         }
                         return spec;
@@ -386,8 +388,8 @@ public class CustomPropertySetInfoFactory {
                 if (value.get("id") != null) {
                     return new QuantityValueFactory().fromStringValue(value.get("id").toString());
                 }
-            } else if (infoValue instanceof String){
-                return new QuantityValueFactory().fromStringValue((String)infoValue);
+            } else if (infoValue instanceof String) {
+                return new QuantityValueFactory().fromStringValue((String) infoValue);
             }
 
             return null;
