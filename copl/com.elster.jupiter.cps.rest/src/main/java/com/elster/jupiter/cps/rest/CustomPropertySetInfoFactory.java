@@ -53,7 +53,7 @@ public class CustomPropertySetInfoFactory {
         this.propertyValueInfoService.addPropertyValueInfoConverter(new QuantityPropertyValueConverter());
     }
 
-    public CustomPropertySetInfo getGeneralInfo(RegisteredCustomPropertySet rcps) {
+    private CustomPropertySetInfo getGeneralInfo(RegisteredCustomPropertySet rcps) {
         CustomPropertySetInfo info = new CustomPropertySetInfo();
         if (rcps != null) {
             CustomPropertySet<?, ?> cps = rcps.getCustomPropertySet();
@@ -138,7 +138,7 @@ public class CustomPropertySetInfoFactory {
         }
     }
 
-    public CustomPropertySetAttributeInfo getPropertyInfo(PropertySpec propertySpec) {
+    private CustomPropertySetAttributeInfo getPropertyInfo(PropertySpec propertySpec) {
         return getPropertyInfo(propertySpec, null);
     }
 
@@ -155,7 +155,7 @@ public class CustomPropertySetInfoFactory {
         return info;
     }
 
-    public CustomPropertySetAttributeTypeInfo getPropertyTypeInfo(PropertySpec propertySpec) {
+    private CustomPropertySetAttributeTypeInfo getPropertyTypeInfo(PropertySpec propertySpec) {
         CustomPropertySetAttributeTypeInfo info = new CustomPropertySetAttributeTypeInfo();
         if (propertySpec != null) {
             info.type = propertySpec.getValueFactory().getValueType().getName();
@@ -166,7 +166,7 @@ public class CustomPropertySetInfoFactory {
         return info;
     }
 
-    public PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec) {
+    private PredefinedPropertyValuesInfo<?> getPredefinedPropertyValueInfo(PropertySpec propertySpec) {
         PropertySpecPossibleValues possibleValues = propertySpec.getPossibleValues();
         if (possibleValues == null || possibleValues.getAllValues().isEmpty()) {
             return null;
@@ -184,7 +184,7 @@ public class CustomPropertySetInfoFactory {
         return predefinedPropertyValuesInfo;
     }
 
-    public PropertyValueInfo<?> getPropertyValueInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
+    private PropertyValueInfo<?> getPropertyValueInfo(PropertySpec propertySpec, Function<String, Object> propertyValueProvider) {
         Object propertyValue = getPropertyValue(propertySpec, propertyValueProvider);
         Object defaultValue = getDefaultValue(propertySpec);
         return new PropertyValueInfo<>(propertyValue, defaultValue);
@@ -214,7 +214,7 @@ public class CustomPropertySetInfoFactory {
         } else {
             values = CustomPropertySetValues.empty();
         }
-        if (info != null && info.properties != null && propertySpecs != null) {
+        if (info.properties != null && propertySpecs != null) {
             Map<String, PropertySpec> propertySpecMap = propertySpecs
                     .stream()
                     .collect(Collectors.toMap(PropertySpec::getName, Function.identity()));
