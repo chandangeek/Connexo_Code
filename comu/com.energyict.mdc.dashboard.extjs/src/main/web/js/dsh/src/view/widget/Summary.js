@@ -32,7 +32,7 @@ Ext.define('Dsh.view.widget.Summary', {
                 itemSelector: 'tbody.item',
                 cls: 'summary',
                 total: 0,
-                tpl: '<table>' +
+                tpl: '<table style="margin-left:5px">' +
                     '<tpl for=".">' +
                     '<tbody class="item item-{#}">' +
                     '{% var parentIndex = xindex; %}' +

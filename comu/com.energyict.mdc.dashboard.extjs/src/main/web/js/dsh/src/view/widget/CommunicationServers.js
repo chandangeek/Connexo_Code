@@ -3,10 +3,9 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
     alias: 'widget.communication-servers',
     store: 'CommunicationServerInfos',
     ui: 'tile',
-
-    tbar: {
-        xtype: 'container',
-        itemId: 'connection-summary-title-panel'
+    title: ' ',
+    header: {
+        ui: 'small'
     },
 
     items: [
@@ -46,18 +45,13 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                     '</tpl>',
                 '</table>'
             )
-        },
-        {
-            xtype: 'container',
-            itemId: 'target-container',
-            layout: 'vbox',
-            style: {
-                marginRight: '20px'
-            },
-            items: [
-            ]
         }
     ],
+
+    bbar: {
+        xtype: 'container',
+        itemId: 'dsh-manage-link-container'
+    },
 
     serverTpl: new Ext.XTemplate(
         '<table>',
@@ -80,19 +74,16 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
 
     reload: function () {
         var me = this,
-            targetContainer = me.down('#target-container'),
+            linkContainer = me.down('#dsh-manage-link-container'),
             elm = me.down('#servers-dataview'),
             store = Ext.getStore(me.store);
 
         me.setLoading();
-        targetContainer.removeAll();
         store.load(function () {
             var title = '<h3>'
                 + Ext.String.format(Uni.I18n.translate('overview.widget.communicationServers.header', 'DSH', 'Active communication servers ({0})'), store.count())
                 + '</h3>';
-            if(me.down('#connection-summary-title-panel')){
-                me.down('#connection-summary-title-panel').update(title);
-            }
+            me.setTitle(title);
 
             var groups = store.getGroups().map(function (item) {
                 switch(item.name){
@@ -144,12 +135,12 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                 data: groups
             }));
 
-            targetContainer.add(
+            linkContainer.add(
                 {
                     xtype: 'button',
                     itemId: 'lnk-view-all-communication-servers',
                     ui: 'link',
-                    text: Uni.I18n.translate('general.viewAll', 'DSH', 'View all'),
+                    text: Uni.I18n.translate('overview.widget.communicationServers.manageLinkText', 'DSH', 'Manage communication servers'),
                     href: typeof me.router.getRoute('administration/comservers') !== 'undefined'
                         ? me.router.getRoute('administration/comservers').buildUrl() : ''
                 }

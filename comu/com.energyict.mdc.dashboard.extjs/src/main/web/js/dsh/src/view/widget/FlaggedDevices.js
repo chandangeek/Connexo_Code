@@ -4,6 +4,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
     alias: 'widget.flagged-devices',
     buttonAlign: 'left',
     layout: 'fit',
+    title: ' ',
     router: null,
     header: {
         ui: 'small'
@@ -44,7 +45,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
         emptyText: Uni.I18n.translate('overview.widget.flaggedDevices.noDevicesFound', 'DSH', 'No flagged devices found'),
 
         tpl: new Ext.XTemplate(
-            '<table  style="margin: 5px 0 10px 0">',
+            '<table  style="margin: 5px 0 10px 5px">',
             '<tpl for=".">',
                 '<tr id="{mRID}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" class="device">',
                     '<td width="100%"><a href="{href}">{[Ext.htmlEncode(values.mRID)]}</a></td>',

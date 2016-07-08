@@ -3,6 +3,7 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
     alias: 'widget.favorite-device-groups',
     ui: 'tile',
     store: 'Dsh.store.FavoriteDeviceGroups',
+    title: ' ',
     header: {
         ui: 'small'
     },
@@ -24,7 +25,7 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                         overflowY: 'auto',
                         style: 'max-height: 160px',
                         tpl: new Ext.XTemplate(
-                            '<table style="margin-top: 5px">',
+                            '<table style="margin-top:5px; margin-left:5px">',
                                 '<tpl for=".">',
                                     '<tr>',
                                         '<td style="height: 20px">',
@@ -47,8 +48,7 @@ Ext.define('Dsh.view.widget.FavoriteDeviceGroups', {
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('overview.widget.favoriteDeviceGroups.selectBtn', 'DSH', 'Select'),
-                        //hidden: Uni.Auth.hasNoPrivilege('privilege.administrate.deviceGroup'),
-                        style: 'margin-top: 15px',
+                        style: 'margin-top: 15px; margin-left:4px',
                         href: '#/dashboard/selectfavoritedevicegroups'
                     }
                 ]);

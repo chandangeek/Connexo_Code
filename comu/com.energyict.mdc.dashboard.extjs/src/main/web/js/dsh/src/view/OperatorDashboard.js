@@ -84,23 +84,36 @@ Ext.define('Dsh.view.OperatorDashboard', {
             {
                 xtype: 'panel',
                 layout: {
-                    type: 'vbox',
+                    type: 'hbox',
                     align: 'stretch'
                 },
-                height: 500,
-                defaults: {
-                    flex: 1
-                },
-                items: [],
-                dockedItems: [{
-                    xtype: 'communication-servers',
-                    width: 300,
-                    dock: 'right',
-                    privileges: Mdc.privileges.Device.administrateOrOperateDeviceCommunication,
-                    itemId: 'communication-servers',
-                    router: me.router,
-                    style: 'border-width: 1px !important'   // Andrea: Should be fixed with CSS
-                }]
+                items: [
+                    {
+                        xtype: 'panel',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        height: 500,
+                        defaults: {
+                            flex: 1
+                        },
+                        items: [],
+                        flex: 1
+                    },
+                    {
+                        xtype: 'panel',
+                        layout: {
+                            type: 'vbox',
+                            align: 'stretch'
+                        },
+                        defaults: {
+                            flex: 1
+                        },
+                        items: [],
+                        width: 350
+                    }
+                ]
             }
         ];
 
@@ -130,7 +143,7 @@ Ext.define('Dsh.view.OperatorDashboard', {
                 });
         //}
         if (Mdc.privileges.Device.canAdministrateOrOperateDeviceCommunication()) {
-            me.items[2].items.push(
+            me.items[2].items[0].items.push(
                 {
                     xtype: 'summary',
                     itemId: 'connection-summary',
@@ -160,6 +173,15 @@ Ext.define('Dsh.view.OperatorDashboard', {
                     }]
                 });
         }
+
+        me.items[2].items[1].items.push(
+            {
+                xtype: 'communication-servers',
+                privileges: Mdc.privileges.Device.administrateOrOperateDeviceCommunication,
+                itemId: 'communication-servers',
+                router: me.router
+            }
+        );
         this.callParent(arguments);
     }
 });

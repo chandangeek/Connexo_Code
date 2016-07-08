@@ -59,14 +59,14 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
 
             if (issuesCount === 0) {
                 countContainer.add({
-                    xtype: 'label',
-                    text: Uni.I18n.translate('operator.dashboard.issuesEmptyMsg', 'DSH', 'No open issues assigned to me')
+                    xtype: 'displayfield',
+                    value: Uni.I18n.translate('operator.dashboard.issuesEmptyMsg', 'DSH', 'No open issues assigned to me')
                 });
             }
             if (issuesCount) {
                 countContainer.add({
                     xtype: 'container',
-                    html: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.topIssues', 'DSH', 'Top {0} most urgent issues assigned to me'), issuesCount)
+                    html: Uni.I18n.translate('overview.widget.openDataCollectionIssues.topIssues', 'DSH', 'Top {0} most urgent issues assigned to me', issuesCount)
                 });
             }
 
@@ -88,14 +88,14 @@ Ext.define('Dsh.view.widget.OpenDataCollectionIssues', {
                 {
                     xtype: 'button',
                     itemId: 'lnk-assigned-issues-link',
-                    text: Ext.String.format(Uni.I18n.translate('overview.widget.openDataCollectionIssues.assignedToMe', 'DSH', 'Assigned to me ({0})'), assigned.get('total')),
+                    text: Uni.I18n.translate('overview.widget.openDataCollectionIssues.assignedToMe', 'DSH', 'Assigned to me ({0})', assigned.get('total')),
                     ui: 'link',
                     href: me.router.getRoute('workspace/issues').buildUrl(null, assignedFilter)
                 },
                 {
                     xtype: 'button',
                     itemId: 'lnk-unassigned-issues-link',
-                    text: Ext.String.format(Uni.I18n.translate('general.unassignedCounter', 'DSH', 'Unassigned ({0})'), unassigned.get('total')),
+                    text: Uni.I18n.translate('general.unassignedCounter', 'DSH', 'Unassigned ({0})', unassigned.get('total')),
                     ui: 'link',
                     href: me.router.getRoute('workspace/issues').buildUrl(null, unassignedFilter)
                 }

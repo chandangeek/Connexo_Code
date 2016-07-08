@@ -40,10 +40,6 @@ Ext.define('Dsh.view.CommunicationOverview', {
                     align: 'stretch'
                 },
                 defaults: {
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    },
                     flex: 1
                 },
                 items: [
