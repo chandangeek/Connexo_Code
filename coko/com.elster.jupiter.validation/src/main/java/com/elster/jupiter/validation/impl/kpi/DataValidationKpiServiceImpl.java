@@ -9,6 +9,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 
+import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +83,10 @@ public class DataValidationKpiServiceImpl implements DataValidationKpiService{
             @Override
             DataValidationKpiBuilderState build(DataValidationKpiImpl underConstruction, KpiBuilder dataValidationKpiBuilder) {
                 if (dataValidationKpiBuilder != null) {
-                    underConstruction.dataValidationKpiBuilder(dataValidationKpiBuilder);
+                    underConstruction.getDeviceGroup().getMembers(Instant.now())
+                            .stream()
+                            .forEach(device -> underConstruction.dataValidationKpiBuilder(dataValidationKpiBuilder, device
+                                    .getMRID()));
                 }
                 underConstruction.save();
                 return COMPLETE;

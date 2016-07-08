@@ -107,17 +107,15 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         Save.UPDATE.save(this.dataModel, this);
     }
 
-    void dataValidationKpiBuilder(KpiBuilder builder){
+    void dataValidationKpiBuilder(KpiBuilder builder, String mRID){
         builder.interval(this.frequency);
-        deviceGroup.get().getMembers(Instant.now()).stream()
-                .forEach(device -> {
-                    builder.member()
-                            .named(Fields.SUSPECT.fieldName() + device.getMRID()).add();
-                    builder.member()
-                            .named(Fields.REGISTER.fieldName() + device.getMRID()).add();
-                    builder.member()
-                            .named(Fields.CHANNELS.fieldName() + device.getMRID()).add();
-                });
+        Stream.of(DataValidationKpiMembers.values())
+                .map(DataValidationKpiMembers::fieldName)
+                .forEach(member -> builder.member()
+                        .named(member)
+                        .add());
+        builder.named(mRID);
+
         dataValidationKpi.set(builder.create());
 
     }
@@ -236,6 +234,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
         @Override
         public void save() {
+            //
             if (this.kpi.isPresent()) {
                 DestinationSpec destination = messageService.getDestinationSpec(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
                 RecurrentTask recurrentTask = taskService.newBuilder()
