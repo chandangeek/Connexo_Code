@@ -8,7 +8,6 @@ import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.apache.cxf.annotations.SchemaValidation;
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.feature.validation.SchemaValidationFeature;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
@@ -16,8 +15,6 @@ import org.apache.cxf.transport.common.gzip.GZIPFeature;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
-import java.io.File;
-import java.net.URI;
 
 /**
  * This endpoint manager knows how to set up and tear down an inbound SOAP endpoint
@@ -31,6 +28,7 @@ public final class InboundEndPoint implements ManagedEndpoint {
     private final Provider<AccessLogFeature> accessLogFeatureProvider;
 
     private Server endpoint;
+    private TracingFeature tracingFeature;
 
     @Inject
     public InboundEndPoint(SoapProviderSupportFactory soapProviderSupportFactory, @Named("LogDirectory") String logDirectory,
@@ -67,7 +65,8 @@ public final class InboundEndPoint implements ManagedEndpoint {
             svrFactory.setAddress(endPointConfiguration.getUrl());
             svrFactory.setServiceBean(implementor);
             if (endPointConfiguration.isTracing()) {
-                svrFactory.getFeatures().add(new TracingFeature(logDirectory, endPointConfiguration.getTraceFile()));
+                tracingFeature = new TracingFeature(logDirectory, endPointConfiguration.getTraceFile());
+                svrFactory.getFeatures().add(tracingFeature);
             }
             if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
                 svrFactory.getInInterceptors()
@@ -84,6 +83,10 @@ public final class InboundEndPoint implements ManagedEndpoint {
         if (this.isPublished()) {
             endpoint.stop();
             endpoint = null;
+            if (tracingFeature != null) {
+                tracingFeature.close();
+                tracingFeature = null;
+            }
         } else {
             throw new IllegalStateException("Service already stopped");
         }

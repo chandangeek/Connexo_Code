@@ -9,7 +9,6 @@ import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 import org.apache.cxf.annotations.SchemaValidation;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
 import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.feature.validation.SchemaValidationFeature;
 import org.apache.cxf.frontend.ClientProxy;
 import org.apache.cxf.transport.common.gzip.GZIPFeature;
@@ -22,7 +21,6 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebServiceFeature;
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -44,6 +42,7 @@ public final class OutboundEndPoint implements ManagedEndpoint {
     private OutboundEndPointProvider endPointProvider;
     private OutboundEndPointConfiguration endPointConfiguration;
     private ServiceRegistration<?> serviceRegistration;
+    private TracingFeature tracingFeature;
 
     @Inject
     public OutboundEndPoint(BundleContext bundleContext, SoapProviderSupportFactory soapProviderSupportFactory,
@@ -76,7 +75,8 @@ public final class OutboundEndPoint implements ManagedEndpoint {
             }
             features.add(accessLogFeatureProvider.get().init(endPointConfiguration));
             if (endPointConfiguration.isTracing()) {
-                features.add(new TracingFeature(logDirectory, endPointConfiguration.getTraceFile()));
+                tracingFeature = new TracingFeature(logDirectory, endPointConfiguration.getTraceFile());
+                features.add(tracingFeature);
             }
             Service service = Service.create(new URL(endPointConfiguration.getUrl()), endPointProvider.get()
                     .getServiceName());
@@ -108,6 +108,10 @@ public final class OutboundEndPoint implements ManagedEndpoint {
         if (this.isPublished()) {
             serviceRegistration.unregister();
             serviceRegistration = null;
+            if (tracingFeature != null) {
+                tracingFeature.close();
+                tracingFeature = null;
+            }
         } else {
             throw new IllegalStateException("Service already stopped");
         }
