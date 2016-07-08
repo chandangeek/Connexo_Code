@@ -27,12 +27,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 
-class MetrologyConfigurationInstaller {
+public class MetrologyConfigurationInstaller {
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     private MeteringService meteringService;
 
-    MetrologyConfigurationInstaller(ServerMetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
+    public MetrologyConfigurationInstaller(ServerMetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.meteringService = meteringService;
     }
