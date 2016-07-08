@@ -6,7 +6,7 @@ import com.elster.jupiter.webservices.outbound.rest.WeatherService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name = "com.elster.jupiter.soap.currency.converter.client.gogo",
+@Component(name = "com.elster.jupiter.rest.weather.client.gogo",
         service = WeatherGogoCommands.class,
         property = {"osgi.command.scope=wea",
                 "osgi.command.function=weather"},
