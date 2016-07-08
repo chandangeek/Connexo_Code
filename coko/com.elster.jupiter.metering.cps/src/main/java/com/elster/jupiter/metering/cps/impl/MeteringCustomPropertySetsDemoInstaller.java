@@ -47,6 +47,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchablePropertyOperator;
@@ -136,8 +137,11 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
     @Activate
     public void activate() {
-        this.registerCustomPropertySets();
         DataModel dataModel = upgradeService.newNonOrmDataModel();
+        InstallIdentifier identifier = InstallIdentifier.identifier("Example", "CPM");
+        if (upgradeService.isInstalled(identifier, Version.version(1, 0))) {
+            this.registerCustomPropertySets();
+        }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
