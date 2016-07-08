@@ -3,10 +3,12 @@ package com.elster.jupiter.appserver.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
+import java.util.Optional;
 
 public class EndPointConfigurationInfoFactory {
     Thesaurus thesaurus;
@@ -19,18 +21,20 @@ public class EndPointConfigurationInfoFactory {
     }
 
     public EndPointConfigurationInfo from(EndPointConfiguration endPointConfiguration, UriInfo uriInfo) {
+        Optional<WebService> webService = webServicesService.getWebService(endPointConfiguration.getWebServiceName());
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
         info.id = endPointConfiguration.getId();
         info.name = endPointConfiguration.getName();
         info.version = endPointConfiguration.getVersion();
         info.url = endPointConfiguration.getUrl();
         if (endPointConfiguration.isInbound()) {
-            info.previewUrl = uriInfo.getBaseUri().getScheme() + "://" + uriInfo.getBaseUri().getAuthority()
-                    + "/soap" // don't want to hardcode this.
-                    + endPointConfiguration.getUrl();
+            webService.ifPresent(ws -> info.previewUrl = uriInfo.getBaseUri().getScheme() + "://" + uriInfo.getBaseUri()
+                    .getAuthority()
+                    + "/" + ws.getProtocol().name().toLowerCase()
+                    + endPointConfiguration.getUrl());
         }
         info.active = endPointConfiguration.isActive();
-        info.available = webServicesService.getWebService(endPointConfiguration.getWebServiceName()).isPresent();
+        info.available = webService.isPresent();
         info.webServiceName = endPointConfiguration.getWebServiceName();
         info.logLevel = new IdWithLocalizedValueInfo<>(endPointConfiguration.getLogLevel()
                 .name(), endPointConfiguration.getLogLevel()
