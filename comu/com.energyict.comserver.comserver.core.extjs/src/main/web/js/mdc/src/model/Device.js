@@ -25,6 +25,7 @@ Ext.define('Mdc.model.Device', {
         {name: 'gatewayType', type: 'string', useNull: true},
         {name: 'creationTime', type: 'number', useNull: true},
         {name: 'linkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
+        {name: 'unlinkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
         {name: 'dataloggermRID', type: 'string', useNull: true}, // Only for a data logger slave device
         {name: 'isDirectlyAddressed', type: 'boolean'},
         {name: 'isGateway', type: 'boolean'},
