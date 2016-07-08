@@ -69,6 +69,11 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         return Collections.unmodifiableList(dataLoggerChannelUsages);
     }
 
+    @Override
+    public boolean isTerminated() {
+        return getRange().hasUpperBound();
+    }
+
     /**
      * Data from each DataLogger Channel is transferred to the slave channel for this DataLoggerReference's interval
      */

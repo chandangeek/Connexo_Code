@@ -13,5 +13,5 @@ public interface DataLoggerReference extends PhysicalGatewayReference {
 
     List<DataLoggerChannelUsage> getDataLoggerChannelUsages();
 
-
+    boolean isTerminated();
 }

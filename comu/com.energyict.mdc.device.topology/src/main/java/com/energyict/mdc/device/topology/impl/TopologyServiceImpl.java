@@ -381,10 +381,16 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public Optional<DataLoggerReference> findCurrentDataloggerReference(Device dataloggerSlaveDevice, Instant effective) {
+    public Optional<DataLoggerReference> findDataloggerReference(Device dataloggerSlaveDevice, Instant effective) {
         Condition condition = where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(dataloggerSlaveDevice).and(where("interval").isEffective(effective));
         return this.dataModel.mapper(DataLoggerReference.class).select(condition).stream().findAny(); // the business logic of the effectivity requires that there is only one object effective at a
         // given time
+    }
+
+    @Override
+    public Optional<DataLoggerReference> findLastDataloggerReference(Device dataloggerSlaveDevice) {
+        Condition condition = where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(dataloggerSlaveDevice);
+        return this.dataModel.stream(DataLoggerReference.class).filter(condition).sorted(Order.descending("interval.start")).limit(1).findFirst();
     }
 
     @Override

@@ -266,7 +266,15 @@ public interface TopologyService {
      * @param effective the timeStamp at which you want the reference
      * @return the datalogger reference which was active at the given timestamp
      */
-    Optional<DataLoggerReference> findCurrentDataloggerReference(Device dataloggerSlaveDevice, Instant effective);
+    Optional<DataLoggerReference> findDataloggerReference(Device dataloggerSlaveDevice, Instant effective);
+
+    /**
+     * Finds the last dataloggerReference for the given dataloggerSlaveDevice
+     *
+     * @param dataloggerSlaveDevice the datalogger slave device which was potentially linked to a datalogger
+     * @return the last reference to a datalogger for the given slave, if any
+     */
+    Optional<DataLoggerReference> findLastDataloggerReference(Device dataloggerSlaveDevice);
 
     /**
      * @return all data logger data slave devices which at this moment are effectively linked to a datalogger
