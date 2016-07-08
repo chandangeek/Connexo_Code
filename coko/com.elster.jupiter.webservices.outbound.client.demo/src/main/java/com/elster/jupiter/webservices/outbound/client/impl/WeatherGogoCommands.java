@@ -24,7 +24,7 @@ public class WeatherGogoCommands {
 
     public void weather(String city) {
         WeatherInfo result = weatherService.getWeather(city);
-        System.out.println("The temperature at " + city + " is currently " + result.main.temp + "K with " + result.clouds.all + "% cloud covarage");
+        System.out.println("The temperature at " + city + " is currently " + result.main.temp + "K with " + result.clouds.all + "% cloud coverage");
     }
 
     @Reference
