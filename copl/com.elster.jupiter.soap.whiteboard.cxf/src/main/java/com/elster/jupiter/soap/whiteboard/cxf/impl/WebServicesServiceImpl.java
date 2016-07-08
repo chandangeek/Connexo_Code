@@ -7,11 +7,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
-import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
@@ -213,29 +213,29 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     // called by whiteboard
-    public void register(String name, InboundEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(InboundEndPointFactoryImpl.class).init(name, endPointProvider));
+    public void register(String name, InboundSoapEndPointProvider endPointProvider) {
+        webServices.put(name, dataModel.getInstance(InboundSoapEndPointFactoryImpl.class).init(name, endPointProvider));
         eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
-    public void register(String name, OutboundEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(OutboundEndPointFactoryImpl.class).init(name, endPointProvider));
-        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     public void register(String name, InboundRestEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(InboundRestEndPointFactoryImpl.class).init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
     public void register(String name, OutboundSoapEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(OutboundSoapEndPointFactoryImpl.class)
                 .init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
     public void register(String name, OutboundRestEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(OutboundRestEndPointFactoryImpl.class)
                 .init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
