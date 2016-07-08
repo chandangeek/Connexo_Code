@@ -28,7 +28,7 @@ public class CreateDeviceCommand {
         DeviceConfiguration configuration = Builders.from(DeviceConfigurationTpl.DEFAULT).withDeviceType(deviceType).find()
                 .orElseThrow(() -> new UnableToCreate("Unable to find the Default device configuration"));
         Builders.from(DeviceBuilder.class)
-                .withMrid(this.mridPrefix + serialNumber)
+                .withMrid(getMrid())
                 .withDeviceConfiguration(configuration)
                 .withSerialNumber(serialNumber)
                 .get();
@@ -44,5 +44,9 @@ public class CreateDeviceCommand {
 
     protected String getMridPrefix() {
         return mridPrefix;
+    }
+
+    protected String getMrid(){
+        return this.mridPrefix + serialNumber;
     }
 }

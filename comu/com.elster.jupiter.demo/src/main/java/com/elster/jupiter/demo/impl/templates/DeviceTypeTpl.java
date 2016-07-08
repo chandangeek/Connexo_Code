@@ -75,9 +75,8 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Collections.singletonList(LoadProfileTypeTpl.DATA_LOGGER_32),
             Collections.emptyList()),
     EIMETER_FLEX("EIMeter flex", null, 10, null,
-            Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T1 ),
-            Collections.singletonList(LoadProfileTypeTpl.EIMETER_FLEX),
-            Collections.emptyList()),
+            Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E ),
+            Collections.singletonList(LoadProfileTypeTpl._15_MIN_ELECTRICITY)),
     ;
 
     private String longName;
@@ -90,13 +89,17 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     private List<LogBookTypeTpl> logBookTypes;
 
     DeviceTypeTpl(String name, String protocol, int deviceCount, OutboundTCPComPortPoolTpl poolTpl, List<RegisterTypeTpl> registerTypes, List<LoadProfileTypeTpl> loadProfileTypes, List<LogBookTypeTpl> logBookTypes) {
+        this(name, protocol, deviceCount, poolTpl,registerTypes,loadProfileTypes);
+        this.logBookTypes = logBookTypes;
+    }
+
+    DeviceTypeTpl(String name, String protocol, int deviceCount, OutboundTCPComPortPoolTpl poolTpl, List<RegisterTypeTpl> registerTypes, List<LoadProfileTypeTpl> loadProfileTypes) {
         this.longName = name;
         this.protocol = protocol;
         this.deviceCount = deviceCount;
         this.poolTpl = poolTpl;
         this.registerTypes = registerTypes;
         this.loadProfileTypes = loadProfileTypes;
-        this.logBookTypes = logBookTypes;
     }
 
     public void tuneDeviceCountForSpeedTest() {
@@ -110,10 +113,12 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
 
     @Override
     public DeviceTypeBuilder get(DeviceTypeBuilder builder){
-        return builder.withName(this.longName).withProtocol(this.protocol)
+        builder.withName(this.longName).withProtocol(this.protocol)
                 .withRegisterTypes(this.registerTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.toList()))
-                .withLoadProfileTypes(this.loadProfileTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LoadProfileType>toList()))
-                .withLogBookTypes(this.logBookTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LogBookType>toList()));
+                .withLoadProfileTypes(this.loadProfileTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LoadProfileType>toList()));
+        if (logBookTypes != null)
+            builder.withLogBookTypes(this.logBookTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LogBookType>toList()));
+        return builder;
     }
 
     public int getDeviceCount() {

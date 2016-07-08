@@ -27,7 +27,6 @@ public enum LoadProfileTypeTpl implements Template<LoadProfileType, LoadProfileT
             RegisterTypeTpl.DATA_LOGGER_21, RegisterTypeTpl.DATA_LOGGER_22, RegisterTypeTpl.DATA_LOGGER_23, RegisterTypeTpl.DATA_LOGGER_24,
             RegisterTypeTpl.DATA_LOGGER_25, RegisterTypeTpl.DATA_LOGGER_26, RegisterTypeTpl.DATA_LOGGER_27, RegisterTypeTpl.DATA_LOGGER_28,
             RegisterTypeTpl.DATA_LOGGER_29, RegisterTypeTpl.DATA_LOGGER_30, RegisterTypeTpl.DATA_LOGGER_31, RegisterTypeTpl.DATA_LOGGER_32),
-    EIMETER_FLEX("EIMeter", "1.0.90.1.0.255", TimeDuration.minutes(15), RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T1)
     ;
     private String name;
     private String obisCode;

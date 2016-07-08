@@ -83,7 +83,7 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
         if (this.loadProfileTypes != null) {
             deviceType.withLoadProfileTypes(loadProfileTypes);
         }
-        if (logBookTypes != null) {
+        if (this.logBookTypes != null) {
             deviceType.withLogBookTypes(logBookTypes);
         }
         return deviceType.create();

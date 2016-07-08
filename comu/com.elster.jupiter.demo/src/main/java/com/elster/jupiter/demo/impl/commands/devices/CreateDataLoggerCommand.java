@@ -1,20 +1,25 @@
 package com.elster.jupiter.demo.impl.commands.devices;
 
 import com.elster.jupiter.demo.impl.Builders;
+import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
+import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationToolPropertyPostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
+import com.energyict.mdc.common.Password;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -26,6 +31,7 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -42,12 +48,13 @@ import java.util.function.Consumer;
  */
 public class CreateDataLoggerCommand {
 
-    private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
+ //   private static final String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
-    static final String DATA_LOGGER_MRID = "DemoDataLogger";
-    static final String DATA_LOGGER_SERIAL = "660-05A043-1428";
-    static final String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
-    static final String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
+    private final static String DATA_LOGGER_MRID = "DemoDataLogger";
+    private final static String DATA_LOGGER_SERIAL = "660-05A043-1428";
+    private final static String SECURITY_PROPERTY_SET_NAME_HIGH_NONE = "High level MD5 authentication - No encryption";
+    private final static String SECURITY_PROPERTY_SET_NAME_NONE = "No security";
+    private final static String CONNECTION_TASK_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";
 
     private final DeviceService deviceService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -86,7 +93,7 @@ public class CreateDataLoggerCommand {
         // 1. Some basic checks
         Optional<Device> device = deviceService.findByUniqueMrid(mRID);
         if (device.isPresent()) {
-            System.out.println("Nothing was created since a device with MRID '" + DATA_LOGGER_MRID + "' already exists!");
+            System.out.println("Nothing was created since a device with MRID '" + this.mRID + "' already exists!");
             return;
         }
         Optional<ConnectionTypePluggableClass> pluggableClass = protocolPluggableService.findConnectionTypePluggableClassByName(CONNECTION_TASK_PLUGGABLE_CLASS_NAME);
@@ -139,12 +146,15 @@ public class CreateDataLoggerCommand {
             .withSerialNumber(serialNumber)
             .withDeviceConfiguration(configuration)
             .withYearOfCertification(2015)
+            .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
             .get();
         addConnectionTasksToDevice(device);
+        device = deviceBuilderProvider.get().withMrid(mRID).get();
         addSecurityPropertiesToDevice(device);
-     //   device.setProtocolProperty("Short_MAC_address", BigDecimal.ZERO);
-        device.save();
-        return device;
+        device = deviceBuilderProvider.get().withMrid(mRID).get();
+        addComTaskToDevice(device, ComTaskTpl.READ_REGISTER_DATA);
+        addComTaskToDevice(device, ComTaskTpl.READ_LOAD_PROFILE_DATA);
+        return deviceBuilderProvider.get().withMrid(mRID).get();
     }
 
 
@@ -171,35 +181,48 @@ public class CreateDataLoggerCommand {
 
     private void addSecurityPropertiesToDevice(Device device) {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
-//        SecurityPropertySet securityPropertySet =
-//                configuration
-//                        .getSecurityPropertySets()
-//                        .stream()
-//                        .filter(sps -> SECURITY_PROPERTY_SET_NAME.equals(sps.getName()))
-//                        .findFirst()
-//                        .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SECURITY_PROPERTY_SET_NAME + "."));
-//        TypedProperties typedProperties = TypedProperties.empty();
-//        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
-//        securityPropertySet
-//                .getPropertySpecs()
-//                .stream()
-//                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(ps.getName()))
-//                .findFirst()
-//                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
-//        securityPropertySet
-//                .getPropertySpecs()
-//                .stream()
-//                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName()))
-//                .findFirst()
-//                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
-//        device.setSecurityProperties(securityPropertySet, typedProperties);
+        SecurityPropertySet securityPropertySetHigh =
+                configuration
+                        .getSecurityPropertySets()
+                        .stream()
+                        .filter(sps -> SECURITY_PROPERTY_SET_NAME_HIGH_NONE.equals(sps.getName()))
+                        .findFirst()
+                        .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SECURITY_PROPERTY_SET_NAME_HIGH_NONE + "."));
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+        typedProperties.setProperty(SecurityPropertySpecName.PASSWORD.getKey(), new Password("ntaSim"));
+        securityPropertySetHigh
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.getKey().equals(ps.getName()))
+                .findFirst()
+                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
+        securityPropertySetHigh
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.getKey().equals(ps.getName()))
+                .findFirst()
+                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
+        device.setSecurityProperties(securityPropertySetHigh, typedProperties);
+
+        SecurityPropertySet securityPropertySetNone =
+                configuration
+                        .getSecurityPropertySets()
+                        .stream()
+                        .filter(sps -> SECURITY_PROPERTY_SET_NAME_NONE.equals(sps.getName()))
+                        .findFirst()
+                        .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name " + SECURITY_PROPERTY_SET_NAME_NONE + "."));
+        TypedProperties typedPropertiesNone = TypedProperties.empty();
+        typedPropertiesNone.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.getKey(), BigDecimal.ONE);
+        device.setSecurityProperties(securityPropertySetNone, typedProperties);
+        device.save();
     }
 
     private static class SecurityPropertySetPostBuilder implements Consumer<DeviceConfiguration> {
 
         @Override
         public void accept(DeviceConfiguration configuration) {
-             configuration.createSecurityPropertySet(SECURITY_SET_NAME)
+             configuration.createSecurityPropertySet(SECURITY_PROPERTY_SET_NAME_HIGH_NONE)
                      .authenticationLevel(DlmsAuthenticationLevelMessageValues.HIGH_LEVEL_MD5.getValue())
                      .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
                      .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
@@ -207,6 +230,14 @@ public class CreateDataLoggerCommand {
                      .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
                      .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
                      .build();
+            configuration.createSecurityPropertySet(SECURITY_PROPERTY_SET_NAME_NONE)
+                    .authenticationLevel(DlmsAuthenticationLevelMessageValues.NO_AUTHENTICATION.getValue())
+                    .encryptionLevel(DlmsEncryptionLevelMessageValues.NO_ENCRYPTION.getValue())
+                    .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1)
+                    .addUserAction(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2)
+                    .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1)
+                    .addUserAction(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2)
+                    .build();
         }
     }
 }
