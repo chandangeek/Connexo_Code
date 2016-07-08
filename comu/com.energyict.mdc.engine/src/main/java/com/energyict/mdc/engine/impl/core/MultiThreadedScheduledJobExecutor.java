@@ -1,14 +1,12 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.EngineServiceImpl;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.engine.config.OutboundComPort;
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -51,10 +49,9 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
             }
             catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            }
-            catch (Throwable t) {
-                LOGGER.log(Level.SEVERE, t, () -> MultiThreadedScheduledJobExecutor.class.getName() + " for comport(" + this.comPort.getId() + ") encountered and ignored an unexpected problem");
-                t.printStackTrace(System.err);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e, () -> MultiThreadedScheduledJobExecutor.class.getName() + " for comport(" + this.comPort.getId() + ") encountered and ignored an unexpected problem");
+                e.printStackTrace(System.err);
             }
         }
     }

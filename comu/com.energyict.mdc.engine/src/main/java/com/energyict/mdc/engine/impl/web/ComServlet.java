@@ -81,7 +81,7 @@ public class ComServlet extends HttpServlet {
         this.statistics.doPost();
         try {
             this.handOverToInboundDeviceProtocol(request, response);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             // Avoid that the current thread will stop because of e.g. NPE
             LOGGER.log(Level.SEVERE, t.getMessage(), t);
         }
