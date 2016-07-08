@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
@@ -17,6 +18,7 @@ import com.elster.jupiter.users.UserService;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Optional;
 
 /**
  * Created by bvn on 6/8/16.
@@ -38,13 +40,14 @@ public class EndPointConfigurationInfoFactory {
     }
 
     public EndPointConfigurationInfo from(EndPointConfiguration endPointConfiguration, UriInfo uriInfo) {
+        Optional<WebService> webService = webServicesService.getWebService(endPointConfiguration.getWebServiceName());
         EndPointConfigurationInfo info = new EndPointConfigurationInfo();
         info.id = endPointConfiguration.getId();
         info.name = endPointConfiguration.getName();
         info.version = endPointConfiguration.getVersion();
         info.url = endPointConfiguration.getUrl();
         info.active = endPointConfiguration.isActive();
-        info.available = webServicesService.getWebService(endPointConfiguration.getWebServiceName()).isPresent();
+        info.available = webService.isPresent();
         info.webServiceName = endPointConfiguration.getWebServiceName();
         info.logLevel = new IdWithLocalizedValueInfo<>(endPointConfiguration.getLogLevel()
                 .name(), endPointConfiguration.getLogLevel()
@@ -59,9 +62,10 @@ public class EndPointConfigurationInfoFactory {
                         .getDisplayName(thesaurus));
         if (endPointConfiguration.isInbound()) {
             info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
-            info.previewUrl = uriInfo.getBaseUri().getScheme() + "://" + uriInfo.getBaseUri().getAuthority()
-                    + "/soap" // don't want to hardcode this.
-                    + endPointConfiguration.getUrl();
+            webService.ifPresent(ws -> info.previewUrl = uriInfo.getBaseUri().getScheme() + "://" + uriInfo.getBaseUri()
+                    .getAuthority()
+                    + "/" + ws.getProtocol().name().toLowerCase()
+                    + endPointConfiguration.getUrl());
             ((InboundEndPointConfiguration) endPointConfiguration).getGroup()
                     .ifPresent(g -> info.group = new LongIdWithNameInfo(g.getId(), g.getName()));
         } else {
