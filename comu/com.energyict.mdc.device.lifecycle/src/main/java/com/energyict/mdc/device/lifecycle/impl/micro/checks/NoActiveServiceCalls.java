@@ -1,0 +1,58 @@
+package com.energyict.mdc.device.lifecycle.impl.micro.checks;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
+
+import java.time.Instant;
+import java.util.EnumSet;
+import java.util.Optional;
+import java.util.Set;
+
+public class NoActiveServiceCalls extends TranslatableServerMicroCheck {
+
+    private final ServiceCallService serviceCallService;
+
+    public NoActiveServiceCalls(Thesaurus thesaurus, ServiceCallService serviceCallService) {
+        super(thesaurus);
+        this.serviceCallService = serviceCallService;
+    }
+
+    @Override
+    protected MicroCheck getMicroCheck() {
+        //TODO automatically generated method body, provide implementation.
+        return null;
+    }
+
+    @Override
+    public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
+        if (hasActiveServiceCalls(device)) {
+            return Optional.of(
+                    new DeviceLifeCycleActionViolationImpl(
+                            this.thesaurus,
+                            MessageSeeds.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
+                            MicroCheck.NO_ACTIVE_SERVICE_CALLS));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private boolean hasActiveServiceCalls(Device device) {
+        return !activeServiceCalls(device).isEmpty();
+    }
+
+    private Set<ServiceCall> activeServiceCalls(Device device) {
+        return serviceCallService.findServiceCalls(device, EnumSet.of(
+                DefaultState.PENDING,
+                DefaultState.SCHEDULED,
+                DefaultState.ONGOING,
+                DefaultState.PAUSED,
+                DefaultState.WAITING
+        ));
+    }
+}
