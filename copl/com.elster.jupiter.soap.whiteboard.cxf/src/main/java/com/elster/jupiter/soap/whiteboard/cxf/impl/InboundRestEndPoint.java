@@ -19,7 +19,11 @@ import org.osgi.service.http.HttpService;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Application;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Objects;
 
 /**
@@ -56,7 +60,7 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         if (this.isPublished()) {
             throw new IllegalStateException("Service already published");
         }
-        alias = endPointConfiguration.getUrl();
+        alias = getAlias();
         application = endPointProvider.get();
         ResourceConfig secureConfig = ResourceConfig.forApplication(Objects.requireNonNull(application));
         secureConfig.register(ObjectMapperProvider.class);
@@ -72,11 +76,16 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
 //            HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container, threadPrincipalService), this);
-            httpService.registerServlet(alias, container, null, null);
+            HttpContext httpContext = new InternalHttpContext();
+            httpService.registerServlet(alias, container, null, httpContext);
         } catch (Exception e) {
             endPointConfiguration.log("Error while registering " + alias + ": " + e.getMessage(), e);
         }
 
+    }
+
+    private String getAlias() {
+        return "/rest" + endPointConfiguration.getUrl();
     }
 
     @Override
@@ -98,5 +107,23 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     @Override
     public boolean isPublished() {
         return application != null;
+    }
+
+    private class InternalHttpContext implements HttpContext {
+        @Override
+        public boolean handleSecurity(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws
+                IOException {
+            return true;
+        }
+
+        @Override
+        public URL getResource(String s) {
+            return InboundRestEndPoint.class.getResource(s);
+        }
+
+        @Override
+        public String getMimeType(String s) {
+            return null;
+        }
     }
 }
