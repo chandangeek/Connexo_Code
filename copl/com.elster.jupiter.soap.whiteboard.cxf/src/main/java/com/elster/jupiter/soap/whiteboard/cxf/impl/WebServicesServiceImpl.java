@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
@@ -117,7 +118,8 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public Optional<WebService> getWebService(String webServiceName) {
-        if (webServices.containsKey(webServiceName)) {
+        final EndPointFactory endPointFactory = webServices.get(webServiceName);
+        if (endPointFactory != null) {
             return Optional.of(new WebService() {
                 @Override
                 public String getName() {
@@ -126,7 +128,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
                 @Override
                 public boolean isInbound() {
-                    return webServices.get(webServiceName).isInbound();
+                    return endPointFactory.isInbound();
                 }
 
                 @Override
@@ -162,10 +164,10 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public void publishEndPoint(EndPointConfiguration endPointConfiguration) {
-        if (webServices.containsKey(endPointConfiguration.getWebServiceName())) {
+        EndPointFactory endPointFactory = webServices.get(endPointConfiguration.getWebServiceName());
+        if (endPointFactory != null) {
             try {
-                ManagedEndpoint managedEndpoint = webServices.get(endPointConfiguration.getWebServiceName())
-                        .createEndpoint(endPointConfiguration);
+                ManagedEndpoint managedEndpoint = endPointFactory.createEndpoint(endPointConfiguration);
                 managedEndpoint.publish();
                 endpoints.put(endPointConfiguration, managedEndpoint);
             } catch (Exception e) {
@@ -196,8 +198,9 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public boolean isInbound(String webServiceName) {
-        if (webServices.containsKey(webServiceName)) {
-            return webServices.get(webServiceName).isInbound();
+        EndPointFactory endPointFactory = webServices.get(webServiceName);
+        if (endPointFactory != null) {
+            return endPointFactory.isInbound();
         } else {
             throw new IllegalArgumentException("No such web service");
         }
@@ -205,15 +208,20 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public boolean isPublished(EndPointConfiguration endPointConfiguration) {
-        return endpoints.containsKey(endPointConfiguration) && endpoints.get(endPointConfiguration).isPublished();
+        ManagedEndpoint managedEndpoint = endpoints.get(endPointConfiguration);
+        return managedEndpoint != null && managedEndpoint.isPublished();
     }
 
     // called by whiteboard
-    public void register(String name, InboundSoapEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(InboundSoapEndPointFactoryImpl.class).init(name, endPointProvider));
+    public void register(String name, InboundEndPointProvider endPointProvider) {
+        webServices.put(name, dataModel.getInstance(InboundEndPointFactoryImpl.class).init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
+    public void register(String name, OutboundEndPointProvider endPointProvider) {
+        webServices.put(name, dataModel.getInstance(OutboundEndPointFactoryImpl.class).init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     public void register(String name, InboundRestEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(InboundRestEndPointFactoryImpl.class).init(name, endPointProvider));
     }
@@ -232,8 +240,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     // called by whiteboard
     public void unregister(String webServiceName) {
-        if (webServices.containsKey(webServiceName)) {
-            webServices.remove(webServiceName);
+        if (webServices.remove(webServiceName) != null) {
             List<EndPointConfiguration> endPointConfigurations = endpoints.keySet()
                     .stream()
                     .filter(e -> e.getWebServiceName().equals(webServiceName))

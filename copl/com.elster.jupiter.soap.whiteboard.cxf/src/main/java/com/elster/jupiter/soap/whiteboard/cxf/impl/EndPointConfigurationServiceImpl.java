@@ -19,6 +19,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -49,17 +50,19 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile UserService userService;
+    private volatile TransactionService transactionService;
 
     // OSGi
     public EndPointConfigurationServiceImpl() {
     }
 
     @Inject // Test purposes only
-    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService, UserService userService) {
+    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService, UserService userService, TransactionService transactionService) {
         setEventService(eventService);
         setNlsService(nlsService);
         setOrmService(ormService);
         setUserService(userService);
+        setTransactionService(transactionService);
         activate();
     }
 
@@ -100,6 +103,11 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     }
 
     @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
@@ -119,6 +127,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
                 bind(EventService.class).toInstance(eventService);
                 bind(EndPointConfigurationService.class).toInstance(EndPointConfigurationServiceImpl.this);
                 bind(UserService.class).toInstance(userService);
+                bind(TransactionService.class).toInstance(transactionService);
             }
         };
     }
@@ -166,7 +175,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         ((EndPointConfigurationImpl) endPointConfiguration).setActive(true);
         endPointConfiguration.save();
         endPointConfiguration.log(LogLevel.INFO, "Endpoint was activated");
-        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+        eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
     }
 
     @Override
@@ -175,13 +184,13 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         ((EndPointConfigurationImpl) endPointConfiguration).setActive(false);
         endPointConfiguration.save();
         endPointConfiguration.log(LogLevel.INFO, "Endpoint was de-activated");
-        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+        eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
     }
 
     @Override
     public void delete(EndPointConfiguration endPointConfiguration) {
         ((EndPointConfigurationImpl) endPointConfiguration).delete();
-        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+        eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
     }
 
     @Override
