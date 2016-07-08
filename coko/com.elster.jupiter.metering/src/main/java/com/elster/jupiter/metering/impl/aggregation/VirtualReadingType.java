@@ -69,12 +69,12 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
 
     private static boolean isElectricalEnergy(Dimension dimension, Commodity commodity) {
         return Dimension.ENERGY.equals(dimension)
-            && isElectricity(commodity);
+                && isElectricity(commodity);
     }
 
     private static boolean isElectricity(Commodity commodity) {
         return Commodity.ELECTRICITY_PRIMARY_METERED.equals(commodity)
-            || Commodity.ELECTRICITY_SECONDARY_METERED.equals(commodity);
+                || Commodity.ELECTRICITY_SECONDARY_METERED.equals(commodity);
 
     }
 
@@ -214,8 +214,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
             if (this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier())) {
                 // Same multiplier, just append the expression and we're done
                 return expression;
-            }
-            else {
+            } else {
                 Loggers.SQL.debug(() -> "Rescaling " + expression + " from " + this.getUnitMultiplier() + " to " + targetReadingType.getUnitMultiplier());
                 sqlBuilder.append("(");
                 sqlBuilder.add(expression);
@@ -224,14 +223,11 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
                 sqlBuilder.append(multiplierConversionFactor.toString());
                 sqlBuilder.append(")");
             }
-        }
-        else if (UnitConversionSupport.areCompatibleForAutomaticUnitConversion(this.getUnit(), targetReadingType.getUnit())) {
+        } else if (UnitConversionSupport.areCompatibleForAutomaticUnitConversion(this.getUnit(), targetReadingType.getUnit())) {
             this.applyUnitConversion(mode, expression, targetReadingType, sqlBuilder);
-        }
-        else if (mode.equals(Formula.Mode.EXPERT)) {
+        } else if (mode.equals(Formula.Mode.EXPERT)) {
             return expression;
-        }
-        else {
+        } else {
             throw new UnsupportedOperationException("Unsuported unit conversion from " + this + " to " + targetReadingType);
         }
         return sqlBuilder;
@@ -252,11 +248,9 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     private void applyUnitConversion(Formula.Mode mode, SqlFragment expression, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
         if (this.isFlowRelated() && targetReadingType.isVolumeRelated()) {
             this.applyFlowToVolumeConversion(expression, targetReadingType, sqlBuilder);
-        }
-        else if (this.isVolumeRelated() && targetReadingType.isFlowRelated()) {
+        } else if (this.isVolumeRelated() && targetReadingType.isFlowRelated()) {
             this.applyVolumeToFlowConversion(expression, targetReadingType, sqlBuilder);
-        }
-        else {
+        } else {
             ServerExpressionNode conversionExpression =
                     UnitConversionSupport.unitConversion(
                             new SqlFragmentNode(expression),
@@ -279,8 +273,7 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
         if (!this.getUnitMultiplier().equals(targetReadingType.getUnitMultiplier())) {
             BigDecimal multiplierConversionFactor = ONE.scaleByPowerOfTen(this.getUnitMultiplier().getMultiplier() - targetReadingType.getUnitMultiplier().getMultiplier());
             sqlBuilder.append(intervalConversionFactor.multiply(multiplierConversionFactor).toString());
-        }
-        else {
+        } else {
             sqlBuilder.append(intervalConversionFactor.toString());
         }
         sqlBuilder.append(")");
@@ -345,7 +338,8 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
     public String toString() {
         if (this.isDontCare()) {
             return "DONT_CARE";
-        } if (this.isUnsupported()) {
+        }
+        if (this.isUnsupported()) {
             return "UNSUPPORTED";
         } else {
             return MoreObjects.toStringHelper(this)
@@ -366,14 +360,12 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
             if (unitCompareResult == 0 || UnitConversionSupport.areCompatibleForAutomaticUnitConversion(this.unit, other.unit)) {
                 // Same or compatible units: consider unit multiplier
                 return this.unitMultiplier.compareTo(other.unitMultiplier);
-            }
-            else {
+            } else {
                 /* Not the same unit or incompatible units,
                  * is this an error of the matching algorithm? */
                 return unitCompareResult;
             }
-        }
-        else {
+        } else {
             return intervalLengthCompareResult;
         }
     }

@@ -127,13 +127,13 @@ public abstract class AbstractNode implements ServerExpressionNode {
     static Map<String, Class<? extends ExpressionNode>> getImplementers() {
         ImmutableMap.Builder<String, Class<? extends ExpressionNode>> builder = ImmutableMap.builder();
         builder
-            .put(NullNodeImpl.TYPE_IDENTIFIER, NullNodeImpl.class)
-            .put(ConstantNodeImpl.TYPE_IDENTIFIER, ConstantNodeImpl.class)
-            .put(FunctionCallNodeImpl.TYPE_IDENTIFIER, FunctionCallNodeImpl.class)
-            .put(OperationNodeImpl.TYPE_IDENTIFIER, OperationNodeImpl.class)
-            .put(ReadingTypeDeliverableNodeImpl.TYPE_IDENTIFIER, ReadingTypeDeliverableNodeImpl.class)
-            .put(ReadingTypeRequirementNodeImpl.TYPE_IDENTIFIER, ReadingTypeRequirementNodeImpl.class)
-            .put(CustomPropertyNodeImpl.TYPE_IDENTIFIER, CustomPropertyNodeImpl.class);
+                .put(NullNodeImpl.TYPE_IDENTIFIER, NullNodeImpl.class)
+                .put(ConstantNodeImpl.TYPE_IDENTIFIER, ConstantNodeImpl.class)
+                .put(FunctionCallNodeImpl.TYPE_IDENTIFIER, FunctionCallNodeImpl.class)
+                .put(OperationNodeImpl.TYPE_IDENTIFIER, OperationNodeImpl.class)
+                .put(ReadingTypeDeliverableNodeImpl.TYPE_IDENTIFIER, ReadingTypeDeliverableNodeImpl.class)
+                .put(ReadingTypeRequirementNodeImpl.TYPE_IDENTIFIER, ReadingTypeRequirementNodeImpl.class)
+                .put(CustomPropertyNodeImpl.TYPE_IDENTIFIER, CustomPropertyNodeImpl.class);
         return builder.build();
     }
 

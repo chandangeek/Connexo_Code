@@ -58,7 +58,7 @@ class DeliverableValidator implements ConstraintValidator<ValidDeliverable, Read
                     throw new InvalidNodeException(metrologyConfigurationService.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_IN_DELIVERABLE);
                 }
             }
-            if ((readingType != null) && formula.getMode().equals(Formula.Mode.AUTO) &&  !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
+            if ((readingType != null) && formula.getMode().equals(Formula.Mode.AUTO) && !UnitConversionSupport.isAssignable(readingType, formula.getExpressionNode().getDimension())) {
                 throw InvalidNodeException.deliverableReadingTypeIsNotCompatibleWithFormula(metrologyConfigurationService.getThesaurus(), readingType, deliverable);
             }
             if (readingType != null) {

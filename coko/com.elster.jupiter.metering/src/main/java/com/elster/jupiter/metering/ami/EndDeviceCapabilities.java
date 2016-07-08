@@ -23,5 +23,4 @@ public final class EndDeviceCapabilities {
     public List<EndDeviceControlType> getSupportedControlTypes() {
         return controlTypes;
     }
-
 }

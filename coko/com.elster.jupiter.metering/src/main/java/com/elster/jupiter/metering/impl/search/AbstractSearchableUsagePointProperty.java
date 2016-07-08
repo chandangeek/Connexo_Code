@@ -85,7 +85,7 @@ abstract class AbstractSearchableUsagePointProperty implements SearchableUsagePo
         this.visitAll(or.getConditions(), " OR ");
     }
 
-    private void visitAll(List<Condition> conditions , String separator) {
+    private void visitAll(List<Condition> conditions, String separator) {
         String sep = "";
         this.underConstruction.openBracket();
         for (Condition each : conditions) {
@@ -173,7 +173,8 @@ abstract class AbstractSearchableUsagePointProperty implements SearchableUsagePo
             getSpecification().getValueFactory().bind(statement, bindPosition, value);
         }
     }
-    private abstract static class ProxyAwareSqlFragment{
+
+    private abstract static class ProxyAwareSqlFragment {
 
         private final ValueBinder valueBinder;
 

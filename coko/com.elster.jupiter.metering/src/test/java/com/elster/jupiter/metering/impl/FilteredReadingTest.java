@@ -7,9 +7,7 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.units.Quantity;
@@ -19,14 +17,14 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -89,9 +87,9 @@ public class FilteredReadingTest {
     @Test
     public void testSimpleDelegationForProcessingFlags() {
         ProcessStatus processingFlags = ProcessStatus.of(ProcessStatus.Flag.ESTIMATED, ProcessStatus.Flag.WARNING);
-        when(source.getProcesStatus()).thenReturn(processingFlags);
+        when(source.getProcessStatus()).thenReturn(processingFlags);
 
-        assertThat(filteredReading.getProcesStatus()).isEqualTo(processingFlags);
+        assertThat(filteredReading.getProcessStatus()).isEqualTo(processingFlags);
     }
 
     @Test

@@ -39,7 +39,7 @@ public class ConstantNodeImpl extends AbstractNode implements ConstantNode {
 
     @Override
     public Dimension getDimension() {
-       return Dimension.DIMENSIONLESS;
+        return Dimension.DIMENSIONLESS;
     }
 
     @Override

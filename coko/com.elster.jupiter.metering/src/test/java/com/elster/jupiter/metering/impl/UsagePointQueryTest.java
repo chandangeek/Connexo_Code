@@ -123,7 +123,8 @@ public class UsagePointQueryTest {
                 new FiniteStateMachineModule(),
                 new DataVaultModule(),
                 new NlsModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new BasicPropertiesModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(EventService.class);

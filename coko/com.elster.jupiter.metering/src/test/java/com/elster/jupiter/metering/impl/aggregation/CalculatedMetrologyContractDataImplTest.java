@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
@@ -24,6 +25,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
@@ -53,7 +56,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CalculatedMetrologyContractDataImplTest {
 
-    public static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
 
     @Mock
     private UsagePoint usagePoint;
@@ -64,11 +67,13 @@ public class CalculatedMetrologyContractDataImplTest {
     @Mock
     private MeterActivation meterActivation;
     @Mock
+    private ChannelsContainer channelsContainer;
+    @Mock
     private ReadingTypeDeliverable deliverable;
 
     @Before
     public void initializeMocks() {
-        ZoneId zoneId = ZoneId.of("Europe/Brussels");
+        ZoneId zoneId = this.testZoneId();
         when(this.usagePoint.getZoneId()).thenReturn(zoneId);
         when(this.monthlyNetConsumption.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
         when(this.monthlyNetConsumption.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
@@ -79,7 +84,8 @@ public class CalculatedMetrologyContractDataImplTest {
         when(this.monthlyNetConsumption.toQuantity(BigDecimal.ZERO)).thenReturn(Quantity.create(BigDecimal.ZERO, "Wh"));
         when(this.monthlyNetConsumption.toQuantity(BigDecimal.TEN)).thenReturn(Quantity.create(BigDecimal.TEN, "Wh"));
         when(this.usagePoint.getMeterActivation(any(Instant.class))).thenReturn(Optional.of(this.meterActivation));
-        when(this.meterActivation.getZoneId()).thenReturn(zoneId);
+        when(this.meterActivation.getChannelsContainer()).thenReturn(this.channelsContainer);
+        when(this.channelsContainer.getZoneId()).thenReturn(zoneId);
         when(this.deliverable.getReadingType()).thenReturn(this.monthlyNetConsumption);
         Formula formula = mock(Formula.class);
         when(formula.getExpressionNode()).thenReturn(new ReadingTypeDeliverableNodeImpl(this.deliverable));
@@ -87,12 +93,17 @@ public class CalculatedMetrologyContractDataImplTest {
         when(this.contract.getDeliverables()).thenReturn(Collections.singletonList(this.deliverable));
     }
 
+    private ZoneId testZoneId() {
+        return ZoneId.of("Antarctica/McMurdo");
+    }
+
     @Test
     public void usagePointIsCopiedInConstructor() {
         CalculatedReadingRecord r1 = mock(CalculatedReadingRecord.class);
-        when(r1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1456786800000L));   // In Europe/Brussels: 2016-03-01 00:00:00
+
+        when(r1.getTimeStamp()).thenReturn(instant(2016, Month.MARCH, 1));
         CalculatedReadingRecord r2 = mock(CalculatedReadingRecord.class);
-        when(r2.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1459461600000L));   // In Europe/Brussels: 2016-04-01 00:00:00
+        when(r2.getTimeStamp()).thenReturn(instant(2016, Month.APRIL, 1));
         Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
@@ -106,9 +117,9 @@ public class CalculatedMetrologyContractDataImplTest {
     @Test
     public void contractIsCopiedInConstructor() {
         CalculatedReadingRecord r1 = mock(CalculatedReadingRecord.class);
-        when(r1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1456786800000L));   // In Europe/Brussels: 2016-03-01 00:00:00
+        when(r1.getTimeStamp()).thenReturn(instant(2016, Month.MARCH, 1));
         CalculatedReadingRecord r2 = mock(CalculatedReadingRecord.class);
-        when(r2.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1459461600000L));   // In Europe/Brussels: 2016-04-01 00:00:00
+        when(r2.getTimeStamp()).thenReturn(instant(2016, Month.APRIL, 1));
         Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
@@ -122,9 +133,9 @@ public class CalculatedMetrologyContractDataImplTest {
     @Test
     public void constructorInjectUsagePointsIntoRecords() {
         CalculatedReadingRecord r1 = mock(CalculatedReadingRecord.class);
-        when(r1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1456786800000L));   // In Europe/Brussels: 2016-03-01 00:00:00
+        when(r1.getTimeStamp()).thenReturn(instant(2016, Month.MARCH, 1));
         CalculatedReadingRecord r2 = mock(CalculatedReadingRecord.class);
-        when(r2.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1459461600000L));   // In Europe/Brussels: 2016-04-01 00:00:00
+        when(r2.getTimeStamp()).thenReturn(instant(2016, Month.APRIL, 1));
         Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
@@ -139,9 +150,9 @@ public class CalculatedMetrologyContractDataImplTest {
     @Test
     public void noMergeForMonthlyBoundaryRecords() {
         CalculatedReadingRecord r1 = mock(CalculatedReadingRecord.class);
-        when(r1.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1456786800000L));   // In Europe/Brussels: 2016-03-01 00:00:00
+        when(r1.getTimeStamp()).thenReturn(instant(2016, Month.MARCH, 1));
         CalculatedReadingRecord r2 = mock(CalculatedReadingRecord.class);
-        when(r2.getTimeStamp()).thenReturn(Instant.ofEpochMilli(1459461600000L));   // In Europe/Brussels: 2016-04-01 00:00:00
+        when(r2.getTimeStamp()).thenReturn(instant(2016, Month.APRIL, 1));
         Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
@@ -154,10 +165,10 @@ public class CalculatedMetrologyContractDataImplTest {
 
     @Test
     public void mergeForMidMonthRecordsInOrder() throws SQLException {
-        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, Instant.ofEpochMilli(1457996400000L));   // In Europe/Brussels: 2016-03-15 00:00:00
+        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 15));
         r1.setUsagePoint(this.usagePoint);
         r1.setReadingType(this.monthlyNetConsumption);
-        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, Instant.ofEpochMilli(1459461600000L));   // In Europe/Brussels: 2016-04-01 00:00:00
+        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.APRIL, 1));
         r2.setUsagePoint(this.usagePoint);
         r2.setReadingType(this.monthlyNetConsumption);
         Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
@@ -170,15 +181,15 @@ public class CalculatedMetrologyContractDataImplTest {
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
         assertThat(readingRecords).hasSize(1);
         BaseReadingRecord readingRecord = readingRecords.get(0);
-        assertThat(readingRecord.getTimeStamp()).isEqualTo(Instant.ofEpochMilli(1459461600000L));
+        assertThat(readingRecord.getTimeStamp()).isEqualTo(instant(2016, Month.APRIL, 1));
     }
 
     @Test
     public void mergeForMidMonthRecordsInReverseOrder() throws SQLException {
-        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, Instant.ofEpochMilli(1457996400000L));   // In Europe/Brussels: 2016-03-15 00:00:00
+        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 15));
         r1.setUsagePoint(this.usagePoint);
         r1.setReadingType(this.monthlyNetConsumption);
-        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, Instant.ofEpochMilli(1459461600000L));   // In Europe/Brussels: 2016-04-01 00:00:00
+        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.APRIL, 1));
         r2.setUsagePoint(this.usagePoint);
         r2.setReadingType(this.monthlyNetConsumption);
         Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
@@ -191,15 +202,15 @@ public class CalculatedMetrologyContractDataImplTest {
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
         assertThat(readingRecords).hasSize(1);
         BaseReadingRecord readingRecord = readingRecords.get(0);
-        assertThat(readingRecord.getTimeStamp()).isEqualTo(Instant.ofEpochMilli(1459461600000L));
+        assertThat(readingRecord.getTimeStamp()).isEqualTo(instant(2016, Month.APRIL, 1));
     }
 
     @Test
     public void mergeWithAllMidMonthRecords() throws SQLException {
-        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, Instant.ofEpochMilli(1457564400000L));   // In Europe/Brussels: 2016-03-10 00:00:00
+        CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 10));
         r1.setUsagePoint(this.usagePoint);
         r1.setReadingType(this.monthlyNetConsumption);
-        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, Instant.ofEpochMilli(1458860400000L));   // In Europe/Brussels: 2016-03-25 00:00:00
+        CalculatedReadingRecord r2 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, instant(2016, Month.MARCH, 25));
         r2.setUsagePoint(this.usagePoint);
         r2.setReadingType(this.monthlyNetConsumption);
         Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = new HashMap<>();
@@ -212,15 +223,15 @@ public class CalculatedMetrologyContractDataImplTest {
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
         assertThat(readingRecords).hasSize(1);
         BaseReadingRecord readingRecord = readingRecords.get(0);
-        assertThat(readingRecord.getTimeStamp()).isEqualTo(Instant.ofEpochMilli(1459461600000L));   // In Europe/Brussels: 2016-04-01 00:00:00
+        assertThat(readingRecord.getTimeStamp()).isEqualTo(instant(2016, Month.APRIL, 1));
     }
 
     @Test
     public void constantsOnly() throws SQLException {
-        Instant april1st2016 = Instant.ofEpochMilli(1459461600000L);   // In Europe/Brussels
-        Instant may1st2016 = Instant.ofEpochMilli(1462053600000L);     // In Europe/Brussels
-        Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);    // In Europe/Brussels
-        Instant july1st2016 = Instant.ofEpochMilli(1467324000000L);    // In Europe/Brussels
+        Instant april1st2016 = instant(2016, Month.APRIL, 1);
+        Instant may1st2016 = instant(2016, Month.MAY, 1);
+        Instant june1st2016 = instant(2016, Month.JUNE, 1);
+        Instant july1st2016 = instant(2016, Month.JULY, 1);
         CalculatedReadingRecord r1 = this.newRecord(MONTHLY_NET_CONSUMPTION_MRID, BigDecimal.TEN, april1st2016);
         r1.setUsagePoint(this.usagePoint);
         r1.setReadingType(this.monthlyNetConsumption);
@@ -262,6 +273,10 @@ public class CalculatedMetrologyContractDataImplTest {
         when(resultSet.getLong(5)).thenReturn(0L);
         when(resultSet.getLong(6)).thenReturn(30L);
         return new CalculatedReadingRecord().init(resultSet);
+    }
+
+    private Instant instant(int year, Month month, int dayOfMonth) {
+        return LocalDate.of(year, month, dayOfMonth).atStartOfDay().atZone(this.testZoneId()).toInstant();
     }
 
 }

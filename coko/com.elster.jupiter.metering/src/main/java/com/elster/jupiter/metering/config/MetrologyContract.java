@@ -46,6 +46,10 @@ public interface MetrologyContract extends HasId {
 
     Status getStatus(UsagePoint usagePoint);
 
+    long getVersion();
+
+    void update();
+
     interface Status {
 
         String getKey();

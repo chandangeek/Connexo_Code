@@ -5,6 +5,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.metering.MeteringService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

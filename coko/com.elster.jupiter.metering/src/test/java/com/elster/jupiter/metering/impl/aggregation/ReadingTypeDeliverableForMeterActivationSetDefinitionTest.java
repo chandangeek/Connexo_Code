@@ -72,10 +72,10 @@ public class ReadingTypeDeliverableForMeterActivationSetDefinitionTest {
         this.withClauseSqlBuilder = new SqlBuilder();
         when(this.clauseAwareSqlBuilder
                 .with(
-                    anyString(),
-                    any(Optional.class),
-                    anyVararg()))
-            .thenReturn(this.withClauseSqlBuilder);
+                        anyString(),
+                        any(Optional.class),
+                        anyVararg()))
+                .thenReturn(this.withClauseSqlBuilder);
         this.selectClauseSqlBuilder = new SqlBuilder();
         when(this.clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseSqlBuilder);
     }
@@ -91,15 +91,15 @@ public class ReadingTypeDeliverableForMeterActivationSetDefinitionTest {
         // Asserts
         verify(this.clauseAwareSqlBuilder)
                 .with(
-                    eq("rod97_1"),
-                    any(Optional.class),
-                    eq(SqlConstants.TimeSeriesColumnNames.ID.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.RECORDTIME.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName()));
+                        eq("rod97_1"),
+                        any(Optional.class),
+                        eq(SqlConstants.TimeSeriesColumnNames.ID.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.RECORDTIME.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName()));
         assertThat(this.withClauseSqlBuilder.getText()).isEqualTo("SELECT -1, 0, 0, 0, 0,  ? , sysdate  FROM dual");
         String selectClause = this.selectClauseSqlBuilder.getText().replace("\n", " ");
         assertThat(selectClause).isEqualTo("'ReadingTypeDeliverableForMeterActivationSetDefinitionTest', rod97_1.value, rod97_1.localdate, rod97_1.timestamp, rod97_1.processStatus, 1   FROM rod97_1");

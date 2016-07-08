@@ -205,9 +205,9 @@ public class InferReadingTypeTest {
 
     /**
      * Setup: X = Y + Z
-     *        Y = requirement that is backed by 15 min kWh and 60 min kWh values
-     *        Z = requirement that is only backed by 15 min kWh values
-     *        X explicitly needs 60 min kWh values
+     * Y = requirement that is backed by 15 min kWh and 60 min kWh values
+     * Z = requirement that is only backed by 15 min kWh values
+     * X explicitly needs 60 min kWh values
      * Initially, Y will be requested to produce 60 min kWh values, which it can.
      * Then the algorithm should discover that Z can only produce 15 min kWh values
      * and even though those are more precise than the hourly values
@@ -319,9 +319,9 @@ public class InferReadingTypeTest {
 
     /**
      * Setup: X = Y + Z
-     *        Y = requirement that is backed by 15 min Ampère
-     *        Z = requirement that is backed by 15 min Volt values
-     *        X explicitly needs 60 min kWh values
+     * Y = requirement that is backed by 15 min Ampère
+     * Z = requirement that is backed by 15 min Volt values
+     * X explicitly needs 60 min kWh values
      * Assert that the algorithm enforces both interval and multiplier to both X an Y.
      */
     @Test
@@ -428,9 +428,9 @@ public class InferReadingTypeTest {
 
     /**
      * Setup: X = Y + Z
-     *        Y = requirement that is backed by 15 min kW and 60 min kW values
-     *        Z = requirement that is only backed by 15 min kWh values
-     *        X explicitly needs 60 min kWh values
+     * Y = requirement that is backed by 15 min kW and 60 min kW values
+     * Z = requirement that is only backed by 15 min kWh values
+     * X explicitly needs 60 min kWh values
      */
     @Test
     public void inferCompatibleRequirementsWithFlowVolumeConversionInOperation() {

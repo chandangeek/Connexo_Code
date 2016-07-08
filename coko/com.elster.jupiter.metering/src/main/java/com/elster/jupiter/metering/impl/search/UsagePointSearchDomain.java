@@ -138,7 +138,7 @@ public class UsagePointSearchDomain implements SearchDomain {
      */
     protected List<SearchableProperty> getServiceCategoryDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
         List<SearchableProperty> properties = new ArrayList<>();
-        DataModel injector = this.meteringService.getDataModel();
+        DataModel injector = this.metrologyConfigurationService.getDataModel();
         ElectricityAttributesSearchablePropertyGroup electricityGroup = injector.getInstance(ElectricityAttributesSearchablePropertyGroup.class);
         GasAttributesSearchablePropertyGroup gasGroup = injector.getInstance(GasAttributesSearchablePropertyGroup.class);
         WaterAttributesSearchablePropertyGroup waterGroup = injector.getInstance(WaterAttributesSearchablePropertyGroup.class);
@@ -295,8 +295,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     private List<SearchableProperty> getMultisenseProperties() {
-        return Arrays.asList(new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService
-                        .getThesaurus()),
+        return Arrays.asList(new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
                 new InstallationTimeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),

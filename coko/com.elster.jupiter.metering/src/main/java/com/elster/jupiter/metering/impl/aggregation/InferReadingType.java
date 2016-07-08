@@ -106,11 +106,11 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
     private VirtualReadingType visitChildren(List<ServerExpressionNode> children, Supplier<UnsupportedOperationException> unsupportedOperationExceptionSupplier) {
         List<VirtualReadingType> preferredReadingTypes =
                 children
-                    .stream()
-                    .map(this::getPreferredReadingType)
-                    .filter(Predicates.not(VirtualReadingType::isDontCare))
-                    .distinct()
-                    .collect(Collectors.toList());
+                        .stream()
+                        .map(this::getPreferredReadingType)
+                        .filter(Predicates.not(VirtualReadingType::isDontCare))
+                        .distinct()
+                        .collect(Collectors.toList());
         if (preferredReadingTypes.isEmpty()) {
             /* All child nodes have indicated not to care about the reading type
              * so we should be able to enforce the target onto each. */
@@ -146,7 +146,7 @@ class InferReadingType implements ServerExpressionNode.Visitor<VirtualReadingTyp
      * <ol>
      * <li>check if every node can agree on the actual requested target interval and use that if that is the case</li>
      * <li>check all preferred intervals, starting with the smallest interval
-     *     one and enforce the first one that every node can agrees on</li>
+     * one and enforce the first one that every node can agrees on</li>
      * </ol>
      *
      * @param nodes The expression nodes

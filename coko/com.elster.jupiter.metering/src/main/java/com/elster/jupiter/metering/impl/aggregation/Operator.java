@@ -226,7 +226,9 @@ enum Operator {
         sqlBuilder.add(operand1);
         this.appendSqlOperatorTo(sqlBuilder);
         sqlBuilder.add(operand2);
-    };
+    }
+
+    ;
 
     protected abstract void appendSqlOperatorTo(SqlBuilder sqlBuilder);
 

@@ -16,6 +16,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -79,8 +80,8 @@ import static org.mockito.Mockito.mock;
 public class ChannelImplIT {
 
     private static final ZonedDateTime ACTIVATION = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
-    public static final String BULK = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String DELTA = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String BULK = "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String DELTA = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
 
     @Rule
     public TestRule mcMurdo = Using.timeZoneOfMcMurdo();
@@ -137,7 +138,8 @@ public class ChannelImplIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new BasicPropertiesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -172,7 +174,7 @@ public class ChannelImplIT {
             MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
 
 
-            Channel channel = meterActivation.createChannel(bulkReadingType);
+            Channel channel = meterActivation.getChannelsContainer().createChannel(bulkReadingType);
 
             assertThat(channel.getReadingTypes()).contains(deltaReadingType);
 
@@ -192,18 +194,18 @@ public class ChannelImplIT {
         Instant since = clock.instant();
 
         try (TransactionContext context = transactionService.getContext()) {
-            MeterActivation meterActivation = meter.getMeterActivations().get(0);
-            Channel channel = meterActivation.getChannels().get(0);
+            ChannelsContainer channelsContainer = meter.getChannelsContainers().get(0);
+            Channel channel = channelsContainer.getChannels().get(0);
             channel.getCimChannel(deltaReadingType).get().editReadings(Collections.singletonList(IntervalReadingImpl.of(ACTIVATION.plusDays(3).toInstant(), BigDecimal.valueOf(5))));
 
             context.commit();
         }
 
-        Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+        Channel channel = meter.getChannelsContainers().get(0).getChannels().get(0);
 
-        List<BaseReadingRecord> bulkReadingsUpdatedSince = channel.getReadingsUpdatedSince(bulkReadingType, Range.<Instant>all(), since);
+        List<BaseReadingRecord> bulkReadingsUpdatedSince = channel.getReadingsUpdatedSince(bulkReadingType, Range.all(), since);
         assertThat(bulkReadingsUpdatedSince).isEmpty();
-        List<BaseReadingRecord> deltaReadingsUpdatedSince = channel.getReadingsUpdatedSince(deltaReadingType, Range.<Instant>all(), since);
+        List<BaseReadingRecord> deltaReadingsUpdatedSince = channel.getReadingsUpdatedSince(deltaReadingType, Range.all(), since);
         assertThat(deltaReadingsUpdatedSince).hasSize(1);
 
     }

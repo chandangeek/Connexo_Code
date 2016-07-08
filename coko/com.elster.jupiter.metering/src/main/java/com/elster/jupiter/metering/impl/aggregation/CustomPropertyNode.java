@@ -47,7 +47,7 @@ class CustomPropertyNode implements ServerExpressionNode {
     }
 
     String sqlName() {
-        return "cps" + this.customPropertySet.getId() + "_" + this.propertySpec.getName() + "_" + this.meterActivationSet.sequenceNumber();
+        return "cps" + this.customPropertySet.getId() + "_" + Math.abs(this.propertySpec.getName().hashCode()) + "_" + this.meterActivationSet.sequenceNumber();
     }
 
     void appendDefinitionTo(ClauseAwareSqlBuilder sqlBuilder) {
@@ -62,7 +62,7 @@ class CustomPropertyNode implements ServerExpressionNode {
     }
 
     private String[] withClauseSqlNames() {
-        return new String[] {
+        return new String[]{
                 "starttime",
                 "endtime",
                 SqlConstants.TimeSeriesColumnNames.VALUE.sqlName(),

@@ -357,7 +357,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
 
     private void activateMeterWithBulkWattRegister() {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.meterActivation.createChannel(netConsumptionIndex);
+        this.meterActivation.getChannelsContainer().createChannel(netConsumptionIndex);
     }
 
     private String mRID2GrepPattern(String mRID) {

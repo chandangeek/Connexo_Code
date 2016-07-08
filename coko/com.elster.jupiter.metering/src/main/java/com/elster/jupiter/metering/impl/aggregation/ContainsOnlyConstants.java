@@ -41,7 +41,7 @@ class ContainsOnlyConstants implements ExpressionNode.Visitor<Boolean> {
     @Override
     public Boolean visitOperation(OperationNode operationNode) {
         return operationNode.getLeftOperand().accept(this)
-            || operationNode.getRightOperand().accept(this);
+                || operationNode.getRightOperand().accept(this);
     }
 
     @Override

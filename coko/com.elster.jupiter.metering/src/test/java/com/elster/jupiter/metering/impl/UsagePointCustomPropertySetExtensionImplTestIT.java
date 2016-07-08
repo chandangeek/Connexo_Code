@@ -81,6 +81,7 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
     private UsagePointMetrologyConfiguration getMetrologyConfiguration() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .findMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID)
+                .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
                 .map(UsagePointMetrologyConfiguration.class::cast)
                 .orElseThrow(() -> new IllegalStateException("MetrologyConfiguration doesn't exist."));
     }

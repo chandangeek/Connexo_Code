@@ -139,7 +139,7 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
 
     @Override
     public ExpressionNodeBuilder plus(ExpressionNodeBuilder term1, ExpressionNodeBuilder term2) {
-        return () -> new OperationNodeImpl(Operator.PLUS,  term1.create(),  term2.create(), thesaurus);
+        return () -> new OperationNodeImpl(Operator.PLUS, term1.create(), term2.create(), thesaurus);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
 
     @Override
     public ExpressionNodeBuilder multiply(ExpressionNodeBuilder multiplier, ExpressionNodeBuilder multiplicand) {
-        return () -> new OperationNodeImpl(Operator.MULTIPLY,  multiplier.create(), multiplicand.create(), thesaurus);
+        return () -> new OperationNodeImpl(Operator.MULTIPLY, multiplier.create(), multiplicand.create(), thesaurus);
     }
 
     @Override
@@ -183,12 +183,12 @@ public class FormulaBuilderImpl implements ServerFormulaBuilder {
             }
         }
         return () -> new FunctionCallNodeImpl(
-                        terms.stream()
-                            .map(ExpressionNodeBuilder::create)
-                            .collect(Collectors.toList()),
-                        function,
-                        aggregationLevel,
-                        thesaurus);
+                terms.stream()
+                        .map(ExpressionNodeBuilder::create)
+                        .collect(Collectors.toList()),
+                function,
+                aggregationLevel,
+                thesaurus);
     }
 
     private void validateUseOfFunctions(Function function) {

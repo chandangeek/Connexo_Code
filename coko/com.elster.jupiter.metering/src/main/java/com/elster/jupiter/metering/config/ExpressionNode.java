@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.util.units.Dimension;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -37,15 +39,22 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:08)
  */
+@ProviderType
 public interface ExpressionNode {
 
     interface Visitor<T> {
         T visitConstant(ConstantNode constant);
+
         T visitRequirement(ReadingTypeRequirementNode requirement);
+
         T visitDeliverable(ReadingTypeDeliverableNode deliverable);
+
         T visitProperty(CustomPropertyNode property);
+
         T visitOperation(OperationNode operationNode);
+
         T visitFunctionCall(FunctionCallNode functionCall);
+
         T visitNull(NullNode nullNode);
     }
 

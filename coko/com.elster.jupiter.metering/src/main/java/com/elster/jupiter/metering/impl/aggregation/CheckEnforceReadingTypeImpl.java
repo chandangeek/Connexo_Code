@@ -25,8 +25,7 @@ class CheckEnforceReadingTypeImpl implements CheckEnforceReadingType {
     public Boolean forAll(List<ServerExpressionNode> expressions) {
         if (this.readingType.isUnsupported()) {
             return Boolean.FALSE;
-        }
-        else {
+        } else {
             return expressions.stream().allMatch(expression -> expression.accept(this));
         }
     }

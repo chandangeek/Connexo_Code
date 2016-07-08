@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
@@ -36,7 +35,6 @@ import static org.mockito.Mockito.when;
  * <li>{@link UsagePoint#getMetrologyConfiguration()}</li>
  * <li>{@link UsagePoint#getMetrologyConfiguration(Instant)}</li>
  * </ul>
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ApplyMetrologyConfigurationToUsagePointTest {
@@ -89,7 +87,9 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             MeteringService mtrService = getMeteringService();
             MetrologyConfigurationService service = getMetrologyConfigurationService();
             Optional<UsagePoint> usagePoint = mtrService.findUsagePoint(upId);
-            Optional<MetrologyConfiguration> mc = service.findMetrologyConfiguration(mcId);
+            Optional<UsagePointMetrologyConfiguration> mc = service.findMetrologyConfiguration(mcId)
+                    .filter(configuration -> configuration instanceof UsagePointMetrologyConfiguration)
+                    .map(UsagePointMetrologyConfiguration.class::cast);
             assertThat(usagePoint).isPresent();
             assertThat(mc).isPresent();
             assertThat(mc.get()).isInstanceOf(UsagePointMetrologyConfiguration.class);

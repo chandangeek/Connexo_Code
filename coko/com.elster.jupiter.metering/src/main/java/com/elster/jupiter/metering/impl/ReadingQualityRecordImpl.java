@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ReadingQualityRecordImpl implements ReadingQualityRecord {
@@ -33,7 +34,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     private long version;
     @SuppressWarnings("unused")
-	private Instant createTime;
+    private Instant createTime;
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
@@ -54,7 +55,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         this.channel.set(cimChannel.getChannel());
         this.readingType.set((IReadingType) cimChannel.getReadingType());
         if (baseReading instanceof BaseReadingRecord) {
-        	this.baseReadingRecord = Optional.of((BaseReadingRecord) baseReading);
+            this.baseReadingRecord = Optional.of((BaseReadingRecord) baseReading);
         }
         readingTimestamp = baseReading.getTimeStamp();
         this.type = type;
@@ -177,19 +178,29 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
     @Override
     public void makePast() {
-    	this.actual = false;
-    	this.update("actual");
+        this.actual = false;
+        this.update("actual");
     }
     
     @Override
     public void makeActual() {
-    	this.actual = true;
-    	this.update("actual");
+        this.actual = true;
+        this.update("actual");
     }
     
     @Override
     public boolean isActual() {
-    	return actual;
+        return actual;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || o != null && getClass() == o.getClass() && id == ((ReadingQualityRecordImpl) o).id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     void copy(ReadingQualityRecord source) {
