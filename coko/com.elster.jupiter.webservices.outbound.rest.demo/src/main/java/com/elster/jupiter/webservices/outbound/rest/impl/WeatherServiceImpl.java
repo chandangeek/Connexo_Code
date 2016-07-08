@@ -9,7 +9,7 @@ import javax.ws.rs.client.WebTarget;
  * Created by bvn on 7/5/16.
  */
 public class WeatherServiceImpl implements WeatherService {
-    private final String apiKey = "ba24738bc368fce207fc7cbc9061525e";
+    private final String apiKey = "7c05c886001bcc728e4bc1ca8f19c2b0";
     private final WebTarget target;
 
     public WeatherServiceImpl(WebTarget target) {
@@ -18,7 +18,9 @@ public class WeatherServiceImpl implements WeatherService {
 
     @Override
     public WeatherInfo getWeather(String city) {
-        WeatherInfo weatherInfo = target.queryParam("q", city)
+        WeatherInfo weatherInfo = target
+                .path("/weather")
+                .queryParam("q", city)
                 .queryParam("APPID", apiKey)
                 .request().get(WeatherInfo.class);
         return weatherInfo;
