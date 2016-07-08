@@ -61,6 +61,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
@@ -154,6 +155,12 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         });
 
         upgradeService.register(InstallIdentifier.identifier("Example", "CPM"), dataModel, Installer.class, Collections.emptyMap());
+    }
+
+    @Deactivate
+    public void deactivate() {
+        Map<String, CustomPropertySet> customPropertySets = this.getMeteringCustomPropertySets();
+        customPropertySets.values().stream().forEach(customPropertySetService::removeCustomPropertySet);
     }
 
     Map<String, CustomPropertySet>  registerCustomPropertySets() {
