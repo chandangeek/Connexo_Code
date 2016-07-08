@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.validation.DataValidationAssociationProvider;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -11,8 +12,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.stream.Collectors;
 
 @Component(name="com.energyict.mdc.device.data.impl.DataValidationMdcAssociationProvider",
         service = { DataValidationAssociationProvider.class },
@@ -52,7 +57,7 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
                     .mapToLong(Long::longValue)
                     .sum();
 
-            /*List<DataValidationStatus> yy = device.get()
+            List<DataValidationStatus> yy = device.get()
                     .getRegisters()
                     .stream()
                     .map(reg -> (device.get()
@@ -70,8 +75,9 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
 //                            .mapToLong(Instant::getEpochSecond)
 //                            .max()
 //                            .getAsLong()
-                    ).flatMap(Collection::stream).collect(Collectors.toList());*/
+                    ).flatMap(Collection::stream).collect(Collectors.toList());
 
+            OptionalLong zz = yy.stream().mapToLong(v -> v.getReadingTimestamp().getEpochSecond()).max();
             return new BigDecimal(registerSuspects);
         }
         return new BigDecimal(0);
