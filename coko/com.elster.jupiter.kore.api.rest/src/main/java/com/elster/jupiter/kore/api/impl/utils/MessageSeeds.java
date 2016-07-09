@@ -71,7 +71,10 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_START_TIME(62, "InvalidStartTime", "The start time is invalid, can not precede latest activation"),
     NO_SUCH_DETAIL(63, "NoSuchDetail", "No details could be found at that time"),
     UNSUPPORTED_SERVICE_KIND(64, "UnsupportedServiceKind", "Usage points of this service category don't support details"),
-    NO_SUCH_CONNECTION_STATE(65, "NoSuchConnectionState", "No such connection state");
+    NO_SUCH_CONNECTION_STATE(65, "NoSuchConnectionState", "No such connection state"),
+    NO_SUCH_DOMAIN_EXTENSION(66, "NoSuchDomainExtension", "Unable to get domain extension for service call"),
+    NO_SUCH_ENDPOINT(67, "NoSuchEndpoint", "Unable to get domain extension for service call"),
+    HTTP_CONNECTION_FAILED(68, "HttpConnectionFailed", "Unable to send http response");
 
     private final int number;
     private final String key;

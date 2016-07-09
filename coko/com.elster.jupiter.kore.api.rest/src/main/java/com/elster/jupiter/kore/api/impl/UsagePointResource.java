@@ -270,13 +270,6 @@ public class UsagePointResource {
         UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
 
-        CommandRunStatusInfo result = usagePointCommandHelper.checkHeadEndSupport(usagePoint, usagePointCommandInfo);
-
-        if(CommandStatus.FAILED.equals(result.status)){
-            return result;
-        }
-
-        usagePointCommandInfo.command.process(usagePoint,usagePointCommandInfo,usagePointCommandHelper);
-        return result;
+        return usagePointCommandInfo.command.process(usagePoint,usagePointCommandInfo,usagePointCommandHelper);
     }
 }

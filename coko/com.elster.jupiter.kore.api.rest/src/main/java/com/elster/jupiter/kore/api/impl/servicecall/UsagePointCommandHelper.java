@@ -95,7 +95,7 @@ public class UsagePointCommandHelper {
         return serviceCall;
     }
 
-    private long getExpectedNumberOfCommands(UsagePoint usagePoint, Instant when){
+    public long getExpectedNumberOfCommands(UsagePoint usagePoint, Instant when){
         return usagePoint.getMeterActivations(when)
                 .stream()
                 .flatMap(meterActivation -> meterActivation.getMeter()

@@ -105,6 +105,10 @@
             <artifactId>messaging</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>soap.whiteboard.cxf</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-inmemory</artifactId>
             <scope>test</scope>
