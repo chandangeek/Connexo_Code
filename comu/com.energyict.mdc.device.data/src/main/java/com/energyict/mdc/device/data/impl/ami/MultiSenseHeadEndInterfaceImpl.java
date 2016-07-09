@@ -288,7 +288,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .newChildCall(serviceCallType) : serviceCallType.newServiceCall();
 
         ServiceCall serviceCall = serviceCallBuilder
-                .origin("PublicAPI")
                 .extendedWith(onDemandReadServiceCallDomainExtension)
                 .extendedWith(completionOptionsServiceCallDomainExtension)
                 .targetObject(device)

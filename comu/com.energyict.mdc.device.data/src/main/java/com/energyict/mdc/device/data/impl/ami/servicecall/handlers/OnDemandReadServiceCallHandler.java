@@ -82,7 +82,7 @@ public class OnDemandReadServiceCallHandler implements ServiceCallHandler {
         Optional<CompletionOptionsServiceCallDomainExtension> extension = serviceCall.getExtensionFor(new CompletionOptionsCustomPropertySet());
         if (extension.isPresent()) {
             CompletionOptionsServiceCallDomainExtension domainExtension = extension.get();
-            messageService.getDestinationSpec(domainExtension.getDestinationSpec()).ifPresent(destinationSpec -> destinationSpec.message(domainExtension.getDestinationMessage()));
+            messageService.getDestinationSpec(domainExtension.getDestinationSpec()).ifPresent(destinationSpec -> destinationSpec.message(domainExtension.getDestinationMessage()).send());
         }
     }
 }
