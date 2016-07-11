@@ -184,6 +184,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         return result;
     }
 
+
     private boolean validateByCustomValidators(ConstraintValidatorContext context) {
         boolean result = true;
         for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {

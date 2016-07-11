@@ -72,7 +72,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
 
     @Test
     public void handlerDelegatesToTheEndDeviceWithEffectiveTimestampFromEvent() {
-        when(this.event.getSourceId()).thenReturn(END_DEVICE_MRID);
+        when(this.event.getSourceId()).thenReturn(String.valueOf(END_DEVICE_ID));
         Instant effective = Instant.ofEpochSecond(1000L);
         when(this.event.getEffectiveTimestamp()).thenReturn(effective);
 
@@ -89,7 +89,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
     public void handlerDelegatesToTheEndDeviceWithEffectiveTimestampFromClock() {
         Instant effective = Instant.ofEpochSecond(2000L);
         when(this.clock.instant()).thenReturn(effective);
-        when(this.event.getSourceId()).thenReturn(END_DEVICE_MRID);
+        when(this.event.getSourceId()).thenReturn(String.valueOf(END_DEVICE_ID));
 
         // Business method
         this.getTestInstance().handle(this.localEvent);
