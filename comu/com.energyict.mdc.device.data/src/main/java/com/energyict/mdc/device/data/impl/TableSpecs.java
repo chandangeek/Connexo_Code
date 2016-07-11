@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -98,6 +99,7 @@ public enum TableSpecs {
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
+            table.setJournalTableName("DDC_DEVICEJRNL").since(version(10, 2));
             table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
             table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
@@ -129,6 +131,7 @@ public enum TableSpecs {
             Column propertySpec = table.column("PROPERTYSPEC").map("propertyName").varChar().notNull().add();
             table.column("INFOVALUE").varChar().map("propertyValue").add();
             table.addAuditColumns();
+            table.setJournalTableName("DDC_DEV_PROTOCOL_PROP_JRNL").since(version(10, 2));
             table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId, propertySpec).add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE")
                     .on(deviceId)
@@ -270,7 +273,7 @@ public enum TableSpecs {
             Table<ProtocolDialectProperties> table = dataModel.addTable(name(), ProtocolDialectProperties.class).alsoReferredToAs(DeviceProtocolDialectPropertyProvider.class);
             table.map(ProtocolDialectPropertiesImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
+            table.addAuditColumns().forEach(column -> column.upTo(version(10, 2)));
             table.column("NAME").varChar().map("name").add();
             Column deviceProtocolId = table.column("DEVICEPROTOCOLID").number().conversion(NUMBER2LONG).notNull().map("pluggableClassId").add();
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
@@ -611,7 +614,7 @@ public enum TableSpecs {
             Table<DeviceMessageAttribute> table = dataModel.addTable(name(), DeviceMessageAttribute.class);
             table.map(DeviceMessageAttributeImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
+            table.addAuditColumns().forEach(column -> column.upTo(version(10, 2)));
             Column deviceMessage = table.column("DEVICEMESSAGE").number().conversion(NUMBER2LONG).notNull().add();
             Column name = table.column("NAME").varChar().map("name").notNull().add();
             table.column("VALUE").varChar().map("stringValue").notNull().add();
@@ -659,6 +662,7 @@ public enum TableSpecs {
             Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET").number().conversion(NUMBER2LONG).notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationRuleSetActivationImpl.Fields.ACTIVE.fieldName()).add();
             table.addAuditColumns();
+            table.setJournalTableName("DDC_DEVRULESETACTJRNL").since(version(10, 2));
 
             table.primaryKey("PK_DDC_DEVICEESTRULESETACT").on(estimationActivationColumn, estimationRuleSetColumn).add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_RULESET")
@@ -709,7 +713,7 @@ public enum TableSpecs {
             table.map(DeviceConfigChangeRequestImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column config = table.column("DEVICECONFIG").number().notNull().add();
-            table.addAuditColumns();
+            table.addAuditColumns().forEach(each -> each.upTo(Version.version(10, 2)));
 
             table.primaryKey("PK_DDC_DCCREQUEST").on(idColumn).add();
             table.foreignKey("FK_DDC_DCCREQUEST_CONF").
@@ -729,7 +733,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column device = table.column("DEVICE").number().notNull().add();
             Column configRequest = table.column("DEVICECONFIGREQUEST").number().notNull().add();
-            table.addAuditColumns();
+            table.addAuditColumns().forEach(each -> each.upTo(Version.version(10, 2)));
 
             table.primaryKey("PK_DDC_CONFIGCHANGEINACTION").on(idColumn).add();
             table.foreignKey("FK_DDC_CONFCHANGACT_DEV").
@@ -859,6 +863,7 @@ public enum TableSpecs {
             Column device = table.column("DEVICEID").number().notNull().add();
             table.column("OBISCODE").varChar(NAME_LENGTH).notNull().map("obisCodeString").add();
             table.addAuditColumns();
+            table.setJournalTableName("DDC_OVERRULEDOBISCODEJRNL").since(version(10, 2));
             table.primaryKey("PK_DDC_OVERRULEDOBISCODE").on(readingType, device).add();
             table.foreignKey("FK_DDC_OVEROBIS_DEVICE").
                     on(device).
