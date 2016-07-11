@@ -901,11 +901,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Optional<Instant> startDateMultiplier = Optional.ofNullable(from);
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
             boolean validMultiplierValue = multiplier.compareTo(BigDecimal.ONE) == 1;
+            createMeterConfiguration(findOrCreateKoreMeter(getMdcAmrSystem()), startDateMultiplier.orElse(now), validMultiplierValue);
             MeterActivation newMeterActivation = activate(startDateMultiplier.orElse(now), validMultiplierValue);
             if (validMultiplierValue) {
                 newMeterActivation.setMultiplier(getDefaultMultiplierType(), multiplier);
             }
-            createMeterConfiguration(findOrCreateKoreMeter(getMdcAmrSystem()), startDateMultiplier.orElse(now), validMultiplierValue);
             this.multiplier = multiplier;
         }
     }
