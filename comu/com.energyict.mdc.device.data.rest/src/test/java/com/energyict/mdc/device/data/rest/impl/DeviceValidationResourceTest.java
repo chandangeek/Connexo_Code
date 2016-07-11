@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -20,6 +21,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.NumericalRegister;
@@ -88,6 +90,8 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     @Mock
     private MeterActivation meterActivation1, meterActivation2, meterActivation3;
     @Mock
+    private ChannelsContainer channelsContainer1, channelsContainer2, channelsContainer3;
+    @Mock
     private Channel channel1, channel2, channel3, channel4, channel5, channel6, channel7, channel8, channel9;
     @Mock
     private DataValidationStatus validationStatus1, validationStatus2, validationStatus3, validationStatus4, validationStatus5, validationStatus6;
@@ -107,7 +111,8 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
     private DeviceType deviceType;
     @Mock
     private DeviceConfiguration deviceConfiguration;
-
+    @Mock
+    private CIMLifecycleDates cimLifecycleDates;
 
     @Before
     public void setUp1() {
@@ -121,8 +126,8 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(ch1.getDevice()).thenReturn(device);
         when(ch2.getDevice()).thenReturn(device);
         when(register1.getDevice()).thenReturn(device);
-
-
+        when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
+        when(cimLifecycleDates.getReceivedDate()).thenReturn(Optional.empty());
         doModelStubbing();
 
     }
@@ -218,28 +223,28 @@ public class DeviceValidationResourceTest extends DeviceDataRestApplicationJerse
         when(ch1.getReadingType()).thenReturn(channelReadingType1);
         when(ch2.getReadingType()).thenReturn(channelReadingType2);
 
-        doReturn(Arrays.asList(meterActivation1, meterActivation2, meterActivation3)).when(meter).getMeterActivations();
+        doReturn(Arrays.asList(channelsContainer1, channelsContainer2, channelsContainer3)).when(meter).getChannelsContainers();
         ZonedDateTime fromReg = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1);
         ZonedDateTime from = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(2);
         ZonedDateTime to = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusDays(10);
         when(meterActivation1.getInterval()).thenReturn(Interval.endAt(from.toInstant()));
         when(meterActivation2.getInterval()).thenReturn(new Interval(Date.from(from.toInstant()), Date.from(to.toInstant())));
         when(meterActivation3.getInterval()).thenReturn(Interval.startAt(to.toInstant()));
-        when(meterActivation1.getChannels()).thenReturn(Arrays.asList(channel1, channel2, channel3));
-        when(channel1.getMeterActivation()).thenReturn(meterActivation1);
-        when(channel2.getMeterActivation()).thenReturn(meterActivation1);
-        when(channel3.getMeterActivation()).thenReturn(meterActivation1);
-        when(meterActivation2.getChannels()).thenReturn(Arrays.asList(channel4, channel5, channel6));
-        when(channel4.getMeterActivation()).thenReturn(meterActivation2);
-        when(channel5.getMeterActivation()).thenReturn(meterActivation2);
-        when(channel6.getMeterActivation()).thenReturn(meterActivation2);
-        when(meterActivation3.getChannels()).thenReturn(Arrays.asList(channel7, channel8, channel9));
-        when(channel7.getMeterActivation()).thenReturn(meterActivation3);
-        when(channel8.getMeterActivation()).thenReturn(meterActivation3);
-        when(channel9.getMeterActivation()).thenReturn(meterActivation3);
-        when(validationService.getLastChecked(meterActivation1)).thenReturn(Optional.of(NOW));
-        when(validationService.getLastChecked(meterActivation2)).thenReturn(Optional.of(NOW));
-        when(validationService.getLastChecked(meterActivation3)).thenReturn(Optional.of(NOW));
+        when(channelsContainer1.getChannels()).thenReturn(Arrays.asList(channel1, channel2, channel3));
+        when(channel1.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(channel2.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(channel3.getChannelsContainer()).thenReturn(channelsContainer1);
+        when(channelsContainer2.getChannels()).thenReturn(Arrays.asList(channel4, channel5, channel6));
+        when(channel4.getChannelsContainer()).thenReturn(channelsContainer2);
+        when(channel5.getChannelsContainer()).thenReturn(channelsContainer2);
+        when(channel6.getChannelsContainer()).thenReturn(channelsContainer2);
+        when(channelsContainer3.getChannels()).thenReturn(Arrays.asList(channel7, channel8, channel9));
+        when(channel7.getChannelsContainer()).thenReturn(channelsContainer3);
+        when(channel8.getChannelsContainer()).thenReturn(channelsContainer3);
+        when(channel9.getChannelsContainer()).thenReturn(channelsContainer3);
+        when(validationService.getLastChecked(channelsContainer1)).thenReturn(Optional.of(NOW));
+        when(validationService.getLastChecked(channelsContainer2)).thenReturn(Optional.of(NOW));
+        when(validationService.getLastChecked(channelsContainer3)).thenReturn(Optional.of(NOW));
         when(channel1.getMainReadingType()).thenReturn(regReadingType);
         when(channel2.getMainReadingType()).thenReturn(channelReadingType1);
         when(channel3.getMainReadingType()).thenReturn(channelReadingType2);

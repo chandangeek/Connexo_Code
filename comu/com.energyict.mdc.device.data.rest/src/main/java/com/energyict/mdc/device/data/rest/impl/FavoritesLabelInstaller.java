@@ -42,7 +42,7 @@ public class FavoritesLabelInstaller implements FullInstaller {
                 bind(FavoritesLabelInstaller.class).toInstance(FavoritesLabelInstaller.this);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier("FLI"), dataModel, FavoritesLabelInstaller.class, Collections
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", "FLI"), dataModel, FavoritesLabelInstaller.class, Collections
                 .emptyMap());
     }
 

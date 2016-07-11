@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -9,8 +9,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationRule;
@@ -31,7 +29,6 @@ import com.google.common.collect.ImmutableList;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,13 +46,6 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
  * Time: 10:44
  */
 public class ValidationInfoFactory {
-
-    private static final List<QualityCodeCategory> QUALITY_CODE_CATEGORIES = Arrays.asList(
-            QualityCodeCategory.DIAGNOSTICS,
-            QualityCodeCategory.POWERQUALITY,
-            QualityCodeCategory.TAMPER,
-            QualityCodeCategory.DATACOLLECTION
-    );
 
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
@@ -214,15 +204,22 @@ public class ValidationInfoFactory {
     VeeReadingInfo createVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
         VeeReadingInfo veeReadingInfo = new VeeReadingInfo();
         veeReadingInfo.dataValidated = dataValidationStatus.completelyValidated();
-        veeReadingInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
+        veeReadingInfo.mainValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(getMdcReadingQualities(dataValidationStatus.getReadingQualities())));
         veeReadingInfo.mainValidationInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus);
         veeReadingInfo.mainValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getReadingQualities());
         if (channel.getCalculatedReadingType(dataValidationStatus.getReadingTimestamp()).isPresent()) {
-            veeReadingInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
+            veeReadingInfo.bulkValidationInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(getMdcReadingQualities(dataValidationStatus.getBulkReadingQualities())));
             veeReadingInfo.bulkValidationInfo.validationRules = validationRuleInfoFactory.createInfosForBulkDataValidationStatus(dataValidationStatus);
             veeReadingInfo.bulkValidationInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(dataValidationStatus.getBulkReadingQualities());
         }
         return veeReadingInfo;
+    }
+
+    private List<ReadingQuality> getMdcReadingQualities(Collection<? extends ReadingQuality> readingQualities) {
+        return readingQualities
+                .stream()
+                .filter(readingQuality -> readingQuality.getType().getSystemCode() == QualityCodeSystem.MDC.ordinal())
+                .collect(Collectors.toList());
     }
 
     VeeReadingInfo createVeeReadingInfoWithModificationFlags(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading, Boolean validationActive) {
@@ -238,7 +235,10 @@ public class ValidationInfoFactory {
         return veeReadingInfo;
     }
 
-    private List<IdWithNameInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
+    /**
+     * Returns the CIM code and the full translation of all distinct reading qualities on the given interval reading
+     */
+    private List<ReadingQualityInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
         if (intervalReadingRecord == null) {
             return Collections.emptyList();
         }
@@ -247,25 +247,23 @@ public class ValidationInfoFactory {
                 .map(ReadingQuality::getType)
                 .distinct()
                 .filter(type -> type.system().isPresent())
+                .filter(type -> type.category().isPresent())
                 .filter(type -> type.qualityIndex().isPresent())
-                .filter(type -> QUALITY_CODE_CATEGORIES.contains(type.category().get()))
-                .map(type -> Pair.of(type.getCode(), type.qualityIndex().get()))
-                .map(pair -> new IdWithNameInfo(pair.getFirst(),
-                        thesaurus.getStringBeyondComponent(pair.getLast().getTranslationKey().getKey(), pair.getLast().getTranslationKey().getDefaultFormat())))
+                .filter(type -> type.system().get() != QualityCodeSystem.MDM || !type.hasValidationCategory())
+                .map(type -> ReadingQualityInfo.fromReadingQualityType(thesaurus, type))
                 .collect(Collectors.toList());
     }
 
-
     MinimalVeeReadingValueInfo createMainVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
         MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
-        veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
+        veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(getMdcReadingQualities(dataValidationStatus.getReadingQualities())));
         veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getReadingQualities());
         veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getReadingQualities());
-        veeReadingInfo.action = decorate(dataValidationStatus.getReadingQualities()
+        veeReadingInfo.action = decorate(getMdcReadingQualities(dataValidationStatus.getReadingQualities())
                 .stream())
                 .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
-                .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
-                .sorted(Comparator.<ValidationAction>reverseOrder())
+                .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
+                .sorted(Comparator.reverseOrder())
                 .findFirst()
                 .orElse(null);
         veeReadingInfo.estimatedByRule = dataValidationStatus.getReadingQualities().stream()
@@ -277,14 +275,14 @@ public class ValidationInfoFactory {
     MinimalVeeReadingValueInfo createBulkVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation, IntervalReadingRecord reading) {
         if (channel.getCalculatedReadingType(dataValidationStatus.getReadingTimestamp()).isPresent()) {
             MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
-            veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
+            veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(getMdcReadingQualities(dataValidationStatus.getBulkReadingQualities())));
             veeReadingInfo.valueModificationFlag = ReadingModificationFlag.getModificationFlag(reading, dataValidationStatus.getBulkReadingQualities());
             veeReadingInfo.isConfirmed = isConfirmedData(reading, dataValidationStatus.getBulkReadingQualities());
-            veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()
+            veeReadingInfo.action = decorate(getMdcReadingQualities(dataValidationStatus.getBulkReadingQualities())
                     .stream())
                     .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
-                    .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
-                    .sorted(Comparator.<ValidationAction>reverseOrder())
+                    .map(readingQuality -> readingQuality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
+                    .sorted(Comparator.reverseOrder())
                     .findFirst()
                     .orElse(null);
             veeReadingInfo.estimatedByRule = dataValidationStatus.getBulkReadingQualities().stream()
@@ -356,12 +354,12 @@ public class ValidationInfoFactory {
 
     MinimalVeeReadingValueInfo createMainVeeReadingInfo(DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
         MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
-        veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getReadingQualities()));
-        veeReadingInfo.action = decorate(dataValidationStatus.getReadingQualities()
+        veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(getMdcReadingQualities(dataValidationStatus.getReadingQualities())));
+        veeReadingInfo.action = decorate(getMdcReadingQualities(dataValidationStatus.getReadingQualities())
                 .stream())
                 .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                 .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
-                .sorted(Comparator.<ValidationAction>reverseOrder())
+                .sorted(Comparator.reverseOrder())
                 .findFirst()
                 .orElse(null);
         veeReadingInfo.estimatedByRule = dataValidationStatus.getReadingQualities().stream()
@@ -373,12 +371,12 @@ public class ValidationInfoFactory {
     MinimalVeeReadingValueInfo createBulkVeeReadingInfo(Channel channel, DataValidationStatus dataValidationStatus, DeviceValidation deviceValidation) {
         if (channel.getCalculatedReadingType(dataValidationStatus.getReadingTimestamp()).isPresent()) {
             MinimalVeeReadingValueInfo veeReadingInfo = new MinimalVeeReadingValueInfo();
-            veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(dataValidationStatus.getBulkReadingQualities()));
-            veeReadingInfo.action = decorate(dataValidationStatus.getBulkReadingQualities()
+            veeReadingInfo.validationResult = ValidationStatus.forResult(deviceValidation.getValidationResult(getMdcReadingQualities(dataValidationStatus.getBulkReadingQualities())));
+            veeReadingInfo.action = decorate(getMdcReadingQualities(dataValidationStatus.getBulkReadingQualities())
                     .stream())
                     .filter(quality -> quality.getType().hasValidationCategory() || quality.getType().isSuspect())
                     .map(quality -> quality.getType().isSuspect() ? ValidationAction.FAIL : ValidationAction.WARN_ONLY)
-                    .sorted(Comparator.<ValidationAction>reverseOrder())
+                    .sorted(Comparator.reverseOrder())
                     .findFirst()
                     .orElse(null);
             veeReadingInfo.estimatedByRule = dataValidationStatus.getBulkReadingQualities().stream()

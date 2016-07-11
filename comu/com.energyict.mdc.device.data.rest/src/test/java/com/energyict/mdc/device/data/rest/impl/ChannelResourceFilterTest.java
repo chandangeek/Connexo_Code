@@ -46,7 +46,7 @@ import static org.mockito.Mockito.when;
 
 public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTest {
 
-    private static final String DEIVICE_MRID = "mrid1";
+    private static final String DEVICE_MRID = "mrid1";
     private static final Instant NOW = Instant.ofEpochMilli(1410786205000L);
 
     @Mock
@@ -56,7 +56,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
 
     @Before
     public void setupStubs(){
-        when(deviceService.findByUniqueMrid(DEIVICE_MRID)).thenReturn(Optional.of(device));
+        when(deviceService.findByUniqueMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
         when(clock.instant()).thenReturn(NOW);
         LoadProfile loadProfile1 = mock(LoadProfile.class);
         LoadProfile loadProfile2 = mock(LoadProfile.class);
@@ -116,7 +116,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testGetAllChannelsOnDevice(){
-        String json = target("devices/" + DEIVICE_MRID + "/channels")
+        String json = target("devices/" + DEVICE_MRID + "/channels")
                 .request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(4);
@@ -124,7 +124,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testGetChannelsFilterByLoadProfileName() throws Exception{
-        String json = target("devices/" + DEIVICE_MRID + "/channels")
+        String json = target("devices/" + DEVICE_MRID + "/channels")
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"loadProfileName\",\"value\":[\"*nergy*\"]}]", "UTF-8"))
                 .request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
@@ -135,7 +135,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testGetChannelsFilterByLoadProfileNames() throws Exception{
-        String json = target("devices/" + DEIVICE_MRID + "/channels")
+        String json = target("devices/" + DEVICE_MRID + "/channels")
             .queryParam("filter", URLEncoder.encode("[{\"property\":\"loadProfileName\",\"value\":[\"*nergy*\",\"*Profile*\"]}]", "UTF-8"))
             .request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
@@ -144,7 +144,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testGetChannelsFilterByChannelName() throws Exception{
-        String json = target("devices/" + DEIVICE_MRID + "/channels")
+        String json = target("devices/" + DEVICE_MRID + "/channels")
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"channelName\",\"value\":\"*2*\"}]", "UTF-8"))
                 .request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
@@ -153,7 +153,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testGetChannelsFilterByLoadProfileAndChannelName() throws Exception{
-        String json = target("devices/" + DEIVICE_MRID + "/channels")
+        String json = target("devices/" + DEVICE_MRID + "/channels")
                 .queryParam("filter", URLEncoder.encode(
                         "[{\"property\":\"channelName\",\"value\":\"*A+*\"}," +
                          "{\"property\":\"loadProfileName\",\"value\":[\"*nergy*\"]}]", "UTF-8"))
