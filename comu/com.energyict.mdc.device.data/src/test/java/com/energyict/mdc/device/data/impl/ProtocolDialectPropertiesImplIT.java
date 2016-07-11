@@ -555,6 +555,11 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
     public static class ProtocolDialectPropertiesPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, PersistentProtocolDialectProperties> {
         @Override
+        public String application() {
+            return "Example";
+        }
+
+        @Override
         public String componentName() {
             return "T01";
         }

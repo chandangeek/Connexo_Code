@@ -128,7 +128,6 @@ public class FirmwareComTaskExecutionImpl extends ComTaskExecutionImpl implement
         } else {
             return this.getNextExecutionTimestamp();
         }
-
     }
 
     @Override

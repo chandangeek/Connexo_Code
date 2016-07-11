@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationService;
@@ -20,6 +21,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -35,6 +37,9 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTranslationKeys;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
@@ -132,6 +137,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile TransactionService transactionService;
     private volatile JsonService jsonService;
     private volatile UpgradeService upgradeService;
+    private volatile ServiceCallService serviceCallService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -164,7 +170,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            UpgradeService upgradeService) {
+            UpgradeService upgradeService, ServiceCallService serviceCallService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -196,6 +202,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setMdcIssueService(mdcIssueService);
         setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         setUpgradeService(upgradeService);
+        setServiceCallService(serviceCallService);
         activate(bundleContext);
     }
 
@@ -284,6 +291,26 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.upgradeService = upgradeService;
     }
 
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference(target = "(name=" + CommandCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setCommandCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + CompletionOptionsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setCompletionOptionsCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
     @Override
     public Clock clock() {
         return clock;
@@ -296,11 +323,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
 
     public ProtocolPluggableService protocolPluggableService() {
         return protocolPluggableService;
-    }
-
-    @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
@@ -498,6 +520,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(TaskService.class).toInstance(mdcTaskService);
                 bind(MasterDataService.class).toInstance(masterDataService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(com.energyict.mdc.issues.IssueService.class).toInstance(mdcIssueService);
@@ -509,7 +532,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     public void activate(BundleContext bundleContext) {
         this.createRealServices();
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(DeviceDataServices.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", DeviceDataServices.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
         this.registerRealServices(bundleContext);
     }
 
@@ -625,6 +648,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         keys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
         keys.addAll(Arrays.asList(TaskStatusTranslationKeys.values()));
         keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
+        keys.addAll(Arrays.asList(CustomPropertySetsTranslationKeys.values()));
         return keys;
     }
 
