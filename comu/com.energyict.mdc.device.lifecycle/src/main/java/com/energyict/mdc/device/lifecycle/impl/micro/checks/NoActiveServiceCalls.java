@@ -32,7 +32,7 @@ public class NoActiveServiceCalls extends TranslatableServerMicroCheck {
             return Optional.of(
                     new DeviceLifeCycleActionViolationImpl(
                             this.thesaurus,
-                            MessageSeeds.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
+                            MessageSeeds.NO_ACTIVE_SERVICE_CALLS,
                             MicroCheck.NO_ACTIVE_SERVICE_CALLS));
         } else {
             return Optional.empty();
