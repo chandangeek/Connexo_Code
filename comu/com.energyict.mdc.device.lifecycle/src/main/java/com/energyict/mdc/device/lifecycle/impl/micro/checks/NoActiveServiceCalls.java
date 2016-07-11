@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.data.Device;
@@ -10,7 +9,6 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 
 import java.time.Instant;
-import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -25,8 +23,7 @@ public class NoActiveServiceCalls extends TranslatableServerMicroCheck {
 
     @Override
     protected MicroCheck getMicroCheck() {
-        //TODO automatically generated method body, provide implementation.
-        return null;
+        return MicroCheck.NO_ACTIVE_SERVICE_CALLS;
     }
 
     @Override
@@ -47,12 +44,7 @@ public class NoActiveServiceCalls extends TranslatableServerMicroCheck {
     }
 
     private Set<ServiceCall> activeServiceCalls(Device device) {
-        return serviceCallService.findServiceCalls(device, EnumSet.of(
-                DefaultState.PENDING,
-                DefaultState.SCHEDULED,
-                DefaultState.ONGOING,
-                DefaultState.PAUSED,
-                DefaultState.WAITING
-        ));
+        return serviceCallService.findServiceCalls(device, serviceCallService.nonFinalStates());
     }
+
 }
