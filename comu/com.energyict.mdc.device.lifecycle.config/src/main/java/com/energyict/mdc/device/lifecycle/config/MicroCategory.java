@@ -11,5 +11,5 @@ public enum MicroCategory {
     INSTALLATION,
     DECOMISSION,
     RETENTION,
-    SERVICECALLS;
+    MONITORING;
 }

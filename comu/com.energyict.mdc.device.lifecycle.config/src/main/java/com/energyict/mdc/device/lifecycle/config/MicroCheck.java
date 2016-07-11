@@ -98,7 +98,7 @@ public enum MicroCheck {
     /**
      * Check if no active service calls exist for the device.
      */
-    NO_ACTIVE_SERVICE_CALLS(MicroCategory.SERVICECALLS);
+    NO_ACTIVE_SERVICE_CALLS(MicroCategory.MONITORING);
 
     private MicroCategory category;
 
