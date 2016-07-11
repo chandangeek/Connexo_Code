@@ -2,6 +2,7 @@ package com.elster.jupiter.validation.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -72,6 +73,7 @@ public class ValidationResource {
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final PropertyUtils propertyUtils;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
     public ValidationResource(RestQueryService queryService,
@@ -79,13 +81,15 @@ public class ValidationResource {
                               TransactionService transactionService,
                               ValidationRuleInfoFactory validationRuleInfoFactory,
                               PropertyUtils propertyUtils,
-                              ConcurrentModificationExceptionFactory conflictFactory) {
+                              ConcurrentModificationExceptionFactory conflictFactory,
+                              Thesaurus thesaurus) {
         this.queryService = queryService;
         this.validationService = validationService;
         this.transactionService = transactionService;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.propertyUtils = propertyUtils;
         this.conflictFactory = conflictFactory;
+        this.thesaurus = thesaurus;
     }
 
     private QualityCodeSystem getQualityCodeSystemFromApplicationName(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
@@ -156,10 +160,15 @@ public class ValidationResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response deleteValidationRuleSet(@PathParam("ruleSetId") long ruleSetId, ValidationRuleSetInfo info) {
         info.id = ruleSetId;
-        transactionService.execute(() -> {
-            findAndLockValidationRuleSet(info).delete();
-            return null;
-        });
+        ValidationRuleSet validationRuleSet = findAndLockValidationRuleSet(info);
+        if (validationService.isValidationRuleSetInUse(validationRuleSet) && validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM)) {
+            throw new ValidationRuleSetInUseLocalizedException(thesaurus, validationRuleSet);
+        } else {
+            transactionService.execute(() -> {
+                validationRuleSet.delete();
+                return null;
+            });
+        }
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
