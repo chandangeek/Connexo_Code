@@ -13,7 +13,6 @@ public enum DeviceOffline implements OfflineDeviceContext {
 
     needsEverything;
 
-
     @Override
     public boolean needsSlaveDevices() {
         return true;
@@ -53,6 +52,5 @@ public enum DeviceOffline implements OfflineDeviceContext {
     public boolean needsFirmwareVersions() {
         return true;
     }
-
 
 }

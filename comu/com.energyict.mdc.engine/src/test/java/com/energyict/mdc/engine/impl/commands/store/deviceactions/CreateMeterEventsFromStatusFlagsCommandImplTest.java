@@ -1,9 +1,10 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -35,20 +36,8 @@ import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-
-import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Logger;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,11 +47,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.logging.Logger;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author sva
@@ -131,9 +123,9 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         when(device.getId()).thenReturn(DEVICE_ID);
     }
 
-    private void initializeDeviceLoadProfileWith(int intervalStateBit) {
+    private void initializeDeviceLoadProfileWith(ProtocolReadingQualities readingQualityType) {
         List<IntervalData> intervalDatas = new ArrayList<>();
-        intervalDatas.add(new IntervalData(Date.from(getFrozenClock().instant()), intervalStateBit));
+        intervalDatas.add(new IntervalData(Date.from(getFrozenClock().instant()), new HashSet<ReadingQualityType>(Arrays.asList(readingQualityType.getReadingQualityType()))));
         when(deviceLoadProfile.getCollectedIntervalData()).thenReturn(intervalDatas);
     }
 
@@ -175,7 +167,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     }
 
     private void verifyConfigurationChange(CreateMeterEventsFromStatusFlagsCommandImpl command, ExecutionContext executionContext) {
-        initializeDeviceLoadProfileWith(IntervalStateBits.CONFIGURATIONCHANGE);
+        initializeDeviceLoadProfileWith(ProtocolReadingQualities.CONFIGURATIONCHANGE);
         command.doExecute(deviceProtocol, executionContext);
 
         ArgumentCaptor<DeviceLogBook> argument = ArgumentCaptor.forClass(DeviceLogBook.class);
@@ -187,7 +179,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     }
 
     private void verifyPowerDown(CreateMeterEventsFromStatusFlagsCommandImpl command, ExecutionContext executionContext) {
-        initializeDeviceLoadProfileWith(IntervalStateBits.POWERDOWN);
+        initializeDeviceLoadProfileWith(ProtocolReadingQualities.POWERDOWN);
         command.doExecute(deviceProtocol, executionContext);
 
         ArgumentCaptor<DeviceLogBook> argument = ArgumentCaptor.forClass(DeviceLogBook.class);
@@ -199,7 +191,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     }
 
     private void verifyDeviceError(CreateMeterEventsFromStatusFlagsCommandImpl command, ExecutionContext executionContext) {
-        initializeDeviceLoadProfileWith(IntervalStateBits.DEVICE_ERROR);
+        initializeDeviceLoadProfileWith(ProtocolReadingQualities.DEVICE_ERROR);
         command.doExecute(deviceProtocol, executionContext);
 
         ArgumentCaptor<DeviceLogBook> argument = ArgumentCaptor.forClass(DeviceLogBook.class);

@@ -10,6 +10,8 @@ import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
+import java.time.Instant;
+
 /**
  * An implementation of a CollectedMessage with additional CollectedTopology
  * <p>
@@ -21,6 +23,7 @@ public class DeviceProtocolMessageWithCollectedTopology extends CollectedDeviceD
 
     private final MessageIdentifier messageIdentifier;
     private final CollectedTopology collectedTopology;
+    private Instant sentDate;
     private DeviceMessageStatus deviceMessageStatus;
     private String deviceProtocolInformation;
     private ComTaskExecution comTaskExecution;
@@ -33,6 +36,15 @@ public class DeviceProtocolMessageWithCollectedTopology extends CollectedDeviceD
     @Override
     public MessageIdentifier getMessageIdentifier() {
         return messageIdentifier;
+    }
+
+    @Override
+    public Instant getSentDate() {
+        return sentDate;
+    }
+
+    public void setSentDate(Instant sentDate) {
+        this.sentDate = sentDate;
     }
 
     @Override

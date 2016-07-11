@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.ComPort;
@@ -16,9 +19,6 @@ import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalStatistics;
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.users.UserService;
 import org.joda.time.DateTimeConstants;
 
 import java.time.Clock;
@@ -204,7 +204,7 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         while (this.continueRunning.get() && !Thread.currentThread().isInterrupted()) {
             try {
                 this.doRun();
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 this.exceptionLogger.unexpectedError(t);
                 // Give the infrastructure some time to recover from e.g. unexpected SQL errors
                 this.reschedule();

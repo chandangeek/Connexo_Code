@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
@@ -10,23 +10,20 @@ import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.IntervalData;
-import com.energyict.mdc.protocol.api.device.data.IntervalValue;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Creates {@link Reading Readings} and {@link com.elster.jupiter.metering.readings.IntervalReading}s
  * based on a specific <i>CollectedData</i>.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 26/11/13
  * Time: 09:49
@@ -48,10 +45,10 @@ public final class MeterDataFactory {
     }
 
     private static ReadingImpl getRegisterReading(final CollectedRegister collectedRegister) {
-        if(!collectedRegister.isTextRegister()){
+        if (!collectedRegister.isTextRegister()) {
             return ReadingImpl.of(
                     collectedRegister.getReadingType().getMRID(),
-                    collectedRegister.getCollectedQuantity()!=null?collectedRegister.getCollectedQuantity().getAmount():BigDecimal.ZERO,
+                    collectedRegister.getCollectedQuantity() != null ? collectedRegister.getCollectedQuantity().getAmount() : BigDecimal.ZERO,
                     (collectedRegister.getEventTime() != null ? collectedRegister.getEventTime() : collectedRegister.getReadTime()));
         } else {
             return ReadingImpl.of(
@@ -65,7 +62,7 @@ public final class MeterDataFactory {
      * Creates a list of {@link EndDeviceEvent EndDeviceEvents} based on the given DeviceLogBook
      *
      * @param deviceLogBook the collected LogBook which will serve as an input for the EndDeviceEvents
-     * @param logBookId the (MDC) database id of the LogBook
+     * @param logBookId     the (MDC) database id of the LogBook
      * @return the newly created EndDeviceEvent list
      */
     public static List<EndDeviceEvent> createEndDeviceEventsFor(CollectedLogBook deviceLogBook, long logBookId) {
@@ -89,14 +86,18 @@ public final class MeterDataFactory {
         List<IntervalBlockImpl> intervalBlock = createIntervalBlocks(collectedLoadProfile);
         for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
             for (Pair<IntervalBlockImpl, IntervalValue> pair : DualIterable.endWithShortest(intervalBlock, intervalData.getIntervalValues())) {
-                // safest way to convert from Number to BigDecimal -> using the Number#toString()
-                pair.getFirst().addIntervalReading(
-                        IntervalReadingImpl.of(
-                                intervalData.getEndTime().toInstant(),
-                                new BigDecimal(pair.getLast().getNumber().toString()),
-                                new ProfileStatus(pair.getLast().getEiStatus() | intervalData.getEiStatus())
-                        )
+
+                Set<ReadingQualityType> readingQualityTypes = new HashSet<>();
+                readingQualityTypes.addAll(pair.getLast().getReadingQualityTypes());
+                readingQualityTypes.addAll(intervalData.getReadingQualityTypes());
+
+                IntervalReadingImpl intervalReading = IntervalReadingImpl.of(
+                        intervalData.getEndTime().toInstant(),
+                        new BigDecimal(pair.getLast().getNumber().toString()),  // safest way to convert from Number to BigDecimal -> using the Number#toString()
+                        readingQualityTypes
                 );
+
+                pair.getFirst().addIntervalReading(intervalReading);
             }
         }
         return new ArrayList<>(intervalBlock);

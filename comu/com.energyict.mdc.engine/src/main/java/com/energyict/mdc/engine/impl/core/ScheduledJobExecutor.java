@@ -75,7 +75,7 @@ public abstract class ScheduledJobExecutor {
                 } catch (ConnectionSetupException t) {
                     logIfDebuggingIsEnabled(t);
                     job.failed(t, ExecutionFailureReason.CONNECTION_SETUP);
-                } catch (Throwable t) {
+                } catch (Exception t) {
                     logIfDebuggingIsEnabled(t);
                     job.failed(t, ExecutionFailureReason.CONNECTION_BROKEN);
                 }

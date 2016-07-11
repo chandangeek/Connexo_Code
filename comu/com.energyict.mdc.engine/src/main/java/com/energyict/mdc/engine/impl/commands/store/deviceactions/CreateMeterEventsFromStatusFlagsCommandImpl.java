@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Will create proper Events from intervalFlags.
+ * Will create proper Events from the reading qualities on the interval data.
  */
 public class CreateMeterEventsFromStatusFlagsCommandImpl extends SimpleComCommand implements CreateMeterEventsFromStatusFlagsCommand {
 
@@ -38,7 +38,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImpl extends SimpleComComman
 
     @Override
     public String getDescriptionTitle() {
-        return "Create meter events from load profile interval statuses";
+        return "Create meter events from load profile reading qualities";
     }
 
     @Override
@@ -110,10 +110,10 @@ public class CreateMeterEventsFromStatusFlagsCommandImpl extends SimpleComComman
 
         private void appendTo (PropertyDescriptionBuilder builder) {
             if (this.noMeterEventsCreated) {
-                builder.append("No meter events created from load profile status flags of load profile ");
+                builder.append("No meter events created from load profile reading qualities");
             }
             else {
-                builder.append("Created meter events from load profile status flags of load profile ");
+                builder.append("Created meter events from load profile reading qualities");
             }
             builder.append(this.loadProfile.getLoadProfileIdentifier());
         }

@@ -38,15 +38,11 @@ import org.joda.time.DateTimeZone;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -104,8 +100,8 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
     public List<IntervalValue> getIntervalValues(int addition) {
         List<IntervalValue> intervalValues = new ArrayList<>();
-        intervalValues.add(new IntervalValue(intervalValueOne + addition, 0, 0));
-        intervalValues.add(new IntervalValue(intervalValueTwo + addition, 0, 0));
+        intervalValues.add(new IntervalValue(intervalValueOne + addition, 0, new HashSet<>()));
+        intervalValues.add(new IntervalValue(intervalValueTwo + addition, 0, new HashSet<>()));
         return intervalValues;
     }
 
@@ -488,55 +484,55 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
     private List<IntervalData> createMockedIntervalData() {
         List<IntervalData> intervalDatas = new ArrayList<>();
-        intervalDatas.add(new IntervalData(intervalEndTime1, 0, 0, 0, getIntervalValues(0)));
-        intervalDatas.add(new IntervalData(intervalEndTime2, 0, 0, 0, getIntervalValues(1)));
-        intervalDatas.add(new IntervalData(intervalEndTime3, 0, 0, 0, getIntervalValues(2)));
-        intervalDatas.add(new IntervalData(intervalEndTime4, 0, 0, 0, getIntervalValues(3)));
+        intervalDatas.add(new IntervalData(intervalEndTime1, new HashSet<>(), 0, 0, getIntervalValues(0)));
+        intervalDatas.add(new IntervalData(intervalEndTime2, new HashSet<>(), 0, 0, getIntervalValues(1)));
+        intervalDatas.add(new IntervalData(intervalEndTime3, new HashSet<>(), 0, 0, getIntervalValues(2)));
+        intervalDatas.add(new IntervalData(intervalEndTime4, new HashSet<>(), 0, 0, getIntervalValues(3)));
         return intervalDatas;
     }
 
     private List<IntervalData> createMockedIntervalDataThatOverflowsOnThirdValue() {
         List<IntervalData> intervalDatas = new ArrayList<>();
-        intervalDatas.add(new IntervalData(intervalEndTime1, 0, 0, 0, getIntervalValuesFor(DeviceCreator.CHANNEL_OVERFLOW_VALUE - 1, 10)));
-        intervalDatas.add(new IntervalData(intervalEndTime2, 0, 0, 0, getIntervalValuesFor(DeviceCreator.CHANNEL_OVERFLOW_VALUE, 132)));
-        intervalDatas.add(new IntervalData(intervalEndTime3, 0, 0, 0, getIntervalValuesFor(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 1, 1651)));
-        intervalDatas.add(new IntervalData(intervalEndTime4, 0, 0, 0, getIntervalValuesFor(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 2, 865461)));
+        intervalDatas.add(new IntervalData(intervalEndTime1, new HashSet<>(), 0, 0, getIntervalValuesFor(DeviceCreator.CHANNEL_OVERFLOW_VALUE - 1, 10)));
+        intervalDatas.add(new IntervalData(intervalEndTime2, new HashSet<>(), 0, 0, getIntervalValuesFor(DeviceCreator.CHANNEL_OVERFLOW_VALUE, 132)));
+        intervalDatas.add(new IntervalData(intervalEndTime3, new HashSet<>(), 0, 0, getIntervalValuesFor(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 1, 1651)));
+        intervalDatas.add(new IntervalData(intervalEndTime4, new HashSet<>(), 0, 0, getIntervalValuesFor(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 2, 865461)));
         return intervalDatas;
     }
 
     private List<IntervalData> createMockedIntervalDataThatOverflowsOnThirdValueAfterUpScaling() {
         List<IntervalData> intervalDatas = new ArrayList<>();
-        intervalDatas.add(new IntervalData(intervalEndTime1, 0, 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE - 1).divide(BigDecimal.valueOf(1000)), 10)));
-        intervalDatas.add(new IntervalData(intervalEndTime2, 0, 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE).divide(BigDecimal.valueOf(1000)), 132)));
-        intervalDatas.add(new IntervalData(intervalEndTime3, 0, 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 1).divide(BigDecimal.valueOf(1000)), 165)));
-        intervalDatas.add(new IntervalData(intervalEndTime4, 0, 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 2).divide(BigDecimal.valueOf(1000)), 865)));
+        intervalDatas.add(new IntervalData(intervalEndTime1, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE - 1).divide(BigDecimal.valueOf(1000)), 10)));
+        intervalDatas.add(new IntervalData(intervalEndTime2, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE).divide(BigDecimal.valueOf(1000)), 132)));
+        intervalDatas.add(new IntervalData(intervalEndTime3, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 1).divide(BigDecimal.valueOf(1000)), 165)));
+        intervalDatas.add(new IntervalData(intervalEndTime4, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 2).divide(BigDecimal.valueOf(1000)), 865)));
         return intervalDatas;
     }
 
     private List<IntervalData> createMockedIntervalDataThatOverflowsOnThirdValueAfterDownScaling() {
         List<IntervalData> intervalDatas = new ArrayList<>();
-        intervalDatas.add(new IntervalData(intervalEndTime1, 0, 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE - 1).multiply(BigDecimal.valueOf(1000)), 10)));
-        intervalDatas.add(new IntervalData(intervalEndTime2, 0, 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE).multiply(BigDecimal.valueOf(1000)), 132)));
-        intervalDatas.add(new IntervalData(intervalEndTime3, 0, 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 1).multiply(BigDecimal.valueOf(1000)), 165)));
-        intervalDatas.add(new IntervalData(intervalEndTime4, 0, 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 2).multiply(BigDecimal.valueOf(1000)), 865)));
+        intervalDatas.add(new IntervalData(intervalEndTime1, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE - 1).multiply(BigDecimal.valueOf(1000)), 10)));
+        intervalDatas.add(new IntervalData(intervalEndTime2, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE).multiply(BigDecimal.valueOf(1000)), 132)));
+        intervalDatas.add(new IntervalData(intervalEndTime3, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 1).multiply(BigDecimal.valueOf(1000)), 165)));
+        intervalDatas.add(new IntervalData(intervalEndTime4, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 2).multiply(BigDecimal.valueOf(1000)), 865)));
         return intervalDatas;
     }
 
     public List<IntervalValue> getIntervalValuesFor(Number intervalValueOne, Number intervalValueTwo) {
         List<IntervalValue> intervalValues = new ArrayList<>();
-        intervalValues.add(new IntervalValue(intervalValueOne, 0, 0));
-        intervalValues.add(new IntervalValue(intervalValueTwo, 0, 0));
+        intervalValues.add(new IntervalValue(intervalValueOne, 0, new HashSet<>()));
+        intervalValues.add(new IntervalValue(intervalValueTwo, 0, new HashSet<>()));
         return intervalValues;
     }
 
     private List<IntervalData> createMockedIntervalDataWithTwoEntriesInFuture() {
         List<IntervalData> intervalDatas = new ArrayList<>();
-        intervalDatas.add(new IntervalData(intervalEndTime1, 0, 0, 0, getIntervalValues(0)));
-        intervalDatas.add(new IntervalData(intervalEndTime2, 0, 0, 0, getIntervalValues(1)));
-        intervalDatas.add(new IntervalData(intervalEndTime3, 0, 0, 0, getIntervalValues(2)));
-        intervalDatas.add(new IntervalData(intervalEndTime4, 0, 0, 0, getIntervalValues(3)));
-        intervalDatas.add(new IntervalData(futureIntervalEndTime1, 0, 0, 0, getIntervalValues(4)));
-        intervalDatas.add(new IntervalData(futureIntervalEndTime2, 0, 0, 0, getIntervalValues(5)));
+        intervalDatas.add(new IntervalData(intervalEndTime1, new HashSet<>(), 0, 0, getIntervalValues(0)));
+        intervalDatas.add(new IntervalData(intervalEndTime2, new HashSet<>(), 0, 0, getIntervalValues(1)));
+        intervalDatas.add(new IntervalData(intervalEndTime3, new HashSet<>(), 0, 0, getIntervalValues(2)));
+        intervalDatas.add(new IntervalData(intervalEndTime4, new HashSet<>(), 0, 0, getIntervalValues(3)));
+        intervalDatas.add(new IntervalData(futureIntervalEndTime1, new HashSet<>(), 0, 0, getIntervalValues(4)));
+        intervalDatas.add(new IntervalData(futureIntervalEndTime2, new HashSet<>(), 0, 0, getIntervalValues(5)));
         return intervalDatas;
     }
 
@@ -552,7 +548,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         Optional<AmrSystem> amrSystem = getMeteringService().findAmrSystem(1);
         for (MeterActivation meterActivation : amrSystem.get().findMeter(String.valueOf(deviceId)).get().getMeterActivations()) {
             if (meterActivation.isCurrent()) {
-                return meterActivation.getChannels();
+                return meterActivation.getChannelsContainer().getChannels();
             }
         }
         return Collections.emptyList();

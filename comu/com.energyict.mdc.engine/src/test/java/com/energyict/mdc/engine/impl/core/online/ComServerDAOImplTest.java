@@ -28,8 +28,12 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareVersionBuilder;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import com.google.common.collect.Range;
 
@@ -47,11 +51,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static junit.framework.TestCase.assertEquals;
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doReturn;
@@ -75,6 +75,8 @@ public class ComServerDAOImplTest {
     private static final long SCHEDULED_COMTASK_ID = 3;
     private static final String IP_ADDRESS = "192.168.2.100";
     private static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
+    private static final String ACTIVE_CALENDAR_NAME = "Active";
+    private static final String PASSIVE_CALENDAR_NAME = "Passive";
 
     @Mock
     private OutboundCapableComServer comServer;
@@ -84,6 +86,8 @@ public class ComServerDAOImplTest {
     private ComTaskExecution scheduledComTask;
     @Mock
     private Device device;
+    @Mock
+    private Device.CalendarSupport calendarSupport;
     @Mock
     private DeviceType deviceType;
     @Mock
@@ -109,7 +113,8 @@ public class ComServerDAOImplTest {
 
     @Before
     public void initializeMocks() {
-        when(device.getDeviceType()).thenReturn(deviceType);
+        when(this.device.getDeviceType()).thenReturn(this.deviceType);
+        when(this.device.calendars()).thenReturn(this.calendarSupport);
         TransactionService transactionService = new FakeTransactionService();
         when(this.serviceProvider.transactionService()).thenReturn(transactionService);
         when(this.serviceProvider.engineConfigurationService()).thenReturn(this.engineConfigurationService);
@@ -526,13 +531,13 @@ public class ComServerDAOImplTest {
         // asserts
         verify(this.deviceDataModelService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
 
-        assertEquals(device, deviceCaptor.getValue());
-        assertEquals(BreakerStatus.ARMED, breakerStatusCaptor.getValue());
-        assertNotNull(intervalCaptor.getValue());
+        assertThat(deviceCaptor.getValue()).isEqualTo(this.device);
+        assertThat(breakerStatusCaptor.getValue()).isEqualTo(BreakerStatus.ARMED);
+        assertThat(intervalCaptor.getValue()).isNotNull();
         Range<Instant> range = intervalCaptor.getValue().toClosedRange();
-        assertFalse("The upper bound should be unlimited.", range.hasUpperBound());
-        assertTrue("The lower bound should be bound.", range.hasLowerBound());
-        assertTrue("The lower bound should be before current time", range.lowerEndpoint().minusMillis(1).isBefore(Instant.now()));
+        assertThat(range.hasUpperBound()).isFalse();
+        assertThat(range.hasLowerBound()).isTrue();
+        assertThat(range.lowerEndpoint().minusMillis(1)).isLessThan(Instant.now());
     }
 
     @Test
@@ -556,13 +561,13 @@ public class ComServerDAOImplTest {
         // asserts
         verify(this.deviceDataModelService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
 
-        assertEquals(device, deviceCaptor.getValue());
-        assertEquals(BreakerStatus.ARMED, breakerStatusCaptor.getValue());
-        assertNotNull(intervalCaptor.getValue());
+        assertThat(deviceCaptor.getValue()).isEqualTo(device);
+        assertThat(breakerStatusCaptor.getValue()).isEqualTo(BreakerStatus.ARMED);
+        assertThat(intervalCaptor.getValue()).isNotNull();
         Range<Instant> range = intervalCaptor.getValue().toClosedRange();
-        assertFalse("The upper bound should be unlimited.", range.hasUpperBound());
-        assertTrue("The lower bound should be bound.", range.hasLowerBound());
-        assertTrue("The lower bound should be before current time", range.lowerEndpoint().minusMillis(1).isBefore(Instant.now()));
+        assertThat(range.hasUpperBound()).isFalse();
+        assertThat(range.hasLowerBound()).isTrue();
+        assertThat(range.lowerEndpoint().minusMillis(1)).isLessThan(Instant.now());
     }
 
     @Test
@@ -581,5 +586,41 @@ public class ComServerDAOImplTest {
         // asserts
         verify(activatedBreakerStatus).setLastChecked(any(Instant.class));
         verify(this.deviceDataModelService, never()).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
+    }
+
+    @Test
+    public void updateCalendarsDelegatesToDevice() {
+        CollectedCalendar collectedCalendar = mock(CollectedCalendar.class);
+        when(collectedCalendar.isEmpty()).thenReturn(false);
+        when(collectedCalendar.getActiveCalendar()).thenReturn(Optional.of(ACTIVE_CALENDAR_NAME));
+        when(collectedCalendar.getPassiveCalendar()).thenReturn(Optional.of(PASSIVE_CALENDAR_NAME));
+        when(collectedCalendar.getDeviceIdentifier()).thenReturn(this.deviceIdentifier);
+        when(this.deviceIdentifier.findDevice()).thenReturn(this.device);
+
+        // Business method
+        this.comServerDAO.updateCalendars(collectedCalendar);
+
+        // Asserts
+        verify(this.device).calendars();
+        verify(this.calendarSupport).updateCalendars(collectedCalendar);
+    }
+
+    @Test
+    public void updateDeviceMessageInformationTest() {
+        MessageIdentifier messageIdentifier = mock(MessageIdentifier.class);
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(messageIdentifier.getDeviceMessage()).thenReturn(deviceMessage);
+
+        DeviceMessageStatus deviceMessageStatus = DeviceMessageStatus.CONFIRMED;
+        Instant sentDate = Instant.now();
+        String protocolInfo = "protocolInfo";
+
+        // business method
+        this.comServerDAO.updateDeviceMessageInformation(messageIdentifier, deviceMessageStatus, sentDate, protocolInfo);
+
+        // asserts
+        verify(deviceMessage).setSentDate(sentDate);
+        verify(deviceMessage).setProtocolInformation(protocolInfo);
+        verify(deviceMessage).updateDeviceMessageStatus(deviceMessageStatus);
     }
 }

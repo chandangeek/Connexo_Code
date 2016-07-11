@@ -322,7 +322,7 @@ public class CommandRootImpl extends CompositeComCommandImpl implements CommandR
     }
 
     private MessagesCommand createMessagesCommand(MessagesTask messagesTask, CompositeComCommand possibleCommandOwner, ComTaskExecution comTaskExecution) {
-        MessagesCommand messagesCommand = new MessagesCommandImpl(messagesTask, this.offlineDevice, this, comTaskExecution);
+        MessagesCommand messagesCommand = new MessagesCommandImpl(messagesTask, this.offlineDevice, this, comTaskExecution, this.serviceProvider.issueService(), this.serviceProvider.thesaurus());
         possibleCommandOwner.addUniqueCommand(messagesCommand, comTaskExecution);
         return messagesCommand;
     }

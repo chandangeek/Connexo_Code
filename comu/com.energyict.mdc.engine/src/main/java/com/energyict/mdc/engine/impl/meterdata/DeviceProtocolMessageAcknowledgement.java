@@ -8,6 +8,8 @@ import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
+import java.time.Instant;
+
 /**
  * @author sva
  * @since 3/07/13 - 16:08
@@ -15,6 +17,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 public class DeviceProtocolMessageAcknowledgement extends CollectedDeviceData implements CollectedMessageAcknowledgement {
 
     private final MessageIdentifier messageIdentifier;
+    private Instant sentDate;
     private DeviceMessageStatus deviceMessageStatus;
     private String protocolInfo;
 
@@ -45,6 +48,16 @@ public class DeviceProtocolMessageAcknowledgement extends CollectedDeviceData im
     @Override
     public void setProtocolInfo(String protocolInfo) {
         this.protocolInfo = protocolInfo;
+    }
+
+    @Override
+    public Instant getSentDate() {
+        return sentDate;
+    }
+
+    @Override
+    public void setSentDate(Instant sentDate) {
+        this.sentDate = sentDate;
     }
 
     @Override

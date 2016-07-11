@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
@@ -22,24 +22,19 @@ import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Duration;
+import java.util.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for the MarkIntervalsAsBadTimeCommandImpl component
@@ -56,6 +51,19 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
     ComTaskExecution comTaskExecution;
     @Mock
     private Device device;
+
+    private static DeviceLoadProfile createDeviceCollectedLoadProfile() {
+        LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
+        when(loadProfileIdentifier.toString()).thenReturn("0.0.99.98.0.255");
+        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
+        List<IntervalData> intervalDatas = new ArrayList<>();
+        List<ChannelInfo> channelInfos = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            intervalDatas.add(new IntervalData(new Date(), new HashSet<>()));
+        }
+        deviceLoadProfile.setCollectedData(intervalDatas, channelInfos);
+        return deviceLoadProfile;
+    }
 
     @Before
     public void initBefore() {
@@ -104,7 +112,8 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
         DeviceLoadProfile deviceLoadProfile = (DeviceLoadProfile) loadProfileCommand.getCollectedData().get(0);
         // all intervals should be marked as BADTIME
         for (IntervalData intervalData : deviceLoadProfile.getCollectedIntervalData()) {
-            Assert.assertEquals("Status should be BADTIME", IntervalStateBits.BADTIME, intervalData.getEiStatus());
+            assertThat(intervalData.getReadingQualityTypes()).hasSize(1);
+            assertThat(intervalData.getReadingQualityTypes().toArray()[0]).isEqualTo(ProtocolReadingQualities.BADTIME.getReadingQualityType());
         }
         String journalMessage = markIntervalsAsBadTimeCommand.toJournalMessageDescription(LogLevel.DEBUG);
         assertThat(journalMessage).isEqualTo("Mark load profile intervals as bad time {nrOfWarnings: 1; nrOfProblems: 0; minimumClockDifference: 1 minutes; badTimeLoadProfiles: 0.0.99.98.0.255}");
@@ -137,21 +146,8 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
         DeviceLoadProfile deviceLoadProfile = (DeviceLoadProfile) loadProfileCommand.getCollectedData().get(0);
         // all intervals should be marked as OK
         for (IntervalData intervalData : deviceLoadProfile.getCollectedIntervalData()) {
-            Assert.assertEquals("Status should be OK", IntervalStateBits.OK, intervalData.getEiStatus());
+            assertThat(intervalData.getReadingQualityTypes()).hasSize(0);
         }
-    }
-
-    private static DeviceLoadProfile createDeviceCollectedLoadProfile() {
-        LoadProfileIdentifier loadProfileIdentifier = mock(LoadProfileIdentifier.class);
-        when(loadProfileIdentifier.toString()).thenReturn("0.0.99.98.0.255");
-        DeviceLoadProfile deviceLoadProfile = new DeviceLoadProfile(loadProfileIdentifier);
-        List<IntervalData> intervalDatas = new ArrayList<>();
-        List<ChannelInfo> channelInfos = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            intervalDatas.add(new IntervalData(new Date(), IntervalStateBits.OK));
-        }
-        deviceLoadProfile.setCollectedData(intervalDatas, channelInfos);
-        return deviceLoadProfile;
     }
 
 }
