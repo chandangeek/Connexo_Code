@@ -209,6 +209,7 @@ public class MetrologyConfigurationInfoFactory {
 
         @Override
         public Void visitOperation(OperationNode operationNode) {
+            operationNode.getChildren().forEach(n -> n.accept(this));
             return null;
         }
 
