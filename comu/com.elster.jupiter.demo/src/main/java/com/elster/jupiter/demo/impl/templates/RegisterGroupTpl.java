@@ -5,6 +5,7 @@ import com.elster.jupiter.demo.impl.builders.RegisterGroupBuilder;
 import com.energyict.mdc.masterdata.RegisterGroup;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,12 +17,13 @@ public enum RegisterGroupTpl implements Template<RegisterGroup, RegisterGroupBui
             Arrays.asList(RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T1)),
     TARIFF_2("Tariff 2",
             Arrays.asList(RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T2)),
+    DATA_LOGGER_REGISTER_DATA("Data logger register data", RegisterTypeTpl.dataLoggerRegisterTypes())
     ;
 
     private String name;
-    private List<RegisterTypeTpl> registerTypes;
+    private Collection<RegisterTypeTpl> registerTypes;
 
-    RegisterGroupTpl(String name, List<RegisterTypeTpl> registerTypes) {
+    RegisterGroupTpl(String name, Collection<RegisterTypeTpl> registerTypes) {
         this.name = name;
         this.registerTypes = registerTypes;
     }

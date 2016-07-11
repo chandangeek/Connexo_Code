@@ -7,6 +7,9 @@ import com.elster.jupiter.demo.impl.builders.RegisterTypeBuilder;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.masterdata.RegisterType;
 
+import java.util.EnumSet;
+import java.util.stream.Collectors;
+
 public enum RegisterTypeTpl implements Template<RegisterType, RegisterTypeBuilder> {
     // Base registers
     B_F_E_S_M_E ("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "1.0.1.8.0.255"),
@@ -87,5 +90,15 @@ public enum RegisterTypeTpl implements Template<RegisterType, RegisterTypeBuilde
         ReadingType readingType = Builders.from(ReadingTypeBuilder.class).withMrid(mrid).find()
                 .orElseThrow(() -> new UnableToCreate("Unable to find reading type with mrid '"+ mrid + "'"));
         return builder.withObisCode(obisCode).withReadingType(readingType);
+    }
+
+    public static EnumSet<RegisterTypeTpl> dataLoggerRegisterTypes(){
+        return EnumSet.copyOf(
+                EnumSet.allOf(RegisterTypeTpl.class)
+                        .stream()
+                        .filter((tpl)->tpl.name().startsWith("DATA_LOGGER"))
+                        .collect(Collectors.toSet())
+        );
+
     }
 }
