@@ -13,7 +13,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.users.User;
@@ -34,7 +33,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -81,7 +79,7 @@ public class GoingOnResource {
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
-        List<GoingOnInfo> serviceCalls = serviceCallService.findServiceCalls(device, nonFinalStates())
+        List<GoingOnInfo> serviceCalls = serviceCallService.findServiceCalls(device, serviceCallService.nonFinalStates())
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
@@ -102,16 +100,6 @@ public class GoingOnResource {
 
     private String filterFor(Device device) {
         return "?variableid=deviceId&variablevalue=" + device.getmRID();
-    }
-
-    private EnumSet<DefaultState> nonFinalStates() {
-        return EnumSet.of(
-                DefaultState.CREATED,
-                DefaultState.PENDING,
-                DefaultState.SCHEDULED,
-                DefaultState.ONGOING,
-                DefaultState.PAUSED
-        );
     }
 
     private class GoingOnInfoFactory {
