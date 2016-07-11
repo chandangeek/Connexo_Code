@@ -584,4 +584,14 @@ public class ChannelResource {
         }).collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("validationBlocks", validationBlocksInfo, parameters);
     }
+
+    @GET
+    @Transactional
+    @Path("/{channelid}/history")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
+    public ChannelHistoryInfos getDataLoggerSlaveChannelHistory(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        return channelHelper.get().getDataLoggerSlaveChannelHistory(channel);
+    }
 }

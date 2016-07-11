@@ -6,6 +6,7 @@ import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.google.common.collect.Range;
@@ -32,12 +33,14 @@ public class ChannelResourceHelper {
     private final ResourceHelper resourceHelper;
     private final Clock clock;
     private final ValidationInfoFactory validationInfoFactory;
+    private final TopologyService topologyService;
 
     @Inject
-    public ChannelResourceHelper(ResourceHelper resourceHelper, Clock clock, ValidationInfoFactory validationInfoFactory) {
+    public ChannelResourceHelper(ResourceHelper resourceHelper, Clock clock, ValidationInfoFactory validationInfoFactory, TopologyService topologyService) {
         this.resourceHelper = resourceHelper;
         this.clock = clock;
         this.validationInfoFactory = validationInfoFactory;
+        this.topologyService = topologyService;
     }
 
     public Response getChannels(String mrid, Function<Device, List<Channel>> channelsProvider, JsonQueryParameters queryParameters, TopologyService topologyService) {
@@ -99,5 +102,14 @@ public class ChannelResourceHelper {
 
     public ValidationStatusInfo determineStatus(Channel channel) {
         return new ValidationStatusInfo(isValidationActive(channel), channel.getDevice().forValidation().getLastChecked(channel), hasData(channel));
+    }
+
+    public ChannelHistoryInfos getDataLoggerSlaveChannelHistory(Channel channel) {
+        ChannelHistoryInfos channelHistoryInfos = new ChannelHistoryInfos();
+        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsages(channel, Range.atMost(clock.instant()));
+        dataLoggerChannelUsages.stream().forEach(dataLoggerChannelUsage -> {
+            channelHistoryInfos.channelHistory.add(ChannelHistoryInfo.from(dataLoggerChannelUsage));
+        });
+        return channelHistoryInfos;
     }
 }
