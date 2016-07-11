@@ -178,7 +178,6 @@ class VirtualReadingTypeRequirement {
                     timeSeries
                             .getRawValuesSql(
                                     this.rawDataPeriod,
-                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
                                     this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
                                     this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
         } else {
@@ -206,7 +205,6 @@ class VirtualReadingTypeRequirement {
                         .getTimeSeries()
                         .getRawValuesSql(
                                 this.rawDataPeriod,
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE)));
         sqlBuilder.append(") ts");
     }

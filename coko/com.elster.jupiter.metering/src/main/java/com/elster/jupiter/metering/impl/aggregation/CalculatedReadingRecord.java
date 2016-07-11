@@ -99,7 +99,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
      * @param resultSet The ResultSet
      * @return The initialized AggregatedReadingRecord
      */
-    CalculatedReadingRecord init(ResultSet resultSet, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
+    CalculatedReadingRecord init(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         try {
             int columnIndex = 1;
             this.readingTypeMRID = resultSet.getString(columnIndex++);
@@ -122,26 +122,23 @@ class CalculatedReadingRecord implements BaseReadingRecord {
         }
     }
 
-    private void checkCount(Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation, long meterActivationId, long deliverableId) {
-        Optional<MeterActivation> meterActivation =
-                deliverablesPerMeterActivation.keySet().stream().filter(ma -> ma.getId() == meterActivationId).findFirst();
-        if (meterActivation.isPresent()) {
-            List<ReadingTypeDeliverableForMeterActivation> deliverables = deliverablesPerMeterActivation.get(meterActivation.get());
-            Optional<ReadingTypeDeliverableForMeterActivation> readingTypeDeliverableForMeterActivation =
-                    deliverables.stream().filter(d -> d.getDeliverable().getId() == deliverableId).findFirst();
-            if (readingTypeDeliverableForMeterActivation.isPresent()) {
-                long expectedCount = readingTypeDeliverableForMeterActivation.get().getExpectedCount(this.timestamp);
+    private void checkCount(Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation, long meterActivationId, long deliverableId) {
+        Optional<MeterActivationSet> meterActivationSet =
+                deliverablesPerMeterActivation.keySet().stream().filter(maSet -> maSet.contains(this.timestamp)).findAny();
+        if (meterActivationSet.isPresent()) {
+            List<ReadingTypeDeliverableForMeterActivationSet> deliverables = deliverablesPerMeterActivation.get(meterActivationSet.get());
+            Optional<ReadingTypeDeliverableForMeterActivationSet> readingTypeDeliverableForMeterActivationSet =
+                    deliverables.stream().filter(d -> d.getDeliverable().getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
+            if (readingTypeDeliverableForMeterActivationSet.isPresent()) {
+                long expectedCount = readingTypeDeliverableForMeterActivationSet.get().getExpectedCount(this.timestamp);
                 if (this.count != expectedCount) {
-                    Optional<Meter> meter = meterActivation.get().getMeter();
-                    if (meter.isPresent()) {
-                        List<? extends ReadingQualityRecord> qualities =
-                            meter.get().getReadingQualities(readingTypeDeliverableForMeterActivation.get().getTargetRange(this.timestamp));
+                    List<? extends ReadingQualityRecord> qualities =
+                            readingTypeDeliverableForMeterActivationSet.get().getReadingQualities(this.timestamp);
                         this.readingQuality =
                                 qualities.stream().filter(record -> record.isSuspect()).findAny().isPresent() ?
                                         SUSPECT : MISSING;
 
                     }
-                }
             }
         }
     }
@@ -161,7 +158,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
         record.setReadingType(this.readingType);
         record.localDate = new java.sql.Timestamp(timeStamp.toEpochMilli());
         record.timestamp = timeStamp;
-        record.processStatus = this.processStatus;
+        record.readingQuality = this.readingQuality;
         record.count = 1;
         return record;
     }
@@ -209,7 +206,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     }
 
     @Override
-    public ProcessStatus getProcesStatus() {
+    public ProcessStatus getProcessStatus() {
         ProcessStatus processStatus = new ProcessStatus(0);
         if (readingQuality == SUSPECT) {
             return processStatus.with(ProcessStatus.Flag.SUSPECT);

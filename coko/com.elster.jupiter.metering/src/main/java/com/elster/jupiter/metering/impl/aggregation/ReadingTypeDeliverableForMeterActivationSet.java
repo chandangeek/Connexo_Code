@@ -1,16 +1,22 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -31,6 +37,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
     private final ServerExpressionNode expressionNode;
     private final VirtualReadingType expressionReadingType;
     private final VirtualReadingType targetReadingType;
+    private List<ReadingTypeRequirement> requirements;
 
     ReadingTypeDeliverableForMeterActivationSet(Formula.Mode mode, ReadingTypeDeliverable deliverable, MeterActivationSet meterActivationSet, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
         super();
@@ -40,7 +47,14 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
         this.expressionNode = expressionNode;
         this.expressionReadingType = expressionReadingType;
+        this.requirements = new ArrayList(); // fill from expressionNode (new Visitor)
         this.targetReadingType = VirtualReadingType.from(deliverable.getReadingType());
+    }
+
+    public List<? extends ReadingQualityRecord> getReadingQualities(Instant timestamp) {
+        List<ReadingQualityRecord> result = new ArrayList();
+        requirements.forEach(r -> result.addAll(meterActivationSet.getReadingQualitiesFor(r, getTargetRange(timestamp))));
+        return result;
     }
 
     private long getId() {
@@ -64,43 +78,32 @@ class ReadingTypeDeliverableForMeterActivationSet {
     }
 
     long getExpectedCount(Instant timestamp) {
-        IntervalLength sourceIntervalLength = this.expressionReadingType.getIntervalLength();
-        IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
-        if (targetReadingType.equals(IntervalLength.DAY1)) {
-            return 0;
-        } else if (targetReadingType.equals(IntervalLength.WEEK1)) {
-            return 0;
-        } else if (targetIntervalLength.equals(IntervalLength.MONTH1)) {
-            return 0;
-        } else if (targetIntervalLength.equals(IntervalLength.YEAR1)) {
-            return 0;
-        } else {
-            return targetIntervalLength.getSeconds() / sourceIntervalLength.getSeconds();
-        }
+        Range range = getTargetRange(timestamp);
+        List<Instant> expectedTimestamps = getExpectedTimestamps(range);
+        return expectedTimestamps.size();
     }
 
-     Range getTargetRange(Instant timestamp) {
+    private List<Instant> getExpectedTimestamps(Range<Instant> range) {
+        IntervalLength sourceIntervalLength = this.expressionReadingType.getIntervalLength();
+        ZoneId zoneId = meterActivationSet.getZoneId();
+        if (!range.hasLowerBound() || !range.hasUpperBound()) {
+            throw new IllegalArgumentException("Range must be finite");
+        }
+        ImmutableList.Builder<Instant> builder = ImmutableList.builder();
+        Instant start = range.lowerEndpoint();
+        sourceIntervalLength.addTo(start, zoneId);
+        while (range.contains(start)) {
+            builder.add(start);
+            sourceIntervalLength.addTo(start, zoneId);
+        }
+        return builder.build();
+    }
+
+    Range getTargetRange(Instant timestamp) {
         IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
-            ChronoUnit unit;
-            if (targetIntervalLength.equals(IntervalLength.HOUR1)) {
-                unit = ChronoUnit.HOURS;
-            } else if (targetIntervalLength.equals(IntervalLength.DAY1)) {
-                unit = ChronoUnit.DAYS;
-            } else if (targetIntervalLength.equals(IntervalLength.WEEK1)) {
-                unit = ChronoUnit.WEEKS;
-            } else if (targetIntervalLength.equals(IntervalLength.MONTH1)) {
-                unit = ChronoUnit.MONTHS;
-            } else if (targetIntervalLength.equals(IntervalLength.YEAR1)) {
-                unit = ChronoUnit.YEARS;
-            } else {
-                return Range.openClosed(timestamp.minusSeconds(targetIntervalLength.getSeconds()), timestamp);
-            }
-            Instant truncated = timestamp.truncatedTo(unit);
-            if (truncated.equals(timestamp)) {
-                return Range.openClosed(truncated.minus(1, unit), truncated);
-            } else {
-                return Range.openClosed(truncated, truncated.plus(1, unit));
-            }
+        ZoneId zoneId = meterActivationSet.getZoneId();
+        Instant endOfInterval = targetIntervalLength.truncate(timestamp, zoneId);
+        return Range.openClosed(targetIntervalLength.subtractFrom(endOfInterval, zoneId), endOfInterval);
     }
 
     ReadingType getReadingType () {
@@ -310,16 +313,16 @@ class ReadingTypeDeliverableForMeterActivationSet {
         if (this.resultValueNeedsTimeBasedAggregation()) {
             this.appendAggregatedReadingQuality(sqlBuilder);
             sqlBuilder.append(", count(*)");
-            appendMeterActivationAndDeliverable(sqlBuilder);
+            //appendMeterActivationAndDeliverable(sqlBuilder);
         } else {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
-            sqlBuilder.append(", 1, 0, 0");
+            sqlBuilder.append(", 1");
         }
     }
 
-    private void appendMeterActivationAndDeliverable(SqlBuilder sqlBuilder) {
+    /*private void appendMeterActivationAndDeliverable(SqlBuilder sqlBuilder) {
         sqlBuilder.append(", " + this.meterActivation.getId() + ", " + this.deliverable.getId());
-    }
+    }*/
 
     private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
         sqlBuilder.append("MAX(");

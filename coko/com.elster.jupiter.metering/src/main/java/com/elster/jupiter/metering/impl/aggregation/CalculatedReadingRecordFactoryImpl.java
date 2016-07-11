@@ -37,7 +37,7 @@ public class CalculatedReadingRecordFactoryImpl implements CalculatedReadingReco
     }
 
     @Override
-    public Map<ReadingType, List<CalculatedReadingRecord>> consume(ResultSet resultSet, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
+    public Map<ReadingType, List<CalculatedReadingRecord>> consume(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         try {
             while (resultSet.next()) {
                 String mRID = resultSet.getString(1);
@@ -63,22 +63,22 @@ public class CalculatedReadingRecordFactoryImpl implements CalculatedReadingReco
         return (IReadingType) meteringService.getReadingType(mRID).get();
     }
 
-    private BiFunction<? super String, ? super List<CalculatedReadingRecord>, ? extends List<CalculatedReadingRecord>> createOrUpdate(ResultSet resultSet, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
+    private BiFunction<? super String, ? super List<CalculatedReadingRecord>, ? extends List<CalculatedReadingRecord>> createOrUpdate(ResultSet resultSet,Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         return (mRID, readingRecords) -> readingRecords == null ? this.newListFrom(resultSet, deliverablesPerMeterActivation) : this.addToList(resultSet, readingRecords, deliverablesPerMeterActivation);
     }
 
-    private List<CalculatedReadingRecord> newListFrom(ResultSet resultSet, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
+    private List<CalculatedReadingRecord> newListFrom(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         List<CalculatedReadingRecord> records = new ArrayList<>();
         records.add(this.createFrom(resultSet, deliverablesPerMeterActivation));
         return records;
     }
 
-    private List<CalculatedReadingRecord> addToList(ResultSet resultSet, List<CalculatedReadingRecord> readingRecords, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
+    private List<CalculatedReadingRecord> addToList(ResultSet resultSet, List<CalculatedReadingRecord> readingRecords, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         readingRecords.add(this.createFrom(resultSet, deliverablesPerMeterActivation));
         return readingRecords;
     }
 
-    private CalculatedReadingRecord createFrom(ResultSet resultSet, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation) {
+    private CalculatedReadingRecord createFrom(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         return this.dataModel.getInstance(CalculatedReadingRecord.class).init(resultSet, deliverablesPerMeterActivation);
     }
 

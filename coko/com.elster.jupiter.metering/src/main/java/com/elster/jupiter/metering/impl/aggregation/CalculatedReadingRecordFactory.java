@@ -26,6 +26,6 @@ public interface CalculatedReadingRecordFactory {
      * @param resultSet The ResultSet
      * @return The List of CalculatedReadingRecord organized by ReadingType
      */
-    Map<ReadingType, List<CalculatedReadingRecord>> consume(ResultSet resultSet, Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation);
+    Map<ReadingType, List<CalculatedReadingRecord>> consume(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation);
 
 }
