@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
 import com.elster.jupiter.metering.Meter;
@@ -67,4 +68,6 @@ public interface MetrologyConfigurationService {
     Optional<MetrologyContract> findMetrologyContract(long id);
 
     Optional<MetrologyContract> findAndLockMetrologyContract(long id, long version);
+
+    Finder<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationFinderFor(MetrologyContract contract);
 }
