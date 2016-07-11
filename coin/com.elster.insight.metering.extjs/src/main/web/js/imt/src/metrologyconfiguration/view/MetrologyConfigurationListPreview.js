@@ -19,6 +19,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview', 
     ],
     
     disableActionsButton: function(disabled){
-        this.down('#actionButton').setDisabled(disabled)
+        if (this.down('#actionButton')) {
+            this.down('#actionButton').setDisabled(disabled);
+        }        
     }    
 });
