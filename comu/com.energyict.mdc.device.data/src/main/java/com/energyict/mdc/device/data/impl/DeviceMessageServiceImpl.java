@@ -9,8 +9,11 @@ import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Optional;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 class DeviceMessageServiceImpl implements DeviceMessageService {
 
@@ -35,9 +38,11 @@ class DeviceMessageServiceImpl implements DeviceMessageService {
     @Override
     public boolean willDeviceMessageBePickedUpByPlannedComTask(Device device, DeviceMessage deviceMessage) {
         return device.getComTaskExecutions().stream().
-                filter(cte-> !cte.isOnHold()).
-                flatMap(cte -> cte.getComTasks().stream()).
-                flatMap(comTask -> comTask.getProtocolTasks().stream()).
+                filter(not(ComTaskExecution::isOnHold)).
+                map(ComTaskExecution::getComTasks).
+                flatMap(Collection::stream).
+                map(ComTask::getProtocolTasks).
+                flatMap(Collection::stream).
                 filter(task -> task instanceof MessagesTask).
                 flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
                 anyMatch(category -> category.getId() == deviceMessage.getSpecification().getCategory().getId());
