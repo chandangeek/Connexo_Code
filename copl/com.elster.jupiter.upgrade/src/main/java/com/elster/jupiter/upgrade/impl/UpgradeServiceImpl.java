@@ -140,7 +140,6 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
             logger.log(Level.SEVERE, message, e);
             userInterface.notifyUser(message, e);
             System.exit(5);
-            throw e;
         }
     }
 
