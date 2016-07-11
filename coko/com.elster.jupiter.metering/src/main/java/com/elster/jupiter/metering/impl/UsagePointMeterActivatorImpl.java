@@ -170,7 +170,10 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                     result = false;
                     String messageTemplate = this.metrologyConfigurationService.getThesaurus()
                             .getString(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT.getKey(), MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT.getDefaultFormat());
-                    String errorMessage = new MessageFormat(messageTemplate).format(unmatchedRequirements.stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", "))).toString();
+                    String errorMessage = MessageFormat.format(messageTemplate, unmatchedRequirements
+                            .stream()
+                            .map(ReadingTypeRequirement::getDescription)
+                            .collect(Collectors.joining(", ")));
 
                     context.buildConstraintViolationWithTemplate(errorMessage)
                             .addPropertyNode(mappingEntry.getKey().getKey())
