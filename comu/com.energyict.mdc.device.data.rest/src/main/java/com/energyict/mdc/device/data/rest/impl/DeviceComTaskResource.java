@@ -5,7 +5,6 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -43,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toList;
 
 @DeviceStatesRestricted(value = {DefaultState.DECOMMISSIONED}, methods = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE})
@@ -172,8 +172,7 @@ public class DeviceComTaskResource {
         return Response.ok().build();
     }
 
-
-    private void checkForNoActionsAllowedOnSystemComTask(@PathParam("comTaskId") Long comTaskId) {
+    private void checkForNoActionsAllowedOnSystemComTask(Long comTaskId) {
         ComTask comTask = taskService.findComTask(comTaskId).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK, comTaskId));
         if (comTask.isSystemComTask()) {
             throw exceptionFactory.newException(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK);
@@ -328,7 +327,7 @@ public class DeviceComTaskResource {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
-        comTaskExecutions.stream().filter(cte -> cte.isOnHold()).forEach(cte -> cte.updateNextExecutionTimestamp());
+        comTaskExecutions.stream().filter(ComTaskExecution::isOnHold).forEach(ComTaskExecution::updateNextExecutionTimestamp);
     }
 
     @PUT @Transactional
@@ -355,7 +354,7 @@ public class DeviceComTaskResource {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
-        comTaskExecutions.stream().filter(cte -> !cte.isOnHold()).forEach(cte -> cte.putOnHold());
+        comTaskExecutions.stream().filter(not(ComTaskExecution::isOnHold)).forEach(ComTaskExecution::putOnHold);
     }
 
     @PUT @Transactional
