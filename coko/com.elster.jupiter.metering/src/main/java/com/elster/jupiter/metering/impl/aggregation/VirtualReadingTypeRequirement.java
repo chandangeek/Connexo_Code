@@ -164,7 +164,7 @@ class VirtualReadingTypeRequirement {
     }
 
     ChannelContract getPreferredChannel() {
-        if (this.preferredChannel == null) {
+        if ((this.preferredChannel == null) || (!this.preferredChannel.isPresent())) {
             this.preferredChannel = this.findPreferredChannel();
         }
         return this.preferredChannel.orElseThrow(() -> new IllegalStateException("Calculation of preferred channel failed before"));
