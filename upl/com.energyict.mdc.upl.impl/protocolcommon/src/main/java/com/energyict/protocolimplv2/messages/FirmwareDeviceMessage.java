@@ -77,6 +77,7 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(firmwareUpdateImageIdentifierAttributeName),
             PropertySpecFactory.bigDecimalPropertySpec(UnicastClientWPort, BigDecimal.ONE),
             PropertySpecFactory.bigDecimalPropertySpec(BroadcastClientWPort, BigDecimal.valueOf(64)),
+            PropertySpecFactory.bigDecimalPropertySpec(MulticastClientWPort, BigDecimal.valueOf(66)),
             PropertySpecFactory.bigDecimalPropertySpec(LogicalDeviceLSap, BigDecimal.ONE),
             PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelUnicast, BigDecimal.valueOf(3)),
             PropertySpecFactory.bigDecimalPropertySpec(SecurityLevelBroadcast, BigDecimal.valueOf(3)),
