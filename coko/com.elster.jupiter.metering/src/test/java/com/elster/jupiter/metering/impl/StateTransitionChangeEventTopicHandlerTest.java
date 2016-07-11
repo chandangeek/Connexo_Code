@@ -1,14 +1,17 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.conditions.Condition;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -17,7 +20,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,6 +52,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
     private ServerEndDevice endDevice;
     @Mock
     private Clock clock;
+    @Mock
+    private Query<EndDevice> endDeviceQuery;
 
     @Before
     public void initializeMocks() {
@@ -59,6 +64,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.meteringService.findEndDevice(END_DEVICE_MRID)).thenReturn(Optional.of(this.endDevice));
         when(this.endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(this.endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
+        when(this.meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
+        when(endDeviceQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(endDevice));
     }
 
     @Test
@@ -67,7 +74,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
         this.getTestInstance().handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyString());
+        verify(this.endDeviceQuery).select(any(Condition.class));
     }
 
     @Test
