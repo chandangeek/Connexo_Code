@@ -1,5 +1,6 @@
 Ext.define('Uni.property.view.property.Number', {
     extend: 'Uni.property.view.property.BaseCombo',
+    width: 128,
 
     getNormalCmp: function () {
         var me = this;

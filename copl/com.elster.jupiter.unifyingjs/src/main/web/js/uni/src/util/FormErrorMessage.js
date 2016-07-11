@@ -8,8 +8,8 @@ Ext.define('Uni.util.FormErrorMessage', {
         type: 'hbox',
         align: 'middle'
     },
-    errorIcon: null,
-    defaultErrorIcon: 'x-uni-form-error-msg-icon',
+    errorIcon: null, // Icomoon icon name (string)
+    defaultErrorIcon: 'icon-warning',
     margin: '7 0 32 0',
     htmlEncode: true,
     beforeRender: function () {
@@ -37,11 +37,10 @@ Ext.define('Uni.util.FormErrorMessage', {
 
         me.add([
             {
-                xtype: 'box',
-                height: 22,
-                width: 26,
-                style: 'font-size: 22px',
-                cls: me.errorIcon
+                xtype: 'displayfield',
+                renderer: function() {
+                    return '<span class="' + me.errorIcon + '" style="display:inline-block; color:#eb5642; font-size:21px;"></span>';
+                }
             },
             {
                 ui: 'form-error',
