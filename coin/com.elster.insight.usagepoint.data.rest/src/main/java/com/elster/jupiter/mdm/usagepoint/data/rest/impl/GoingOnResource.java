@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.users.User;
@@ -31,7 +30,6 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -69,7 +67,7 @@ public class GoingOnResource {
 
         List<GoingOnInfo> issues = Collections.emptyList();
 
-        List<GoingOnInfo> serviceCalls = serviceCallService.findServiceCalls(usagePoint, nonFinalStates())
+        List<GoingOnInfo> serviceCalls = serviceCallService.findServiceCalls(usagePoint, serviceCallService.nonFinalStates())
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
@@ -90,16 +88,6 @@ public class GoingOnResource {
 
     private String filterFor(UsagePoint usagePoint) {
             return "?variableid=usagePointId&variablevalue=" + usagePoint.getMRID();
-    }
-
-    private EnumSet<DefaultState> nonFinalStates() {
-        return EnumSet.of(
-                DefaultState.CREATED,
-                DefaultState.PENDING,
-                DefaultState.SCHEDULED,
-                DefaultState.ONGOING,
-                DefaultState.PAUSED
-        );
     }
 
     private class GoingOnInfoFactory {
