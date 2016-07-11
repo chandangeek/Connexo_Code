@@ -121,6 +121,11 @@ public enum MicroAction {
      * Removes the location configured on the device
      */
     REMOVE_LOCATION(MicroCategory.DECOMISSION),
+
+    /**
+     * Cancels all running Service Calls on the device
+     */
+    CANCEL_ALL_SERVICE_CALLS(MicroCategory.MONITORING)
     ;
 
     private MicroCategory category;
