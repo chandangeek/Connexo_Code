@@ -27,16 +27,14 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 
-import org.joda.time.DateTime;
-
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,11 +56,10 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     private final Unit kiloWattHours = Unit.get("kWh");
     private final int firstReadingTypeOfChannel = 0;
 
-    private Date justBeforeRegisterReadEventTime1 = new DateTime(2013, 11, 30, 23, 50, 0, 0).toDate();
+    private Instant justBeforeRegisterReadEventTime1 = Instant.ofEpochMilli(1385855400000L); // Dec 30st, 2013 23:50:00 (UTC)
     private Instant registerEventTime1 = Instant.ofEpochMilli(1388530800000L);  // Dec 31st, 2014 23:00:00 (UTC)
     private Quantity register1Quantity = new Quantity(123, kiloWattHours);
-    private Date registerEventTime2 = new DateTime(2014, 1, 1, 0, 23, 12, 2).toDate();
-    private Date registerEventTime3 = new DateTime(2014, 1, 1, 0, 23, 12, 12).toDate();
+    private Instant registerEventTime2 = Instant.ofEpochMilli(1388535792002L); // Jan 1st, 2014 00:23:13:002 (UTC);
 
     private DeviceCreator deviceCreator;
 
@@ -105,12 +102,8 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         assertThat(currentMeterActivation).isNotNull();
         ReadingType registerReadingType = getReadingType(currentMeterActivation, registerObisCode1, kiloWattHours);
         assertThat(registerReadingType).isNotNull();
-        List<? extends BaseReadingRecord> readings =
-                currentMeterActivation.getReadings(
-                        Ranges.closedOpen(
-                                justBeforeRegisterReadEventTime1.toInstant(),
-                                registerEventTime2.toInstant()),
-                        registerReadingType);
+        List<? extends BaseReadingRecord> readings = currentMeterActivation.getChannelsContainer().getReadings(
+                Ranges.closedOpen(justBeforeRegisterReadEventTime1, registerEventTime2), registerReadingType);
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0).getQuantity(firstReadingTypeOfChannel).getValue()).isEqualTo(new BigDecimal(123));
     }

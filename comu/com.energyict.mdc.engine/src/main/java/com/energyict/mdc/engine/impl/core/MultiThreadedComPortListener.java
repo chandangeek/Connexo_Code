@@ -147,12 +147,10 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
             Throwable causeOfFailure = null;
             try {
                 this.inboundComPortExecutor.execute(this.comChannel);
-            } catch (Throwable t) {
-                /* Use Throwable rather than Exception and SQLException
-                 * to make sure that the Semaphore#release method is called
-                 * even in the worst of situations. */
+            } catch (Exception t) {
                 causeOfFailure = t;
             } finally {
+                // in both cases the semaphore is released
                 this.comChannel.close();
                 if (causeOfFailure == null) {
                     workerCompleted();

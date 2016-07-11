@@ -493,13 +493,11 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
                     }
                     return true;
                 });
-            } catch (Throwable t) {
-                /* Use Throwable rather than Exception and SQLException
-                 * to make sure that the Semaphore#release method is called
-                 * even in the worst of situations. */
+            } catch (Exception t) {
                 causeOfFailure = t;
                 return false;
             } finally {
+                // in both cases the semaphore is released
                 if (causeOfFailure == null) {
                     workerCompleted(this);
                 } else {
