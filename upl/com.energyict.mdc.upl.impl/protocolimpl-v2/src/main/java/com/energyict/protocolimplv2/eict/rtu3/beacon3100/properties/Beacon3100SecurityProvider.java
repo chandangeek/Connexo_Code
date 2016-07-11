@@ -8,7 +8,7 @@ import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * Copyrights EnergyICT
@@ -45,7 +45,7 @@ public class Beacon3100SecurityProvider extends NTASecurityProvider implements G
     public byte[] getSessionKey() {
         if (sessionKey == null) {
             sessionKey = new byte[16];
-            Random rnd = new Random();
+            SecureRandom rnd = new SecureRandom();
             rnd.nextBytes(sessionKey);
         }
         return sessionKey;

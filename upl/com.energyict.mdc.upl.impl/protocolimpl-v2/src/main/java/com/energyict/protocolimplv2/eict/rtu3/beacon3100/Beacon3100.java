@@ -49,10 +49,10 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Copyrights EnergyICT
@@ -135,7 +135,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         try {
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress())).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
-            frameCounter = new Random().nextInt();
+            frameCounter = new SecureRandom().nextInt();
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
@@ -374,7 +374,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-04-07 11:28:31 +0200 (Thu, 07 Apr 2016)$";
+        return "$Date: 2016-07-11 09:53:54 +0300 (Mon, 11 Jul 2016)$";
     }
 
     @Override

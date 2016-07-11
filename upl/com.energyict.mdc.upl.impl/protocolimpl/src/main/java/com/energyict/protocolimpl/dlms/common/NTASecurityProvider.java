@@ -8,8 +8,8 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Properties;
-import java.util.Random;
 
 /**
  * Default implementation of the securityProvider.
@@ -92,7 +92,7 @@ public class NTASecurityProvider implements SecurityProvider {
 
     protected void generateClientToServerChallenge(int length) {
         if (this.cTOs == null) {
-            Random generator = new Random();
+            SecureRandom generator = new SecureRandom();
             this.cTOs = new byte[length];
             generator.nextBytes(this.cTOs);
         }
@@ -213,7 +213,7 @@ public class NTASecurityProvider implements SecurityProvider {
         if (initialFrameCounter != null) {
             return initialFrameCounter;
         } else {
-            Random generator = new Random();
+            SecureRandom generator = new SecureRandom();
             return generator.nextLong();
         }
     }
@@ -251,7 +251,7 @@ public class NTASecurityProvider implements SecurityProvider {
     public byte[] getDedicatedKey() {
         if (dedicatedKey == null) {
             dedicatedKey = new byte[16];
-            Random rnd = new Random();
+            SecureRandom rnd = new SecureRandom();
             rnd.nextBytes(dedicatedKey);
         }
         return dedicatedKey;

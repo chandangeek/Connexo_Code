@@ -8,8 +8,8 @@ import com.energyict.protocol.MeterProtocol;
 import com.energyict.protocol.UnsupportedException;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Properties;
-import java.util.Random;
 
 /**
  * Default implementation of the securityProvider.
@@ -31,7 +31,7 @@ public class LocalSecurityProvider implements SecurityProvider {
 	public static final String NEW_LLS_SECRET = "NewLLSSecret";
     /** Property name of the initial frame counter */
     public static final String INITIAL_FRAME_COUNTER = "InitialFrameCounter";
-    private static final Random RANDOM = new Random();
+    private static final SecureRandom RANDOM = new SecureRandom();
     private int securityLevel;
 	private byte[] cTOs;
 	private byte[] authenticationPassword;
