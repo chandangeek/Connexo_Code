@@ -1,37 +1,3 @@
-/**
- * A display-only text field which is not validated and not submitted. This is useful for when you want to display a
- * value from a form's {@link Ext.form.Basic#load loaded data} but do not want to allow the user to edit or submit that
- * value. The value can be optionally {@link #htmlEncode HTML encoded} if it contains HTML markup that you do not want
- * to be rendered.
- *
- * If you have more complex content, or need to include components within the displayed content, also consider using a
- * {@link Ext.form.FieldContainer} instead.
- *
- * Example:
- *
- *     @example
- *     Ext.create('Ext.form.Panel', {
- *         renderTo: Ext.getBody(),
- *         width: 175,
- *         height: 120,
- *         bodyPadding: 10,
- *         title: 'Final Score',
- *         items: [{
- *             xtype: 'displayfield',
- *             fieldLabel: 'Home',
- *             name: 'home_score',
- *             value: '10'
- *         }, {
- *             xtype: 'displayfield',
- *             fieldLabel: 'Visitor',
- *             name: 'visitor_score',
- *             value: '11'
- *         }],
- *         buttons: [{
- *             text: 'Update'
- *         }]
- *     });
- */
 Ext.define('Mdc.view.field.ReadingQualities', {
     extend:'Ext.form.field.Display',
     alias: 'widget.reading-qualities-field',

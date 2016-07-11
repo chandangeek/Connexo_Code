@@ -87,7 +87,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
                             mRID: mRID,
                             registerId: registerId,
-                            router: me.router,
+                            router: router,
                             unitOfMeasureCollected: collectedUnit
                         }),
                         dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
