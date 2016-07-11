@@ -229,7 +229,7 @@ public class MetrologyConfigurationResource {
                 usagePointConfigurationService.addValidationRuleSet(metrologyContract, validationRuleSet);
             }
         }
-        return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.status(Response.Status.OK).build();
     }
 
     @GET

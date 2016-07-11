@@ -239,7 +239,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     public void testAddValidationRuleSetsToMetrologyContract() {
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
         Response response = target("/metrologyconfigurations/1/contracts/1").request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(usagePointConfigurationService).addValidationRuleSet(metrologyContract, vrs3);
     }
 
@@ -255,7 +255,7 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
     public void testRemoveValidationRuleSetFromMetrologyContract() {
         Entity<MetrologyContractInfo> json = Entity.json(metrologyContractInfo);
         Response response = target("/metrologyconfigurations/1/contracts/1").queryParam("action", "remove").request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(usagePointConfigurationService).removeValidationRuleSet(metrologyContract, vrs3);
     }
 
