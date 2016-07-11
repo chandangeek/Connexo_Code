@@ -13,16 +13,14 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author sva
  * @since 03/06/2016 - 15:39
  */
 public class CommandServiceCallDomainExtension implements PersistentDomainExtension<ServiceCall> {
-
-    public static final String DEVICE_MSG_DELIMITER = ", ";
 
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
@@ -87,7 +85,7 @@ public class CommandServiceCallDomainExtension implements PersistentDomainExtens
     }
 
     public void setDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
-        this.deviceMessages = deviceMessages.stream().map(deviceMessage -> Long.toString(deviceMessage.getId())).collect(Collectors.joining(DEVICE_MSG_DELIMITER));
+        this.deviceMessages = Arrays.toString(deviceMessages.stream().map(deviceMessage -> Long.toString(deviceMessage.getId())).toArray());
     }
 
     public int getNrOfUnconfirmedDeviceCommands() {
