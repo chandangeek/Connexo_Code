@@ -112,7 +112,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerPreview', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('comserver.preview.monitorPort', 'MDC', 'Monitor port'),
-                        name: 'monitorPort',
+                        name: 'statusPort',
                         htmlEncode: false
                     },
                     {

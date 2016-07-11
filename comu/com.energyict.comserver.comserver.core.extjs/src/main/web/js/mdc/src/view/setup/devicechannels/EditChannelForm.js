@@ -7,6 +7,10 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
     ],
     alias: 'widget.device-channel-edit-form',
     returnLink: null,
+    layout: {
+        type: 'vbox',
+        align: 'stretch' // in order to completely see the error messages
+    },
 
     initComponent: function () {
         var me = this;
@@ -16,7 +20,7 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
                 xtype: 'uni-form-error-message',
                 itemId: 'form-errors',
                 margin: '0 0 10 0',
-                width: 450,
+                maxWidth: 450,
                 hidden: true
             },
             {
@@ -61,9 +65,8 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
                         msgTarget: 'under',
                         itemId: 'mdc-editOverflowValueField',
                         width: 150,
-                        maxValue: 2147483647,
                         hideTrigger: true,
-                        maxLength: 22,
+                        maxLength: 15, // don't increase this value. Javascript can't handle precise values larger than 9007199254740992
                         enforceMaxLength: true,
                         required: true,
                         allowBlank: false,

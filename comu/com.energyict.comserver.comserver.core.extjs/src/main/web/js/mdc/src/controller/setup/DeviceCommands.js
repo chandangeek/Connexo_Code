@@ -187,7 +187,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 title: title,
                 fn: function (btnId) {
                     if (btnId == 'confirm') {
-                        record.set('status', {value: 'CommandRevoked'});
+                        record.set('status', {value: 'REVOKED'});
                         record.save({
                             isNotEdit: true,
                             url: '/api/ddr/devices/' + mRID + '/devicemessages/',
@@ -195,15 +195,25 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
                                 router.getRoute().forward();
                             },
-                            failure: function () {
+                            failure: function (record, operation) {
                                 record.reject();
+                                if (operation.response.status === 409) {
+                                    return
+                                }
+                                var title = Uni.I18n.translate('devicemessages.revoke.failurex', 'MDC', "Failed to revoke '{0}'", [record.get('command').name]),
+                                    json = Ext.decode(operation.response.responseText),
+                                    message = '';
+
+                                if (json && json.errors) {
+                                    message = json.errors[0].msg;
+                                }
+                                me.getApplication().getController('Uni.controller.Error').showError(title, message);
                             }
                         });
                     }
                 }
             });
     },
-
 
     changeReleaseDate: function (record, device) {
         var me = this,
@@ -405,6 +415,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 method: 'POST',
                 success: function (record, operation) {
                     if (operation.success) {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.addSuccess', 'MDC', 'Command added'));
                         var router = me.getController('Uni.controller.history.Router'),
                             response = Ext.JSON.decode(operation.response.responseText);
                         router.getRoute('devices/device/commands').forward();

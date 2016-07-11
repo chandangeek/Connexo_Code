@@ -43,7 +43,9 @@ Ext.define('Mdc.view.setup.protocoldialect.ProtocolDialectPreview', {
                     itemId: 'protocolDialectsDetailsTitle',
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('protocolDialect.protocolDialectDetails', 'MDC', 'Protocol dialect details'),
-                    text: ''
+                    renderer: function() {
+                        return ''; // No dash!
+                    }
                 },
                 {
                     xtype: 'property-form',

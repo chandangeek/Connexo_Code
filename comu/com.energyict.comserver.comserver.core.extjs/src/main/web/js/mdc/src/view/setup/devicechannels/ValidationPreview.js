@@ -3,10 +3,6 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationPreview', {
     alias: 'widget.deviceloadprofilechannelspreview-validation',
     itemId: 'deviceloadprofilechannelspreviewvalidation',
 
-    requires: [
-        'Mdc.view.field.ReadingQualities'
-    ],
-
     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation', 'MDC', 'Validation'),
     labelAlign: 'top',
     layout: 'vbox',
@@ -59,18 +55,69 @@ Ext.define('Mdc.view.setup.devicechannels.ValidationPreview', {
             }
         },
         {
-            xtype: 'reading-qualities-field',
+            fieldLabel: Uni.I18n.translate('device.channelData.failedValidationRules', 'MDC', 'Failed validation rules'),
             name: 'suspectReason',
-            renderer: function(value, field) {
-                var rec = field.up('form').getRecord();
-                if (rec && rec.get('isConfirmed')) {
-                    return this.getConfirmed(rec.get('confirmedInApps'));
-                } else if (!Ext.isEmpty(value)) {
-                    return this.getValidationRules(value);
-                } else {
+            renderer: function (value, field) {
+                if (!Ext.isEmpty(value)) {
+                    field.show();
+                    var str = '',
+                        prop,
+                        failEqualDataValue,
+                        intervalFlagsValue = '';
+
+                    Ext.Array.each(value, function (rule) {
+                        if (!Ext.isEmpty(rule.properties)) {
+                            switch (rule.implementation) {
+                                case 'com.elster.jupiter.validators.impl.ThresholdValidator':
+                                    prop = ' - ' + rule.properties[0].key.charAt(0).toUpperCase() + rule.properties[0].key.substring(1) + ': ' + rule.properties[0].propertyValueInfo.value + ', ' +
+                                        rule.properties[1].key.charAt(0).toUpperCase() + rule.properties[1].key.substring(1) + ': ' + rule.properties[1].propertyValueInfo.value;
+                                    break;
+                                case 'com.elster.jupiter.validators.impl.RegisterIncreaseValidator':
+                                    if (rule.properties[0].propertyValueInfo.value) {
+                                        failEqualDataValue = Uni.I18n.translate('general.yes', 'MDC', 'Yes');
+                                    } else {
+                                        failEqualDataValue = Uni.I18n.translate('general.no', 'MDC', 'No');
+                                    }
+                                    prop = ' - ' + Uni.I18n.translate('device.registerData.failEqualData', 'MDC', 'Fail equal data') + ': ' + failEqualDataValue;
+                                    break;
+                                case 'com.elster.jupiter.validators.impl.IntervalStateValidator':
+                                    Ext.Array.each(rule.properties[0].propertyValueInfo.value, function (idValue) {
+                                        Ext.Array.each(rule.properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues, function (item) {
+                                            if (idValue === item.id) {
+                                                intervalFlagsValue += item.name + ', ';
+                                            }
+                                        });
+                                    });
+                                    intervalFlagsValue = intervalFlagsValue.slice(0, -2);
+                                    prop = ' - ' + Uni.I18n.translate('deviceloadprofiles.intervalFlags', 'MDC', 'Interval flags') + ': ' + intervalFlagsValue;
+                                    break;
+                                default:
+                                    prop = '';
+                                    break;
+                            }
+                        } else {
+                            prop = '';
+                        }
+                        if (rule.deleted) {
+                            str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '<br>';
+                        } else {
+                            str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
+                            if (Cfg.privileges.Validation.canViewOrAdministrate()) {
+                                str += '<a href="#/administration/validation/rulesets/' + rule.ruleSetVersion.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
+                            } else {
+                                str += rule.name;
+                            }
+                            str += prop + '</span>' + '<br>';
+                        }
+                    });
+                    return Ext.isEmpty(str) ? '-' : str;
+                }
+                else {
                     field.hide();
+                    return '';
                 }
             }
+
         }
     ]
 });

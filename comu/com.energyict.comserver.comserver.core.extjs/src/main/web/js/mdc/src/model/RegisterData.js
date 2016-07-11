@@ -13,7 +13,7 @@ Ext.define('Mdc.model.RegisterData', {
         {name: 'suspectReason', type:'auto', persist: false},
         {name: 'validationResult', type:'auto', persist: false},
         {name: 'isConfirmed', type: 'boolean'},
-        {name: 'confirmedInApps', type:'auto', persist: false},
+        {name: 'readingQualities', type: 'auto', defaultValue: null},
         {
             name: 'modificationState',
             persist: false,

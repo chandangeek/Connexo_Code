@@ -61,50 +61,30 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                     {
                         xtype: 'container',
                         layout: {
-                            type: 'column'
+                            type: 'hbox',
+                            align: 'stretch'
                         },
                         defaults: {
-                            labelWidth: 250
+                            labelWidth: 250,
+                            flex: 1
                         },
                         items: [
                             {
-                                xtype: 'container',
-                                columnWidth: 0.49,
-                                layout: {
-                                    type: 'vbox'
-                                },
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'name',
-                                        fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                                        labelAlign: 'right',
-                                        labelWidth: 250
-                                    }
-                                ]
+                                xtype: 'displayfield',
+                                name: 'name',
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
                             },
                             {
-                                xtype: 'container',
-                                columnWidth: 0.49,
-                                layout: {
-                                    type: 'vbox'
-                                },
-                                items: [
-                                    {
-                                        xtype: 'displayfield',
-                                        name: 'deviceProtocolVersion',
-                                        fieldLabel: Uni.I18n.translate('deviceCommunicationProtocol.version', 'MDC', 'Version'),
-                                        labelAlign: 'right',
-                                        labelWidth: 250
-                                    }
-
-                                ]
+                                xtype: 'displayfield',
+                                name: 'deviceProtocolVersion',
+                                fieldLabel: Uni.I18n.translate('deviceCommunicationProtocol.version', 'MDC', 'Version')
                             }
                         ]
                     },
                     {
                         xtype: 'component',
-                        html: '<h3 style="width: 238px; text-align: right;">' +
+                        margins: '10 0 20 0',
+                        html: '<h3 style="text-align: left;">' +
                             Uni.I18n.translate('deviceCommunicationProtocol.communicationProtocolDetails', 'MDC', 'Communication protocol details') +
                             '</h3>'
                     },
@@ -114,7 +94,6 @@ Ext.define('Mdc.view.setup.devicecommunicationprotocol.DeviceCommunicationProtoc
                         layout: 'column',
                         frame: false,
                         defaults: {
-                            xtype: 'container',
                             layout: 'form',
                             resetButtonHidden: true,
                             labelWidth: 250,

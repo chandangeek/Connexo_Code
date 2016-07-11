@@ -32,10 +32,11 @@ Ext.define('Mdc.metrologyconfiguration.controller.AddView', {
         });
     },
 
-    showForm: function () {
+    showForm: function (metrologyConfigurationId) {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
+            isEdit = !Ext.isEmpty(metrologyConfigurationId),
             widget = Ext.widget('contentcontainer', {
                 itemId: 'metrology-configurations-add-view',
                 content: [
@@ -43,15 +44,35 @@ Ext.define('Mdc.metrologyconfiguration.controller.AddView', {
                         xtype: 'metrology-configurations-add-form',
                         itemId: 'metrology-configurations-add-form',
                         ui: 'large',
-                        title: Uni.I18n.translate('general.addMetrologyConfiguration', 'MDC', 'Add metrology configuration'),
-                        returnLink: router.getRoute('administration/metrologyconfiguration').buildUrl()
+                        title: isEdit ? ' ' : Uni.I18n.translate('general.addMetrologyConfiguration', 'MDC', 'Add metrology configuration'),
+                        returnLink: router.getRoute('administration/metrologyconfiguration').buildUrl(),
+                        isEdit: isEdit
                     }
                 ]
-            });
+            }),
+            form = widget.down('#metrology-configurations-add-form');
 
-        me.getStore('Mdc.metrologyconfiguration.store.ServiceCategories').load();
         app.fireEvent('changecontentevent', widget);
-        me.getForm().loadRecord(Ext.create('Mdc.metrologyconfiguration.model.MetrologyConfiguration'));
+        me.getStore('Mdc.metrologyconfiguration.store.ServiceCategories').load();
+        if (!isEdit) {
+            form.loadRecord(Ext.create('Mdc.metrologyconfiguration.model.MetrologyConfiguration'));
+        } else {
+            widget.setLoading();
+            me.getModel('Mdc.metrologyconfiguration.model.MetrologyConfiguration').load(metrologyConfigurationId, {
+                success: function (record) {
+                    var name = record.get('name');
+
+                    Ext.suspendLayouts();
+                    app.fireEvent('loadMetrologyConfiguration', name);
+                    form.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [name]));
+                    form.loadRecord(record);
+                    Ext.resumeLayouts(true);
+                },
+                callback: function () {
+                    widget.setLoading(false);
+                }
+            });
+        }
     },
 
     saveMetrologyConfiguration: function () {
@@ -73,7 +94,9 @@ Ext.define('Mdc.metrologyconfiguration.controller.AddView', {
 
                 page.setLoading(false);
                 if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.addMetrologyConfigurationSuccess', 'MDC', 'Metrology configuration added'));
+                    me.getApplication().fireEvent('acknowledge', operation.action === 'update'
+                        ? Uni.I18n.translate('metrologyconfiguration.saveMetrologyConfigurationSuccess', 'MDC', 'Metrology configuration saved')
+                        : Uni.I18n.translate('metrologyconfiguration.addMetrologyConfigurationSuccess', 'MDC', 'Metrology configuration added'));
                     if (page.rendered) {
                         window.location.href = form.returnLink;
                     }

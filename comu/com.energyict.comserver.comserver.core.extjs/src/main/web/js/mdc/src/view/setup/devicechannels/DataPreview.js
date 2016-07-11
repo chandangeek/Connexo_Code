@@ -4,10 +4,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     itemId: 'deviceLoadProfileChannelDataPreview',
     requires: [
         'Mdc.view.setup.devicechannels.DataActionMenu',
-        'Uni.form.field.IntervalFlagsDisplay',
         'Mdc.view.setup.devicechannels.ValidationPreview',
         'Uni.form.field.EditedDisplay',
-        'Mdc.view.field.ReadingQualities'
+        'Uni.util.FormInfoMessage'
     ],
     channelRecord: null,
     channels: null,
@@ -17,17 +16,20 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         var me = this,
             intervalEnd = record.get('interval_end'),
             title =  Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeLong(intervalEnd)],
+                [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
                 false),
             mainValidationInfo,
             bulkValidationInfo,
+            dataQualities,
+            dataQualitiesForChannels = false,
             router = me.router;
 
         me.setLoading();
-        record.refresh(router.arguments.mRID, router.arguments.channelId, function() {
+        record.refresh(router.arguments.mRID, router.arguments.channelId, function(){
             Ext.suspendLayouts();
             me.down('#general-panel').setTitle(title);
             me.down('#values-panel').setTitle(title);
+            me.down('#mdc-qualities-panel').setTitle(title);
             me.down('#general-panel').loadRecord(record);
             me.down('#values-panel').loadRecord(record);
 
@@ -40,82 +42,138 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             }
 
             if (me.channels) {
+                dataQualitiesForChannels = false;
                 Ext.Array.each(me.channels, function (channel) {
-                    var mainReadingQualitiesField = me.down('#mainReadingQualities' + channel.id),
-                        channelBulkValueField = me.down('#channelBulkValue' + channel.id),
-                        containter = me.down("#channelFieldContainer" + channel.id);
-
+                    var mainValidationInfoField = me.down('#mainValidationInfo' + channel.id),
+                        channelBulkValueField = me.down('#channelBulkValue' + channel.id);
                     if (record.get('channelValidationData')[channel.id]) {
                         mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
                         bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
-                        containter.down('#mainReadingQualities' + channel.id).setValue(mainValidationInfo);
-                        containter.down('#bulkReadingQualities' + channel.id).setValue(bulkValidationInfo);
-
+                        dataQualities = record.get('channelValidationData')[channel.id].readingQualities;
+                        if (mainValidationInfoField) {
+                            me.setValidationInfo(mainValidationInfoField, mainValidationInfo);
+                        }
+                        if (bulkValidationInfo) {
+                            me.setValidationInfo(me.down('#bulkValidationInfo' + channel.id), bulkValidationInfo);
+                        }
                         if (me.down('#channelValue' + channel.id)) {
                             me.down('#channelValue' + channel.id).setValue(record.get('channelData')[channel.id]);
                         }
                         if (channelBulkValueField) {
                             channelBulkValueField.setValue(record.get('channelCollectedData')[channel.id]);
                         }
+                        dataQualitiesForChannels |= !Ext.isEmpty(dataQualities);
+                        me.setDataQualityForChannel(channel.id, dataQualities);
                     } else {
-                        if (mainReadingQualitiesField) {
-                            mainReadingQualitiesField.hide();
+                        if (mainValidationInfoField) {
+                            mainValidationInfoField.hide();
                         }
-                        me.down('#bulkReadingQualities' + channel.id).hide();
+                        me.down('#bulkValidationInfo' + channel.id).hide();
                     }
                 });
+                if (!dataQualitiesForChannels) {
+                    me.down('#mdc-noReadings-msg').show();
+                } else {
+                    me.down('#mdc-noReadings-msg').hide();
+                }
                 Ext.Array.findBy(me.channels, function (channel) {
                     if (record.get('channelValidationData')[channel.id]) {
                         me.down('#readingDataValidated').setValue(record.get('channelValidationData')[channel.id].dataValidated);
                         return !record.get('channelValidationData')[channel.id].dataValidated;
                     }
                 });
-                me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('deviceLoadProfilesData').loadProfile.get('validationInfo'));
             } else {
-                me.setGeneralReadingQualities(me.down('#generalReadingQualities'), record.get('readingQualities'));
+                var mainValidationInfoField = me.down('#mainValidationInfo');
+                if (mainValidationInfoField) {
+                    me.setValidationInfo(mainValidationInfoField, record.get('mainValidationInfo'));
+                }
+                me.setValidationInfo(me.down('#bulkValidationInfo'), record.get('bulkValidationInfo'));
+                me.setDataQuality(record.get('readingQualities'));
                 me.down('#readingDataValidated').setValue(record.get('dataValidated'));
             }
 
             Ext.resumeLayouts(true);
             me.setLoading(false);
-
-            me.down('#values-panel').loadRecord(record);
         });
     },
 
-    setGeneralReadingQualities: function (field, value) {
-        var result = '',
-            me = this,
+    setValidationInfo: function (field, info) {
+        var me = this,
+            estimatedRule,
+            estimatedRuleName,
             url;
 
-        if (value && !Ext.isEmpty(value.suspectReason)) {
-            field.show();
-            Ext.Array.each(value.suspectReason, function (rule) {
-                if (rule.key.deleted) {
-                    result += Ext.String.htmlEncode(rule.key.name) + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + ' - ' + rule.value + ' ' + Uni.I18n.translate('general.suspects', 'MDC', 'suspects') + '<br>';
-                } else {
-                    if (Cfg.privileges.Validation.canViewOrAdministrate()) {
-                        url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: rule.key.ruleSetVersion.ruleSet.id, versionId: rule.key.ruleSetVersion.id, ruleId: rule.key.id});
-                        result += '<a href="' + url + '"> ' + Ext.String.htmlEncode(rule.key.name) + '</a>';
-                    } else {
-                        result = Ext.String.htmlEncode(rule.key.name);
-                    }
-                }
-                result += ' - ' + Uni.I18n.translate('general.xsuspects', 'MDC', '{0} suspects',[rule.value]) + '<br>';
-            });
-            field.setValue(result);
-        } else if (Array.isArray(value) && !Ext.isEmpty(value)) {
-            field.show();
-            Ext.Array.each(value, function (rule) {
-                var application = rule.application
-                    ? '<span class="application">'+ Uni.I18n.translate('general.application', 'MDC', '({0})', [rule.application.name]) + '</span>'
-                    : '';
-                result += Ext.String.htmlEncode(rule.name) + '&nbsp;' + application + '<br>';
-            });
-            field.setValue(result);
+        if (!field || !info) {
+            return;
+        }
+        field.show();
+        if (info.isConfirmed) {
+            field.setValue(Uni.I18n.translate('general.confirmed', 'MDC', 'Confirmed'));
+        } else if (!Ext.isEmpty(info.validationRules)) {
+            me.setValidationRules(field, info.validationRules);
+        } else if (info.estimatedByRule) {
+            estimatedRule = info.estimatedByRule;
+            url = me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({ruleSetId: estimatedRule.ruleSetId, ruleId: estimatedRule.id});
+            estimatedRuleName = estimatedRule.deleted ? estimatedRule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') :
+                '<a href="' + url + '">' + estimatedRule.name + '</a>';
+            field.setValue(Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to {0}',[estimatedRuleName], false));
         } else {
             field.hide();
         }
+    },
+
+    setValidationRules: function (field, value) {
+        var str = '',
+            prop,
+            failEqualDataValue,
+            intervalFlagsValue = '';
+
+        Ext.Array.each(value, function (rule) {
+            if (!Ext.isEmpty(rule.properties)) {
+                switch (rule.implementation) {
+                    case 'com.elster.jupiter.validators.impl.ThresholdValidator':
+                        prop = ' - ' + rule.properties[0].key.charAt(0).toUpperCase() + rule.properties[0].key.substring(1) + ': ' + rule.properties[0].propertyValueInfo.value + ', ' +
+                            rule.properties[1].key.charAt(0).toUpperCase() + rule.properties[1].key.substring(1) + ': ' + rule.properties[1].propertyValueInfo.value;
+                        break;
+                    case 'com.elster.jupiter.validators.impl.RegisterIncreaseValidator':
+                        if (rule.properties[0].propertyValueInfo.value) {
+                            failEqualDataValue = Uni.I18n.translate('general.yes', 'MDC', 'Yes');
+                        } else {
+                            failEqualDataValue = Uni.I18n.translate('general.no', 'MDC', 'No');
+                        }
+                        prop = ' - ' + Uni.I18n.translate('device.registerData.failEqualData', 'MDC', 'Fail equal data') + ': ' + failEqualDataValue;
+                        break;
+                    case 'com.elster.jupiter.validators.impl.IntervalStateValidator':
+                        Ext.Array.each(rule.properties[0].propertyValueInfo.value, function (idValue) {
+                            Ext.Array.each(rule.properties[0].propertyTypeInfo.predefinedPropertyValuesInfo.possibleValues, function (item) {
+                                if (idValue === item.id) {
+                                    intervalFlagsValue += item.name + ', ';
+                                }
+                            });
+                        });
+                        intervalFlagsValue = intervalFlagsValue.slice(0, -2);
+                        prop = ' - ' + Uni.I18n.translate('deviceloadprofiles.intervalFlags', 'MDC', 'Interval flags') + ': ' + intervalFlagsValue;
+                        break;
+                    default:
+                        prop = '';
+                        break;
+                }
+            } else {
+                prop = '';
+            }
+            if (rule.deleted) {
+                str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '<br>';
+            } else {
+                str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
+                if (Cfg.privileges.Validation.canViewOrAdministrate()) {
+                    str += '<a href="#/administration/validation/rulesets/' + rule.ruleSetVersion.ruleSet.id + '/versions/' + rule.ruleSetVersion.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
+                } else {
+                    str += rule.name;
+                }
+                str += prop + '</span>' + '<br>';
+            }
+        });
+        field.setValue(str);
     },
 
     setValueWithResult: function (value, type, channel) {
@@ -186,21 +244,112 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         }
     },
 
+    setDataQuality: function(dataQualities) {
+        var me = this,
+            deviceQualityField = me.down('#mdc-device-quality'),
+            multiSenseQualityField = me.down('#mdc-multiSense-quality'),
+            insightQualityField = me.down('#mdc-insight-quality'),
+            thirdPartyQualityField = me.down('#mdc-thirdParty-quality');
+
+        if (Ext.isEmpty(dataQualities)) {
+            me.down('#mdc-noReadings-msg').show();
+        } else {
+            me.down('#mdc-noReadings-msg').hide();
+        }
+        me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
+    },
+
+    setDataQualityForChannel: function(channelId, dataQualities) {
+        var me = this,
+            channelQualityContainer = me.down('#channelQualityContainer' + channelId);
+
+        if (Ext.isEmpty(dataQualities)) {
+            channelQualityContainer.hide();
+            return;
+        } else {
+            channelQualityContainer.show();
+        }
+
+        var deviceQualityField = me.down('#mdc-device-quality-' + channelId),
+            multiSenseQualityField = me.down('#mdc-multiSense-quality-' + channelId),
+            insightQualityField = me.down('#mdc-insight-quality-' + channelId),
+            thirdPartyQualityField = me.down('#mdc-thirdParty-quality-' + channelId);
+
+        me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
+    },
+
+    setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
+        var me = this,
+            showDeviceQuality = false,
+            showMultiSenseQuality = false,
+            showInsightQuality = false,
+            show3rdPartyQuality = false,
+            field = undefined;
+
+        deviceQualityField.setValue('');
+        multiSenseQualityField.setValue('');
+        insightQualityField.setValue('');
+        thirdPartyQualityField.setValue('');
+
+        Ext.Array.forEach(dataQualities, function(readingQuality) {
+            if (readingQuality.cimCode.startsWith('1.')) {
+                showDeviceQuality |= true;
+                field = deviceQualityField;
+            } else if (readingQuality.cimCode.startsWith('2.')) {
+                showMultiSenseQuality |= true;
+                field = multiSenseQualityField;
+            } else if (readingQuality.cimCode.startsWith('3.')) {
+                showInsightQuality |= true;
+                field = insightQualityField;
+            } else if (readingQuality.cimCode.startsWith('4.')||readingQuality.cimCode.startsWith('5.')) {
+                show3rdPartyQuality |= true;
+                field = thirdPartyQualityField;
+            }
+            if (!Ext.isEmpty(field)) {
+                field.setValue(field.getValue()
+                    + (Ext.isEmpty(field.getValue()) ? '' : '<br>')
+                    + '<span style="display:inline-block; float: left; margin-right:7px;" >' + readingQuality.indexName + ' (' + readingQuality.cimCode + ')' + '</span>'
+                    + '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                    + me.getTooltip(readingQuality.systemName, readingQuality.categoryName, readingQuality.indexName) + '"></span>'
+                );
+            }
+        });
+
+        showDeviceQuality ? deviceQualityField.show() : deviceQualityField.hide();
+        showMultiSenseQuality ? multiSenseQualityField.show() : multiSenseQualityField.hide();
+        showInsightQuality ? insightQualityField.show() : insightQualityField.hide();
+        show3rdPartyQuality ? thirdPartyQualityField.show() : thirdPartyQualityField.hide();
+    },
+
+    getTooltip: function(systemName, categoryName, indexName) {
+        var me = this,
+            tooltip = '<table><tr><td>';
+
+        tooltip += '<b>' + Uni.I18n.translate('general.readingQuality.field1.name', 'MDC', 'System') + ':</b></td>';
+        tooltip += '<td>' + systemName + '</td></tr>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field2.name', 'MDC', 'Category') + ':</b></td>';
+        tooltip += '<td>' + categoryName + '</td></tr>';
+        tooltip += '<tr><td><b>' + Uni.I18n.translate('general.readingQuality.field3.name', 'MDC', 'Index') + ':</b></td>';
+        tooltip += '<td>' + indexName + '</td></tr></table>';
+        return tooltip;
+    },
+
     initComponent: function () {
         var me = this,
             generalItems = [],
-            valuesItems = [];
+            valuesItems = [],
+            qualityItems = [];
 
         generalItems.push(
             {
-                fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
+                fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
                 name: 'interval',
                 renderer: function (value) {
                     return value
                         ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value.start)),Uni.DateTime.formatTimeLong(new Date(value.start))])
                         + ' - ' +
                         Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))])
-                        : '';
+                        : '-';
                 },
                 htmlEncode: false
             },
@@ -208,18 +357,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
                 name: 'readingTime',
                 renderer: function (value, field) {
-                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '';
-                }
-            },
-            {
-                xtype: 'interval-flags-displayfield',
-                name: 'intervalFlags',
-                renderer: function (value, field) {
-                    if (Ext.isEmpty(value)) {
-                        field.hide();
-                    } else {
-                        return value;
-                    }
+                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';
                 }
             },
             {
@@ -239,11 +377,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 }
             },
             {
-                fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
-                itemId: 'generalReadingQualities',
-                htmlEncode: false
-            },
-            {
                 fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
                 name: 'multiplier',
                 itemId: 'mdc-multiplier',
@@ -252,6 +385,16 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         );
 
         if (me.channels) {
+            qualityItems.push(
+                {
+                    xtype: 'uni-form-info-message',
+                        itemId: 'mdc-noReadings-msg',
+                    text: Uni.I18n.translate('general.loadProfile.noDataQualities', 'MDC', 'There are no reading qualities for the channel readings on this load profile.'),
+                    margin: '7 10 32 0',
+                    padding: '10'
+                }
+            );
+
             Ext.Array.each(me.channels, function (channel) {
                 var calculatedReadingType = channel.calculatedReadingType,
                     channelName = !Ext.isEmpty(channel.calculatedReadingType)
@@ -266,47 +409,58 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         layout: 'vbox',
                         margin: '20 0 0 0',
                         items: []
+                    },
+                    qualityItem = {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: channelName,
+                        itemId: 'channelQualityContainer' + channel.id,
+                        labelAlign: 'top',
+                        labelWidth: 400,
+                        layout: 'vbox',
+                        margin: '20 0 0 0',
+                        items: []
                     };
-
-                if (calculatedReadingType) {
-                    valueItem.items.push(
-                        {
-                            fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
-                            xtype: 'displayfield',
-                            labelWidth: 200,
-                            itemId: 'channelValue' + channel.id,
-                            renderer: function (value) {
-                                return me.setValueWithResult(value, 'main', channel);
-                            }
-                        },
-                        {
-                            xtype: 'reading-qualities-field',
-                            labelWidth: 200,
-                            name: 'mainValidationInfo',
-                            router: me.router,
-                            itemId: 'mainReadingQualities' + channel.id
-                        }
-                    );
-                }
 
                 valueItem.items.push(
                     {
-                        fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                        fieldLabel: calculatedReadingType
+                            ? Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value')
+                            : Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                         xtype: 'displayfield',
                         labelWidth: 200,
-                        itemId: 'channelBulkValue' + channel.id,
+                        itemId: 'channelValue' + channel.id,
                         renderer: function (value) {
-                            return me.setValueWithResult(value, 'bulk', channel);
+                            return me.setValueWithResult(value, 'main', channel);
                         }
                     },
                     {
-                        xtype: 'reading-qualities-field',
+                        fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                        xtype: 'displayfield',
                         labelWidth: 200,
-                        name: 'bulkValidationInfo',
-                        router: me.router,
-                        itemId: 'bulkReadingQualities' + channel.id
+                        itemId: (calculatedReadingType ? 'main' : 'bulk') + 'ValidationInfo' + channel.id,
+                        htmlEncode: false
                     }
                 );
+                if (calculatedReadingType) {
+                    valueItem.items.push(
+                        {
+                            fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                            xtype: 'displayfield',
+                            labelWidth: 200,
+                            itemId: 'channelBulkValue' + channel.id,
+                            renderer: function (value) {
+                                return me.setValueWithResult(value, 'bulk', channel);
+                            }
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
+                            xtype: 'displayfield',
+                            labelWidth: 200,
+                            itemId: 'bulkValidationInfo' + channel.id,
+                            htmlEncode: false
+                        }
+                    );
+                }
                 valueItem.items.push(
                     {
                         fieldLabel: Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier'),
@@ -318,70 +472,104 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     }
                 );
                 valuesItems.push(valueItem);
+
+
+                qualityItem.items.push(
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality'),
+                        itemId: 'mdc-device-quality-' + channel.id,
+                        labelWidth: 200,
+                        htmlEncode: false
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.MDCQuality', 'MDC', 'MDC quality'),
+                        itemId: 'mdc-multiSense-quality-' + channel.id,
+                        labelWidth: 200,
+                        htmlEncode: false
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.MDMQuality', 'MDC', 'MDM quality'),
+                        itemId: 'mdc-insight-quality-' + channel.id,
+                        labelWidth: 200,
+                        htmlEncode: false
+                    },
+                    {
+                        xtype: 'displayfield',
+                        fieldLabel: Uni.I18n.translate('general.thirdPartyQuality', 'MDC', 'Third party quality'),
+                        itemId: 'mdc-thirdParty-quality-' + channel.id,
+                        labelWidth: 200,
+                        htmlEncode: false
+                    }
+                );
+                qualityItems.push(qualityItem);
             });
         } else {
             var calculatedReadingType = me.channelRecord.get('calculatedReadingType');
-            if (calculatedReadingType) {
-                valuesItems.push(
-                    {
-                        xtype: 'fieldcontainer',
-                        labelWidth: 200,
-                        fieldLabel: Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value'),
-                        layout: 'hbox',
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                name: 'value',
-                                renderer: function (value) {
-                                    return me.setValueWithResult(value, 'main');
-                                }
-                            },
-                            {
-                                xtype: 'edited-displayfield',
-                                name: 'mainModificationState',
-                                margin: '0 0 0 10'
-                            }
-                        ]
-                    },
-                    {
-                        xtype: 'reading-qualities-field',
-                        labelWidth: 200,
-                        name: 'mainValidationInfo',
-                        router: me.router,
-                        itemId: 'mainReadingQualities'
-                    }
-                );
-            }
-
             valuesItems.push(
                 {
                     xtype: 'fieldcontainer',
                     labelWidth: 200,
-                    fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                    fieldLabel: calculatedReadingType
+                        ? Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value')
+                        : Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
                     layout: 'hbox',
                     items: [
                         {
                             xtype: 'displayfield',
-                            name: 'collectedValue',
+                            name: 'value',
                             renderer: function (value) {
-                                return me.setValueWithResult(value, 'bulk');
+                                return me.setValueWithResult(value, 'main');
                             }
                         },
                         {
                             xtype: 'edited-displayfield',
-                            name: 'bulkModificationState',
+                            name: 'mainModificationState',
                             margin: '0 0 0 10'
                         }
                     ]
                 },
                 {
-                    xtype: 'reading-qualities-field',
+                    xtype: 'displayfield',
                     labelWidth: 200,
-                    name: 'bulkValidationInfo',
-                    router: me.router,
-                    itemId: 'bulkReadingQualities'
+                    fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                    itemId: calculatedReadingType ? 'mainValidationInfo' : 'bulkValidationInfo',
+                    htmlEncode: false
                 }
             );
+            if (calculatedReadingType) {
+                valuesItems.push(
+                    {
+                        xtype: 'fieldcontainer',
+                        labelWidth: 200,
+                        fieldLabel: Uni.I18n.translate('general.collectedValue', 'MDC', 'Collected value'),
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'displayfield',
+                                name: 'collectedValue',
+                                renderer: function (value) {
+                                    return me.setValueWithResult(value, 'bulk');
+                                }
+                            },
+                            {
+                                xtype: 'edited-displayfield',
+                                name: 'bulkModificationState',
+                                margin: '0 0 0 10'
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'displayfield',
+                        labelWidth: 200,
+                        fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
+                        itemId: 'bulkValidationInfo',
+                        htmlEncode: false
+                    }
+                );
+            }
 
             valuesItems.push(
                 {
@@ -393,7 +581,46 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     hidden: true
                 }
             );
+
+            qualityItems.push(
+                {
+                    xtype: 'uni-form-info-message',
+                    itemId: 'mdc-noReadings-msg',
+                    text: Uni.I18n.translate('general.reading.noDataQualities', 'MDC', 'There are no reading qualities for this reading.'),
+                    margin: '7 10 32 0',
+                    padding: '10'
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.deviceQuality', 'MDC', 'Device quality'),
+                    itemId: 'mdc-device-quality',
+                    labelWidth: 200,
+                    htmlEncode: false
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.MDCQuality', 'MDC', 'MDC quality'),
+                    itemId: 'mdc-multiSense-quality',
+                    labelWidth: 200,
+                    htmlEncode: false
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.MDMQuality', 'MDC', 'MDM quality'),
+                    itemId: 'mdc-insight-quality',
+                    labelWidth: 200,
+                    htmlEncode: false
+                },
+                {
+                    xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('general.thirdPartyQuality', 'MDC', 'Third party quality'),
+                    itemId: 'mdc-thirdParty-quality',
+                    labelWidth: 200,
+                    htmlEncode: false
+                }
+            );
         }
+
         me.items = [
             {
                 title: Uni.I18n.translate('devicechannelsdata.generaltab.title', 'MDC', 'General'),
@@ -418,9 +645,18 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     items: valuesItems,
                     layout: 'vbox'
                 }
+            },
+            {
+                title: Uni.I18n.translate('devicechannelsdata.readingqualitytab.title', 'MDC', 'Reading quality'),
+                items: {
+                    xtype: 'form',
+                    itemId: 'mdc-qualities-panel',
+                    frame: true,
+                    items: qualityItems,
+                    layout: 'vbox'
+                }
             }
         ];
-
         me.callParent(arguments);
     }
 });

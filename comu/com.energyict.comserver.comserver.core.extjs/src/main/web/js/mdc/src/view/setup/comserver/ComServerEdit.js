@@ -213,14 +213,10 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     xtype: 'numberfield',
                     itemId: 'num-monitor-port',
                     fieldLabel: Uni.I18n.translate('comserver.formFieldLabel.monitor.port', 'MDC', 'Monitor port'),
-                    name: 'monitorPort',
+                    name: 'statusPort',
                     required: true,
                     blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
                     minValue: 0,
-                    // Remove spinner buttons, and arrow key and mouse wheel listeners
-                    hideTrigger: true,
-                    keyNavEnabled: false,
-                    mouseWheelEnabled: false,
                     width: 415
                 },
                 {
@@ -231,9 +227,6 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     required: true,
                     blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
                     minValue: 0,
-                    hideTrigger: true,
-                    keyNavEnabled: false,
-                    mouseWheelEnabled: false,
                     width: 415
                 },
                 {

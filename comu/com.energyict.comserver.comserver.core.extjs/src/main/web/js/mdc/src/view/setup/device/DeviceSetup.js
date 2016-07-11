@@ -51,7 +51,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         toolbar.removeAll();
         toolbar.add({
             xtype: 'button',
-            iconCls: !!flag ? 'icon-star6' : 'icon-star4',
+            iconCls: !!flag ? 'icon-star-full' : 'icon-star-empty',
             ui: 'plain',
             style: 'font-size: 20px',
             //cls: 'x-panel-header-text-container-large',
@@ -60,7 +60,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             privileges: Mdc.privileges.Device.flagDevice,
             enableToggle: true,
             toggleHandler: function(button, state) {
-                button.setIconCls(state ? 'icon-star6' : 'icon-star4');
+                button.setIconCls(state ? 'icon-star-full' : 'icon-star-empty');
                 button.setTooltip(state
                     ? Uni.I18n.translate('device.flag.tooltip.unflag', 'MDC', 'Click to remove from the list of flagged devices')
                     : Uni.I18n.translate('device.flag.tooltip.flag', 'MDC', 'Click to flag the device')

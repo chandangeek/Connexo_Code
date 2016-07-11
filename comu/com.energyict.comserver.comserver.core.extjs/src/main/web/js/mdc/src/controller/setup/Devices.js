@@ -339,6 +339,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         if (!form.down('#deviceAddConfig').getValue()) {
             form.getRecord().set('deviceConfigurationId', null);
         }
+        form.getRecord().set('shipmentDate', form.down('#deviceAddShipmentDate').getValue().getTime());
         me.getAddDevicePage().setLoading();
         form.getRecord().save({
             success: function (record) {
