@@ -176,7 +176,7 @@ public final class OrmServiceImpl implements OrmService {
 
     @Activate
     public void activate() {
-        createDataModel(true);
+        createDataModel(false);
         createExistingTableDataModel();
     }
 
@@ -273,7 +273,7 @@ public final class OrmServiceImpl implements OrmService {
                 .findFirst();
     }
 
-    public DataModelImpl getUpgradeDataModel(DataModel model) {
+    DataModelImpl getUpgradeDataModel(DataModel model) {
         DataModelImpl existingDataModel = newDataModel("UPG", "Upgrade  of " + model.getName());
         DataModel existingTablesDataModel = getExistingTablesDataModel();
 

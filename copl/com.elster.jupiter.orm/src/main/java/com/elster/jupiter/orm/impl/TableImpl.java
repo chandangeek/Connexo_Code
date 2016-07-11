@@ -71,12 +71,12 @@ public class TableImpl<T> implements Table<T> {
     private String name;
     @SuppressWarnings("unused")
     private int position;
-    private String journalTableName;
     private boolean cached;
     private boolean autoInstall = true;
     private int indexOrganized = -1;
     private transient RangeSet<Version> versions = TreeRangeSet.<Version>create().complement();
     private RangeMap<Version, String> nameHistory = TreeRangeMap.create();
+    private RangeMap<Version, String> journalNameHistory = TreeRangeMap.create();
 
     // associations
     private final Reference<DataModelImpl> dataModel = ValueReference.absent();
@@ -101,7 +101,7 @@ public class TableImpl<T> implements Table<T> {
     private List<ForeignKeyConstraintImpl> reverseMappedConstraints;
     private List<ColumnImpl> realColumns;
 
-    TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
+    private TableImpl<T> init(DataModelImpl dataModel, String schema, String name, Class<T> api) {
         assert !is(name).emptyOrOnlyWhiteSpace();
         if (name.length() > ColumnConversion.CATALOGNAMELIMIT) {
             throw new IllegalArgumentException("Name " + name + " too long");
@@ -250,7 +250,7 @@ public class TableImpl<T> implements Table<T> {
         return getForeignKeyConstraints(getDataModel().getVersion());
     }
 
-    public ForeignKeyConstraintImpl getConstraintForField(String fieldName) {
+    ForeignKeyConstraintImpl getConstraintForField(String fieldName) {
         for (ForeignKeyConstraintImpl each : getForeignKeyConstraints()) {
             if (fieldName.equals(each.getFieldName())) {
                 return each;
@@ -276,10 +276,6 @@ public class TableImpl<T> implements Table<T> {
     ColumnImpl[] getVersionColumns() {
         List<Column> result = columns.stream().filter(ColumnImpl::isVersion).collect(Collectors.toList());
         return result.toArray(new ColumnImpl[result.size()]);
-    }
-
-    List<ColumnImpl> getInsertValueColumns() {
-        return columns.stream().filter(ColumnImpl::hasInsertValue).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getColumnsThatMandateRefreshAfterInsert() {
@@ -314,14 +310,13 @@ public class TableImpl<T> implements Table<T> {
         return new TableDdlGenerator(this, getDataModel().getSqlDialect(), version).getDdl();
     }
 
-    public List<String> upgradeDdl(TableImpl<?> toTable, Version version) {
+    List<String> upgradeDdl(TableImpl<?> toTable, Version version) {
         return new TableDdlGenerator(this, getDataModel().getSqlDialect(), version).upgradeDdl(toTable);
     }
 
-    public List<String> upgradeSequenceDdl(ColumnImpl column, long startValue, Version version) {
+    List<String> upgradeSequenceDdl(ColumnImpl column, long startValue, Version version) {
         return new TableDdlGenerator(this, getDataModel().getSqlDialect(), version).upgradeSequenceDdl(column, startValue);
     }
-
 
     String getExtraJournalPrimaryKeyColumnNames() {
         String base = JOURNALTIMECOLUMNNAME;
@@ -404,7 +399,7 @@ public class TableImpl<T> implements Table<T> {
         }
     }
 
-    public <S extends T> QueryExecutorImpl<S> getQuery(Class<S> type) {
+    <S extends T> QueryExecutorImpl<S> getQuery(Class<S> type) {
         List<TableImpl<?>> related = new ArrayList<>();
         addAllRelated(related);
         related.remove(0);
@@ -446,20 +441,31 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public String getJournalTableName() {
-        return journalTableName;
+        return this.journalNameHistory.get(this.dataModel.get().getVersion());
     }
 
     @Override
-    public void setJournalTableName(String journalTableName) {
+    public String getJournalTableName(Version version) {
+        return this.journalNameHistory.get(version);
+    }
+
+    @Override
+    public JournalTableVersionOptions setJournalTableName(String journalTableName) {
         if (hasAutoChange()) {
             throw new IllegalStateException(" A table with foreign key using cascading or set null delete rule cannot have a journal table ");
         }
-        this.journalTableName = journalTableName;
+        this.journalNameHistory.put(Range.all(), journalTableName);
+        return new JournalTableVersionOptionsImpl(journalTableName);
     }
 
     @Override
     public boolean hasJournal() {
-        return journalTableName != null;
+        return this.getJournalTableName() != null;
+    }
+
+    @Override
+    public boolean hasJournal(Version version) {
+        return this.getJournalTableName(version) != null;
     }
 
     @Override
@@ -706,7 +712,7 @@ public class TableImpl<T> implements Table<T> {
 
     }
 
-    public int getIotCompressCount() {
+    int getIotCompressCount() {
         if (indexOrganized < 0) {
             throw new IllegalStateException();
         }
@@ -882,11 +888,6 @@ public class TableImpl<T> implements Table<T> {
         getCache().renew();
     }
 
-    boolean isAutoId() {
-        List<ColumnImpl> columns = getPrimaryKeyColumns();
-        return (columns.size() == 1 && columns.get(0).isAutoIncrement());
-    }
-
     DataMapperType<T> getMapperType() {
         checkMapperTypeIsSet();
         return mapperType;
@@ -905,10 +906,6 @@ public class TableImpl<T> implements Table<T> {
             }
         }
         return Optional.empty();
-    }
-
-    Class<? extends T> classCast(Class<?> in) {
-        return in.asSubclass(api);
     }
 
     private boolean hasAutoChange() {
@@ -1010,7 +1007,7 @@ public class TableImpl<T> implements Table<T> {
         this.lifeCycleClass = lifeCycleClass;
     }
 
-    public Optional<Column> partitionColumn() {
+    Optional<Column> partitionColumn() {
         return partitionColumn.filter(column -> getDataModel().getSqlDialect().hasPartitioning());
     }
 
@@ -1051,8 +1048,7 @@ public class TableImpl<T> implements Table<T> {
     @Override
     public Table<T> during(Range... ranges) {
         ImmutableRangeSet.Builder<Version> builder = ImmutableRangeSet.builder();
-        Arrays.stream(ranges)
-                .forEach(builder::add);
+        Arrays.stream(ranges).forEach(builder::add);
         versions = builder.build();
         return this;
     }
@@ -1129,6 +1125,34 @@ public class TableImpl<T> implements Table<T> {
         Set<String> set = new HashSet<>(nameHistory.asMapOfRanges().values());
         set.add(name);
         return set;
+    }
+
+    private class JournalTableVersionOptionsImpl implements JournalTableVersionOptions {
+        private final String tableName;
+
+        private JournalTableVersionOptionsImpl(String tableName) {
+            this.tableName = tableName;
+        }
+
+        @Override
+        public void since(Version version) {
+            journalNameHistory.clear();
+            journalNameHistory.put(Range.atLeast(version), this.tableName);
+        }
+
+        @Override
+        public void upTo(Version version) {
+            journalNameHistory.clear();
+            journalNameHistory.put(Range.atMost(version), this.tableName);
+        }
+
+        @Override
+        @SafeVarargs
+        public final void during(Range<Version>... ranges) {
+            journalNameHistory.clear();
+            Stream.of(ranges).forEach(range -> journalNameHistory.put(range, this.tableName));
+        }
+
     }
 
 }

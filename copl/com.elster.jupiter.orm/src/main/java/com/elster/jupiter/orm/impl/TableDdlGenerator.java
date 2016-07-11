@@ -17,12 +17,12 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 class TableDdlGenerator implements PartitionMethod.Visitor {
-	
-	private final static long PARTITIONSIZE = 86400L * 30L * 1000L;
+
+	private static final long PARTITIONSIZE = 86400L * 30L * 1000L;
     private final TableImpl<?> table;
     private final SqlDialect dialect;
     private final Version version; // TODO : actually use it
-  
+
     TableDdlGenerator(TableImpl<?> table, SqlDialect dialect, Version version) {
         this.table = table;
         this.dialect = dialect;
@@ -32,7 +32,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
     List<String> getDdl() {
         List<String> ddl = new ArrayList<>();
         ddl.add(getTableDdl());
-        if (table.hasJournal()) {
+        if (table.hasJournal(this.version)) {
             ddl.add(getJournalTableDdl(table));
         }
         for (TableConstraintImpl constraint : table.getConstraints(version)) {
@@ -77,15 +77,15 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
             sb.append(" organization index");
             if (table.getIotCompressCount() > 0) {
             	sb.append(" compress ");
-            	sb.append(table.getIotCompressCount());            	
+            	sb.append(table.getIotCompressCount());
             }
         }
         if (dialect.hasPartitioning()) {
         	table.getPartitionMethod().visit(this,sb);
         }
-        return sb.toString();        
+        return sb.toString();
     }
-    
+
     @Override
     public void visitInterval(StringBuilder sb) {
     	sb.append(" partition by range(");
@@ -94,14 +94,14 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 		sb.append(PARTITIONSIZE);
 		sb.append(") (partition P0 values less than(0))");
 	}
-    
-    @Override 
+
+    @Override
     public void visitReference(StringBuilder sb) {
     	sb.append(" partition by reference(");
     	sb.append(table.refPartitionConstraint().get().getName());
-    	sb.append(")");        		
+    	sb.append(")");
     }
-   
+
     @Override
     public void visitRange(StringBuilder sb) {
     	sb.append(" partition by range(");
@@ -122,10 +122,10 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 		}
 		sb.append(")");
     }
-    
+
     private String getJournalTableDdl(TableImpl<?> table) {
         StringBuilder sb = new StringBuilder("create table ");
-        sb.append(table.getQualifiedName(table.getJournalTableName()));
+        sb.append(table.getQualifiedName(table.getJournalTableName(this.version)));
         sb.append(" (");
         doAppendColumns(sb, table.getColumns(version), true, true);
         String separator = ", ";
@@ -150,7 +150,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 
     private String getJournalConstraint(TableConstraintImpl constraint) {
         StringBuilder sb = new StringBuilder("constraint ");
-        sb.append(constraint.getName() + "_JRNL");
+        sb.append(constraint.getName()).append("_JRNL");
         sb.append(" PRIMARY KEY ");
         sb.append("(");
         doAppendColumns(sb, constraint.getColumns(), false, false);
@@ -224,7 +224,6 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         }
     }
 
-
     private void appendDdl(ColumnImpl column, StringBuilder builder, boolean addType, boolean addNullable) {
         builder.append("\"").append(column.getName().toUpperCase()).append("\"");
         if (addType) {
@@ -247,7 +246,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         }
     }
 
-    public List<String> upgradeDdl(TableImpl<?> toTable) {
+    List<String> upgradeDdl(TableImpl<?> toTable) {
         List<String> result = new ArrayList<>();
         // Columns
         List<ColumnImpl> notMatched = new ArrayList<>();
@@ -271,8 +270,8 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
                 }
             } else {
                 result.add(getAddDdl(toColumn, table.getName()));
-                if (table.hasJournal()) {
-                    result.add(getAddDdl(toColumn, table.getJournalTableName()));
+                if (table.hasJournal(this.version)) {
+                    result.add(getAddDdl(toColumn, table.getJournalTableName(this.version)));
                 }
                 if (toColumn.isAutoIncrement()) {
                     result.add(getSequenceDdl(toColumn));
@@ -334,7 +333,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
             result.addAll(getDropConstraintDdls(each));
         }
 
-        if (toTable.hasJournal() && !table.hasJournal()) {
+        if (toTable.hasJournal(this.version) && !table.hasJournal()) {
             result.add(getJournalTableDdl(toTable));
         }
         // name
@@ -418,9 +417,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         return builder.toString();
     }
 
-
     private List<String> getUpgradeDdl(ColumnImpl fromColumn, ColumnImpl toColumn) {
-
         if (fromColumn.isVirtual() && toColumn.isVirtual()) {
             if (!fromColumn.getFormula().equalsIgnoreCase(toColumn.getFormula())) {
                 List<String> results = new ArrayList<>();
@@ -430,9 +427,9 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
                 }
                 results.add("alter table " + table.getName() + " drop column " + fromColumn.getName());
                 results.add(getAddDdl(toColumn, table.getName()));
-                if (table.hasJournal()) {
-                    results.add("alter table " + table.getJournalTableName() + " drop column " + fromColumn.getName());
-                    results.add(getAddDdl(toColumn, table.getJournalTableName()));
+                if (table.hasJournal(this.version)) {
+                    results.add("alter table " + table.getJournalTableName(this.version) + " drop column " + fromColumn.getName());
+                    results.add(getAddDdl(toColumn, table.getJournalTableName(this.version)));
                 }
                 return results;
             }
@@ -472,9 +469,9 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
                 builder.append(" modify ");
                 appendDdl(toColumn, builder, true, fromColumn.isNotNull() != toColumn.isNotNull());
                 returnSqls.add(builder.toString());
-                if (table.hasJournal()) {
+                if (table.hasJournal(this.version)) {
                     builder = new StringBuilder("alter table ");
-                    builder.append(table.getJournalTableName());
+                    builder.append(table.getJournalTableName(this.version));
                     builder.append(" modify ");
                     appendDdl(toColumn, builder, true, fromColumn.isNotNull() != toColumn.isNotNull());
                     returnSqls.add(builder.toString());
@@ -497,7 +494,8 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         return result;
     }
 
-    public List<String> upgradeSequenceDdl(ColumnImpl column, long startValue) {
+    List<String> upgradeSequenceDdl(ColumnImpl column, long startValue) {
         return Arrays.asList(getDropSequenceDdl(column), getSequenceDdl(column, startValue));
     }
+
 }
