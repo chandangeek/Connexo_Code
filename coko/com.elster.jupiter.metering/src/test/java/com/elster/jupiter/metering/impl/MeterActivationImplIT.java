@@ -9,6 +9,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -87,9 +88,9 @@ public class MeterActivationImplIT {
         MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault())
                 .toInstant());
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-        Channel channel = meterActivation.createChannel(readingType);
+        Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
         MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
-        assertThat(loaded.getChannels()).hasSize(1).contains(channel);
+        assertThat(loaded.getChannelsContainer().getChannels()).hasSize(1).contains(channel);
     }
 
     @Test
@@ -108,7 +109,7 @@ public class MeterActivationImplIT {
             MeterActivation meterActivation = meter.activate(ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
 
             MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
-            assertThat(loaded.getChannels()).hasSize(1);
+            assertThat(loaded.getChannelsContainer().getChannels()).hasSize(1);
         } finally {
             meteringService.removeHeadEndInterface(heMock);
         }
@@ -136,7 +137,7 @@ public class MeterActivationImplIT {
                     .findDefaultMeterRole(DefaultMeterRole.DEFAULT), ZonedDateTime.of(2012, 12, 19, 14, 15, 54, 0, ZoneId.systemDefault()).toInstant());
 
             MeterActivation loaded = meteringService.findMeterActivation(meterActivation.getId()).get();
-            assertThat(loaded.getChannels()).hasSize(1);
+            assertThat(loaded.getChannelsContainer().getChannels()).hasSize(1);
         } finally {
             meteringService.removeHeadEndInterface(heMock);
         }
@@ -210,9 +211,9 @@ public class MeterActivationImplIT {
         MeterActivation meterActivation = meter.activate(startTime.toInstant());
         meterActivation.endAt(originalCutOff.toInstant());
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-        Channel channel = meterActivation.createChannel(readingType);
+        Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
         MeterActivation currentActivation = meter.activate(originalCutOff.toInstant());
-        Channel currentChannel = currentActivation.createChannel(readingType);
+        Channel currentChannel = currentActivation.getChannelsContainer().createChannel(readingType);
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         IntervalBlockImpl intervalBlock = IntervalBlockImpl.of("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.minusMinutes(15)
@@ -234,13 +235,13 @@ public class MeterActivationImplIT {
         assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
         assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
 
-        List<? extends BaseReadingRecord> firstReadings = first.getReadings(Range.all(), readingType);
+        List<? extends BaseReadingRecord> firstReadings = first.getChannelsContainer().getReadings(Range.all(), readingType);
         assertThat(firstReadings).hasSize(2);
         assertThat(firstReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4025, 2));
         assertThat(firstReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.minusMinutes(15).toInstant());
         assertThat(firstReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4175, 2));
         assertThat(firstReadings.get(1).getTimeStamp()).isEqualTo(newCutOff.toInstant());
-        List<? extends BaseReadingRecord> secondReadings = second.getReadings(Range.all(), readingType);
+        List<? extends BaseReadingRecord> secondReadings = second.getChannelsContainer().getReadings(Range.all(), readingType);
         assertThat(secondReadings).hasSize(3);
         assertThat(secondReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4225, 2));
         assertThat(secondReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.plusMinutes(15).toInstant());
@@ -249,17 +250,13 @@ public class MeterActivationImplIT {
         assertThat(secondReadings.get(2).getValue()).isEqualTo(BigDecimal.valueOf(4825, 2));
         assertThat(secondReadings.get(2).getTimeStamp()).isEqualTo(originalCutOff.plusMinutes(15).toInstant());
 
-        List<? extends BaseReadingRecord> firstChannelReadings = first.getChannels()
-                .get(0)
-                .getReadings(readingType, Range.all());
+        List<? extends BaseReadingRecord> firstChannelReadings = first.getChannelsContainer().getChannels().get(0).getReadings(readingType, Range.all());
         assertThat(firstChannelReadings).hasSize(2);
         assertThat(firstChannelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4025, 2));
         assertThat(firstChannelReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.minusMinutes(15).toInstant());
         assertThat(firstChannelReadings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(4175, 2));
         assertThat(firstChannelReadings.get(1).getTimeStamp()).isEqualTo(newCutOff.toInstant());
-        List<? extends BaseReadingRecord> secondChannelReadings = second.getChannels()
-                .get(0)
-                .getReadings(readingType, Range.all());
+        List<? extends BaseReadingRecord> secondChannelReadings = second.getChannelsContainer().getChannels().get(0).getReadings(readingType, Range.all());
         assertThat(secondChannelReadings).hasSize(3);
         assertThat(secondChannelReadings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(4225, 2));
         assertThat(secondChannelReadings.get(0).getTimeStamp()).isEqualTo(newCutOff.plusMinutes(15).toInstant());
@@ -281,9 +278,9 @@ public class MeterActivationImplIT {
         MeterActivation meterActivation = meter.activate(startTime.toInstant());
         meterActivation.endAt(originalCutOff.toInstant());
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-        Channel channel = meterActivation.createChannel(readingType);
+        Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
         MeterActivation currentActivation = meter.activate(originalCutOff.toInstant());
-        Channel currentChannel = currentActivation.createChannel(readingType);
+        Channel currentChannel = currentActivation.getChannelsContainer().createChannel(readingType);
 
         currentActivation.advanceStartDate(newCutOff.toInstant());
 
@@ -301,19 +298,19 @@ public class MeterActivationImplIT {
         ZonedDateTime originalCutOff = ZonedDateTime.of(2012, 12, 25, 0, 0, 0, 0, ZoneId.systemDefault());
         ZonedDateTime newCutOff = ZonedDateTime.of(2012, 12, 20, 0, 0, 0, 0, ZoneId.systemDefault());
         MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
-        Meter meter = null;
-        MeterActivation currentActivation = null;
-        ReadingType readingType = null;
-        MeterActivation meterActivation = null;
+        Meter meter;
+        MeterActivation currentActivation;
+        ReadingType readingType;
+        MeterActivation meterActivation;
         try (TransactionContext ctx = inMemoryBootstrapModule.getTransactionService().getContext()) {
             AmrSystem system = meteringService.findAmrSystem(1).get();
             meter = system.newMeter("testAdvanceWithReadingsAndQualities").create();
             meterActivation = meter.activate(startTime.toInstant());
             meterActivation.endAt(originalCutOff.toInstant());
             readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-            Channel channel = meterActivation.createChannel(readingType);
+            meterActivation.getChannelsContainer().createChannel(readingType);
             currentActivation = meter.activate(originalCutOff.toInstant());
-            Channel currentChannel = currentActivation.createChannel(readingType);
+            currentActivation.getChannelsContainer().createChannel(readingType);
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(newCutOff.minusMinutes(15).toInstant(), BigDecimal.valueOf(4025, 2)));
@@ -323,16 +320,25 @@ public class MeterActivationImplIT {
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.plusMinutes(15).toInstant(), BigDecimal.valueOf(4825, 2)));
             meterReading.addIntervalBlock(intervalBlock);
             meter.store(meterReading);
-            meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.minusMinutes(15).toInstant());
-            meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.toInstant());
-            ReadingQualityRecord readingQuality = meterActivation.getChannels()
+            meterActivation.getChannelsContainer()
+                    .getChannels()
+                    .get(0)
+                    .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.minusMinutes(15).toInstant());
+            meterActivation.getChannelsContainer()
+                    .getChannels()
+                    .get(0)
+                    .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff.toInstant());
+            ReadingQualityRecord readingQuality = meterActivation.getChannelsContainer().getChannels()
                     .get(0)
                     .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, newCutOff
                             .plusMinutes(15)
                             .toInstant());
             readingQuality.makePast();
-            meterActivation.getChannels().get(0).createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff.toInstant());
-            currentActivation.getChannels()
+            meterActivation.getChannelsContainer()
+                    .getChannels()
+                    .get(0)
+                    .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff.toInstant());
+            currentActivation.getChannelsContainer().getChannels()
                     .get(0)
                     .createReadingQuality(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT), readingType, originalCutOff
                             .plusMinutes(15)
@@ -346,8 +352,8 @@ public class MeterActivationImplIT {
         }
 
         assertThat(meter.getMeterActivations()).hasSize(2);
-        MeterActivation first = meter.getMeterActivations().get(0);
-        MeterActivation second = meter.getMeterActivations().get(1);
+        ChannelsContainer first = meter.getChannelsContainers().get(0);
+        ChannelsContainer second = meter.getChannelsContainers().get(1);
         assertThat(first.getRange()).isEqualTo(Range.closedOpen(startTime.toInstant(), newCutOff.toInstant()));
         assertThat(second.getRange()).isEqualTo(Range.atLeast(newCutOff.toInstant()));
 
@@ -381,11 +387,11 @@ public class MeterActivationImplIT {
         assertThat(secondChannelReadings.get(2).getValue()).isEqualTo(BigDecimal.valueOf(4825, 2));
         assertThat(secondChannelReadings.get(2).getTimeStamp()).isEqualTo(originalCutOff.plusMinutes(15).toInstant());
 
-        List<ReadingQualityRecord> firstQualities = first.getChannels().get(0).findReadingQuality(Range.<Instant>all());
+        List<ReadingQualityRecord> firstQualities = first.getChannels().get(0).findReadingQualities().sorted().collect();
         assertThat(firstQualities).hasSize(2);
         assertThat(firstQualities.get(0).getReadingTimestamp()).isEqualTo(newCutOff.minusMinutes(15).toInstant());
         assertThat(firstQualities.get(1).getReadingTimestamp()).isEqualTo(newCutOff.toInstant());
-        List<ReadingQualityRecord> secondQualities = second.getChannels().get(0).findReadingQuality(Range.<Instant>all());
+        List<ReadingQualityRecord> secondQualities = second.getChannels().get(0).findReadingQualities().sorted().collect();
         assertThat(secondQualities).hasSize(3);
         assertThat(secondQualities.get(0).getReadingTimestamp()).isEqualTo(newCutOff.plusMinutes(15).toInstant());
         assertThat(secondQualities.get(0).isActual()).isFalse();
@@ -483,9 +489,10 @@ public class MeterActivationImplIT {
                 .create();
         metrologyConfiguration.addMeterRole(meterRole);
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
-        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("Requirement")
-                .withMeterRole(meterRole)
-                .withReadingType(readingType);
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement =
+                metrologyConfiguration
+                        .newReadingTypeRequirement("Requirement", meterRole)
+                        .withReadingType(readingType);
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("Deliverable", readingType, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable = builder.build(builder.requirement(readingTypeRequirement));
         metrologyConfiguration.addMandatoryMetrologyContract(metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)

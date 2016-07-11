@@ -160,9 +160,7 @@ public final class EndDeviceControlTypeImpl implements EndDeviceControlType, Per
         }
 
         EndDeviceControlTypeImpl that = (EndDeviceControlTypeImpl) o;
-
         return mRID.equals(that.mRID);
-
     }
 
     @Override

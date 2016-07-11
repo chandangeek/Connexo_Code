@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.Formula;
@@ -31,7 +32,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:24)
  */
-public class VirtualReadingTypeRequirement {
+class VirtualReadingTypeRequirement {
 
     private final Formula.Mode mode;
     private final ReadingTypeRequirement requirement;
@@ -42,12 +43,12 @@ public class VirtualReadingTypeRequirement {
     private final int meterActivationSequenceNumber;
     private Optional<ChannelContract> preferredChannel;   // Lazy from the list of matching channels and the targetIntervalLength
 
-    public VirtualReadingTypeRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivation meterActivation, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
+    VirtualReadingTypeRequirement(Formula.Mode mode, ReadingTypeRequirement requirement, ReadingTypeDeliverable deliverable, List<Channel> matchingChannels, VirtualReadingType targetReadingType, MeterActivationSet meterActivationSet, Range<Instant> requestedPeriod, int meterActivationSequenceNumber) {
         super();
         this.mode = mode;
         this.requirement = requirement;
         this.deliverable = deliverable;
-        this.rawDataPeriod = this.toOpenClosed(requestedPeriod.intersection(meterActivation.getRange()));
+        this.rawDataPeriod = this.toOpenClosed(requestedPeriod.intersection(meterActivationSet.getRange()));
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
         this.targetReadingType = targetReadingType;
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
@@ -63,7 +64,7 @@ public class VirtualReadingTypeRequirement {
      *
      * @return The id for SQL statements
      */
-    String sqlName () {
+    String sqlName() {
         return "rid" + this.requirement.getId() + "_" + this.deliverable.getId() + "_" + this.meterActivationSequenceNumber;
     }
 
@@ -147,7 +148,6 @@ public class VirtualReadingTypeRequirement {
 
     @SuppressWarnings("unchecked")
     private void appendDefinitionWithoutAggregation(SqlBuilder sqlBuilder) {
-
         sqlBuilder.append("SELECT ");
 
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
@@ -172,15 +172,43 @@ public class VirtualReadingTypeRequirement {
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
 
         sqlBuilder.append(" FROM(");
+        TimeSeries timeSeries = this.getPreferredChannel().getTimeSeries();
+        if (this.hasLocalDateField(timeSeries)) {
+            sqlBuilder.add(
+                    timeSeries
+                            .getRawValuesSql(
+                                    this.rawDataPeriod,
+                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
+                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
+                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
+        } else {
+            this.appendDefinitionWithoutLocalDate(sqlBuilder);
+        }
+        sqlBuilder.append(") ");
+        sqlBuilder.append(tempSqlName());
+    }
+
+    private boolean hasLocalDateField(TimeSeries timeSeries) {
+        return timeSeries.getRecordSpec().getFieldSpecs().stream().anyMatch(each -> "LOCALDATE".equals(each.getName()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void appendDefinitionWithoutLocalDate(SqlBuilder sqlBuilder) {
+        /* Will use 'sysdate' as value for the localdate column expected by the with clause.
+         * Tried to find a 'standard' oracle function that converts UTC milliseconds
+         * in a number field to an oracle DATE type but failed.
+         * As we do not plan to support time based aggregation on register data
+         * it does not really matter if the value of the localdate column
+         * is not actually the local version of the register reading's timestamp. */
+        sqlBuilder.append("SELECT ts.*, sysdate FROM (");
         sqlBuilder.add(
                 this.getPreferredChannel()
                         .getTimeSeries()
                         .getRawValuesSql(
                                 this.rawDataPeriod,
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
-        sqlBuilder.append(") ");
-        sqlBuilder.append(tempSqlName());
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
+                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE)));
+        sqlBuilder.append(") ts");
     }
 
     private Pair<String, String> toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames columnName) {
@@ -188,7 +216,7 @@ public class VirtualReadingTypeRequirement {
     }
 
     ChannelContract getPreferredChannel() {
-        if (this.preferredChannel == null) {
+        if ((this.preferredChannel == null) || (!this.preferredChannel.isPresent())) {
             this.preferredChannel = this.findPreferredChannel();
         }
         return this.preferredChannel.orElseThrow(() -> new IllegalStateException("Calculation of preferred channel failed before"));

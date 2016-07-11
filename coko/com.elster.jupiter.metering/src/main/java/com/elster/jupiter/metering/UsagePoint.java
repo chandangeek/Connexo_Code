@@ -2,12 +2,18 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.cbo.MarketRoleKind;
+import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.units.Quantity;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -115,38 +121,36 @@ public interface UsagePoint extends HasId, IdentifiedObject {
 
     Optional<UsagePointConfiguration> getConfiguration(Instant time);
 
-    long getLocationId();
-
     Optional<Location> getLocation();
 
     void setLocation(long locationId);
 
-    long getGeoCoordinatesId();
+    Optional<SpatialCoordinates> getSpatialCoordinates();
 
-    Optional<GeoCoordinates> getGeoCoordinates();
+    void setSpatialCoordinates(SpatialCoordinates spatialCoordinates);
 
-    void setGeoCoordinates(GeoCoordinates geoCoordinates);
+    LocationBuilder updateLocation();
 
     /**
-     * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
+     * Applies the specified {@link UsagePointMetrologyConfiguration} to this UsagePoint
      * from this point in time onward.
      *
-     * @param metrologyConfiguration The MetrologyConfiguration
-     * @see #apply(MetrologyConfiguration, Instant)
+     * @param metrologyConfiguration The UsagePointMetrologyConfiguration
+     * @see #apply(UsagePointMetrologyConfiguration, Instant)
      */
-    void apply(MetrologyConfiguration metrologyConfiguration);
+    void apply(UsagePointMetrologyConfiguration metrologyConfiguration);
 
     /**
-     * Applies the specified {@link MetrologyConfiguration} to this UsagePoint
+     * Applies the specified {@link UsagePointMetrologyConfiguration} to this UsagePoint
      * from the specified instant in time onward.
      * Note that this may produce errors when e.g. the requirements
      * of the MetrologyConfiguration are not met by the Meter(s) that is/are
      * linked to this UsagePoint from that instant in time onward.
      *
-     * @param metrologyConfiguration The MetrologyConfiguration
+     * @param metrologyConfiguration The UsagePointMetrologyConfiguration
      * @param when The instant in time
      */
-    void apply(MetrologyConfiguration metrologyConfiguration, Instant when);
+    void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when);
 
     /**
      * Gets the current {@link MetrologyConfiguration}
@@ -154,7 +158,9 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      *
      * @return The current MetrologyConfiguration
      */
-    Optional<MetrologyConfiguration> getMetrologyConfiguration();
+    Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration();
+
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration();
 
     /**
      * Gets the {@link MetrologyConfiguration} that was
@@ -163,7 +169,9 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * @param when The instant in time
      * @return The MetrologyConfiguration
      */
-    Optional<MetrologyConfiguration> getMetrologyConfiguration(Instant when);
+    Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration(Instant when);
+
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when);
 
     /**
      * Gets the {@link MetrologyConfiguration}s that were
@@ -172,7 +180,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * @param period The period in time
      * @return The List of MetrologyConfiguration
      */
-    List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period);
+    List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period);
 
     void removeMetrologyConfiguration(Instant when);
 
@@ -181,6 +189,18 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     ConnectionState getConnectionState();
 
     void setConnectionState(ConnectionState connectionState);
+
+    void setConnectionState(ConnectionState connectionState, Instant instant);
+
+    List<CompletionOptions> connect(Instant when, ServiceCall serviceCall);
+
+    List<CompletionOptions> disconnect(Instant when, ServiceCall serviceCall);
+
+    List<CompletionOptions> enableLoadLimit(Instant when, Quantity loadLimit, ServiceCall serviceCall);
+
+    List<CompletionOptions> disableLoadLimit(Instant when, ServiceCall serviceCall);
+
+    List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall);
 
     void update();
 
@@ -198,12 +218,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      */
     List<MeterActivation> getMeterActivations(Instant when);
 
-    /**
-     * Use the {@link #getCurrentMeterActivations()} instead.
-     * In fact this method returns the current meter activation for {@link com.elster.jupiter.metering.config.DefaultMeterRole#DEFAULT} meter role
-     */
-    @Deprecated
-    Optional<MeterActivation> getCurrentMeterActivation();
+    List<MeterActivation> getMeterActivations();
 
     /**
      * Returns collection which contains effective meter activations per meter role.
@@ -250,13 +265,5 @@ public interface UsagePoint extends HasId, IdentifiedObject {
         UsagePointConfigurationBuilder calculating(ReadingType readingType);
     }
 
-    // TODO delete start (methods from ReadingContainer) =============================================================
-
-    @Deprecated
-    ZoneId getZoneId(); // dependency in data aggregation
-
-    @Deprecated
-    List<? extends MeterActivation> getMeterActivations();
-
-    // TODO delete end ===============================================================================================
+    ZoneId getZoneId();
 }

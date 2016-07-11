@@ -43,7 +43,7 @@ public enum MessageSeeds implements MessageSeed {
     READING_TYPE_TEMPLATE_UNITS_SHOULD_HAVE_THE_SAME_DIMENSION(4010, Constants.READING_TYPE_TEMPLATE_UNITS_SHOULD_HAVE_THE_SAME_DIMENSION, "All possible values for reading type template must have the same dimension."),
     CAN_NOT_DELETE_METER_ROLE_FROM_METROLOGY_CONFIGURATION(4011, Constants.CAN_NOT_DELETE_METER_ROLE_FROM_METROLOGY_CONFIGURATION, "Meter role ''{0}'' is in use and can not be deleted from ''{1}''."),
     CAN_NOT_ADD_METER_ROLE_TO_METROLOGY_CONFIGURATION(4012, Constants.CAN_NOT_ADD_METER_ROLE_TO_METROLOGY_CONFIGURATION, "Meter role ''{0}'' is not assigned to the ''{1}'' service category."),
-    CAN_NOT_ADD_REQUIREMENT_WITH_THAT_ROLE(4013, Constants.CAN_NOT_ADD_REQUIREMENT_WITH_THAT_ROLE, "Meter role ''{0}'' is not assigned to the ''{1}''."),
+    ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION(4013, Constants.ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION, "Meter role ''{0}'' is not allowed on the metrology configuration ''{1}''."),
     DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION(4014, Constants.DELIVERABLE_MUST_HAVE_THE_SAME_CONFIGURATION, "Reading type deliverable must have the same metrology configuration."),
     REQUIREMENT_MUST_HAVE_UNIQUE_RT(4015, Constants.REQUIREMENT_MUST_HAVE_UNIQUE_RT, "Reading type requirement must have unique reading type."),
     CAN_NOT_DELETE_FORMULA_IN_USE(4016, Constants.CAN_NOT_DELETE_FORMULA_IN_USE, "This formula is in use and can not be deleted."),
@@ -53,6 +53,7 @@ public enum MessageSeeds implements MessageSeed {
     CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE(4020, Constants.CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE, "The ''{0}'' is in use and can not be deleted."),
     SEARCHABLE_PROPERTY_NOT_FOUND(4021, Constants.SEARCHABLE_PROPERTY_NOT_FOUND, "The ''{0}'' searchable property can not be used as usage point requirement."),
     BAD_USAGE_POINT_REQUIREMENT_VALUE(4022, Constants.BAD_USAGE_POINT_REQUIREMENT_VALUE, "Bad usage point requirement value: {0}."),
+    FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION(4023, Constants.FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION, "The metrology configuration is still used by at least one usage point. Use search to find the usage points with such metrology configuration."),
 
     INVALID_DIMENSION(5000, Constants.INVALID_DIMENSION, "Invalid dimension"),
     INVALID_ARGUMENTS_FOR_MULTIPLICATION(5001, Constants.INVALID_ARGUMENTS_FOR_MULTIPLICATION, "Dimensions from multiplication arguments do not result in a valid dimension."),
@@ -71,18 +72,23 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE(6009, Constants.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, "The deliverable with id ''{0}'' cannot be used because it has a different metrology configuration."),
     READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA(6010, Constants.READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA, "The readingtype \"{0}\" is not compatible with the dimension of the formula of deliverable \"{2} = {1}\"."),
     FUNCTION_NOT_ALLOWED_IN_AUTOMODE(6011, Constants.FUNCTION_NOT_ALLOWED_IN_AUTOMODE, "Function ''{0}'' is not allowed in auto mode."),
-    IRREGULAR_READINGTYPE_IN_DELIVERABLE(6012, Constants.IRREGULAR_READINGTYPE_IN_DELIVERABLE, "Irregular readingtypes are not allowed for a deliverable."),
-    IRREGULAR_READINGTYPE_IN_REQUIREMENT(6013, Constants.IRREGULAR_READINGTYPE_IN_REQUIREMENT, "Irregular readingtypes are not allowed for a requirement."),
+    IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS(6012, Constants.IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS, "Irregular deliverables only support simple formulas that operate on at most one irregular requirement"),
+    REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS(6013, Constants.REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS, "Regular deliverable does not support irregular requirements"),
     INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS(6014, Constants.INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS, "The interval of the output reading type should be larger or equal to interval of the requirements in the formula."),
     AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED(6015, Constants.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED, "Auto mode and export mode cannot be combined."),
     INVALID_READINGTYPE_IN_DELIVERABLE(6016, Constants.INVALID_READINGTYPE_IN_DELIVERABLE, "The readingtype for the deliverable is not valid, it should represent a numerical value."),
     INVALID_READINGTYPE_IN_REQUIREMENT(6017, Constants.INVALID_READINGTYPE_IN_REQUIREMENT, "The readingtype for a requirement is not valid, it should represent a numerical value."),
     INCOMPATIBLE_INTERVAL_LENGTHS(6018, Constants.INCOMPATIBLE_INTERVAL_LENGTHS, "''{0}'' values cannot be aggregated to ''{1}'' values."),
-    CHANNEL_DATA_PRESENT(6019, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
+    CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION(6019, Constants.CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION, "The property ''{0}'' cannot be used because the custom property set ''{1}'' is not configured on this metrology configuration."),
+    CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE(6020, Constants.CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE, "The custom property set ''{0}'' is no longer active."),
+    CUSTOM_PROPERTY_SET_NOT_VERSIONED(6021, Constants.CUSTOM_PROPERTY_SET_NOT_VERSIONED, "The custom property set ''{0}'' is not versioned, only versioned sets are supported."),
+    CUSTOM_PROPERTY_MUST_BE_NUMERICAL(6022, Constants.CUSTOM_PROPERTY_MUST_BE_NUMERICAL, "The property ''{0}'' of custom property set ''{1}'' must be numerical."),
 
     USAGE_POINT_INCORRECT_STATE(7001, Constants.USAGE_POINT_INCORRECT_STATE, "Usage point ''{0}'' should be in ''Under construction'' state to activate meters"),
     THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT(7002, Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT, "The same meter can''t be specified for different meter roles."),
-    UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}.");
+    UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}."),
+    CHANNEL_DATA_PRESENT(7004, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
+    UNSUPPORTED_COMMAND(7005, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device with MRID {1}"),;
 
 
     private final int number;
@@ -153,6 +159,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_USAGE_POINT_FOR_MRID = "NoUsagePointForMRID";
         public static final String NO_SUCH_LOCATION = "no.such.location";
         public static final String DUPLICATE_LOCATION_ENTRY = "duplicate.address.entry";
+        public static final String FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION = "failed.to.deactivate.metrology.configuration";
 
         public static final String INVALID_ARGUMENTS_FOR_MULTIPLICATION = "expression.node.invalid.arguments.multiplication";
         public static final String INVALID_ARGUMENTS_FOR_DIVISION = "expression.node.invalid.arguments.division";
@@ -172,7 +179,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_DELETE_METROLOGY_PURPOSE_IN_USE = "can.not.delete.metrology.purpose.in.use";
         public static final String CAN_NOT_DELETE_METER_ROLE_FROM_METROLOGY_CONFIGURATION = "can.not.delete.meter.role.from.metrology.configuration";
         public static final String CAN_NOT_ADD_METER_ROLE_TO_METROLOGY_CONFIGURATION = "can.not.add.meter.role.in.to.metrology.configuration";
-        public static final String CAN_NOT_ADD_REQUIREMENT_WITH_THAT_ROLE = "can.not.add.requirement.with.that.role";
+        public static final String ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION = "usagepoint.metrologyconfiguration.role.not.allowed";
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT = "invalid.metrologyconfiguration.for.requirement";
         public static final String INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE = "invalid.metrologyconfiguration.for.deliverable";
         public static final String READINGTYPE_OF_DELIVERABLE_IS_NOT_COMPATIBLE_WITH_FORMULA = "readingtype.of.deliverable.incompatible.with.formula";
@@ -180,8 +187,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REQUIREMENT_MUST_HAVE_UNIQUE_RT = "requirement.must.have.unique.rt";
         public static final String FUNCTION_NOT_ALLOWED_IN_AUTOMODE = "no.functions.allowed.in.automode";
         public static final String CAN_NOT_DELETE_FORMULA_IN_USE = "can.not.delete.formula.in.use";
-        public static final String IRREGULAR_READINGTYPE_IN_DELIVERABLE = "irregular.readingtype.not.allowed.for.deliverable";
-        public static final String IRREGULAR_READINGTYPE_IN_REQUIREMENT = "irregular.readingtype.not.allowed.for.requirement";
+        public static final String IRREGULAR_READING_TYPE_DELIVERABLE_ONLY_SUPPORTS_SIMPLE_FORMULAS = "irregular.readingtype.deliverable";
+        public static final String REGULAR_READING_TYPE_DELIVERABLE_DOES_NOT_SUPPORT_IRREGULAR_REQUIREMENTS = "regular.readingtype.deliverable";
         public static final String INTERVAL_OF_READINGTYPE_SHOULD_BE_GREATER_OR_EQUAL_TO_INTERVAL_OF_REQUIREMENTS = "interval.of.readingtype.should.be.greater.or.equal.to.interval.of.requirements";
         public static final String AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED = "auto.and.expert.mode.cannot.be.combined";
         public static final String INVALID_READINGTYPE_IN_DELIVERABLE = "invalid.readingtype.in.deliverable";
@@ -191,9 +198,14 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_DELETE_READING_TYPE_DELIVERABLE_IN_USE = "can.not.delete.reading.type.deliverable.in.use";
         public static final String SEARCHABLE_PROPERTY_NOT_FOUND = "searchable.property.not.found";
         public static final String BAD_USAGE_POINT_REQUIREMENT_VALUE = "bad.usage.point.requirement.value";
+        public static final String CUSTOM_PROPERTY_SET_NOT_CONFIGURED_ON_METROLOGY_CONFIGURATION = "cps.not.configured.on.metrologyconfiguration";
+        public static final String CUSTOM_PROPERTY_SET_NO_LONGER_ACTIVE = "cps.no.longer.active";
+        public static final String CUSTOM_PROPERTY_SET_NOT_VERSIONED = "cps.not.versioned";
+        public static final String CUSTOM_PROPERTY_MUST_BE_NUMERICAL = "cps.property.not.numerical";
         public static final String USAGE_POINT_INCORRECT_STATE = "usage.point.incorrect.state";
         public static final String THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT = "the.same.meter.activated.twice.on.usage.point";
         public static final String UNSATISFIED_METROLOGY_REQUIREMENT = "unsatisfied.metrology.requirement";
+        public static final String UNSPPORTED_COMMAND = "Unsupported.Command.for.enddevice";
     }
 
 }

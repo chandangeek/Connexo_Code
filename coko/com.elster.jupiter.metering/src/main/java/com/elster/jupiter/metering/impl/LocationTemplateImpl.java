@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,20 +19,25 @@ import java.util.stream.Stream;
 
 public final class LocationTemplateImpl implements LocationTemplate {
 
+    static final ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
+            ImmutableList.of("#ccod", "#cnam", "#adma", "#loc", "#subloc",
+                    "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "#locale");
+
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private String templateFields;
     private String mandatoryFields;
     private List<String> splitLineElements = new ArrayList<>();
     private final DataModel dataModel;
     private List<TemplateField> templateMembers = new ArrayList<>();
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
-    public static final ImmutableList<String> ALLOWED_LOCATION_TEMPLATE_ELEMENTS =
-            ImmutableList.of("#ccod", "#cnam", "#adma", "#loc", "#subloc",
-                    "#styp", "#snam", "#snum", "#etyp", "#enam", "#enum", "#addtl", "#zip", "#locale");
-
 
     enum LocationTemplateElements {
         COUNTRY_CODE("#ccod"),
@@ -62,7 +68,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
         @Override
         public String toString() {
             String elementName = name().toLowerCase();
-            if (elementName.indexOf("_") != -1) {
+            if (elementName.contains("_")) {
                 elementName = elementName.substring(0, elementName.indexOf("_"))
                         + elementName.substring(elementName.indexOf("_") + 1).substring(0, 1).toUpperCase()
                         + elementName.substring(elementName.indexOf("_") + 1).substring(1);
@@ -95,25 +101,21 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
             if (Arrays.asList(templateElements).containsAll(ALLOWED_LOCATION_TEMPLATE_ELEMENTS)) {
                 AtomicInteger index = new AtomicInteger(-1);
-                Arrays.asList(templateElements).stream().forEach(t -> {
-                    templateMembers.forEach(tm -> {
-                        if (tm.getAbbreviation().equalsIgnoreCase(t)) {
-                            tm.setRanking(index.incrementAndGet());
-                        }
-                    });
-                });
+                Arrays.asList(templateElements).stream().forEach(t -> templateMembers.forEach(tm -> {
+                    if (tm.getAbbreviation().equalsIgnoreCase(t)) {
+                        tm.setRanking(index.incrementAndGet());
+                    }
+                }));
                 if (mandatoryFields != null && !mandatoryFields.isEmpty()
                         && Arrays.asList(templateElements).containsAll(Arrays.asList(mandatoryFields.trim().split(",")))) {
                     this.mandatoryFields = mandatoryFields.trim();
                     String[] mandatoryFieldElements = this.mandatoryFields.split(",");
 
-                    Arrays.asList(mandatoryFieldElements).stream().forEach(t -> {
-                        templateMembers.forEach(tm -> {
-                            if (tm.getAbbreviation().equalsIgnoreCase(t)) {
-                                tm.setMandatory(true);
-                            }
-                        });
-                    });
+                    Arrays.asList(mandatoryFieldElements).stream().forEach(t -> templateMembers.forEach(tm -> {
+                        if (tm.getAbbreviation().equalsIgnoreCase(t)) {
+                            tm.setMandatory(true);
+                        }
+                    }));
 
                 }
             } else {
@@ -201,7 +203,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
     @Override
     public List<TemplateField> getTemplateMembers() {
-        return templateMembers;
+        return Collections.unmodifiableList(this.templateMembers);
     }
 
     @Override
@@ -221,7 +223,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
 
     @Override
     public List<String> getSplitLineElements() {
-        return splitLineElements;
+        return Collections.unmodifiableList(this.splitLineElements);
     }
 
     static final class TemplateFieldImpl implements TemplateField, Comparable<TemplateFieldImpl> {
@@ -230,7 +232,7 @@ public final class LocationTemplateImpl implements LocationTemplate {
         String name;
         String abbreviation;
 
-        public TemplateFieldImpl(String abbreviation, String name, int ranking, boolean mandatory) {
+        TemplateFieldImpl(String abbreviation, String name, int ranking, boolean mandatory) {
             this.abbreviation = abbreviation;
             this.name = name;
             this.ranking = ranking;

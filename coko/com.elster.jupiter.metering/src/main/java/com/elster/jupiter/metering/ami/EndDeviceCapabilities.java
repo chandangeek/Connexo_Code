@@ -2,7 +2,9 @@ package com.elster.jupiter.metering.ami;
 
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ReadingType;
-import java.util.Collections;
+
+import com.google.common.collect.ImmutableList;
+
 import java.util.List;
 
 public final class EndDeviceCapabilities {
@@ -10,16 +12,15 @@ public final class EndDeviceCapabilities {
     private List<EndDeviceControlType> controlTypes;
 
     public EndDeviceCapabilities(List<ReadingType> readingTypes, List<EndDeviceControlType> controlTypes) {
-        // TODO : secure this : do not assign parameter to the actual member
-        this.readingTypes = readingTypes;
-        this.controlTypes = controlTypes;
+        this.readingTypes = ImmutableList.copyOf(readingTypes);
+        this.controlTypes = ImmutableList.copyOf(controlTypes);
     }
 
     public List<ReadingType> getConfiguredReadingTypes() {
-       return Collections.unmodifiableList(readingTypes);
+        return readingTypes;
     }
 
     public List<EndDeviceControlType> getSupportedControlTypes() {
-        return Collections.unmodifiableList(controlTypes);
+        return controlTypes;
     }
 }

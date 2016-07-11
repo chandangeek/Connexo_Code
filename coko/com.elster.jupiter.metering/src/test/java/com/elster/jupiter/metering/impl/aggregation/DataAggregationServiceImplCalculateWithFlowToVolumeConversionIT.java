@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -24,13 +25,15 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.Formula;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -95,8 +98,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
 
-    public static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
-    public static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
     private static ReadingType fifteenMinutesNetConsumption;
@@ -106,6 +109,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
     private static ReadingType hourlykWhReverse;
     private static ServiceCategory ELECTRICITY;
     private static MetrologyPurpose METROLOGY_PURPOSE;
+    private static MeterRole METER_ROLE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
@@ -113,7 +117,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
     @Rule
     public TransactionalRule transactionalRule = new TransactionalRule(injector.getInstance(TransactionService.class));
 
-    private MetrologyConfiguration configuration;
+    private UsagePointMetrologyConfiguration configuration;
     private MetrologyPurpose metrologyPurpose;
     private MetrologyContract contract;
     private long productionRequirementId;
@@ -148,7 +152,6 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         setupServices();
         setupReadingTypes();
         setupMetrologyPurpose();
-        ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
     }
 
     private static void setupServices() {
@@ -180,7 +183,8 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new BasicPropertiesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -202,6 +206,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
 
     private static DataAggregationService getDataAggregationService() {
         return new DataAggregationServiceImpl(
+                mock(CustomPropertySetService.class),
                 injector.getInstance(ServerMeteringService.class),
                 DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
@@ -240,6 +245,9 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
+            ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+            METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+            ELECTRICITY.addMeterRole(METER_ROLE);
             ctx.commit();
         }
     }
@@ -276,16 +284,16 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
     /**
      * Tests the simplest case of flow to volume unit conversion:
      * Metrology configuration
-     *    requirements:
-     *       A- ::= any W  with flow = forward (aka consumption)
-     *       A+ ::= any Wh with flow = reverse (aka production)
-     *    deliverables:
-     *       netConsumption (15m kWh) ::= A- + A+
+     * requirements:
+     * A- ::= any W  with flow = forward (aka consumption)
+     * A+ ::= any Wh with flow = reverse (aka production)
+     * deliverables:
+     * netConsumption (15m kWh) ::= A- + A+
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           A- -> 15 min kW
-     *           A+ -> 15 min kWh
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * A- -> 15 min kW
+     * A+ -> 15 min kWh
      * In other words, the 2 requirements are provided by exactly
      * one matching channel from a single meter activation
      * but the kW channel (A-) needs to be converted to kWh
@@ -300,12 +308,14 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.activateMeterWithAll15MinChannels();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
+        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
+        this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", defaultMeterRole).withReadingType(fifteenMinuteskWForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", defaultMeterRole).withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -338,21 +348,21 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.netConsumptionWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + productionRequirementId + "_" + netConsumptionDeliverableId + "_1\\.timestamp,.*");
@@ -375,22 +385,23 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
      * Simular to the simplest case above but the deliverable
      * is configured to produce monthly values:
      * Metrology configuration
-     *    requirements:
-     *       A- ::= any W  with flow = forward (aka consumption)
-     *       A+ ::= any Wh with flow = reverse (aka production)
-     *    deliverables:
-     *       netConsumption (monthly kWh) ::= A- + A+
+     * requirements:
+     * A- ::= any W  with flow = forward (aka consumption)
+     * A+ ::= any Wh with flow = reverse (aka production)
+     * deliverables:
+     * netConsumption (monthly kWh) ::= A- + A+
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           A- -> 15 min kW
-     *           A+ -> 15 min kWh
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * A- -> 15 min kW
+     * A+ -> 15 min kWh
      * In other words, the 2 requirements are provided by exactly
      * one matching channel from a single meter activation
      * but the kW channel (A-) needs to be converted to kWh
      * before summing it with the kWh channel (A+)
      * Both are aggregated to monthly level at the definition level
      * so no aggregation is needed on deliverable level.
+     *
      * @see #simplestNetConsumptionOfProsumer()
      */
     @Test
@@ -402,12 +413,14 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.activateMeterWithAll15MinChannels();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("monthlyNetConsumptionBasedOn15MinValuesOfProsumer", ELECTRICITY).create();
+        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumptionBasedOn15MinValuesOfProsumer", ELECTRICITY).create();
+        this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", defaultMeterRole).withReadingType(fifteenMinuteskWForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(fifteenMinuteskWhReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", defaultMeterRole).withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -416,9 +429,9 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyNetConsumption, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
-                    builder.plus(
-                        builder.requirement(production),
-                        builder.requirement(consumption)));
+                        builder.plus(
+                                builder.requirement(production),
+                                builder.requirement(consumption)));
 
 
         this.netConsumptionDeliverableId = netConsumption.getId();
@@ -441,21 +454,21 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that the with clause for the the production requirement does not contain aggregation constructs
             String productionWithSelectClause = this.productionWithClauseBuilder.getText();
             assertThat(productionWithSelectClause).doesNotMatch(".*TRUNC.*");
@@ -490,19 +503,20 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
      * of them needs to be aggregated first and then aggregated
      * again on the deliverable level:
      * Metrology configuration
-     *    requirements:
-     *       A- ::= any W  with flow = forward (aka consumption)
-     *       A+ ::= any Wh with flow = reverse (aka production)
-     *    deliverables:
-     *       netConsumption (monthly kWh) ::= A- + (A+ * 2)
+     * requirements:
+     * A- ::= any W  with flow = forward (aka consumption)
+     * A+ ::= any Wh with flow = reverse (aka production)
+     * deliverables:
+     * netConsumption (monthly kWh) ::= A- + (A+ * 2)
      * Device:
-     *    meter activations:
-     *       Jan 1st 2016 -> forever
-     *           A- -> 15 min kW
-     *           A+ -> 60 min kWh
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * A- -> 15 min kW
+     * A+ -> 60 min kWh
      * In other words, A+ and A- need aggregation to monthly values
      * before summing up but that achieves the requested monthly level.
      * A- must be converted to kWh while aggregating it to monthly level.
+     *
      * @see #monthlyNetConsumptionBasedOn15MinValuesOfProsumer()
      */
     @Test
@@ -514,12 +528,14 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.activateMeterWith15And60MinChannels();
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newMetrologyConfiguration("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer", ELECTRICITY).create();
+        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer", ELECTRICITY).create();
+        this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withReadingType(fifteenMinuteskWForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", defaultMeterRole).withReadingType(fifteenMinuteskWForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withReadingType(hourlykWhReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", defaultMeterRole).withReadingType(hourlykWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -554,21 +570,21 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + productionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(productionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + netConsumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + netConsumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that the with clause for the the production requirement does not contain aggregation constructs
             String productionWithSelectClause = this.productionWithClauseBuilder.getText();
             assertThat(productionWithSelectClause).doesNotMatch(".*TRUNC.*");
@@ -617,14 +633,14 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
 
     private void activateMeterWithAll15MinChannels() {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.production15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWhReverse);
-        this.consumption15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWForward);
+        this.production15MinChannel = this.meterActivation.getChannelsContainer().createChannel(fifteenMinuteskWhReverse);
+        this.consumption15MinChannel = this.meterActivation.getChannelsContainer().createChannel(fifteenMinuteskWForward);
     }
 
     private void activateMeterWith15And60MinChannels() {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.production60MinChannel = this.meterActivation.createChannel(hourlykWhReverse);
-        this.consumption15MinChannel = this.meterActivation.createChannel(fifteenMinuteskWForward);
+        this.production60MinChannel = this.meterActivation.getChannelsContainer().createChannel(hourlykWhReverse);
+        this.consumption15MinChannel = this.meterActivation.getChannelsContainer().createChannel(fifteenMinuteskWForward);
     }
 
     private String mRID2GrepPattern(String mRID) {

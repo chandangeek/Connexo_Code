@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
@@ -29,13 +30,15 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     ServerMetrologyConfigurationService metrologyConfigurationService;
     @Mock
     UsagePointRequirementsSearchDomain searchDomain;
+    @Mock
+    private CustomPropertySetService customPropertySetService;
 
     private MetrologyConfigurationImpl instanceA;
 
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService);
+            instanceA = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService, this.customPropertySetService);
             Reflection.field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
         }
         return instanceA;
@@ -43,14 +46,14 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Object getInstanceEqualToA() {
-        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService);
+        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService, customPropertySetService);
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
         return other;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService);
+        MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(metrologyConfigurationService, eventService, customPropertySetService);
         Reflection.field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
         return singletonList(other);
     }
@@ -62,7 +65,7 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
-        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(metrologyConfigurationService, eventService, searchDomain);
+        UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(metrologyConfigurationService, eventService, this.customPropertySetService, searchDomain);
         Reflection.field("id").ofType(Long.TYPE).in(subInst).set(INSTANCE_A_ID);
         return subInst;
     }

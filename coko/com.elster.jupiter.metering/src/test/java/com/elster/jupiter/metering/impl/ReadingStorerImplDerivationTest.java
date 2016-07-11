@@ -10,6 +10,7 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
@@ -19,6 +20,13 @@ import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.util.units.Quantity;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.Optional;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,15 +37,12 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.Optional;
-
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingStorerImplDerivationTest {
@@ -68,7 +73,7 @@ public class ReadingStorerImplDerivationTest {
     @Mock
     private FieldSpec fieldSpec;
     @Mock
-    private IMeterActivation meterActivation;
+    private ChannelsContainer channelsContainer;
     @Mock
     private UsagePoint usagePoint;
     @Mock
@@ -88,8 +93,8 @@ public class ReadingStorerImplDerivationTest {
         when(channel.getReadingTypes()).thenReturn(asList(secondaryDeltaReadingType, secondaryBulkReadingType));
         when(channel.getDerivationRule(secondaryDeltaReadingType)).thenReturn(DerivationRule.DELTA);
         when(channel.getDerivationRule(secondaryBulkReadingType)).thenReturn(DerivationRule.MEASURED);
-        when(channel.getMeterActivation()).thenReturn(meterActivation);
-        when(meterActivation.getMeter()).thenReturn(Optional.empty());
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getMeter()).thenReturn(Optional.empty());
         when(timeSeries.getRecordSpec()).thenReturn(recordSpec);
         doReturn(asList(fieldSpec, fieldSpec, fieldSpec, fieldSpec)).when(recordSpec).getFieldSpecs();
         when(idsService.createOverrulingStorer()).thenReturn(storer);
@@ -165,16 +170,16 @@ public class ReadingStorerImplDerivationTest {
         when(channel.getReadingTypes()).thenReturn(asList(primaryDeltaReadingType, secondaryBulkReadingType));
         when(channel.getDerivationRule(primaryDeltaReadingType)).thenReturn(DerivationRule.MULTIPLIED_DELTA);
         when(channel.getDerivationRule(secondaryBulkReadingType)).thenReturn(DerivationRule.MEASURED);
-        when(channel.getMeterActivation()).thenReturn(meterActivation);
-        when(meterActivation.getMeter()).thenReturn(Optional.empty());
-        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getMeter()).thenReturn(Optional.empty());
+        when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getConfiguration(any())).thenReturn(Optional.of(usagePointConfiguration));
         when(usagePointConfiguration.getReadingTypeConfigs()).thenReturn(Collections.singletonList(readingTypeConfiguration));
         when(readingTypeConfiguration.getMeasured()).thenReturn(secondaryBulkReadingType);
         when(readingTypeConfiguration.getCalculated()).thenReturn(Optional.of(primaryBulkReadingType));
         when(readingTypeConfiguration.getMultiplierType()).thenReturn(multiplierType);
-        when(meterActivation.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.valueOf(5, 0)));
-        when(meterActivation.getMultiplierUsages(any())).thenReturn(Collections.singletonList(readingTypeConfiguration));
+        when(channelsContainer.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.valueOf(5, 0)));
+//        when(channelsContainer.getMultiplierUsages(any())).thenReturn(Collections.singletonList(readingTypeConfiguration));
         when(channel.getReading(any())).thenReturn(Optional.empty());
 
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.toInstant(), BigDecimal.valueOf(314, 2)));
@@ -193,16 +198,16 @@ public class ReadingStorerImplDerivationTest {
         when(channel.getReadingTypes()).thenReturn(asList(calculatedOnPulseReadingType, pulseReadingType));
         when(channel.getDerivationRule(calculatedOnPulseReadingType)).thenReturn(DerivationRule.MULTIPLIED);
         when(channel.getDerivationRule(pulseReadingType)).thenReturn(DerivationRule.MEASURED);
-        when(channel.getMeterActivation()).thenReturn(meterActivation);
-        when(meterActivation.getMeter()).thenReturn(Optional.empty());
-        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getMeter()).thenReturn(Optional.empty());
+        when(channelsContainer.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getConfiguration(any())).thenReturn(Optional.of(usagePointConfiguration));
         when(usagePointConfiguration.getReadingTypeConfigs()).thenReturn(Collections.singletonList(readingTypeConfiguration));
         when(readingTypeConfiguration.getMeasured()).thenReturn(pulseReadingType);
         when(readingTypeConfiguration.getCalculated()).thenReturn(Optional.of(calculatedOnPulseReadingType));
         when(readingTypeConfiguration.getMultiplierType()).thenReturn(multiplierType);
-        when(meterActivation.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.valueOf(5, 0)));
-        when(meterActivation.getMultiplierUsages(any())).thenReturn(Collections.singletonList(readingTypeConfiguration));
+        when(channelsContainer.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.valueOf(5, 0)));
+//        when(channelsContainer.getMultiplierUsages(any())).thenReturn(Collections.singletonList(readingTypeConfiguration));
         when(channel.getReading(any())).thenReturn(Optional.empty());
 
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.toInstant(), BigDecimal.valueOf(314, 0)));

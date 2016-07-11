@@ -159,7 +159,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         assertThat(monthlyRecord.getQuantities()).hasSize(1);
         assertThat(monthlyRecord.getQuantity(monthlyNetConsumption)).isEqualTo(expectedQuantity2);
         assertThat(monthlyRecord.getQuantity(fifteenMinutesNetConsumption)).isNull();
-        assertThat(monthlyRecord.getProcesStatus()).isEqualTo(new ProcessStatus(0).with(ProcessStatus.Flag.EDITED, ProcessStatus.Flag.ESTIMATED)); //readingquality = 1 (estimated or edited)
+        assertThat(monthlyRecord.getProcesStatus()).isEqualTo(expectedProcessStatus);
         assertThat(monthlyRecord.getCount()).isEqualTo(expectedCountForMonthlyRecord);
     }
 

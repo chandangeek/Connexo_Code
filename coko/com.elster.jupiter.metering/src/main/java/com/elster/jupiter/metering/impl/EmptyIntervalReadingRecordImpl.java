@@ -4,8 +4,8 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.util.units.Quantity;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -15,35 +15,27 @@ import java.util.List;
 import java.util.Optional;
 
 public class EmptyIntervalReadingRecordImpl extends IntervalReadingRecordImpl {
-	
-	private Instant timeStamp;
+
+    private Instant timeStamp;
     private ReadingType readingType;
-    private ProfileStatus profileStatus;
 
     EmptyIntervalReadingRecordImpl(ReadingType readingType, Instant timeStamp) {
 		super(null,null);
 		this.timeStamp=timeStamp;
 		this.readingType=readingType;
-		this.profileStatus = new ProfileStatus(256);
-		
 	}
 
-	@Override
-	public ProfileStatus getProfileStatus() {
-		return profileStatus;
-	}
+    @Override
+    int getReadingTypeOffset() {
+        return -1;
+    }
 
-	@Override
-	int getReadingTypeOffset() {
-		return -1;
-	}
-	
-	@Override
-	public IntervalReadingRecord filter(ReadingType readingType) {
-		return new FilteredIntervalReadingRecord(this, getIndex(readingType));
-	}
-	
-	@Override
+    @Override
+    public IntervalReadingRecord filter(ReadingType readingType) {
+        return new FilteredIntervalReadingRecord(this, getIndex(readingType));
+    }
+
+    @Override
     public Instant getTimeStamp() {
         return timeStamp;
     }
@@ -93,7 +85,7 @@ public class EmptyIntervalReadingRecordImpl extends IntervalReadingRecordImpl {
     }
 
     @Override
-    public ProcessStatus getProcesStatus() {
+    public ProcessStatus getProcessStatus() {
         return null;
     }
 

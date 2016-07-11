@@ -7,13 +7,16 @@ import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyConfigurationCrudTest {
 
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @Rule
     public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -146,5 +149,40 @@ public class MetrologyConfigurationCrudTest {
                 .select(where(MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName()).isEqualTo(metrologyConfiguration)
                         .and(where(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.fieldName()).isEqualTo(metrologyPurpose)));
         assertThat(metrologyContracts).hasSize(0);
+    }
+
+    @Test
+    @Transactional
+    public void testUpdateMetrologyConfiguration() {
+        // Business method
+        MetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newMetrologyConfiguration("Name", getServiceCategory()).withDescription("Description").create();
+
+        metrologyConfiguration.startUpdate()
+                .setName("New name")
+                .setDescription("New description")
+                .setServiceCategory(inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get())
+                .complete();
+
+        //Asserts
+        Optional<MetrologyConfiguration> found = getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId());
+        assertThat(found).isPresent();
+        assertThat(found.get().getName()).isEqualTo("New name");
+        assertThat(found.get().getDescription()).isEqualTo("New description");
+        assertThat(found.get().getServiceCategory().getKind()).isEqualTo(ServiceKind.ELECTRICITY);
+        assertThat(found.get().getStatus()).isEqualTo(MetrologyConfigurationStatus.INACTIVE);
+    }
+
+    @Test(expected = CannotDeactivateMetrologyConfiguration.class)
+    @Transactional
+    public void testDeactivateLinkedMetrologyConfiguration() {
+        // Business method
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("Name", getServiceCategory())
+                .withDescription("Description")
+                .create();
+        UsagePoint usagePoint = getServiceCategory().newUsagePoint("Usage point", Instant.now()).create();
+
+        metrologyConfiguration.activate();
+        usagePoint.apply(metrologyConfiguration);
+        metrologyConfiguration.deactivate();
     }
 }

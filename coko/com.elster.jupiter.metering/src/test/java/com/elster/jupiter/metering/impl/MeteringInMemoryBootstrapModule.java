@@ -13,8 +13,7 @@ import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeDeletionVetoEventHandler;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsService;
@@ -41,68 +40,97 @@ import com.elster.jupiter.util.UtilModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Mockito.mock;
 
 public class MeteringInMemoryBootstrapModule {
     private final Clock clock;
     private final String[] readingTypeRequirements;
+    private CustomPropertySetService customPropertySetService;
+    private DataAggregationService dataAggregationService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private Injector injector;
 
-    public MeteringInMemoryBootstrapModule() {
-        this(Clock.systemUTC(), null);
+    public static MeteringInMemoryBootstrapModule withAllDefaults() {
+        return new MeteringInMemoryBootstrapModule();
+    }
+
+    public static MeteringInMemoryBootstrapModule withCustomPropertySetService(CustomPropertySetService service) {
+        MeteringInMemoryBootstrapModule module = withAllDefaults();
+        module.customPropertySetService = service;
+        return module;
+    }
+
+    public static MeteringInMemoryBootstrapModule withClock(Clock clock) {
+        return new MeteringInMemoryBootstrapModule(clock);
+    }
+
+    public static MeteringInMemoryBootstrapModule withClockAndReadingTypes(Clock clock, String... requiredReadingTypes) {
+        return new MeteringInMemoryBootstrapModule(clock, requiredReadingTypes);
     }
 
     public MeteringInMemoryBootstrapModule(String... requiredReadingTypes) {
         this(Clock.systemUTC(), requiredReadingTypes);
     }
 
-    public MeteringInMemoryBootstrapModule(Clock clock) {
+    private MeteringInMemoryBootstrapModule() {
+        this(Clock.systemUTC());
+    }
+
+    private MeteringInMemoryBootstrapModule(Clock clock) {
         this(clock, null);
     }
 
-    public MeteringInMemoryBootstrapModule(Clock clock, String... requiredReadingTypes) {
+    private MeteringInMemoryBootstrapModule(Clock clock, String... requiredReadingTypes) {
         this.clock = clock;
         this.readingTypeRequirements = requiredReadingTypes;
     }
 
+    public MeteringInMemoryBootstrapModule withDataAggregationService(DataAggregationService dataAggregation) {
+        this.dataAggregationService = dataAggregation;
+        return this;
+    }
 
     public void activate() {
-        injector = Guice.createInjector(
-                new UtilModule(clock),
-                new MockModule(),
-                inMemoryBootstrapModule,
-                new IdsModule(),
-                this.readingTypeRequirements != null ? new MeteringModule(readingTypeRequirements) : new MeteringModule(),
-                new PartyModule(),
-                new FiniteStateMachineModule(),
-                new UserModule(),
-                new EventsModule(),
-                new InMemoryMessagingModule(),
-                new DomainUtilModule(),
-                new OrmModule(),
-                new ThreadSecurityModule(),
-                new DataVaultModule(),
-                new PubSubModule(),
-                new TransactionModule(),
-                new NlsModule(),
-                new BasicPropertiesModule(),
-                new TimeModule(),
-                new CustomPropertySetsModule(),
-                new SearchModule()
-        );
+        List<Module> modules = new ArrayList<>();
+        modules.add(new UtilModule(clock));
+        modules.add(new MockModule());
+        modules.add(inMemoryBootstrapModule);
+        modules.add(new IdsModule());
+        modules.add(this.readingTypeRequirements != null
+                ? new MeteringModule(readingTypeRequirements).withDataAggregationService(dataAggregationService)
+                : new MeteringModule().withDataAggregationService(dataAggregationService));
+        modules.add(new PartyModule());
+        modules.add(new FiniteStateMachineModule());
+        modules.add(new UserModule());
+        modules.add(new EventsModule());
+        modules.add(new InMemoryMessagingModule());
+        modules.add(new DomainUtilModule());
+        modules.add(new OrmModule());
+        modules.add(new ThreadSecurityModule());
+        modules.add(new DataVaultModule());
+        modules.add(new PubSubModule());
+        modules.add(new TransactionModule());
+        modules.add(new NlsModule());
+        modules.add(new BasicPropertiesModule());
+        modules.add(new TimeModule());
+        modules.add(new SearchModule());
+        if (this.customPropertySetService == null) {
+            modules.add(new CustomPropertySetsModule());
+        }
+        injector = Guice.createInjector(modules.toArray(new Module[modules.size()]));
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(PropertySpecService.class);
-            injector.getInstance(MeteringService.class);
-            injector.getInstance(MetrologyConfigurationService.class);
             addMessageHandlers();
             ctx.commit();
         }
@@ -160,12 +188,16 @@ public class MeteringInMemoryBootstrapModule {
     public NlsService getNlsService() {
         return injector.getInstance(NlsService.class);
     }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            if (customPropertySetService != null) {
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+            }
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }

@@ -31,7 +31,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyPurposeImplTestIT {
 
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @Rule
     public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();

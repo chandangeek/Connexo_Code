@@ -2,9 +2,10 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
-import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+
+import java.time.Clock;
 
 /**
  * Adds behavior to {@link MeteringService} that is specific
@@ -23,9 +24,9 @@ public interface ServerMeteringService extends MeteringService {
 
     Thesaurus getThesaurus();
 
+    Clock getClock();
+
     EndDeviceEventTypeImpl createEndDeviceEventType(String mRID);
 
     EndDeviceControlTypeImpl createEndDeviceControlType(String mRID);
-
-    void copyKeyIfMissing(NlsKey name, String localKey);
 }
