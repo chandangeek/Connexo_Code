@@ -57,7 +57,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationPurposeDetails
 
         formula.customProperties().each(function (cps) {
             attributes += cps.get('name');
-            attributes += '<span class="uni-icon-info-small" style="display: inline-block; width: 16px; height: 16px; margin-left: 10px;" data-qtip="'
+            attributes += '<span class="icon-info" style="display: inline-block; color:#A9A9A9; font-size:16px; margin-left: 16px" data-qtip="'
                 + Uni.I18n.translate('general.tooltip.partOfCustomAttributeSet', 'IMT', 'Part of {0} custom attribute set', [cps.get('customPropertySet').name])
                 + '"></span>';
             attributes += '<br>';
