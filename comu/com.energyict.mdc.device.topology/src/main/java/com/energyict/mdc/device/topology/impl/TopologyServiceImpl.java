@@ -482,7 +482,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private List<DataLoggerChannelUsage> findDataLoggerChannelUsages(com.elster.jupiter.metering.Channel dataLoggerChannel, Range<Instant> referencePeriod) {
         Condition gateway = where(DataLoggerChannelUsageImpl.Field.GATEWAY_CHANNEL.fieldName()).isEqualTo(dataLoggerChannel);
         Condition effective = where(DataLoggerChannelUsageImpl.Field.PHYSICALGATEWAYREF.fieldName() + "." + AbstractPhysicalGatewayReferenceImpl.Field.INTERVAL.fieldName()).isEffective(referencePeriod);
-        return dataModel.query(DataLoggerChannelUsage.class, PhysicalGatewayReference.class).select(gateway.and(effective));
+        return dataModel.query(DataLoggerChannelUsage.class, PhysicalGatewayReference.class).select(gateway.and(effective), Order.descending("dataloggerReference.interval.start"));
+
     }
 
     private List<DataLoggerChannelUsage> findDataLoggerChannelUsages(com.elster.jupiter.metering.Channel dataLoggerChannel) {
