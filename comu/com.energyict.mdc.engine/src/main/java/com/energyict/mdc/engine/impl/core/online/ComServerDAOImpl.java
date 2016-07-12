@@ -807,7 +807,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (dataLogger.getDeviceConfiguration().isDataloggerEnabled()){
                 Optional<Channel> dataLoggerChannel = dataLogger.getChannels().stream().filter((c) -> c.getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
                 if (dataLoggerChannel.isPresent()){
-                    List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsages(dataLoggerChannel.get(), dataPeriod);
+                    List<DataLoggerChannelUsage> dataLoggerChannelUsages = this.serviceProvider.topologyService().findDataLoggerChannelUsagesForChannels(dataLoggerChannel.get(), dataPeriod);
                     List<Pair<OfflineLoadProfile,Range<Instant>>> linkedOffLineLoadProfiles = new ArrayList<>();
                     // 'linked' periods
                     if (!dataLoggerChannelUsages.isEmpty()){
