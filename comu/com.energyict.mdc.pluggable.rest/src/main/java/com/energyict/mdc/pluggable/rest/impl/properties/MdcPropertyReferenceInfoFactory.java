@@ -2,6 +2,7 @@ package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TimeDuration;
@@ -21,6 +22,7 @@ import com.energyict.mdc.pluggable.rest.impl.LoadProfileInfo;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeInfo;
 import com.energyict.mdc.pluggable.rest.impl.LoadProfileTypeResource;
 import com.energyict.mdc.pluggable.rest.impl.LogBookInfo;
+import com.energyict.mdc.pluggable.rest.impl.ReadingTypeInfo;
 import com.energyict.mdc.pluggable.rest.impl.RegisterInfo;
 import com.energyict.mdc.pluggable.rest.impl.TimeZoneInUseInfo;
 import com.energyict.mdc.protocol.api.DeviceMessageFile;
@@ -75,6 +77,9 @@ public class MdcPropertyReferenceInfoFactory {
             } else if (UsagePoint.class.isAssignableFrom(property.getClass())) {
                 UsagePoint usagePoint = (UsagePoint) property;
                 info = new IdWithNameInfo(usagePoint.getId(), usagePoint.getMRID());
+                info = asInfoObject((FirmwareVersion) property);
+            } else if (ReadingType.class.isAssignableFrom(property.getClass())) {
+                info = new ReadingTypeInfo(((ReadingType) property));
             }
         }
         return info;
