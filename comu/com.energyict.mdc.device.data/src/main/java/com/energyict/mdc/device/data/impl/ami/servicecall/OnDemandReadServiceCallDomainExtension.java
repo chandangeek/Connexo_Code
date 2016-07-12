@@ -58,12 +58,12 @@ public class OnDemandReadServiceCallDomainExtension implements PersistentDomainE
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setExpectedTasks(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.EXPECTED_TASKS.javaName()))
-                .orElse(0)
+                .orElse(BigDecimal.ZERO)
                 .toString()));
         this.setSuccessfulTasks(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.SUCCESSFUL_TASKS
-                .javaName())).orElse(0).toString()));
+                .javaName())).orElse(BigDecimal.ZERO).toString()));
         this.setFailedTasks(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.FAILED_TASKS.javaName()))
-                .orElse(0)
+                .orElse(BigDecimal.ZERO)
                 .toString()));
     }
 
