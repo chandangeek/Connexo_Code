@@ -451,8 +451,13 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public List<DataLoggerChannelUsage> findDataLoggerChannelUsages(Channel dataLoggerChannel, Range<Instant> referencePeriod) {
+    public List<DataLoggerChannelUsage> findDataLoggerChannelUsagesForChannels(Channel dataLoggerChannel, Range<Instant> referencePeriod) {
         return findDataLoggerChannelUsages(getMeteringChannel(dataLoggerChannel), referencePeriod);
+    }
+
+    @Override
+    public List<DataLoggerChannelUsage> findDataLoggerChannelUsagesForRegisters(Register<?, ?> dataLoggerRegister, Range<Instant> referencePeriod) {
+        return findDataLoggerChannelUsages(getMeteringChannel(dataLoggerRegister), referencePeriod);
     }
 
     @Override

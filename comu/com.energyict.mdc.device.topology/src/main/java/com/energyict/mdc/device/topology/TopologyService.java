@@ -321,10 +321,18 @@ public interface TopologyService {
      *
      * @param dataLoggerChannel channel to inspect
      * @param referencePeriod period to inspect
-     * @return true if the channel is already present as gateway channel in one or more DataLoggerChannelUsages
-     * false if not DataloggerChannelUsages were found having the given ('pulse') channel as gateway channel;
+     * @return a list of DataLoggerChannelUsages for the given channel
      */
-    List<DataLoggerChannelUsage> findDataLoggerChannelUsages(Channel dataLoggerChannel, Range<Instant> referencePeriod);
+    List<DataLoggerChannelUsage> findDataLoggerChannelUsagesForChannels(Channel dataLoggerChannel, Range<Instant> referencePeriod);
+
+    /**
+     * Retrieve all DataLoggerChannelUsages for given dataLoggerRegister for given period
+     *
+     * @param dataLoggerRegister register to inspect
+     * @param referencePeriod period to inspect
+     * @return a list of DataLoggerChannelUsages for the given register
+     */
+    List<DataLoggerChannelUsage> findDataLoggerChannelUsagesForRegisters(Register<?, ?> dataLoggerRegister, Range<Instant> referencePeriod);
 
     /**
      * @param dataLoggerRegister the register of the datalogger
