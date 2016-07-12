@@ -13,11 +13,13 @@ public class EstimationRuleInfoFactory {
 
     private final EstimationService estimationService;
     private final PropertyUtils propertyUtils;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    EstimationRuleInfoFactory(EstimationService estimationService, PropertyUtils propertyUtils) {
+    EstimationRuleInfoFactory(EstimationService estimationService, PropertyUtils propertyUtils, ResourceHelper resourceHelper) {
         this.estimationService = estimationService;
         this.propertyUtils = propertyUtils;
+        this.resourceHelper = resourceHelper;
     }
 
     public EstimationRuleInfo createEstimationRuleInfo(Collection<? extends ReadingQuality> readingQualities) {
@@ -40,6 +42,7 @@ public class EstimationRuleInfoFactory {
         info.deleted = estimationRule.isObsolete();
         info.name = estimationRule.getName();
         info.properties = propertyUtils.convertPropertySpecsToPropertyInfos(estimationRule.getPropertySpecs(), estimationRule.getProps());
+        info.application = resourceHelper.getApplicationInfo(estimationRule.getRuleSet().getQualityCodeSystem());
         return info;
     }
 }

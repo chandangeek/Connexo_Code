@@ -32,6 +32,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.HEAD;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -90,8 +91,6 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
     public static final Instant NOW = ZonedDateTime.of(2014, 10, 01, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
 
-    private ReadingQualityType readingQualityTypeConfirmed = new ReadingQualityType("2.10.1");
-
     public RegisterDataResourceTest() {
     }
 
@@ -137,10 +136,12 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         ReadingQualityRecord readingQualityEstimated = mockReadingQuality(readingQualityType.getCode());
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);
-        EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
-        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
-        when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRule.getName()).thenReturn("EstimationRule");
+        EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
+        when(estimationRuleSet.getId()).thenReturn(15L);
+        when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
+        when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
         doReturn(Arrays.asList(readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus).getReadingQualities();
     }
@@ -196,11 +197,15 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(3);
         assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
-        assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo("ADDED");
+        assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
+        assertThat(jsonModel.<String>get("$.data[0].editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[0].editedInApp.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Number>get("$.data[0].estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[0].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.name")).isEqualTo("EstimationRule");
         assertThat(jsonModel.<List<?>>get("$.data[0].estimatedByRule.properties")).isEmpty();
+        assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<List<?>>get("$.data[0].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].cimCode")).isEqualTo("2.7.1");
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].indexName")).isEqualTo("Manually added");
@@ -208,7 +213,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].categoryName")).isEqualTo("Edited");
 
         assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("numerical");
-        assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo("EDITED");
+        assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo(ReadingModificationFlag.EDITED.name());
+        assertThat(jsonModel.<String>get("$.data[1].editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[1].editedInApp.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.name")).isEqualTo("EstimationRule");
@@ -219,7 +226,11 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].categoryName")).isEqualTo("Edited");
 
         assertThat(jsonModel.<List<?>>get("$.data[1].estimatedByRule.properties")).isEmpty();
+        assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.application.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Boolean>get("$.data[2].isConfirmed")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.data[2].confirmedInApps[0].id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[2].confirmedInApps[0].name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<List<?>>get("$.data[2].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].cimCode")).isEqualTo("2.10.1");
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].indexName")).isEqualTo("Manually accepted");
