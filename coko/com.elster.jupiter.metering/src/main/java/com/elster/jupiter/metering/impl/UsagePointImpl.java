@@ -461,7 +461,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public void applyWithInterval(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
         Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
         Long startDate = start.toEpochMilli();
         Long endDate = end != null ? end.toEpochMilli() : null;
@@ -491,6 +491,7 @@ public class UsagePointImpl implements UsagePoint {
                 this.dataModel
                         .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
                         .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate))));
+        this.update();
     }
 
     @Override

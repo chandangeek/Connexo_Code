@@ -150,7 +150,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      */
     void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when);
 
-    void applyWithInterval(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end);
+    void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end);
 
     void updateWithInterval(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationVersion, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end);
 
