@@ -15,7 +15,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import com.google.common.collect.Range;
@@ -353,9 +352,6 @@ public class RegisterResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public RegisterHistoryInfos getDataLoggerSlaveRegisterHistory(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
         Register register = resourceHelper.findRegisterOnDeviceOrThrowException(mRID, registerId);
-        RegisterHistoryInfos registerHistoryInfos = new RegisterHistoryInfos();
-        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsagesForRegisters(register, Range.atMost(clock.instant()));
-        dataLoggerChannelUsages.stream().forEach(dataLoggerChannelUsage -> registerHistoryInfos.registerHistory.add(RegisterHistoryInfo.from(dataLoggerChannelUsage)));
-        return registerHistoryInfos;
+        return RegisterHistoryInfos.from(topologyService.findDataLoggerChannelUsagesForRegisters(register, Range.atMost(clock.instant())));
     }
 }
