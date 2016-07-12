@@ -473,7 +473,7 @@ public class MeterActivationImplIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(property = "default", messageId = "MTR7003S This meter does not provide reading types matching to Requirement.", strict = true)
+    @ExpectedConstraintViolation(property = "default", messageId = "This meter does not provide reading types matching to [15-minute] Secondary Delta 0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0 (kWh).", strict = true)
     public void testMeterDoesNotSatisfyMetrologyRequirements() {
         ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
         ServerMetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
