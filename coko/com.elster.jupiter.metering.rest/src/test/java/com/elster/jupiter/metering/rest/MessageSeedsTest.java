@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.rest;
 
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.rest.impl.MessageSeeds;
 
 import java.util.HashSet;
@@ -43,7 +43,7 @@ public class MessageSeedsTest {
     @Test
     public void testMessageSeedKeysDontContainComponentName() throws Exception {
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            assertThat(messageSeed.getKey()).doesNotContain(MetrologyConfigurationService.COMPONENT_NAME + ".");
+            assertThat(messageSeed.getKey()).doesNotContain(MeteringService.COMPONENTNAME + ".");
         }
     }
 
