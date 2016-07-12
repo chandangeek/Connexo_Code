@@ -7,6 +7,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,12 +22,12 @@ import static java.util.Comparator.naturalOrder;
  *
  * @see ChannelsContainerValidation
  */
-public class ChannelsContainerValidationList {
+class ChannelsContainerValidationList {
 
     private final List<ChannelsContainerValidation> channelsContainerValidations;
 
     private ChannelsContainerValidationList(List<ChannelsContainerValidation> channelsContainerValidations) {
-        this.channelsContainerValidations = channelsContainerValidations;
+        this.channelsContainerValidations = Collections.unmodifiableList(channelsContainerValidations);
     }
 
     static ChannelsContainerValidationList of(List<ChannelsContainerValidation> channelsContainerValidations) {

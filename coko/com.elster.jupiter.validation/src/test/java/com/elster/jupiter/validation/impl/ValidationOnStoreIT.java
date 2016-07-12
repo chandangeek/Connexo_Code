@@ -20,7 +20,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -65,10 +64,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.junit.After;
 import org.junit.Before;
@@ -248,7 +244,7 @@ public class ValidationOnStoreIT {
     public void testValidationFailsOnMinMax() {
         transactionService.execute(VoidTransaction.of(() -> {
 
-            IntervalReadingImpl intervalReading = IntervalReadingImpl.of(ZONED_DATE_TIME.plusHours(1).toInstant(), BigDecimal.valueOf(400), ProfileStatus.of());
+            IntervalReadingImpl intervalReading = IntervalReadingImpl.of(ZONED_DATE_TIME.plusHours(1).toInstant(), BigDecimal.valueOf(400), Collections.emptySet());
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
             intervalBlock.addIntervalReading(intervalReading);

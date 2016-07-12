@@ -5,10 +5,8 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -36,16 +34,16 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final ValidationServiceImpl validationService;
-    private final MeteringService meteringService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
     private final ThreadPrincipalService threadPrincipalService;
     private final User user;
 
 
-    public DataValidationTaskExecutor(ValidationServiceImpl validationService, MeteringService meteringService, TransactionService transactionService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, User user) {
+    public DataValidationTaskExecutor(ValidationServiceImpl validationService, MetrologyConfigurationService metrologyConfigurationService, TransactionService transactionService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, User user) {
         this.thesaurus = thesaurus;
         this.validationService = validationService;
         this.transactionService = transactionService;
-        this.meteringService = meteringService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.threadPrincipalService = threadPrincipalService;
         this.user = user;
     }
@@ -137,12 +135,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
 
     private void executeMdmTask(DataValidationOccurrence occurrence, Logger logger, DataValidationTask task) {
         MetrologyContract metrologyContract = task.getMetrologyContract().get();
-        UsagePointFilter usagePointFilter = new UsagePointFilter();
-        usagePointFilter.setMetrologyContract(metrologyContract);
-        meteringService.getUsagePoints(usagePointFilter).stream()
-                .map(UsagePoint::getEffectiveMetrologyConfiguration)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+        metrologyConfigurationService.getEffectiveMetrologyConfigurationFinderFor(metrologyContract).stream()
                 .forEach(effectiveMetrologyConfiguration -> {
                     // Validate inputs provided by linked meters
                     validateUsagePointInputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, effectiveMetrologyConfiguration);

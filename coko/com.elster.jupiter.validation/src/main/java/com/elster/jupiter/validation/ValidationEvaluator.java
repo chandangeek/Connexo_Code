@@ -37,19 +37,19 @@ public interface ValidationEvaluator {
     boolean isAllDataValidated(ChannelsContainer channelsContainer);
 
     /**
-     * checks if there's at least one suspect put to {@link ChannelsContainer} by one of the <code>qualityCodeSystems</code>
-     * @param qualityCodeSystems systems to take into account when checking for suspects; empty set means all systems
-     * @param channelsContainer {@link ChannelsContainer} to check
-     * @return <code>true</code> if there's at least a suspect, <code>false</code> otherwise
+     * Checks if there's at least one suspect put to {@link ChannelsContainer} by one of the {@code qualityCodeSystems}.
+     * @param qualityCodeSystems Systems to take into account when checking for suspects; empty set means all systems.
+     * @param channelsContainer {@link ChannelsContainer} to check.
+     * @return {@code true} if there's at least a suspect, {@code false} otherwise.
      */
     boolean areSuspectsPresent(Set<QualityCodeSystem> qualityCodeSystems, ChannelsContainer channelsContainer);
 
     /**
-     * gets validation status taking into account qualities of systems among <code>qualityCodeSystems</code>
-     * @param qualityCodeSystems only systems to take into account for computation of validation status; empty set means all systems
-     * @param channel the channel to check
-     * @param readings provided list of readings
-     * @return list of {@link DataValidationStatus}
+     * Gets validation status taking into account qualities of systems among {@code qualityCodeSystems}.
+     * @param qualityCodeSystems Only systems to take into account for computation of validation status; empty set means all systems.
+     * @param channel The channel to check.
+     * @param readings Provided list of readings.
+     * @return List of {@link DataValidationStatus}.
      */
     default List<DataValidationStatus> getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, Channel channel,
                                                            List<? extends BaseReading> readings) {
@@ -61,12 +61,12 @@ public interface ValidationEvaluator {
     }
 
     /**
-     * gets validation status taking into account qualities of systems among <code>qualityCodeSystems</code>
-     * @param qualityCodeSystems only systems to take into account for computation of validation status; empty set means all systems
-     * @param channel the channel to check
-     * @param readings provided list of readings
-     * @param interval specific interval to check
-     * @return list of {@link DataValidationStatus}
+     * Gets validation status taking into account qualities of systems among {@code qualityCodeSystems}.
+     * @param qualityCodeSystems Only systems to take into account for computation of validation status; empty set means all systems.
+     * @param channel The channel to check.
+     * @param readings Provided list of readings.
+     * @param interval Specific interval to check.
+     * @return List of {@link DataValidationStatus}.
      */
     default List<DataValidationStatus> getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, Channel channel,
                                                            List<? extends BaseReading> readings, Range<Instant> interval) {
@@ -77,12 +77,12 @@ public interface ValidationEvaluator {
     }
 
     /**
-     * gets validation status taking into account qualities of systems among <code>qualityCodeSystems</code>
-     * @param qualityCodeSystems only systems to take into account for computation of validation status; empty set means all systems
-     * @param channels a list of one or two (1st main + 2nd bulk) channels. other cases are not supported by implementation and may lead to unexpected errors!
-     * @param readings provided list of readings
-     * @param interval specific interval to check
-     * @return list of {@link DataValidationStatus}
+     * Gets validation status taking into account qualities of systems among {@code qualityCodeSystems}.
+     * @param qualityCodeSystems Only systems to take into account for computation of validation status; empty set means all systems.
+     * @param channels A list of one or two (1st main + 2nd bulk) channels. Other cases are not supported by implementation and may lead to unexpected errors!
+     * @param readings Provided list of readings.
+     * @param interval Specific interval to check.
+     * @return List of {@link DataValidationStatus}.
      */
     List<DataValidationStatus> getValidationStatus(Set<QualityCodeSystem> qualityCodeSystems, List<CimChannel> channels,
                                                    List<? extends BaseReading> readings, Range<Instant> interval);

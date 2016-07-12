@@ -197,7 +197,7 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
         MetrologyConfigurationService metrologyConfigurationService = inMemoryBootstrapModule.get(MetrologyConfigurationService.class);
         UsagePointMetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.newUsagePointMetrologyConfiguration("MC", serviceCategory).create();
         metrologyConfiguration.addMeterRole(meterRole);
-        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("RTR").withMeterRole(meterRole).withReadingType(inputReadingType);
+        FullySpecifiedReadingTypeRequirement readingTypeRequirement = metrologyConfiguration.newReadingTypeRequirement("RTR", meterRole).withReadingType(inputReadingType);
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("RTD", outputReadingType, Formula.Mode.AUTO);
         ReadingTypeDeliverable readingTypeDeliverable = builder.build(builder.divide(builder.requirement(readingTypeRequirement), builder.constant(1000L)));
         MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose);

@@ -35,12 +35,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.validation.groups.Default;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Currying.test;
@@ -142,7 +137,11 @@ public final class ValidationRuleImpl implements IValidationRule {
 
         for (ValidationRuleProperties property : entryDiff.getRemaining()) {
             property.setValue(propertyMap.get(property.getName()));
-            rulePropertiesFactory().update(property);
+            Optional<ValidationRuleProperties> any = properties.stream().filter(aProperty -> aProperty.getName().equals(property.getName())).findAny();
+            if (any.isPresent()) {
+                properties.remove(any.get());
+            }
+            properties.add(property);
         }
         for (ValidationRuleProperties property : entryDiff.getAdditions()) {
             properties.add(property);

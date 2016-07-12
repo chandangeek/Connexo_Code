@@ -25,6 +25,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -55,6 +56,7 @@ import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -154,7 +156,9 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 bind(MessageService.class).toInstance(messageService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
+                Version.version(10, 2), UpgraderV10_2.class
+        ));
     }
 
     @Deactivate
