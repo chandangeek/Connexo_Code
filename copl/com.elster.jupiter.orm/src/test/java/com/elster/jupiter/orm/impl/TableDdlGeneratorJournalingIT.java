@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
@@ -208,7 +209,7 @@ public class TableDdlGeneratorJournalingIT {
     @Test
     public void renameColumnWithJournalTable() throws SQLException {
         DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
-        the3rdVersionsCode(dataModel);
+        the4thVersionsCode(dataModel);
         dataModel.register();
         ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(1, 0));
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
@@ -218,7 +219,7 @@ public class TableDdlGeneratorJournalingIT {
         }
 
         // Business method
-        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(3, 0));
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(4, 0));
 
         // Asserts
         try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
@@ -227,8 +228,46 @@ public class TableDdlGeneratorJournalingIT {
                 assertThat(resultSet.getMetaData().getColumnCount()).isEqualTo(4);
                 assertThat(resultSet.findColumn("ID")).isEqualTo(1);
                 assertThat(resultSet.findColumn("TITLE")).isEqualTo(2);
-                assertThat(resultSet.findColumn("DIRECTOR")).isEqualTo(3);
+                assertThat(resultSet.findColumn("DIRECTOR_NAME")).isEqualTo(3);
                 assertThat(resultSet.findColumn("JOURNALTIME")).isEqualTo(4);
+            }
+        }
+    }
+
+    @Test
+    public void removeJournalTable() throws SQLException {
+        DataModel dataModel = ormService.newDataModel("TEST", "TestModel");
+        the5thVersionsCode(dataModel);
+        dataModel.register();
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(4, 0));
+        try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
+            try (ResultSet resultSet = connection.getMetaData().getTables(null, null, "TST_MOVIEJRNL", null)) {
+                assertThat(resultSet.next()).isTrue();
+            }
+        }
+        // Create Movie that we will modify after the upgrade
+        Movie2 movie = new Movie2();
+        movie.id = 1;
+        movie.title = "Attack of the killer tomatoes";
+        try (TransactionContext context = transactionService.getContext()) {
+            dataModel.persist(movie);
+            context.commit();
+        }
+
+        // Business method
+        ormService.getDataModelUpgrader(Logger.getAnonymousLogger()).upgrade(dataModel, version(5, 0));
+
+        // Asserts: update the movie and test that nothing has been journaled
+        movie.title = "Attack of the Killer Tomatoes";
+        try (TransactionContext context = transactionService.getContext()) {
+            dataModel.update(movie);
+            context.commit();
+        }
+        try (Connection connection = InMemoryPersistence.getDataSource().getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT * FROM TST_MOVIEJRNL WHERE id = 1")) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    assertThat(resultSet.next()).isFalse();
+                }
             }
         }
     }
@@ -243,7 +282,7 @@ public class TableDdlGeneratorJournalingIT {
         table.primaryKey("TST_MOVIE_PK").on(id).add();
     }
 
-     // Adds directory column.
+     // Adds director column.
     private void the3rdVersionsCode(DataModel dataModel) {
         Table<Movie2> table = dataModel.addTable("TST_MOVIE", Movie2.class);
         table.map(Movie2.class);
@@ -254,15 +293,26 @@ public class TableDdlGeneratorJournalingIT {
         table.primaryKey("TST_MOVIE_PK").on(id).add();
     }
 
-     // Adds directory column.
+     // Renames director column while journal is active.
     private void the4thVersionsCode(DataModel dataModel) {
         Table<Movie2> table = dataModel.addTable("TST_MOVIE", Movie2.class);
         table.map(Movie2.class);
         table.setJournalTableName("TST_MOVIEJRNL").since(version(3, 0));
         Column id = table.addAutoIdColumn();
         table.column("TITLE").varChar().map("title").add();
-        Column director = table.column("DIRECTOR").varChar().map("director").since(version(3, 0)).add();
+        Column director = table.column("DIRECTOR").varChar().map("director").upTo(version(4, 0)).add();
         table.column("DIRECTOR_NAME").varChar().map("director").since(version(4, 0)).previously(director).add();
+        table.primaryKey("TST_MOVIE_PK").on(id).add();
+    }
+
+     // Removes journal table.
+    private void the5thVersionsCode(DataModel dataModel) {
+        Table<Movie2> table = dataModel.addTable("TST_MOVIE", Movie2.class);
+        table.map(Movie2.class);
+        table.setJournalTableName("TST_MOVIEJRNL").upTo(version(4, 0));
+        Column id = table.addAutoIdColumn();
+        table.column("TITLE").varChar().map("title").add();
+        table.column("DIRECTOR").varChar().map("director").add();
         table.primaryKey("TST_MOVIE_PK").on(id).add();
     }
 

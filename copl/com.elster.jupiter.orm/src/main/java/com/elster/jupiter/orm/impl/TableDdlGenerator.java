@@ -167,7 +167,6 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         return constraint.getDdl();
     }
 
-
     private String getConstraintIndexDdl(TableConstraintImpl constraint) {
         StringBuilder builder = new StringBuilder();
         builder.append("CREATE INDEX ");
