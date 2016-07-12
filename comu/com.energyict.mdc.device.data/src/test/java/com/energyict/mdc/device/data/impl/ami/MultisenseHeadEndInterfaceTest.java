@@ -145,7 +145,7 @@ public class MultisenseHeadEndInterfaceTest {
         Map<KnownAmrSystem, String> knownAmrSystemStringMap = new HashMap<>();
         knownAmrSystemStringMap.put(KnownAmrSystem.MDC, url);
         when(meteringService.getSupportedApplicationsUrls()).thenReturn(knownAmrSystemStringMap);
-        headEndInterface = Mockito.spy(new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService, meteringService, thesaurus, serviceCallService, customPropertySetService, endDeviceCommandFactory, threadPrincipalService));
+        headEndInterface = Mockito.spy(new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService, meteringService, thesaurus, serviceCallService, customPropertySetService, endDeviceCommandFactory, threadPrincipalService, clock));
         when(headEndInterface.getServiceCallCommands()).thenReturn(serviceCallCommands);    // Use mocked variant of ServiceCallCommands, as for this test we are not interested in what happens with ServiceCalls
         when(serviceCallCommands.createOperationServiceCall(any(), any(), any(), any())).thenReturn(serviceCall);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(new CommandServiceCallDomainExtension()));

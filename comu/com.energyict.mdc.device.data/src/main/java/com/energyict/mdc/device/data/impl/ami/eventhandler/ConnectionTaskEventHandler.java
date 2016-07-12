@@ -41,7 +41,7 @@ public class ConnectionTaskEventHandler implements MessageHandler {
         Map<String, Object> messageProperties = this.jsonService.deserialize(message.getPayload(), Map.class);
         String topic = (String) messageProperties.get(EventConstants.EVENT_TOPIC);
 
-        findServiceCallsLinkedTo(deviceService.findDeviceById(Long.valueOf(messageProperties.get("deviceIdentifier")
+        findServiceCallsLinkedTo(deviceService.findDeviceById(Long.valueOf(messageProperties.get("meterId")
                 .toString())).orElseThrow(IllegalStateException::new))
                 .forEach(serviceCall -> this.handle(serviceCall, messageProperties));
     }
@@ -50,32 +50,13 @@ public class ConnectionTaskEventHandler implements MessageHandler {
         OnDemandReadServiceCallDomainExtension extension = serviceCall.getExtension(OnDemandReadServiceCallDomainExtension.class)
                 .orElseThrow(IllegalStateException::new);
         long successfulTasks = extension.getSuccessfulTasks().longValue();
-        long failedTasks = extension.getFailedTasks().longValue();
         long expectedTasks = extension.getExpectedTasks().longValue();
 
-        successfulTasks = successfulTasks + Arrays.stream(messageProperties.get("successTaskIDs").toString().split(",")).filter(s -> !Checks
-                .is(s).emptyOrOnlyWhiteSpace()).count();
-        failedTasks = failedTasks + Arrays.stream(messageProperties.get("failedTaskIDs").toString().split(",")).filter(s -> !Checks
-                .is(s).emptyOrOnlyWhiteSpace()).count();
-
-        extension.setSuccessfulTasks(new BigDecimal(successfulTasks));
-        extension.setFailedTasks(new BigDecimal(failedTasks));
+        extension.setSuccessfulTasks(new BigDecimal(++successfulTasks));
         serviceCall.update(extension);
 
-        if (expectedTasks <= (successfulTasks + failedTasks)) {
-            if (successfulTasks >= expectedTasks) {
-                if (serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
-                    serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                }
-            } else if (failedTasks >= expectedTasks) {
-                if (serviceCall.canTransitionTo(DefaultState.FAILED)) {
-                    serviceCall.requestTransition(DefaultState.FAILED);
-                }
-            } else {
-                if (serviceCall.canTransitionTo(DefaultState.PARTIAL_SUCCESS)) {
-                    serviceCall.requestTransition(DefaultState.PARTIAL_SUCCESS);
-                }
-            }
+        if (successfulTasks >= expectedTasks && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)){
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         }
     }
 

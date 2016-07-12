@@ -205,10 +205,15 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         Device multiSenseDevice = findDeviceForEndDevice(meter);
         Set<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForReadingTypes(multiSenseDevice, readingTypes);
 
-        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, multiSenseDevice.getComTaskExecutions().stream().map(cte -> cte.getComTasks().size()).reduce(0, (a,b) -> a+b), Optional.ofNullable(parentServiceCall));
+        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size(), Optional.ofNullable(parentServiceCall));
         serviceCall.requestTransition(DefaultState.ONGOING);
 
-        comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
+        if (!comTaskExecutions.isEmpty()) {
+            multiSenseDevice.getComTaskExecutions()
+                    .forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
+        } else {
+            serviceCall.requestTransition(DefaultState.FAILED);
+        }
 
         return new CompletionOptionsImpl(serviceCall);
     }
@@ -222,6 +227,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes, ServiceCall parentServiceCall) {
         return scheduleMeterRead(meter, readingTypes, clock.instant(), parentServiceCall);
     }
+
 
     private Set<ComTaskExecution> getComTaskExecutionsForReadingTypes(Device multiSenseDevice, List<ReadingType> readingTypes) {
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutions(multiSenseDevice);

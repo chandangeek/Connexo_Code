@@ -196,7 +196,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
     private void setConnectionTaskSubscriber() {
         messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get()
-                .subscribe("ConnectionTaskHandler", whereCorrelationId().like("com/energyict/mdc/connectiontask/%"));
+                .subscribe("ConnectionTaskHandler", whereCorrelationId().like("com/elster/jupiter/metering/%eading/CREATED"));
     }
 
     private void createMasterData() {
