@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ConstantNode;
+import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -169,20 +170,22 @@ public class MetrologyConfigurationInfo {
 
         @Override
         public Void visitConstant(ConstantNode constant) {
-            constant.getChildren().forEach(n -> n.accept(this));
+            return null;
+        }
+
+        @Override
+        public Void visitProperty(CustomPropertyNode property) {
             return null;
         }
 
         @Override
         public Void visitRequirement(ReadingTypeRequirementNode requirement) {
             readingTypeRequirementNodes.add(requirement);
-            requirement.getChildren().forEach(n -> n.accept(this));
             return null;
         }
 
         @Override
         public Void visitDeliverable(ReadingTypeDeliverableNode deliverable) {
-            deliverable.getChildren().forEach(n -> n.accept(this));
             return null;
         }
 
@@ -200,7 +203,6 @@ public class MetrologyConfigurationInfo {
 
         @Override
         public Void visitNull(NullNode nullNode) {
-            nullNode.getChildren().forEach(n -> n.accept(this));
             return null;
         }
     }
