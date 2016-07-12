@@ -4,7 +4,6 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.orm.DataModel;
@@ -196,12 +195,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void setConnectionTaskSubscriber() {
-        DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
-        try {
-            destinationSpec.subscribe("ConnectionTaskHandler", whereCorrelationId().like("com/energyict/mdc/connectiontask/%"));
-        } catch (DuplicateSubscriberNameException e) {
-            // subscriber already exists, ignoring
-        }
+        messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get()
+                .subscribe("ConnectionTaskHandler", whereCorrelationId().like("com/energyict/mdc/connectiontask/%"));
     }
 
     private void createMasterData() {

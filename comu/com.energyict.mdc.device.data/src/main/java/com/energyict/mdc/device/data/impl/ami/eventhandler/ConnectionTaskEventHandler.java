@@ -60,6 +60,7 @@ public class ConnectionTaskEventHandler implements MessageHandler {
 
         extension.setSuccessfulTasks(new BigDecimal(successfulTasks));
         extension.setFailedTasks(new BigDecimal(failedTasks));
+        serviceCall.update(extension);
 
         if (expectedTasks <= (successfulTasks + failedTasks)) {
             if (successfulTasks >= expectedTasks) {

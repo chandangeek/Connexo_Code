@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.impl.ami;
 
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.EndDevice;
@@ -63,6 +61,7 @@ import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,13 +91,14 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private volatile CustomPropertySetService customPropertySetService;
     private volatile EndDeviceCommandFactory endDeviceCommandFactory;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile Clock clock;
 
     //For OSGI purposes
     public MultiSenseHeadEndInterfaceImpl() {
     }
 
     @Inject
-    public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory, ThreadPrincipalService threadPrincipalService) {
+    public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory, ThreadPrincipalService threadPrincipalService, Clock clock) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -107,6 +107,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.customPropertySetService = customPropertySetService;
         this.endDeviceCommandFactory = endDeviceCommandFactory;
         this.threadPrincipalService = threadPrincipalService;
+        this.clock = clock;
     }
 
     @Reference
@@ -196,26 +197,16 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     @Override
     public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant) {
-        Device multiSenseDevice = findDeviceForEndDevice(meter);
-        Set<ComTaskExecution> comTaskExecutions = getComTaskExecutions(multiSenseDevice, readingTypes);
-
-        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size(), Optional.empty());
-        serviceCall.requestTransition(DefaultState.ONGOING);
-
-
-        comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
-
-        return new CompletionOptionsImpl(serviceCall);
+        return scheduleMeterRead(meter, readingTypes,instant,null);
     }
 
     @Override
     public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant, ServiceCall parentServiceCall) {
         Device multiSenseDevice = findDeviceForEndDevice(meter);
-        Set<ComTaskExecution> comTaskExecutions = getComTaskExecutions(multiSenseDevice, readingTypes);
+        Set<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForReadingTypes(multiSenseDevice, readingTypes);
 
-        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size(), Optional.of(parentServiceCall));
+        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, multiSenseDevice.getComTaskExecutions().stream().map(cte -> cte.getComTasks().size()).reduce(0, (a,b) -> a+b), Optional.ofNullable(parentServiceCall));
         serviceCall.requestTransition(DefaultState.ONGOING);
-
 
         comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, instant));
 
@@ -224,48 +215,48 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     @Override
     public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes) {
-        Device multiSenseDevice = findDeviceForEndDevice(meter);
-        Set<ComTaskExecution> comTaskExecutions = getComTaskExecutions(multiSenseDevice, readingTypes);
-
-        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size(), Optional.empty());
-        serviceCall.requestTransition(DefaultState.ONGOING);
-
-        comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, Instant.now()));
-
-        return new CompletionOptionsImpl(serviceCall);
+        return scheduleMeterRead(meter, readingTypes, clock.instant(), null);
     }
 
     @Override
     public CompletionOptions readMeter(Meter meter, List<ReadingType> readingTypes, ServiceCall parentServiceCall) {
-        Device multiSenseDevice = findDeviceForEndDevice(meter);
-        Set<ComTaskExecution> comTaskExecutions = getComTaskExecutions(multiSenseDevice, readingTypes);
-
-        ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, comTaskExecutions.size(), Optional.of(parentServiceCall));
-        serviceCall.requestTransition(DefaultState.ONGOING);
-
-        comTaskExecutions.forEach(comTaskExecution -> this.scheduleComTaskExecution(comTaskExecution, Instant.now()));
-
-        return new CompletionOptionsImpl(serviceCall);
+        return scheduleMeterRead(meter, readingTypes, clock.instant(), parentServiceCall);
     }
 
-    private Set<ComTaskExecution> getComTaskExecutions(Device multiSenseDevice, List<ReadingType> readingTypes) {
-        Set<ComTaskExecution> comTaskExecutions = new HashSet<>();
+    private Set<ComTaskExecution> getComTaskExecutionsForReadingTypes(Device multiSenseDevice, List<ReadingType> readingTypes) {
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutions(multiSenseDevice);
+        Set<ComTaskExecution> filteredComTaskExecutions = new HashSet<>();
 
         for (ReadingType readingType : readingTypes) {
-            if (readingType.getMacroPeriod().equals(MacroPeriod.NOTAPPLICABLE) && readingType.getMeasuringPeriod()
-                    .equals(TimeAttribute.NOTAPPLICABLE)) {
-                multiSenseDevice.getComTaskExecutions().stream()
-                        .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
-                                .stream()
-                                .anyMatch(protocolTask -> protocolTask instanceof RegistersTask))
-                        .forEach(comTaskExecutions::add);
-            } else {
-                multiSenseDevice.getComTaskExecutions().stream()
+            if (readingType.isRegular()) {
+                comTaskExecutions.stream()
                         .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
                                 .stream()
                                 .anyMatch(protocolTask -> protocolTask instanceof LoadProfilesTask))
-                        .forEach(comTaskExecutions::add);
+                        .forEach(filteredComTaskExecutions::add);
+            } else {
+                comTaskExecutions.stream()
+                        .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
+                                .stream()
+                                .anyMatch(protocolTask -> protocolTask instanceof RegistersTask))
+                        .forEach(filteredComTaskExecutions::add);
             }
+        }
+        return filteredComTaskExecutions;
+    }
+
+    private List<ComTaskExecution> getComTaskExecutions(Device device) {
+
+        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+
+        for (ComTaskEnablement comTaskEnablement : device.getDeviceConfiguration().getComTaskEnablements()) {
+
+            Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
+                    .filter(cte -> cte.getComTasks()
+                            .stream()
+                            .anyMatch(comTask -> comTask.getId() == comTaskEnablement.getComTask().getId()))
+                    .findFirst();
+            comTaskExecutions.add(existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)));
         }
 
         return comTaskExecutions;
