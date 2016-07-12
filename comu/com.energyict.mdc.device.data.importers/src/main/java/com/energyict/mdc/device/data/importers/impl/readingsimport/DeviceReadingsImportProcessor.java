@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.data.importers.impl.readingsimport;
 
 import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -33,11 +35,7 @@ import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DeviceReadingsImportProcessor implements FileImportProcessor<DeviceReadingsImportRecord> {
@@ -62,7 +60,8 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
             ReadingType readingType = this.context.getMeteringService().getReadingType(readingTypeMRID)
                     .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_SUCH_READING_TYPE, data.getLineNumber(), readingTypeMRID));
             ZoneId deviceZoneId = getMeterActivationEffectiveAt(device.getMeterActivationsMostRecentFirst(), data.getReadingDateTime().toInstant())
-                    .map(MeterActivation::getZoneId)
+                    .map(MeterActivation::getChannelsContainer)
+                    .map(ChannelsContainer::getZoneId)
                     .orElse(data.getReadingDateTime().getZone());
             validateReadingType(readingType, data.getReadingDateTime().withZoneSameInstant(deviceZoneId), data.getLineNumber());
             if (i < data.getValues().size()) {
@@ -209,7 +208,7 @@ public class DeviceReadingsImportProcessor implements FileImportProcessor<Device
 
     private void addReading(ReadingType readingType, BigDecimal value, Instant timeStamp) {
         if (readingType.isRegular()) {
-            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value));
+            channelReadingsToStore.put(readingType, IntervalReadingImpl.of(timeStamp, value, Collections.<ReadingQuality>emptyList()));
             if (!lastReadingPerChannel.containsKey(readingType) || timeStamp.isAfter(lastReadingPerChannel.get(readingType))) {
                 lastReadingPerChannel.put(readingType, timeStamp);
             }

@@ -60,6 +60,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
@@ -99,8 +100,6 @@ public class DeviceInstallationImporterFactoryTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private EndDevice endDevice;
-    @Mock
     private LocationBuilder locationBuilder;
     @Mock
     private LocationMemberBuilder locationMemberBuilder;
@@ -112,6 +111,8 @@ public class DeviceInstallationImporterFactoryTest {
     private Logger logger;
     @Mock
     private Clock clock;
+
+    private EndDevice endDevice;
 
     @Before
     public void beforeTest() {
@@ -132,12 +133,13 @@ public class DeviceInstallationImporterFactoryTest {
         when(context.getThesaurus()).thenReturn(thesaurus);
         final String templateMembers = "#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale";
         when(dataModel.getInstance(LocationTemplateImpl.class)).thenReturn(new LocationTemplateImpl(dataModel));
+        endDevice = mock(EndDevice.class, Mockito.RETURNS_DEEP_STUBS);
+        when(endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder()).thenReturn(locationBuilder);
         locationTemplate =  LocationTemplateImpl.from(dataModel, templateMembers, templateMembers);
         locationTemplate.parseTemplate(templateMembers,templateMembers);
         when(context.getMeteringService().getLocationTemplate()).thenReturn(locationTemplate);
-        when(meteringService.newLocationBuilder()).thenReturn(locationBuilder);
         when(meteringService.findEndDevice("VPB0002")).thenReturn(Optional.of(endDevice));
-        when(locationBuilder.getMember("locale")).thenReturn(Optional.empty());
+        when(locationBuilder.getMemberBuilder("locale")).thenReturn(Optional.empty());
         when(locationBuilder.member()).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
