@@ -53,7 +53,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -143,7 +142,7 @@ public class ChannelResource {
     public PagedInfoList getChannelCustomProperties(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel, this.clock.instant());
-        return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Arrays.asList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
+        return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Collections.singletonList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
     }
 
     @GET
@@ -411,10 +410,6 @@ public class ChannelResource {
     private boolean hasSuspects(ChannelDataInfo info) {
         return ValidationStatus.SUSPECT.equals(info.mainValidationInfo.validationResult) ||
                 (info.bulkValidationInfo != null && ValidationStatus.SUSPECT.equals(info.bulkValidationInfo.validationResult));
-    }
-
-    private boolean hasMissingData(ChannelDataInfo info) {
-        return info.value == null;
     }
 
     @PUT
