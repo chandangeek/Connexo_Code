@@ -13,7 +13,7 @@ Ext.define('Uni.form.field.EditedDisplay', {
             formattedDate,
             iconClass,
             tooltipText,
-            app = value.app ? value.app.name : undefined;
+            app = value && value.app ? value.app.name : undefined;
 
         if (value) {
             date = Ext.isDate(value.date) ? value.date : new Date(value.date);
