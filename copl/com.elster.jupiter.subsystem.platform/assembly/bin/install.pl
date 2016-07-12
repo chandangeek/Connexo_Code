@@ -7,6 +7,7 @@ use File::Basename;
 use File::Path qw(rmtree);
 use File::Path qw(make_path);
 use File::Copy;
+use File::Copy::Recursive qw(dircopy);
 use Socket;
 use Sys::Hostname;
 use Archive::Zip;
@@ -767,6 +768,52 @@ sub start_tomcat {
 
 		if ("$INSTALL_FLOW" eq "yes") {
 			print "\nInstalling Connexo Flow content...\n";
+
+			if ("$ACTIVATE_SSO" eq "yes") {
+                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+            } else {
+                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+            }
+
+            print "\nDeploy MDC processes...\n";
+            dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
+            if(-e $mdcfile){
+                open(INPUT, $mdcfile);
+                my $line = <INPUT>; # header
+                while($line = <INPUT>)
+                {
+                    chomp($line);
+                    my ($name,$deploymentid)  = split(';', $line);
+                    if ("$ACTIVATE_SSO" eq "yes") {
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid");
+                    } else {
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid");
+                    }
+                }
+                close(INPUT);
+            }
+
+            print "\nDeploy INSIGHT processes...\n";
+            dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
+            if(-e $insightfile){
+                open(INPUT, $insightfile);
+                my $line = <INPUT>; # header
+                while($line = <INPUT>)
+                {
+                    chomp($line);
+                    my ($name,$deploymentid)  = split(';', $line);
+                    if ("$ACTIVATE_SSO" eq "yes") {
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD $CONNEXO_DIR/partners/flow/mdc/$name $deploymentid");
+                    } else {
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD $CONNEXO_DIR/partners/flow/mdc/$name $deploymentid");
+                    }
+                }
+                close(INPUT);
+            }
 			#opendir(DIR,"$CONNEXO_DIR/bundles");
 			#my @files = grep(/com\.elster\.jupiter\.bpm-.*\.jar$/,readdir(DIR));
 			#closedir(DIR);
