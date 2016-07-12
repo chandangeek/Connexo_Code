@@ -314,13 +314,13 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public Response updateMetrologyConfigurationVersions(UsagePointInfo info, @QueryParam("delete") boolean delete) {
+    public Response updateMetrologyConfigurationVersions(UsagePointInfo info, @QueryParam("delete") boolean delete, Context securuty) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
         Instant start = Instant.ofEpochMilli(info.metrologyConfigurationVersion.start);
         Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end) : null;
         try {
-            usagePoint.applyWithInterval(metrologyConfiguration, start, end);
+            usagePoint.apply(metrologyConfiguration, start, end);
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
         } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
@@ -330,19 +330,16 @@ public class UsagePointResource {
         }
         info.metrologyConfigurationVersion = usagePoint.getEffectiveMetrologyConfiguration(start)
                 .map(metrologyConfigurationInfoFactory::asInfo).orElse(null);
-        usagePoint.update();
         return Response.status(Response.Status.OK).entity(info).build();
     }
 
     @GET
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    @Path("/{mRID}/metrologyconfigurationversion/{versionId}")
+    @Path("/{mRID}/metrologyconfigurationversion/{configVersionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public EffectiveMetrologyConfigurationOnUsagePointInfo  getMetrologyConfigurationVersion(@PathParam("mRID") String mRID, @PathParam("versionId") Long versionId) {
-//        UsagePointInfo usagePointInfo = new UsagePointInfo(fetchUsagePoint(mRID), clock);
-//        usagePointInfo.metrologyConfigurationVersion = metrologyConfigurationInfoFactory.asInfo(fetchUsagePointVersion(versionId));
-//        return usagePointInfo;
-        return metrologyConfigurationInfoFactory.asInfo(fetchUsagePointVersion(versionId));
+    public EffectiveMetrologyConfigurationOnUsagePointInfo getMetrologyConfigurationVersion(@PathParam("mRID") String mRID, @PathParam("configVersionId") Long configVersionId) {
+        UsagePoint usagePoint = fetchUsagePoint(mRID);
+        return metrologyConfigurationInfoFactory.asInfo(usagePoint.findEffectiveMetrologyConfigurationById(configVersionId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)));
     }
 
     @PUT
@@ -350,9 +347,10 @@ public class UsagePointResource {
     @Path("/{mRID}/metrologyconfigurationversion/{versionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response updateMetrologyConfigurationVersion(UsagePointInfo info, @PathParam("mRID") String mRID, @PathParam("versionId") Long versionId) {
+    public Response updateMetrologyConfigurationVersion(UsagePointInfo info, @PathParam("mRID") String mRID, @PathParam("configVersionId") Long configVersionId) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
-        EffectiveMetrologyConfigurationOnUsagePoint version = fetchUsagePointVersion(versionId);
+        EffectiveMetrologyConfigurationOnUsagePoint version = usagePoint.findEffectiveMetrologyConfigurationById(configVersionId)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         Instant start = info.metrologyConfigurationVersion.start != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.start) : null;
         Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end) : null;
 
@@ -374,12 +372,13 @@ public class UsagePointResource {
 
     @DELETE
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    @Path("/{mRID}/metrologyconfigurationversion/{versionId}")
+    @Path("/{mRID}/metrologyconfigurationversion/{configVersionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response removeMetrologyConfigurationVersion(UsagePointInfo info, @PathParam("mRID") String mRID, @PathParam("versionId") Long versionId) {
+    public Response removeMetrologyConfigurationVersion(UsagePointInfo info, @PathParam("mRID") String mRID, @PathParam("configVersionId") Long configVersionId) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
-        EffectiveMetrologyConfigurationOnUsagePoint version = fetchUsagePointVersion(versionId);
+        EffectiveMetrologyConfigurationOnUsagePoint version = usagePoint.findEffectiveMetrologyConfigurationById(configVersionId)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         usagePoint.removeMetrologyConfigurationVersion(version);
         usagePoint.update();
 
@@ -414,19 +413,11 @@ public class UsagePointResource {
         return readingTypes;
     }
 
-    private UsagePoint fetchUsagePoint(long id) {
-        return meteringService.findUsagePoint(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-    }
-
     private UsagePoint fetchUsagePoint(String mRID) {
         return meteringService.findUsagePoint(mRID)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mRID));
     }
 
-    private EffectiveMetrologyConfigurationOnUsagePoint fetchUsagePointVersion(long id) {
-        return meteringService.findEffectiveMetrologyConfigurationOnUsagePointById(id)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-    }
 
     private static class HasReadingType implements Predicate<MeterActivation> {
 
