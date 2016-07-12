@@ -2,11 +2,14 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuilder;
 
@@ -15,7 +18,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -51,15 +53,9 @@ public class DeviceFinder implements Finder<Device> {
         sqlBuilder.append(" ORDER BY " + this.orders.stream()
                 .map(order -> order.getClause(order.getName()))
                 .collect(Collectors.joining(", ")));
-        sqlBuilder = this.pager.addPaging(sqlBuilder);
-        try (Fetcher<Device> fetcher = this.dataModel.mapper(Device.class).fetcher(sqlBuilder)) {
-            List<Device> matchingDevices = new ArrayList<>();
-            Iterator<Device> deviceIterator = fetcher.iterator();
-            while (deviceIterator.hasNext()) {
-                matchingDevices.add(deviceIterator.next());
-            }
-            return matchingDevices;
-        }
+        final SqlBuilder finalBuilder = this.pager.addPaging(sqlBuilder, "id");
+        QueryExecutor<Device> query = this.dataModel.query(Device.class, DeviceConfiguration.class, DeviceType.class);
+        return query.select(ListOperator.IN.contains(() -> finalBuilder, "id"), this.orders.toArray(new Order[orders.size()]));
     }
 
     @Override
@@ -110,12 +106,12 @@ public class DeviceFinder implements Finder<Device> {
          * @param sqlBuilder The SqlBuilder
          * @return A new SqlBuilder with the paging settings
          */
-        SqlBuilder addPaging(SqlBuilder sqlBuilder);
+        SqlBuilder addPaging(SqlBuilder sqlBuilder, String field);
     }
 
     private class NoPaging implements Pager {
         @Override
-        public SqlBuilder addPaging(SqlBuilder sqlBuilder) {
+        public SqlBuilder addPaging(SqlBuilder sqlBuilder, String field) {
             return sqlBuilder;
         }
     }
@@ -131,8 +127,8 @@ public class DeviceFinder implements Finder<Device> {
         }
 
         @Override
-        public SqlBuilder addPaging(SqlBuilder sqlBuilder) {
-            return sqlBuilder.asPageBuilder(this.from + 1, this.to + 1);
+        public SqlBuilder addPaging(SqlBuilder sqlBuilder, String field) {
+            return sqlBuilder.asPageBuilder(field, this.from + 1, this.to + 1);
         }
     }
 }

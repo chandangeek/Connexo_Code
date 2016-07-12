@@ -1,15 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.LoadProfileReading;
 
-import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.readings.ProfileStatus;
-import com.elster.jupiter.validation.DataValidationStatus;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +23,7 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
     private Map<Channel, IntervalReadingRecord> values = new HashMap<>();
     private Map<Channel, DataValidationStatus> states = new HashMap<>();
     private Instant readingTime;
-    private final List<ProfileStatus.Flag> flags = new ArrayList<>();
+    private Map<Channel, List<? extends ReadingQualityRecord>> readingQualities = new HashMap<>();
 
     @Override
     public Range<Instant> getRange() {
@@ -53,24 +52,23 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
         return Collections.unmodifiableMap(states);
     }
 
-    public void setReadingTime(Instant reportedDateTime) {
-        this.readingTime = reportedDateTime;
-    }
-
     @Override
     public Instant getReadingTime() {
         return readingTime;
     }
 
-    @Override
-    public void setFlags(List<ProfileStatus.Flag> flags) {
-        this.flags.clear();
-        this.flags.addAll(flags);
+    public void setReadingTime(Instant reportedDateTime) {
+        this.readingTime = reportedDateTime;
     }
 
     @Override
-    public List<ProfileStatus.Flag> getFlags() {
-        return Collections.unmodifiableList(flags);
+    public Map<Channel, List<? extends ReadingQualityRecord>> getReadingQualities() {
+        return Collections.unmodifiableMap(readingQualities);
+    }
+
+    @Override
+    public void setReadingQualities(Channel channel, List<? extends ReadingQualityRecord> readingQualities) {
+        this.readingQualities.put(channel, readingQualities);
     }
 
     @Override

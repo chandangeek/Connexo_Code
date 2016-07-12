@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -13,6 +14,8 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
+import com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactoryImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
@@ -56,6 +59,7 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(SchedulingService.class);
         requireBinding(DeviceMessageSpecificationService.class);
         requireBinding(NlsService.class);
+        requireBinding(ServiceCallService.class);
 
         bind(SecurityPropertyService.class).to(SecurityPropertyServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceDataModelService.class).to(DeviceDataModelServiceImpl.class).in(Scopes.SINGLETON);
@@ -69,6 +73,7 @@ public class DeviceDataModule extends AbstractModule {
         bind(DataCollectionKpiService.class).to(DataCollectionKpiServiceImpl.class).in(Scopes.SINGLETON);
         bind(BatchService.class).to(BatchServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceMessageService.class).to(DeviceMessageServiceImpl.class).in(Scopes.SINGLETON);
+        bind(EndDeviceCommandFactory.class).to(EndDeviceCommandFactoryImpl.class).in(Scopes.SINGLETON);
     }
 
 }
