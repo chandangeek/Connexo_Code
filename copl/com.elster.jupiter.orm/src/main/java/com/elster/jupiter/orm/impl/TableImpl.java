@@ -1132,7 +1132,7 @@ public class TableImpl<T> implements Table<T> {
         @Override
         public void upTo(Version version) {
             journalNameHistory.clear();
-            journalNameHistory.put(Range.atMost(version), this.tableName);
+            journalNameHistory.put(Range.lessThan(version), this.tableName);
         }
 
         @Override

@@ -309,7 +309,7 @@ public class TableDdlGeneratorJournalingIT {
     private void the5thVersionsCode(DataModel dataModel) {
         Table<Movie2> table = dataModel.addTable("TST_MOVIE", Movie2.class);
         table.map(Movie2.class);
-        table.setJournalTableName("TST_MOVIEJRNL").upTo(version(4, 0));
+        table.setJournalTableName("TST_MOVIEJRNL").upTo(version(5, 0));
         Column id = table.addAutoIdColumn();
         table.column("TITLE").varChar().map("title").add();
         table.column("DIRECTOR").varChar().map("director").add();
