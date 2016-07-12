@@ -48,10 +48,10 @@ public class UsagePointAntennaDomExt implements PersistentDomainExtension<UsageP
     @IsPresent
     Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
-    @NotNull(message = "{CanNotBeEmpty}")
+    @NotNull(message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     @HasQuantityValueMin(min = 0, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.QUANTITY_MIN_VALUE + "}")
     private Quantity antennaPower;
-    @Min(value = 0, message = "{QuantityMinValue}")
+    @Min(value = 0, message = "{" + MessageSeeds.Keys.QUANTITY_MIN_VALUE + "}")
     private long antennaCount;
     private Interval interval;
 
