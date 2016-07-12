@@ -33,7 +33,6 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -67,9 +66,9 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MeterActivationTimestampNotAfterLastActivationException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
+import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
 import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
-import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -2363,9 +2362,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         ReadingType minutes15DeltaAPlus = inMemoryPersistence.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         ReadingType monthlyDeltaAPlus = inMemoryPersistence.getMeteringService().getReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
 
-        MetrologyConfiguration mc0 = createMetrologyConfiguration("mc0", Collections.singletonList(monthlyBulkAMinus));
-        MetrologyConfiguration mc1 = createMetrologyConfiguration("mc1", Arrays.asList(monthlyBulkAPlus, minutes15DeltaAPlus));
-        MetrologyConfiguration mc2 = createMetrologyConfiguration("mc2", Collections.singletonList(monthlyDeltaAPlus));
+        UsagePointMetrologyConfiguration mc0 = createMetrologyConfiguration("mc0", Collections.singletonList(monthlyBulkAMinus));
+        UsagePointMetrologyConfiguration mc1 = createMetrologyConfiguration("mc1", Arrays.asList(monthlyBulkAPlus, minutes15DeltaAPlus));
+        UsagePointMetrologyConfiguration mc2 = createMetrologyConfiguration("mc2", Collections.singletonList(monthlyDeltaAPlus));
 
         usagePoint.apply(mc0, Instant.ofEpochMilli(96L));
         usagePoint.apply(mc1, Instant.ofEpochMilli(97L));
@@ -2411,7 +2410,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .create();
     }
 
-    private MetrologyConfiguration createMetrologyConfiguration(String name, List<ReadingType> readingTypes) {
+    private UsagePointMetrologyConfiguration createMetrologyConfiguration(String name, List<ReadingType> readingTypes) {
         ServiceCategory serviceCategory = inMemoryPersistence.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         MetrologyConfigurationService metrologyConfigurationService = inMemoryPersistence.getMetrologyConfigurationService();
         MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION).get();
@@ -2421,8 +2420,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         mc.addMeterRole(meterRoleDefault);
         MetrologyContract metrologyContract = mc.addMandatoryMetrologyContract(purpose);
         for (ReadingType readingType : readingTypes) {
-            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mc.newReadingTypeRequirement(readingType.getFullAliasName())
-                    .withMeterRole(meterRoleDefault)
+            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mc.newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
                     .withReadingType(readingType);
             ReadingTypeDeliverableBuilder builder = mc.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
             ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));

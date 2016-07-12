@@ -370,7 +370,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 mdcIssueService,
                                 injector.getInstance(MdcReadingTypeUtilService.class),
                                 UpgradeModule.FakeUpgradeService.getInstance(),
-                                injector.getInstance(MetrologyConfigurationService.class));
+                                injector.getInstance(MetrologyConfigurationService.class),
                                 injector.getInstance(ServiceCallService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();

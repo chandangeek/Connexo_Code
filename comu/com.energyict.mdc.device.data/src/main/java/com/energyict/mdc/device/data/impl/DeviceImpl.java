@@ -42,6 +42,7 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -1918,6 +1919,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getOptionalMeterAspect(this::hasData).get();
     }
 
+    @Override
+    public void setUsagePoint(UsagePoint usagePoint) {
+        this.activate(clock.instant(), usagePoint);
+    }
+
     private DataMapper<DeviceImpl> getDataMapper() {
         return this.dataModel.mapper(DeviceImpl.class);
     }
@@ -3222,7 +3228,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from) {
-        List<MetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
+        List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
         if (effectiveMetrologyConfigurations.isEmpty()) {
             return Collections.emptyMap();
         }
