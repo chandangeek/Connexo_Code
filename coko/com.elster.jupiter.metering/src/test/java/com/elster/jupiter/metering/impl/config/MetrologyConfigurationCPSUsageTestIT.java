@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyConfigurationCPSUsageTestIT {
     public static final String METROLOGY_CONFIG_NAME = "Test metrology configuration";
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
     private static UsagePointTestCustomPropertySet customPropertySet;
 
     @BeforeClass
@@ -39,7 +39,7 @@ public class MetrologyConfigurationCPSUsageTestIT {
     }
 
     @After
-    public void afterTest(){
+    public void afterTest() {
         inTransaction(ctx -> {
             findMetrologyConfiguration().ifPresent(MetrologyConfiguration::delete);
             ctx.commit();

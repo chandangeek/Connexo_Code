@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class BypassStatusSearchableProperty implements SearchableUsagePointProperty {
+class BypassStatusSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -32,7 +32,7 @@ public class BypassStatusSearchableProperty implements SearchableUsagePointPrope
     private String uniqueName;
 
     @Inject
-    public BypassStatusSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    BypassStatusSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -41,7 +41,7 @@ public class BypassStatusSearchableProperty implements SearchableUsagePointPrope
         this.domain = domain;
         this.group = group;
         this.clock = clock;
-        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
+        this.uniqueName = FIELD_NAME + "." + group.getId();
         return this;
     }
 

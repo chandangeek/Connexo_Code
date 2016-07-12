@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class PhaseCodeSearchableProperty implements SearchableUsagePointProperty {
+class PhaseCodeSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -29,7 +29,7 @@ public class PhaseCodeSearchableProperty implements SearchableUsagePointProperty
     private static final String FIELD_NAME = "detail.phaseCode";
 
     @Inject
-    public PhaseCodeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    PhaseCodeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -40,6 +40,7 @@ public class PhaseCodeSearchableProperty implements SearchableUsagePointProperty
         this.clock = clock;
         return this;
     }
+
     @Override
     public SearchDomain getDomain() {
         return domain;

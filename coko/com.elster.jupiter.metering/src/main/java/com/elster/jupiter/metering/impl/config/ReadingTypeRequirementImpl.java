@@ -1,11 +1,9 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
@@ -53,19 +51,24 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
 
-    private long id;
+    @SuppressWarnings("unused")
+    private long id;    // Managed by ORM
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
 
-    private long version;
-    private Instant createTime;
-    private Instant modTime;
-    private String userName;
+    @SuppressWarnings("unused")
+    private long version;    // Managed by ORM
+    @SuppressWarnings("unused")
+    private Instant createTime;    // Managed by ORM
+    @SuppressWarnings("unused")
+    private Instant modTime;    // Managed by ORM
+    @SuppressWarnings("unused")
+    private String userName;    // Managed by ORM
 
-    public ReadingTypeRequirementImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
+    ReadingTypeRequirementImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
@@ -126,12 +129,16 @@ public abstract class ReadingTypeRequirementImpl implements ReadingTypeRequireme
     }
 
     @Override
-    public List<Channel> getMatchingChannelsFor(MeterActivation meterActivation) {
-        return meterActivation.getChannels().stream()
-                .filter(channel -> channel.getMainReadingType().getMacroPeriod() != MacroPeriod.NOTAPPLICABLE
-                        || channel.getMainReadingType().getMeasuringPeriod() != TimeAttribute.NOTAPPLICABLE)
-                .filter(channel -> matches(channel.getMainReadingType()))
+    public List<Channel> getMatchingChannelsFor(ChannelsContainer channelsContainer) {
+        return channelsContainer
+                .getChannels()
+                .stream()
+                .filter(this::matches)
                 .collect(Collectors.toList());
+    }
+
+    private boolean matches(Channel channel) {
+        return channel.getReadingTypes().stream().anyMatch(this::matches);
     }
 
     @Override

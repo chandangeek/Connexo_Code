@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
@@ -22,7 +23,6 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -84,7 +84,7 @@ public class CalculatedReadingRecordTest {
         CalculatedReadingRecord testInstance = this.testInstance();
         when(this.resultSet.getString(1)).thenReturn(FIFTEEN_MINS_NET_CONSUMPTION_MRID);
         BigDecimal expectedValue = BigDecimal.TEN;
-        Quantity expectedQuantity = Quantity.create(expectedValue, 3,  "Wh");
+        Quantity expectedQuantity = Quantity.create(expectedValue, 3, "Wh");
         when(this.resultSet.getBigDecimal(2)).thenReturn(expectedValue);
         Timestamp jan1st2016 = Timestamp.from(JAN_1_2016_UTC);
         Instant expectedIntervalStart = JAN_1_2016_UTC.minus(Duration.ofMinutes(15));
@@ -94,7 +94,9 @@ public class CalculatedReadingRecordTest {
         when(this.resultSet.getLong(6)).thenReturn(1L);
         ProcessStatus expectedProcessStatus = new ProcessStatus(0);
         MeterActivation meterActivation = mock(MeterActivation.class);
-        when(meterActivation.getZoneId()).thenReturn(ZoneId.of("Europe/Brussels"));
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getZoneId()).thenReturn(ZoneId.of("Europe/Brussels"));
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(usagePoint.getMeterActivations(any(Instant.class))).thenReturn(Collections.singletonList(meterActivation));
 
@@ -111,7 +113,7 @@ public class CalculatedReadingRecordTest {
         assertThat(testInstance.getQuantities()).hasSize(1);
         assertThat(testInstance.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity);
         assertThat(testInstance.getTimePeriod()).contains(Range.openClosed(expectedIntervalStart, JAN_1_2016_UTC));
-        assertThat(testInstance.getProcesStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(testInstance.getProcessStatus()).isEqualTo(expectedProcessStatus);
         assertThat(testInstance.getCount()).isEqualTo(1L);
     }
 
@@ -212,7 +214,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getReadingType()).isEqualTo(readingType);
         assertThat(merged.getValue()).isEqualTo(BigDecimal.valueOf(100L));
         assertThat(merged.getTimeStamp()).isEqualTo(moreRecent);
-        assertThat(merged.getProcesStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(merged.getProcessStatus()).isEqualTo(expectedProcessStatus);
         assertThat(merged.getCount()).isEqualTo(200L);
     }
 
@@ -242,8 +244,32 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getReadingType()).isEqualTo(readingType);
         assertThat(merged.getValue()).isEqualTo(BigDecimal.valueOf(100L));
         assertThat(merged.getTimeStamp()).isEqualTo(recent);
-        assertThat(merged.getProcesStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(merged.getProcessStatus()).isEqualTo(expectedProcessStatus);
         assertThat(merged.getCount()).isEqualTo(200L);
+    }
+
+    @Test
+    public void testAtTimestamp() throws SQLException {
+        String readingTypeMRID = "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0";
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        IReadingType readingType = mock(IReadingType.class);
+        when(readingType.getMRID()).thenReturn(readingTypeMRID);
+        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
+        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
+        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
+        Instant may1st2016 = Instant.ofEpochMilli(1462053600000L);
+        Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
+        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 3L, 1L, may1st2016);
+        r1.setReadingType(readingType);
+        r1.setUsagePoint(usagePoint);
+
+        // Business method
+        CalculatedReadingRecord may = r1.atTimeStamp(june1st2016);
+
+        // Asserts
+        assertThat(may.getReadingType()).isEqualTo(readingType);
+        assertThat(may.getValue()).isEqualTo(BigDecimal.valueOf(97L));
+        assertThat(may.getTimeStamp()).isEqualTo(june1st2016);
     }
 
     private CalculatedReadingRecord testInstance() {

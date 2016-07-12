@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class LimiterSearchableProperty implements SearchableUsagePointProperty {
+class LimiterSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -32,7 +32,7 @@ public class LimiterSearchableProperty implements SearchableUsagePointProperty {
     private String uniqueName;
 
     @Inject
-    public LimiterSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    LimiterSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -41,7 +41,7 @@ public class LimiterSearchableProperty implements SearchableUsagePointProperty {
         this.domain = domain;
         this.group = group;
         this.clock = clock;
-        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
+        this.uniqueName = FIELD_NAME + "." + group.getId();
         return this;
     }
 

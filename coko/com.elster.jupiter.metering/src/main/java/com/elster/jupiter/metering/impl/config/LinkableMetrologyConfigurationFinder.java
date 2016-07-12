@@ -2,7 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
@@ -16,15 +16,15 @@ import java.util.List;
 import java.util.Set;
 
 public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMetrologyConfiguration> {
-    private final ServerMeteringService meteringService;
+    private final DataModel dataModel;
     private final Set<UsagePointRequirementSqlBuilder> builders;
     private int start = -1;
     private int pageSize = 10;
     private List<Order> orders;
 
     @Inject
-    public LinkableMetrologyConfigurationFinder(ServerMeteringService meteringService) {
-        this.meteringService = meteringService;
+    public LinkableMetrologyConfigurationFinder(DataModel dataModel) {
+        this.dataModel = dataModel;
         this.builders = new HashSet<>();
         this.orders = new ArrayList<>();
     }
@@ -57,10 +57,10 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
             condition = condition.or(ListOperator.IN.contains(builder, "id"));
         }
         if (this.start >= 0) {
-            return this.meteringService.getDataModel().query(UsagePointMetrologyConfiguration.class)
+            return this.dataModel.query(UsagePointMetrologyConfiguration.class)
                     .select(condition, orders, true, new String[0], this.start + 1, this.start + this.pageSize + 1);
         }
-        return this.meteringService.getDataModel().query(UsagePointMetrologyConfiguration.class)
+        return this.dataModel.query(UsagePointMetrologyConfiguration.class)
                 .select(condition, orders, false, null);
     }
 
@@ -75,7 +75,7 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
         for (UsagePointRequirementSqlBuilder builder : builders) {
             condition = condition.or(ListOperator.IN.contains(builder, "id"));
         }
-        return this.meteringService.getDataModel()
+        return this.dataModel
                 .query(UsagePointMetrologyConfiguration.class)
                 .asFragment(condition, fieldNames);
     }

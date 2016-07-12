@@ -1,15 +1,16 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -24,18 +25,10 @@ import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder;
-import com.elster.jupiter.metering.impl.DefaultTranslationKey;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -43,13 +36,9 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -59,74 +48,29 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-15 (13:20)
  */
-public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService, PrivilegesProvider, TranslationKeyProvider {
+public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigurationService {
 
     static final String METER_ROLE_KEY_PREFIX = "meter.role.";
     static final String METER_PURPOSE_KEY_PREFIX = "metrology.purpose.";
 
-    private volatile ServerMeteringService meteringService;
-    private volatile UserService userService;
-    private volatile MeterActivationValidatorsWhiteboard activationValidatorsWhiteboard;
+    private MeteringDataModelService meteringDataModelService;
+    private DataModel dataModel;
+    private Thesaurus thesaurus;
 
-    @Inject
-    public MetrologyConfigurationServiceImpl(ServerMeteringService meteringService, UserService userService, MeterActivationValidatorsWhiteboard activationValidatorsWhiteboard) {
-        this.meteringService = meteringService;
-        this.userService = userService;
-        this.activationValidatorsWhiteboard = activationValidatorsWhiteboard;
-    }
-
-    public void install(Logger logger) {
-        new Installer(this.meteringService, this).install(null, logger);
-        userService.addModulePrivileges(this);
-    }
-
-    @Override
-    public String getModuleName() {
-        return this.getComponentName();
-    }
-
-    @Override
-    public List<ResourceDefinition> getModuleResources() {
-        List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(
-                userService.createModuleResourceWithPrivileges(
-                        getModuleName(),
-                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION.getKey(),
-                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION.getKey(),
-                        Arrays.asList(
-                                Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION,
-                                Privileges.Constants.VIEW_METROLOGY_CONFIGURATION)));
-        return resources;
-    }
-
-    @Override
-    public String getComponentName() {
-        return MeteringService.COMPONENTNAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.addAll(Arrays.asList(Privileges.values()));
-        translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
-        translationKeys.addAll(Arrays.asList(DefaultReadingTypeTemplate.TemplateTranslation.values()));
-        translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));
-        return translationKeys;
+    public MetrologyConfigurationServiceImpl(MeteringDataModelService meteringDataModelService, DataModel dataModel, Thesaurus thesaurus) {
+        this.meteringDataModelService = meteringDataModelService;
+        this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
     }
 
     @Override
     public DataModel getDataModel() {
-        return this.meteringService.getDataModel();
+        return this.dataModel;
     }
 
     @Override
     public Thesaurus getThesaurus() {
-        return this.meteringService.getThesaurus();
+        return this.thesaurus;
     }
 
     @Override
@@ -145,7 +89,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     @Override
     public List<UsagePointMetrologyConfiguration> findLinkableMetrologyConfigurations(UsagePoint usagePoint) {
-        LinkableMetrologyConfigurationFinder finder = new LinkableMetrologyConfigurationFinder(this.meteringService);
+        LinkableMetrologyConfigurationFinder finder = new LinkableMetrologyConfigurationFinder(this.dataModel);
         List<UsagePointMetrologyConfigurationImpl> activeConfigs = getDataModel().query(UsagePointMetrologyConfigurationImpl.class)
                 .select(where(MetrologyConfigurationImpl.Fields.STATUS.fieldName()).isEqualTo(MetrologyConfigurationStatus.ACTIVE));
         if (!activeConfigs.isEmpty()) {
@@ -190,11 +134,6 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
                 .query(EffectiveMetrologyConfigurationOnUsagePoint.class)
                 .select(condition, new Order[0], false, new String[0], 1, 1);
         return !atLeastOneUsagePoint.isEmpty();
-    }
-
-    @Override
-    public Optional<MetrologyContract> findMetrologyContract(long id) {
-        return this.getDataModel().mapper(MetrologyContract.class).getOptional(id);
     }
 
     @Override
@@ -249,7 +188,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     @Override
     public MeterRole newMeterRole(NlsKey name) {
         String localKey = METER_ROLE_KEY_PREFIX + name.getKey();
-        this.meteringService.copyKeyIfMissing(name, localKey);
+        this.meteringDataModelService.copyKeyIfMissing(name, localKey);
         MeterRoleImpl meterRole = getDataModel().getInstance(MeterRoleImpl.class).init(localKey);
         Save.CREATE.save(getDataModel(), meterRole);
         return meterRole;
@@ -288,8 +227,8 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
         MetrologyPurposeImpl metrologyPurpose = getDataModel().getInstance(MetrologyPurposeImpl.class)
                 .init(nameKey, descriptionKey, true);
         metrologyPurpose.save();
-        this.meteringService.copyKeyIfMissing(name, nameKey);
-        this.meteringService.copyKeyIfMissing(description, descriptionKey);
+        this.meteringDataModelService.copyKeyIfMissing(name, nameKey);
+        this.meteringDataModelService.copyKeyIfMissing(description, descriptionKey);
         return metrologyPurpose;
     }
 
@@ -340,18 +279,33 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
 
     @Override
     public void addCustomUsagePointMeterActivationValidator(CustomUsagePointMeterActivationValidator customUsagePointMeterActivationValidator) {
-        this.activationValidatorsWhiteboard.addCustomUsagePointMeterActivationValidator(customUsagePointMeterActivationValidator);
+        this.meteringDataModelService.addCustomUsagePointMeterActivationValidator(customUsagePointMeterActivationValidator);
     }
 
     @Override
     public void removeCustomUsagePointMeterActivationValidator(CustomUsagePointMeterActivationValidator customUsagePointMeterActivationValidator) {
-        this.activationValidatorsWhiteboard.removeCustomUsagePointMeterActivationValidator(customUsagePointMeterActivationValidator);
+        this.meteringDataModelService.removeCustomUsagePointMeterActivationValidator(customUsagePointMeterActivationValidator);
     }
 
     @Override
-    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws
-            CustomUsagePointMeterActivationValidationException {
-        this.activationValidatorsWhiteboard.validateUsagePointMeterActivation(meterRole, meter, usagePoint);
+    public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws CustomUsagePointMeterActivationValidationException {
+        this.meteringDataModelService.validateUsagePointMeterActivation(meterRole, meter, usagePoint);
     }
 
+    @Override
+    public Optional<MetrologyContract> findMetrologyContract(long id) {
+        return this.getDataModel().mapper(MetrologyContract.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<MetrologyContract> findAndLockMetrologyContract(long id, long version) {
+        return this.getDataModel().mapper(MetrologyContract.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Finder<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationFinderFor(MetrologyContract contract) {
+        return DefaultFinder.of(EffectiveMetrologyConfigurationOnUsagePoint.class,
+                where("metrologyConfiguration").isEqualTo(contract.getMetrologyConfiguration()),
+                dataModel, UsagePoint.class, MetrologyConfiguration.class);
+    }
 }

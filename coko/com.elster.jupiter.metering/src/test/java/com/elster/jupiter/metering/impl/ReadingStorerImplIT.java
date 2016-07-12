@@ -21,8 +21,9 @@ import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -57,7 +58,11 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -74,6 +79,7 @@ import static org.mockito.Mockito.mock;
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingStorerImplIT {
 
+    private static final Set<ReadingQualityType> BATTERY_LOW = new HashSet<>(Arrays.asList(ProtocolReadingQualities.BATTERY_LOW.getReadingQualityType()));
 
     private class MockModule extends AbstractModule {
 
@@ -138,7 +144,8 @@ public class ReadingStorerImplIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule()
+                    new CustomPropertySetsModule(),
+                    new BasicPropertiesModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -168,19 +175,19 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18000, 2), BATTERY_LOW));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -202,11 +209,11 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), BATTERY_LOW));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.plusMinutes(15 * 9).toInstant()));
@@ -231,19 +238,19 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18000, 2), BATTERY_LOW));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -265,11 +272,11 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), BATTERY_LOW));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.plusMinutes(15 * 9).toInstant()));
@@ -293,19 +300,19 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(pulseDeltaReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10, 0), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11, 0), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12, 0), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13, 0), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14, 0), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15, 0), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16, 0), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17, 0), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18, 0), BATTERY_LOW));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -338,7 +345,7 @@ public class ReadingStorerImplIT {
 
             meterReading.addReading(reading);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -366,19 +373,19 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            // so not this one ! This is the missing one at first : intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), BATTERY_LOW));
+            // so not this one ! This is the missing one at first : intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18000, 2), BATTERY_LOW));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -401,12 +408,12 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), BATTERY_LOW));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -438,19 +445,19 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            // so not this one ! This is the missing one at first : intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(10000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 1).toInstant(), BigDecimal.valueOf(11000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 2).toInstant(), BigDecimal.valueOf(12000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 3).toInstant(), BigDecimal.valueOf(13000, 2), BATTERY_LOW));
+            // so not this one ! This is the missing one at first : intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 5).toInstant(), BigDecimal.valueOf(15000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 6).toInstant(), BigDecimal.valueOf(16000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 7).toInstant(), BigDecimal.valueOf(17000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 8).toInstant(), BigDecimal.valueOf(18000, 2), BATTERY_LOW));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -473,12 +480,12 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 4).toInstant(), BigDecimal.valueOf(14000, 2), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15 * 9).toInstant(), BigDecimal.valueOf(19000, 2), BATTERY_LOW));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -505,7 +512,7 @@ public class ReadingStorerImplIT {
         Channel channel = createMeterAndChannelWithDelta(bulkReadingType);
 
         transactionService.run(() -> {
-            Meter meter = channel.getMeterActivation().getMeter().get();
+            Meter meter = channel.getChannelsContainer().getMeter().get();
             MeterConfiguration meterConfiguration = meter.startingConfigurationOn(Instant.EPOCH)
                     .configureReadingType(bulkReadingType)
                     .withOverflowValue(BigDecimal.valueOf(999999))
@@ -516,12 +523,12 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(999998, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(100, 0), ProfileStatus.of()));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(999998, 0), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(100, 0), Collections.emptySet()));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -536,7 +543,9 @@ public class ReadingStorerImplIT {
         assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(100, 0), 3, "Wh"));
         assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
 
-        List<ReadingQualityRecord> qualities = channel.findReadingQuality(BASE.plusMinutes(15).toInstant());
+        List<ReadingQualityRecord> qualities = channel.findReadingQualities()
+                .atTimestamp(BASE.plusMinutes(15).toInstant())
+                .collect();
         assertThat(qualities).hasSize(1);
 
         ReadingQualityRecord readingQualityRecord = qualities.get(0);
@@ -551,7 +560,7 @@ public class ReadingStorerImplIT {
         Channel channel = createMeterAndChannelWithDelta(bulkReadingType);
 
         transactionService.run(() -> {
-            Meter meter = channel.getMeterActivation().getMeter().get();
+            Meter meter = channel.getChannelsContainer().getMeter().get();
             MeterConfiguration meterConfiguration = meter.startingConfigurationOn(Instant.EPOCH)
                     .configureReadingType(bulkReadingType)
                     .withOverflowValue(BigDecimal.valueOf(999999))
@@ -562,12 +571,12 @@ public class ReadingStorerImplIT {
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
 
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(100, 0), ProfileStatus.of(ProfileStatus.Flag.BATTERY_LOW)));
-            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(999998, 0), ProfileStatus.of()));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.toInstant(), BigDecimal.valueOf(100, 0), BATTERY_LOW));
+            intervalBlock.addIntervalReading(IntervalReadingImpl.of(BASE.plusMinutes(15).toInstant(), BigDecimal.valueOf(999998, 0), Collections.emptySet()));
 
             meterReading.addIntervalBlock(intervalBlock);
 
-            channel.getMeterActivation().getMeter().get().store(meterReading);
+            channel.getChannelsContainer().getMeter().get().store(meterReading);
         });
 
         List<BaseReadingRecord> readings = channel.getReadings(Range.atLeast(BASE.toInstant()));
@@ -582,7 +591,9 @@ public class ReadingStorerImplIT {
         assertThat(readings.get(1).getQuantity(bulkReadingType)).isEqualTo(Quantity.create(BigDecimal.valueOf(999998, 0), 3, "Wh"));
         assertThat(readings.get(1).getTimeStamp()).isEqualTo(BASE.plusMinutes(15).toInstant());
 
-        List<ReadingQualityRecord> qualities = channel.findReadingQuality(BASE.plusMinutes(15).toInstant());
+        List<ReadingQualityRecord> qualities = channel.findReadingQualities()
+                .atTimestamp(BASE.plusMinutes(15).toInstant())
+                .collect();
         assertThat(qualities).hasSize(1);
 
         ReadingQualityRecord readingQualityRecord = qualities.get(0);
@@ -608,7 +619,7 @@ public class ReadingStorerImplIT {
                         .calculating(caluclated)
                         .create();
 
-                return meterActivation.createChannel(measured);
+            return meterActivation.getChannelsContainer().createChannel(measured);
             });
     }
 
@@ -620,7 +631,7 @@ public class ReadingStorerImplIT {
                     .setName("Meter")
                     .create();
             MeterActivation meterActivation = meter.activate(ACTIVATION.toInstant());
-            return meterActivation.createChannel(bulkReadingType);
+            return meterActivation.getChannelsContainer().createChannel(bulkReadingType);
         });
     }
 }
