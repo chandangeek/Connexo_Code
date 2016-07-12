@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Objects;
 
 public class MetrologyConfigurationCustomPropertySetUsageImpl implements MetrologyConfigurationCustomPropertySetUsage {
@@ -32,6 +33,15 @@ public class MetrologyConfigurationCustomPropertySetUsageImpl implements Metrolo
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
     private int position;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public MetrologyConfigurationCustomPropertySetUsageImpl() {

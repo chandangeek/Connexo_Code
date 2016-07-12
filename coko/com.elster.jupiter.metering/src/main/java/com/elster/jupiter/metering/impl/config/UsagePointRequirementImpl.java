@@ -15,6 +15,7 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,6 +51,15 @@ public class UsagePointRequirementImpl implements UsagePointRequirement {
     private List<UsagePointRequirementValue> conditionValues = new ArrayList<>();
 
     private SearchableProperty property;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public UsagePointRequirementImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {

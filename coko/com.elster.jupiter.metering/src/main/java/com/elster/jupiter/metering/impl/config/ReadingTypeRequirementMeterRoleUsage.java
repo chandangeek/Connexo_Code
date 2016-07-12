@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
+import java.time.Instant;
 
 @SelfValid
 public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator {
@@ -39,6 +40,15 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeRequirement> readingTypeRequirement = ValueReference.absent();
     private final Thesaurus thesaurus;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public ReadingTypeRequirementMeterRoleUsage(Thesaurus thesaurus) {

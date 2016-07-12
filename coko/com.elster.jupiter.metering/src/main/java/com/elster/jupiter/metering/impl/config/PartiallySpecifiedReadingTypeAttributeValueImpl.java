@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
+import java.time.Instant;
 import java.util.List;
 
 @SelfValid
@@ -34,6 +35,15 @@ public class PartiallySpecifiedReadingTypeAttributeValueImpl implements SelfObje
     private Reference<PartiallySpecifiedReadingTypeRequirement> readingTypeRequirement = Reference.empty();
     private ReadingTypeTemplateAttributeName attributeName;
     private int code;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public PartiallySpecifiedReadingTypeAttributeValueImpl() {

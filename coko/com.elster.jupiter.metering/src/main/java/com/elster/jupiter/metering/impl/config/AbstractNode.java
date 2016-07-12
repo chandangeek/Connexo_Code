@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import com.google.common.collect.ImmutableMap;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +30,15 @@ public abstract class AbstractNode implements ServerExpressionNode {
     private List<ServerExpressionNode> children = new ArrayList<>();
     @SuppressWarnings("unused") // Needs for sorting when ORM fetches children
     private long argumentIndex;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     AbstractNode() {
         super();

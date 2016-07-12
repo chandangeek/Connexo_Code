@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
+import java.time.Instant;
+
 public class MetrologyConfigurationMeterRoleUsageImpl {
 
     public enum Fields {
@@ -28,6 +30,15 @@ public class MetrologyConfigurationMeterRoleUsageImpl {
     private Reference<UsagePointMetrologyConfiguration> metrologyConfiguartion = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<MeterRole> meterRole = ValueReference.absent();
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     public MetrologyConfigurationMeterRoleUsageImpl init(UsagePointMetrologyConfiguration metrologyConfiguartion, MeterRole meterRole) {
         this.metrologyConfiguartion.set(metrologyConfiguartion);

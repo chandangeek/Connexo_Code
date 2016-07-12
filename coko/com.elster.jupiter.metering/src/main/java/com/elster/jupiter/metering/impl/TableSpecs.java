@@ -241,7 +241,9 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<LocationMember> table = dataModel.addTable(name(), LocationMember.class);
             table.since(version(10, 2));
+            table.setJournalTableName("MTR_LOCATIONMEMBER_JRNL");
             table.map(LocationMemberImpl.class);
+            table.addAuditColumns();
             TableBuilder.buildLocationMemberTable(table, MeteringServiceImpl.getLocationTemplateMembers());
         }
     },
@@ -324,6 +326,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<IReadingType> table = dataModel.addTable(name(), IReadingType.class);
             table.map(ReadingTypeImpl.class).alsoReferredToAs(ReadingType.class);
+            table.setJournalTableName("MTR_READINGTYPE_JNRL").since(version(10, 2));
             table.cache();
             Column mRidColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").add();
             table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
@@ -431,12 +434,14 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MeterRole> table = dataModel.addTable(name(), MeterRole.class);
             table.map(MeterRoleImpl.class);
+            table.setJournalTableName("MTR_METERROLE_JRNL").since(version(10, 2));
             Column nameColumn = table.column(MeterRoleImpl.Fields.KEY.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
                     .map(MeterRoleImpl.Fields.KEY.fieldName())
                     .add();
 
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.primaryKey("MTR_PK_METERROLE").on(nameColumn).add();
         }
     },
@@ -702,6 +707,7 @@ public enum TableSpecs {
             Table<MetrologyConfiguration> table = dataModel.addTable(name(), MetrologyConfiguration.class);
             table.map(MetrologyConfigurationImpl.IMPLEMENTERS);
             table.since(version(10, 2));
+            table.setJournalTableName("MTR_METROLOGYCONFIG_JRNL");
             table.cache();
             Column id = table.addAutoIdColumn();
             table.addDiscriminatorColumn("CONFIG_TYPE", "char(1)");
@@ -737,6 +743,7 @@ public enum TableSpecs {
             Table<MetrologyConfigurationCustomPropertySetUsage> table = dataModel.addTable(name(), MetrologyConfigurationCustomPropertySetUsage.class);
             table.since(version(10, 2));
             table.map(MetrologyConfigurationCustomPropertySetUsageImpl.class);
+            table.setJournalTableName("MTR_M_CONFIG_CPS_USAGES_JRNL");
             Column metrologyConfig = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG.name())
                     .number()
                     .notNull()
@@ -751,6 +758,7 @@ public enum TableSpecs {
                     .conversion(NUMBER2INT)
                     .map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.fieldName())
                     .add();
+            table.addAuditColumns();
             table.primaryKey("PK_M_CONFIG_CPS_USAGE").on(metrologyConfig, customPropertySet).add();
             table.foreignKey("FK_MCPS_USAGE_TO_CONFIG")
                     .references(MTR_METROLOGYCONFIG.name())
@@ -774,10 +782,12 @@ public enum TableSpecs {
             Table<EffectiveMetrologyConfigurationOnUsagePoint> table = dataModel.addTable(name(), EffectiveMetrologyConfigurationOnUsagePoint.class);
             table.map(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
             table.since(version(10, 2));
+            table.setJournalTableName("MTR_USAGEPOINTMTRCONFIG_JRNL");
             Column usagePoint = table.column("USAGEPOINT").number().notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
+            table.addAuditColumns();
             table.primaryKey("MTR_PK_UPMTRCONFIG").on(usagePoint, intervalColumns.get(0)).add();
             table.foreignKey("MTR_FK_UPMTRCONFIG_UP")
                     .on(usagePoint)
@@ -811,11 +821,13 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MultiplierValue> table = dataModel.addTable(name(), MultiplierValue.class);
             table.map(MultiplierValueImpl.class);
+            table.setJournalTableName("MTR_MULTIPLIERVALUE_JRNL").since(version(10, 2));
 
             Column meterActivationIdColumn = table.column("METERACTIVATIONID").number().notNull().add();
             Column typeColumn = table.column("MULTIPLIERTYPE").number().notNull().add();
             table.column("VALUE").number().map("value").notNull().add();
 
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.primaryKey("MTR_PK_MULTIPLIERVALUE").on(meterActivationIdColumn, typeColumn).add();
             table.foreignKey("MTR_FK_MULTIPLIERVALUE_MA")
                     .on(meterActivationIdColumn)
@@ -837,7 +849,7 @@ public enum TableSpecs {
             Table<MeterConfiguration> table = dataModel.addTable(name(), MeterConfiguration.class);
             table.map(MeterConfigurationImpl.class);
 
-            table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
+            table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX).upTo(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             Column meterIdColumn = table.column("METERID").number().conversion(NUMBER2LONG).add();
             table.addIntervalColumns("interval");
@@ -901,7 +913,7 @@ public enum TableSpecs {
             Table<UsagePointConfiguration> table = dataModel.addTable(name(), UsagePointConfiguration.class);
             table.map(UsagePointConfigurationImpl.class);
 
-            table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
+            table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX).upTo(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             Column usagePointIdColumn = table.column("USAGEPOINTID").number().conversion(NUMBER2LONG).add();
             table.addIntervalColumns("interval");
@@ -924,6 +936,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<UsagePointReadingTypeConfiguration> table = dataModel.addTable(name(), UsagePointReadingTypeConfiguration.class);
             table.map(UsagePointReadingTypeConfigurationImpl.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_RT_UP_CONFIG_JRNL");
 
             table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
             Column usagePointConfig = table.column("USAGEPOINT_CONFIG").number().notNull().add();
@@ -964,12 +978,14 @@ public enum TableSpecs {
             Table<ServiceCategoryCustomPropertySetUsage> table = dataModel.addTable(name(), ServiceCategoryCustomPropertySetUsage.class);
             table.since(version(10, 2));
             table.map(ServiceCategoryCustomPropertySetUsage.class);
+            table.setJournalTableName("MTR_SERVCAT_CPS_USAGE_JRNL");
             Column serviceCategory = table.column("SERVICECATEGORY")
                     .number()
                     .notNull()
                     .conversion(NUMBER2ENUMPLUSONE)
                     .add();
             Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
+            table.addAuditColumns();
             table.primaryKey("PK_MTR_CPSSERVICECATUSAGE").on(serviceCategory, customPropertySet).add();
             table.column(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.name())
                     .number()
@@ -999,6 +1015,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ExpressionNode> table = dataModel.addTable(name(), ExpressionNode.class);
             table.map(AbstractNode.IMPLEMENTERS);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_FORMULA_NODE_JRNL");
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("NODETYPE", "char(3)");
 
@@ -1028,6 +1046,8 @@ public enum TableSpecs {
             table.column("PROPERTY_SPEC_NAME").map("propertySpecName").varChar().add();
             Column customPropertySet = table.column("CUSTOM_PROPERTY_SET").number().add();
 
+            table.addAuditColumns();
+
             table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
             table.foreignKey("MTR_FORMULANODE_CPS")
                     .references(RegisteredCustomPropertySet.class)
@@ -1049,9 +1069,12 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<Formula> table = dataModel.addTable(name(), Formula.class);
             table.map(FormulaImpl.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_FORMULA_JRNL");
             Column idColumn = table.addAutoIdColumn();
             table.column("FORMULA_MODE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mode").add();
             Column expressionNodeColumn = table.column("EXPRESSION_NODE_ID").number().conversion(NUMBER2LONG).add();
+            table.addAuditColumns();
             table.primaryKey("MTR_PK_FORMULA").on(idColumn).add();
             table.foreignKey("MTR_VALIDNODE").references(MTR_FORMULA_NODE.name()).on(expressionNodeColumn).onDelete(CASCADE)
                     .map("expressionNode").add();
@@ -1062,9 +1085,13 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<ServiceCategoryMeterRoleUsage> table = dataModel.addTable(name(), ServiceCategoryMeterRoleUsage.class);
             table.map(ServiceCategoryMeterRoleUsage.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_SERVCAT_MTRROLE_USAGE_JRNL");
+
             Column serviceCategory = table.column(ServiceCategoryMeterRoleUsage.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             Column meterRole = table.column(ServiceCategoryMeterRoleUsage.Fields.METERROLE.name()).varChar(NAME_LENGTH).notNull().add();
 
+            table.addAuditColumns();
             table.primaryKey("MTR_PK_SERVCATMETERROLE_USAGE").on(serviceCategory, meterRole).add();
             table.foreignKey("MTR_FK_SERVCATMETERROLE2CAT")
                     .references(MTR_SERVICECATEGORY.name())
@@ -1087,6 +1114,8 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<MetrologyConfigurationMeterRoleUsageImpl> table = dataModel.addTable(name(), MetrologyConfigurationMeterRoleUsageImpl.class);
             table.map(MetrologyConfigurationMeterRoleUsageImpl.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_M_CONFIG_ROLE_USAGE_JRNL");
 
             Column metrologyConfigColumn = table.column(MetrologyConfigurationMeterRoleUsageImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
@@ -1097,6 +1126,7 @@ public enum TableSpecs {
                     .notNull()
                     .add();
 
+            table.addAuditColumns();
             table.primaryKey("MTR_PK_CONF_ROLE_USAGE").on(metrologyConfigColumn, meterRoleColumn).add();
             table.foreignKey("FK_USAGE_MCMR_TO_CONFIG")
                     .references(UsagePointMetrologyConfiguration.class)
@@ -1119,6 +1149,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ReadingTypeTemplate> table = dataModel.addTable(name(), ReadingTypeTemplate.class);
             table.map(ReadingTypeTemplateImpl.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_RT_TEMPLATE_JRNL");
 
             Column idColumn = table.addAutoIdColumn();
             table.column(ReadingTypeTemplateImpl.Fields.NAME.name())
@@ -1141,6 +1173,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ReadingTypeTemplateAttribute> table = dataModel.addTable(name(), ReadingTypeTemplateAttribute.class);
             table.map(ReadingTypeTemplateAttributeImpl.class);
+            table.since(version(10 ,2));
+            table.setJournalTableName("MTR_RT_TEMPLATE_ATTR_JNRL").since(version(10, 2));
 
             Column idColumn = table.addAutoIdColumn();
             Column templateColumn = table
@@ -1160,6 +1194,7 @@ public enum TableSpecs {
                     .map(ReadingTypeTemplateAttributeImpl.Fields.CODE.fieldName())
                     .add();
 
+            table.addAuditColumns();
             table.primaryKey("MTR_RT_TEMPLATE_ATTR_PK").on(idColumn).add();
             table.unique("MTR_RT_TEMPLATE_ATTR_UQ").on(templateColumn, nameColumn).add();
             table.foreignKey("FK_TEMPLATE_ATTR_TO_TEMPLATE")
@@ -1177,6 +1212,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ReadingTypeTemplateAttributeValueImpl> table = dataModel.addTable(name(), ReadingTypeTemplateAttributeValueImpl.class);
             table.map(ReadingTypeTemplateAttributeValueImpl.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_RT_TEMPL_ATTR_VALUE_JRNL");
 
             Column attrColumn = table
                     .column(ReadingTypeTemplateAttributeValueImpl.Fields.ATTR.name())
@@ -1190,6 +1227,7 @@ public enum TableSpecs {
                     .map(ReadingTypeTemplateAttributeValueImpl.Fields.CODE.fieldName())
                     .add();
 
+            table.addAuditColumns();
             table.primaryKey("MTR_RT_TPL_ATTR_VALUE_PK").on(attrColumn, valueColumn).add();
             table.foreignKey("FK_RT_TPL_ATTR_VALUE_TO_ATTR")
                     .references(ReadingTypeTemplateAttribute.class)
@@ -1206,6 +1244,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ReadingTypeRequirement> table = dataModel.addTable(name(), ReadingTypeRequirement.class);
             table.map(ReadingTypeRequirementImpl.IMPLEMENTERS);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_RT_REQUIREMENT_JNRL");
 
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("REQTYPE", "char(3)");
@@ -1256,6 +1296,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<PartiallySpecifiedReadingTypeAttributeValueImpl> table = dataModel.addTable(name(), PartiallySpecifiedReadingTypeAttributeValueImpl.class);
             table.map(PartiallySpecifiedReadingTypeAttributeValueImpl.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_RT_REQ_ATTR_VALUE_JRNL");
 
             Column requirementColumn = table
                     .column(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.READING_TYPE_REQUIREMENT.name())
@@ -1275,6 +1317,7 @@ public enum TableSpecs {
                     .map(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.CODE.fieldName())
                     .add();
 
+            table.addAuditColumns();
             table.primaryKey("MTR_RT_REQ_ATTR_VALUE_PK").on(requirementColumn, nameColumn).add();
             table.foreignKey("FK_RT_REQ_ATTR_VALUE_TO_RT_REQ")
                     .references(ReadingTypeRequirement.class)
@@ -1291,6 +1334,8 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<ReadingTypeRequirementMeterRoleUsage> table = dataModel.addTable(name(), ReadingTypeRequirementMeterRoleUsage.class);
             table.map(ReadingTypeRequirementMeterRoleUsage.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_REQ_2_METER_ROLE_JRNL");
 
             Column meterRoleColumn = table.column(ReadingTypeRequirementMeterRoleUsage.Fields.METER_ROLE.name())
                     .varChar(NAME_LENGTH)
@@ -1306,6 +1351,7 @@ public enum TableSpecs {
                     .notNull()
                     .add(); // we need this column for a reverse reference map
 
+            table.addAuditColumns();
             table.primaryKey("MTR_PK_REQUIREMENT_2_ROLE").on(meterRoleColumn, requirementColumn).add();
             table.foreignKey("FK_REQ2ROLE_TO_CONFIG")
                     .references(UsagePointMetrologyConfiguration.class)
@@ -1334,6 +1380,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MetrologyPurpose> table = dataModel.addTable(name(), MetrologyPurpose.class);
             table.map(MetrologyPurposeImpl.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_METROLOGY_PURPOSE_JRNL");
 
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column(MetrologyPurposeImpl.Fields.NAME.name())
@@ -1356,6 +1404,7 @@ public enum TableSpecs {
                     .map(MetrologyPurposeImpl.Fields.TRANSLATABLE.fieldName())
                     .add();
 
+            table.addAuditColumns();
             table.primaryKey("MTR_METROLOGY_PURPOSE_PK").on(idColumn).add();
             table.unique("MTR_METROLOGY_PURPOSE_NAME_UQ").on(nameColumn).add();
         }
@@ -1365,6 +1414,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MetrologyContract> table = dataModel.addTable(name(), MetrologyContract.class);
             table.map(MetrologyContractImpl.class);
+            table.setJournalTableName("MTR_METROLOGY_CONTRACT_JRNL").since(version(10, 2));
 
             Column idColumn = table.addAutoIdColumn();
             Column metrologyConfigColumn = table
@@ -1406,6 +1456,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ReadingTypeDeliverable> table = dataModel.addTable(name(), ReadingTypeDeliverable.class);
             table.map(ReadingTypeDeliverableImpl.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_RT_DELIVERABLE_JNRL");
 
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column(ReadingTypeDeliverableImpl.Fields.NAME.name())
@@ -1458,6 +1510,8 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<MetrologyContractReadingTypeDeliverableUsage> table = dataModel.addTable(name(), MetrologyContractReadingTypeDeliverableUsage.class);
             table.map(MetrologyContractReadingTypeDeliverableUsage.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_CONTRACT2DELIVERABLE_JRNL");
 
             Column metrologyContractColumn = table.column(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.name())
                     .number()
@@ -1467,6 +1521,7 @@ public enum TableSpecs {
                     .number()
                     .notNull()
                     .add();
+            table.addAuditColumns();
 
             table.primaryKey("MTR_PK_CONTRACT_DELIVERABLE").on(metrologyContractColumn, deliverableColumn).add();
             table.foreignKey("FK_CONTR_DELIVER_TO_CONTR")
@@ -1489,6 +1544,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<UsagePointRequirement> table = dataModel.addTable(name(), UsagePointRequirement.class);
             table.map(UsagePointRequirementImpl.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_UP_REQUIREMENT_JRNL");
 
             Column metrologyConfigurationColumn = table.column(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
@@ -1506,6 +1563,7 @@ public enum TableSpecs {
                     .map(UsagePointRequirementImpl.Fields.OPERATOR.fieldName())
                     .add();
 
+            table.addAuditColumns();
             table.primaryKey("MTR_UP_REQUIREMENT_PK").on(metrologyConfigurationColumn, searchablePropertyColumn).add();
             table.foreignKey("MTR_UP_REQUIREMENT_2_CONFIG")
                     .on(metrologyConfigurationColumn)
@@ -1522,6 +1580,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<UsagePointRequirementValue> table = dataModel.addTable(name(), UsagePointRequirementValue.class);
             table.map(UsagePointRequirementValue.class);
+            table.since(version(10, 2));
+            table.setJournalTableName("MTR_UP_REQUIREMENT_VALUE_JRNL");
             Column metrologyConfigurationColumn = table.column(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
                     .notNull()
@@ -1542,6 +1602,7 @@ public enum TableSpecs {
                     .map(UsagePointRequirementValue.Fields.VALUE.fieldName())
                     .add();
 
+            table.addAuditColumns();
             table.primaryKey("MTR_UP_REQUIREMENT_VALUE_PK").on(metrologyConfigurationColumn, searchablePropertyColumn, positionColumn).add();
             table.foreignKey("MTR_UP_REQ_VALUE_2_REQ")
                     .on(metrologyConfigurationColumn, searchablePropertyColumn)
@@ -1820,8 +1881,6 @@ public enum TableSpecs {
 
             }
             table.column("DEFAULTLOCATION").bool().map("defaultLocation").add();
-            table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.addModTimeColumn("MODTIME", "modTime");
             table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
             table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn)
                     .references(MTR_LOCATION.name())

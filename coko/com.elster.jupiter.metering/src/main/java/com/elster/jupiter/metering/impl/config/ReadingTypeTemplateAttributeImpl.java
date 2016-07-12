@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,6 +52,15 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
     private ReadingTypeTemplateAttributeName name;
     private Integer code;
     private List<ReadingTypeTemplateAttributeValueImpl> values = new ArrayList<>();
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public ReadingTypeTemplateAttributeImpl(DataModel dataModel) {

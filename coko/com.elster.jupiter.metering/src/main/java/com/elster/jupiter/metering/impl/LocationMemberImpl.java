@@ -27,8 +27,15 @@ public class LocationMemberImpl implements LocationMember {
     private boolean defaultLocation;
     private String locale;
     private final DataModel dataModel;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     LocationMemberImpl(DataModel dataModel) {
