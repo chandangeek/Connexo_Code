@@ -109,11 +109,8 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             this.readingQuality = resultSet.getLong(columnIndex++);
             this.count = resultSet.getLong(columnIndex++);
 
-            long meterActivationId = resultSet.getLong(columnIndex++);
-            long deliverableId = resultSet.getLong(columnIndex);
-
-            if ((meterActivationId != 0) && (deliverableId != 0)) {
-                checkCount(deliverablesPerMeterActivation, meterActivationId, deliverableId);
+            if (this.count != 1) {
+                checkCount(deliverablesPerMeterActivation);
             }
 
             return this;
@@ -122,7 +119,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
         }
     }
 
-    private void checkCount(Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation, long meterActivationId, long deliverableId) {
+    private void checkCount(Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         Optional<MeterActivationSet> meterActivationSet =
                 deliverablesPerMeterActivation.keySet().stream().filter(maSet -> maSet.contains(this.timestamp)).findAny();
         if (meterActivationSet.isPresent()) {

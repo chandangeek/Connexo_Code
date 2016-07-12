@@ -72,7 +72,7 @@ public class CalculatedMetrologyContractDataImplTest {
     private ReadingTypeDeliverable deliverable;
 
     @Mock
-    private Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
+    private Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation;
 
     @Before
     public void initializeMocks() {

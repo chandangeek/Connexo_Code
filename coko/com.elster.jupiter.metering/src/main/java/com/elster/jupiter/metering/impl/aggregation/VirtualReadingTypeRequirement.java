@@ -188,7 +188,9 @@ class VirtualReadingTypeRequirement {
     }
 
     private boolean hasLocalDateField(TimeSeries timeSeries) {
-        return timeSeries.getRecordSpec().getFieldSpecs().stream().anyMatch(each -> "LOCALDATE".equals(each.getName()));
+        ChannelContract preferredChannel = this.getPreferredChannel();
+        return preferredChannel.getMainReadingType().isRegular();
+        //return timeSeries.getRecordSpec().getFieldSpecs().stream().anyMatch(each -> "LOCALDATE".equals(each.getName()));
     }
 
     @SuppressWarnings("unchecked")

@@ -65,7 +65,7 @@ public class CalculatedReadingRecordTest {
     private ResultSet resultSet;
 
     @Mock
-    private Map<MeterActivation, List<ReadingTypeDeliverableForMeterActivation>> deliverablesPerMeterActivation;
+    private Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation;
 
     @Before
     public void initializeMocks() {
@@ -218,7 +218,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getReadingType()).isEqualTo(readingType);
         assertThat(merged.getValue()).isEqualTo(BigDecimal.valueOf(100L));
         assertThat(merged.getTimeStamp()).isEqualTo(moreRecent);
-        assertThat(merged.getProcesStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));
+        assertThat(merged.getProcessStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));
         assertThat(merged.getCount()).isEqualTo(200L);
     }
 
@@ -247,7 +247,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getReadingType()).isEqualTo(readingType);
         assertThat(merged.getValue()).isEqualTo(BigDecimal.valueOf(100L));
         assertThat(merged.getTimeStamp()).isEqualTo(recent);
-        assertThat(merged.getProcesStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));  // 4 (suspect) = max(4, 3)
+        assertThat(merged.getProcessStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));  // 4 (suspect) = max(4, 3)
         assertThat(merged.getCount()).isEqualTo(200L);
     }
 
