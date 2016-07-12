@@ -138,8 +138,10 @@ Ext.define('Mdc.view.setup.devicesecuritysettings.DeviceSecuritySettingEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: '<h3>' + Uni.I18n.translate('general.attributes', 'MDC', 'Attributes') + '</h3>',
-                                text: ''
+                                fieldLabel: Uni.I18n.translate('general.attributes', 'MDC', 'Attributes'),
+                                renderer: function() {
+                                    return ''; // No dash!
+                                }
                             }
                         ]
                     },

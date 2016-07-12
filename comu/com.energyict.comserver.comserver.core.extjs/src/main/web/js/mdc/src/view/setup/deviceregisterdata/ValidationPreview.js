@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
             renderer: function (value) {
                 return value
                     ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
-                    : Uni.I18n.translate('general.no', 'MDC', 'No') + '<span class="icon-flag6" style="margin-left:10px; position:absolute;"></span>';
+                    : Uni.I18n.translate('general.no', 'MDC', 'No') + '<span class="icon-flag6" style="margin-left:10px; display:inline-block;"></span>';
             }
         },
         {
@@ -43,13 +43,13 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                             break;
                         case 'validationStatus.ok':
                             if (field.up('form').getRecord().get('isConfirmed')) {
-                                return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect') + '<span class="icon-checkmark" style="margin-left:5px; vertical-align:top;"></span>';
+                                return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect') + '<span class="icon-checkmark" style="margin-left:5px; display:inline-block;"></span>';
                             } else {
                                 return Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect');
                             }
                             break;
                         case 'validationStatus.suspect':
-                            return Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + '<span class="icon-flag5" style="margin-left:10px; position:absolute; color:red;"></span>';
+                            return Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + '<span class="icon-flag5" style="margin-left:10px; display:inline-block; color:red;"></span>';
                             break;
                         default:
                             field.hide();

@@ -40,7 +40,7 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                         name: 'obisCode'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.interval', 'MDC', 'Interval'),
+                        fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
                         name: 'interval_formatted'
                     },
                     {
@@ -98,6 +98,12 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.PreviewForm', {
                 link: me.router.getRoute('devices/device/channels/channeldata').buildUrl({mRID: encodeURIComponent(me.mRID), channelId: channel.id})
             });
         });
+        if (Ext.isEmpty(channels)) {
+            channelsListContainer.add({
+                xtype: 'displayfield',
+                fieldLabel: undefined
+            });
+        }
         Ext.resumeLayouts(true);
     }
 });

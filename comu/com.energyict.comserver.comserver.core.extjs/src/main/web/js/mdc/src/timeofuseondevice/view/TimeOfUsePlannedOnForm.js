@@ -6,6 +6,10 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePlannedOnForm', {
         type: 'column'
     },
 
+    requires: [
+        'Uni.util.FormEmptyMessage'
+    ],
+
     initComponent: function () {
         var me = this;
 
@@ -15,6 +19,12 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePlannedOnForm', {
                 labelWidth: 250
             },
             items: [
+                {
+                    xtype: 'uni-form-empty-message',
+                    itemId: 'willNotBePickedUpMessage',
+                    hidden: true,
+                    margin: '5 0 5 0',
+                },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseCalendar', 'MDC', 'Time of use calendar'),
@@ -38,6 +48,18 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePlannedOnForm', {
             ]
         };
         me.callParent(arguments);
+    },
+
+    checkWillNotBePickedUp: function(willBePickedUpByPlannedComtask, willBePickedUpByComtask) {
+        var me = this;
+        if(!willBePickedUpByPlannedComtask || !willBePickedUpByComtask) {
+            me.down('#willNotBePickedUpMessage').show();
+            if(!willBePickedUpByPlannedComtask && willBePickedUpByComtask) {
+                me.down('#willNotBePickedUpMessage').setText( Uni.I18n.translate('deviceCommands.view.willNotBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned and will not be picked up'));
+            } else {
+                me.down('#willNotBePickedUpMessage').setText(Uni.I18n.translate('deviceCommands.view.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device'));
+            }
+        }
     }
 
 });

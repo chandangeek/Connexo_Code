@@ -3,7 +3,8 @@ Ext.define('Mdc.dynamicprivileges.Stores', {
 
     required: [
         'Mdc.store.DeviceStatePrivileges',
-        'Mdc.store.DeviceCommandPrivileges'
+        'Mdc.store.DeviceCommandPrivileges',
+        'Mdc.store.DeviceTypeCapabilities'
     ],
 
     deviceStateStore: [
@@ -13,5 +14,9 @@ Ext.define('Mdc.dynamicprivileges.Stores', {
     all: [
         'Mdc.store.DeviceStatePrivileges',
         'Mdc.store.DeviceCommandPrivileges'
+    ],
+
+    deviceTypeCapabilitiesStore: [
+        'Mdc.store.DeviceTypeCapabilities'
     ]
 });

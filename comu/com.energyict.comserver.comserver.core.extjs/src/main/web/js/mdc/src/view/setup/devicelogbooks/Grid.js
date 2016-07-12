@@ -43,7 +43,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Grid', {
                         var date = new Date(value);
                         return Uni.DateTime.formatDateShort(date) + ' - ' + Uni.DateTime.formatTimeLong(date);
                     }
-                    return '';
+                    return '-';
                 },
                 flex: 1
             }

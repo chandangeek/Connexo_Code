@@ -102,6 +102,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                         point = this.points[0].point,
                         deltaIcon = '',
                         bulkIcon = '',
+                        deviceQualityIcon = '',
                         bgColor,
                         editedIcon = '<span class="icon-pencil4" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>',
                         calculatedValue,
@@ -119,6 +120,10 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                         bulkIcon = '<span class="icon-flag6" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
                     }
 
+                    if (point.showDeviceQualityIcon) {
+                        deviceQualityIcon = '<span class="icon-price-tags" style="margin-left:4px; display:inline-block; vertical-align:top;"></span>';
+                    }
+
                     if (point.collectedValue) {
                         calculatedValue = point.y
                             ? point.yValueFormatted + ' ' + point.calculatedUnitOfMeasure
@@ -133,8 +138,8 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                             : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                         calculatedValue = null;
                     }
-                    html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', point.x);
-                    html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
+                    html += '<br/>' + Uni.I18n.translate('general.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', point.x);
+                    html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + deviceQualityIcon + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
                     if (calculatedValue) {
