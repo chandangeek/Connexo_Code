@@ -10,7 +10,9 @@ package com.energyict.mdc.common.interval;
  * Defines interval state bit constants
  *
  * @author Karel
+ * @deprecated use {@link com.elster.jupiter.metering.readings.ReadingQuality}s instead
  */
+@Deprecated
 public interface IntervalStateBits {
 
     /**
