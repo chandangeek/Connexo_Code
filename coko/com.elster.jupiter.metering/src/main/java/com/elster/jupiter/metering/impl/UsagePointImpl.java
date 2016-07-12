@@ -33,8 +33,12 @@ import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -67,10 +71,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -581,17 +587,62 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
-        return this.getMeterActivations(when)
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration(clock.instant()).get();
+
+        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+
+        metrologyConfiguration.getDeliverables()
                 .stream()
-                .map(MeterActivation::getMeter)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(meter -> meter.getHeadEndInterface()
-                        .filter(he -> he.getCapabilities(meter).getConfiguredReadingTypes().stream().anyMatch(readingTypes::contains))
-                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter, readingTypes, when)))
+                .filter(deliverable -> readingTypes.contains(deliverable.getReadingType()))
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(requirementChecker));
+
+        List<ReadingTypeRequirement> readingTypeRequirements = requirementChecker.getReadingTypeRequirements();
+
+        List <ReadingType> configuredReadingTypes= this.getMeterActivations(when).stream()
+                .map(ma -> getConfiguredReadingTypes(ma,readingTypeRequirements))
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toList());
+        if(!readingTypeRequirements.stream().allMatch(readingTypeRequirement -> configuredReadingTypes.stream().anyMatch(readingTypeRequirement::matches))){
+            return Collections.emptyList();
+        }
+
+        return this.getMeterActivations(when).stream()
+                .map(meterActivation -> readData(when, meterActivation, readingTypeRequirements))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
+    }
+
+    private Optional<CompletionOptions> readData(Instant when, MeterActivation meterActivation, List<ReadingTypeRequirement> readingTypeRequirements) {
+        List<ReadingType> configuredReadingTypes = getConfiguredReadingTypes(meterActivation, readingTypeRequirements);
+        Optional<Meter> meter = meterActivation.getMeter();
+
+        if (meter.isPresent()) {
+            if (!configuredReadingTypes.isEmpty()) {
+                return Optional.of(meter.get().getHeadEndInterface()
+                        .get()
+                        .scheduleMeterRead(meter.get(), configuredReadingTypes, when));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private List<ReadingType> getConfiguredReadingTypes(MeterActivation meterActivation, List<ReadingTypeRequirement> readingTypeRequirements) {
+        Optional<Meter> meter = meterActivation.getMeter();
+
+        if (meter.isPresent()) {
+            return meter.get().getHeadEndInterface()
+                    .map(headEndInterface -> headEndInterface.getCapabilities(meter.get())
+                            .getConfiguredReadingTypes()
+                            .stream()
+                            .filter(rt -> readingTypeRequirements.stream().anyMatch(rtr -> rtr.matches(rt)))
+                            .collect(Collectors.toList())).orElse(Collections.emptyList());
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override
