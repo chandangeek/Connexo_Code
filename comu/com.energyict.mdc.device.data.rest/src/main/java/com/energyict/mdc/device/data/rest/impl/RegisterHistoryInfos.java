@@ -6,10 +6,10 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * Contains a non-limited, non-paged list of the history of linked datalogger-slave channels
+ * Contains a non-limited, non-paged list of the history of linked datalogger-slave registers
  */
 @XmlRootElement
-public class ChannelHistoryInfos {
+public class RegisterHistoryInfos {
     @XmlElement
-    public Collection<ChannelHistoryInfo> channelHistory = new HashSet<>();
+    public Collection<RegisterHistoryInfo> registerHistory = new HashSet<>();
 }

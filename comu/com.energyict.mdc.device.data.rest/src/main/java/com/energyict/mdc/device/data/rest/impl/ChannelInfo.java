@@ -74,7 +74,7 @@ public class ChannelInfo {
         info.useMultiplier = channel.getChannelSpec().isUseMultiplier();
         info.multiplier = channel.getMultiplier(clock.instant()).orElseGet(() -> null);
         info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
-        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsages(channel, Range.atLeast(clock.instant()));
+        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atLeast(clock.instant()));
         if (!dataLoggerChannelUsages.isEmpty()) {
             info.dataloggerSlavemRID = dataLoggerChannelUsages.get(0).getDataLoggerReference().getOrigin().getmRID();
         }

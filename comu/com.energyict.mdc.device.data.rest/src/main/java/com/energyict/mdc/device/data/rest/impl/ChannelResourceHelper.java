@@ -106,10 +106,8 @@ public class ChannelResourceHelper {
 
     public ChannelHistoryInfos getDataLoggerSlaveChannelHistory(Channel channel) {
         ChannelHistoryInfos channelHistoryInfos = new ChannelHistoryInfos();
-        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsages(channel, Range.atMost(clock.instant()));
-        dataLoggerChannelUsages.stream().forEach(dataLoggerChannelUsage -> {
-            channelHistoryInfos.channelHistory.add(ChannelHistoryInfo.from(dataLoggerChannelUsage));
-        });
+        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsagesForChannels(channel, Range.atMost(clock.instant()));
+        dataLoggerChannelUsages.stream().forEach(dataLoggerChannelUsage -> channelHistoryInfos.channelHistory.add(ChannelHistoryInfo.from(dataLoggerChannelUsage)));
         return channelHistoryInfos;
     }
 }

@@ -15,7 +15,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.topology.DataLoggerChannelUsage;
 import com.energyict.mdc.device.topology.TopologyService;
+
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -341,5 +344,18 @@ public class RegisterResource {
 
     private boolean hasData(Register<?, ?> register) {
         return register.hasData();
+    }
+
+    @GET
+    @Transactional
+    @Path("/{registerId}/history")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
+    public RegisterHistoryInfos getDataLoggerSlaveRegisterHistory(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
+        Register register = resourceHelper.findRegisterOnDeviceOrThrowException(mRID, registerId);
+        RegisterHistoryInfos registerHistoryInfos = new RegisterHistoryInfos();
+        List<DataLoggerChannelUsage> dataLoggerChannelUsages = topologyService.findDataLoggerChannelUsagesForRegisters(register, Range.atMost(clock.instant()));
+        dataLoggerChannelUsages.stream().forEach(dataLoggerChannelUsage -> registerHistoryInfos.registerHistory.add(RegisterHistoryInfo.from(dataLoggerChannelUsage)));
+        return registerHistoryInfos;
     }
 }
