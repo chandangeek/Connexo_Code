@@ -160,18 +160,18 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 
     @Override
     public void visitInterval(StringBuilder sb) {
-        sb.append(" partition by range(");
-        sb.append(table.partitionColumn().get().getName());
-        sb.append(") interval (");
-        sb.append(PARTITIONSIZE);
-        sb.append(") (partition P0 values less than(0))");
-    }
+    	sb.append(" partition by range(");
+		sb.append(table.partitionColumn().get().getName());
+		sb.append(") interval (");
+		sb.append(PARTITIONSIZE);
+		sb.append(") (partition P0 values less than(0))");
+	}
 
     @Override
     public void visitReference(StringBuilder sb) {
-        sb.append(" partition by reference(");
-        sb.append(table.refPartitionConstraint().get().getName());
-        sb.append(")");
+    	sb.append(" partition by reference(");
+    	sb.append(table.refPartitionConstraint().get().getName());
+    	sb.append(")");
     }
 
     @Override
@@ -239,7 +239,6 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
     private String getConstraintFragment(TableConstraintImpl<?> constraint) {
         return constraint.getDdl();
     }
-
 
     private String getConstraintIndexDdl(TableConstraintImpl<?> constraint) {
         StringBuilder builder = new StringBuilder();
@@ -545,7 +544,6 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         appendDdl(toColumn, builder, true, true);
         return builder.toString();
     }
-
 
     private List<Difference> getUpgradeDifference(ColumnImpl fromColumn, ColumnImpl toColumn) {
         if (fromColumn.isVirtual() && toColumn.isVirtual()) {
