@@ -5,6 +5,7 @@ Ext.define('Mdc.view.field.ReadingQualities', {
     htmlEncode: false,
 
     renderer : function(value, field) {
+        field.show();
         if (value.isConfirmed) {
             return this.getConfirmed(value.confirmedInApps);
         } else if (!Ext.isEmpty(value.validationRules)) {
