@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Predicates;
@@ -75,7 +76,8 @@ public class AllLoadProfileDataCollected extends TranslatableServerMicroCheck {
             final Instant[] nextIntervalForLoadProfile = {loadProfileLastReading};
             findMdcAmrSystem().findMeter(String.valueOf(loadProfile.getDevice().getId())).
                     ifPresent(meter -> meter.getCurrentMeterActivation()
-                            .ifPresent(meterActivation -> meterActivation.getChannels()
+                            .map(MeterActivation::getChannelsContainer)
+                            .ifPresent(channelsContainer -> channelsContainer.getChannels()
                                     .stream()
                                     .filter(channel -> channel.getReadingTypes().contains(loadProfile.getChannels().get(0).getReadingType())
                                     ).findAny().ifPresent(result -> nextIntervalForLoadProfile[0] = result.getNextDateTime(loadProfileLastReading))));

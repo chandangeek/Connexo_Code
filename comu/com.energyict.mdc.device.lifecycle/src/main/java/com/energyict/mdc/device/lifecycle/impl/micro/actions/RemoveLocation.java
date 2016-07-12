@@ -28,7 +28,7 @@ public class RemoveLocation extends TranslatableServerMicroAction {
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         device.setLocation(null);
-        device.setGeoCoordinates(null);
+        device.setSpatialCoordinates(null);
         device.save();
     }
 }

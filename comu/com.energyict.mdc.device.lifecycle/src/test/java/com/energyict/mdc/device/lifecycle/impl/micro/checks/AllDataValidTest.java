@@ -1,21 +1,22 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
-import com.elster.jupiter.nls.Thesaurus;
-
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -44,6 +45,8 @@ public class AllDataValidTest {
     private MeterActivation meterActivation;
     @Mock
     private Meter meter;
+    @Mock
+    private ChannelsContainer channelsContainer;
 
     @Test
     public void deviceWithoutMeterActivation() {
@@ -76,10 +79,11 @@ public class AllDataValidTest {
     public void deviceWithMeterActivationWithAllDataValid(){
         AllDataValid microCheck = this.getTestInstance();
         doReturn(Optional.of(meterActivation)).when(this.device).getCurrentMeterActivation();
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
         when(validationService.validationEnabled(meter)).thenReturn(true);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
-        when(validationEvaluator.isAllDataValid(meterActivation)).thenReturn(true);
+        when(validationEvaluator.areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC), channelsContainer)).thenReturn(false);
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
@@ -91,10 +95,11 @@ public class AllDataValidTest {
     public void deviceWithMeterActivationWithNotAllDataValid(){
         AllDataValid microCheck = this.getTestInstance();
         doReturn(Optional.of(meterActivation)).when(this.device).getCurrentMeterActivation();
+        when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
         when(validationService.validationEnabled(meter)).thenReturn(true);
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
-        when(validationEvaluator.isAllDataValid(meterActivation)).thenReturn(false);
+        when(validationEvaluator.areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC), channelsContainer)).thenReturn(true);
         // Business method
         Optional<DeviceLifeCycleActionViolation> violation = microCheck.evaluate(this.device, Instant.now());
 
