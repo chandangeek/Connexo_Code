@@ -9,8 +9,8 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.services.ListPager;
 
 import com.google.common.collect.Range;
