@@ -18,6 +18,10 @@ import java.util.Optional;
  * @since 2015-11-05 (13:24)
  */
 public class ModemConnectionPersistenceSupport implements PersistenceSupport<ConnectionProvider, ModemConnectionPropertyValues> {
+    @Override
+    public String application() {
+        return "MultiSense";
+    }
 
     @Override
     public String componentName() {

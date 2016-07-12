@@ -15,6 +15,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -49,6 +50,7 @@ import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
 import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
+import com.energyict.mdc.device.data.rest.ReadingQualitiesTranslationKeys;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -108,6 +110,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile MeteringService meteringService;
+    private volatile LocationService locationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile RestQueryService restQueryService;
     private volatile TaskService taskService;
@@ -249,7 +252,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus(CboTranslationProvider.COMPONENT_NAME, Layer.DOMAIN));
+                .join(nlsService.getThesaurus(CboTranslationProvider.COMPONENT_NAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -337,6 +341,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         keys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
         keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceMessageStatusTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ReadingQualitiesTranslationKeys.values()));
         keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceSearchModelTranslationKeys.values()));
         keys.addAll(Arrays.asList(LocationTranslationKeys.values()));
@@ -371,6 +376,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
     }
 
     @Reference
@@ -476,6 +486,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(validationService).to(ValidationService.class);
             bind(estimationService).to(EstimationService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(locationService).to(LocationService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(yellowfinGroupsService).to(YellowfinGroupsService.class);
