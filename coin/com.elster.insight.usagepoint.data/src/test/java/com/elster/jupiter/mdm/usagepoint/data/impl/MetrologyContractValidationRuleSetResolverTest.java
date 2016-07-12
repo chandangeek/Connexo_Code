@@ -37,7 +37,7 @@ public class MetrologyContractValidationRuleSetResolverTest {
         ValidationContext validationContext = mock(ValidationContext.class);
         when(validationContext.getChannelsContainer()).thenReturn(channelsContainer);
         when(validationContext.getMetrologyContract()).thenReturn(Optional.empty());
-
+        when(validationContext.getChannelsContainer().getUsagePoint()).thenReturn(Optional.empty());
         List<ValidationRuleSet> validationRuleSets = testInstance().resolve(validationContext);
 
         assertThat(validationRuleSets).isEmpty();
