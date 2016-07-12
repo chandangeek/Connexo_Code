@@ -4,13 +4,13 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.streams.Functions;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/usagepoints")
 public class UsagePointResource {
@@ -61,14 +62,13 @@ public class UsagePointResource {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().orElse(null);
         if (effectiveMetrologyConfiguration != null) {
             UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
-            List<MetrologyContract> contracts = metrologyConfiguration.getContracts();
-            contracts.stream().forEach(metrologyContract -> {
-                effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).orElse(null).getChannels().stream().forEach(channel -> {
-                    channelInfos.add(usagePointChannelInfoFactory.from(channel, usagePoint, metrologyConfiguration));
-                });
-            });
+            channelInfos = metrologyConfiguration.getContracts().stream()
+                    .map(effectiveMetrologyConfiguration::getChannelsContainer)
+                    .flatMap(Functions.asStream())
+                    .flatMap(channelsContainer -> channelsContainer.getChannels().stream())
+                    .map(channel -> usagePointChannelInfoFactory.from(channel, usagePoint, metrologyConfiguration))
+                    .collect(Collectors.toList());
         }
-
         return PagedInfoList.fromPagedList("channels", channelInfos, queryParameters);
     }
 
