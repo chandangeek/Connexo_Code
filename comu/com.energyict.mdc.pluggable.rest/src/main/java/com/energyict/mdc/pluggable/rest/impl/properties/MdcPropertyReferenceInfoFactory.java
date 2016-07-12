@@ -1,8 +1,8 @@
 package com.energyict.mdc.pluggable.rest.impl.properties;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.TimeDuration;
@@ -33,7 +33,7 @@ import java.net.URI;
 
 /**
  * Provides functionality for property 'Reference' objects
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 20/11/13
  * Time: 10:07
@@ -71,13 +71,12 @@ public class MdcPropertyReferenceInfoFactory {
                 info = new RegisterInfo((Register) property);
             } else if (LogBook.class.isAssignableFrom(property.getClass())) {
                 info = new LogBookInfo((LogBook) property);
-            } else if (FirmwareVersion.class.isAssignableFrom(property.getClass())){
+            } else if (FirmwareVersion.class.isAssignableFrom(property.getClass())) {
                 FirmwareVersion firmwareVersion = (FirmwareVersion) property;
                 info = new IdWithNameInfo(firmwareVersion.getId(), firmwareVersion.getFirmwareVersion());
             } else if (UsagePoint.class.isAssignableFrom(property.getClass())) {
                 UsagePoint usagePoint = (UsagePoint) property;
                 info = new IdWithNameInfo(usagePoint.getId(), usagePoint.getMRID());
-                info = asInfoObject((FirmwareVersion) property);
             } else if (ReadingType.class.isAssignableFrom(property.getClass())) {
                 info = new ReadingTypeInfo(((ReadingType) property));
             }
@@ -90,7 +89,7 @@ public class MdcPropertyReferenceInfoFactory {
      * </br>
      * <i>NOTE:</i> add conversion where necessary.
      *
-     * @param propertySpec       the propertySpec to deduce a propertyType from
+     * @param propertySpec the propertySpec to deduce a propertyType from
      * @param simplePropertyType the simplePropertyType to use if we could not convert it
      * @return the converted simplePropertyType
      */
@@ -115,7 +114,7 @@ public class MdcPropertyReferenceInfoFactory {
     /**
      * Creates a proper URI to fetch the <i>full</i> list of the BusinessObjects of the given class
      *
-     * @param uriInfo           the URI info which was used for the REST call
+     * @param uriInfo the URI info which was used for the REST call
      * @param propertyClassType the classTypeName of the object
      * @return the uri to fetch the list of objects
      */
