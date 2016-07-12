@@ -56,19 +56,19 @@ Ext.define('CSMonitor.util.UriParser', {
     buildUrl: function(){
         var url = this.protocol + "//" + this.host;
         if (this.pathname){
-            if (!this.pathname.startsWith("/")){
+            if (!Ext.String.startsWith(this.pathname, "/")) {
                 url += "/";
             }
             url += this.pathname;
         }
         if (this.search){
-            if (!this.search.startsWith("?")){
+            if (!Ext.String.startsWith(this.search, "?")){
                 url += "?";
             }
             url += this.search;
         }
         if (this.hash) {
-            if (!this.hash.startsWith("#")){
+            if (!Ext.String.startsWith(this.hash, "#")){
                 url += "#";
             }
             url += this.hash;
