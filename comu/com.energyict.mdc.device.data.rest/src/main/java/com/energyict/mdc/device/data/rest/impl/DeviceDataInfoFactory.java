@@ -1,8 +1,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -32,6 +37,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,9 +67,26 @@ public class DeviceDataInfoFactory {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
-        channelIntervalInfo.intervalFlags = new ArrayList<>();
         channelIntervalInfo.validationActive = isValidationActive;
-        channelIntervalInfo.intervalFlags.addAll(loadProfileReading.getFlags().stream().map(flag -> thesaurus.getString(flag.name(), flag.name())).collect(Collectors.toList()));
+
+        Map<Channel, List<? extends ReadingQualityRecord>> readingQualities = loadProfileReading.getReadingQualities();
+        List<? extends ReadingQualityRecord> readingQualityRecords = readingQualities.get(channel);
+        if (readingQualityRecords == null) {
+            readingQualityRecords = new ArrayList<>();
+        }
+
+        channelIntervalInfo.readingQualities = readingQualityRecords
+                .stream()
+                .filter(ReadingQualityRecord::isActual)
+                .distinct()
+                .filter(record -> record.getType().system().isPresent())
+                .filter(record -> record.getType().category().isPresent())
+                .filter(record -> record.getType().qualityIndex().isPresent())
+                .filter(record -> (record.getType().getSystemCode() == QualityCodeSystem.ENDDEVICE.ordinal()))
+                .map(rq -> getSimpleName(rq.getType()))
+                .collect(Collectors.toList());
+
+
         Optional<IntervalReadingRecord> channelReading = loadProfileReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst();// There can be only one channel (or no channel at all if the channel has no dta for this interval)
         channelReading.ifPresent(reading -> {
             channelIntervalInfo.multiplier = channel.getMultiplier(reading.getTimeStamp()).orElseGet(() -> null);
@@ -93,12 +116,20 @@ public class DeviceDataInfoFactory {
         return channelIntervalInfo;
     }
 
+    /**
+     * Find translation of the index of the given reading quality CIM code.
+     */
+    private String getSimpleName(ReadingQualityType type) {
+        TranslationKey translationKey = type.qualityIndex().get().getTranslationKey();
+        return thesaurus.getStringBeyondComponent(translationKey.getKey(), translationKey.getDefaultFormat());
+    }
+
     private void addCalculatedValueInfo(Channel channel, ChannelDataInfo channelIntervalInfo, IntervalReadingRecord reading) {
         channelIntervalInfo.isBulk = channel.getReadingType().isCumulative();
         channel.getCalculatedReadingType(reading.getTimeStamp()).ifPresent(readingType -> {
             channelIntervalInfo.collectedValue = channelIntervalInfo.value;
             Quantity quantity = reading.getQuantity(readingType);
-            channelIntervalInfo.value = getRoundedBigDecimal(quantity != null? quantity.getValue(): null, channel);
+            channelIntervalInfo.value = getRoundedBigDecimal(quantity != null ? quantity.getValue() : null, channel);
         });
     }
 
@@ -110,11 +141,29 @@ public class DeviceDataInfoFactory {
         LoadProfileDataInfo channelIntervalInfo = new LoadProfileDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
-        channelIntervalInfo.intervalFlags = loadProfileReading
-                .getFlags()
-                .stream()
-                .map(flag -> thesaurus.getString(flag.name(), flag.name()))
-                .collect(Collectors.toList());
+
+        Map<Long, List<String>> readingQualitiesDescriptionPerChannel = new HashMap<>();
+        for (Channel channel : loadProfileReading.getReadingQualities().keySet()) {
+            List<? extends ReadingQualityRecord> readingQualityRecords = loadProfileReading.getReadingQualities().get(channel);
+            if (readingQualityRecords == null) {
+                readingQualityRecords = new ArrayList<>();
+            }
+
+            List<String> readingQualitiesDescription = readingQualityRecords
+                    .stream()
+                    .filter(ReadingQualityRecord::isActual)
+                    .distinct()
+                    .filter(record -> record.getType().system().isPresent())
+                    .filter(record -> record.getType().category().isPresent())
+                    .filter(record -> record.getType().qualityIndex().isPresent())
+                    .filter(record -> (record.getType().getSystemCode() == QualityCodeSystem.ENDDEVICE.ordinal()))
+                    .map(rq -> getSimpleName(rq.getType()))
+                    .collect(Collectors.toList());
+
+            readingQualitiesDescriptionPerChannel.put(channel.getId(), readingQualitiesDescription);
+        }
+        channelIntervalInfo.readingQualities = readingQualitiesDescriptionPerChannel;
+
         if (loadProfileReading.getChannelValues().isEmpty()) {
             for (Channel channel : channels) {
                 channelIntervalInfo.channelData.put(channel.getId(), null);
@@ -183,14 +232,30 @@ public class DeviceDataInfoFactory {
         readingInfo.id = reading.getTimeStamp();
         readingInfo.timeStamp = reading.getTimeStamp();
         readingInfo.reportedDateTime = reading.getReportedDateTime();
+        readingInfo.readingQualities = createReadingQualitiesInfo(reading);
         readingInfo.modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
+    }
+
+    /**
+     * Returns the CIM code and full translation of all reading qualities on the given interval reading
+     */
+    private List<ReadingQualityInfo> createReadingQualitiesInfo(Reading reading) {
+        return reading.getActualReading().getReadingQualities().stream()
+                .filter(ReadingQualityRecord::isActual)
+                .map(ReadingQuality::getType)
+                .distinct()
+                .filter(type -> type.system().isPresent())
+                .filter(type -> type.category().isPresent())
+                .filter(type -> type.qualityIndex().isPresent())
+                .map(type -> ReadingQualityInfo.fromReadingQualityType(thesaurus, type))
+                .collect(Collectors.toList());
     }
 
     private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, boolean isValidationStatusActive) {
         BillingReadingInfo billingReadingInfo = new BillingReadingInfo();
         setCommonReadingInfo(reading, billingReadingInfo);
         Instant timeStamp = reading.getTimeStamp();
-        if(timeStamp != null){
+        if (timeStamp != null) {
             billingReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         }
         if (reading.getQuantity() != null) {
@@ -209,7 +274,7 @@ public class DeviceDataInfoFactory {
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
         setCommonReadingInfo(reading, numericalReadingInfo);
         Instant timeStamp = reading.getTimeStamp();
-        if(timeStamp != null){
+        if (timeStamp != null) {
             numericalReadingInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
         }
 
@@ -226,9 +291,9 @@ public class DeviceDataInfoFactory {
     }
 
     private void setCalculatedValueIfApplicable(NumericalReading reading, Register<?, ?> register, NumericalReadingInfo numericalReadingInfo, int numberOfFractionDigits) {
-        if(register.getCalculatedReadingType(reading.getTimeStamp()).isPresent() ){
+        if (register.getCalculatedReadingType(reading.getTimeStamp()).isPresent()) {
             Quantity calculatedQuantity = reading.getQuantityFor(register.getCalculatedReadingType(reading.getTimeStamp()).get());
-            if(calculatedQuantity != null){
+            if (calculatedQuantity != null) {
                 numericalReadingInfo.calculatedValue = calculatedQuantity.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
                 numericalReadingInfo.calculatedUnit = register.getRegisterSpec().getRegisterType().getUnit();
             }
@@ -313,7 +378,7 @@ public class DeviceDataInfoFactory {
         return flagsRegisterInfo;
     }
 
-    private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister){
+    private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister) {
         TextRegisterInfo textRegisterInfo = new TextRegisterInfo();
         addCommonRegisterInfo(textRegister, textRegisterInfo);
         return textRegisterInfo;

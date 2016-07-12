@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -25,7 +25,7 @@ public class VeeReadingInfo {
     @JsonProperty("bulkValidationInfo")
     public VeeReadingValueInfo bulkValidationInfo = new VeeReadingValueInfo();
     @JsonProperty("readingQualities")
-    public List<IdWithNameInfo> readingQualities;
+    public List<ReadingQualityInfo> readingQualities;
 
     public VeeReadingInfo() {
     }
