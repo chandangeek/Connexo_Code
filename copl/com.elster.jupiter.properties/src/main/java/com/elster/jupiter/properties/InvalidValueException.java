@@ -35,7 +35,9 @@ public class InvalidValueException extends Exception {
     }
 
     public Object[] getArguments() {
-        return arguments;
+        Object[] copied = new Object[this.arguments.length];
+        System.arraycopy(this.arguments, 0, copied, 0, this.arguments.length);
+        return copied;
     }
 
     public String getDefaultPattern() {

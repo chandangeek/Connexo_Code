@@ -66,7 +66,11 @@ public class BasicPropertySpec implements PropertySpec, Serializable {
     @SuppressWarnings("unchecked")
     public void setMultiValued(boolean multiValued, String separator) {
         this.multiValued = multiValued;
-        this.valueFactory = new ListValueFactory<>(this.valueFactory, separator);
+        if (valueFactory.getValueType().equals(ReadingQualityPropertyValue.class)) {
+            this.valueFactory = new ListReadingQualityFactory<>(this.valueFactory, separator);
+        } else {
+            this.valueFactory = new ListValueFactory<>(this.valueFactory, separator);
+        }
     }
 
     @Override
