@@ -98,6 +98,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(MeterInfoFactory.class).to(MeterInfoFactory.class);
             bind(UsagePointChannelInfoFactory.class).to(UsagePointChannelInfoFactory.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ChannelDataInfoFactory.class).to(ChannelDataInfoFactory.class);
         }
     }
 }

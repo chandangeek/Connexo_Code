@@ -1,16 +1,19 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Ranges;
+import com.energyict.mdc.common.services.ListPager;
+
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -21,24 +24,30 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/usagepoints")
 public class UsagePointResource {
 
-    private final MeteringService meteringService;
-    private final ExceptionFactory exceptionFactory;
     private final MeterInfoFactory meterInfoFactory;
     private final UsagePointChannelInfoFactory usagePointChannelInfoFactory;
+    private final ResourceHelper resourceHelper;
+    private final ChannelDataInfoFactory channelDataInfoFactory;
 
     @Inject
-    public UsagePointResource(MeteringService meteringService, ExceptionFactory exceptionFactory, MeterInfoFactory meterInfoFactory, UsagePointChannelInfoFactory usagePointChannelInfoFactory) {
-        this.meteringService = meteringService;
-        this.exceptionFactory = exceptionFactory;
+    public UsagePointResource(MeterInfoFactory meterInfoFactory,
+                              UsagePointChannelInfoFactory usagePointChannelInfoFactory,
+                              ResourceHelper resourceHelper,
+                              ChannelDataInfoFactory channelDataInfoFactory) {
         this.meterInfoFactory = meterInfoFactory;
         this.usagePointChannelInfoFactory = usagePointChannelInfoFactory;
+        this.resourceHelper = resourceHelper;
+        this.channelDataInfoFactory = channelDataInfoFactory;
     }
 
     @GET
@@ -46,7 +55,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     public PagedInfoList getDevicesHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = fetchUsagePoint(mRID);
+        UsagePoint usagePoint = resourceHelper.fetchUsagePoint(mRID);
         return PagedInfoList.fromCompleteList("devices", meterInfoFactory.getDevicesHistory(usagePoint), queryParameters);
     }
 
@@ -57,7 +66,7 @@ public class UsagePointResource {
     @Transactional
     public PagedInfoList getChannels(@PathParam("mRID") String mRID, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         List<UsagePointChannelInfo> channelInfos = new ArrayList<>();
-        UsagePoint usagePoint = fetchUsagePoint(mRID);
+        UsagePoint usagePoint = resourceHelper.fetchUsagePoint(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().orElse(null);
         if (effectiveMetrologyConfiguration != null) {
             UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
@@ -72,8 +81,27 @@ public class UsagePointResource {
         return PagedInfoList.fromPagedList("channels", channelInfos, queryParameters);
     }
 
-    private UsagePoint fetchUsagePoint(String mRID) {
-        return meteringService.findUsagePoint(mRID)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mRID));
+    @GET
+    @Transactional
+    @Path("/{mRID}/channels/{channelid}/data")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
+    public Response getChannelData(
+            @PathParam("mRID") String mRID,
+            @PathParam("channelid") long channelId,
+            @BeanParam JsonQueryFilter filter,
+            @BeanParam JsonQueryParameters queryParameters) {
+        Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(mRID, channelId);
+        if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
+            Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+            List<ChannelDataInfo> infos = channel.getIntervalReadings(range).stream()
+                    .map(readingRecord -> channelDataInfoFactory.createChannelDataInfo(readingRecord))
+                    .collect(Collectors.toList());
+            List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
+            PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
+            return Response.ok(pagedInfoList).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
     }
 }

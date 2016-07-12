@@ -36,6 +36,7 @@ public class UsagePointChannelInfoFactory {
         ReadingType readingType = channel.getMainReadingType();
         UsagePointChannelInfo info = new UsagePointChannelInfo();
 
+        info.id = channel.getId();
         Instant lastDateTime = channel.getLastDateTime();
         info.dataUntil = lastDateTime != null ? lastDateTime.toEpochMilli() : null;
         info.readingType = readingTypeInfoFactory.from(readingType);
