@@ -58,7 +58,7 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
 
     private void appendLoadProfileReaders (DescriptionBuilder builder) {
         if (this.loadProfileReaders.isEmpty()) {
-            builder.addLabel("There are no read profiles do read");
+            builder.addLabel("There are no load profiles to read");
         }
         else {
             PropertyDescriptionBuilder loadProfilesToReadBuilder = builder.addListProperty("loadProfileToRead");
