@@ -1,5 +1,6 @@
 package com.elster.jupiter.servicecall.impl.example;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -15,7 +16,7 @@ import javax.validation.constraints.Size;
 /**
  * Created by bvn on 2/15/16.
  */
-public class ServiceCallLifeCycleDomainExtension implements PersistentDomainExtension<ServiceCallLifeCycle> {
+public class ServiceCallLifeCycleDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCallLifeCycle> {
 
     public enum FieldNames {
         DOMAIN("serviceCallType", "serviceCallType"), // Illegal type
@@ -40,7 +41,6 @@ public class ServiceCallLifeCycleDomainExtension implements PersistentDomainExte
     }
 
     private Reference<ServiceCallLifeCycle> serviceCallType = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
     private String testString;
@@ -52,7 +52,7 @@ public class ServiceCallLifeCycleDomainExtension implements PersistentDomainExte
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public boolean getTestBoolean() {

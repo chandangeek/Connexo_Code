@@ -1,6 +1,7 @@
 package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -488,10 +489,9 @@ public class ServiceCallTransitionIT {
         assertThat(serviceCall.canTransitionTo(DefaultState.CANCELLED)).isTrue();
     }
 
-    static class MyExtension implements PersistentDomainExtension<ServiceCall> {
+    static class MyExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
         private Reference<ServiceCall> serviceCall = ValueReference.absent();
-        private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
         private BigDecimal value;
 
         public BigDecimal getValue() {
