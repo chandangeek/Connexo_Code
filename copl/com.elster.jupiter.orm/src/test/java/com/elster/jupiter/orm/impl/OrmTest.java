@@ -73,7 +73,7 @@ public class OrmTest {
     @Test
     public void testDataModel() {
         OrmService ormService = injector.getInstance(OrmService.class);
-        DataModel dataModel = ((OrmServiceImpl) ormService).getDataModels().get(0);
+        DataModel dataModel = ormService.getDataModels().get(0);
         assertThat(dataModel.mapper(DataModel.class).find()).hasSize(1);
         assertThat(dataModel.mapper(Table.class).find().size()).isGreaterThan(4);
         assertThat(dataModel.mapper(Column.class).find().size()).isGreaterThan(10);

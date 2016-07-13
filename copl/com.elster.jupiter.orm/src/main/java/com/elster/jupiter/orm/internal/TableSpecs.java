@@ -10,14 +10,17 @@ import com.elster.jupiter.orm.impl.DataModelImpl;
 import com.elster.jupiter.orm.impl.TableConstraintImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 public enum TableSpecs {
-	
-	ORM_DATAMODEL {		
+
+	ORM_DATAMODEL {
 		public void addTo(DataModel dataModel) {
 			Table<DataModel> table = dataModel.addTable(name(),DataModel.class);
 			table.map(DataModelImpl.class);
@@ -35,7 +38,6 @@ public enum TableSpecs {
 			Column name = table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
 			Column position = table.addPositionColumn();
 			Column schema = table.column("SCHEMAOWNER").type(CATALOGDBTYPE).map("schema").add();
-			table.column("JOURNALTABLENAME").type(CATALOGDBTYPE).map("journalTableName").add();
 			table.column("CACHED").bool().map("cached").add();
 			table.column("INDEXORGANIZED").number().notNull().conversion(NUMBER2INT).map("indexOrganized").add();
 			table.primaryKey("ORM_PK_TABLE").on(component , name).add();
@@ -45,12 +47,12 @@ public enum TableSpecs {
 				map("dataModel").reverseMap("tables").reverseMapOrder("position").composition().add();
 		}
 	},
-	ORM_COLUMN {	
+	ORM_COLUMN {
 		public void addTo(DataModel dataModel) {
 			Table<Column> table = dataModel.addTable(name(),Column.class);
 			table.map(ColumnImpl.class);
 			Column component = table.column("COMPONENT").type(COMPONENTDBTYPE).notNull().add();
-			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();		
+			Column tableName = table.column("TABLENAME").type(CATALOGDBTYPE).notNull().add();
 			Column name= table.column("NAME").type(CATALOGDBTYPE).notNull().map("name").add();
 			Column position = table.addPositionColumn();
 			table.column("FIELDNAME").varChar(NAME_LENGTH).map("fieldName").add();
@@ -68,7 +70,7 @@ public enum TableSpecs {
 				map("table").reverseMap("columns").reverseMapOrder("position").composition().add();
 		}
 	},
-	ORM_TABLECONSTRAINT {	
+	ORM_TABLECONSTRAINT {
 		public void addTo(DataModel dataModel) {
 			Table<TableConstraint> table = dataModel.addTable(name(),TableConstraint.class);
 			table.map(TableConstraintImpl.implementers);
@@ -89,7 +91,7 @@ public enum TableSpecs {
 			table.unique("ORM_U_CONSTRAINT").on(name).add();
 			table.unique("ORM_U_CONSTRAINT2").on(component,tableName,position).add();
 			table.foreignKey("ORM_FK_CONSTRAINTTABLE").on(component , tableName).references(ORM_TABLE.name()).onDelete(CASCADE).
-				map("table").reverseMap("constraints").reverseMapOrder("position").composition().add();	
+				map("table").reverseMap("constraints").reverseMapOrder("position").composition().add();
 			table.foreignKey("ORM_FK_CONSTRAINTTABLE2").on(referencedComponent, referencedTable).references(ORM_TABLE.name()).onDelete(RESTRICT).map("referencedTable").add();
 		}
 	},
@@ -105,14 +107,14 @@ public enum TableSpecs {
 			table.primaryKey("ORM_PK_COLUMNINCONSTRAINT").on(componentName , tableName , constraintNameColumn , columnNameColumn).add();
 			table.unique("ORM_U_COLUMNINCONSTRAINT").on(componentName , tableName , constraintNameColumn , positionColumn).add();
 			table.foreignKey("ORM_FK_COLUMNINCONSTRAINT1").on(componentName, tableName, constraintNameColumn).references(ORM_TABLECONSTRAINT.name()).onDelete(CASCADE).
-				map("constraint").reverseMap("columnHolders").reverseMapOrder("position").composition().add();		
+				map("constraint").reverseMap("columnHolders").reverseMapOrder("position").composition().add();
 			table.foreignKey("ORM_FK_COLUMNINCONSTRAINT2").on(componentName, tableName, columnNameColumn ).references(ORM_COLUMN.name()).onDelete(RESTRICT).map("column").add();
 		}
 	};
-	
+
 	private static final String COMPONENTDBTYPE = "varchar2(3)";
 	private static final String CATALOGDBTYPE = "varchar2(30)";
-	
+
 	public abstract void addTo(DataModel dataModel);
-	
+
 }
