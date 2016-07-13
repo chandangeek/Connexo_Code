@@ -72,12 +72,10 @@ import java.util.stream.Collectors;
 public class UsagePointResource {
 
     private final MeteringService meteringService;
-    private final TransactionService transactionService;
     private final Clock clock;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final ServiceCallService serviceCallService;
-    private final Thesaurus thesaurus;
     private final ExceptionFactory exceptionFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
@@ -96,12 +94,10 @@ public class UsagePointResource {
                               MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
                               ResourceHelper resourceHelper) {
         this.meteringService = meteringService;
-        this.transactionService = transactionService;
         this.clock = clock;
         this.conflictFactory = conflictFactory;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.serviceCallService = serviceCallService;
-        this.thesaurus = thesaurus;
         this.exceptionFactory = exceptionFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
@@ -189,16 +185,16 @@ public class UsagePointResource {
     public ChannelInfos getChannels(@PathParam("mRID") String mRID, @PathParam("activationId") long activationId, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
-        return new ChannelInfos(meterActivation.getChannels());
+        return new ChannelInfos(meterActivation.getChannelsContainer().getChannels());
     }
 
     private MeterActivation fetchMeterActivation(UsagePoint usagePoint, long activationId) {
-        for (MeterActivation meterActivation : usagePoint.getMeterActivations()) {
-            if (meterActivation.getId() == activationId) {
-                return meterActivation;
-            }
-        }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
+        return usagePoint
+                .getMeterActivations()
+                .stream()
+                .filter(meterActivation -> meterActivation.getId() == activationId)
+                .findFirst()
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
@@ -210,13 +206,13 @@ public class UsagePointResource {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         Range<Instant> range = Range.openClosed(Instant.ofEpochMilli(from), Instant.ofEpochMilli(to));
-        return doGetIntervalreadings(mRID, activationId, channelId, securityContext, range);
+        return doGetIntervalreadings(mRID, activationId, channelId, range);
     }
 
-    private ReadingInfos doGetIntervalreadings(String mRID, long activationId, long channelId, SecurityContext securityContext, Range<Instant> range) {
+    private ReadingInfos doGetIntervalreadings(String mRID, long activationId, long channelId, Range<Instant> range) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         MeterActivation meterActivation = fetchMeterActivation(usagePoint, activationId);
-        for (Channel channel : meterActivation.getChannels()) {
+        for (Channel channel : meterActivation.getChannelsContainer().getChannels()) {
             if (channel.getId() == channelId) {
                 List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(range);
                 return new ReadingInfos(intervalReadings);
@@ -392,7 +388,7 @@ public class UsagePointResource {
             if (readingType == null) {
                 readingType = FluentIterable.from(meterActivation.getReadingTypes()).firstMatch(new MRIDMatcher(rtMrid)).get();
             }
-            for (Channel channel : meterActivation.getChannels()) {
+            for (Channel channel : meterActivation.getChannelsContainer().getChannels()) {
                 readings.addAll(channel.getIntervalReadings(readingType, range));
             }
         }
@@ -406,10 +402,12 @@ public class UsagePointResource {
 
     private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
         Set<ReadingType> readingTypes = new LinkedHashSet<>();
-        List<? extends MeterActivation> meterActivations = usagePoint.getMeterActivations();
-        for (MeterActivation meterActivation : meterActivations) {
-            readingTypes.addAll(meterActivation.getReadingTypes());
-        }
+        usagePoint
+                .getMeterActivations()
+                .stream()
+                .map(MeterActivation::getReadingTypes)
+                .flatMap(Collection::stream)
+                .forEach(readingTypes::add);
         return readingTypes;
     }
 
@@ -433,7 +431,7 @@ public class UsagePointResource {
         }
     }
 
-    private static class MRIDMatcher implements Predicate<ReadingType> {
+    private static final class MRIDMatcher implements Predicate<ReadingType> {
 
         private final String mRID;
 
@@ -446,4 +444,5 @@ public class UsagePointResource {
             return input.getMRID().equals(mRID);
         }
     }
+
 }

@@ -46,7 +46,7 @@ public class ReadingTypeResource {
     private final TransactionService transactionService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final ReadingTypeInfoFactory readingTypeInfoFactory;
-    
+
     @Inject
     public ReadingTypeResource(MeteringService meteringService, ExceptionFactory exceptionFactory, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory, ReadingTypeInfoFactory readingTypeInfoFactory) {
         this.meteringService = meteringService;
@@ -63,12 +63,12 @@ public class ReadingTypeResource {
         List<ReadingTypeInfo> readingTypeInfos = meteringService.findReadingTypes(ReadingTypeFilterFactory.from(jsonQueryFilter))
                 .from(queryParameters)
                 .stream()
-                .map((readingType) -> readingTypeInfoFactory.from(readingType))
+                .map(readingTypeInfoFactory::from)
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromPagedList("readingTypes", readingTypeInfos, queryParameters);
     }
-    
+
     @GET
 	@Path("/{mRID}/")
     @RolesAllowed({Privileges.Constants.VIEW_READINGTYPE, Privileges.Constants.ADMINISTER_READINGTYPE})
@@ -85,7 +85,7 @@ public class ReadingTypeResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ReadingTypeInfos getCalculatedReadingType(@PathParam("mRID") String mRID) {
         return meteringService.getReadingType(mRID)
-                .map(rt -> rt.getCalculatedReadingType())
+                .map(ReadingType::getCalculatedReadingType)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND))
                 .map(readingType -> readingTypeInfoFactory.from(Collections.singletonList(readingType))).orElse(new ReadingTypeInfos());
     }
@@ -147,8 +147,12 @@ public class ReadingTypeResource {
             if (countVariations > 1000) {
                 throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TOO_MANY_READINGTYPES, countVariations);
             }
-            List<String> codes = new ReadingTypeListFactory(createReadingTypeInfo).getCodeStringList();
-            codes = codes.stream().filter(c -> !meteringService.getReadingType(c).isPresent()).collect(Collectors.toList());
+            List<String> codes =
+                    new ReadingTypeListFactory(createReadingTypeInfo)
+                            .getCodeStringList()
+                            .stream()
+                            .filter(c -> !meteringService.getReadingType(c).isPresent())
+                            .collect(Collectors.toList());
             final List<String> existsMrids = meteringService.findReadingTypes(codes).stream().map(ReadingType::getMRID).collect(Collectors.toList());
             mRIDs = codes.stream().filter(e -> !existsMrids.contains(e)).collect(Collectors.toList());
         }

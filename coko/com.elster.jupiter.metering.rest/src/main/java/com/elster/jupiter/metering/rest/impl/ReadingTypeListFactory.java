@@ -3,17 +3,16 @@ package com.elster.jupiter.metering.rest.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class ReadingTypeListFactory {
+class ReadingTypeListFactory {
     private CreateReadingTypeInfo info;
     private List<String> codeList;
 
-    public ReadingTypeListFactory(CreateReadingTypeInfo info) {
+    ReadingTypeListFactory(CreateReadingTypeInfo info) {
         this.info = info;
     }
 
-    public List<String> getCodeStringList() {
+    List<String> getCodeStringList() {
         codeList = Collections.singletonList("");
         addMacroPeriod();
         addAggregate();
@@ -33,222 +32,92 @@ public class ReadingTypeListFactory {
         addMultiplier();
         addUnit();
         addCurrency();
-        return codeList;
+        return Collections.unmodifiableList(codeList);
     }
 
     private void addMacroPeriod() {
-        List<String> tempList = new ArrayList<>();
-        if (info.macroPeriod.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat("0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.macroPeriod.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat(String.valueOf(info.macroPeriod.get(j)))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.macroPeriod);
     }
 
     private void addAggregate() {
-        List<String> tempList = new ArrayList<>();
-        if (info.aggregate.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.aggregate.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.aggregate.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.aggregate);
     }
 
     private void addMeasurementPeriod() {
-        List<String> tempList = new ArrayList<>();
-        if (info.measuringPeriod.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.measuringPeriod.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.measuringPeriod.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.measuringPeriod);
     }
 
     private void addAccumulation() {
-        List<String> tempList = new ArrayList<>();
-        if (info.accumulation.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.accumulation.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.accumulation.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.accumulation);
     }
 
     private void addFlowDirection() {
-        List<String> tempList = new ArrayList<>();
-        if (info.flowDirection.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.flowDirection.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.flowDirection.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.flowDirection);
     }
 
     private void addCommodity() {
-        List<String> tempList = new ArrayList<>();
-        if (info.commodity.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.commodity.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.commodity.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.commodity);
     }
 
     private void addMeasurementKind() {
-        List<String> tempList = new ArrayList<>();
-        if (info.measurementKind.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.measurementKind.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.measurementKind.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.measurementKind);
     }
 
     private void addInterHarmonicNumerator() {
-        List<String> tempList = new ArrayList<>();
-        if (info.interHarmonicNumerator.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.interHarmonicNumerator.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.interHarmonicNumerator.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.interHarmonicNumerator);
     }
 
     private void addInterHarmonicDenominator() {
-        List<String> tempList = new ArrayList<>();
-        if (info.interHarmonicDenominator.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.interHarmonicDenominator.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.interHarmonicDenominator.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.interHarmonicDenominator);
     }
 
     private void addArgumentNumerator() {
-        List<String> tempList = new ArrayList<>();
-        if (info.argumentNumerator.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.argumentNumerator.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.argumentNumerator.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.argumentNumerator);
     }
 
     private void addArgumentDenominator() {
-        List<String> tempList = new ArrayList<>();
-        if (info.argumentDenominator.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.argumentDenominator.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.argumentDenominator.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.argumentDenominator);
     }
 
     private void addTou() {
-        List<String> tempList = new ArrayList<>();
-        if (info.tou.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.tou.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.tou.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.tou);
     }
 
     private void addCpp() {
-        List<String> tempList = new ArrayList<>();
-        if (info.cpp.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.cpp.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.cpp.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.cpp);
     }
 
     private void addConsumptionTier() {
-        List<String> tempList = new ArrayList<>();
-        if (info.consumptionTier.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.consumptionTier.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.consumptionTier.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.consumptionTier);
     }
 
     private void addPhases() {
-        List<String> tempList = new ArrayList<>();
-        if (info.phases.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.phases.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.phases.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.phases);
     }
 
     private void addMultiplier() {
-        List<String> tempList = new ArrayList<>();
-        if (info.metricMultiplier.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.metricMultiplier.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.metricMultiplier.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.metricMultiplier);
     }
 
     private void addUnit() {
-        List<String> tempList = new ArrayList<>();
-        if (info.unit.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.unit.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.unit.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.unit);
     }
 
     private void addCurrency() {
-        List<String> tempList = new ArrayList<>();
-        if (info.currency.size() == 0) {
-            tempList.addAll(codeList.stream().map(e -> e.concat(".0")).collect(Collectors.toList()));
-        }
-        for (int i = 0; i < info.currency.size(); i++) {
-            final int j = i;
-            tempList.addAll(codeList.stream().map(e -> e.concat("." + info.currency.get(j))).collect(Collectors.toList()));
-        }
-        codeList = tempList;
+        this.addToCodeListFrom(info.currency);
     }
+
+    private void addToCodeListFrom(List<Integer> numbers) {
+        List<String> tempList = new ArrayList<>();
+        if (numbers.isEmpty()) {
+            this.codeList.stream().map(e -> e + ".0").forEach(tempList::add);
+        }
+
+        for (int i = 0; i < numbers.size(); i++) {
+            int j = i;
+            this.codeList.stream().map(e -> e + "." + numbers.get(j)).forEach(tempList::add);
+        }
+        this.codeList = tempList;
+    }
+
 }

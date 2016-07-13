@@ -93,6 +93,7 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         when(meter.getAmrSystem()).thenReturn(amrSystem);
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
     }
 
     private EffectiveMetrologyConfigurationOnUsagePoint mockEffectiveMetrologyConfiguration() {
