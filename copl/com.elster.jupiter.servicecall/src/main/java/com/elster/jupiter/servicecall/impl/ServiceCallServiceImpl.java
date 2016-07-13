@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
@@ -88,6 +89,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     private final Map<String, ServiceCallHandler> handlerMap = new ConcurrentHashMap<>();
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
+    private volatile SqlDialect sqlDialect = SqlDialect.ORACLE_SE;
 
     // OSGi
     public ServiceCallServiceImpl() {
@@ -96,6 +98,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Inject
     public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService) {
         this();
+        sqlDialect = SqlDialect.H2;
         setFiniteStateMachineService(finiteStateMachineService);
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -116,7 +119,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel(ServiceCallService.COMPONENT_NAME, "Service calls");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
-            tableSpecs.addTo(this.dataModel);
+            tableSpecs.addTo(this.dataModel, sqlDialect);
         }
     }
 
@@ -259,7 +262,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 .getUnique(ServiceCallTypeImpl.Fields.name.fieldName(), name, ServiceCallTypeImpl.Fields.versionName.fieldName(), versionName)
                 .map(ServiceCallType.class::cast);
     }
-
 
     @Override
     public Optional<ServiceCallType> findAndLockServiceCallType(long id, long version) {
