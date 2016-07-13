@@ -58,7 +58,7 @@ public class DeviceDataInfoFactory {
         this.clock = clock;
     }
 
-    public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation) {
+    public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
@@ -90,6 +90,9 @@ public class DeviceDataInfoFactory {
                 channelIntervalInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
             channelIntervalInfo.dataValidated = false;
+        }
+        if (dataLoggerSlave != null) {
+            channelIntervalInfo.slaveChannel = SlaveChannelInfo.from(dataLoggerSlave, channel);
         }
         return channelIntervalInfo;
     }

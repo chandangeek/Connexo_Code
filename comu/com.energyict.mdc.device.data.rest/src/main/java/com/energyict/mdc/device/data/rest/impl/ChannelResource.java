@@ -11,6 +11,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -355,11 +356,20 @@ public class ChannelResource {
         boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            List<LoadProfileReading> channelData = channel.getChannelData(range);
-            List<ChannelDataInfo> infos = channelData.stream()
-                    .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReading, isValidationActive, deviceValidation))
+
+            // Always do it via the topologyService, if for some reason the performance is slow, check if you can optimize it for
+            // devices which are not dataloggers
+            List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
+            List<ChannelDataInfo> infos = channelTimeLine.stream()
+                    .flatMap(channelRangePair -> {
+                        Channel channelWithData = channelRangePair.getFirst();
+                        List<LoadProfileReading> loadProfileReadings = channelWithData.getChannelData(channelRangePair.getLast());
+                        return loadProfileReadings.stream()
+                                .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channelWithData, loadProfileReading, isValidationActive, deviceValidation, channel.equals(channelWithData) ? null : channelWithData
+                                        .getDevice()));
+                    })
+                    .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects))
                     .collect(Collectors.toList());
-            infos = filter(infos, filter);
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
             return Response.ok(pagedInfoList).build();
@@ -396,15 +406,11 @@ public class ChannelResource {
             Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis - 1), Instant.ofEpochMilli(epochMillis));
             List<LoadProfileReading> channelData = channel.getChannelData(range);
             Optional<ChannelDataInfo> found = channelData.stream()
-                    .map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation))
+                    //TODO update
+                    .map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation, null))
                     .findFirst();
             return Response.ok(found.orElse(new ChannelDataInfo())).build();
         }
-    }
-
-    private List<ChannelDataInfo> filter(List<ChannelDataInfo> infos, JsonQueryFilter filter) {
-        Predicate<ChannelDataInfo> fromParams = resourceHelper.getSuspectsFilter(filter, this::hasSuspects);
-        return infos.stream().filter(fromParams).collect(Collectors.toList());
     }
 
     private boolean hasSuspects(ChannelDataInfo info) {
