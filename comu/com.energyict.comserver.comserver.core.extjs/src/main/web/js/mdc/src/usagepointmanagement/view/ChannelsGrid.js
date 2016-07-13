@@ -6,6 +6,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelsGrid', {
         'Uni.view.toolbar.PagingTop'
     ],
     store: 'Mdc.usagepointmanagement.store.Channels',
+    router: null,
 
     initComponent: function () {
         var me = this;
@@ -14,7 +15,13 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelsGrid', {
             {
                 xtype: 'reading-type-column',
                 dataIndex: 'readingType',
-                flex: 2
+                flex: 2,
+                makeLink: function (record) {
+                    var routerArguments = Ext.clone(me.router.arguments);
+
+                    routerArguments.channelId = record.getId();
+                    return me.router.getRoute('usagepoints/usagepoint/channels/channeldata').buildUrl(routerArguments);
+                }
             },
             {
                 header: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
