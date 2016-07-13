@@ -148,6 +148,8 @@ class VirtualReadingTypeRequirement {
 
     @SuppressWarnings("unchecked")
     private void appendDefinitionWithoutAggregation(SqlBuilder sqlBuilder) {
+        TimeSeries timeSeries = this.getPreferredChannel().getTimeSeries();
+        boolean hasLocalDate = this.hasLocalDateField(timeSeries);
         sqlBuilder.append("SELECT ");
 
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
@@ -168,12 +170,14 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName());
-        sqlBuilder.append(", ");
-        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
+        if (hasLocalDate) {
+            sqlBuilder.append(", ");
+            sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
+        }
 
         sqlBuilder.append(" FROM(");
-        TimeSeries timeSeries = this.getPreferredChannel().getTimeSeries();
-        if (this.hasLocalDateField(timeSeries)) {
+
+        if (hasLocalDate) {
             sqlBuilder.add(
                     timeSeries
                             .getRawValuesSql(
