@@ -1,18 +1,18 @@
 package com.elster.jupiter.metering.cps.impl.metrology;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.cps.impl.MessageSeeds;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.units.HasQuantityValueMin;
 import com.elster.jupiter.util.units.Quantity;
 
-public class UsagePointTechInstEGDomExt implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointTechInstEGDomExt extends AbstractPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
     public enum Fields {
         DOMAIN {
             @Override
@@ -35,8 +35,6 @@ public class UsagePointTechInstEGDomExt implements PersistentDomainExtension<Usa
     }
 
     Reference<UsagePoint> usagePoint = ValueReference.absent();
-    @IsPresent
-    Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
     @HasQuantityValueMin(min = 0, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.QUANTITY_MIN_VALUE + "}")
     private Quantity lossFactor;
 
@@ -45,7 +43,7 @@ public class UsagePointTechInstEGDomExt implements PersistentDomainExtension<Usa
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public Quantity getLossFactor() {
