@@ -468,7 +468,6 @@ public class UsagePointImpl implements UsagePoint {
 
         basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
 
-
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> latest = this.metrologyConfiguration.all().stream()
                 .sorted((m1, m2) -> -m1.getStart().compareTo(m2.getStart())).findFirst();
         if (latest.isPresent()) {
@@ -496,9 +495,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void updateWithInterval(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationVersion, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
-        Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
-        Long startTime = start.toEpochMilli();
-        Long endTime = end != null ? end.toEpochMilli() : null;
+
         Instant startTimeOfCurrent = this.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getStart)
                 .orElse(null);
@@ -514,13 +511,11 @@ public class UsagePointImpl implements UsagePoint {
 
 
         otherVersions.forEach(each -> checkOverlapsOfEffectiveMetrologyConfiguations(each, start, end));
-        Interval newInterval = Interval.of(RangeInstantBuilder.closedOpenRange(startTime, endTime));
-
-        metrologyConfigurationVersion.update(metrologyConfiguration, newInterval);
+        metrologyConfigurationVersion.close(metrologyConfigurationVersion.getStart());
+        this.apply(metrologyConfiguration, start, end);
     }
 
     private void checkOverlapsOfEffectiveMetrologyConfiguations(EffectiveMetrologyConfigurationOnUsagePoint each, Instant start, Instant end) {
-
         if (each.isEffectiveAt(start)) {
             throw new OverlapsOnMetrologyConfigurationVersionStart(thesaurus);
         } else if (each.isEffectiveAt(end)) {

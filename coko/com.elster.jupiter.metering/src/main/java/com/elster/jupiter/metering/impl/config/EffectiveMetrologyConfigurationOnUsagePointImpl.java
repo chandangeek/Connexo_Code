@@ -50,12 +50,6 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
         return this;
     }
 
-    @Override
-    public void update(UsagePointMetrologyConfiguration metrologyConfiguration, Interval interval) {
-        this.interval = interval;
-        this.metrologyConfiguration.set(metrologyConfiguration);
-        this.dataModel.update(this);
-    }
 
     @Override
     public UsagePointMetrologyConfiguration getMetrologyConfiguration() {

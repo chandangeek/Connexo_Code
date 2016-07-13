@@ -2,7 +2,6 @@ package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
 
@@ -20,8 +19,6 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends HasId, Effe
     boolean isActive();
 
     void activate();
-
-    void update(UsagePointMetrologyConfiguration metrologyConfiguration, Interval interval);
 
     Instant getStart();
 
