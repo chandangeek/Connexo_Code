@@ -12,6 +12,8 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.SelfObjectValidator;
 import com.elster.jupiter.metering.impl.config.SelfValid;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -19,6 +21,7 @@ import com.elster.jupiter.util.Pair;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -155,16 +158,22 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         boolean result = true;
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(this.activationTime);
         if (effectiveMetrologyConfiguration.isPresent()) {
-            try {
-                effectiveMetrologyConfiguration.get().getMetrologyConfiguration().validateMeterCapabilities(meterRoleMapping.entrySet().stream()
-                        .map(meterRoleMeterEntry -> Pair.of(meterRoleMeterEntry.getKey(), meterRoleMeterEntry.getValue()))
-                        .collect(Collectors.toList()));
-            } catch (UnsatisfiedReadingTypeRequirements ex) {
-                result = false;
+            UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.get().getMetrologyConfiguration();
+            List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = getMandatoryReadingTypeRequirements(metrologyConfiguration);
+            for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
+                if (mappingEntry.getValue() == null) {
+                    continue;
+                }
+                List<ReadingTypeRequirement> unmatchedRequirements = getUnmatchedMeterReadingTypeRequirements(metrologyConfiguration, mandatoryReadingTypeRequirements, mappingEntry);
+                if (!unmatchedRequirements.isEmpty()) {
+                    result = false;
+                    String messageTemplate = this.metrologyConfigurationService.getThesaurus()
+                            .getString(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT.getKey(), MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT.getDefaultFormat());
+                    String errorMessage = MessageFormat.format(messageTemplate, unmatchedRequirements
+                            .stream()
+                            .map(ReadingTypeRequirement::getDescription)
+                            .collect(Collectors.joining(", ")));
 
-                ex.getFailedRequirements().entrySet().stream().forEach(meterRoleListEntry -> {
-                    String errorMessage = this.metrologyConfigurationService.getThesaurus().getFormat(MessageSeeds.UNSATISFIED_METROLOGY_REQUIREMENT)
-                            .format(meterRoleListEntry.getValue().stream().map(ReadingTypeRequirement::getName).collect(Collectors.joining(", ")));
                     context.buildConstraintViolationWithTemplate(errorMessage)
                             .addPropertyNode(meterRoleListEntry.getKey().getKey())
                             .addConstraintViolation();
@@ -173,6 +182,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         }
         return result;
     }
+
 
     private boolean validateByCustomValidators(ConstraintValidatorContext context) {
         boolean result = true;

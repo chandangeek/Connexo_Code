@@ -1,7 +1,11 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
@@ -12,6 +16,9 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
@@ -27,6 +34,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     private boolean active;
+    private List<EffectiveMetrologyContractOnUsagePointImpl> effectiveContracts = new ArrayList<>();
 
     private long id;
 
@@ -57,6 +65,11 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     }
 
     @Override
+    public UsagePoint getUsagePoint() {
+        return this.usagePoint.get();
+    }
+
+    @Override
     public Interval getInterval() {
         return this.interval;
     }
@@ -82,10 +95,26 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     }
 
     @Override
+    public Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract) {
+        return this.effectiveContracts.stream()
+                .filter(effectiveContract -> effectiveContract.getMetrologyContract().equals(metrologyContract))
+                .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
+                .findAny();
+    }
+
+    public void createEffectiveMetrologyContracts() {
+        getMetrologyConfiguration().getContracts()
+                .stream()
+                .filter(metrologyContract -> !metrologyContract.getDeliverables().isEmpty())
+                .forEach(metrologyContract -> this.effectiveContracts.add(this.dataModel.getInstance(EffectiveMetrologyContractOnUsagePointImpl.class)
+                        .init(this, metrologyContract)));
+    }
+
+    @Override
     public String toString() {
         return toStringHelper(this)
                 .add("usagePoint", this.usagePoint)
-                .add("metrologyConfiguration", this.metrologyConfiguration)
+                .add("configuration", this.metrologyConfiguration)
                 .toString();
     }
 

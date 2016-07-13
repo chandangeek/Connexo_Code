@@ -1,5 +1,8 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.AggregationLevel;
@@ -8,13 +11,15 @@ import com.elster.jupiter.metering.config.FormulaBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.impl.aggregation.UnitConversionSupport;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.units.Quantity;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,16 +29,18 @@ import java.util.stream.Stream;
  */
 public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverableBuilder {
 
-    private FormulaBuilderImpl formulaBuilder;
-    private String name;
-    private ServerMetrologyConfiguration metrologyConfiguration;
-    private ReadingType readingType;
+    private final FormulaBuilderImpl formulaBuilder;
+    private final String name;
+    private final ServerMetrologyConfiguration metrologyConfiguration;
+    private final ReadingType readingType;
+    private final CustomPropertySetService customPropertySetService;
 
-    public ReadingTypeDeliverableBuilderImpl(ServerMetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula.Mode mode, DataModel dataModel, Thesaurus thesaurus) {
+    ReadingTypeDeliverableBuilderImpl(ServerMetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula.Mode mode, CustomPropertySetService customPropertySetService, DataModel dataModel, Thesaurus thesaurus) {
         this.formulaBuilder = new FormulaBuilderImpl(mode, dataModel, thesaurus);
         this.name = name;
         this.metrologyConfiguration = metrologyConfiguration;
         this.readingType = readingType;
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Override
@@ -53,7 +60,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_DELIVERABLE, (int) readingTypeDeliverable.getId());
         }
         if ((isAutoMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.EXPERT)) ||
-            (isExpertMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.AUTO))){
+                (isExpertMode() && readingTypeDeliverable.getFormula().getMode().equals(Formula.Mode.AUTO))) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.AUTO_AND_EXPERT_MODE_CANNOT_BE_COMBINED);
         }
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.deliverable(readingTypeDeliverable));
@@ -64,9 +71,6 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
         if (!requirement.getMetrologyConfiguration().equals(metrologyConfiguration)) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_METROLOGYCONFIGURATION_FOR_REQUIREMENT, (int) requirement.getId());
         }
-        if ((isAutoMode()) && (!requirement.isRegular())) {
-            throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.IRREGULAR_READINGTYPE_IN_REQUIREMENT);
-        }
         if ((isAutoMode()) && (!UnitConversionSupport.isValidForAggregation(requirement.getUnit()))) {
             throw new InvalidNodeException(this.formulaBuilder.getThesaurus(), MessageSeeds.INVALID_READINGTYPE_IN_REQUIREMENT);
         }
@@ -74,13 +78,38 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     }
 
     @Override
-    public FormulaBuilder requirement(ReadingTypeRequirementNode existingNode) {
-        return new FormulaAndExpressionNodeBuilder(formulaBuilder.requirement(existingNode));
+    public FormulaBuilder property(CustomPropertySet customPropertySet, PropertySpec propertySpec) {
+        if (!this.customPropertySetIsConfiguredOnMetrologyConfiguration(customPropertySet)) {
+            throw InvalidNodeException.customPropertyNotConfigured(this.formulaBuilder.getThesaurus(), propertySpec, customPropertySet);
+        }
+        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = this.customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId());
+        if (!registeredCustomPropertySet.isPresent()) {
+            throw InvalidNodeException.customPropertySetNoLongerActive(this.formulaBuilder.getThesaurus(), customPropertySet);
+        }
+        if (!registeredCustomPropertySet.get().getCustomPropertySet().isVersioned()) {
+            throw InvalidNodeException.customPropertySetNotVersioned(this.formulaBuilder.getThesaurus(), customPropertySet);
+        }
+        if (!this.isNumerical(propertySpec)) {
+            throw InvalidNodeException.customPropertyMustBeNumerical(this.formulaBuilder.getThesaurus(), customPropertySet, propertySpec);
+        }
+        return new FormulaAndExpressionNodeBuilder(this.formulaBuilder.property(registeredCustomPropertySet.get(), propertySpec));
+    }
+
+    private boolean customPropertySetIsConfiguredOnMetrologyConfiguration(CustomPropertySet customPropertySet) {
+        return this.metrologyConfiguration
+                .getCustomPropertySets()
+                .stream()
+                .anyMatch(each -> each.getCustomPropertySet().getId().equals(customPropertySet.getId()));
+    }
+
+    private boolean isNumerical(PropertySpec propertySpec) {
+        Class valueType = propertySpec.getValueFactory().getValueType();
+        return Number.class.isAssignableFrom(valueType)
+            || Quantity.class.isAssignableFrom(valueType);
     }
 
     @Override
-    public
-    FormulaBuilder nullValue(){
+    public FormulaBuilder nullValue() {
         return new FormulaAndExpressionNodeBuilder(formulaBuilder.nullValue());
     }
 
@@ -138,7 +167,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
                 Stream.of(
                         Stream.of(firstTerm),
                         Stream.of(remainingTerms))
-                    .flatMap(Function.identity()));
+                        .flatMap(Function.identity()));
     }
 
     private List<ExpressionNodeBuilder> toExpressionNodeBuilders(FormulaBuilder firstTerm, FormulaBuilder secondTerm, FormulaBuilder... remainingTerms) {
@@ -146,7 +175,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
                 Stream.of(
                         Stream.of(firstTerm, secondTerm),
                         Stream.of(remainingTerms))
-                    .flatMap(Function.identity()));
+                        .flatMap(Function.identity()));
     }
 
     private List<ExpressionNodeBuilder> allToExpressionNodeBuilders(FormulaBuilder... terms) {

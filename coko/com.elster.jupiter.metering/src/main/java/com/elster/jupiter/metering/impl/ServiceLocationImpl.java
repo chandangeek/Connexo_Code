@@ -10,10 +10,10 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.geo.Position;
+
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -23,6 +23,7 @@ final class ServiceLocationImpl implements ServiceLocation {
 	private static final String GOOGLE_GEOCODED = "GG";
     private static final int GOOGLE_GEOCODE_FIELD_COUNT = 3;
     // persistent fields
+    @SuppressWarnings("unused") // Managed by ORM
 	private long id;
 	private String aliasName;
 	private String description;
@@ -40,8 +41,11 @@ final class ServiceLocationImpl implements ServiceLocation {
 	private String accessMethod;
 	private boolean needsInspection;
 	private String siteAccessProblem;
+    @SuppressWarnings("unused") // Managed by ORM
 	private long version;
+    @SuppressWarnings("unused") // Managed by ORM
 	private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
 	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
@@ -52,11 +56,11 @@ final class ServiceLocationImpl implements ServiceLocation {
     private final EventService eventService;
 
     @Inject
-    public ServiceLocationImpl(DataModel dataModel, EventService eventService) {
+    ServiceLocationImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
     }
-	
+
 	@Override
 	public long getId() {
 		return id;
@@ -66,7 +70,7 @@ final class ServiceLocationImpl implements ServiceLocation {
 	public String getAliasName() {
 		return aliasName;
 	}
-	
+
 	@Override
 	public String getDescription() {
 		return description;
@@ -241,7 +245,7 @@ final class ServiceLocationImpl implements ServiceLocation {
         dataModel.mapper(ServiceLocation.class).remove(this);
         eventService.postEvent(EventType.SERVICELOCATION_DELETED.topic(), this);
     }
-	
+
 	@Override
 	public List<UsagePoint> getUsagePoints() {
         return ImmutableList.copyOf(doGetUsagePoints());
@@ -258,16 +262,16 @@ final class ServiceLocationImpl implements ServiceLocation {
     public Instant getCreateDate() {
 		return createTime;
 	}
-	
+
     @Override
 	public Instant getModificationDate() {
 		return modTime;
 	}
-	
+
 	public long getVersion() {
 		return version;
 	}
-	
+
 	public Position getPosition() {
 		if (geoInfoReference == null) {
 			return null;
@@ -279,7 +283,7 @@ final class ServiceLocationImpl implements ServiceLocation {
 					return null;
 				}
 				return new Position(new BigDecimal(parts[1]), new BigDecimal(parts[2]));
-				
+
 			default:
 				return null;
 		}
@@ -287,8 +291,12 @@ final class ServiceLocationImpl implements ServiceLocation {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+            return true;
+        }
+		if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 		ServiceLocationImpl that = (ServiceLocationImpl) o;
 		return Objects.equals(id, that.id);
 	}
@@ -297,4 +305,5 @@ final class ServiceLocationImpl implements ServiceLocation {
 	public int hashCode() {
 		return Objects.hash(id);
 	}
+
 }

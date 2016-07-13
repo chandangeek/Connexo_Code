@@ -37,9 +37,8 @@ import java.util.stream.Collectors;
 /**
  * Provides an implementation for the {@link SearchDomain} interface
  * that supports {@link EndDevice}s.
- *
  */
-@Component(name="com.elster.jupiter.metering.search.enddevice", service = SearchDomain.class, immediate = true)
+@Component(name = "com.elster.jupiter.metering.search.enddevice", service = SearchDomain.class, immediate = true)
 public class EndDeviceSearchDomain implements SearchDomain {
 
     private volatile PropertySpecService propertySpecService;
@@ -103,8 +102,7 @@ public class EndDeviceSearchDomain implements SearchDomain {
     public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         if (!constrictions.isEmpty()) {
             throw new IllegalArgumentException("Expecting no constrictionsrtie");
-        }
-        else {
+        } else {
             return this.getProperties();
         }
     }
@@ -133,12 +131,12 @@ public class EndDeviceSearchDomain implements SearchDomain {
                 .stream()
                 .map(ConditionBuilder::new)
                 .reduce(
-                    Condition.TRUE,
-                    (underConstruction, builder) -> underConstruction.and(builder.build()),
-                    Condition::and);
+                        Condition.TRUE,
+                        (underConstruction, builder) -> underConstruction.and(builder.build()),
+                        Condition::and);
     }
 
-    private class ConditionBuilder {
+    private final class ConditionBuilder {
         private final SearchablePropertyCondition spec;
         private final SearchableEndDeviceProperty property;
 
@@ -154,13 +152,13 @@ public class EndDeviceSearchDomain implements SearchDomain {
 
     }
 
-    private class EndDeviceFinder implements Finder<EndDevice> {
+    private final class EndDeviceFinder implements Finder<EndDevice> {
         private final Finder<EndDevice> finder;
 
         private EndDeviceFinder(Condition condition) {
             this.finder = DefaultFinder
-                                .of(EndDevice.class, condition, meteringService.getDataModel())
-                                .defaultSortColumn("mRID");
+                    .of(EndDevice.class, condition, meteringService.getDataModel())
+                    .defaultSortColumn("mRID");
         }
 
         @Override

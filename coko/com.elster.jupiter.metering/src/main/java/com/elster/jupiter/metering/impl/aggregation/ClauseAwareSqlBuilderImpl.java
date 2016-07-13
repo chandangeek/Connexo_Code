@@ -3,9 +3,11 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -15,24 +17,34 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-11 (14:45)
  */
-public class ClauseAwareSqlBuilderImpl implements ClauseAwareSqlBuilder {
+class ClauseAwareSqlBuilderImpl implements ClauseAwareSqlBuilder {
 
+    private Set<String> aliasNames = new HashSet<>();
     private List<SqlBuilder> withClauses = new ArrayList<>();
     private List<SqlBuilder> selectClauses = new ArrayList<>();
 
     @Override
+    public boolean withExists(String alias) {
+        return this.aliasNames.contains(alias);
+    }
+
+    @Override
     public SqlBuilder with(String alias, Optional<String> comment, String... columnAliasNames) {
-        SqlBuilder sqlBuilder = new SqlBuilder(alias);
-        if (columnAliasNames.length > 0) {
-            sqlBuilder.append("(");
-            sqlBuilder.append(Stream.of(columnAliasNames).collect(Collectors.joining(", ")));
-            sqlBuilder.append(")");
+        if (this.aliasNames.add(alias)) {
+            SqlBuilder sqlBuilder = new SqlBuilder(alias);
+            if (columnAliasNames.length > 0) {
+                sqlBuilder.append("(");
+                sqlBuilder.append(Stream.of(columnAliasNames).collect(Collectors.joining(", ")));
+                sqlBuilder.append(")");
+            }
+            sqlBuilder.append(" AS (");
+            comment.ifPresent(cmt -> this.appendWithClauseComment(cmt, sqlBuilder));
+            sqlBuilder.append("\n    ");
+            this.withClauses.add(sqlBuilder);
+            return sqlBuilder;
+        } else {
+            throw new IllegalArgumentException("With clause with the specified name already exists: " + alias);
         }
-        sqlBuilder.append(" AS (");
-        comment.ifPresent(cmt -> this.appendWithClauseComment(cmt, sqlBuilder));
-        sqlBuilder.append("\n    ");
-        this.withClauses.add(sqlBuilder);
-        return sqlBuilder;
     }
 
     private void appendWithClauseComment(String comment, SqlBuilder sqlBuilder) {

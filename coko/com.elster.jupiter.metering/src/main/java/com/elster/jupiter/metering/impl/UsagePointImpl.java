@@ -10,10 +10,10 @@ import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.GasDetailBuilder;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.HeatDetailBuilder;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -24,11 +24,13 @@ import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConfiguration;
+import com.elster.jupiter.metering.UsagePointConnectionState;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -52,6 +54,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
@@ -107,7 +110,7 @@ public class UsagePointImpl implements UsagePoint {
     private Instant installationTime;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String serviceDeliveryRemark;
-    private ConnectionState connectionState = ConnectionState.UNDER_CONSTRUCTION;
+    private TemporalReference<UsagePointConnectionState> connectionState = Temporals.absent();
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -117,6 +120,7 @@ public class UsagePointImpl implements UsagePoint {
     @SuppressWarnings("unused")
     private String userName;
     private long location;
+    private SpatialCoordinates spatialCoordinates;
 
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
     private TemporalReference<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = Temporals.absent();
@@ -128,14 +132,13 @@ public class UsagePointImpl implements UsagePoint {
     private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
     private List<UsagePointConfigurationImpl> usagePointConfigurations = new ArrayList<>();
     private final Reference<Location> upLocation = ValueReference.absent();
-    private final Reference<GeoCoordinates> geoCoordinates = ValueReference.absent();
 
     private final Clock clock;
     private final DataModel dataModel;
     private final EventService eventService;
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
-    private final Provider<IMeterActivation> meterActivationFactory;
+    private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     private final CustomPropertySetService customPropertySetService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
@@ -144,7 +147,7 @@ public class UsagePointImpl implements UsagePoint {
     @Inject
     UsagePointImpl(
             Clock clock, DataModel dataModel, EventService eventService,
-            Thesaurus thesaurus, Provider<IMeterActivation> meterActivationFactory,
+            Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
             CustomPropertySetService customPropertySetService, MeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
         this.clock = clock;
@@ -342,6 +345,7 @@ public class UsagePointImpl implements UsagePoint {
 
     void doSave() {
         if (id == 0) {
+            this.setConnectionState(ConnectionState.UNDER_CONSTRUCTION, installationTime);
             Save.CREATE.save(dataModel, this);
             eventService.postEvent(EventType.USAGEPOINT_CREATED.topic(), this);
         } else {
@@ -438,7 +442,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public List<MetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
+    public List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
         return this.metrologyConfiguration
                 .effective(period)
                 .stream()
@@ -454,10 +458,11 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
         this.removeMetrologyConfiguration(when);
-        this.metrologyConfiguration.add(
-                this.dataModel
-                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                        .initAndSave(this, metrologyConfiguration, when));
+        EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfiguration = this.dataModel
+                .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
+        effectiveMetrologyConfiguration.init(this, metrologyConfiguration, when);
+        this.metrologyConfiguration.add(effectiveMetrologyConfiguration);
+        effectiveMetrologyConfiguration.createEffectiveMetrologyContracts();
     }
 
     @Override
@@ -572,12 +577,111 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ConnectionState getConnectionState() {
-        return connectionState;
+        return this.connectionState.effective(this.clock.instant()).map(UsagePointConnectionState::getConnectionState).orElse(ConnectionState.UNDER_CONSTRUCTION);
     }
 
     @Override
     public void setConnectionState(ConnectionState connectionState) {
-        this.connectionState = connectionState;
+        this.setConnectionState(connectionState, this.clock.instant());
+    }
+
+    @Override
+    public void setConnectionState(ConnectionState connectionState, Instant effective) {
+        if(!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
+            if (!this.connectionState.effective(Range.all()).isEmpty()) {
+                this.closeCurrentConnectionState(effective);
+            }
+            this.createNewState(effective, connectionState);
+            this.touch();
+        }
+    }
+
+    private void closeCurrentConnectionState(Instant now){
+        UsagePointConnectionState currentState = this.connectionState.effective(now).get();
+        currentState.close(now);
+        this.dataModel.update(currentState);
+    }
+
+    private void createNewState(Instant effective, ConnectionState connectionState) {
+        Interval stateEffectivityInterval = Interval.of(Range.atLeast(effective));
+        UsagePointConnectionState usagePointConnectionState = this.dataModel
+                .getInstance(UsagePointConnectionStateImpl.class)
+                .initialize(stateEffectivityInterval, this, connectionState);
+        this.connectionState.add(usagePointConnectionState);
+    }
+
+    @Override
+    public List<CompletionOptions> connect(Instant when, ServiceCall serviceCall) {
+        return this.getMeterActivations(when)
+                .stream()
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createConnectCommand(meter, when), when, serviceCall)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletionOptions> disconnect(Instant when, ServiceCall serviceCall) {
+        return this.getMeterActivations(when)
+                .stream()
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createDisconnectCommand(meter, when), when, serviceCall)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletionOptions> enableLoadLimit(Instant when, Quantity loadLimit, ServiceCall serviceCall) {
+        return this.getMeterActivations(when)
+                .stream()
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createEnableLoadLimitCommand(meter, loadLimit), when, serviceCall)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletionOptions> disableLoadLimit(Instant when, ServiceCall serviceCall) {
+        return this.getMeterActivations(when)
+                .stream()
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
+                                .createDisableLoadLimitCommand(meter), when, serviceCall)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
+        return this.getMeterActivations(when)
+                .stream()
+                .map(MeterActivation::getMeter)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(meter -> meter.getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter, readingTypes, when, serviceCall)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -684,7 +788,12 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public ZoneId getZoneId() {
-        return ZoneId.systemDefault();
+        return getCurrentMeterActivations()
+                .stream()
+                .filter(ma -> ma.getMeter().isPresent())
+                .map(ma -> ma.getMeter().get().getZoneId())
+                .findAny()
+                .orElse(ZoneId.systemDefault());
     }
 
     void addConfiguration(UsagePointConfigurationImpl usagePointConfiguration) {
@@ -705,11 +814,6 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public long getLocationId() {
-        return location;
-    }
-
-    @Override
     public Optional<Location> getLocation() {
         return upLocation.getOptional();
     }
@@ -720,28 +824,27 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public long getGeoCoordinatesId() {
-        Optional<GeoCoordinates> coordinates = getGeoCoordinates();
-        return coordinates.isPresent() ? coordinates.get().getId() : 0L;
+    public Optional<SpatialCoordinates> getSpatialCoordinates() {
+        return spatialCoordinates == null ? Optional.empty() : Optional.of(spatialCoordinates);
     }
 
     @Override
-    public Optional<GeoCoordinates> getGeoCoordinates() {
-        return geoCoordinates.getOptional();
+    public void setSpatialCoordinates(SpatialCoordinates geoCoordinates) {
+        this.spatialCoordinates = geoCoordinates;
     }
 
     @Override
-    public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
-        this.geoCoordinates.set(geoCoordinates);
+    public LocationBuilder updateLocation(){
+        return new LocationBuilderImpl(dataModel);
     }
 
     @Override
     public Optional<MeterActivation> getMeterActivation(Instant when) {
         return getMeterActivations(when).stream()
-                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole()
-                        .get()
-                        .getKey()
-                        .equals(DefaultMeterRole.DEFAULT.getKey()))
+                .filter(ma -> ma.getMeterRole()
+                        .map(MeterRole::getKey)
+                        .map(DefaultMeterRole.DEFAULT.getKey()::equals)
+                        .orElse(true))
                 .findFirst();
     }
 
@@ -757,16 +860,6 @@ public class UsagePointImpl implements UsagePoint {
         return meterActivations.stream()
                 .filter(ma -> !ma.getStart().equals(ma.getEnd()))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<MeterActivation> getCurrentMeterActivation() {
-        return getCurrentMeterActivations().stream()
-                .filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole()
-                        .get()
-                        .getKey()
-                        .equals(DefaultMeterRole.DEFAULT.getKey()))
-                .findFirst();
     }
 
     @Override
@@ -792,7 +885,7 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public MeterActivation activate(Meter meter, MeterRole meterRole, Instant from) {
         MeterActivationImpl result = meterActivationFactory.get().init(meter, meterRole, this, from);
-        dataModel.persist(result);
+        result.save();
         adopt(result);
         return result;
     }
@@ -805,6 +898,7 @@ public class UsagePointImpl implements UsagePoint {
     public void adopt(MeterActivationImpl meterActivation) {
         meterActivations.stream()
                 .filter(activation -> activation.getId() != meterActivation.getId())
+                .filter(activation -> this.sameMeterRole(activation, meterActivation))
                 .reduce((m1, m2) -> m2)
                 .ifPresent(last -> {
                     if (last.getRange().lowerEndpoint().isAfter(meterActivation.getRange().lowerEndpoint())) {
@@ -825,6 +919,20 @@ public class UsagePointImpl implements UsagePoint {
             ((MeterImpl) existing).adopt(meterActivation);
         }
         meterActivations.add(meterActivation);
+    }
+
+    private boolean sameMeterRole(MeterActivation ma1, MeterActivation ma2) {
+        return this.sameMeterRole(ma1.getMeterRole(), ma2.getMeterRole());
+    }
+
+    private boolean sameMeterRole(Optional<MeterRole> r1, Optional<MeterRole> r2) {
+        if (r1.isPresent() && r2.isPresent()) {
+            return Checks.is(r1.get()).equalTo(r2.get());
+        } else if (!r1.isPresent() && !r2.isPresent()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void refreshMeterActivations() {
@@ -855,34 +963,36 @@ public class UsagePointImpl implements UsagePoint {
                 .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
                     if (upLocation.isPresent()) {
                         if (location != upLocation.get().getId()) {
-                            if (!meter.getLocation().isPresent() || meter.getLocationId() == upLocation.get().getId()) {
-                                meteringService.findLocation(location).ifPresent(meter::setLocation);
+                            if (!meter.getLocation().isPresent() || meter.getLocation().get().getId() == upLocation.get().getId()) {
+                                findLocation(location).ifPresent(meter::setLocation);
                             }
                         }
                     } else if (location != 0) {
                         if (!meter.getLocation().isPresent()) {
-                            meteringService.findLocation(location).ifPresent(meter::setLocation);
+                            findLocation(location).ifPresent(meter::setLocation);
                         }
                     }
-                    if (geoCoordinates.getOptional().isPresent()) {
-                        GeoCoordinates geo = geoCoordinates.getOptional().get();
+                    if (spatialCoordinates!=null) {
                         dataModel.mapper(UsagePoint.class).getOptional(this.getId()).ifPresent(up -> {
-                            if (up.getGeoCoordinates().isPresent()) {
-                                if (!meter.getGeoCoordinates().isPresent() || meter.getGeoCoordinates()
-                                        .get()
-                                        .getId() == up.getGeoCoordinates().get().getId()) {
-                                    meter.setGeoCoordinates(geo);
+                            if (up.getSpatialCoordinates().isPresent()) {
+                                if (!meter.getSpatialCoordinates().isPresent() || meter.getSpatialCoordinates()
+                                        .get().equals(up.getSpatialCoordinates().get())) {
+                                    meter.setSpatialCoordinates(spatialCoordinates);
                                 }
                             } else {
-                                if (!meter.getGeoCoordinates().isPresent()) {
-                                    meter.setGeoCoordinates(geo);
+                                if (!meter.getSpatialCoordinates().isPresent()) {
+                                    meter.setSpatialCoordinates(spatialCoordinates);
                                 }
                             }
                         });
                     } else {
-                        meter.setGeoCoordinates(null);
+                        meter.setSpatialCoordinates(null);
                     }
                     meter.update();
                 }));
+    }
+
+    private Optional<Location> findLocation(long id) {
+        return dataModel.mapper(Location.class).getOptional(id);
     }
 }

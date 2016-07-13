@@ -28,7 +28,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the methods that apply a {@link MetrologyConfiguration}
+ * Tests the methods that apply a {@link UsagePointMetrologyConfiguration}
  * to a {@link UsagePoint} like:
  * <ul>
  * <li>{@link UsagePoint#apply(UsagePointMetrologyConfiguration)}</li>
@@ -37,12 +37,11 @@ import static org.mockito.Mockito.when;
  * <li>{@link UsagePoint#getCurrentEffectiveMetrologyConfiguration()}</li>
  * <li>{@link UsagePoint#getEffectiveMetrologyConfiguration(Instant)}</li>
  * </ul>
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ApplyMetrologyConfigurationToUsagePointTest {
     private static Clock clock = mock(Clock.class);
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule(clock);
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withClock(clock);
 
     @BeforeClass
     public static void setUp() {
@@ -93,7 +92,8 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             Optional<UsagePointMetrologyConfiguration> mc = service.findMetrologyConfiguration(mcId).map(UsagePointMetrologyConfiguration.class::cast);
             assertThat(usagePoint).isPresent();
             assertThat(mc).isPresent();
-            usagePoint.get().apply(mc.get());
+            assertThat(mc.get()).isInstanceOf(UsagePointMetrologyConfiguration.class);
+            usagePoint.get().apply((UsagePointMetrologyConfiguration) mc.get());
             context.commit();
         }
         MeteringService mtrService = getMeteringService();
@@ -147,4 +147,5 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
         assertThat(febConfiguration).isPresent();
         assertThat(febConfiguration.get().getId()).isEqualTo(mc2Id);
     }
+
 }

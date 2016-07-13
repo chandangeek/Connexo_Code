@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointCustomPropertySetExtensionImplTestIT {
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
     private static UsagePointTestCustomPropertySet customPropertySet;
     private static String USAGE_POINT_MRID = "usagePoint";
     private static String METROLOGY_CONFIGURATION_MRID = "metrologyConfiguration";

@@ -5,6 +5,7 @@ import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
@@ -16,12 +17,14 @@ import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.StorerProcess;
+import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.ObserverContainer;
 import com.elster.jupiter.util.collections.Subscription;
 import com.elster.jupiter.util.collections.ThreadSafeObserverContainer;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Range;
 
@@ -39,6 +42,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.streams.Currying.perform;
@@ -200,12 +204,7 @@ class ReadingStorerImpl implements ReadingStorer {
         }
         values[0] = processStatus.getBits();
         if (reading instanceof IntervalReading) {
-            IntervalReading intervalReading = (IntervalReading) reading;
-            if (intervalReading.getProfileStatus() != null) {
-                long bits = !(values[1] instanceof Long) ? 0L : (long) values[1];
-                bits |= intervalReading.getProfileStatus().getBits();
-                values[1] = bits;
-            }
+            values[1] = 0L; //The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
         }
         addScope(channel, reading.getTimeStamp());
     }
@@ -243,26 +242,24 @@ class ReadingStorerImpl implements ReadingStorer {
         ReadingType readingType = meterReadingTypeConfiguration.getMeasured();
         CimChannel cimChannel = channel.getCimChannel(readingType).get();
         int valueIndex = slotOffset + channel.getReadingTypes().indexOf(readingType);
-        if (!(values[valueIndex] instanceof BigDecimal)) {
-            return;
+        if ((values[valueIndex] instanceof BigDecimal)) {
+            BigDecimal value = (BigDecimal) values[valueIndex];
+            BigDecimal overflowValue = meterReadingTypeConfiguration.getOverflowValue().get();
+            Object[] previousValues = getPreviousValues(channel, timestamp);
+            BigDecimal previousValue = previousValues != null && previousValues[valueIndex] instanceof BigDecimal ? (BigDecimal) previousValues[valueIndex] : null;
+            switch (flowDetection(cimChannel, overflowValue, value, previousValue)) {
+                case BACKFLOW:
+                    backflowListeners.notify(listener -> listener.backflowOccurred(cimChannel, timestamp, value, overflowValue));
+                    break;
+                case OVERFLOW:
+                    overflowListeners.notify(listener -> listener.overflowOccurred(cimChannel, timestamp, value, overflowValue));
+                    break;
+                default:
+            }
         }
-        BigDecimal value = (BigDecimal) values[valueIndex];
-        BigDecimal overflowValue = meterReadingTypeConfiguration.getOverflowValue().get();
-        Object[] previousValues = getPreviousValues(channel, timestamp);
-        BigDecimal previousValue = previousValues != null && previousValues[valueIndex] instanceof BigDecimal ? (BigDecimal) previousValues[valueIndex] : null;
-        switch (flowDetection(cimChannel, overflowValue, value, previousValue)) {
-            case BACKFLOW:
-                backflowListeners.notify(listener -> listener.backflowOccurred(cimChannel, timestamp, value, overflowValue));
-                break;
-            case OVERFLOW:
-                overflowListeners.notify(listener -> listener.overflowOccurred(cimChannel, timestamp, value, overflowValue));
-                break;
-            default:
-        }
-
     }
 
-    private FlowDetection flowDetection(CimChannel cimChannel, BigDecimal overflowValue, BigDecimal value, BigDecimal previousValue) {
+    private static FlowDetection flowDetection(CimChannel cimChannel, BigDecimal overflowValue, BigDecimal value, BigDecimal previousValue) {
         if (value.compareTo(overflowValue) > 0) {
             return FlowDetection.OVERFLOW;
         }
@@ -283,15 +280,15 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     private Object[] getPreviousValues(ChannelContract channel, Instant timestamp) {
-        if (!channel.isRegular()) {
-            return null;
+        if (channel.isRegular()) {
+            Instant previousDateTime = channel.getPreviousDateTime(timestamp);
+            return previousReadings.get(Pair.of(channel, previousDateTime));
         }
-        Instant previousDateTime = channel.getPreviousDateTime(timestamp);
-        return previousReadings.get(Pair.of(channel, previousDateTime));
+        return null;
     }
 
     private List<MeterReadingTypeConfiguration> getMeterReadingTypeConfigurations(ChannelContract channel, Instant timestamp) {
-        return channel.getMeterActivation()
+        return channel.getChannelsContainer()
                 .getMeter()
                 .flatMap(use(Meter::getConfiguration).with(timestamp))
                 .map(MeterConfiguration::getReadingTypeConfigs)
@@ -393,7 +390,7 @@ class ReadingStorerImpl implements ReadingStorer {
         if (currentBulk == null || previousBulk == null) {
             return Function.identity();
         }
-        Optional<MeterReadingTypeConfiguration> meterReadingTypeConfiguration = channel.getMeterActivation()
+        Optional<MeterReadingTypeConfiguration> meterReadingTypeConfiguration = channel.getChannelsContainer()
                 .getMeter()
                 .flatMap(meter -> meter.getConfiguration(instant))
                 .flatMap(use(MeterConfiguration::getReadingTypeConfiguration).with(bulkReadingType));
@@ -478,17 +475,16 @@ class ReadingStorerImpl implements ReadingStorer {
 
     private BigDecimal getMultiplier(ChannelContract channelContract, Instant instant, IReadingType source, IReadingType target) {
         MultiplierType multiplierType = getMultiplierType(channelContract, source, target, instant).get();
-        return channelContract.getMeterActivation().getMultiplier(multiplierType).get();
+        return channelContract.getChannelsContainer().getMultiplier(multiplierType).get();
     }
 
     private BigDecimal getMultiplier(ChannelContract channelContract, Instant instant, IReadingType target) {
         MultiplierType multiplierType = getMultiplierType(channelContract, target, instant).get();
-        return channelContract.getMeterActivation().getMultiplier(multiplierType).orElse(BigDecimal.ONE);
+        return channelContract.getChannelsContainer().getMultiplier(multiplierType).orElse(BigDecimal.ONE);
     }
 
     private Optional<MultiplierType> getMultiplierType(ChannelContract channel, ReadingType source, ReadingType target, Instant instant) {
-        return channel.getMeterActivation()
-                .getMultiplierUsages(instant)
+        return getMultiplierUsages(channel.getChannelsContainer(), instant)
                 .stream()
                 .filter(on(MultiplierUsage::getMeasured).test(source::equals))
                 .filter(on(MultiplierUsage::getCalculated).test(optional -> optional.map(target::equals).orElse(false)))
@@ -497,12 +493,31 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     private Optional<MultiplierType> getMultiplierType(ChannelContract channel, ReadingType target, Instant instant) {
-        return channel.getMeterActivation()
-                .getMultiplierUsages(instant)
+        return getMultiplierUsages(channel.getChannelsContainer(), instant)
                 .stream()
                 .filter(on(MultiplierUsage::getCalculated).test(optional -> optional.map(target::equals).orElse(false)))
                 .findAny()
                 .map(MultiplierUsage::getMultiplierType);
+    }
+
+    private List<MultiplierUsage> getMultiplierUsages(ChannelsContainer channelsContainer, Instant instant) {
+        Stream<MultiplierUsage> meterMultipliers = channelsContainer.getMeter()
+                .flatMap(meter -> meter.getConfiguration(instant))
+                .map(MeterConfiguration::getReadingTypeConfigs)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(MultiplierUsage.class::cast)
+                .filter(multiplier -> multiplier.getCalculated().isPresent());
+        Stream<MultiplierUsage> usagePointMultipliers = channelsContainer.getUsagePoint()
+                .flatMap(usagePoint -> usagePoint.getConfiguration(instant))
+                .map(UsagePointConfiguration::getReadingTypeConfigs)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .map(MultiplierUsage.class::cast)
+                .filter(multiplier -> multiplier.getCalculated().isPresent());
+        return Stream.of(meterMultipliers, usagePointMultipliers)
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     private void calculateDelta(ChannelContract channel) {
