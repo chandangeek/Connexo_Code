@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
@@ -14,7 +15,6 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.DecoratedStream;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -170,12 +170,10 @@ public class DeviceLifeCycleActionResource {
         List<ExecutableActionProperty> executableProperties = new ArrayList<>(allPropertySpecsForAction.size());
         for (PropertyInfo property : info.properties) {
             PropertySpec propertySpec = allPropertySpecsForAction.get(property.key);
-            if (propertySpec != null && property.propertyValueInfo != null){
+            if (propertySpec != null && property.propertyValueInfo != null
+                    && property.propertyValueInfo.value != null && !"".equals(property.propertyValueInfo.value)) {
                 try {
-                    Object value = null;
-                    if (property.propertyValueInfo.value != null) {
-                        value = propertySpec.getValueFactory().fromStringValue(String.valueOf(property.propertyValueInfo.value));
-                    }
+                    Object value = propertySpec.getValueFactory().fromStringValue(String.valueOf(property.propertyValueInfo.value));
                     executableProperties.add(deviceLifeCycleService.toExecutableActionProperty(value, propertySpec));
                 } catch (InvalidValueException e) {
                     // Enable form validation
