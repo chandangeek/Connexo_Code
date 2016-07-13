@@ -4,14 +4,14 @@ import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.Group;
+
+import java.util.Collections;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-
-import java.util.Collections;
 
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.mock;
@@ -23,18 +23,15 @@ public class GroupIT extends EqualsContractTest {
     @Mock
     private DataModel dataModel;
 
-
     private static final String TEST_GROUP_NAME = "groupName";
     private static final String TEST_GROUP_DESCRIPTION = "groupName";
     private static final long ID = 0;
     private static final long OTHER_ID = 1;
 
-
     @Before
     public void equalsContractSetUp() {
          super.equalsContractSetUp();
     }
-
 
     @After
     public void tearDown() {
@@ -43,7 +40,6 @@ public class GroupIT extends EqualsContractTest {
 
         field("id").ofType(Long.TYPE).in(entity).set(id);
     }
-
 
     @Override
     protected Object getInstanceA() {

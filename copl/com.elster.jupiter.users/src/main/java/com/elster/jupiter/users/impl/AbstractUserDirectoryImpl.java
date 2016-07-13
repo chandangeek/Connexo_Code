@@ -102,8 +102,16 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
 
     public void delete(){
         if (!isDefault()) {
+            this.removeUsers();
             dataModel.remove(this);
         }
+    }
+
+    private void removeUsers() {
+        this.dataModel
+                .mapper(User.class)
+                .find("userDirectory", this)
+                .forEach(User::delete);
     }
 
     @Override
@@ -113,7 +121,7 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
 
     @Override
     public UserImpl newUser(String userName, String description, boolean allowPwdChange,boolean status) {
-        return UserImpl.from(dataModel, this, userName, description, allowPwdChange,status);
+        return UserImpl.from(dataModel, this, userName, description, allowPwdChange, status);
     }
 
     protected Optional<User> findUser(String name) {

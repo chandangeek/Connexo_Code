@@ -1,17 +1,17 @@
 package com.elster.jupiter.users;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
 public interface UserDirectory {
-    public List<Group> getGroups(User user);
 
-    public List<LdapUser> getLdapUsers();
+    List<Group> getGroups(User user);
 
-    public boolean getLdapUserStatus(String userName);
+    List<LdapUser> getLdapUsers();
 
-    public Optional<User> authenticate(String name, String password);
+    boolean getLdapUserStatus(String userName);
+
+    Optional<User> authenticate(String name, String password);
 
     boolean isManageGroupsInternal();
 
@@ -31,7 +31,7 @@ public interface UserDirectory {
 
     void setPrefix(String prefix);
 
-    public boolean isDefault();
+    boolean isDefault();
 
     void setDefault(boolean aDefault);
 
@@ -40,4 +40,5 @@ public interface UserDirectory {
     void delete();
 
     User newUser(String userName, String description, boolean allowPwdChange,boolean status);
+
 }

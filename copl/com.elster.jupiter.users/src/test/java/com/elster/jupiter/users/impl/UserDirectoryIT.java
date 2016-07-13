@@ -462,4 +462,32 @@ public class UserDirectoryIT extends EqualsContractTest {
         assertThat(userDirectories.size()).isEqualTo(4);
     }
 
+    @Test
+    public void deleteAlsoDeletesUsers() {
+        TransactionService transactionService = injector.getInstance(TransactionService.class);
+        UserService userService = injector.getInstance(UserService.class);
+        UserDirectory internalDirectory;
+        try (TransactionContext context = transactionService.getContext()) {
+            internalDirectory = userService.createInternalDirectory("InternalDomain");
+            internalDirectory.update();
+            User user1 = internalDirectory.newUser("user1", "For testing purposes only", false, true);
+            user1.update();
+            User user2 = internalDirectory.newUser("user2", "For testing purposes only", false, true);
+            user2.update();
+            context.commit();
+        }
+        assertThat(userService.findUser("user1")).isPresent();
+        assertThat(userService.findUser("user2")).isPresent();
+
+        // Business method
+        try (TransactionContext context = transactionService.getContext()) {
+            internalDirectory.delete();
+            context.commit();
+        }
+
+        // Asserts
+        assertThat(userService.findUser("user1")).isEmpty();
+        assertThat(userService.findUser("user2")).isEmpty();
+    }
+
 }

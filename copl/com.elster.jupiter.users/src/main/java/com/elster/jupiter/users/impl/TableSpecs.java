@@ -17,7 +17,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
-import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     USR_RESOURCE {
@@ -25,9 +25,9 @@ public enum TableSpecs {
             Table<Resource> table = dataModel.addTable(name(), Resource.class);
             table.map(ResourceImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("COMPONENT").varChar(3).notNull().map("componentName").add();
-            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
+            table.column("COMPONENT").varChar().notNull().map("componentName").add();
+            table.column("DESCRIPTION").varChar().map("description").add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
             table.primaryKey("USR_PK_RESOURCE").on(idColumn).add();
             table.unique("IDS_U_RESOURCE").on(nameColumn).add();
@@ -38,22 +38,32 @@ public enum TableSpecs {
             Table<Privilege> table = dataModel.addTable(name(), Privilege.class);
             table.map(PrivilegeImpl.class);
             table.cache();
-            Column idColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column idColumn = table.column("NAME").varChar().notNull().map("name").add();
             Column resourceColumn = table.column("RESOURCEID").type("number").notNull().add();
             table.primaryKey("USR_PK_PRIVILEGES").on(idColumn).add();
-            table.foreignKey("USR_FK_PRIVILEGES_RESOURCE").references(USR_RESOURCE.name()).onDelete(CASCADE).map("resource").on(resourceColumn).add();
+            table
+                .foreignKey("USR_FK_PRIVILEGES_RESOURCE")
+                .references(USR_RESOURCE.name())
+                .onDelete(CASCADE)
+                .map("resource")
+                .on(resourceColumn)
+                .add();
         }
     },
     USR_GROUP {
         void addTo(DataModel dataModel) {
             Table<Group> table = dataModel.addTable(name(), Group.class);
             table.map(GroupImpl.class);
+            table.setJournalTableName("USR_GROUPJRNL").since(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
-            table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
-            table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.addModTimeColumn("MODTIME", "modTime");
+            /* CXO-2251: replace by table.addAuditColumns -> see below
+             * table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
+             * table.addCreateTimeColumn("CREATETIME", "createTime");
+             * table.addModTimeColumn("MODTIME", "modTime");
+             */
+            table.addAuditColumns().get(3).since(version(10, 2));
             table.primaryKey("USR_PK_GROUP").on(idColumn).add();
             table.unique("IDS_U_GROUP").on(nameColumn).add();
         }
@@ -63,18 +73,19 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<UserDirectory> table = dataModel.addTable(name(), UserDirectory.class);
             table.map(AbstractUserDirectoryImpl.IMPLEMENTERS);
+            table.setJournalTableName("USR_USERDIRECTORYJRNL").since(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
-            Column domain = table.column("DOMAIN").varChar(128).notNull().map("name").add();
+            Column domain = table.column("DOMAIN").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DIRECTORY_TYPE", "char(3)");
             table.column("IS_DEFAULT").bool().map("isDefault").add();
             table.column("GROUPS_INTERNAL").type("char(1)").conversion(CHAR2BOOLEAN).map("manageGroupsInternal").add();
-            table.column("DIRECTORY_USER").varChar(128).map("directoryUser").add();
-            table.column("PASSWORD").varChar(128).map("password").add();
-            table.column("URL").varChar(4000).map("url").add();
-            table.column("BACKUPURL").varChar(4000).map("backupUrl").add();
-            table.column("SECURITY").varChar(4).map("securityProtocol").add();
-            table.column("BASE_USER").varChar(4000).map("baseUser").add();
-            table.column("BASE_GROUP").varChar(4000).map("baseGroup").add();
+            table.column("DIRECTORY_USER").varChar().map("directoryUser").add();
+            table.column("PASSWORD").varChar().map("password").add();
+            table.column("URL").varChar().map("url").add();
+            table.column("BACKUPURL").varChar().map("backupUrl").add();
+            table.column("SECURITY").varChar().map("securityProtocol").add();
+            table.column("BASE_USER").varChar().map("baseUser").add();
+            table.column("BASE_GROUP").varChar().map("baseGroup").add();
             table.addAuditColumns();
             table.primaryKey("USR_PK_USERDIRECTORY").on(idColumn).add();
             table.unique("IDS_U_UDNAME").on(domain).add();
@@ -84,48 +95,87 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<User> table = dataModel.addTable(name(), User.class);
             table.map(UserImpl.class);
+            table.setJournalTableName("USR_USERJRNL").since(version(10, 2));
             Column idColumn = table.addAutoIdColumn();
             Column authenticationNameColumn = table.column("AUTHNAME").varChar(NAME_LENGTH).notNull().map("authenticationName").add();
-            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
-            table.column("HA1").varChar(65).map("ha1").add();
+            table.column("DESCRIPTION").varChar().map("description").add();
+            table.column("HA1").varChar().map("ha1").add();
             table.column("SALT").number().conversion(NUMBER2INT).map("salt").add();
-            table.column("LANGUAGETAG").varChar(64).map("languageTag").add();
+            table.column("LANGUAGETAG").varChar().map("languageTag").add();
             Column userDirColumn = table.column("USER_DIRECTORY").number().notNull().add();
             table.column("Active").type("char(1)").conversion(CHAR2BOOLEAN).map("status").add();
             table.column("LASTSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastSuccessfulLogin").add();
             table.column("LASTUNSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastUnSuccessfulLogin").add();
-            table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
-            table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.addModTimeColumn("MODTIME", "modTime");
+            /* CXO-2251: replace by table.addAuditColumns -> see below
+             * table.addVersionCountColumn("VERSIONCOUNT", "number", "version");
+             * table.addCreateTimeColumn("CREATETIME", "createTime");
+             * table.addModTimeColumn("MODTIME", "modTime");
+             */
+            table.addAuditColumns().get(3).since(version(10, 2));
             table.primaryKey("USR_PK_USER").on(idColumn).add();
             table.unique("USR_U_USERAUTHNAME").on(userDirColumn, authenticationNameColumn).add();
-            table.foreignKey("USR_FK_USER_USERDIR").references(USR_USERDIRECTORY.name()).onDelete(CASCADE).map("userDirectory").on(userDirColumn).add();
+            table
+                .foreignKey("USR_FK_USER_USERDIR")
+                .references(USR_USERDIRECTORY.name())
+                .map("userDirectory")
+                .on(userDirColumn).add();
         }
     },
     USR_PRIVILEGEINGROUP {
         void addTo(DataModel dataModel) {
             Table<PrivilegeInGroup> table = dataModel.addTable(name(), PrivilegeInGroup.class);
             table.map(PrivilegeInGroup.class);
+            table.setJournalTableName("USR_PRIVILEGEINGROUPJRNL").since(version(10, 2));
             Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
-            Column applicationColumn = table.column("APPLICATION").varChar(10).notNull().map("applicationName").add();
-
-            Column privilegeIdColumn = table.column("PRIVILEGENAME").varChar(NAME_LENGTH).notNull().map("privilegeName").add();
-            table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.primaryKey("USR_PK_PRIVILEGEINGROUP").on(groupIdColumn, applicationColumn, privilegeIdColumn).add();
-            table.foreignKey("FK_PRIVINGROUP2GROUP").references(USR_GROUP.name()).onDelete(CASCADE).map("group").reverseMap("privilegeInGroups").on(groupIdColumn).add();
-            table.foreignKey("FK_PRIVINGROUP2PRIV").references(USR_PRIVILEGE.name()).onDelete(CASCADE).map("privilege").on(privilegeIdColumn).add();
+            Column applicationColumn = table.column("APPLICATION").varChar().notNull().map("applicationName").add();
+            Column privilegeIdColumn = table.column("PRIVILEGENAME").varChar().notNull().map("privilegeName").add();
+            /* CXO-2251: replace by table.addAuditColumns -> see below
+             * table.addCreateTimeColumn("CREATETIME", "createTime");
+             */
+            table.addAuditColumns().stream().filter(column -> !"CREATETIME".equals(column.getName())).forEach(column -> column.since(version(10, 2)));
+            table
+                .primaryKey("USR_PK_PRIVILEGEINGROUP")
+                .on(groupIdColumn, applicationColumn, privilegeIdColumn)
+                .add();
+            table
+                .foreignKey("FK_PRIVINGROUP2GROUP")
+                .references(USR_GROUP.name())
+                .map("group")
+                .reverseMap("privilegeInGroups")
+                .on(groupIdColumn)
+                .add();
+            table
+                .foreignKey("FK_PRIVINGROUP2PRIV")
+                .references(USR_PRIVILEGE.name())
+                .map("privilege")
+                .on(privilegeIdColumn)
+                .add();
         }
     },
     USR_USERINGROUP {
         void addTo(DataModel dataModel) {
             Table<UserInGroup> table = dataModel.addTable(name(), UserInGroup.class);
             table.map(UserInGroup.class);
+            table.setJournalTableName("USR_USERINGROUPJRNL").since(version(10, 2));
             Column userIdColumn = table.column("USERID").number().notNull().conversion(NUMBER2LONG).map("userId").add();
             Column groupIdColumn = table.column("GROUPID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
-            table.addCreateTimeColumn("CREATETIME", "createTime");
+            /* CXO-2251: replace by table.addAuditColumns -> see below
+             * table.addCreateTimeColumn("CREATETIME", "createTime");
+             */
+            table.addAuditColumns().stream().filter(column -> !"CREATETIME".equals(column.getName())).forEach(column -> column.since(version(10, 2)));
             table.primaryKey("USR_PK_USERINGROUP").on(userIdColumn, groupIdColumn).add();
-            table.foreignKey("FK_USERINGROUP2GROUP").references(USR_GROUP.name()).onDelete(CASCADE).map("group").on(groupIdColumn).add();
-            table.foreignKey("FK_USERINGROUP2USER").references(USR_USER.name()).onDelete(CASCADE).map("user").reverseMap("memberships").on(userIdColumn).add();
+            table
+                .foreignKey("FK_USERINGROUP2GROUP")
+                .references(USR_GROUP.name())
+                .map("group")
+                .on(groupIdColumn)
+                .add();
+            table
+                .foreignKey("FK_USERINGROUP2USER")
+                .references(USR_USER.name())
+                .map("user")
+                .reverseMap("memberships")
+                .on(userIdColumn).add();
         }
     },
     USR_PREFERENCES {

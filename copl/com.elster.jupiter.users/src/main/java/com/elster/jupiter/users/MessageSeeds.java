@@ -20,7 +20,13 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_SIZE_BETWEEN_1_AND_128(1010, Keys.FIELD_SIZE_BETWEEN_1_AND_128, "Field text length should be between 1 and 128 symbols"),
     NO_LDAP_FOUND(1011, "ldap.not.found", "Connection to LDAP failed."),
     FAIL_ACTIVATE_USER(1012, "fail.activate.user", "Fail to activate user."),
-    UNDERLYING_IO_EXCEPTION(1013, Keys.UNDERLYING_IO_EXCEPTION, "Underlying IO Exception");
+    UNDERLYING_IO_EXCEPTION(1013, Keys.UNDERLYING_IO_EXCEPTION, "Underlying IO Exception"),
+    FIELD_SIZE_BETWEEN_1_AND_4(1014, Keys.FIELD_SIZE_BETWEEN_1_AND_4, "Field text length should be between 1 and 4 symbols"),
+    FIELD_SIZE_BETWEEN_1_AND_3(1015, Keys.FIELD_SIZE_BETWEEN_1_AND_3, "Field text length should be between 1 and 3 symbols"),
+    FIELD_SIZE_BETWEEN_1_AND_10(1016, Keys.FIELD_SIZE_BETWEEN_1_AND_10, "Field text length should be between 1 and 10 symbols"),
+    FIELD_SIZE_BETWEEN_1_AND_64(1017, Keys.FIELD_SIZE_BETWEEN_1_AND_64, "Field text length should be between 1 and 64 symbols"),
+    FIELD_SIZE_BETWEEN_1_AND_65(1018, Keys.FIELD_SIZE_BETWEEN_1_AND_65, "Field text length should be between 1 and 65 symbols"),
+    FIELD_SIZE_BETWEEN_1_AND_256(1019, Keys.FIELD_SIZE_BETWEEN_1_AND_256, "Field text length should be between 1 and 256 symbols");
     ;
 
     private final int number;
@@ -78,12 +84,19 @@ public enum MessageSeeds implements MessageSeed {
         ;
 
         public static final String FIELD_CAN_NOT_BE_EMPTY = "FieldCanNotBeEmpty";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_3 = "FieldSizeBetween1and3";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_4 = "FieldSizeBetween1and4";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_10 = "FieldSizeBetween1and10";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_64 = "FieldSizeBetween1and64";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_65 = "FieldSizeBetween1and65";
         public static final String FIELD_SIZE_BETWEEN_1_AND_80 = "FieldSizeBetween1and80";
         public static final String FIELD_SIZE_BETWEEN_1_AND_128 = "FieldSizeBetween1and128";
+        public static final String FIELD_SIZE_BETWEEN_1_AND_256 = "FieldSizeBetween1and256";
         public static final String FIELD_SIZE_BETWEEN_1_AND_4000 = "FieldSizeBetween1and4000";
         public static final String ONLY_ONE_DEFAULT_KEY_PER_LOCALE_ALLOWED = "OnlyOneDefaultKeyPerLocaleAllowed";
         public static final String DUPLICATE_GROUP_NAME = "DuplicateGroupName";
         public static final String DUPLICATE_USER_DIRECTORY = "Duplicate name";
         public static final String UNDERLYING_IO_EXCEPTION = "UnderlyingIO";
     }
+
 }

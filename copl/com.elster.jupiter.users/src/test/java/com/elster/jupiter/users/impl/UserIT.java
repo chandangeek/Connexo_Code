@@ -64,7 +64,6 @@ public class UserIT extends EqualsContractTest {
     private DataModel dataModel;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-
     private class MockModule extends AbstractModule {
 
         @Override
@@ -142,7 +141,6 @@ public class UserIT extends EqualsContractTest {
     }
 
     private void setId(Object entity, long id) {
-
         field("id").ofType(Long.TYPE).in(entity).set(id);
     }
 

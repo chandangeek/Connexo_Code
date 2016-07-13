@@ -1,9 +1,11 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
@@ -11,6 +13,7 @@ import com.elster.jupiter.users.UserDirectory;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.util.Checks.is;
 
 public final class UserImpl implements User {
@@ -34,7 +38,9 @@ public final class UserImpl implements User {
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private String authenticationName;
+    @Size(max = SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_256 + "}")
     private String description;
+    @Size(max = 65, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_65 + "}")
     private String ha1;
     private int salt;
     @SuppressWarnings("unused") // Managed by ORM
@@ -44,8 +50,11 @@ public final class UserImpl implements User {
     private Instant createTime;
     @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
     private Instant lastSuccessfulLogin;
     private Instant lastUnSuccessfulLogin;
+    @Size(max = 64, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_64 + "}")
     private String languageTag;
     private Reference<UserDirectory> userDirectory = ValueReference.absent();
 
@@ -59,20 +68,13 @@ public final class UserImpl implements User {
         this.dataModel = dataModel;
     }
 
-    /*static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName) {
-        return from(dataModel, userDirectory, authenticationName, null);
-    }
-
-    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description) {
-        return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, false);
-    }*/
-
     static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, boolean allowPwdChange, boolean status) {
         return from(dataModel, userDirectory, authenticationName, null, allowPwdChange, status);
     }
 
     static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange, boolean status) {
-        return dataModel.getInstance(UserImpl.class)
+        return dataModel
+                .getInstance(UserImpl.class)
                 .init(userDirectory, authenticationName, description, allowPwdChange, status);
     }
 
@@ -227,7 +229,12 @@ public final class UserImpl implements User {
 
     @Override
     public void delete() {
+        this.deleteMemberships();
         dataModel.mapper(User.class).remove(this);
+    }
+
+    private void deleteMemberships() {
+        this.memberships.clear();
     }
 
     @Override

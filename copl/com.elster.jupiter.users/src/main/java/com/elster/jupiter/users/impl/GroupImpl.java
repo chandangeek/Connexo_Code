@@ -6,7 +6,6 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
@@ -24,6 +23,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_GROUP_NAME + "}")
@@ -32,10 +33,10 @@ final class GroupImpl implements Group {
 	//persistent fields
     @SuppressWarnings("unused")
     private long id;
-    @Size(max = Table.NAME_LENGTH)
+    @Size(max = NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String name;
-    @Size(max = Table.DESCRIPTION_LENGTH)
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String description;
     @SuppressWarnings("unused")
 	private long version;
@@ -43,6 +44,8 @@ final class GroupImpl implements Group {
 	private Instant createTime;
     @SuppressWarnings("unused")
 	private Instant modTime;
+    @SuppressWarnings("unused")
+	private String userName;
 
     //transient fields
     @SuppressWarnings("unused") // Injected by ORM framework
@@ -188,7 +191,20 @@ final class GroupImpl implements Group {
 
     @Override
     public void delete() {
+        this.deletePrivileges();
+        this.removeUsers();
         groupFactory().remove(this);
+    }
+
+    private void deletePrivileges() {
+        this.privilegeInGroups.clear();
+    }
+
+    private void removeUsers() {
+        this.dataModel
+                .mapper(UserInGroup.class)
+                .find("groupid", this.id)
+                .forEach(UserInGroup::delete);
     }
 
     @Override
