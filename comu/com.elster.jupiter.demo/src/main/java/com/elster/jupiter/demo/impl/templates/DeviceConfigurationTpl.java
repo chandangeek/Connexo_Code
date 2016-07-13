@@ -36,7 +36,7 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
         Collections.emptyList(),
         Collections.emptyList(),
         Collections.singletonList(ComTaskTpl.TOPOLOGY_UPDATE)),
-    DATA_LOGGER("32 Channels - 32 registers", GatewayType.HOME_AREA_NETWORK,
+    DATA_LOGGER("Default", GatewayType.HOME_AREA_NETWORK,
         Arrays.asList(SecurityPropertySetTpl.NO_SECURITY, SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION_MD5),
         Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.DATA_LOGGER_1, RegisterTypeTpl.DATA_LOGGER_2, RegisterTypeTpl.DATA_LOGGER_3, RegisterTypeTpl.DATA_LOGGER_4, RegisterTypeTpl.DATA_LOGGER_5, RegisterTypeTpl.DATA_LOGGER_6
                                       ,RegisterTypeTpl.DATA_LOGGER_7, RegisterTypeTpl.DATA_LOGGER_8, RegisterTypeTpl.DATA_LOGGER_9, RegisterTypeTpl.DATA_LOGGER_10, RegisterTypeTpl.DATA_LOGGER_11, RegisterTypeTpl.DATA_LOGGER_12
