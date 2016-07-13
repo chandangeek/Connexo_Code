@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -10,6 +12,7 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Models the database tables that hold the data of the
@@ -24,6 +27,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<DeviceLifeCycle> table = dataModel.addTable(this.name(), DeviceLifeCycle.class);
             table.map(DeviceLifeCycleImpl.class);
+            table.setJournalTableName("DLD_DEVICE_LIFE_CYCLEJRNL").since(version(10, 2));
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map(DeviceLifeCycleImpl.Fields.NAME.fieldName()).add();
@@ -37,7 +41,7 @@ public enum TableSpecs {
             table.unique("UK_DLD_DEVICELIFECYCLENAME").on(name, obsoleteTimestamp).add();
             table.foreignKey("FK_DLD_FSM")
                     .on(stateMachine)
-                    .references(FiniteStateMachineService.COMPONENT_NAME, "FSM_FINITE_STATE_MACHINE")
+                    .references(FiniteStateMachine.class)
                     .map(DeviceLifeCycleImpl.Fields.STATE_MACHINE.fieldName())
                     .add();
         }
@@ -61,6 +65,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<AuthorizedAction> table = dataModel.addTable(this.name(), AuthorizedAction.class);
             table.map(AuthorizedActionImpl.IMPLEMENTERS);
+            table.setJournalTableName("DLD_AUTHORIZED_ACTIONJRNL").since(version(10, 2));
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
@@ -86,12 +91,12 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_DLD_AUTH_ACTION_STATE")
                     .on(state)
-                    .references(FiniteStateMachineService.COMPONENT_NAME, "FSM_STATE")
+                    .references(State.class)
                     .map(AuthorizedActionImpl.Fields.STATE.fieldName())
                     .add();
             table.foreignKey("FK_DLD_AUTH_ACTION_STATETRANS")
                     .on(stateTransition)
-                    .references(FiniteStateMachineService.COMPONENT_NAME, "FSM_STATE_TRANSITION")
+                    .references(StateTransition.class)
                     .map(AuthorizedActionImpl.Fields.STATE_TRANSITION.fieldName())
                     .add();
             table.foreignKey("FK_DLD_AUTH_ACTION_PROCESS")
