@@ -306,11 +306,9 @@ Ext.define('Uni.property.view.property.Base', {
     getDisplayCmp: function () {
         return {
             xtype: 'displayfield',
+            fieldLabel: this.fieldLabel,
             name: this.getName(),
-            itemId: this.key + 'displayfield',
-            renderer: function(value) {
-                return Ext.isEmpty(value) ? '-' : value;
-            }
+            itemId: this.key + 'displayfield'
         }
     },
 
