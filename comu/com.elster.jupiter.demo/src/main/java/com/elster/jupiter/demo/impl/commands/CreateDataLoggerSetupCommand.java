@@ -78,7 +78,7 @@ public class CreateDataLoggerSetupCommand {
         if (this.dataLoggerMrid != null)
             dataLoggerCommand.setDataLoggerMrid(dataLoggerMrid);
         if (this.dataLoggerSerial != null)
-            dataLoggerCommand.setSerialNumber(dataLoggerMrid);
+            dataLoggerCommand.setSerialNumber(dataLoggerSerial);
 
         dataLoggerCommand.run();
         if (numberOfSlaves > 0) {
