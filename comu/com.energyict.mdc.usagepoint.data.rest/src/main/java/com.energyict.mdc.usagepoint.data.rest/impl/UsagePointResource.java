@@ -108,7 +108,7 @@ public class UsagePointResource {
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
             List<ChannelDataInfo> infos = channel.getIntervalReadings(range).stream()
-                    .map(readingRecord -> channelDataInfoFactory.createChannelDataInfo(readingRecord))
+                    .map(channelDataInfoFactory::createChannelDataInfo)
                     .collect(Collectors.toList());
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
