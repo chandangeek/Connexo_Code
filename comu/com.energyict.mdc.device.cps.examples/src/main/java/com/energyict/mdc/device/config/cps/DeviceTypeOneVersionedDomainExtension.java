@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.cps;
 
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -11,7 +12,7 @@ import com.energyict.mdc.device.data.Device;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
-public class DeviceTypeOneVersionedDomainExtension implements PersistentDomainExtension<Device> {
+public class DeviceTypeOneVersionedDomainExtension extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<Device> {
 
     public enum FieldNames {
         DOMAIN("device", "device"),
@@ -37,9 +38,6 @@ public class DeviceTypeOneVersionedDomainExtension implements PersistentDomainEx
     }
 
     private Reference<Device> device = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-
-    private Interval interval;
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
     private BigDecimal testNumberTwo;
@@ -52,15 +50,15 @@ public class DeviceTypeOneVersionedDomainExtension implements PersistentDomainEx
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public Interval getInterval() {
-        return interval;
+        return super.getInterval();
     }
 
     public void setInterval(Interval interval) {
-        this.interval = interval;
+        super.setInterval(interval);
     }
 
     public boolean getTestBoolean() {
