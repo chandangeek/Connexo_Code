@@ -18,6 +18,7 @@ public enum TableSpecs {
             table.since(version(10, 2));
             table.map(MetrologyContractValidationRuleSetUsageImpl.class);
             table.setJournalTableName("UPC_MC_VALRULESETUSAGEJRNL");
+            table.addAuditColumns();
             Column validationRuleSet = table
                     .column("VALIDATIONRULESETID")
                     .type("number")
