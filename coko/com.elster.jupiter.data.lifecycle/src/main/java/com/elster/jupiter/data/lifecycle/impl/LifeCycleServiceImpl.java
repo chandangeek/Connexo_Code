@@ -190,6 +190,8 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
 		//meteringService.configurePurge(purgeConfiguration);
 		idsService.purge(logger);
 		meteringService.purge(purgeConfiguration);
+		instant = limit(getCategory(LifeCycleCategoryKind.WEBSERVICES).getRetention());
+		ormService.dropAuto(LifeCycleClass.WEBSERVICES, instant, logger);
 		instant = clock.instant().plus(360,ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
 		logger.info("Adding partitions up to " + instant);
 		ormService.createPartitions(instant, logger);

@@ -26,7 +26,8 @@ public enum LifeCycleCategoryKind {
 	},
 	ENDDEVICEEVENT,
 	LOGGING,
-	JOURNAL;
+	JOURNAL,
+	WEBSERVICES;
 	
 	public boolean configure(PurgeConfiguration.Builder builder, LifeCycleCategory category) {
 		return false;
