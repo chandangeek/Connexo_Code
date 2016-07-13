@@ -17,6 +17,13 @@ public class RegisterHistoryInfos {
     @XmlElement
     public List<RegisterHistoryInfo> registerHistory = new ArrayList<>();
 
+    /**
+     * Creates a new instance of this RegisterHistoryInfos with the proper RegisterHistoryInfo objects.
+     * We assume that the order in which the dataLoggerChannelUsages are provided is correct, eg. descending based on the interval.start
+     *
+     * @param dataLoggerChannelUsages the dataLoggerChannelUsages
+     * @return the proper info object
+     */
     public static RegisterHistoryInfos from(List<DataLoggerChannelUsage> dataLoggerChannelUsages) {
         RegisterHistoryInfos registerHistoryInfos = new RegisterHistoryInfos();
         dataLoggerChannelUsages.stream().forEach(dataLoggerChannelUsage -> {

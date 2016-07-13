@@ -17,6 +17,13 @@ public class ChannelHistoryInfos {
     @XmlElement
     public List<ChannelHistoryInfo> channelHistory = new ArrayList<>();
 
+    /**
+     * Creates a new instance of this ChannelHistoryInfos with the proper ChannelHistoryInfo objects.
+     * We assume that the order in which the dataLoggerChannelUsages are provided is correct, eg. descending based on the interval.start
+     *
+     * @param dataLoggerChannelUsages the dataLoggerChannelUsages
+     * @return the proper info object
+     */
     public static ChannelHistoryInfos from(List<DataLoggerChannelUsage> dataLoggerChannelUsages) {
         ChannelHistoryInfos channelHistoryInfos = new ChannelHistoryInfos();
         dataLoggerChannelUsages.stream().forEach(dataLoggerChannelUsage -> {
