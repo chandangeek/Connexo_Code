@@ -69,7 +69,11 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
         pageMainContent.setLoading();
 
         channelsStore.getProxy().setUrl(mRID);
-        channelsStore.load(onDependencyLoad);
+        channelsStore.suspendEvent('beforeload');
+        channelsStore.load(function () {
+            channelsStore.resumeEvent('beforeload');
+            onDependencyLoad();
+        });
 
         me.getModel('Mdc.usagepointmanagement.model.UsagePoint').load(mRID, {
             success: function (record) {
@@ -103,7 +107,7 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
             filter = {};
 
         filter.durationStore = me.getStore('Mdc.store.LoadProfileDataDurations');
-        filter.defaultFromDate = dataIntervalAndZoomLevels.getIntervalStart((channel.get('lastReading') || new Date()));
+        filter.interval = dataIntervalAndZoomLevels;
         filter.defaultDuration = all.count + all.timeUnit;
 
         filter.durationStore.loadData(dataIntervalAndZoomLevels.get('duration'));

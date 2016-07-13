@@ -1,15 +1,19 @@
 Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.view-channel-data-and-reading-qualities',
-
     requires: [
         'Uni.grid.FilterPanelTop',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.container.PreviewContainer',
         'Mdc.usagepointmanagement.view.UsagePointSideMenu',
+        'Mdc.usagepointmanagement.view.ChannelDataGraph',
         'Mdc.usagepointmanagement.view.ChannelDataGrid',
         'Mdc.usagepointmanagement.view.ChannelDataPreview'
     ],
+    mixins: {
+        bindable: 'Ext.util.Bindable'
+    },
+    store: 'Mdc.usagepointmanagement.store.ChannelData',
 
     router: null,
     channel: null,
@@ -34,7 +38,8 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
                         routerIdArgument: 'channelId',
                         itemsName: Ext.String.format('<a href="{0}">{1}</a>',
                             me.router.getRoute('usagepoints/usagepoint/channels').buildUrl(),
-                            Uni.I18n.translate('general.channels', 'MDC', 'Channels').toLowerCase())
+                            Uni.I18n.translate('general.channels', 'MDC', 'Channels').toLowerCase()),
+                        isFullTotalCount: true
                     },
                     {
                         xtype: 'uni-grid-filterpaneltop',
@@ -49,7 +54,7 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
                                 dataIndex: 'interval',
                                 dataIndexFrom: 'intervalStart',
                                 dataIndexTo: 'intervalEnd',
-                                defaultFromDate: me.filter.defaultFromDate,
+                                defaultFromDate: me.filter.interval.getIntervalStart((me.channel.get('lastReading') || new Date())),
                                 defaultDuration: me.filter.defaultDuration,
                                 durationStore: me.filter.durationStore,
                                 loadStore: false
@@ -57,12 +62,22 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
                         ]
                     },
                     {
+                        xtype: 'channel-data-graph',
+                        itemId: 'channel-data-graph',
+                        store: Ext.getStore(me.store),
+                        channel: me.channel,
+                        zoomLevels: me.filter.interval.get('zoomLevels')
+                    },
+                    {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'channel-data-grid',
                             itemId: 'channel-data-grid',
-                            store: 'Mdc.usagepointmanagement.store.ChannelData',
-                            channel: me.channel
+                            store: me.store,
+                            channel: me.channel,
+                            viewConfig: {
+                                loadMask: false
+                            }
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -99,5 +114,27 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelDataAndReadingQualities', {
         ];
 
         me.callParent(arguments);
+        me.bindStore(me.store || 'ext-empty-store', true);
+        me.on('beforedestroy', me.onBeforeDestroy, me);
+    },
+
+    getStoreListeners: function () {
+        return {
+            beforeload: this.onBeforeLoad,
+            load: this.onLoad
+        };
+    },
+
+    onBeforeLoad: function () {
+        this.setLoading(true);
+    },
+
+    onLoad: function () {
+        this.down('#channel-data-graph').showGraphView();
+        this.setLoading(false);
+    },
+
+    onBeforeDestroy: function () {
+        this.bindStore('ext-empty-store');
     }
 });
