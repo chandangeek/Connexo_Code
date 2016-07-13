@@ -24,7 +24,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.store.LoadProfileDataDurations',
         'Mdc.store.Clipboard',
         'Mdc.store.Estimators',
-        'Mdc.store.ValidationBlocks'
+        'Mdc.store.ValidationBlocks',
+        'Mdc.store.TimeUnits',
+        'Mdc.store.DataLoggerSlaveChannelHistory'
     ],
 
     refs: [
@@ -163,6 +165,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             isFullTotalCount = contentName === 'block',
             activeTab = contentName === 'spec' ? 0 : 1,
             timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
+            slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveChannelHistory'),
             loadDevice = function() {
                 device.load(mRID, {
                     scope: me,
@@ -203,8 +206,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         viewport.setLoading(true);
         if (contentName === 'spec') {
-            timeUnitsStore.load(function() {
-                loadDevice();
+            slaveHistoryStore.getProxy().setUrl(mRID, channelId);
+            slaveHistoryStore.load(function() {
+                timeUnitsStore.load(function() {
+                    loadDevice();
+                });
             });
         } else {
             loadDevice();
