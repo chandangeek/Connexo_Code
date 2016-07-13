@@ -4,7 +4,7 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
     fields: [
         {name: 'interval', type: 'auto'},
         {name: 'readingTime', dateFormat: 'time', type: 'date'},
-        {name: 'intervalFlags', type: 'auto'},
+        {name: 'readingQualities', type: 'auto'},
         {name: 'channelData', type: 'auto'},
         {name: 'channelValidationData', type: 'auto'},
         {name: 'channelCollectedData', type: 'auto'},

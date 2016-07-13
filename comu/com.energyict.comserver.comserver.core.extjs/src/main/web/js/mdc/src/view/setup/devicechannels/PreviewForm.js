@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     hidden: true
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval'),
+                                    fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
                                     name: 'interval_formatted'
                                 },
                                 {
@@ -86,7 +86,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                     fieldLabel: Uni.I18n.translate('deviceloadprofiles.loadProfile', 'MDC', 'Load profile'),
                                     name: 'loadProfileId',
                                     renderer: function (value) {
-                                        var res = '',
+                                        var res = '-',
                                             device;
                                         if (value instanceof Mdc.model.LoadProfileOfDevice) {
                                             var url = me.router.getRoute('devices/device/loadprofiles/loadprofiledata').buildUrl({
@@ -99,7 +99,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                             loadProfile.getProxy().setUrl(me.device.get('mRID'));
                                             loadProfile.load(value, {
                                                 success: function (record) {
-                                                    me.down('[name=loadProfileId]').setValue(record)
+                                                    me.down('[name=loadProfileId]').setValue(record);
                                                 }
                                             })
                                         }

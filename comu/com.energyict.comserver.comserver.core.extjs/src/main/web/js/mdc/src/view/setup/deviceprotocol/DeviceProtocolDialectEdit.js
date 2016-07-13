@@ -83,8 +83,10 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                         items: [
                             {
                                 xtype: 'displayfield',
-                                fieldLabel: '<h3>' + Uni.I18n.translate('protocolDialect.protocolDialectDetails', 'MDC', 'Protocol dialect details') + '</h3>',
-                                text: ''
+                                fieldLabel: Uni.I18n.translate('protocolDialect.protocolDialectDetails', 'MDC', 'Protocol dialect details'),
+                                renderer: function() {
+                                    return ''; // No dash!
+                                }
                             }
                         ]
                     },
