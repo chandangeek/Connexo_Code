@@ -1,12 +1,10 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
-import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
@@ -20,12 +18,14 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
- * Created by igh on 18/04/2016.
+ * Provides an implementation for the {@link com.elster.jupiter.calendar.DayType} interface.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-18
  */
-public class DayTypeImpl implements DayType {
+class DayTypeImpl implements DayType {
 
     public enum Fields {
         ID("id"),
@@ -44,6 +44,7 @@ public class DayTypeImpl implements DayType {
         }
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.DAYTYPE_NAME_FIELD_TOO_LONG + "}")
@@ -52,9 +53,13 @@ public class DayTypeImpl implements DayType {
     private Reference<Calendar> calendar = ValueReference.absent();
     private List<EventOccurrence> eventOccurrences = new ArrayList<>();
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     private final ServerCalendarService calendarService;
@@ -115,6 +120,7 @@ public class DayTypeImpl implements DayType {
         if (id == 0) {
             return;
         }
+        this.eventOccurrences.clear();
         calendarService.getDataModel().remove(this);
     }
 

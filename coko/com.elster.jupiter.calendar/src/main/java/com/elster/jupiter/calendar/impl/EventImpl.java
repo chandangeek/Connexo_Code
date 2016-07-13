@@ -1,7 +1,6 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -16,9 +15,12 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 
 /**
- * Created by igh on 19/04/2016.
+ * Provides an implementation for the {@link com.elster.jupiter.calendar.EventOccurrence} interface.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-18
  */
-public class EventImpl implements Event {
+class EventImpl implements Event {
 
     public enum Fields {
         ID("id"),
@@ -37,6 +39,7 @@ public class EventImpl implements Event {
         }
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.EVENT_NAME_FIELD_TOO_LONG + "}")
@@ -45,9 +48,13 @@ public class EventImpl implements Event {
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     private final ServerCalendarService calendarService;
@@ -114,6 +121,5 @@ public class EventImpl implements Event {
     void save() {
         Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
     }
-
 
 }

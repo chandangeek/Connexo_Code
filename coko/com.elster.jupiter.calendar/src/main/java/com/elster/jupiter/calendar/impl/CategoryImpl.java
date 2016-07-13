@@ -10,10 +10,13 @@ import javax.inject.Inject;
 import javax.validation.constraints.Size;
 
 /**
- * Created by igh on 15/04/2016.
+ * Provides an implementation for the {@link com.elster.jupiter.calendar.Category} interface.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-15
  */
 @UniqueCategoryName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CATEGORY_NAME + "}")
-public class CategoryImpl implements Category {
+class CategoryImpl implements Category {
 
     public enum Fields {
         ID("id"),
@@ -30,6 +33,7 @@ public class CategoryImpl implements Category {
         }
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CATEGORY_NAME_FIELD_TOO_LONG + "}")
@@ -61,6 +65,5 @@ public class CategoryImpl implements Category {
     public void save() {
         Save.CREATE.save(calendarService.getDataModel(), this, Save.Create.class);
     }
-
 
 }

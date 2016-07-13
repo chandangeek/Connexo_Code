@@ -1,8 +1,6 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
@@ -10,18 +8,22 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
 
 /**
- * Created by igh on 18/04/2016.
+ * Serves as the root for the implementation classes of the
+ * {@link com.elster.jupiter.calendar.ExceptionalOccurrence} class hierarchy.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-18
  */
-public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence {
+abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence {
 
     public enum Fields {
         ID("id"),
@@ -47,6 +49,7 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
             FixedExceptionalOccurrenceImpl.TYPE_IDENTIFIER, FixedExceptionalOccurrenceImpl.class,
             RecurrentExceptionalOccurrenceImpl.TYPE_IDENTIFIER, RecurrentExceptionalOccurrenceImpl.class);
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();
@@ -118,4 +121,5 @@ public abstract class ExceptionalOccurrenceImpl implements ExceptionalOccurrence
         }
         calendarService.getDataModel().remove(this);
     }
+
 }

@@ -15,6 +15,7 @@ import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Created by igh on 18/04/2016.
@@ -24,6 +25,7 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<Category> table = dataModel.addTable(name(), Category.class);
+            table.since(version(10, 2));
             table.map(CategoryImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar().notNull().map(CategoryImpl.Fields.NAME.fieldName()).add();
@@ -34,6 +36,7 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<Calendar> table = dataModel.addTable(name(), Calendar.class);
+            table.since(version(10, 2));
             table.map(CalendarImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar().notNull().map(CalendarImpl.Fields.NAME.fieldName()).add();
@@ -44,6 +47,7 @@ public enum TableSpecs {
             table.column("ABSTRACT_CALENDAR").bool().notNull().map(CalendarImpl.Fields.ABSTRACT_CALENDAR.fieldName()).add();
             table.column("TIMEZONENAME").varChar().map(CalendarImpl.Fields.TIMEZONENAME.fieldName()).add();
             Column categoryColumn = table.column(CalendarImpl.Fields.CATEGORY.fieldName()).number().notNull().add();
+            table.setJournalTableName("CAL_CALENDARJRNL");
             table.addAuditColumns();
             table.primaryKey("CAL_PK_CALENDAR").on(idColumn).add();
             table.unique("CAL_U_CALENDAR_MRID").on(mRIDColumn).add();
@@ -58,20 +62,20 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<Event> table = dataModel.addTable(name(), Event.class);
+            table.since(version(10, 2));
             table.map(EventImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar().notNull().map(EventImpl.Fields.NAME.fieldName()).add();
             table.column("CODE").number().notNull().conversion(ColumnConversion.NUMBER2LONG).map(EventImpl.Fields.CODE.fieldName()).add();
             Column calendarColumn = table.column("calendar").number().notNull().add();
+            table.setJournalTableName("CAL_EVENTJRNL");
             table.addAuditColumns();
             table.primaryKey("CAL_PK_EVENT").on(idColumn).add();
             table.foreignKey("CAL_EVENT_TO_CALENDAR")
                     .references(Calendar.class)
                     .on(calendarColumn)
-                    .onDelete(CASCADE)
                     .map(EventImpl.Fields.CALENDAR.fieldName())
                     .reverseMap(CalendarImpl.Fields.EVENTS.fieldName())
-                    //.composition()
                     .add();
         }
     },
@@ -79,77 +83,62 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<EventOccurrence> table = dataModel.addTable(name(), EventOccurrence.class);
+            table.since(version(10, 2));
             table.map(EventOccurrenceImpl.class);
-            Column idColumn = table.addAutoIdColumn();
-
+            Column id = table.addAutoIdColumn();
             table.column("HOURS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(EventOccurrenceImpl.Fields.HOURS.fieldName()).add();
             table.column("MINUTES").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(EventOccurrenceImpl.Fields.MINUTES.fieldName()).add();
             table.column("SECONDS").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(EventOccurrenceImpl.Fields.SECONDS.fieldName()).add();
-
-            Column eventColumn = table.column(EventOccurrenceImpl.Fields.EVENT.fieldName()).number().notNull().add();
-            //Column dayTypeColumn = table.column(EventOccurrenceImpl.Fields.DAYTYPE.fieldName()).number().notNull().add();
-
-            table.primaryKey("CAL_PK_EVT_OCC").on(idColumn).add();
+            Column event = table.column(EventOccurrenceImpl.Fields.EVENT.fieldName()).number().notNull().add();
+            table.setJournalTableName("CAL_EVENT_OCCURRENCEJRNL");
+            table.addAuditColumns();
+            table.primaryKey("CAL_PK_EVT_OCC").on(id).add();
             table.foreignKey("CAL_EVT_OCC_TO_EVT")
                     .references(Event.class)
-                    .on(eventColumn)
+                    .on(event)
                     .map(EventOccurrenceImpl.Fields.EVENT.fieldName())
                     .add();
-
-            /*table.foreignKey("CAL_EVT_OCC_DAYTYPE")
-                    .references(DayType.class)
-                    .on(dayTypeColumn)
-                    .onDelete(CASCADE)
-                    .map(EventOccurrenceImpl.Fields.DAYTYPE.fieldName())
-                    .reverseMap(DayTypeImpl.Fields.EVENT_OCCURENCES.fieldName())
-                    .composition()
-                    .add();*/
         }
     },
     CAL_DAYTYPE {
         @Override
         public void addTo(DataModel dataModel) {
             Table<DayType> table = dataModel.addTable(name(), DayType.class);
+            table.since(version(10, 2));
             table.map(DayTypeImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar().notNull().map(DayTypeImpl.Fields.NAME.fieldName()).add();
             Column calendarColumn = table.column("calendar").number().notNull().add();
             table.primaryKey("CAL_PK_DAYTYPE").on(idColumn).add();
+            table.setJournalTableName("CAL_DAYTYPEJRNL");
             table.addAuditColumns();
             table.foreignKey("CAL_DAYTYPE_TO_CALENDAR")
                     .references(Calendar.class)
                     .on(calendarColumn)
-                    .onDelete(CASCADE)
                     .map(DayTypeImpl.Fields.CALENDAR.fieldName())
                     .reverseMap(CalendarImpl.Fields.DAYTYPES.fieldName())
-                    //.composition()
                     .add();
         }
     },
-
-
     ADD_EVT_OCC_TO_DAYTYPE_DEPENDENCY {
         @Override
         public void addTo(DataModel dataModel) {
             Table<?> table = dataModel.getTable(CAL_EVENT_OCCURRENCE.name());
             Column dayTypeColumn = table.column(EventOccurrenceImpl.Fields.DAYTYPE.fieldName()).number().notNull().add();
-
             table.foreignKey("CAL_EVT_OCC_DAYTYPE")
                     .references(DayType.class)
                     .on(dayTypeColumn)
-                    .onDelete(CASCADE)
                     .map(EventOccurrenceImpl.Fields.DAYTYPE.fieldName())
                     .reverseMap(DayTypeImpl.Fields.EVENT_OCCURENCES.fieldName())
                     .composition()
                     .add();
         }
     },
-
-
     CAL_PERIOD {
         @Override
         public void addTo(DataModel dataModel) {
             Table<Period> table = dataModel.addTable(name(), Period.class);
+            table.since(version(10, 2));
             table.map(PeriodImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.column("NAME").varChar().notNull().map(PeriodImpl.Fields.NAME.fieldName()).add();
@@ -210,12 +199,12 @@ public enum TableSpecs {
                     .map(PeriodImpl.Fields.SUNDAY.fieldName())
                     .add();
         }
-    }
-    ,
+    },
     CAL_EXCEPTIONAL_OCC {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ExceptionalOccurrence> table = dataModel.addTable(name(), ExceptionalOccurrence.class);
+            table.since(version(10, 2));
             table.map(ExceptionalOccurrenceImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
 
@@ -249,6 +238,7 @@ public enum TableSpecs {
         @Override
         public void addTo(DataModel dataModel) {
             Table<PeriodTransitionSpec> table = dataModel.addTable(name(), PeriodTransitionSpec.class);
+            table.since(version(10, 2));
             table.map(PeriodTransitionSpecImpl.IMPLEMENTERS);
             Column idColumn = table.addAutoIdColumn();
 

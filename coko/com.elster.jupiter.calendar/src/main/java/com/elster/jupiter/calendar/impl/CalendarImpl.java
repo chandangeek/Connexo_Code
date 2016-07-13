@@ -31,19 +31,21 @@ import java.time.Year;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 /**
- * Created by igh on 18/04/2016.
+ * Provides an implementation for the {@link com.elster.jupiter.calendar.Calendar} interface.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-18
  */
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_MRID + "}")
 @UniqueCalendarName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_CALENDAR_NAME + "}")
 @ValidTransitions(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.VALID_TRANSITIONS + "}")
-public class CalendarImpl implements Calendar {
+class CalendarImpl implements Calendar {
 
     public enum Fields {
         ID("id"),
@@ -72,6 +74,7 @@ public class CalendarImpl implements Calendar {
         }
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.CAL_NAME_FIELD_TOO_LONG + "}")
@@ -87,9 +90,13 @@ public class CalendarImpl implements Calendar {
     private Integer startYear;
     private Integer endYear;
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     private TimeZone timeZone;
@@ -348,11 +355,12 @@ public class CalendarImpl implements Calendar {
     }
 
     private List<PeriodTransition> getFixedPeriodTransitions() {
-        return this.periodTransitionSpecs.stream().map(spec -> (FixedPeriodTransitionSpec) spec).sorted(new Comparator<FixedPeriodTransitionSpec>() {
-            public int compare(FixedPeriodTransitionSpec o1, FixedPeriodTransitionSpec o2) {
-                return o1.getOccurrence().compareTo(o2.getOccurrence());
-            }
-        }).map(spec -> new PeriodTransitionImpl(spec.getOccurrence(), spec.getPeriod())).collect(Collectors.toList());
+        return this.periodTransitionSpecs
+                .stream()
+                .map(spec -> (FixedPeriodTransitionSpec) spec)
+                .sorted((o1, o2) -> o1.getOccurrence().compareTo(o2.getOccurrence()))
+                .map(spec -> new PeriodTransitionImpl(spec.getOccurrence(), spec.getPeriod()))
+                .collect(Collectors.toList());
     }
 
     private List<PeriodTransition> getRecurrentPeriodTransitions() {

@@ -1,11 +1,6 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.DayType;
-import com.elster.jupiter.calendar.Event;
-import com.elster.jupiter.calendar.EventOccurrence;
-import com.elster.jupiter.calendar.ExceptionalOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.PeriodTransitionSpec;
@@ -13,6 +8,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -20,9 +16,13 @@ import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 /**
- * Created by igh on 19/04/2016.
+ * Serves as the root for the implementation classes
+ * of the {@link com.elster.jupiter.calendar.PeriodTransitionSpec} class hierarchy.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-19
  */
-public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
+abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
 
     public enum Fields {
         ID("id"),
@@ -49,6 +49,7 @@ public abstract class PeriodTransitionSpecImpl implements PeriodTransitionSpec {
             RecurrentPeriodTransitionSpecImpl.TYPE_IDENTIFIER, RecurrentPeriodTransitionSpecImpl.class);
 
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<Calendar> calendar = ValueReference.absent();

@@ -1,17 +1,18 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec;
 
 import javax.inject.Inject;
 import java.time.MonthDay;
 
 /**
- * Created by igh on 19/04/2016.
+ * Provides an implementation for the {@link com.elster.jupiter.calendar.RecurrentPeriodTransitionSpec} interface.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-19
  */
-public class RecurrentPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl implements RecurrentPeriodTransitionSpec {
+class RecurrentPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl implements RecurrentPeriodTransitionSpec {
 
     static final String TYPE_IDENTIFIER = "REC";
 
@@ -28,5 +29,5 @@ public class RecurrentPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl 
     public MonthDay getOccurrence() {
         return MonthDay.of(getMonth(), getDay());
     }
-}
 
+}

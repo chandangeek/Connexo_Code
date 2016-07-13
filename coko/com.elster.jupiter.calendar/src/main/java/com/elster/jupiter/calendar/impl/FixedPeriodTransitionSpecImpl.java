@@ -1,20 +1,20 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.FixedExceptionalOccurrence;
 import com.elster.jupiter.calendar.FixedPeriodTransitionSpec;
 import com.elster.jupiter.calendar.MessageSeeds;
-import com.elster.jupiter.calendar.Period;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 /**
- * Created by igh on 19/04/2016.
+ * Provides an implementation for the {@link com.elster.jupiter.calendar.FixedPeriodTransitionSpec} interface.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-19
  */
-public class FixedPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl implements FixedPeriodTransitionSpec {
+class FixedPeriodTransitionSpecImpl extends PeriodTransitionSpecImpl implements FixedPeriodTransitionSpec {
 
     static final String TYPE_IDENTIFIER = "FIX";
 

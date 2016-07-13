@@ -1,9 +1,7 @@
 package com.elster.jupiter.calendar.impl;
 
 import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.DayType;
-import com.elster.jupiter.calendar.EventOccurrence;
 import com.elster.jupiter.calendar.MessageSeeds;
 import com.elster.jupiter.calendar.Period;
 import com.elster.jupiter.domain.util.NotEmpty;
@@ -17,12 +15,14 @@ import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.DayOfWeek;
 import java.time.Instant;
-import java.util.List;
 
 /**
- * Created by igh on 18/04/2016.
+ * Provides an implementation for the {@link com.elster.jupiter.calendar.Period} interface.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-18
  */
-public class PeriodImpl implements Period {
+class PeriodImpl implements Period {
 
     public enum Fields {
         ID("id"),
@@ -47,6 +47,7 @@ public class PeriodImpl implements Period {
         }
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotEmpty(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.PERIOD_NAME_FIELD_TOO_LONG + "}")
@@ -69,10 +70,13 @@ public class PeriodImpl implements Period {
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<DayType> sunday = ValueReference.absent();
 
-
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     private final ServerCalendarService calendarService;

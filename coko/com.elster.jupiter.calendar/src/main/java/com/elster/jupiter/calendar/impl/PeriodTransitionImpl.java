@@ -6,14 +6,17 @@ import com.elster.jupiter.calendar.PeriodTransition;
 import java.time.LocalDate;
 
 /**
- * Created by igh on 21/04/2016.
+ * Provides an implementation for the {@link com.elster.jupiter.calendar.PeriodTransition} interface.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-21
  */
-public class PeriodTransitionImpl implements PeriodTransition {
+class PeriodTransitionImpl implements PeriodTransition {
 
     private LocalDate occurrence;
     private Period period;
 
-    public PeriodTransitionImpl(LocalDate occurrence, Period period) {
+    PeriodTransitionImpl(LocalDate occurrence, Period period) {
         this.occurrence = occurrence;
         this.period = period;
     }
@@ -27,4 +30,5 @@ public class PeriodTransitionImpl implements PeriodTransition {
     public Period getPeriod() {
         return period;
     }
+
 }

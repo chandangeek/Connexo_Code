@@ -1,8 +1,5 @@
 package com.elster.jupiter.calendar.impl;
 
-import com.elster.jupiter.calendar.Calendar;
-import com.elster.jupiter.calendar.CalendarService;
-import com.elster.jupiter.calendar.Category;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
 import com.elster.jupiter.calendar.EventOccurrence;
@@ -11,14 +8,17 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
-import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.time.LocalTime;
 
 /**
- * Created by igh on 20/04/2016.
+ * Provides an implementation for the {@link EventOccurrence} interface.
+ *
+ * @author Isabelle Gheysens (igh)
+ * @since 2016-04-20
  */
-public class EventOccurrenceImpl implements EventOccurrence {
+class EventOccurrenceImpl implements EventOccurrence {
 
     public enum Fields {
         ID("id"),
@@ -39,6 +39,7 @@ public class EventOccurrenceImpl implements EventOccurrence {
         }
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Integer hours;
@@ -46,17 +47,18 @@ public class EventOccurrenceImpl implements EventOccurrence {
     private Integer minutes;
     @NotNull(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Integer seconds;
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<DayType> dayType = ValueReference.absent();
     private Reference<Event> event = ValueReference.absent();
-
-    private final CalendarService calendarService;
-
-    @Inject
-    EventOccurrenceImpl(CalendarService calendarService) {
-        this.calendarService = calendarService;
-    }
 
     EventOccurrenceImpl init(Event event, DayType dayType) {
         this.event.set(event);
