@@ -113,6 +113,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
                 checkCount(deliverablesPerMeterActivation);
             }
 
+
             return this;
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);

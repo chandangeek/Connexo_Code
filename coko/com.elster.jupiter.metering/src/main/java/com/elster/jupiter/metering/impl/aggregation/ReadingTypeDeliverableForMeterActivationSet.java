@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Redefines a {@link ReadingTypeDeliverable} for a {@link MeterActivationSet}.
@@ -47,7 +49,8 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
         this.expressionNode = expressionNode;
         this.expressionReadingType = expressionReadingType;
-        this.requirements = new ArrayList(); // fill from expressionNode (new Visitor)
+        this.requirements = this.expressionNode.accept(new RequirementsFromExpressionNode()).stream()
+                                               .map(reqNode -> reqNode.getRequirement()).collect(Collectors.toList());
         this.targetReadingType = VirtualReadingType.from(deliverable.getReadingType());
     }
 
@@ -91,10 +94,10 @@ class ReadingTypeDeliverableForMeterActivationSet {
         }
         ImmutableList.Builder<Instant> builder = ImmutableList.builder();
         Instant start = range.lowerEndpoint();
-        sourceIntervalLength.addTo(start, zoneId);
+        start = sourceIntervalLength.addTo(start, zoneId);
         while (range.contains(start)) {
             builder.add(start);
-            sourceIntervalLength.addTo(start, zoneId);
+            start = sourceIntervalLength.addTo(start, zoneId);
         }
         return builder.build();
     }
