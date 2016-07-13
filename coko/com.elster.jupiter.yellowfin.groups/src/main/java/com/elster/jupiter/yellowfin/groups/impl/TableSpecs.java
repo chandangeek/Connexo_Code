@@ -1,10 +1,10 @@
 package com.elster.jupiter.yellowfin.groups.impl;
 
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.Table.NAME_LENGTH;
-
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 public enum TableSpecs {
@@ -13,7 +13,7 @@ public enum TableSpecs {
             Table<AdHocDeviceGroupImpl> table = dataModel.addTable(name(), AdHocDeviceGroupImpl.class);
             table.map(AdHocDeviceGroupImpl.class);
             Column deviceIdColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            table.column("NAME").varChar().map("name").add();
             table.addCreateTimeColumn("CREATETIME", "createTime");
             table.primaryKey("YFG_PK_ADHOCGROUP").on(deviceIdColumn).add();
         }

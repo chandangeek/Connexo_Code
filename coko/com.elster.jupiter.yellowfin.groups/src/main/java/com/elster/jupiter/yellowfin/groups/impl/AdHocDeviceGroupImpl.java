@@ -7,6 +7,7 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 
 import javax.inject.Inject;
+import javax.validation.constraints.Size;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+
 final class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
 
     private String ADHOC_GROUP_NAME_PREFIX = "__##SEARCH_RESULTS##__";
@@ -23,6 +26,7 @@ final class AdHocDeviceGroupImpl implements AdHocDeviceGroup {
     private static final int ROWCOUNT_ITEMS = 100;
 
     private long id;
+    @Size(max=NAME_LENGTH)
     private String name;
     @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
