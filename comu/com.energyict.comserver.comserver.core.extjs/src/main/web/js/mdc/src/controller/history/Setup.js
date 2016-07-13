@@ -2257,7 +2257,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     channeldata: {
                                         title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
                                         privileges: Mdc.privileges.UsagePoint.canView(),
-                                        route: 'channels/{channelId}/data',
+                                        route: '{channelId}/data',
                                         controller: 'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
                                         action: 'showOverview',
                                         callback: function (route) {
