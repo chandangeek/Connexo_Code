@@ -1,11 +1,10 @@
 package com.energyict.mdc.protocol.api.security;
 
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 
 import javax.validation.constraints.NotNull;
@@ -18,7 +17,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-18 (11:59)
  */
-public abstract class CommonBaseDeviceSecurityProperties implements PersistentDomainExtension<BaseDevice> {
+public abstract class CommonBaseDeviceSecurityProperties extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<BaseDevice> {
 
     public enum Fields {
         DEVICE {
@@ -62,15 +61,10 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
     }
 
     @NotNull
-    @SuppressWarnings("unused")
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-    @NotNull
     private Reference<BaseDevice> device = Reference.empty();
     @NotNull
     private Reference<SecurityPropertySpecProvider> propertySpecProvider = Reference.empty();
     private boolean complete = false;
-    @SuppressWarnings("unused")
-    private Interval interval;
 
     @Override
     public void copyFrom(BaseDevice device, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
