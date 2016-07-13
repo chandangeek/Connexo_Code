@@ -14,6 +14,8 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.ami.EndDeviceCommandFactory;
+import com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactoryImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
@@ -71,6 +73,7 @@ public class DeviceDataModule extends AbstractModule {
         bind(DataCollectionKpiService.class).to(DataCollectionKpiServiceImpl.class).in(Scopes.SINGLETON);
         bind(BatchService.class).to(BatchServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceMessageService.class).to(DeviceMessageServiceImpl.class).in(Scopes.SINGLETON);
+        bind(EndDeviceCommandFactory.class).to(EndDeviceCommandFactoryImpl.class).in(Scopes.SINGLETON);
     }
 
 }
