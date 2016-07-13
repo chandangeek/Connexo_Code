@@ -356,7 +356,8 @@ public class UsagePointResource {
 
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
         try {
-            usagePoint.updateWithInterval(version, metrologyConfiguration, start, end);
+//            usagePoint.updateWithInterval(version, metrologyConfiguration, start, end);
+            usagePoint.apply(metrologyConfiguration, start, end);
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
         } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMerologyConfigurationEndDate ex) {
@@ -365,7 +366,6 @@ public class UsagePointResource {
             throw new FormValidationException().addException("start", ex.getMessage());
         }
         info.metrologyConfigurationVersion = metrologyConfigurationInfoFactory.asInfo(version);
-        usagePoint.update();
 
         return Response.status(Response.Status.OK).entity(info).build();
     }
