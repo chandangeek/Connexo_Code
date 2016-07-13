@@ -204,7 +204,7 @@ public class ValidateMetrologyConfigurationChannelsContainerTestIT {
         metrologyContract.addDeliverable(readingTypeDeliverable);
         UsagePoint usagePoint = serviceCategory.newUsagePoint("UP", inMemoryBootstrapModule.get(Clock.class).instant()).create();
         usagePoint.apply(metrologyConfiguration, firstReadingTimestamp.minus(1, ChronoUnit.DAYS));
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().get();
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
         BaseReadingRecord baseReading = mock(BaseReadingRecord.class);
         when(baseReading.getTimeStamp()).thenReturn(firstReadingTimestamp);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
