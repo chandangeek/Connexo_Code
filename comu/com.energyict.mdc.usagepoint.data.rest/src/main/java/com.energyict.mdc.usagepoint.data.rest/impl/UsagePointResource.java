@@ -89,10 +89,9 @@ public class UsagePointResource {
             @PathParam("mRID") String mRID,
             @PathParam("channelid") long channelId) {
         UsagePoint usagePoint = resourceHelper.fetchUsagePoint(mRID);
-        Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(mRID, channelId);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().orElse(null);
-        UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
-        return usagePointChannelInfoFactory.from(channel, usagePoint, metrologyConfiguration);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = resourceHelper.getEffectiveMetrologyConfigurationOnUsagePoint(usagePoint);
+        Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
+        return usagePointChannelInfoFactory.from(channel, usagePoint, effectiveMetrologyConfiguration.getMetrologyConfiguration());
     }
 
     @GET

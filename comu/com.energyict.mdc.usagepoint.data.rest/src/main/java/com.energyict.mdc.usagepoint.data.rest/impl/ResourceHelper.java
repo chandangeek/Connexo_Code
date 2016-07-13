@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.util.streams.Functions;
 
 import javax.inject.Inject;
 
@@ -26,14 +27,31 @@ public class ResourceHelper {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mRID));
     }
 
-    public Channel findChannelOnUsagePointOrThrowException(String mRID, long channelId) {
+    public EffectiveMetrologyConfigurationOnUsagePoint getEffectiveMetrologyConfigurationOnUsagePoint(String mRID) {
         UsagePoint usagePoint = this.fetchUsagePoint(mRID);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().orElse(null);
+
+        return this.getEffectiveMetrologyConfigurationOnUsagePoint(usagePoint);
+    }
+
+    public EffectiveMetrologyConfigurationOnUsagePoint getEffectiveMetrologyConfigurationOnUsagePoint(UsagePoint usagePoint) {
+        return usagePoint.getEffectiveMetrologyConfiguration()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT, usagePoint.getMRID()));
+    }
+
+    public Channel findChannelOnUsagePointOrThrowException(String mRID, long channelId) {
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = this.getEffectiveMetrologyConfigurationOnUsagePoint(mRID);
+
+        return this.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
+    }
+
+    public Channel findChannelOnUsagePointOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, long channelId) {
 
         return effectiveMetrologyConfiguration
-                .getMetrologyConfiguration()
-                .getContracts().stream().flatMap(metrologyContract -> {
-                    return effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).orElse(null).getChannels().stream().filter(channel -> channel.getId() == channelId);
-                }).findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_WITH_ID, channelId));
+                .getMetrologyConfiguration().getContracts().stream()
+                .map(effectiveMetrologyConfiguration::getChannelsContainer)
+                .flatMap(Functions.asStream())
+                .flatMap(channelsContainer -> channelsContainer.getChannels().stream())
+                .filter(channel -> channel.getId() == channelId)
+                .findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_WITH_ID, channelId));
     }
 }
