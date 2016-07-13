@@ -17,6 +17,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.Optional;
 
 /**
  * Setup for a 'realistic' Data Logger/ Data Logger Slave
@@ -87,12 +88,17 @@ public class CreateDataLoggerSetupCommand {
 
     private void createDataLoggerSlaves(){
         DeviceType deviceType = Builders.from(DeviceTypeTpl.EIMETER_FLEX).get();
-        DeviceConfiguration deviceConfiguration = Builders.from(DeviceConfigurationTpl.DATA_LOGGER_SLAVE).withDeviceType(deviceType).find()
-                .orElse(Builders.from(DeviceConfigurationTpl.DATA_LOGGER_SLAVE)
-                        .withDeviceType(deviceType)
-                        .withDirectlyAddressable(false)
-                        .withPostBuilder(new ChannelsOnDevConfPostBuilder())
-                        .create());
+        Optional<DeviceConfiguration> existingConfiguration  = deviceType.getConfigurations().stream().filter(each -> DeviceConfigurationTpl.DATA_LOGGER_SLAVE.getName().equals(each.getName())).findFirst();
+        DeviceConfiguration deviceConfiguration;
+        if (existingConfiguration.isPresent()){
+            deviceConfiguration = existingConfiguration.get();
+        }else {
+            deviceConfiguration = Builders.from(DeviceConfigurationTpl.DATA_LOGGER_SLAVE)
+                    .withDeviceType(deviceType)
+                    .withDirectlyAddressable(false)
+                    .withPostBuilder(new ChannelsOnDevConfPostBuilder())
+                    .create();
+        }
         if(!deviceConfiguration.isActive()) {
             deviceConfiguration.activate();
         }
