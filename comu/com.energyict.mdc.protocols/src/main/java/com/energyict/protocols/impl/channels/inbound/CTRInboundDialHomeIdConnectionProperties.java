@@ -1,11 +1,10 @@
 package com.energyict.protocols.impl.channels.inbound;
 
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
@@ -18,7 +17,7 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (15:43)
  */
-public class CTRInboundDialHomeIdConnectionProperties implements PersistentDomainExtension<ConnectionProvider> {
+public class CTRInboundDialHomeIdConnectionProperties extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ConnectionProvider> {
 
     public enum Fields {
         CONNECTION_PROVIDER {
@@ -60,11 +59,7 @@ public class CTRInboundDialHomeIdConnectionProperties implements PersistentDomai
     }
 
     @SuppressWarnings("unused")
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-    @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
-    @SuppressWarnings("unused")
-    private Interval interval;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String dialHomeId;
 
