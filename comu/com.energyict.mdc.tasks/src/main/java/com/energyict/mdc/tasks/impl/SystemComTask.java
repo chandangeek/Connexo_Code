@@ -14,6 +14,6 @@ public interface SystemComTask extends ComTask{
      *
      * @return the newly created FirmwareUpgradeTask
      */
-    public FirmwareManagementTask createFirmwareUpgradeTask() ;
+    FirmwareManagementTask createFirmwareUpgradeTask() ;
 
 }

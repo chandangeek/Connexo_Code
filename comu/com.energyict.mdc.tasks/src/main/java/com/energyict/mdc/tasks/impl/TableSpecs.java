@@ -4,15 +4,28 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
-import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.*;
-import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.*;
-import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.*;
+import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.MAXIMUM_CLOCK_DIFFERENCE;
+import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.VERIFY_CLOCK_DIFFERENCE;
+import static com.energyict.mdc.tasks.impl.BasicCheckTaskImpl.Fields.VERIFY_SERIAL_NUMBER;
+import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.CLOCK_TASK_TYPE;
+import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.MAXIMUM_CLOCK_DIFF;
+import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.MAXIMUM_CLOCK_SHIFT;
+import static com.energyict.mdc.tasks.impl.ClockTaskImpl.Fields.MINIMUM_CLOCK_DIFF;
+import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.CREATE_METER_EVENTS_FROM_STATUS_FLAGS;
+import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.FAIL_IF_CONFIGURATION_MISMATCH;
+import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.MARK_INTERVALS_AS_BAD_TIME;
+import static com.energyict.mdc.tasks.impl.LoadProfilesTaskImpl.Fields.MIN_CLOCK_DIFF_BEFORE_BAD_TIME;
 import static com.energyict.mdc.tasks.impl.TopologyTaskImpl.Fields.TOPOLOGY_ACTION;
 
 public enum TableSpecs {
@@ -103,15 +116,24 @@ public enum TableSpecs {
             Column registerGroup = table.column("REGISTERGROUP").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
             table.addAuditColumns();
 
-            table.foreignKey("FK_CTS_REGGRPUSAGE_PROTOCOLTSK").
-                    on(registerTask).references(CTS_PROTOCOLTASK.name()).
-                    map(RegisterGroupUsageImpl.Fields.REGISTERS_TASK_REFERENCE.fieldName()).
-                    reverseMap(RegistersTaskImpl.Fields.REGISTER_GROUP_USAGES.fieldName()).
-                    composition().
-                    onDelete(CASCADE).
-                    add();
-            table.foreignKey("FK_CTS_REGISTERGROUP").on(registerGroup).references(MasterDataService.COMPONENTNAME, "MDS_REGISTERGROUP").map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName()).add();
-            table.primaryKey("PK_CTS_REGISTERGROUPUSAGE").on(registerTask, registerGroup).add();
+            table
+                .foreignKey("FK_CTS_REGGRPUSAGE_PROTOCOLTSK")
+                .on(registerTask).references(CTS_PROTOCOLTASK.name())
+                .map(RegisterGroupUsageImpl.Fields.REGISTERS_TASK_REFERENCE.fieldName())
+                .reverseMap(RegistersTaskImpl.Fields.REGISTER_GROUP_USAGES.fieldName())
+                .composition()
+                .onDelete(CASCADE)
+                .add();
+            table
+                .foreignKey("FK_CTS_REGISTERGROUP")
+                .on(registerGroup)
+                .references(RegisterGroup.class)
+                .map(RegisterGroupUsageImpl.Fields.REGISTERS_GROUP_REFERENCE.fieldName())
+                .add();
+            table
+                .primaryKey("PK_CTS_REGISTERGROUPUSAGE")
+                .on(registerTask, registerGroup)
+                .add();
         }
     },
 
@@ -135,7 +157,7 @@ public enum TableSpecs {
                     add();
             table.foreignKey("FK_CTS_LOADPRFLTYPEUSAGE_TYPE").
                     on(loadProfileType).
-                    references(MasterDataService.COMPONENTNAME, "MDS_LOADPROFILETYPE").
+                    references(LoadProfileType.class).
                     map(LoadProfileTypeUsageInProtocolTaskImpl.Fields.LOADPROFILE_TYPE_REFERENCE.fieldName()).
                     add();
         }
@@ -152,17 +174,21 @@ public enum TableSpecs {
 
             table.primaryKey("PK_CTS_LOGBOOKTYPEUSAGE").on(logbooksTask,logbookType).add();
 
-            table.foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TASK").
-                    on(logbooksTask).references(CTS_PROTOCOLTASK.name()).
-                    map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TASK_REFERENCE.fieldName()).
-                    reverseMap(LogBooksTaskImpl.Fields.LOGBOOK_TYPE_USAGES.fieldName()).
-                    composition().
-                    onDelete(DeleteRule.CASCADE).
-                    add();
-            table.foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TYPE").
-                    on(logbookType).references(MasterDataService.COMPONENTNAME, "MDS_LOGBOOKTYPE").
-                    map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName()).
-                    add();
+            table
+                .foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TASK")
+                .on(logbooksTask)
+                .references(CTS_PROTOCOLTASK.name())
+                .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TASK_REFERENCE.fieldName())
+                .reverseMap(LogBooksTaskImpl.Fields.LOGBOOK_TYPE_USAGES.fieldName())
+                .composition()
+                .onDelete(DeleteRule.CASCADE)
+                .add();
+            table
+                .foreignKey("FK_CTS_LOGBOOKTYPEUSAGE_TYPE")
+                .on(logbookType)
+                .references(LogBookType.class)
+                .map(LogBookTypeUsageInProtocolTaskImpl.Fields.LOGBOOK_TYPE_REFERENCE.fieldName())
+                .add();
         }
     },
     ;

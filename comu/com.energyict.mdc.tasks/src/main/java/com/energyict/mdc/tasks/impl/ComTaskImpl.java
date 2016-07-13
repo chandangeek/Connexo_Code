@@ -13,7 +13,19 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
-import com.energyict.mdc.tasks.*;
+import com.energyict.mdc.tasks.BasicCheckTask;
+import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.tasks.ClockTaskType;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.FirmwareManagementTask;
+import com.energyict.mdc.tasks.LoadProfilesTask;
+import com.energyict.mdc.tasks.LogBooksTask;
+import com.energyict.mdc.tasks.MessagesTask;
+import com.energyict.mdc.tasks.ProtocolTask;
+import com.energyict.mdc.tasks.RegistersTask;
+import com.energyict.mdc.tasks.StatusInformationTask;
+import com.energyict.mdc.tasks.TopologyTask;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
 
@@ -37,26 +49,26 @@ import java.util.Objects;
  * @since 2/05/12 - 16:10
  */
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_NAME + "}")
-public abstract class ComTaskImpl implements ComTask {
+abstract class ComTaskImpl implements ComTask {
 
-    protected static final String USER_DEFINED_COMTASK = "1";
-    protected static final String SYSTEM_DEFINED_COMTASK = "2";
+    private static final String USER_DEFINED_COMTASK = "1";
+    private static final String SYSTEM_DEFINED_COMTASK = "2";
 
-    protected final DataModel dataModel;
-    protected final Thesaurus thesaurus;
-    protected final EventService eventService;
-    protected final Provider<BasicCheckTaskImpl> basicCheckTaskProvider;
-    protected final Provider<ClockTaskImpl> clockTaskProvider;
-    protected final Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider;
-    protected final Provider<LogBooksTaskImpl> logBooksTaskProvider;
-    protected final Provider<MessagesTaskImpl> messagesTaskProvider;
-    protected final Provider<RegistersTaskImpl> registersTaskProvider;
-    protected final Provider<StatusInformationTaskImpl> statusInformationTaskProvider;
-    protected final Provider<TopologyTaskImpl> topologyTaskProvider;
-    protected final Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider;
+    private final DataModel dataModel;
+    private final Thesaurus thesaurus;
+    private final EventService eventService;
+    private final Provider<BasicCheckTaskImpl> basicCheckTaskProvider;
+    private final Provider<ClockTaskImpl> clockTaskProvider;
+    private final Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider;
+    private final Provider<LogBooksTaskImpl> logBooksTaskProvider;
+    private final Provider<MessagesTaskImpl> messagesTaskProvider;
+    private final Provider<RegistersTaskImpl> registersTaskProvider;
+    private final Provider<StatusInformationTaskImpl> statusInformationTaskProvider;
+    private final Provider<TopologyTaskImpl> topologyTaskProvider;
+    private final Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider;
 
     static final Map<String, Class<? extends ComTask>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends ComTask>>of(
+            ImmutableMap.of(
                     USER_DEFINED_COMTASK, ComTaskDefinedByUserImpl.class,
                     SYSTEM_DEFINED_COMTASK, ComTaskDefinedBySystemImpl.class);
 
@@ -81,14 +93,19 @@ public abstract class ComTaskImpl implements ComTask {
      */
     @Valid
     private final List<ProtocolTaskImpl> protocolTasks = new ArrayList<>();
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private String name;
     private boolean storeData; // Indication whether to store the data which is read
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
 
     /**
@@ -98,7 +115,7 @@ public abstract class ComTaskImpl implements ComTask {
     private int maxNrOfTries = 3;
 
     @Inject
-    public ComTaskImpl(Provider<LogBooksTaskImpl> logBooksTaskProvider,
+    ComTaskImpl(Provider<LogBooksTaskImpl> logBooksTaskProvider,
                        DataModel dataModel,
                        Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
                        Provider<MessagesTaskImpl> messagesTaskProvider,
@@ -122,6 +139,10 @@ public abstract class ComTaskImpl implements ComTask {
         this.thesaurus = thesaurus;
         this.loadProfilesTaskProvider = loadProfilesTaskProvider;
         this.firmwareManagementTaskProvider = firmwareManagementTaskProvider;
+    }
+
+    protected Provider<FirmwareManagementTaskImpl> getFirmwareManagementTaskProvider() {
+        return firmwareManagementTaskProvider;
     }
 
     @Override
@@ -158,7 +179,7 @@ public abstract class ComTaskImpl implements ComTask {
         return Collections.unmodifiableList(this.protocolTasks);
     }
 
-    protected void addProtocolTask(ProtocolTaskImpl protocolTask) {
+    void addProtocolTask(ProtocolTaskImpl protocolTask) {
         verifyUniqueProtocolTaskType(protocolTask.getClass());
         Save.CREATE.validate(dataModel, protocolTask); // explicit call for validation
         ComTaskImpl.this.protocolTasks.add(protocolTask);

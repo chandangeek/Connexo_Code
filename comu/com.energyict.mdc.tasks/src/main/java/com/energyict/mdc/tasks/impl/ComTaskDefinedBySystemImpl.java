@@ -5,6 +5,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.tasks.FirmwareManagementTask;
+
 import com.google.inject.Provider;
 
 import javax.inject.Inject;
@@ -14,10 +15,10 @@ import javax.inject.Inject;
  */
 @UniqueComTaskForFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
 @OnlyOneProtocolTaskIfFirmwareUpgrade(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.ONLY_ONE_COMTASK_WITH_FIRMWARE_ALLOWED + "}")
-public class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemComTask {
+class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemComTask {
 
     @Inject
-    public ComTaskDefinedBySystemImpl(DataModel dataModel, Thesaurus thesaurus,
+    ComTaskDefinedBySystemImpl(DataModel dataModel, Thesaurus thesaurus,
                                     EventService eventService,
                                     Provider<BasicCheckTaskImpl> basicCheckTaskProvider,
                                     Provider<ClockTaskImpl> clockTaskProvider,
@@ -33,7 +34,7 @@ public class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemCom
 
     @Override
     public FirmwareManagementTask createFirmwareUpgradeTask() {
-        FirmwareManagementTaskImpl firmwareUpgradeTask = firmwareManagementTaskProvider.get();
+        FirmwareManagementTaskImpl firmwareUpgradeTask = this.getFirmwareManagementTaskProvider().get();
         firmwareUpgradeTask.ownedBy(this);
         addProtocolTask(firmwareUpgradeTask);
         return firmwareUpgradeTask;
@@ -48,4 +49,5 @@ public class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemCom
     public boolean isSystemComTask() {
         return true;
     }
+
 }
