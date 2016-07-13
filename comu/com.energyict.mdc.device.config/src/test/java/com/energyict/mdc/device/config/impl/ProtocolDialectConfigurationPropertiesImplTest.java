@@ -409,6 +409,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 when(persistenceSupport.application()).thenReturn("Example");
                 when(persistenceSupport.componentName()).thenReturn("DDD");
                 when(persistenceSupport.tableName()).thenReturn("TST_MYPROPS");
+                when(persistenceSupport.journalTableName()).thenReturn("TST_MYPROPSJRNL");
                 when(persistenceSupport.domainColumnName()).thenReturn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.databaseName());
                 when(persistenceSupport.domainFieldName()).thenReturn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.javaName());
                 when(persistenceSupport.domainForeignKeyName()).thenReturn("FK_TST_MYPROPS");
