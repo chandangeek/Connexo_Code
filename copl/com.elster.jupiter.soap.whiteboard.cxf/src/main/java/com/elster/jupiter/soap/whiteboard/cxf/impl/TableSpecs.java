@@ -4,6 +4,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
@@ -92,7 +93,7 @@ public enum TableSpecs {
                     .notNull()
                     .map(EndPointLogImpl.Fields.logLevel.fieldName())
                     .add();
-            table.column("TIMESTAMP")
+            Column timestampColumn = table.column("TIMESTAMP")
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .notNull()
@@ -109,6 +110,7 @@ public enum TableSpecs {
                     .map(EndPointLogImpl.Fields.stacetrace.fieldName())
                     .add();
             table.primaryKey("SCS_PK_ENDPOINT_LOG").on(idColumn).add();
+            table.autoPartitionOn(timestampColumn, LifeCycleClass.WEBSERVICES);
 
         }
     };
