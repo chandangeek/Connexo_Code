@@ -46,7 +46,7 @@ public class PublicRestApplicationInstaller {
                 bind(UserService.class).toInstance(userService);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(PublicRestApplicationInstaller.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", PublicRestApplicationInstaller.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Reference
