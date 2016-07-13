@@ -22,6 +22,7 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -47,6 +48,7 @@ import org.osgi.service.event.EventAdmin;
 import java.math.BigDecimal;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -93,6 +95,7 @@ public class CustomPropertySetServiceImplIT {
     private User principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
+    private ThreadPrincipalService threadPrincipalService;
     private InMemoryBootstrapModule bootstrapModule;
 
     private Injector injector;
@@ -141,6 +144,17 @@ public class CustomPropertySetServiceImplIT {
     @After
     public void cleanUpDataBase() {
         this.bootstrapModule.deactivate();
+    }
+
+    @Before
+    public void setThreadPrinciple() {
+        this.threadPrincipalService = this.injector.getInstance(ThreadPrincipalService.class);
+        this.threadPrincipalService.set(this.principal);
+    }
+
+    @After
+    public void clearThreadPrinciple() {
+        this.threadPrincipalService.clear();
     }
 
     private class MockModule extends AbstractModule {
@@ -362,9 +376,9 @@ public class CustomPropertySetServiceImplIT {
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch stopLatch = new CountDownLatch(3);
         ExecutorService executorService = Executors.newFixedThreadPool(3);
-        executorService.execute(new Felix(this.transactionService, service, startLatch, stopLatch));
-        executorService.execute(new AddCustomPropertySet(this.transactionService, service, startLatch, stopLatch));
-        executorService.execute(new AddVersionedCustomPropertySet(this.transactionService, service, startLatch, stopLatch));
+        executorService.execute(new Felix(this.transactionService, this.threadPrincipalService, this.principal, service, startLatch, stopLatch));
+        executorService.execute(new AddCustomPropertySet(this.transactionService, this.threadPrincipalService, this.principal, service, startLatch, stopLatch));
+        executorService.execute(new AddVersionedCustomPropertySet(this.transactionService, this.threadPrincipalService, this.principal, service, startLatch, stopLatch));
 
         // Here is where all the action will happen
         startLatch.countDown();
@@ -1243,13 +1257,17 @@ public class CustomPropertySetServiceImplIT {
     private abstract class LatchDrivenRunnable implements Runnable {
 
         private final TransactionService transactionService;
+        private final ThreadPrincipalService threadPrincipalService;
+        private final Principal principal;
         private final CustomPropertySetServiceImpl service;
         private final CountDownLatch startLatch;
         private final CountDownLatch stopLatch;
 
-        protected LatchDrivenRunnable(TransactionService transactionService, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+        protected LatchDrivenRunnable(TransactionService transactionService, ThreadPrincipalService threadPrincipalService, Principal principal, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
             super();
             this.transactionService = transactionService;
+            this.threadPrincipalService = threadPrincipalService;
+            this.principal = principal;
             this.service = service;
             this.startLatch = startLatch;
             this.stopLatch = stopLatch;
@@ -1259,6 +1277,7 @@ public class CustomPropertySetServiceImplIT {
         public void run() {
             try {
                 this.startLatch.await();
+                this.threadPrincipalService.set(this.principal);
                 try (TransactionContext ctx = this.transactionService.getContext()) {
                     this.doRun(this.service);
                     ctx.commit();
@@ -1266,6 +1285,8 @@ public class CustomPropertySetServiceImplIT {
                 this.stopLatch.countDown();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+            } finally {
+                this.threadPrincipalService.clear();
             }
         }
 
@@ -1275,8 +1296,8 @@ public class CustomPropertySetServiceImplIT {
 
     private class Felix extends LatchDrivenRunnable {
 
-        private Felix(TransactionService transactionService, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
-            super(transactionService, service, startLatch, stopLatch);
+        private Felix(TransactionService transactionService, ThreadPrincipalService threadPrincipalService, Principal principal, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+            super(transactionService, threadPrincipalService, principal, service, startLatch, stopLatch);
         }
 
         @Override
@@ -1287,8 +1308,8 @@ public class CustomPropertySetServiceImplIT {
 
     private class AddCustomPropertySet extends LatchDrivenRunnable {
 
-        protected AddCustomPropertySet(TransactionService transactionService, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
-            super(transactionService, service, startLatch, stopLatch);
+        protected AddCustomPropertySet(TransactionService transactionService, ThreadPrincipalService threadPrincipalService, Principal principal, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+            super(transactionService, threadPrincipalService, principal, service, startLatch, stopLatch);
         }
 
         @Override
@@ -1301,8 +1322,8 @@ public class CustomPropertySetServiceImplIT {
 
     private class AddVersionedCustomPropertySet extends LatchDrivenRunnable {
 
-        protected AddVersionedCustomPropertySet(TransactionService transactionService, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
-            super(transactionService, service, startLatch, stopLatch);
+        protected AddVersionedCustomPropertySet(TransactionService transactionService, ThreadPrincipalService threadPrincipalService, Principal principal, CustomPropertySetServiceImpl service, CountDownLatch startLatch, CountDownLatch stopLatch) {
+            super(transactionService, threadPrincipalService, principal, service, startLatch, stopLatch);
         }
 
         @Override

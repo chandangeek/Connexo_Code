@@ -3,6 +3,8 @@ package com.elster.jupiter.cps;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
 
+import java.time.Instant;
+
 /**
  * Documents the names of the fields of a {@link PersistentDomainExtension}
  * that are hard coded and expected to be available by the {@link CustomPropertySetService}.
@@ -17,7 +19,7 @@ public enum HardCodedFieldNames {
      * In other words:
      * <pre>
      *     <code>
-     *         private Reference<RegisteredCustomPropertySet> customPropertySet = Reference.absent();
+     *         private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.absent();
      *     </code>
      * </pre>
      */
@@ -35,6 +37,83 @@ public enum HardCodedFieldNames {
         @Override
         public Class fieldType() {
             return Reference.class; // Actually Reference<CustomPropertySet>
+        }
+    },
+    /**
+     * Holds a counter that is increased each time the entity is updated.
+     * The initial value is 1.
+     */
+    VERSION {
+        @Override
+        public String javaName() {
+            return "version";
+        }
+
+        @Override
+        public String databaseName() {
+            return "VERSIONCOUNT";
+        }
+
+        @Override
+        public Class fieldType() {
+            return String.class;
+        }
+    },
+    /**
+     * Holds the point in time on which the entity was created.
+     */
+    CREATION_TIME {
+        @Override
+        public String javaName() {
+            return "createTime";
+        }
+
+        @Override
+        public String databaseName() {
+            return "CREATETIME";
+        }
+
+        @Override
+        public Class fieldType() {
+            return Instant.class;
+        }
+    },
+    /**
+     * Holds the point in time on which the entity was updated.
+     */
+    MODIFICATION_TIME {
+        @Override
+        public String javaName() {
+            return "modTime";
+        }
+
+        @Override
+        public String databaseName() {
+            return "MODTIME";
+        }
+
+        @Override
+        public Class fieldType() {
+            return Instant.class;
+        }
+    },
+    /**
+     * Holds the name of the user that created/updated the entity.
+     */
+    USER_NAME {
+        @Override
+        public String javaName() {
+            return "userName";
+        }
+
+        @Override
+        public String databaseName() {
+            return "USERNAME";
+        }
+
+        @Override
+        public Class fieldType() {
+            return String.class;
         }
     },
     /**
