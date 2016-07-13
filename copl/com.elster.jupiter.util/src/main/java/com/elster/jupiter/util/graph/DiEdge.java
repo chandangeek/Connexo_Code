@@ -27,8 +27,12 @@ public final class DiEdge<T> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         DiEdge<?> edge = (DiEdge<?>) o;
         return Objects.equals(from, edge.from) &&
                 Objects.equals(to, edge.to);
@@ -70,4 +74,5 @@ public final class DiEdge<T> {
     public long weight() {
         return weight;
     }
+
 }

@@ -163,8 +163,17 @@ public final class SqlBuilder implements SqlFragment {
     }
 
     public SqlBuilder asPageBuilder(String field, int from, int to) {
+        return asPageBuilder(from, to, field);
+    }
+
+    public SqlBuilder asPageBuilder(int from, int to, String... fields) {
         SqlBuilder result = new SqlBuilder("select ");
-        result.append(field);
+        for (int i = 0; i < fields.length; i++) {
+            result.append(fields[i]);
+            if (i < fields.length - 1) {
+                result.append(", ");
+            }
+        }
         result.append(" from (select x.*, ROWNUM rnum from (");
         result.add(this);
         result.append(") x where ROWNUM <= ");

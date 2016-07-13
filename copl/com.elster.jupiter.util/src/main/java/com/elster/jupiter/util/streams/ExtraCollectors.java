@@ -47,6 +47,35 @@ public enum ExtraCollectors {
         };
     }
 
+    public static <T> Collector<T, ?, ImmutableSet<T>> toImmutableSet() {
+        return new Collector<T, ImmutableSet.Builder<T>, ImmutableSet<T>>() {
+            @Override
+            public Supplier<ImmutableSet.Builder<T>> supplier() {
+                return ImmutableSet::builder;
+            }
+
+            @Override
+            public BiConsumer<ImmutableSet.Builder<T>, T> accumulator() {
+                return ImmutableSet.Builder::add;
+            }
+
+            @Override
+            public BinaryOperator<ImmutableSet.Builder<T>> combiner() {
+                return (b1, b2) -> b1.addAll(b2.build());
+            }
+
+            @Override
+            public Function<ImmutableSet.Builder<T>, ImmutableSet<T>> finisher() {
+                return ImmutableSet.Builder::build;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return Collections.emptySet();
+            }
+        };
+    }
+
     public static <T extends Comparable<? super T>> Collector<Range<T>, ?, RangeSet<T>> toImmutableRangeSet() {
         return new Collector<Range<T>, TreeRangeSet<T>, RangeSet<T>>() {
             @Override

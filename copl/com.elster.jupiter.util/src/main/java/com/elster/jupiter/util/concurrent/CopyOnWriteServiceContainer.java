@@ -1,42 +1,53 @@
 package com.elster.jupiter.util.concurrent;
 
+import com.google.common.collect.ImmutableList;
+
+import javax.annotation.concurrent.GuardedBy;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class CopyOnWriteServiceContainer<S> implements OptionalServiceContainer<S> {
 
-    private final List<S> services = new CopyOnWriteArrayList<>();
-    private final Set<Listener> listeners = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Object lock = new Object();
+    @GuardedBy("lock")
+    private final List<S> services = new ArrayList<>();
+    private final Set<Listener<S>> listeners = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    private class Listener implements Registration {
+    private interface Listener<E> {
+        void notifyAdded(E element);
+    }
 
-        private final Predicate<? super S> matcher;
-        private BlockingQueue<S> found = new ArrayBlockingQueue<S>(1);
+    private class BlockingListener<E> implements Registration, Listener<E> {
 
-        private Listener(Predicate<? super S> predicate) {
+        private final Predicate<? super E> matcher;
+        private BlockingQueue<E> found = new LinkedBlockingQueue<>();
+
+        private BlockingListener(Predicate<? super E> predicate) {
             this.matcher = predicate;
         }
 
-        public void notifyAdded(S element) {
+        @Override
+        public void notifyAdded(E element) {
             if (matcher.test(element)) {
                 found.offer(element);
             }
         }
 
-        public S get() throws InterruptedException {
+        public E get() throws InterruptedException {
             return found.take();
         }
 
-        public S get(long timeout, TimeUnit unit) throws InterruptedException {
+        public E get(long timeout, TimeUnit unit) throws InterruptedException {
             return found.poll(timeout, unit);
         }
 
@@ -46,31 +57,53 @@ public class CopyOnWriteServiceContainer<S> implements OptionalServiceContainer<
         }
     }
 
+    private class ReactingListener<E> implements Listener<E> {
+
+        private final Predicate<? super E> predicate;
+        private final Consumer<E> consumer;
+
+        private ReactingListener(Predicate<? super E> predicate, Consumer<E> consumer) {
+            this.predicate = predicate;
+            this.consumer = consumer;
+        }
+
+        @Override
+        public void notifyAdded(E element) {
+            if (predicate.test(element)) {
+                consumer.accept(element);
+            }
+        }
+    }
+
     private interface Registration extends AutoCloseable {
         @Override
         void close();
     }
 
-    private Listener addListener(Predicate<? super S> matcher) {
-        Listener listener = new Listener(matcher);
+    private BlockingListener<S> addListener(Predicate<? super S> matcher) {
+        BlockingListener<S> listener = new BlockingListener<>(matcher);
         listeners.add(listener);
         return listener;
     }
 
     @Override
     public void register(S s) {
-        services.add(s);
+        synchronized (lock) {
+            services.add(s);
+        }
         listeners.forEach(l -> l.notifyAdded(s));
     }
 
     @Override
     public void unregister(S s) {
-        services.remove(s);
+        synchronized (lock) {
+            services.remove(s);
+        }
     }
 
     @Override
     public S get(Predicate<? super S> matcher) throws InterruptedException {
-        try (Listener listener = addListener(matcher)) {
+        try (BlockingListener<S> listener = addListener(matcher)) {
             Optional<S> found = poll(matcher);
             if (found.isPresent()) {
                 return found.get();
@@ -81,7 +114,7 @@ public class CopyOnWriteServiceContainer<S> implements OptionalServiceContainer<
 
     @Override
     public Optional<S> get(Predicate<? super S> matcher, Duration timeout) throws InterruptedException {
-        try (Listener listener = addListener(matcher)) {
+        try (BlockingListener<S> listener = addListener(matcher)) {
             Optional<S> found = poll(matcher);
             if (found.isPresent()) {
                 return found;
@@ -92,13 +125,31 @@ public class CopyOnWriteServiceContainer<S> implements OptionalServiceContainer<
 
     @Override
     public Optional<S> poll(Predicate<? super S> matcher) {
-        return services.stream()
+        List<S> copy;
+        synchronized (lock) {
+            copy = ImmutableList.copyOf(services);
+        }
+        return copy.stream()
                 .filter(matcher)
                 .findFirst();
     }
 
     @Override
     public List<S> getServices() {
-        return Collections.unmodifiableList(services);
+        synchronized (lock) {
+            return ImmutableList.copyOf(services);
+        }
+    }
+
+    @Override
+    public void onRegistration(Predicate<? super S> matcher, Consumer<S> consumer) {
+        List<S> copy;
+        ReactingListener<S> reactingListener = new ReactingListener<>(matcher, consumer);
+        synchronized (lock) {
+            copy = ImmutableList.copyOf(services);
+            listeners.add(reactingListener);
+        }
+        copy.stream()
+                .forEach(reactingListener::notifyAdded);
     }
 }

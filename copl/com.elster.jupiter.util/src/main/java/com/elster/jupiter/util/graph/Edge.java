@@ -23,8 +23,12 @@ public final class Edge<T> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Edge<?> edge = (Edge<?>) o;
         return Objects.equals(nodes(), edge.nodes());
     }
