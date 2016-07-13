@@ -17,6 +17,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeCheckList;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
@@ -84,7 +85,7 @@ public class NlsServiceImpl implements NlsService {
                 bind(NlsService.class).toInstance(NlsServiceImpl.this);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(COMPONENTNAME), dataModel, NlsInstaller.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, NlsInstaller.class, Collections.emptyMap());
         installed = true; // upgradeService either installed, was up to date, or threw an Exception because upgrade was needed; in any case if we get here installed is true
     }
 
@@ -145,6 +146,11 @@ public class NlsServiceImpl implements NlsService {
                 .providerResolver(validationProviderResolver)
                 .configure()
                 .getDefaultMessageInterpolator();
+    }
+
+    @Reference(target = "(com.elster.jupiter.checklist=Pulse)")
+    public void setCheckList(UpgradeCheckList upgradeCheckList) {
+        // just explicitly depend
     }
 
     @Reference(name = "ZTranslationProvider", policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.MULTIPLE)
