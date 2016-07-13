@@ -44,11 +44,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtaskhistory.DeviceCommunicationTas
                 dataIndex: 'comSession',
                 flex: 1,
                 renderer: function(value){
-                    if(value){
-                        return Ext.String.htmlEncode(value.connectionMethod.name);
-                    } else {
-                        return '';
-                    }
+                    return Ext.isEmpty(value) ? '-' : Ext.String.htmlEncode(value.connectionMethod.name);
                 }
             },
             {

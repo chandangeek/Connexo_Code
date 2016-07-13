@@ -58,7 +58,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandPreviewForm', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created By'),
+                    fieldLabel: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created by'),
                     name: 'user',
                     renderer: function (val) {
                         return val ? Ext.String.htmlEncode(val) : '-'

@@ -33,13 +33,13 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
             {
                 dataIndex: 'interval_formatted',
                 flex: 1,
-                header: Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval')
+                header: Uni.I18n.translate('general.interval', 'MDC', 'Interval')
             },
             {
                 header: Uni.I18n.translate('general.dataUntil', 'MDC', 'Data until'),
                 dataIndex: 'lastValueTimestamp',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 },
                 flex: 1
             },

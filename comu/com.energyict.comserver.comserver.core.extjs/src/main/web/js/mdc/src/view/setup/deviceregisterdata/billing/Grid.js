@@ -13,15 +13,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Grid', {
             {
                 header: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
                 dataIndex: 'timeStamp',
-                renderer: function (value) {
-                    return value
-                        ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))])
-                        : '';
-                },
+                renderer: me.renderMeasurementTime,
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('device.registerData.interval', 'MDC', 'Interval'),
+                header: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
                 dataIndex: 'interval',
                 renderer: function (value) {
                     if (!Ext.isEmpty(value)) {
