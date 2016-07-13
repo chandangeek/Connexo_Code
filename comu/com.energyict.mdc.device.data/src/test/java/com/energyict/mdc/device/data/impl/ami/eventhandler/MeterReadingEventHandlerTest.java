@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
  * @since 14/06/2016 - 16:44
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectionTaskEventHandlerTest {
+public class MeterReadingEventHandlerTest {
 
 
     private static final long SERVICE_CALL_ID = 1;
@@ -73,7 +73,7 @@ public class ConnectionTaskEventHandlerTest {
 
     @Test
     public void testOnDemandReadSuccess() throws Exception {
-        ConnectionTaskEventHandler handler = new ConnectionTaskEventHandler(jsonService, deviceService, serviceCallService);
+        MeterReadingEventHandler handler = new MeterReadingEventHandler(jsonService, deviceService, serviceCallService);
         Message message = mock(Message.class);
         byte [] payload = new byte[1];
         when(message.getPayload()).thenReturn(payload);
@@ -96,7 +96,7 @@ public class ConnectionTaskEventHandlerTest {
 
     @Test
     public void testOnDemandReadFail() throws Exception {
-        ConnectionTaskEventHandler handler = new ConnectionTaskEventHandler(jsonService, deviceService, serviceCallService);
+        MeterReadingEventHandler handler = new MeterReadingEventHandler(jsonService, deviceService, serviceCallService);
         Message message = mock(Message.class);
         byte [] payload = new byte[1];
         when(message.getPayload()).thenReturn(payload);

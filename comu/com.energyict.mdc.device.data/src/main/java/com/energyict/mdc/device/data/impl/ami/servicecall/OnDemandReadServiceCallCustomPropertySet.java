@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-@Component(name = "c.e.m.device.data.OnDemandReadServiceCallCustomPropertySet",
+@Component(name = "com.energyict.mdc.device.data.OnDemandReadServiceCallCustomPropertySet",
         service = CustomPropertySet.class,
         immediate = true)
 public class OnDemandReadServiceCallCustomPropertySet implements CustomPropertySet<ServiceCall, OnDemandReadServiceCallDomainExtension> {
@@ -172,7 +172,7 @@ public class OnDemandReadServiceCallCustomPropertySet implements CustomPropertyS
 
         @Override
         public String application() {
-            return "Pulse";
+            return "MultiSense";
         }
     }
 

@@ -3,9 +3,15 @@ package com.energyict.mdc.device.data.impl.ami.servicecall;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -13,9 +19,11 @@ public class OnDemandReadServiceCallDomainExtension implements PersistentDomainE
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-    private String destinationSpec;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private BigDecimal expectedTasks;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private BigDecimal successfulTasks;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private BigDecimal failedTasks;
 
     public OnDemandReadServiceCallDomainExtension() {

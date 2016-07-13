@@ -4,31 +4,26 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 
-import org.osgi.service.event.EventConstants;
-
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.EnumSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-public class ConnectionTaskEventHandler implements MessageHandler {
+public class MeterReadingEventHandler implements MessageHandler {
 
     private final JsonService jsonService;
     private final ServiceCallService serviceCallService;
     private final DeviceService deviceService;
 
-    ConnectionTaskEventHandler(JsonService jsonService, DeviceService deviceService, ServiceCallService serviceCallService) {
+    MeterReadingEventHandler(JsonService jsonService, DeviceService deviceService, ServiceCallService serviceCallService) {
         super();
         this.jsonService = jsonService;
         this.serviceCallService = serviceCallService;
@@ -39,14 +34,15 @@ public class ConnectionTaskEventHandler implements MessageHandler {
     @SuppressWarnings("unchecked")
     public void process(Message message) {
         Map<String, Object> messageProperties = this.jsonService.deserialize(message.getPayload(), Map.class);
-        String topic = (String) messageProperties.get(EventConstants.EVENT_TOPIC);
 
-        findServiceCallsLinkedTo(deviceService.findDeviceById(Long.valueOf(messageProperties.get("meterId")
-                .toString())).orElseThrow(IllegalStateException::new))
-                .forEach(serviceCall -> this.handle(serviceCall, messageProperties));
+        if (messageProperties.get("meterId") != null) {
+            findServiceCallsLinkedTo(deviceService.findDeviceById(Long.valueOf(messageProperties.get("meterId")
+                    .toString())).orElseThrow(IllegalStateException::new))
+                    .forEach(this::handle);
+        }
     }
 
-    private void handle(ServiceCall serviceCall, Map<String, Object> messageProperties) {
+    private void handle(ServiceCall serviceCall) {
         OnDemandReadServiceCallDomainExtension extension = serviceCall.getExtension(OnDemandReadServiceCallDomainExtension.class)
                 .orElseThrow(IllegalStateException::new);
         long successfulTasks = extension.getSuccessfulTasks().longValue();
@@ -61,12 +57,11 @@ public class ConnectionTaskEventHandler implements MessageHandler {
     }
 
     private List<ServiceCall> findServiceCallsLinkedTo(Device device) {
-        Set<ServiceCall> serviceCalls = serviceCallService.findServiceCalls(device, EnumSet.of(DefaultState.ONGOING));
-        return serviceCalls.stream().filter(this::serviceCallUsedForReadOperation).collect(Collectors.toList());
+        ServiceCallFilter filter = new ServiceCallFilter();
+        filter.targetObject = device;
+        filter.states = Collections.singletonList(DefaultState.ONGOING.name());
+        filter.types = Collections.singletonList(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
+        return serviceCallService.getServiceCallFinder(filter).find();
     }
 
-    private boolean serviceCallUsedForReadOperation(ServiceCall serviceCall) {
-        String typeName = serviceCall.getType().getName();
-        return typeName.equals(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
-    }
 }
