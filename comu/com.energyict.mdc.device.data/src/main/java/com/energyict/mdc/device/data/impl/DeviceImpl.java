@@ -3210,7 +3210,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private void validateUsagePointIsNotLinkedAlready(UsagePoint usagePoint, Instant from) {
-        Optional<MeterActivation> usagePointMeterActivation = usagePoint.getMeterActivations(from).stream().findFirst();//for MultiSense we expect the only one MeterActivation
+        Optional<MeterActivation> usagePointMeterActivation = usagePoint.getMeterActivations().stream()
+                .filter(meterActivation -> meterActivation.getEnd() == null || meterActivation.getEnd().isAfter(from))
+                .sorted(Comparator.comparing(MeterActivation::getStart))
+                .findFirst();
         if (usagePointMeterActivation.isPresent()) {
             Meter currentMeter = findKoreMeter(getMdcAmrSystem()).get();
             Optional<Meter> meterLinkedToUsagePoint = usagePointMeterActivation.get().getMeter();
