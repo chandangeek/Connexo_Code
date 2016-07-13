@@ -61,6 +61,7 @@ public class LinkToUsagePoint extends TranslatableServerMicroAction {
                 .named(MicroActionTranslationKey.MICRO_ACTION_NAME_LINK_TO_USAGE_POINT)
                 .describedAs(MicroActionTranslationKey.MICRO_ACTION_DESCRIPTION_LINK_TO_USAGE_POINT)
                 .fromThesaurus(thesaurus)
+                .markRequired()
                 .finish();
     }
 
