@@ -6,9 +6,11 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
     requires: [
         'Mdc.view.setup.deviceregisterconfiguration.ActionMenu',
         'Uni.form.field.ReadingTypeDisplay',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.ObisDisplay',
+        'Mdc.view.setup.deviceregisterconfiguration.DataLoggerSlaveHistory'
     ],
     showDataLoggerSlaveField: false,
+    showDataLoggerSlaveHistory: false,
 
     initComponent: function () {
         var me = this;
@@ -114,6 +116,16 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.text.Detail', {
                 ]
             }
         ];
+
+        if (me.showDataLoggerSlaveHistory) {
+            me.on('afterrender', function() {
+                me.down('#deviceRegisterConfigurationDetailForm').add(
+                    {
+                        xtype: 'dataLogger-slaveRegisterHistory'
+                    }
+                );
+            }, me, {single:true});
+        }
 
         me.callParent(arguments);
     }

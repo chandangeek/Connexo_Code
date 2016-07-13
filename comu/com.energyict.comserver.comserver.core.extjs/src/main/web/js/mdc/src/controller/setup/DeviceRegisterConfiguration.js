@@ -28,7 +28,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     stores: [
         'Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets',
-        'RegisterConfigsOfDevice'
+        'RegisterConfigsOfDevice',
+        'Mdc.store.DataLoggerSlaveRegisterHistory'
     ],
 
     refs: [
@@ -203,7 +204,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             type = record.get('type'),
             widget = Ext.widget('deviceRegisterConfigurationPreview-' + type, {
                 router: me.getController('Uni.controller.history.Router'),
-                showDataLoggerSlaveField: me.getDeviceRegisterConfigurationGrid().showDataLoggerSlaveColumn
+                showDataLoggerSlaveField: me.getDeviceRegisterConfigurationGrid().showDataLoggerSlaveColumn,
+                showDataLoggerSlaveHistory: false // no history in preview
             }),
             form = widget.down('#deviceRegisterConfigurationPreviewForm'),
             previewContainer = me.getDeviceRegisterConfigurationSetup().down('#previewComponentContainer'),
@@ -287,7 +289,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                         mRID: encodeURIComponent(mRID),
                                         registerId: registerId,
                                         router: me.getController('Uni.controller.history.Router'),
-                                        showDataLoggerSlaveField: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')
+                                        showDataLoggerSlaveField: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
+                                        showDataLoggerSlaveHistory: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')
                                     }),
                                     form = config.down('#deviceRegisterConfigurationDetailForm'),
                                     multiplierField = form.down('[name=multiplier]'),
@@ -318,15 +321,26 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                 }
                                 config.down('#deviceRegisterConfigurationActionMenu').record = register;
                                 widget.down('#register-specifications').add(config);
+                            },
+                            loadSlaveHistoryIfNeeded = function() {
+                                if (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) {
+                                    var slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveRegisterHistory');
+                                    slaveHistoryStore.getProxy().setUrl(mRID, registerId);
+                                    slaveHistoryStore.load(function() {
+                                        func();
+                                    });
+                                } else {
+                                    func();
+                                }
                             };
 
                         if (registersOfDeviceStore.getTotalCount() === 0) {
                             registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', encodeURIComponent(mRID));
                             registersOfDeviceStore.load(function () {
-                                func();
+                                loadSlaveHistoryIfNeeded();
                             });
                         } else {
-                            func();
+                            loadSlaveHistoryIfNeeded();
                         }
                     },
                     callback: function () {
