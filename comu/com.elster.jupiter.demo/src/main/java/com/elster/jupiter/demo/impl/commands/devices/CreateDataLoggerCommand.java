@@ -3,16 +3,19 @@ package com.elster.jupiter.demo.impl.commands.devices;
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
+import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.WebRTUNTASimultationToolPropertyPostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.SecurityPropertySetTpl;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -109,6 +112,11 @@ public class CreateDataLoggerCommand {
 
         // 5. Create the gateway device (and set it to the 'Active' life cycle state)
         lifecyclePostBuilder.get().accept(createDataLoggerDevice(configuration));
+
+        //6. Create Device Group "Data loggers"
+        EndDeviceGroup dataLoggerGroup = Builders.from(DeviceGroupTpl.DATA_LOGGERS).get();
+        Builders.from(FavoriteGroupBuilder.class).withGroup(dataLoggerGroup).get();
+
     }
 
     private DeviceConfiguration createDataLoggerDeviceConfiguration(DeviceType deviceType) {
@@ -163,7 +171,7 @@ public class CreateDataLoggerCommand {
             .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
             .setNextExecutionSpecsFrom(null)
             .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "10.0.0.135")
+            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.propertySpecName(), "localhost")
             .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.propertySpecName(), new BigDecimal(4059))
             .setSimultaneousConnectionsAllowed(false)
             .add();

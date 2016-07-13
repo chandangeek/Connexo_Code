@@ -2,13 +2,17 @@ package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
+import com.elster.jupiter.demo.impl.builders.DeviceGroupBuilder;
+import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateDataLoggerSlaveCommand;
 import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceGroupTpl;
 import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceService;
@@ -87,7 +91,9 @@ public class CreateDataLoggerSetupCommand {
     }
 
     private void createDataLoggerSlaves(){
+        //1. Create Device Type
         DeviceType deviceType = Builders.from(DeviceTypeTpl.EIMETER_FLEX).get();
+        //1. Create Device Configuration and activate
         Optional<DeviceConfiguration> existingConfiguration  = deviceType.getConfigurations().stream().filter(each -> DeviceConfigurationTpl.DATA_LOGGER_SLAVE.getName().equals(each.getName())).findFirst();
         DeviceConfiguration deviceConfiguration;
         if (existingConfiguration.isPresent()){
@@ -102,6 +108,11 @@ public class CreateDataLoggerSetupCommand {
         if(!deviceConfiguration.isActive()) {
             deviceConfiguration.activate();
         }
+        //3. Create Device Group "Data logger slaves"
+        EndDeviceGroup dataLoggerSlaveGroup = Builders.from(DeviceGroupTpl.DATA_LOGGER_SLAVES).get();
+        Builders.from(FavoriteGroupBuilder.class).withGroup(dataLoggerSlaveGroup).get();
+
+        //4. Create "Data logger slave" devices
         int existing = deviceService.findDevicesByDeviceConfiguration(deviceConfiguration).find().size();
         for (int i = existing + 1; i <= existing + numberOfSlaves; i++) {
             CreateDataLoggerSlaveCommand slave = new CreateDataLoggerSlaveCommand();
