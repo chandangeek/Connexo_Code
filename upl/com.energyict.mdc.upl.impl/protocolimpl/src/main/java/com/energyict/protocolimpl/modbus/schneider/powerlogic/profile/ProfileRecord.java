@@ -15,7 +15,7 @@ public class ProfileRecord {
     public static ProfileRecord parse(List values) {
         ProfileRecord profileRecord = new ProfileRecord();
         profileRecord.setDate((Date) values.get(0));
-        profileRecord.setIncompleteIntegrationPeriod(values.get(0) == 0);
+        profileRecord.setIncompleteIntegrationPeriod(values.get(0).equals(0));
         profileRecord.setValues(values.subList(1, values.size()));
         return profileRecord;
     }
