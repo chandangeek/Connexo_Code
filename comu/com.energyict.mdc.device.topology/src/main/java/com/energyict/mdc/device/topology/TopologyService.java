@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.topology;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Channel;
@@ -350,6 +351,16 @@ public interface TopologyService {
      * false if no DataloggerChannelUsages were found having the given register (pulse channel) as gateway channel;
      */
     boolean isReferenced(Register dataLoggerRegister);
+
+    /**
+     * Provides an ordered list which contains pairs of channels (of different devices) vs ranges in which they should contain data
+     * for the requested range.
+     *
+     * @param channel the Datalogger channel
+     * @param range the range in which we want to collect the data
+     * @return the requested list, ordered descending according to interval.start
+     */
+    List<Pair<Channel, Range<Instant>>> getDataLoggerChannelTimeLine(Channel channel, Range<Instant> range);
 
     public interface G3CommunicationPathSegmentBuilder {
 

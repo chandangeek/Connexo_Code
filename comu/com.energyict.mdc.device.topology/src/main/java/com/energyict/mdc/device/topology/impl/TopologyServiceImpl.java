@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
@@ -428,6 +429,55 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Override
     public boolean isReferenced(Register dataLoggerRegister) {
         return this.isReferenced(getMeteringChannel(dataLoggerRegister));
+    }
+
+    @Override
+    public List<Pair<Channel, Range<Instant>>> getDataLoggerChannelTimeLine(Channel channel, Range<Instant> range) {
+        List<Pair<Channel, Range<Instant>>> channelTimeLine = new ArrayList<>();
+        List<DataLoggerChannelUsage> dataLoggerChannelUsagesForChannels = findDataLoggerChannelUsagesForChannels(channel, range);
+        if (dataLoggerChannelUsagesForChannels.isEmpty()) { // it's probably not a datalogger or no channels have been linked before
+            return Collections.singletonList(Pair.of(channel, range));
+        } else {
+            dataLoggerChannelUsagesForChannels.forEach(dataLoggerChannelUsage -> {
+                Optional<Pair<Channel, Range<Instant>>> lastListItem = getLastListItem(channelTimeLine);
+                if (lastListItem.isPresent() && (!lastListItem.get().getLast().lowerEndpoint().equals(dataLoggerChannelUsage.getRange().upperEndpoint()))) {
+                    channelTimeLine.add(Pair.of(channel, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
+                } else if (range.upperEndpoint().isAfter(dataLoggerChannelUsage.getRange().upperEndpoint())) { // the end of the range is larger then the last linked slave
+                    channelTimeLine.add(Pair.of(channel, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), range.upperEndpoint())));
+                }
+                getSlaveChannel(dataLoggerChannelUsage).ifPresent(slaveChannel -> channelTimeLine.add(Pair.of(slaveChannel, getLowerBoundClippedRange(dataLoggerChannelUsage.getRange(), range))));
+            });
+            Optional<Pair<Channel, Range<Instant>>> lastListItem = getLastListItem(channelTimeLine);
+            if (lastListItem.isPresent() && range.lowerEndpoint().isBefore(lastListItem.get().getLast().lowerEndpoint())) {
+                channelTimeLine.add(Pair.of(channel, Range.closedOpen(range.lowerEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
+            }
+        }
+        return channelTimeLine;
+    }
+
+    private Range<Instant> getLowerBoundClippedRange(Range<Instant> slaveRange, Range<Instant> requestedRange) {
+        if (requestedRange.lowerEndpoint().isBefore(slaveRange.lowerEndpoint())) {
+            return slaveRange;
+        } else {
+            return Range.closedOpen(requestedRange.lowerEndpoint(), slaveRange.upperEndpoint());
+        }
+    }
+
+    private Optional<Channel> getSlaveChannel(DataLoggerChannelUsage dataLoggerChannelUsage) {
+        return dataLoggerChannelUsage.getDataLoggerReference()
+                .getOrigin()
+                .getChannels()
+                .stream()
+                .filter(channel -> dataLoggerChannelUsage.getSlaveChannel().getReadingTypes().contains(channel.getReadingType()))
+                .findAny();
+    }
+
+    private <T> Optional<T> getLastListItem(List<T> list) {
+        if (list.isEmpty()) {
+            return Optional.empty();
+        } else {
+            return Optional.ofNullable(list.get(list.size() - 1));
+        }
     }
 
     boolean isReferenced(com.elster.jupiter.metering.Channel dataLoggerChannel) {

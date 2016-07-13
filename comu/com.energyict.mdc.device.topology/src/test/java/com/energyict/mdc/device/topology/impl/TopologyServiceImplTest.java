@@ -2,6 +2,8 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.util.Pair;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
@@ -16,6 +18,8 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
+
+import com.google.common.collect.Range;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -1318,6 +1322,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(downstreamDevices).hasSize(0);
     }
 
+    @Test
     @Transactional
     public void findDataLoggerSlavesTest() {
         Device dataLogger = createDataLoggerDevice("DataLogger");
@@ -1346,6 +1351,29 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
                 return bothMatch;
             }
         });
+    }
+
+    @Test
+    @Transactional
+    public void getDataloggerChannelTimeLineWithoutSlavesTest() {
+
+
+//        DeviceType.DeviceConfigurationBuilder dataLoggerEnabledDeviceConfigurationBuilder = dataLoggerEnabledDeviceType.newConfiguration("DataLoggerWithChannels");
+//        dataLoggerEnabledDeviceConfigurationBuilder.isDirectlyAddressable(true);
+//        dataLoggerEnabledDeviceConfigurationBuilder.dataloggerEnabled(true);
+//        dataLoggerEnabledDeviceConfigurationBuilder.newLoadProfileSpec()
+
+        Device dataLogger = createDataLoggerDevice("DataLogger");
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        Instant lower = LocalDateTime.of(2013, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(now);
+
+        Channel dataLoggerChannel = dataLogger.getChannels().get(0);
+        Range<Instant> dataLoggerRange = Range.closedOpen(lower, Instant.MAX);
+        List<Pair<Channel, Range<Instant>>> dataLoggerChannelTimeLine = getTopologyService().getDataLoggerChannelTimeLine(dataLoggerChannel, dataLoggerRange);
+        assertThat(dataLoggerChannelTimeLine).hasSize(1);
+        assertThat(dataLoggerChannelTimeLine.get(0).getFirst()).isEqualTo(dataLoggerChannel);
+        assertThat(dataLoggerChannelTimeLine.get(0).getLast()).isEqualTo(dataLoggerRange);
     }
 
 
