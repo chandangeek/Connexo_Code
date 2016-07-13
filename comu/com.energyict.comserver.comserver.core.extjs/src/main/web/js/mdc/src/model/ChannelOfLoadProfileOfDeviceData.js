@@ -62,7 +62,8 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 if (bulkValidationInfo && bulkValidationInfo.valueModificationFlag && data.reportedDateTime) {
                     result = {
                         flag: bulkValidationInfo.valueModificationFlag,
-                        date: data.reportedDateTime
+                        date: data.reportedDateTime,
+                        app: mainValidationInfo.editedInApp
                     }
                 }
 
