@@ -2,6 +2,7 @@ package com.elster.jupiter.rest.util;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
@@ -9,10 +10,8 @@ import com.google.common.collect.Range;
 import javax.ws.rs.QueryParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import java.io.ByteArrayInputStream;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -65,8 +64,9 @@ public class JsonQueryFilter {
                 if (node != null && node.isArray()) {
                     for (JsonNode singleFilter : node) {
                         JsonNode property = singleFilter.get(PROPERTY);
-                        if(property!=null && property.textValue()!=null)
+                        if (property!=null && property.textValue()!=null) {
                             filterProperties.put(property.textValue(), singleFilter.get(VALUE));
+                        }
                     }
                 }
             }

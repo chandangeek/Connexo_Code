@@ -90,8 +90,9 @@ public class PagedInfoList {
             int endIndex = infos.size();
             if(queryParameters.getLimit().isPresent()) {
                 endIndex = queryParameters.getStart().get()+queryParameters.getLimit().get();
-                if( endIndex > infos.size())
+                if (endIndex > infos.size()) {
                     endIndex = infos.size();
+                }
             }
             infos = infos.subList(startIndex, endIndex);
         }
