@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -104,6 +105,7 @@ public class UsagePointResource {
     private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final OutputInfoFactory outputInfoFactory;
 
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
@@ -119,7 +121,8 @@ public class UsagePointResource {
                               Thesaurus thesaurus,
                               ResourceHelper resourceHelper,
                               MetrologyConfigurationService metrologyConfigurationService,
-                              Provider<GoingOnResource> goingOnResourceProvider) {
+                              Provider<GoingOnResource> goingOnResourceProvider,
+                              OutputInfoFactory outputInfoFactory) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.clock = clock;
@@ -136,6 +139,7 @@ public class UsagePointResource {
         this.resourceHelper = resourceHelper;
         this.goingOnResourceProvider = goingOnResourceProvider;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.outputInfoFactory = outputInfoFactory;
     }
 
     @GET
@@ -600,7 +604,7 @@ public class UsagePointResource {
                 .get();
         List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
                 .stream()
-                .map(OutputInfo::asInfo)
+                .map(outputInfoFactory::asInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
     }
@@ -609,10 +613,12 @@ public class UsagePointResource {
     @Path("/{mrid}/purposes/{purposeId}/outputs/{outputId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    @Transactional
     public OutputInfo getChannelOfPurpose(@PathParam("mrid") String mRid, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
                                           @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().get();
+        MetrologyContract metrologyContract = effectiveMetrologyConfiguration.getMetrologyConfiguration().getContracts()
                 .stream()
                 .filter(mc -> mc.getMetrologyPurpose().getId() == purposeId)
                 .findFirst()
@@ -622,7 +628,7 @@ public class UsagePointResource {
                 .filter(d -> d.getId() == outputId)
                 .findFirst()
                 .get();
-        return OutputInfo.asInfo(readingTypeDeliverable);
+        return outputInfoFactory.fullInfo(readingTypeDeliverable, effectiveMetrologyConfiguration, metrologyContract);
     }
 
     @GET
