@@ -92,6 +92,7 @@ public enum MessageSeeds implements MessageSeed {
     BAD_REQUEST(274, "badRequest", "Bad request"),
     INVALID_COORDINATES(275, "invalidCoordinates", "All coordinates fields must contain valid values"),
     UNIQUE_MRID(276, "unique.mrid", "The MRID of the device must be unique"), // we only use this validation/error when we use the wizard to create slave devices
+    INVALID_MULTIPLIER(277, "invalidMultiplier", "Multiplier must be greater than zero")
     ;
     private final int number;
     private final String key;
