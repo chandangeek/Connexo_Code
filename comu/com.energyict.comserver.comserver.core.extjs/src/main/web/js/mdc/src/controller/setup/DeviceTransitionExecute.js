@@ -63,11 +63,13 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
             success: function (record, operation) {
                 step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router, deviceRemoved);
             },
-            failure: function () {
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText);
                 Ext.suspendLayouts();
                 layout.setActiveItem(layout.getPrev());
                 me.showWizardBtns();
                 me.getNavigationMenu().movePrevStep();
+                propertyForm.markInvalid(json.errors);
                 Ext.resumeLayouts(true);
             }
         });

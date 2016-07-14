@@ -6,6 +6,7 @@ Ext.define('Mdc.controller.Main', {
         'Uni.store.MenuItems',
         'Mdc.dynamicprivileges.DeviceState',
         'Mdc.dynamicprivileges.Stores',
+        'Uni.property.controller.Registry',
         'Mdc.dynamicprivileges.DeviceTypeCapability'
     ],
 
@@ -132,6 +133,7 @@ Ext.define('Mdc.controller.Main', {
         var me = this;
             //historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
+        Uni.property.controller.Registry.addProperty('USAGEPOINT', 'Mdc.property.UsagePoint');
         if (Mdc.privileges.Device.canViewDevices()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),
