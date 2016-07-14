@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -209,6 +210,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
     private static DataAggregationService getDataAggregationService() {
         return new DataAggregationServiceImpl(
+                injector.getInstance(CustomPropertySetService.class),
                 injector.getInstance(ServerMeteringService.class),
                 DataAggregationServiceImplCalculateWithTemperatureConversionIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
@@ -303,7 +305,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withMeterRole(DEFAULT_METER_ROLE).withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE).withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -389,7 +391,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T").withMeterRole(DEFAULT_METER_ROLE).withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE).withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -472,17 +474,17 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.setupMeter("celciusAndFahrenheitToKelvin");
         this.setupUsagePoint("celciusAndFahrenheitToKelvin");
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        Channel minTChannel = this.meterActivation.createChannel(C_15min);
-        Channel maxTChannel = this.meterActivation.createChannel(F_15min);
+        Channel minTChannel = this.meterActivation.getChannelsContainer().createChannel(C_15min);
+        Channel maxTChannel = this.meterActivation.getChannelsContainer().createChannel(F_15min);
 
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("celciusAndFahrenheitToKelvin", ELECTRICITY).create();
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement minTemperature = this.configuration.newReadingTypeRequirement("minT").withMeterRole(DEFAULT_METER_ROLE).withReadingType(C_15min);
+        ReadingTypeRequirement minTemperature = this.configuration.newReadingTypeRequirement("minT", DEFAULT_METER_ROLE).withReadingType(C_15min);
         this.temperature1RequirementId = minTemperature.getId();
-        ReadingTypeRequirement maxTemperature = this.configuration.newReadingTypeRequirement("maxT").withMeterRole(DEFAULT_METER_ROLE).withReadingType(F_15min);
+        ReadingTypeRequirement maxTemperature = this.configuration.newReadingTypeRequirement("maxT", DEFAULT_METER_ROLE).withReadingType(F_15min);
         this.temperature2RequirementId = maxTemperature.getId();
 
         // Setup configuration deliverables
@@ -587,7 +589,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
     private void activateMeter(ReadingType readingType) {
         this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.temperatureChannel = this.meterActivation.createChannel(readingType);
+        this.temperatureChannel = this.meterActivation.getChannelsContainer().createChannel(readingType);
     }
 
     private String mRID2GrepPattern(String mRID) {

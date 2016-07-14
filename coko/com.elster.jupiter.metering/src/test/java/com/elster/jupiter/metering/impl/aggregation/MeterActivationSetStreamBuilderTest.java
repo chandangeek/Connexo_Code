@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 
@@ -48,6 +49,8 @@ public class MeterActivationSetStreamBuilderTest {
     private MeterActivation checkMeterActivation;
     @Mock
     private UsagePointMetrologyConfiguration configuration;
+    @Mock
+    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint;
 
     private Range<Instant> period;
 
@@ -59,6 +62,9 @@ public class MeterActivationSetStreamBuilderTest {
         when(this.check.getKey()).thenReturn("meterole.check");
         when(this.check.getDisplayName()).thenReturn("Check");
         when(this.checkMeterActivation.getMeterRole()).thenReturn(Optional.of(this.check));
+        when(this.usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(this.effectiveMetrologyConfigurationOnUsagePoint));
+        when(this.usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(this.effectiveMetrologyConfigurationOnUsagePoint));
+        when(this.effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(this.configuration);
     }
 
     @Test
@@ -99,7 +105,6 @@ public class MeterActivationSetStreamBuilderTest {
         when(this.checkMeterActivation.getStart()).thenReturn(JUNE_1ST_2016);
         when(this.checkMeterActivation.overlaps(this.period)).thenReturn(true);
         when(this.usagePoint.getMeterActivations()).thenReturn(Arrays.asList(this.mainMeterActivation, this.checkMeterActivation));
-        when(this.usagePoint.getMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(this.configuration));
         MeterActivationSetStreamBuilder builder = this.getTestInstance();
 
         // Business method
@@ -126,7 +131,6 @@ public class MeterActivationSetStreamBuilderTest {
         when(this.checkMeterActivation.getStart()).thenReturn(JUNE_1ST_2016);
         when(this.checkMeterActivation.overlaps(this.period)).thenReturn(true);
         when(this.usagePoint.getMeterActivations()).thenReturn(Arrays.asList(mainActivation1, mainActivation2, this.checkMeterActivation));
-        when(this.usagePoint.getMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(this.configuration));
         MeterActivationSetStreamBuilder builder = this.getTestInstance();
 
         // Business method
@@ -155,7 +159,6 @@ public class MeterActivationSetStreamBuilderTest {
         when(this.checkMeterActivation.getStart()).thenReturn(JUNE_1ST_2016);
         when(this.checkMeterActivation.overlaps(this.period)).thenReturn(true);
         when(this.usagePoint.getMeterActivations()).thenReturn(Arrays.asList(mainActivation1, mainActivation2, this.checkMeterActivation));
-        when(this.usagePoint.getMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(this.configuration));
         MeterActivationSetStreamBuilder builder = this.getTestInstance();
 
         // Business method

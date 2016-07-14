@@ -56,9 +56,12 @@ import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.RangeInstantBuilder;
+import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
@@ -460,7 +463,7 @@ public class UsagePointImpl implements UsagePoint {
         this.removeMetrologyConfiguration(when);
         EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfiguration = this.dataModel
                 .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
-        effectiveMetrologyConfiguration.init(this, metrologyConfiguration, when);
+        effectiveMetrologyConfiguration.initAndSave(this, metrologyConfiguration, when);
         this.metrologyConfiguration.add(effectiveMetrologyConfiguration);
         effectiveMetrologyConfiguration.createEffectiveMetrologyContracts();
     }

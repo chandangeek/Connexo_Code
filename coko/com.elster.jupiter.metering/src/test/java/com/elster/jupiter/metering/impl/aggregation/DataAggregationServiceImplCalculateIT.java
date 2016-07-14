@@ -313,20 +313,19 @@ public class DataAggregationServiceImplCalculateIT {
     @Test
     @Transactional
     public void simplestNetConsumptionOfProsumer() {
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         DataAggregationService service = this.testInstance();
         this.setupMeter("simplestNetConsumptionOfProsumer");
         this.setupUsagePoint("simplestNetConsumptionOfProsumer");
-        this.activateMeterWithAll15MinChannels(defaultMeterRole);
+        this.activateMeterWithAll15MinChannels(DEFAULT_METER_ROLE);
 
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withMeterRole(DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withMeterRole(DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -414,20 +413,19 @@ public class DataAggregationServiceImplCalculateIT {
     @Test
     @Transactional
     public void monthlyNetConsumptionBasedOn15MinValuesOfProsumer() {
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         DataAggregationService service = this.testInstance();
         this.setupMeter("monthlyNetConsumptionBasedOn15MinValuesOfProsumer");
         this.setupUsagePoint("monthlyNetConsumptionBasedOn15MinValuesOfProsumer");
-        this.activateMeterWithAll15MinChannels(defaultMeterRole);
+        this.activateMeterWithAll15MinChannels(DEFAULT_METER_ROLE);
 
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withMeterRole(DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withMeterRole(DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -531,9 +529,9 @@ public class DataAggregationServiceImplCalculateIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withMeterRole(DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withMeterRole(DEFAULT_METER_ROLE).withReadingType(thirtyMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(thirtyMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15And30MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15And30MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -633,20 +631,19 @@ public class DataAggregationServiceImplCalculateIT {
     @Test
     @Transactional
     public void simplestNetConsumptionOfProsumerWithMultipleMeterActivations() {
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         DataAggregationService service = this.testInstance();
         this.setupMeters("simplestNetConsumptionOfProsumerWithMultipleMeterActivations");
         this.setupUsagePoint("simplestNetConsumptionOfProsumerWithMultipleMeterActivations");
-        this.activateMetersWithAll15MinChannels(defaultMeterRole);
+        this.activateMetersWithAll15MinChannels(DEFAULT_METER_ROLE);
 
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-").withMeterRole(DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+").withMeterRole(DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
+        FullySpecifiedReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumerWithMultipleMeterActivations::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumerWithMultipleMeterActivations::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);

@@ -26,7 +26,6 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.ChannelContract;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.config.MeterActivationValidatorsWhiteboard;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormula;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -136,7 +135,7 @@ public class DataAggregationServiceImplCalculateTest {
     @Before
     public void initializeMocks() throws SQLException {
         when(this.usagePoint.getName()).thenReturn("DataAggregationServiceImplCalculateTest");
-        when(this.usagePoint.getMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(this.configuration));
+        when(this.usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.of(this.effectiveMetrologyConfiguration));
         when(this.metrologyPurpose.getName()).thenReturn("DataAggregationServiceImplCalculateTest");
         when(this.contract.getMetrologyPurpose()).thenReturn(this.metrologyPurpose);
         this.withClauseBuilder = new SqlBuilder();
@@ -158,6 +157,7 @@ public class DataAggregationServiceImplCalculateTest {
         when(this.effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(this.configuration);
         when(this.effectiveMetrologyConfiguration.getRange()).thenReturn(year2016());
         when(this.effectiveMetrologyConfiguration.getInterval()).thenReturn(Interval.of(year2016()));
+        when(this.usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
     }
 
     /**

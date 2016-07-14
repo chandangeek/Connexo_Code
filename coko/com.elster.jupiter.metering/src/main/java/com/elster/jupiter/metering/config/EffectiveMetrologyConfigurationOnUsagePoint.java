@@ -16,7 +16,7 @@ import java.util.Optional;
  * that is allowed to change over time.
  */
 @ProviderType
-public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity {
+public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity, HasId {
 
     UsagePointMetrologyConfiguration getMetrologyConfiguration();
 
