@@ -243,7 +243,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
 
             var btn = panel.down('#metrology-config-add-validation-rule-set-btn');
             if (btn) {
-                btn.setDisabled(panel.metrologyConfiguration.get('status').id == 'deprecated');
+                btn.setDisabled(panel.metrologyConfig.get('status').id == 'deprecated');
             }
             Ext.resumeLayouts(true);
         });
