@@ -162,18 +162,18 @@ public class DeviceDataInfoFactory {
         return channelIntervalInfo;
     }
 
-    public List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, Register<?, ?> register, boolean isValidationStatusActive) {
+    public List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         return readings
                 .stream()
-                .map(r -> createReadingInfo(r, register, isValidationStatusActive))
+                .map(r -> createReadingInfo(r, register, isValidationStatusActive, dataLoggerSlave))
                 .collect(Collectors.toList());
     }
 
-    public ReadingInfo createReadingInfo(Reading reading, Register<?, ?> register, boolean isValidationStatusActive) {
+    public ReadingInfo createReadingInfo(Reading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         if (reading instanceof BillingReading) {
-            return createBillingReadingInfo((BillingReading) reading, register, isValidationStatusActive);
+            return createBillingReadingInfo((BillingReading) reading, register, isValidationStatusActive, dataLoggerSlave);
         } else if (reading instanceof NumericalReading) {
-            return createNumericalReadingInfo((NumericalReading) reading, register, isValidationStatusActive);
+            return createNumericalReadingInfo((NumericalReading) reading, register, isValidationStatusActive, dataLoggerSlave);
         } else if (reading instanceof TextReading) {
             return createTextReadingInfo((TextReading) reading);
         } else if (reading instanceof FlagsReading) {
@@ -190,7 +190,7 @@ public class DeviceDataInfoFactory {
         readingInfo.modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
     }
 
-    private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, boolean isValidationStatusActive) {
+    private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         BillingReadingInfo billingReadingInfo = new BillingReadingInfo();
         setCommonReadingInfo(reading, billingReadingInfo);
         Instant timeStamp = reading.getTimeStamp();
@@ -206,10 +206,13 @@ public class DeviceDataInfoFactory {
             billingReadingInfo.interval = IntervalInfo.from(reading.getRange().get());
         }
         addValidationInfo(reading, billingReadingInfo, isValidationStatusActive);
+        if (dataLoggerSlave != null) {
+            billingReadingInfo.slaveRegister = SlaveRegisterInfo.from(dataLoggerSlave, register);
+        }
         return billingReadingInfo;
     }
 
-    private NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, Register<?, ?> register, boolean isValidationStatusActive) {
+    private NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
         setCommonReadingInfo(reading, numericalReadingInfo);
         Instant timeStamp = reading.getTimeStamp();
@@ -226,6 +229,9 @@ public class DeviceDataInfoFactory {
         }
         setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
+        if (dataLoggerSlave != null) {
+            numericalReadingInfo.slaveRegister = SlaveRegisterInfo.from(dataLoggerSlave, register);
+        }
         return numericalReadingInfo;
     }
 
@@ -312,7 +318,7 @@ public class DeviceDataInfoFactory {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         Optional<? extends Reading> lastReading = register.getLastReading();
-        lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false));
+        lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false, null));
         Optional<Register> slaveRegister = topologyService.getSlaveRegister(register, clock.instant());
         if (slaveRegister.isPresent()) {
             registerInfo.dataloggerSlavemRID = slaveRegister.get().getDevice().getmRID();
