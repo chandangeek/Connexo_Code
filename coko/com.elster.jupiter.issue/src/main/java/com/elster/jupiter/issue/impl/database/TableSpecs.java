@@ -26,12 +26,14 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 import java.util.Arrays;
@@ -197,7 +199,6 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<IssueComment> table = dataModel.addTable(name(), IssueComment.class);
             table.map(IssueCommentImpl.class);
-            table.setJournalTableName(ISSUE_COMMENT_JOURNAL_TABLE_NAME);
             Column idColumn = table.addAutoIdColumn();
 
             table.column(ISSUE_COMMENT_COMMENT).type("CLOB").map("comment").conversion(ColumnConversion.CLOB2STRING).add();
@@ -274,7 +275,6 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<OpenIssue> table = dataModel.addTable(name(), OpenIssue.class);
             table.map(OpenIssueImpl.class);
-            table.setJournalTableName(OPEN_ISSUE_JOURNAL_TABLE_NAME);
             Column idColumn = table.addAutoIdColumn();
 
             TableBuilder.buildIssueTable(table, idColumn, OPEN_ISSUE_PK_NAME,
@@ -340,8 +340,8 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey(RULE_ACTION_TYPE_PK_NAME).on(idColumn).add();
-            table.foreignKey(RULE_ACTION_TYPE_FK_TO_ISSUE_TYPE).map("issueType").on(typeRefIdColumn).references(ISU_TYPE.name()).add();
-            table.foreignKey(RULE_ACTION_TYPE_FK_TO_REASON).map("issueReason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
+            table.foreignKey(RULE_ACTION_TYPE_FK_TO_ISSUE_TYPE).map("issueType").on(typeRefIdColumn).references(IssueType.class).add();
+            table.foreignKey(RULE_ACTION_TYPE_FK_TO_REASON).map("issueReason").on(reasonRefIdColumn).references(IssueReason.class).add();
         }
     },
 
@@ -358,8 +358,8 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey(RULE_ACTION_PK_NAME).on(idColumn).add();
-            table.foreignKey(RULE_ACTION_FK_TO_ACTION_TYPE).map("type").on(typeRefIdColumn).references(ISU_ACTIONTYPE.name()).add();
-            table.foreignKey(RULE_ACTION_FK_TO_RULE).on(ruleRefIdColumn).references(ISU_CREATIONRULE.name())
+            table.foreignKey(RULE_ACTION_FK_TO_ACTION_TYPE).map("type").on(typeRefIdColumn).references(IssueActionType.class).add();
+            table.foreignKey(RULE_ACTION_FK_TO_RULE).on(ruleRefIdColumn).references(CreationRule.class)
                     .map("rule").reverseMap("persistentActions").composition().onDelete(DeleteRule.CASCADE).add();
         }
     },
@@ -376,7 +376,7 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey(RULE_ACTION_PROPS_PK_NAME).on(nameColumn, actionColumn).add();
-            table.foreignKey(RULE_ACTION_PROPS_FK_TO_ACTION_RULE).on(actionColumn).references(ISU_CREATIONRULEACTION.name())
+            table.foreignKey(RULE_ACTION_PROPS_FK_TO_ACTION_RULE).on(actionColumn).references(CreationRuleAction.class)
                     .map("action").reverseMap("properties").composition().onDelete(DeleteRule.CASCADE).add();
         }
     }
@@ -402,11 +402,11 @@ public enum TableSpecs {
                 throw new IllegalArgumentException("Passed arguments don't match foreigen keys");
             }
             ListIterator<String> fkKeysIter = Arrays.asList(fkKeys).listIterator();
-            table.foreignKey(fkKeysIter.next()).map("reason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
-            table.foreignKey(fkKeysIter.next()).map("status").on(statusRefIdColumn).references(ISU_STATUS.name()).add();
-            table.foreignKey(fkKeysIter.next()).map("device").on(deviceRefIdColumn).references(MeteringService.COMPONENTNAME, METERING_DEVICE_TABLE).add();
-            table.foreignKey(fkKeysIter.next()).map("user").on(userRefIdColumn).references(UserService.COMPONENTNAME, USER_TABLE).add();
-            table.foreignKey(fkKeysIter.next()).map("rule").on(ruleRefIdColumn).references(ISU_CREATIONRULE.name()).add();
+            table.foreignKey(fkKeysIter.next()).map("reason").on(reasonRefIdColumn).references(IssueReason.class).add();
+            table.foreignKey(fkKeysIter.next()).map("status").on(statusRefIdColumn).references(IssueStatus.class).add();
+            table.foreignKey(fkKeysIter.next()).map("device").on(deviceRefIdColumn).references(EndDevice.class).add();
+            table.foreignKey(fkKeysIter.next()).map("user").on(userRefIdColumn).references(User.class).add();
+            table.foreignKey(fkKeysIter.next()).map("rule").on(ruleRefIdColumn).references(CreationRule.class).add();
         }
     }
 }
