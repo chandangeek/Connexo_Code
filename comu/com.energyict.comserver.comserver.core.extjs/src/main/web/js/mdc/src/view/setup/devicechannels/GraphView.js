@@ -8,6 +8,8 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
         'Uni.view.highstock.GraphView'
     ],
 
+    mentionDataLoggerSlave: false,
+
     items: [
         {
             xtype: 'container',
@@ -137,6 +139,10 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
+                    if (me.mentionDataLoggerSlave) {
+                        html += '<tr><td><b>' + Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave') + ':</b></td><td>'
+                                + (Ext.isEmpty(point.dataLoggerSlave) ? '-' : point.dataLoggerSlave) + '</td></tr>';
+                    }
                     if (calculatedValue) {
                         html += '<tr><td><b>' + Uni.I18n.translate('general.calculatedValue', 'MDC', 'Calculated value') + ':</b></td><td>' + calculatedValue +
                             deltaIcon + (point.edited ? editedIcon : '') + '</td></tr>';

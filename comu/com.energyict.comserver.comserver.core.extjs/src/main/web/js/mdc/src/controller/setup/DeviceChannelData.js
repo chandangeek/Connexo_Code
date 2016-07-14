@@ -190,7 +190,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             prevNextstore: prevNextstore,
                             routerIdArgument: routerIdArgument,
                             isFullTotalCount: isFullTotalCount,
-                            filterDefault: activeTab === 1 ? me.setDataFilter(channel, contentName, router) : {}
+                            filterDefault: activeTab === 1 ? me.setDataFilter(channel, contentName, router) : {},
+                            mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')
                         });
 
                         me.getApplication().fireEvent('changecontentevent', widget);

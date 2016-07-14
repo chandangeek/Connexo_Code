@@ -10,7 +10,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     ],
     channelRecord: null,
     channels: null,
+    router: null,
     frame: false,
+    mentionDataLoggerSlave: false,
 
     updateForm: function (record) {
         var me = this,
@@ -276,18 +278,50 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 name: 'interval',
                 renderer: function (value) {
                     return value
-                        ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value.start)),Uni.DateTime.formatTimeLong(new Date(value.start))])
-                        + ' - ' +
-                        Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))])
+                        ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                            [Uni.DateTime.formatDateLong(new Date(value.start)),Uni.DateTime.formatTimeLong(new Date(value.start))])
+                          + ' - ' +
+                          Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                            [Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))])
                         : '';
                 },
                 htmlEncode: false
-            },
+            }
+        );
+
+        if (me.mentionDataLoggerSlave) {
+            generalItems.push(
+                {
+                    fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                    renderer: function() {
+                        if (Ext.isEmpty(me.channelRecord.get('slaveChannel'))) {
+                            return '-';
+                        }
+                        var slaveMRID = me.channelRecord.get('slaveChannel').mrid,
+                            channelId = me.channelRecord.get('slaveChannel').channelId;
+                        return Ext.String.format('<a href="{0}">{1}</a>',
+                            me.router.getRoute('devices/device/channels/channeldata').buildUrl(
+                                {
+                                    mRID: encodeURIComponent(slaveMRID),
+                                    channelId: channelId
+                                },
+                                me.router.queryParams
+                            ),
+                            slaveMRID);
+                    }
+                }
+            );
+        }
+
+        generalItems.push(
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
                 name: 'readingTime',
-                renderer: function (value, field) {
-                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '';
+                renderer: function (value) {
+                    return value
+                        ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                            [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))])
+                        : '-';
                 }
             },
             {
