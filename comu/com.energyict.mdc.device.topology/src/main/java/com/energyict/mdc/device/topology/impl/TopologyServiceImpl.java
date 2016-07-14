@@ -67,6 +67,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -433,26 +434,44 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public List<Pair<Channel, Range<Instant>>> getDataLoggerChannelTimeLine(Channel channel, Range<Instant> range) {
-        List<Pair<Channel, Range<Instant>>> channelTimeLine = new ArrayList<>();
         List<DataLoggerChannelUsage> dataLoggerChannelUsagesForChannels = findDataLoggerChannelUsagesForChannels(channel, range);
         if (dataLoggerChannelUsagesForChannels.isEmpty()) { // it's probably not a datalogger or no channels have been linked before
             return Collections.singletonList(Pair.of(channel, range));
         } else {
-            dataLoggerChannelUsagesForChannels.forEach(dataLoggerChannelUsage -> {
-                Optional<Pair<Channel, Range<Instant>>> lastListItem = getLastListItem(channelTimeLine);
-                if (lastListItem.isPresent() && (!lastListItem.get().getLast().lowerEndpoint().equals(dataLoggerChannelUsage.getRange().upperEndpoint()))) {
-                    channelTimeLine.add(Pair.of(channel, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
-                } else if (range.upperEndpoint().isAfter(dataLoggerChannelUsage.getRange().upperEndpoint())) { // the end of the range is larger then the last linked slave
-                    channelTimeLine.add(Pair.of(channel, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), range.upperEndpoint())));
-                }
-                getSlaveChannel(dataLoggerChannelUsage).ifPresent(slaveChannel -> channelTimeLine.add(Pair.of(slaveChannel, getLowerBoundClippedRange(dataLoggerChannelUsage.getRange(), range))));
-            });
-            Optional<Pair<Channel, Range<Instant>>> lastListItem = getLastListItem(channelTimeLine);
-            if (lastListItem.isPresent() && range.lowerEndpoint().isBefore(lastListItem.get().getLast().lowerEndpoint())) {
-                channelTimeLine.add(Pair.of(channel, Range.closedOpen(range.lowerEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
-            }
+            List<Pair<Channel, Range<Instant>>> channelTimeLine = new ArrayList<>();
+            constructTimeLine(channel, range, dataLoggerChannelUsagesForChannels, channelTimeLine, getSlaveChannel());
+            return channelTimeLine;
         }
-        return channelTimeLine;
+    }
+
+    @Override
+    public List<Pair<Register, Range<Instant>>> getDataLoggerRegisterTimeLine(Register register, Range<Instant> range) {
+        List<DataLoggerChannelUsage> dataLoggerChannelUsagesForRegisters = findDataLoggerChannelUsagesForRegisters(register, range);
+        if (dataLoggerChannelUsagesForRegisters.isEmpty()) {
+            return Collections.singletonList(Pair.of(register, range));
+        } else {
+            List<Pair<Register, Range<Instant>>> registerTimeLine = new ArrayList<>();
+            constructTimeLine(register, range, dataLoggerChannelUsagesForRegisters, registerTimeLine, getSlaveRegister());
+            return registerTimeLine;
+        }
+    }
+
+    private <T> void constructTimeLine(T channel, Range<Instant> range, List<DataLoggerChannelUsage> dataLoggerChannelUsages, List<Pair<T, Range<Instant>>> timeLine, Function<DataLoggerChannelUsage, Optional<T>> slaveItem) {
+        dataLoggerChannelUsages.forEach(dataLoggerChannelUsage -> {
+            Optional<Pair<T, Range<Instant>>> lastListItem = getLastListItem(timeLine);
+            if (lastListItem.isPresent() && (!lastListItem.get().getLast().lowerEndpoint().equals(dataLoggerChannelUsage.getRange().upperEndpoint()))) {
+                timeLine.add(Pair.of(channel, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
+            } else if (!range.hasUpperBound() && dataLoggerChannelUsage.getRange().hasUpperBound()) {
+                timeLine.add(Pair.of(channel, Range.atLeast(dataLoggerChannelUsage.getRange().upperEndpoint())));
+            } else if (range.hasUpperBound() && range.upperEndpoint().isAfter(dataLoggerChannelUsage.getRange().upperEndpoint())) { // the end of the range is larger then the last linked slave
+                timeLine.add(Pair.of(channel, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), range.upperEndpoint())));
+            }
+            slaveItem.apply(dataLoggerChannelUsage).ifPresent(slaveChannel -> timeLine.add(Pair.of(slaveChannel, getLowerBoundClippedRange(dataLoggerChannelUsage.getRange(), range))));
+        });
+        Optional<Pair<T, Range<Instant>>> lastListItem = getLastListItem(timeLine);
+        if (lastListItem.isPresent() && range.lowerEndpoint().isBefore(lastListItem.get().getLast().lowerEndpoint())) {
+            timeLine.add(Pair.of(channel, Range.closedOpen(range.lowerEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
+        }
     }
 
     private Range<Instant> getLowerBoundClippedRange(Range<Instant> slaveRange, Range<Instant> requestedRange) {
@@ -463,12 +482,21 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
     }
 
-    private Optional<Channel> getSlaveChannel(DataLoggerChannelUsage dataLoggerChannelUsage) {
-        return dataLoggerChannelUsage.getDataLoggerReference()
+    private Function<DataLoggerChannelUsage, Optional<Channel>> getSlaveChannel() {
+        return dataLoggerChannelUsage -> dataLoggerChannelUsage.getDataLoggerReference()
                 .getOrigin()
                 .getChannels()
                 .stream()
                 .filter(channel -> dataLoggerChannelUsage.getSlaveChannel().getReadingTypes().contains(channel.getReadingType()))
+                .findAny();
+    }
+
+    private Function<DataLoggerChannelUsage, Optional<Register>> getSlaveRegister() {
+        return dataLoggerChannelUsage -> dataLoggerChannelUsage.getDataLoggerReference()
+                .getOrigin()
+                .getRegisters()
+                .stream()
+                .filter(register -> dataLoggerChannelUsage.getSlaveChannel().getReadingTypes().contains(register.getReadingType()))
                 .findAny();
     }
 

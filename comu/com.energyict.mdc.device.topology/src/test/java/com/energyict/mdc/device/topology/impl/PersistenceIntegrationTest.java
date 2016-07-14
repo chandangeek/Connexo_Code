@@ -152,17 +152,21 @@ public abstract class PersistenceIntegrationTest {
         dataLoggerEnabledDeviceConfiguration = dataLoggerEnabledDeviceConfigurationBuilder.add();
         deviceMessageIds.stream().forEach(dataLoggerEnabledDeviceConfiguration::createDeviceMessageEnablement);
         ReadingType activeEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.1.8.0.255"), Unit.get("kWh"));
-        RegisterType registerType = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(activeEnergy).get();
-        dataLoggerEnabledDeviceType.addRegisterType(registerType);
-        dataLoggerEnabledDeviceConfiguration.createNumericalRegisterSpec(registerType).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
+        RegisterType registerType1 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(activeEnergy).get();
+        ReadingType reactiveEnergy = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeFrom(ObisCode.fromString("1.0.2.8.0.255"), Unit.get("kWh"));
+        RegisterType registerType2 = inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(reactiveEnergy).get();
+        dataLoggerEnabledDeviceType.addRegisterType(registerType1);
+        dataLoggerEnabledDeviceType.addRegisterType(registerType2);
+        dataLoggerEnabledDeviceConfiguration.createNumericalRegisterSpec(registerType1).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
+        dataLoggerEnabledDeviceConfiguration.createNumericalRegisterSpec(registerType2).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
         dataLoggerEnabledDeviceConfiguration.activate();
 
         DeviceType.DeviceConfigurationBuilder dataLoggerSlaveDeviceConfigurationBuilder = dataLoggerSlaveDeviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         dataLoggerSlaveDeviceConfigurationBuilder.isDirectlyAddressable(true);
         dataLoggerSlaveDeviceConfiguration = dataLoggerSlaveDeviceConfigurationBuilder.add();
-        dataLoggerSlaveDeviceType.addRegisterType(registerType);
+        dataLoggerSlaveDeviceType.addRegisterType(registerType1);
         deviceMessageIds.stream().forEach(dataLoggerSlaveDeviceConfiguration::createDeviceMessageEnablement);
-        dataLoggerSlaveDeviceConfiguration.createNumericalRegisterSpec(registerType).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
+        dataLoggerSlaveDeviceConfiguration.createNumericalRegisterSpec(registerType1).overflowValue(BigDecimal.valueOf(1000L)).numberOfFractionDigits(0).add();
         dataLoggerSlaveDeviceConfiguration.activate();
 
         SecurityPropertySetBuilder securityPropertySetBuilder = deviceConfiguration.createSecurityPropertySet("No Security");
@@ -209,11 +213,11 @@ public abstract class PersistenceIntegrationTest {
     }
 
     protected Device createSlaveDevice(String name){
-        return inMemoryPersistence.getDeviceService().newDevice(dataLoggerSlaveDeviceConfiguration, name, name+"MrId", Instant.now());
+        return inMemoryPersistence.getDeviceService().newDevice(dataLoggerSlaveDeviceConfiguration, name, name + "MrId", clock.instant());
     }
 
     protected Device createDataLoggerDevice(String name){
-        return inMemoryPersistence.getDeviceService().newDevice(dataLoggerEnabledDeviceConfiguration, name, name+"MrId", Instant.now());
+        return inMemoryPersistence.getDeviceService().newDevice(dataLoggerEnabledDeviceConfiguration, name, name + "MrId", clock.instant());
     }
 
     protected Device getReloadedDevice(Device device) {

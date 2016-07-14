@@ -3,7 +3,6 @@ package com.energyict.mdc.device.topology.impl;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.ServerDeviceService;
@@ -1311,9 +1310,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         Map<Register, Register> slaveDataLoggerRegisterMap1 = new HashMap<>();
         slaveDataLoggerRegisterMap1.put(slave1.getRegisters().get(0), dataLogger.getRegisters().get(0));
         Map<Register, Register> slaveDataLoggerRegisterMap2 = new HashMap<>();
-        slaveDataLoggerRegisterMap2.put(slave2.getRegisters().get(0), dataLogger.getRegisters().get(0));
-        this.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), Collections.emptyMap(), slaveDataLoggerRegisterMap1);
-        this.getTopologyService().setDataLogger(slave2, dataLogger, Instant.now(), Collections.emptyMap(), slaveDataLoggerRegisterMap2);
+        slaveDataLoggerRegisterMap2.put(slave2.getRegisters().get(0), dataLogger.getRegisters().get(1));
+        this.getTopologyService().setDataLogger(slave1, dataLogger, clock.instant(), Collections.emptyMap(), slaveDataLoggerRegisterMap1);
+        this.getTopologyService().setDataLogger(slave2, dataLogger, clock.instant(), Collections.emptyMap(), slaveDataLoggerRegisterMap2);
 
         // Business method
         List<Device> downstreamDevices = this.getTopologyService().findPhysicalConnectedDevices(dataLogger);
@@ -1333,8 +1332,8 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         when(clock.instant()).thenReturn(now);
 
         // Business method
-        this.getTopologyService().setDataLogger(slave1, dataLogger, Instant.now(), Collections.emptyMap(), Collections.emptyMap());
-        this.getTopologyService().setDataLogger(slave2, dataLogger,  Instant.now(), Collections.emptyMap(), Collections.emptyMap());
+        this.getTopologyService().setDataLogger(slave1, dataLogger, clock.instant(), Collections.emptyMap(), Collections.singletonMap(slave1.getRegisters().get(0), dataLogger.getRegisters().get(0)));
+        this.getTopologyService().setDataLogger(slave2, dataLogger, clock.instant(), Collections.emptyMap(), Collections.singletonMap(slave2.getRegisters().get(0), dataLogger.getRegisters().get(1)));
 
         // Business method
         List<Device> downstreamDevices = this.getTopologyService().findDataLoggerSlaves(dataLogger);
@@ -1355,25 +1354,74 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    public void getDataloggerChannelTimeLineWithoutSlavesTest() {
-
-
-//        DeviceType.DeviceConfigurationBuilder dataLoggerEnabledDeviceConfigurationBuilder = dataLoggerEnabledDeviceType.newConfiguration("DataLoggerWithChannels");
-//        dataLoggerEnabledDeviceConfigurationBuilder.isDirectlyAddressable(true);
-//        dataLoggerEnabledDeviceConfigurationBuilder.dataloggerEnabled(true);
-//        dataLoggerEnabledDeviceConfigurationBuilder.newLoadProfileSpec()
-
+    public void getDataLoggerRegisterTimeLineWithoutSlavesTest() {
         Device dataLogger = createDataLoggerDevice("DataLogger");
         Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         Instant lower = LocalDateTime.of(2013, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
         when(clock.instant()).thenReturn(now);
 
-        Channel dataLoggerChannel = dataLogger.getChannels().get(0);
-        Range<Instant> dataLoggerRange = Range.closedOpen(lower, Instant.MAX);
-        List<Pair<Channel, Range<Instant>>> dataLoggerChannelTimeLine = getTopologyService().getDataLoggerChannelTimeLine(dataLoggerChannel, dataLoggerRange);
-        assertThat(dataLoggerChannelTimeLine).hasSize(1);
-        assertThat(dataLoggerChannelTimeLine.get(0).getFirst()).isEqualTo(dataLoggerChannel);
-        assertThat(dataLoggerChannelTimeLine.get(0).getLast()).isEqualTo(dataLoggerRange);
+        Register<?, ?> dataLoggerRegister = dataLogger.getRegisters().get(0);
+        Range<Instant> dataLoggerRange = Range.atLeast(lower);
+        List<Pair<Register, Range<Instant>>> dataLoggerRegisterTimeLine = getTopologyService().getDataLoggerRegisterTimeLine(dataLoggerRegister, dataLoggerRange);
+        assertThat(dataLoggerRegisterTimeLine).hasSize(1);
+        assertThat(dataLoggerRegisterTimeLine.get(0).getFirst()).isEqualTo(dataLoggerRegister);
+        assertThat(dataLoggerRegisterTimeLine.get(0).getLast()).isEqualTo(dataLoggerRange);
+    }
+
+    @Test
+    @Transactional
+    public void getDataLoggerRegisterTimeLineWithSingleUnlinkedSlaveTest() {
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        Instant linkingDate = LocalDateTime.of(2014, 1, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant unlinkingDate = LocalDateTime.of(2014, 5, 4, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant lower = LocalDateTime.of(2013, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(lower);
+
+        Device dataLogger = createDataLoggerDevice("DataLogger");
+        Device slave1 = createSlaveDevice("Slave1");
+        when(clock.instant()).thenReturn(now);
+
+        Register<?, ?> dataLoggerRegister = dataLogger.getRegisters().get(0);
+        // Business method
+        this.getTopologyService().setDataLogger(slave1, dataLogger, linkingDate, Collections.emptyMap(), Collections.singletonMap(slave1.getRegisters().get(0), dataLoggerRegister));
+        this.getTopologyService().clearDataLogger(slave1, unlinkingDate);
+
+        Range<Instant> dataLoggerRange = Range.atLeast(lower);
+        List<Pair<Register, Range<Instant>>> dataLoggerRegisterTimeLine = getTopologyService().getDataLoggerRegisterTimeLine(dataLoggerRegister, dataLoggerRange);
+        assertThat(dataLoggerRegisterTimeLine).hasSize(3);
+        assertThat(dataLoggerRegisterTimeLine.get(0).getFirst()).isEqualTo(dataLoggerRegister);
+        assertThat(dataLoggerRegisterTimeLine.get(0).getLast()).isEqualTo(Range.atLeast(unlinkingDate));
+        assertThat(dataLoggerRegisterTimeLine.get(1).getFirst().getDevice().getmRID()).isEqualTo(slave1.getmRID());
+        assertThat(dataLoggerRegisterTimeLine.get(1).getFirst().getRegisterSpecId()).isEqualTo(slave1.getRegisters().get(0).getRegisterSpecId());
+        assertThat(dataLoggerRegisterTimeLine.get(1).getLast()).isEqualTo(Range.closedOpen(linkingDate, unlinkingDate));
+        assertThat(dataLoggerRegisterTimeLine.get(2).getFirst()).isEqualTo(dataLoggerRegister);
+        assertThat(dataLoggerRegisterTimeLine.get(2).getLast()).isEqualTo(Range.closedOpen(lower, linkingDate));
+    }
+
+    @Test
+    @Transactional
+    public void getDataLoggerRegisterTimeLineWithSingleLinkedSlaveTest() {
+        Instant now = LocalDateTime.of(2014, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        Instant linkingDate = LocalDateTime.of(2014, 1, 1, 0, 0).toInstant(ZoneOffset.UTC);
+        Instant lower = LocalDateTime.of(2013, 12, 15, 12, 0).toInstant(ZoneOffset.UTC);
+        when(clock.instant()).thenReturn(lower);
+
+        Device dataLogger = createDataLoggerDevice("DataLogger");
+        Device slave1 = createSlaveDevice("Slave1");
+        when(clock.instant()).thenReturn(now);
+
+        Register<?, ?> dataLoggerRegister = dataLogger.getRegisters().get(0);
+        // Business method
+        this.getTopologyService().setDataLogger(slave1, dataLogger, linkingDate, Collections.emptyMap(), Collections.singletonMap(slave1.getRegisters().get(0), dataLoggerRegister));
+
+        Range<Instant> dataLoggerRange = Range.atLeast(lower);
+        List<Pair<Register, Range<Instant>>> dataLoggerRegisterTimeLine = getTopologyService().getDataLoggerRegisterTimeLine(dataLoggerRegister, dataLoggerRange);
+        assertThat(dataLoggerRegisterTimeLine).hasSize(2);
+        assertThat(dataLoggerRegisterTimeLine.get(0).getFirst().getDevice().getmRID()).isEqualTo(slave1.getmRID());
+        assertThat(dataLoggerRegisterTimeLine.get(0).getFirst().getRegisterSpecId()).isEqualTo(slave1.getRegisters().get(0).getRegisterSpecId());
+        assertThat(dataLoggerRegisterTimeLine.get(0).getLast()).isEqualTo(Range.atLeast(linkingDate));
+        assertThat(dataLoggerRegisterTimeLine.get(1).getFirst()).isEqualTo(dataLoggerRegister);
+        assertThat(dataLoggerRegisterTimeLine.get(1).getLast()).isEqualTo(Range.closedOpen(lower, linkingDate));
     }
 
 

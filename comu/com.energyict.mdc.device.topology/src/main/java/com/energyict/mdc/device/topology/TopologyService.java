@@ -362,6 +362,8 @@ public interface TopologyService {
      */
     List<Pair<Channel, Range<Instant>>> getDataLoggerChannelTimeLine(Channel channel, Range<Instant> range);
 
+    List<Pair<Register, Range<Instant>>> getDataLoggerRegisterTimeLine(Register register, Range<Instant> intervalReg);
+
     public interface G3CommunicationPathSegmentBuilder {
 
         /**
