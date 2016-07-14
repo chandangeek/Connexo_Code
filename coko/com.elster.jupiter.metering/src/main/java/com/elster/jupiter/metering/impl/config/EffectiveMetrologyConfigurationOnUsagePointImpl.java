@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.config;
 
-import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -13,6 +12,7 @@ import com.elster.jupiter.util.time.Interval;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +30,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     private boolean active;
-    private List<EffectiveMetrologyContractOnUsagePointImpl> effectiveContracts = new ArrayList<>();
+    private List<EffectiveMetrologyContractOnUsagePoint> effectiveContracts = new ArrayList<>();
 
     @Inject
     public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
@@ -81,11 +81,15 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     }
 
     @Override
-    public Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract) {
+    public Optional<EffectiveMetrologyContractOnUsagePoint> getEffectiveContract(MetrologyContract metrologyContract) {
         return this.effectiveContracts.stream()
                 .filter(effectiveContract -> effectiveContract.getMetrologyContract().equals(metrologyContract))
-                .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
                 .findAny();
+    }
+
+    @Override
+    public List<EffectiveMetrologyContractOnUsagePoint> getEffectiveContracts() {
+        return Collections.unmodifiableList(effectiveContracts);
     }
 
     public void createEffectiveMetrologyContracts() {

@@ -1,12 +1,13 @@
 package com.elster.jupiter.metering.config;
 
-import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.orm.associations.Effectivity;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -27,5 +28,7 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
 
     void activate();
 
-    Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract);
+    Optional<EffectiveMetrologyContractOnUsagePoint> getEffectiveContract(MetrologyContract metrologyContract);
+
+    List<EffectiveMetrologyContractOnUsagePoint> getEffectiveContracts();
 }
