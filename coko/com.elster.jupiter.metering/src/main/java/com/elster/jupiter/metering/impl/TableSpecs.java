@@ -1595,7 +1595,7 @@ public enum TableSpecs {
             table.map(implementers);
 
             Column idColumn = table.addAutoIdColumn();
-            table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar(80 char)");
+            table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar2(80 char)");
             Column meterActivationColumn = table.column("METER_ACTIVATION").number().add();
             Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT").number().add();
 
