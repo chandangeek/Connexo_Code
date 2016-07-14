@@ -22,9 +22,10 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 enum TableSpecs {
 
-    FIM_IMPORT_SCHEDULE(ImportSchedule.class) {
+    FIM_IMPORT_SCHEDULE {
         @Override
-        void describeTable(Table table) {
+        public void addTo(DataModel dataModel) {
+            Table<ImportSchedule> table = dataModel.addTable(name(), ImportSchedule.class);
             table.map(ImportScheduleImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.setJournalTableName("FIM_IMPORT_SCHEDULEJRNL");
@@ -46,9 +47,10 @@ enum TableSpecs {
         }
 
     },
-    FIM_FILE_IMPORT_OCCURRENCE(FileImportOccurrence.class) {
+    FIM_FILE_IMPORT_OCCURRENCE {
         @Override
-        void describeTable(Table table) {
+        public void addTo(DataModel dataModel) {
+            Table<FileImportOccurrence> table = dataModel.addTable(name(), FileImportOccurrence.class);
             table.map(FileImportOccurrenceImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().conversion(NUMBER2LONG).map("importScheduleId").add();
@@ -59,14 +61,21 @@ enum TableSpecs {
             table.column("ENDDATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("endDate").add();
             table.column("MESSAGE").varChar(Table.DESCRIPTION_LENGTH).map("message").add();
             table.primaryKey("FIM_PK_FILE_IMPORT").on(idColumn).add();
-            table.foreignKey("FIM_FKFILEIMPORT_SCHEDULE").references(FIM_IMPORT_SCHEDULE.name()).onDelete(DeleteRule.CASCADE).map("importSchedule").on(importScheduleColumn).add();
+            table
+                .foreignKey("FIM_FKFILEIMPORT_SCHEDULE")
+                .references(FIM_IMPORT_SCHEDULE.name())
+                .onDelete(DeleteRule.CASCADE)
+                .map("importSchedule")
+                .on(importScheduleColumn)
+                .add();
             table.partitionOn(trigger);
         }
     },
 
-    FIM_FILE_IMPORT_LOG(ImportLogEntry.class) {
+    FIM_FILE_IMPORT_LOG {
         @Override
-        void describeTable(Table table) {
+        public void addTo(DataModel dataModel) {
+            Table<ImportLogEntry> table = dataModel.addTable(name(), ImportLogEntry.class);
             table.map(ImportLogEntryImpl.class);
             Column fileImportOccurrenceColumn = table.column("FILEIMPORTOCCURRENCE").number().notNull().conversion(NUMBER2LONG).add();
             Column position = table.column("POSITION").number().notNull().map("position").conversion(NUMBER2INT).add();
@@ -75,14 +84,24 @@ enum TableSpecs {
             table.column("MESSAGE").varChar(DESCRIPTION_LENGTH).map("message").add();
             table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
             table.primaryKey("FIM_PK_LOG_ENTRY").on(fileImportOccurrenceColumn, position).add();
-            table.foreignKey("FIM_PKFILOG_OCCURRENCE").references(FIM_FILE_IMPORT_OCCURRENCE.name()).on(fileImportOccurrenceColumn).onDelete(DeleteRule.CASCADE)
-                    .map("fileImportOccurrenceReference").reverseMap("logEntries").reverseMapOrder("position").composition().refPartition().add();
+            table
+                .foreignKey("FIM_PKFILOG_OCCURRENCE")
+                .references(FIM_FILE_IMPORT_OCCURRENCE.name())
+                .on(fileImportOccurrenceColumn)
+                .onDelete(DeleteRule.CASCADE)
+                .map("fileImportOccurrenceReference")
+                .reverseMap("logEntries")
+                .reverseMapOrder("position")
+                .composition()
+                .refPartition()
+                .add();
         }
     },
 
-    FIM_PROPERTY_IN_SCHEDULE(FileImporterProperty.class) {
+    FIM_PROPERTY_IN_SCHEDULE {
         @Override
-        void describeTable(Table table) {
+        public void addTo(DataModel dataModel) {
+            Table<FileImporterProperty> table = dataModel.addTable(name(), FileImporterProperty.class);
             table.map(FileImporterPropertyImpl.class);
             table.setJournalTableName("FIM_PROPERTY_IN_SCHEDULEJRNL");
             Column importScheduleColumn = table.column("IMPORTSCHEDULE").number().notNull().add();
@@ -90,23 +109,17 @@ enum TableSpecs {
             table.column("VALUE").varChar(Table.DESCRIPTION_LENGTH).map("stringValue").add();
             table.addAuditColumns();
             table.primaryKey("FIM_PK_PROPERTY").on(importScheduleColumn, nameColumn).add();
-            table.foreignKey("FIM_FK_PROPERTY").on(importScheduleColumn).references(FIM_IMPORT_SCHEDULE.name())
-                    .map("importScheduleReference").reverseMap("properties").composition().add();
+            table
+                .foreignKey("FIM_FK_PROPERTY")
+                .on(importScheduleColumn)
+                .references(FIM_IMPORT_SCHEDULE.name())
+                .map("importScheduleReference")
+                .reverseMap("properties")
+                .composition()
+                .add();
         }
     };
 
+    public abstract void addTo(DataModel dataModel);
 
-    private final Class<?> api;
-
-    TableSpecs(Class<?> api) {
-        this.api = api;
-    }
-
-    public void addTo(DataModel component) {
-        Table table = component.addTable(name(), api);
-        describeTable(table);
-    }
-
-
-    abstract void describeTable(Table table);
 }
