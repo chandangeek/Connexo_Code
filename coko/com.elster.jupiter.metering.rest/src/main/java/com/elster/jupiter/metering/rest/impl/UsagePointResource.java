@@ -61,6 +61,7 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -310,7 +311,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public Response updateMetrologyConfigurationVersions(UsagePointInfo info, @QueryParam("delete") boolean delete, Context securuty) {
+    public Response updateMetrologyConfigurationVersions(UsagePointInfo info, @QueryParam("delete") boolean delete) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
         Instant start = Instant.ofEpochMilli(info.metrologyConfigurationVersion.start);

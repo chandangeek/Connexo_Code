@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,7 +25,7 @@ public class UsagePointInfo {
     public long createTime;
     public long modTime;
     public String location;
-    public MeterActivationInfo meterActivation;
+    public List<MeterActivationInfo> meterActivations;
     public EffectiveMetrologyConfigurationOnUsagePointInfo metrologyConfigurationVersion;
 
     public UsagePointInfo() {
@@ -38,11 +40,11 @@ public class UsagePointInfo {
         version = usagePoint.getVersion();
         createTime = usagePoint.getCreateDate().toEpochMilli();
         modTime = usagePoint.getModificationDate().toEpochMilli();
-        location = usagePoint.getLocation().map(Location::toString).orElse(usagePoint.getGeoCoordinates()
-                .map(coordinates -> coordinates.getCoordinates().toString()).orElse(""));
-        meterActivation = usagePoint.getCurrentMeterActivation()
+        location = usagePoint.getLocation().map(Location::toString).orElse(usagePoint.getSpatialCoordinates()
+                .map(coordinates -> coordinates.toString()).orElse(""));
+        meterActivations = usagePoint.getCurrentMeterActivations().stream()
                 .map(MeterActivationInfo::new)
-                .orElse(null);
+                .collect(Collectors.toList());
         metrologyConfigurationVersion = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .map(v-> new EffectiveMetrologyConfigurationOnUsagePointInfo(v, clock))
                 .orElse(null);

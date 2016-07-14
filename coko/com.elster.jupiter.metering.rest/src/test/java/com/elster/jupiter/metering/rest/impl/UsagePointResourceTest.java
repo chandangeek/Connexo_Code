@@ -1,16 +1,15 @@
 package com.elster.jupiter.metering.rest.impl;
 
 
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -33,10 +32,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -82,13 +81,13 @@ public class UsagePointResourceTest extends MeteringApplicationJerseyTest {
         when(usagePoint.getCreateDate()).thenReturn(Instant.EPOCH);
         when(usagePoint.getModificationDate()).thenReturn(Instant.EPOCH);
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
-        when(usagePoint.getGeoCoordinates()).thenReturn(Optional.empty());
+        when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint =  mockEffectiveMetrologyConfiguration();
         List<EffectiveMetrologyConfigurationOnUsagePoint> configs = Collections.singletonList(effectiveMetrologyConfigurationOnUsagePoint);
         when(usagePoint.getEffectiveMetrologyConfigurations()).thenReturn(configs);
         when(usagePoint.getEffectiveMetrologyConfiguration(Instant.EPOCH)).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
-        when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
+        when(usagePoint.getCurrentMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
         when(meter.getAmrSystem()).thenReturn(amrSystem);
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
