@@ -40,6 +40,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.annotation.Priority;
@@ -70,6 +71,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     Clock clock;
     @Mock
     MeteringService meteringService;
+    @Mock
+    TimeService timeService;
     @Mock
     LocationService locationService;
     @Mock
@@ -120,6 +123,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMeteringService(meteringService);
+        application.setTimeService(timeService);
         application.setLocationService(locationService);
         application.setRestQueryService(restQueryService);
         application.setClockService(clock);

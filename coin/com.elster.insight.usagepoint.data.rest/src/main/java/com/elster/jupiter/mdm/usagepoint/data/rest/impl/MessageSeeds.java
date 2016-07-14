@@ -22,8 +22,10 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT(21, Keys.NOT_POSSIBLE_TO_LINK_INACTIVE_METROLOGY_CONFIGURATION_TO_USAGE_POINT, "Not possible to link inactive metrology configuration ''{0}'' to usage point"),
     NO_METER_ROLE_FOR_KEY(22, Keys.NO_METER_ROLE_FOR_KEY, "No meter role with key {0}"),
     INVALID_COORDINATES(23, "invalidCoordinates", "All coordinates fields must contain valid values"),
-    THIS_FIELD_IS_REQUIRED(24, "ThisFieldIsRequired", "This field is required");
-
+    THIS_FIELD_IS_REQUIRED(24, "ThisFieldIsRequired", "This field is required"),
+    NO_METROLOGYCONFIG_FOR_USAGEPOINT(25, "NoMetrologyConfigForUsagePoint", "Usage point with MRID {0} doesn't have a link to metrology configuration."),
+    METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT(26, "MetrologyPurposeNotLinkedToUsagePoint", "Metrology purpose with id {0} is not found on usage point with MRID {1}."),
+    NO_RELATIVEPERIOD_FOR_ID(27, "NoRelativePeriodForId", "Relative period with id {0} is not found.");
 
     private final int number;
     private final String key;

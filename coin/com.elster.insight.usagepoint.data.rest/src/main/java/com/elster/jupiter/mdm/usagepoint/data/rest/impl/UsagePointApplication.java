@@ -8,6 +8,7 @@ import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
@@ -25,9 +26,11 @@ import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -52,6 +55,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
+    private volatile TimeService timeService;
     private volatile MeteringService meteringService;
     private volatile LocationService locationService;
     private volatile RestQueryService restQueryService;
@@ -112,7 +116,13 @@ public class UsagePointApplication extends Application implements TranslationKey
         Collections.addAll(keys, ConnectionStateTranslationKeys.values());
         Collections.addAll(keys, LocationTranslationKeys.values());
         Collections.addAll(keys, UsagePointModelTranslationKeys.values());
+        Collections.addAll(keys, ChannelDataValidationSummaryFlag.values());
         return keys;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Reference
@@ -217,6 +227,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(timeService).to(TimeService.class);
             bind(meteringService).to(MeteringService.class);
             bind(locationService).to(LocationService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);

@@ -5,6 +5,9 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
+import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
@@ -19,11 +22,13 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -46,6 +51,7 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
 
@@ -72,6 +78,7 @@ import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -87,6 +94,7 @@ import java.util.stream.Stream;
 public class UsagePointResource {
 
     private final RestQueryService queryService;
+    private final TimeService timeService;
     private final MeteringService meteringService;
     private final Clock clock;
     private final CustomPropertySetService customPropertySetService;
@@ -104,9 +112,10 @@ public class UsagePointResource {
     private final ExceptionFactory exceptionFactory;
     private final ResourceHelper resourceHelper;
     private final MetrologyConfigurationService metrologyConfigurationService;
+    private final UsagePointDataService usagePointDataService;
 
     @Inject
-    public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
+    public UsagePointResource(RestQueryService queryService, MeteringService meteringService, TimeService timeService,
                               Clock clock,
                               ServiceCallService serviceCallService, ServiceCallInfoFactory serviceCallInfoFactory,
                               Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
@@ -119,8 +128,10 @@ public class UsagePointResource {
                               Thesaurus thesaurus,
                               ResourceHelper resourceHelper,
                               MetrologyConfigurationService metrologyConfigurationService,
+                              UsagePointDataService usagePointDataService,
                               Provider<GoingOnResource> goingOnResourceProvider) {
         this.queryService = queryService;
+        this.timeService = timeService;
         this.meteringService = meteringService;
         this.clock = clock;
         this.serviceCallService = serviceCallService;
@@ -136,6 +147,7 @@ public class UsagePointResource {
         this.resourceHelper = resourceHelper;
         this.goingOnResourceProvider = goingOnResourceProvider;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.usagePointDataService = usagePointDataService;
     }
 
     @GET
@@ -329,7 +341,7 @@ public class UsagePointResource {
     public Response linkMetrologyConfigurations(@PathParam("mrid") String mrid) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
         if (usagePoint.getMetrologyConfiguration().isPresent()) {
-            return Response.ok().entity(new MetrologyConfigurationInfo((UsagePointMetrologyConfiguration) usagePoint.getMetrologyConfiguration().get())).build();
+            return Response.ok().entity(new MetrologyConfigurationInfo(usagePoint.getMetrologyConfiguration().get())).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).entity(new MetrologyConfigurationInfo()).build();
         }
@@ -665,5 +677,45 @@ public class UsagePointResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public Response getLocationAttributes(@PathParam("locationId") long locationId) {
         return Response.ok(locationInfoFactory.from(locationId)).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/{mrId}/validationSummary")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getDataValidationStatistics(@PathParam("mrId") String mrId,
+                                                     @QueryParam("purposeId") long purposeId,
+                                                     @QueryParam("periodId") long periodId,
+                                                     @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrId);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        EffectiveMetrologyContractOnUsagePoint effectiveContract = effectiveMC.getEffectiveContracts().stream()
+                .filter(contract -> contract.getMetrologyContract().getMetrologyPurpose().getId() == purposeId)
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, purposeId, mrId));
+        Range<Instant> interval = timeService.findRelativePeriod(periodId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_RELATIVEPERIOD_FOR_ID, periodId))
+                .getClosedInterval(ZonedDateTime.ofInstant(clock.instant(), clock.getZone()));
+
+        List<ChannelDataValidationSummaryInfo> result = usagePointDataService
+                .getValidationSummary(effectiveContract, interval).entrySet().stream()
+                .map(channelEntry -> {
+                    ReadingTypeDeliverable deliverable = channelEntry.getKey();
+                    ChannelDataValidationSummary summary = channelEntry.getValue();
+                    return new ChannelDataValidationSummaryInfo(deliverable.getId(),
+                            deliverable.getName(),
+                            summary.getSum(),
+                            summary.getValues().entrySet().stream()
+                                    .map(flagEntry -> {
+                                        ChannelDataValidationSummaryFlag flag = flagEntry.getKey();
+                                        return new ChannelDataValidationSummaryFlagInfo(flag.getKey(),
+                                                flag.getDisplayName(thesaurus),
+                                                flagEntry.getValue());
+                                    })
+                                    .collect(Collectors.toList()));
+                })
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("outputs", result, queryParameters);
     }
 }
