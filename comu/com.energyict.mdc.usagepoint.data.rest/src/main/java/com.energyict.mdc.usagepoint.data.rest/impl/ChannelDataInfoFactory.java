@@ -1,9 +1,7 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -53,10 +51,5 @@ public class ChannelDataInfoFactory {
             channelIntervalInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(dataValidationStatus.get());
         }
         return channelIntervalInfo;
-    }
-
-    private String getSimpleName(ReadingQualityType type) {
-        TranslationKey translationKey = type.qualityIndex().get().getTranslationKey();
-        return thesaurus.getStringBeyondComponent(translationKey.getKey(), translationKey.getDefaultFormat());
     }
 }
