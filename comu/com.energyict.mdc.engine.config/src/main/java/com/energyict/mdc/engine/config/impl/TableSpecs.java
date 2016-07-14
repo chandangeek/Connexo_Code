@@ -71,7 +71,7 @@ public enum TableSpecs {
             table.column("NROFTHREADS").number().conversion(ColumnConversion.NUMBER2INT).map("numberOfStoreTaskThreads").add();
             table.foreignKey("FK_MDC_REMOTE_ONLINE")
                     .on(onlineComServer)
-                    .references(MDC_COMSERVER.name())
+                    .references(ComServer.class)
                     .map("onlineComServer")
                     .add();
             table.unique("MDC_UQ_COMSERVER_NAME").on(nameColumn, obsoleteColumn).since(version(10, 2)).add();
@@ -132,12 +132,12 @@ public enum TableSpecs {
             table.primaryKey("PK_MDC_COMPORT").on(idColumn).add();
             table.foreignKey("FK_MDC_COMPORT_COMPORTPOOL")
                     .on(inboundComPortPoolId)
-                    .references(MDC_COMPORTPOOL.name())
+                    .references(ComPortPool.class)
                     .map("comPortPool")
                     .add();
             table.foreignKey("FK_MDC_COMPORT_COMSERVER")
                     .on(comServerColumn)
-                    .references(MDC_COMSERVER.name())
+                    .references(ComServer.class)
                     .map("comServer").reverseMap("comPorts").composition()
                     .add();
             table.unique("MDC_UQ_COMPORT_NAME").on(comServerColumn, nameColumn, obsoleteColumn).add();
@@ -155,12 +155,12 @@ public enum TableSpecs {
             table.primaryKey("PK_MDC_COMPORTINPOOL").on(comPortPoolIdColumn, comPortIdColumn).add();
             table.foreignKey("FKCOMPORTINPOOLCOMPORT")
                     .on(comPortIdColumn)
-                    .references(MDC_COMPORT.name())
+                    .references(ComPort.class)
                     .map("comPort")
                     .add();
             table.foreignKey("FKCOMPORTINPOOLCOMPORTPOOL")
                     .on(comPortPoolIdColumn)
-                    .references(MDC_COMPORTPOOL.name())
+                    .references(ComPortPool.class)
                     .map("comPortPool").reverseMap("comPortPoolMembers").composition()
                     .add();
         }
