@@ -2,16 +2,24 @@ package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -21,8 +29,13 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component(
         name = "UsagePointDataServiceImpl",
@@ -122,5 +135,31 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
 
     DataModel getDataModel() {
         return dataModel;
+    }
+
+    @Override
+    public ChannelDataValidationSummary getValidationSummary(Channel channel, Range<Instant> interval) {
+        // FIXME: finish this
+        ChannelDataValidationSummary summary = new ChannelDataValidationSummaryImpl();
+        return summary;
+    }
+
+    @Override
+    public Map<ReadingTypeDeliverable, ChannelDataValidationSummary> getValidationSummary(EffectiveMetrologyContractOnUsagePoint contract,
+                                                                                          Range<Instant> interval) {
+        ChannelsContainer container = contract.getChannelsContainer();
+        return contract.getMetrologyContract().getDeliverables().stream().collect(Collectors.toMap(
+                Function.identity(),
+                deliverable -> container.getChannel(deliverable.getReadingType()) // channel cannot be unfound
+                        .map(channel -> getValidationSummary(channel, interval))
+                        .orElseGet(ChannelDataValidationSummaryImpl::new),
+                (summary1, summary2) -> { // merge should not appear since no ReadingTypeDeliverable duplication allowed
+                    throw new LocalizedException(thesaurus,
+                            MessageSeeds.DUPLICATE_READINGTYPE_ON_METROLOGY_CONTRACT,
+                            contract.getMetrologyContract().getId()) {
+                    };
+                },
+                LinkedHashMap::new
+        ));
     }
 }
