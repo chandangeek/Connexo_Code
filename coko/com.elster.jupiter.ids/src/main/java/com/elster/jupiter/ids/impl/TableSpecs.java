@@ -100,6 +100,6 @@ public enum TableSpecs {
 		}
 	};
 
-	abstract public void addTo(DataModel component);
+	public abstract void addTo(DataModel component);
 
 }
