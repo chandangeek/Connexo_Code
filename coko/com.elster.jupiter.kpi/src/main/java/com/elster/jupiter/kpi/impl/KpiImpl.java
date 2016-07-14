@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +32,12 @@ class KpiImpl implements Kpi {
     private final IdsService idsService;
     private final IKpiService kpiService;
     private final EventService eventService;
+
+    // Audit fields
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
 
     @Inject
     KpiImpl(DataModel dataModel, IdsService idsService, IKpiService iKpiService, EventService eventService) {

@@ -36,6 +36,12 @@ class KpiMemberImpl implements IKpiMember {
     private final EventService eventService;
     private final DataModel dataModel;
 
+    // Audit fields
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
+
     @Inject
     KpiMemberImpl(IdsService idsService, EventService eventService, DataModel dataModel) {
         this.idsService = idsService;
