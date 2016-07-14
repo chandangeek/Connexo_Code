@@ -1,19 +1,19 @@
 package com.elster.jupiter.parties.impl;
 
-import java.time.Instant;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import java.time.Clock;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Objects;
 
 final class PartyRepresentationImpl implements PartyRepresentation {
 
@@ -27,20 +27,20 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
-	
+
 	// associations
 	private Reference<Party> party = ValueReference.absent();
     private User delegateUser;
 
-    private final  UserService userService;
+    private final UserService userService;
     private final Clock clock;
-    
+
     @Inject
-    PartyRepresentationImpl(Clock clock, UserService userService) {
-    	this.clock = clock;
+    PartyRepresentationImpl(UserService userService, Clock clock) {
+	    this.clock = clock;
     	this.userService = userService;
     }
-    
+
 	PartyRepresentationImpl init(PartyImpl party, User delegate, Range<Instant> range) {
 		this.party.set(party);
 		this.delegateUser = Objects.requireNonNull(delegate);
@@ -48,7 +48,7 @@ final class PartyRepresentationImpl implements PartyRepresentation {
         this.interval = Interval.of(Objects.requireNonNull(range));
         return this;
 	}
-	
+
     @Override
     public User getDelegate() {
         if (delegateUser == null) {
@@ -58,7 +58,7 @@ final class PartyRepresentationImpl implements PartyRepresentation {
 	}
 
 	@Override
-    public Party getParty() {		
+    public Party getParty() {
 		return party.get();
 	}
 

@@ -11,8 +11,12 @@ import com.elster.jupiter.parties.PartyRole;
 
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
 	PRT_PARTY () {
@@ -35,7 +39,7 @@ public enum TableSpecs {
 			table.column("EAUSERID").varChar(NAME_LENGTH).map("electronicAddress.userID").add();
 			table.column("EAWEB").varChar(NAME_LENGTH).map("electronicAddress.web").add();
 			table.column("PAPOBOX").varChar(NAME_LENGTH).map("postalAddress.poBox").add();
-			table.column("PAPOSTALCODE").varChar(NAME_LENGTH).map("postalAddress.postalCode").add();			
+			table.column("PAPOSTALCODE").varChar(NAME_LENGTH).map("postalAddress.postalCode").add();
 			table.column("PASTREETADDRESSGENERAL").varChar(NAME_LENGTH).map("postalAddress.streetDetail.addressGeneral").add();
 			table.column("PASTREETBUILDINGNAME").varChar(NAME_LENGTH).map("postalAddress.streetDetail.buildingName").add();
 			table.column("PASTREETCODE").varChar(NAME_LENGTH).map("postalAddress.streetDetail.code").add();
@@ -50,11 +54,11 @@ public enum TableSpecs {
 			table.column("PATOWNCOUNTRY").varChar(NAME_LENGTH).map("postalAddress.townDetail.country").add();
 			table.column("PATOWNNAME").varChar(NAME_LENGTH).map("postalAddress.townDetail.name").add();
 			table.column("PATOWNSECTION").varChar(NAME_LENGTH).map("postalAddress.townDetail.section").add();
-			table.column("PATOWNSTATE").varChar(NAME_LENGTH).map("postalAddress.townDetail.stateOrProvince").add();			
+			table.column("PATOWNSTATE").varChar(NAME_LENGTH).map("postalAddress.townDetail.stateOrProvince").add();
 			table.column("SASTATUSDATETIME").number().conversion(NUMBER2INSTANT).map("streetAddress.status.dateTime").add();
 			table.column("SASTATUSREASON").varChar(NAME_LENGTH).map("streetAddress.status.reason").add();
 			table.column("SASTATUSREMARK").varChar(NAME_LENGTH).map("streetAddress.status.remark").add();
-			table.column("SASTATUSVALUE").varChar(NAME_LENGTH).map("streetAddress.status.value").add();	
+			table.column("SASTATUSVALUE").varChar(NAME_LENGTH).map("streetAddress.status.value").add();
 			table.column("SASTREETADDRESSGENERAL").varChar(NAME_LENGTH).map("streetAddress.streetDetail.addressGeneral").add();
 			table.column("SASTREETBUILDINGNAME").varChar(NAME_LENGTH).map("streetAddress.streetDetail.buildingName").add();
 			table.column("SASTREETCODE").varChar(NAME_LENGTH).map("streetAddress.streetDetail.code").add();
@@ -69,7 +73,7 @@ public enum TableSpecs {
 			table.column("SATOWNCOUNTRY").varChar(NAME_LENGTH).map("streetAddress.townDetail.country").add();
 			table.column("SATOWNNAME").varChar(NAME_LENGTH).map("streetAddress.townDetail.name").add();
 			table.column("SATOWNSECTION").varChar(NAME_LENGTH).map("streetAddress.townDetail.section").add();
-			table.column("SATOWNSTATE").varChar(NAME_LENGTH).map("streetAddress.townDetail.stateOrProvince").add();			
+			table.column("SATOWNSTATE").varChar(NAME_LENGTH).map("streetAddress.townDetail.stateOrProvince").add();
 			table.column("PHONE1AREA").varChar(NAME_LENGTH).map("phone1.areaCode").add();
 			table.column("PHONE1CITY").varChar(NAME_LENGTH).map("phone1.cityCode").add();
 			table.column("PHONE1COUNTRY").varChar(NAME_LENGTH).map("phone1.countryCode").add();
@@ -99,12 +103,20 @@ public enum TableSpecs {
 			table.map(PartyRepresentationImpl.class);
 			Column delegateColumn = table.column("DELEGATE").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("delegate").add();
 			Column partyIdColumn = table.column("PARTYID").number().notNull().conversion(NUMBER2LONG).add();
-			List<Column> intervalColumns = table.addIntervalColumns("interval");			
+			List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.setJournalTableName("PRT_PARTYREPJRNL").since(version(10, 2));
 			table.addAuditColumns();
 			table.primaryKey("PRT_PK_PARTYREP").on(delegateColumn , partyIdColumn , intervalColumns.get(0)).add();
-			table.foreignKey("PRT_FKPARTYREP").on(partyIdColumn).references(PRT_PARTY.name()).onDelete(DeleteRule.CASCADE).
-				map("party").reverseMap("representations").reverseMapOrder("delegate").composition().add();
-		}		
+			table
+                .foreignKey("PRT_FKPARTYREP")
+                .on(partyIdColumn)
+                .references(PRT_PARTY.name())
+                .map("party")
+                .reverseMap("representations")
+                .reverseMapOrder("delegate")
+                .composition()
+                .add();
+		}
 	},
 	PRT_PARTYROLE {
 		void addTo(DataModel dataModel) {
@@ -117,28 +129,41 @@ public enum TableSpecs {
 			table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
 			table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
 			table.addAuditColumns();
-			table.primaryKey("PTR_PK_PARTYROLE").on(mRIDColumn).add();			
+			table.primaryKey("PTR_PK_PARTYROLE").on(mRIDColumn).add();
 		}
 	},
 	PRT_PARTYINROLE {
 		void addTo(DataModel dataModel) {
 			Table<PartyInRole> table = dataModel.addTable(name(), PartyInRole.class);
 			table.map(PartyInRoleImpl.class);
-			Column idColumn = table.addAutoIdColumn();
-			Column partyIdColumn = table.column("PARTYID").number().notNull().conversion(NUMBER2LONG).add();
-			Column roleMRIDColumn = table.column("PARTYROLEMRID").varChar(NAME_LENGTH).notNull().add();
+			Column id = table.addAutoIdColumn();
+			Column party = table.column("PARTYID").number().notNull().conversion(NUMBER2LONG).add();
+			Column roleMRID = table.column("PARTYROLEMRID").varChar(NAME_LENGTH).notNull().add();
 			List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.setJournalTableName("PRT_PARTYINROLEJRNL").since(version(10, 2));
 			table.addAuditColumns();
 			table.column("UPPERROLEMRID").varChar(NAME_LENGTH).as("upper(PARTYROLEMRID)").alias("upperPartyRoleMRID").add();
-			table.primaryKey("PTR_PK_PARTYINROLE").on(idColumn).add();
-			table.unique("PTR_U_PARTYINROLE").on(partyIdColumn , roleMRIDColumn , intervalColumns.get(0)).add();
-			table.foreignKey("PRT_FKPARTYINROLEPARTY").on(partyIdColumn).references(PRT_PARTY.name()).onDelete(DeleteRule.CASCADE).
-				map("party").reverseMap("partyInRoles").composition().add();
-			table.foreignKey("PRT_FKPARTYINROLEROLE").on(roleMRIDColumn).references(PRT_PARTYROLE.name()).onDelete(DeleteRule.RESTRICT).map("role").add();
+			table.primaryKey("PTR_PK_PARTYINROLE").on(id).add();
+			table.unique("PTR_U_PARTYINROLE").on(party , roleMRID , intervalColumns.get(0)).add();
+			table
+                .foreignKey("PRT_FKPARTYINROLEPARTY")
+                .on(party)
+                .references(PRT_PARTY.name())
+                .map("party")
+                .reverseMap("partyInRoles")
+                .composition()
+                .add();
+			table
+                .foreignKey("PRT_FKPARTYINROLEROLE")
+                .on(roleMRID)
+                .references(PRT_PARTYROLE.name())
+                .onDelete(DeleteRule.RESTRICT)
+                .map("role")
+                .add();
 		}
 	};
-	
+
 	abstract void addTo(DataModel component);
-		
-	
+
+
 }

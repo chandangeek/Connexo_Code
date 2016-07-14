@@ -4,9 +4,10 @@ import com.elster.jupiter.cbo.PostalAddress;
 import com.elster.jupiter.cbo.StreetAddress;
 import com.elster.jupiter.cbo.TelephoneNumber;
 
-public interface Organization extends Party {
+import aQute.bnd.annotation.ProviderType;
 
-    String TYPE_IDENTIFIER = "O";
+@ProviderType
+public interface Organization extends Party {
 
     TelephoneNumber getPhone1();
 

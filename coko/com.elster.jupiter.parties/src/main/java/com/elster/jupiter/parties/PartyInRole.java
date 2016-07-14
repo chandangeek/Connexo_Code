@@ -2,6 +2,9 @@ package com.elster.jupiter.parties;
 
 import com.elster.jupiter.orm.associations.Effectivity;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface PartyInRole extends Effectivity {
 	long getId();
 	Party getParty();

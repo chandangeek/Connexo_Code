@@ -13,9 +13,9 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
-import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -37,8 +37,12 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 @Unique(fields="mRID", groups = Save.Create.class)
 abstract class PartyImpl implements Party {
 
-    static final Map<String, Class<? extends Party>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends Party>>of(Organization.TYPE_IDENTIFIER, OrganizationImpl.class, Person.TYPE_IDENTIFIER, PersonImpl.class);
+    private static final String PERSON_TYPE_IDENTIFIER = "P";
+    private static final String ORGANIZATION_TYPE_IDENTIFIER = "O";
 
+    static final Map<String, Class<? extends Party>> IMPLEMENTERS = ImmutableMap.of(ORGANIZATION_TYPE_IDENTIFIER, OrganizationImpl.class, PERSON_TYPE_IDENTIFIER, PersonImpl.class);
+
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotNull(groups = Organization.class)
     private String mRID;
@@ -53,22 +57,25 @@ abstract class PartyImpl implements Party {
     private TelephoneNumber phone1;
     @Valid
     private TelephoneNumber phone2;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     // associations
 
    	private TemporalList<PartyInRoleImpl> partyInRoles = Temporals.emptyList();
    	private List<PartyRepresentationImpl> representations = new ArrayList<>();
-   	
-  
+
    	private final DataModel dataModel;
    	private final EventService eventService;
    	private final Provider<PartyInRoleImpl> partyInRoleProvider;
    	private final Provider<PartyRepresentationImpl> partyRepresentationProvider;
-   	
+
    	@Inject
    	PartyImpl(DataModel dataModel, EventService eventService,Provider<PartyInRoleImpl> partyInRoleProvider, Provider<PartyRepresentationImpl> partyRepresentationProvider) {
    		this.dataModel = dataModel;
@@ -174,7 +181,7 @@ abstract class PartyImpl implements Party {
     public List<PartyInRoleImpl> getPartyInRoles(Instant instant) {
         return partyInRoles.effective(instant);
     }
-    
+
     @Override
     public List<PartyRepresentation> getCurrentDelegates() {
         ImmutableList.Builder<PartyRepresentation> current = ImmutableList.builder();
@@ -231,7 +238,7 @@ abstract class PartyImpl implements Party {
     }
 
     @Override
-    public PartyInRoleImpl terminateRole(PartyInRole partyInRole, Instant date) { 
+    public PartyInRoleImpl terminateRole(PartyInRole partyInRole, Instant date) {
         PartyInRoleImpl toUpdate = null;
         if (partyInRole.getParty() == this) {
         	toUpdate = (PartyInRoleImpl) partyInRole;
@@ -247,7 +254,7 @@ abstract class PartyImpl implements Party {
 
     private void validateAddingDelegate(User user, Range<Instant> range) {
         for (PartyRepresentation representation : representations) {
-            if (representation.getDelegate().getName().equals(user.getName()) && 
+            if (representation.getDelegate().getName().equals(user.getName()) &&
             		range.isConnected(representation.getRange()) &&
             		!range.intersection(representation.getRange()).isEmpty()) {
                 throw new IllegalArgumentException();
@@ -279,6 +286,7 @@ abstract class PartyImpl implements Party {
     }
 
     public void delete() {
+        this.partyInRoles.clear();
     	representations.clear();
         dataModel.remove(this);
         eventService.postEvent(EventType.PARTY_DELETED.topic(), this);

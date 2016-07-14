@@ -1,57 +1,64 @@
 package com.elster.jupiter.parties.impl;
 
-import static com.google.common.base.MoreObjects.toStringHelper;
-
-import java.time.Instant;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRole;
-import java.time.Clock;
 import com.elster.jupiter.util.time.Interval;
 
-public class PartyInRoleImpl implements PartyInRole {
-	
-	private long id;
+import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Objects;
+
+import static com.google.common.base.MoreObjects.toStringHelper;
+
+class PartyInRoleImpl implements PartyInRole {
+
+    @SuppressWarnings("unused") // Managed by ORM
+    private long id;
 	private Interval interval;
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
-    
+
     private Reference<Party> party = ValueReference.absent();
 	private Reference<PartyRole> role = ValueReference.absent();
-    
+
+    private final DataModel dataModel;
     private final Clock clock;
-	
+
     @Inject
-    PartyInRoleImpl(Clock clock) {
-    	this.clock = clock;
+    PartyInRoleImpl(DataModel dataModel, Clock clock) {
+        this.dataModel = dataModel;
+        this.clock = clock;
     }
-    
+
 	PartyInRoleImpl init(Party party , PartyRole role , Interval interval) {
 		this.party.set(Objects.requireNonNull(party));
 		this.role.set(Objects.requireNonNull(role));
 		this.interval = Objects.requireNonNull(interval);
 		return this;
 	}
-	
+
 	@Override
 	public long getId() {
 		return id;
 	}
-	
+
 	@Override
 	public Party getParty() {
 		return party.get();
 	}
-		
+
 	@Override
 	public PartyRole getRole() {
 		return role.get();
@@ -70,6 +77,10 @@ public class PartyInRoleImpl implements PartyInRole {
     @Override
     public boolean conflictsWith(PartyInRole other) {
         return getRole().equals(other.getRole()) && getParty().equals(other.getParty()) && interval.overlaps(other.getInterval());
+    }
+
+    void delete() {
+        this.dataModel.remove(this);
     }
 
     void terminate(Instant date) {

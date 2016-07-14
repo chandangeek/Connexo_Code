@@ -3,11 +3,14 @@ package com.elster.jupiter.parties;
 import com.elster.jupiter.cbo.ElectronicAddress;
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.users.User;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
 
+@ProviderType
 public interface Party extends IdentifiedObject {
 	long getId();
     ElectronicAddress getElectronicAddress();

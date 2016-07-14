@@ -2,9 +2,10 @@ package com.elster.jupiter.parties;
 
 import com.elster.jupiter.cbo.TelephoneNumber;
 
-public interface Person extends Party {
+import aQute.bnd.annotation.ProviderType;
 
-    String TYPE_IDENTIFIER = "P";
+@ProviderType
+public interface Person extends Party {
 
     String getFirstName();
 

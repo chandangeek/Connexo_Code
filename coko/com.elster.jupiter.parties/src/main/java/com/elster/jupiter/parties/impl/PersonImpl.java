@@ -1,19 +1,18 @@
 package com.elster.jupiter.parties.impl;
 
-import static com.elster.jupiter.util.Checks.is;
-
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.validation.constraints.NotNull;
-
 import com.elster.jupiter.cbo.TelephoneNumber;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.parties.Person;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.validation.constraints.NotNull;
+
+import static com.elster.jupiter.util.Checks.is;
 import static com.google.common.base.MoreObjects.toStringHelper;
 
-public final class PersonImpl extends PartyImpl implements Person {
+final class PersonImpl extends PartyImpl implements Person {
 
 	@NotNull
 	private String firstName;
@@ -23,7 +22,7 @@ public final class PersonImpl extends PartyImpl implements Person {
 	private String prefix;
 	private String suffix;
 	private String specialNeed;
-	
+
 	@Inject
 	PersonImpl(DataModel dataModel, EventService eventService,Provider<PartyInRoleImpl> partyInRoleProvider, Provider<PartyRepresentationImpl> partyRepresentationProvider) {
 		super(dataModel,eventService, partyInRoleProvider, partyRepresentationProvider);
@@ -40,7 +39,7 @@ public final class PersonImpl extends PartyImpl implements Person {
         validateLastName(lastName);
         return this;
     }
-	
+
     private void validateLastName(String name) {
         if (is(name).emptyOrOnlyWhiteSpace()) {
             throw new IllegalArgumentException("Last name cannot be empty.");
@@ -142,7 +141,7 @@ public final class PersonImpl extends PartyImpl implements Person {
 
     @Override
     public String toString() {
-        return toStringHelper(this).omitNullValues().add("id",getId()).add("mRID",getMRID()).add("name", getName()).toString();        
+        return toStringHelper(this).omitNullValues().add("id",getId()).add("mRID",getMRID()).add("name", getName()).toString();
     }
 
     @Override

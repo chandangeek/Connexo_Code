@@ -1,8 +1,11 @@
 package com.elster.jupiter.parties.impl;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.parties.PartyInRole;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.time.Interval;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import java.time.Clock;
 import java.time.Instant;
 
 import org.junit.Test;
@@ -10,28 +13,27 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.parties.PartyInRole;
-import com.elster.jupiter.users.User;
-import java.time.Clock;
-import com.elster.jupiter.util.time.Interval;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PartyInRoleTest {
-    
+
     @Mock
-    PartyImpl party;
+    private PartyImpl party;
     @Mock
-    PartyRoleImpl role;
+    private PartyRoleImpl role;
     @Mock
-    User user;
+    private User user;
     @Mock
-    Clock clock;
-    
-    
+    private Clock clock;
+    @Mock
+    private DataModel dataModel;
+
     @Test
     public void testCreation() {
-    	PartyInRole partyInRole =  new PartyInRoleImpl(clock).init(party , role, Interval.startAt(Instant.now()));
+    	PartyInRole partyInRole =  new PartyInRoleImpl(dataModel, clock).init(party , role, Interval.startAt(Instant.now()));
     	assertThat(partyInRole.getParty()).isEqualTo(party);
     	assertThat(partyInRole.getRole()).isEqualTo(role);
     }
+
 }
