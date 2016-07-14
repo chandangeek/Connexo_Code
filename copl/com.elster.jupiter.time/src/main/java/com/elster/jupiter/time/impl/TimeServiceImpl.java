@@ -74,17 +74,17 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
 
     @Override
     public Optional<RelativePeriod> findRelativePeriod(long relativePeriodId) {
-        return this.getDataModel().mapper((RelativePeriod.class)).getUnique("id", relativePeriodId);
+        return this.getDataModel().mapper(RelativePeriod.class).getUnique("id", relativePeriodId);
     }
 
     @Override
     public Optional<RelativePeriod> findAndLockRelativePeriodByIdAndVersion(long id, long version) {
-        return this.getDataModel().mapper((RelativePeriod.class)).lockObjectIfVersion(version, id);
+        return this.getDataModel().mapper(RelativePeriod.class).lockObjectIfVersion(version, id);
     }
 
     @Override
     public Optional<RelativePeriod> findRelativePeriodByName(String name) {
-        return this.getDataModel().mapper((RelativePeriod.class)).getUnique("name", name);
+        return this.getDataModel().mapper(RelativePeriod.class).getUnique("name", name);
     }
 
     @Override
