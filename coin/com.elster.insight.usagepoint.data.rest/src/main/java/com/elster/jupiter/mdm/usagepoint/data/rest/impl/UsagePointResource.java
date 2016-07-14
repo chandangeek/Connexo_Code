@@ -36,6 +36,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
@@ -51,9 +52,13 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.time.TemporalAmountComparator;
 
 import com.google.common.collect.Range;
 
@@ -77,21 +82,43 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
 import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Path("/usagepoints")
 public class UsagePointResource {
+
+    private static TemporalAmountComparator temporalAmountComparator = new TemporalAmountComparator();
+    private static TreeMap<TemporalAmount, TemporalAmount> defaultLevels = new TreeMap<>(temporalAmountComparator);
+
+    static {
+        defaultLevels.put(Duration.ofMinutes(1), Period.ofDays(1));
+        defaultLevels.put(Duration.ofMinutes(5), Period.ofWeeks(1));
+        defaultLevels.put(Duration.ofMinutes(15), Period.ofWeeks(2));
+        defaultLevels.put(Duration.ofHours(1), Period.ofMonths(2));
+        defaultLevels.put(Duration.ofDays(1), Period.ofYears(1));
+        defaultLevels.put(Period.ofWeeks(1), Period.ofYears(2));
+        defaultLevels.put(Period.ofMonths(1), Period.ofYears(10));
+        defaultLevels.put(Period.ofMonths(3), Period.ofYears(20));
+        defaultLevels.put(Period.ofYears(1), Period.ofYears(20));
+    }
 
     private final RestQueryService queryService;
     private final TimeService timeService;
@@ -717,5 +744,73 @@ public class UsagePointResource {
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("outputs", result, queryParameters);
+    }
+
+    @GET
+    @Path("/{mrId}/validationSummaryPeriods")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getDataValidationStatisticsRelativePeriods(@PathParam("mrId") String mrId,
+                                                                    @QueryParam("purposeId") long purposeId,
+                                                                    @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrId);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(contract -> contract.getMetrologyPurpose().getId() == purposeId)
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, purposeId, mrId));
+        Optional<TemporalAmount> max = metrologyContract.getDeliverables().stream()
+                .map(ReadingTypeDeliverable::getReadingType)
+                .filter(ReadingType::isRegular)
+                .map(ReadingType::getIntervalLength)
+                .flatMap(Functions.asStream())
+                .max(temporalAmountComparator::compare);
+        List<IdWithNameInfo> infos;
+        if (max.isPresent()) {
+            infos = getRelativePeriodsDefaultOnTop(max.get()).stream().map(rp -> new IdWithNameInfo(rp.getId(), rp.getName())).collect(Collectors.toList());
+        } else {
+            // registers case
+            RelativePeriod allRelativePeriod = timeService.getAllRelativePeriod();
+            infos = Collections.singletonList(new IdWithNameInfo(allRelativePeriod.getId(), allRelativePeriod.getName()));
+        }
+        return PagedInfoList.fromCompleteList("relativePeriods", infos, queryParameters);
+    }
+
+    private List<? extends RelativePeriod> getRelativePeriodsDefaultOnTop(TemporalAmount intervalLength) {
+        ZonedDateTime now = ZonedDateTime.now(clock);
+        TemporalAmount defaultIntervalLength = getValidationOverviewIntervalLength(intervalLength).orElse(intervalLength);
+        return fetchRelativePeriods().stream()
+                .sorted(Comparator.comparing(relativePeriod -> getIntervalLengthDifference(relativePeriod, defaultIntervalLength, now)))
+                .collect(Collectors.toList());
+    }
+
+    private List<? extends RelativePeriod> fetchRelativePeriods() {
+        return timeService.getRelativePeriodQuery().select(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name")
+                .isEqualTo(DefaultTranslationKey.RELATIVE_PERIOD_CATEGORY_USAGE_POINT_VALIDATION_OVERVIEW.getKey()));
+    }
+
+    private Optional<TemporalAmount> getValidationOverviewIntervalLength(TemporalAmount intervalLength) {
+        Map.Entry<TemporalAmount, TemporalAmount> targetInterval = defaultLevels.ceilingEntry(intervalLength);
+        return targetInterval != null ? Optional.of(targetInterval.getValue()) : Optional.empty();
+    }
+
+    private long getIntervalLengthDifference(RelativePeriod relativePeriod, TemporalAmount targetIntervalLength, ZonedDateTime referenceTime) {
+        ZonedDateTime relativePeriodStart = relativePeriod.getRelativeDateFrom().getRelativeDate(referenceTime);
+        ZonedDateTime relativePeriodEnd = relativePeriod.getRelativeDateTo().getRelativeDate(referenceTime);
+        if (relativePeriodStart.isAfter(referenceTime)) {
+            // period starts in the future, this is not we what we need, so return max interval length
+            return getIntervalLength(Range.openClosed(referenceTime, relativePeriodStart.plus(targetIntervalLength)));
+        }
+        long targetLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodStart.plus(targetIntervalLength)));
+        long relativePeriodLength;
+        if (relativePeriodEnd.isAfter(referenceTime)) {
+            relativePeriodLength = getIntervalLength(Range.openClosed(relativePeriodStart, referenceTime));
+        } else {
+            relativePeriodLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodEnd));
+        }
+        return Math.abs(targetLength - relativePeriodLength);
+    }
+
+    private long getIntervalLength(Range<ZonedDateTime> interval) {
+        return interval.upperEndpoint().toInstant().toEpochMilli() - interval.lowerEndpoint().toInstant().toEpochMilli();
     }
 }
