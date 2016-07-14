@@ -245,6 +245,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(GoingOnResource.class).to(GoingOnResource.class);
             bind(OutputInfoFactory.class).to(OutputInfoFactory.class);
+            bind(PurposeInfoFactory.class).to(PurposeInfoFactory.class);
+            bind(ValidationStatusFactory.class).to(ValidationStatusFactory.class);
         }
     }
 }

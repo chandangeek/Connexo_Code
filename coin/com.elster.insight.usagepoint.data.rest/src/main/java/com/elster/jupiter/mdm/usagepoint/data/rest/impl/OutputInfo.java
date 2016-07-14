@@ -11,7 +11,7 @@ public class OutputInfo {
     public long version;
     public String flowUnit;
     public FormulaInfo formula;
-    public UsagePointChannelValidationInfo validationInfo;
+    public UsagePointValidationStatusInfo validationInfo;
 
     public OutputInfo() {
 

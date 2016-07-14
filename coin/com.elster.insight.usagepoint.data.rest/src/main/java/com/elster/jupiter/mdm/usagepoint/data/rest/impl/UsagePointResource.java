@@ -80,6 +80,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -106,6 +107,7 @@ public class UsagePointResource {
     private final ResourceHelper resourceHelper;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final OutputInfoFactory outputInfoFactory;
+    private final PurposeInfoFactory purposeInfoFactory;
 
     @Inject
     public UsagePointResource(RestQueryService queryService, MeteringService meteringService,
@@ -122,7 +124,8 @@ public class UsagePointResource {
                               ResourceHelper resourceHelper,
                               MetrologyConfigurationService metrologyConfigurationService,
                               Provider<GoingOnResource> goingOnResourceProvider,
-                              OutputInfoFactory outputInfoFactory) {
+                              OutputInfoFactory outputInfoFactory,
+                              PurposeInfoFactory purposeInfoFactory) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.clock = clock;
@@ -140,6 +143,7 @@ public class UsagePointResource {
         this.goingOnResourceProvider = goingOnResourceProvider;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.outputInfoFactory = outputInfoFactory;
+        this.purposeInfoFactory = purposeInfoFactory;
     }
 
     @GET
@@ -578,13 +582,11 @@ public class UsagePointResource {
     public PagedInfoList getUsagePointPurposes(@PathParam("mrid") String mRid, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         List<PurposeInfo> purposeInfoList;
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        if (usagePoint.getMetrologyConfiguration().isPresent()) {
-            List<MetrologyContract> metrologyContractList = usagePoint.getMetrologyConfiguration().get().getContracts();
-            purposeInfoList = metrologyContractList
-                    .stream()
-                    .map(metrologyContract -> PurposeInfo.asInfo(metrologyContract, usagePoint))
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration();
+        if (effectiveMetrologyConfiguration.isPresent()) {
+            purposeInfoList = effectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream()
+                    .map(metrologyContract -> purposeInfoFactory.fullInfo(effectiveMetrologyConfiguration.get(), metrologyContract))
                     .collect(Collectors.toList());
-
         } else {
             purposeInfoList = Collections.emptyList();
         }
