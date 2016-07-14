@@ -28,7 +28,6 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -316,7 +315,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testLinkMetrologyConfigurationToUsagePoint() {
         when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(usagePointMetrologyConfiguration.isActive()).thenReturn(true);
-        when(usagePoint.getMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
         Instant now = Instant.ofEpochMilli(1462876396000L);
         when(usagePoint.getInstallationTime()).thenReturn(now);
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();

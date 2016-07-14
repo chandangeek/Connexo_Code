@@ -35,10 +35,9 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.util.HasName;
-
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -156,7 +155,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         info.id = usagePoint.getId();
         info.mRID = usagePoint.getMRID();
         info.displayServiceCategory = usagePoint.getServiceCategory().getDisplayName();
-        info.displayMetrologyConfiguration = usagePoint.getMetrologyConfiguration().map(HasName::getName).orElse(null);
+        info.displayMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().map(mc -> mc.getMetrologyConfiguration().getName()).orElse(null);
         info.displayType = this.getUsagePointDisplayType(usagePoint);
         info.displayConnectionState = usagePoint.getConnectionState().getName();
         info.geoCoordinates = usagePoint.getSpatialCoordinates().map(SpatialCoordinates::toString).orElse(null);
