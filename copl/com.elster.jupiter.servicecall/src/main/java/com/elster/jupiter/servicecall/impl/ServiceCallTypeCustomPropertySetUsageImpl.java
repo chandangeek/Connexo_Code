@@ -6,9 +6,10 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.servicecall.ServiceCallType;
 
+import java.time.Instant;
 import java.util.Objects;
 
-public class ServiceCallTypeCustomPropertySetUsageImpl implements ServiceCallTypeCustomPropertySetUsage {
+class ServiceCallTypeCustomPropertySetUsageImpl implements ServiceCallTypeCustomPropertySetUsage {
 
     public enum Fields {
         ServciceCallType("serviceCallType"),
@@ -29,6 +30,14 @@ public class ServiceCallTypeCustomPropertySetUsageImpl implements ServiceCallTyp
     private Reference<ServiceCallType> serviceCallType = ValueReference.absent();
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
 
     ServiceCallTypeCustomPropertySetUsageImpl initialize(ServiceCallType serviceCallType, RegisteredCustomPropertySet registeredCustomPropertySet) {
         this.serviceCallType.set(serviceCallType);

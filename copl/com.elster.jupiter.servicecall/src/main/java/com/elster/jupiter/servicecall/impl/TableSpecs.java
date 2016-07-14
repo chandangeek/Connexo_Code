@@ -17,6 +17,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Created by bvn on 2/4/16.
@@ -98,6 +99,7 @@ public enum TableSpecs {
             table.map(ServiceCallTypeCustomPropertySetUsageImpl.class);
             Column serviceCallType = table.column("SERVICECALLTYPE").number().notNull().add();
             Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.primaryKey("PK_SCS_CPS_USAGE").on(serviceCallType, customPropertySet).add();
             table.foreignKey("FK_SCS_SERVICECALLTYPE")
                     .references(SCS_SERVICE_CALL_TYPE.name())
