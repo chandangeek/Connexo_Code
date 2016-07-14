@@ -91,7 +91,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_TRACKING_ID(273, "InvalidTrackingId", "The tracking id is invalid for this tracking category"),
     BAD_REQUEST(274, "badRequest", "Bad request"),
     INVALID_COORDINATES(275, "invalidCoordinates", "All coordinates fields must contain valid values"),
-    UNIQUE_MRID(276, "unique.mrid", "The mrid of the device must be unique"), // we only use this validation/error when we use the wizard to create slave devices
+    UNIQUE_MRID(276, "unique.mrid", "The MRID of the device must be unique"), // we only use this validation/error when we use the wizard to create slave devices
     ;
     private final int number;
     private final String key;
