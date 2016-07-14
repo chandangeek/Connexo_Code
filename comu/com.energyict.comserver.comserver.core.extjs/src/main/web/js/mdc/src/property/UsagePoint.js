@@ -23,7 +23,7 @@ Ext.define('Mdc.property.UsagePoint', {
             valueField: 'id',
             queryParam: 'like',
             width: me.width,
-            forceSelection: me.getProperty().getExhaustive(),
+            forceSelection: true,
             readOnly: me.isReadOnly,
             blankText: me.blankText,
             listConfig: {
@@ -59,5 +59,13 @@ Ext.define('Mdc.property.UsagePoint', {
 
     getField: function () {
         return this.down('combobox');
+    },
+
+    markInvalid: function (error) {
+        this.down('combobox').markInvalid(error);
+    },
+
+    clearInvalid: function (error) {
+        this.down('combobox') && this.down('combobox').clearInvalid();
     }
 });
