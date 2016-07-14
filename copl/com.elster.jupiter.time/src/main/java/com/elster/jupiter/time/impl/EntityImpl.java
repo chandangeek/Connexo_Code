@@ -13,12 +13,17 @@ abstract class EntityImpl implements Entity {
 
     private final EventService eventService;
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
 
     // Audit fields
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     private DataModel dataModel;
@@ -78,6 +83,10 @@ abstract class EntityImpl implements Entity {
     @Override
     public void delete(){
         eventService.postEvent(deleted().topic(), this);
+        this.doDelete();
+    }
+
+    protected void doDelete() {
         dataModel.remove(this);
     }
 

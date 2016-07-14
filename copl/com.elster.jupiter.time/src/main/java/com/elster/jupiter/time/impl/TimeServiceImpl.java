@@ -15,7 +15,6 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
-import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.parser.CronExpressionDescriptorImpl;
 import com.elster.jupiter.time.impl.parser.TranslationKeys;
@@ -151,7 +150,7 @@ public final class TimeServiceImpl implements TimeService, TranslationKeyProvide
 
     @Override
     public Query<? extends RelativePeriod> getRelativePeriodQuery() {
-        return queryService.wrap(dataModel.query(RelativePeriod.class, RelativePeriodCategoryUsage.class, RelativePeriodCategory.class));
+        return queryService.wrap(dataModel.query(RelativePeriod.class, RelativePeriodCategoryUsageImpl.class, RelativePeriodCategory.class));
     }
 
     Module getModule() {

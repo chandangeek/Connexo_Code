@@ -1,33 +1,16 @@
+/*
+ * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.time;
 
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
+import aQute.bnd.annotation.ProviderType;
 
-public class RelativePeriodCategoryUsage {
+@ProviderType
+public interface RelativePeriodCategoryUsage {
+    RelativePeriod getRelativePeriod();
 
-    private Reference<RelativePeriod> relativePeriod = ValueReference.absent();
-    private Reference<RelativePeriodCategory> relativePeriodCategory = ValueReference.absent();
+    RelativePeriodCategory getRelativePeriodCategory();
 
-    // For orm service only
-    RelativePeriodCategoryUsage() {
-        super();
-    }
-
-    public RelativePeriodCategoryUsage(RelativePeriod relativePeriod, RelativePeriodCategory relativePeriodCategory) {
-        this();
-        this.relativePeriod.set(relativePeriod);
-        this.relativePeriodCategory.set(relativePeriodCategory);
-    }
-
-    public RelativePeriod getRelativePeriod() {
-        return relativePeriod.get();
-    }
-
-    public RelativePeriodCategory getRelativePeriodCategory() {
-        return relativePeriodCategory.get();
-    }
-
-    public boolean sameRelativePeriodCategory (RelativePeriodCategory relativePeriodCategory) {
-        return this.getRelativePeriodCategory().getId() == relativePeriodCategory.getId();
-    }
+    boolean sameRelativePeriodCategory(RelativePeriodCategory relativePeriodCategory);
 }
