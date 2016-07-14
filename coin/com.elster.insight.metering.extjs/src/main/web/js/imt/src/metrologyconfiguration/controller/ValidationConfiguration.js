@@ -91,8 +91,10 @@ Ext.define('Imt.metrologyconfiguration.controller.ValidationConfiguration', {
             rulesStore = me.getStore('Imt.store.ValidationRules');
 
         Ext.suspendLayouts();
-        view.down('#purpose-rule-sets-add-rule-button').setHref(me.getController('Uni.controller.history.Router')
-            .getRoute('administration/rulesets/overview/versions/overview/rules/add').buildUrl({ruleSetId: ruleSet.get('id'), versionId: ruleSet.get('currentVersionId')}));
+        if (view.down('#purpose-rule-sets-add-rule-button')) {
+            view.down('#purpose-rule-sets-add-rule-button').setHref(me.getController('Uni.controller.history.Router')
+                .getRoute('administration/rulesets/overview/versions/overview/rules/add').buildUrl({ruleSetId: ruleSet.get('id'), versionId: ruleSet.get('currentVersionId')}));
+        }
         rulesStore.getProxy().extraParams = {
             ruleSetId: ruleSet.get('id'),
             versionId: ruleSet.get('currentVersionId')
