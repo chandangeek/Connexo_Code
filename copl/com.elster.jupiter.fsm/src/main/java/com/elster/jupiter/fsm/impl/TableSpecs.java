@@ -101,6 +101,7 @@ public enum TableSpecs {
             Column name = table.column("NAME").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.NAME.fieldName()).add();
             table.column("DEPLOYMENTID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.DEPLOYMENT_ID.fieldName()).add();
             table.column("PROCESSID").varChar().notNull().map(StateChangeBusinessProcessImpl.Fields.PROCESS_ID.fieldName()).add();
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.primaryKey("PK_STATE_CHANGE_PROCESS").on(id).add();
             table.unique("UK_FSM_STATE_CHANGE_NAME").on(name).add();
         }
@@ -116,6 +117,8 @@ public enum TableSpecs {
             Column process = table.column("PROCESS").number().notNull().add();
             Column state = table.column("STATE").number().notNull().add();
             table.primaryKey("PK_FSM_PROCESS").on(id).add();
+            table.setJournalTableName("FSM_PROCESSJRNL").since(version(10, 2));
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.foreignKey("FK_FSM_PROCESS")
                     .on(process)
                     .references(FSM_STATE_CHANGE_PROCESS.name())
@@ -143,6 +146,8 @@ public enum TableSpecs {
             table.column("NAMEKEY").varChar().map(StateTransitionImpl.Fields.NAME_KEY.fieldName()).add();
             Column eventType = table.column("EVENTTYPE").number().notNull().add();
             Column finiteStateMachine = table.column("FSM").number().notNull().add();
+            table.setJournalTableName("FSM_STATE_TRANSITIONJRNL").since(version(10, 2));
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.primaryKey("PK_FSM_STATE_TRANSITION").on(id).add();
             table.foreignKey("FK_FSM_STATETRANS_FSM")
                     .on(finiteStateMachine)

@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -40,15 +41,23 @@ public final class StateChangeBusinessProcessImpl implements StateChangeBusiness
 
     @SuppressWarnings("unused")
     private long id;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deploymentId;
-    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
-    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
+    @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
+    @Size(max= 256, groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String processId;
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     @Inject
     public StateChangeBusinessProcessImpl(DataModel dataModel) {

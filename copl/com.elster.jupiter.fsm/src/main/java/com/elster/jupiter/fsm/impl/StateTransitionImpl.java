@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -68,6 +69,14 @@ public final class StateTransitionImpl implements StateTransition {
     private Reference<State> to = Reference.empty();
     @IsPresent
     private Reference<StateTransitionEventType> eventType = Reference.empty();
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     @Override
     public long getId() {

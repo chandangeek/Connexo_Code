@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.Checks;
 
 import javax.validation.constraints.NotNull;
+import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -16,7 +17,7 @@ import java.util.Objects;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-03 (13:02)
  */
-public final class ProcessReferenceImpl implements ProcessReference {
+final class ProcessReferenceImpl implements ProcessReference {
 
     public enum Fields {
         STATE("state"),
@@ -34,7 +35,7 @@ public final class ProcessReferenceImpl implements ProcessReference {
         }
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @IsPresent
     private Reference<StateChangeBusinessProcess> process = Reference.empty();
@@ -42,6 +43,14 @@ public final class ProcessReferenceImpl implements ProcessReference {
     private Reference<State> state = Reference.empty();
     @NotNull
     private Purpose purpose;
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     private enum Purpose {
         OnEntry, OnExit;
