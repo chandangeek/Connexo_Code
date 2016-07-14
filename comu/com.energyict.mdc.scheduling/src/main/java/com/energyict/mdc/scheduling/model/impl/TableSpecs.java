@@ -8,8 +8,10 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
-
+import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     SCH_NEXTEXECUTIONSPEC {
@@ -22,6 +24,8 @@ public enum TableSpecs {
             table.column("FREQUENCYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".every.timeUnitCode").add();
             table.column("OFFSETVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".offset.count").add();
             table.column("OFFSETUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".offset.timeUnitCode").add();
+            table.setJournalTableName("SCH_NEXTEXECUTIONSPECJRNL").since(version(10, 2));
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.primaryKey("PK_SCH_NEXTEXECUTIONSPEC").on(id).add();
         }
     },
@@ -54,15 +58,16 @@ public enum TableSpecs {
                 table.map(ComTaskInComScheduleImpl.class);
                 Column comTaskId = table.column("COMTASK").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
                 Column comScheduleId = table.column("COMSCHEDULE").number().conversion(NUMBER2LONG).notNull().add(); // DO NOT MAP
+                table.setJournalTableName("SCH_COMTASKINCOMSCHEDULEJRNL").since(version(10, 2));
                 table.addAuditColumns();
 
                 table.primaryKey("PK_SCH_COMTASKINCOMSCHEDULE").on(comTaskId, comScheduleId).add();
-                table.foreignKey("FK_SCH_COMTASKINCS_COMSCHEDULE").
-                        on(comScheduleId).references(SCH_COMSCHEDULE.name()).
-                        map(ComTaskInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName()).
-                        reverseMap(ComScheduleImpl.Fields.COM_TASK_IN_COM_SCHEDULE.fieldName()).
-                        composition().
-                        add();
+                table.foreignKey("FK_SCH_COMTASKINCS_COMSCHEDULE")
+                        .on(comScheduleId).references(SCH_COMSCHEDULE.name())
+                        .map(ComTaskInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName())
+                        .reverseMap(ComScheduleImpl.Fields.COM_TASK_IN_COM_SCHEDULE.fieldName())
+                        .composition()
+                        .add();
                 table.foreignKey("FK_SCH_COMTASKINCOMSCH_COMTASK")
                         .on(comTaskId)
                         .references(ComTask.class)

@@ -11,6 +11,7 @@ import com.energyict.mdc.scheduling.events.DeleteEventType;
 import com.energyict.mdc.scheduling.events.UpdateEventType;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -39,6 +40,14 @@ public final class NextExecutionSpecsImpl extends PersistentIdObject<NextExecuti
     }
 
     private TemporalExpression temporalExpression;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
 
     @Inject
     public NextExecutionSpecsImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

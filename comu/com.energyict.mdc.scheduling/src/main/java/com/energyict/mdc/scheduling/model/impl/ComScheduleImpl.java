@@ -80,6 +80,7 @@ public final class ComScheduleImpl implements ComSchedule {
         this.comScheduleExceptionFactory = comScheduleExceptionFactory;
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.FIELD_IS_REQUIRED+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.TOO_LONG+"}")
@@ -94,9 +95,13 @@ public final class ComScheduleImpl implements ComSchedule {
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     private Instant startDate;
     private Instant obsoleteDate;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
 
     @Override
