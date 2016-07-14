@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.orm.associations.Effectivity;
 
 import aQute.bnd.annotation.ProviderType;
