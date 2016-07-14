@@ -68,6 +68,11 @@ class SqlDiffFileListener implements DifferencesListener {
         state.onDifference(difference);
     }
 
+    @Override
+    public void done() {
+        state.done();
+    }
+
     private Writer createFile() {
         try {
             return tryCreateFile();
