@@ -1548,7 +1548,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (!dataUntil.equals(Instant.EPOCH)) {
             if (interval.contains(dataUntil)) {
                 return dataUntil;
-            } else if (interval.upperEndpoint().isBefore(dataUntil)) {
+            } else if (!interval.upperEndpoint().isAfter(dataUntil)) {
                 return interval.upperEndpoint();
             } else {
                 return interval.lowerEndpoint(); // empty interval: interval is completely after last reading
