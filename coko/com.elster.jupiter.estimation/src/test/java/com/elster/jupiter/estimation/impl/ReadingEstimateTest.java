@@ -99,7 +99,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingEstimateTest {
 
-    public static final String IMPLEMENTATION = "Fibonacci";
+    private static final String IMPLEMENTATION = "Fibonacci";
     private Injector injector;
 
     @Mock

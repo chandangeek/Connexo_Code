@@ -23,6 +23,7 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
 
@@ -70,10 +71,11 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EstimationRuleProperties> table = dataModel.addTable(name(), EstimationRuleProperties.class);
             table.map(EstimationRulePropertiesImpl.class);
-            table.setJournalTableName("EST_ESTIMATIONRULEPROPSJRNL");
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("ESTUE").varChar(SHORT_DESCRIPTION_LENGTH).map("stringValue").add();
+            table.setJournalTableName("EST_ESTIMATIONRULEPROPSJRNL");
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.primaryKey("EST_PK_ESTRULEPROPS").on(ruleIdColumn, nameColumn).add();
             table.foreignKey("EST_FK_RULEPROPS").references("EST_ESTIMATIONRULE").onDelete(RESTRICT).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();
         }
@@ -83,9 +85,10 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<ReadingTypeInEstimationRule> table = dataModel.addTable(name(), ReadingTypeInEstimationRule.class);
             table.map(ReadingTypeInEstimationRuleImpl.class);
-            table.setJournalTableName("EST_READINGTYPEINESTRULEJRNL");
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column readingTypeMRIDColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRID").add();
+            table.setJournalTableName("EST_READINGTYPEINESTRULEJRNL");
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
             table.primaryKey("EST_PK_RTYPEINESTRULE").on(ruleIdColumn, readingTypeMRIDColumn).add();
             table
                 .foreignKey("EST_FK_RTYPEINESTRULE_RULE")
