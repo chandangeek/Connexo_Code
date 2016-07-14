@@ -67,7 +67,6 @@ public enum TableSpecs {
             Table<DeviceType> table = dataModel.addTable(this.name(), DeviceType.class);
             table.map(DeviceTypeImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("DEVICEPROTOCOLPLUGGABLEID").number().conversion(ColumnConversion.NUMBER2LONG).map(DeviceTypeImpl.Fields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName()).add();
@@ -80,6 +79,7 @@ public enum TableSpecs {
                     .map(DeviceTypeImpl.Fields.FILE_MANAGEMENT_ENABLED.fieldName())
                     .since(version(10, 2))
                     .add();
+            table.addAuditColumns();
             table.unique("UK_DTC_DEVICETYPE").on(name).add();
             table.primaryKey("PK_DTC_DEVICETYPE").on(id).add();
         }
@@ -204,7 +204,6 @@ public enum TableSpecs {
             Table<DeviceConfiguration> table = dataModel.addTable(name(), DeviceConfiguration.class);
             table.map(DeviceConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
@@ -214,15 +213,16 @@ public enum TableSpecs {
             table.column("USERACTIONS").number().conversion(NUMBER2LONG).notNull().map("supportsAllProtocolMessagesUserActionsBitVector").add();
             table.column("GATEWAY_TYPE").number().conversion(ColumnConversion.NUMBER2ENUM).map(DeviceConfigurationImpl.Fields.GATEWAY_TYPE.fieldName()).notNull().add();
             table.column("DATALOGGERENABLED").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map(DeviceConfigurationImpl.Fields.DATALOGGER_ENABLED.fieldName()).since(version(10, 2)).add();
+            table.setJournalTableName("DTC_DEVICECONFIGJRNL").since(version(10, 2));
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_DEVICECONFIG").on(id).add();
-            table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE").
-                    on(deviceType).
-                    references(DTC_DEVICETYPE.name()).
-                    map("deviceType").
-                    reverseMap("deviceConfigurations").
-                    composition().
-                    onDelete(CASCADE).
-                    add();
+            table.foreignKey("FK_DTC_DEVCONFIG_DEVTYPE")
+                    .on(deviceType)
+                    .references(DTC_DEVICETYPE.name())
+                    .map("deviceType")
+                    .reverseMap("deviceConfigurations")
+                    .composition()
+                    .add();
             table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).add();
         }
     },
@@ -260,7 +260,6 @@ public enum TableSpecs {
             Table<ChannelSpec> table = dataModel.addTable(name(), ChannelSpec.class);
             table.map(ChannelSpecImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column channelType = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("OBISCODE").varChar(Table.NAME_LENGTH).map(ChannelSpecImpl.ChannelSpecFields.OVERRULED_OBISCODE.fieldName()).add();
@@ -271,12 +270,13 @@ public enum TableSpecs {
             table.column("INTERVALCODE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.INTERVAL_CODE.fieldName()).add();
             table.column("USEMULTIPLIER").number().conversion(NUMBER2BOOLEAN).map(ChannelSpecImpl.ChannelSpecFields.USEMULTIPLIER.fieldName()).add();
             Column calculatedReadingType = table.column("CALCULATEDREADINGTYPE").varChar(Table.NAME_LENGTH).add();
+            table.setJournalTableName("DTC_CHANNELSPECJRNL").since(version(10, 2));
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_CHANNELSPEC").on(id).add();
             table.foreignKey("FK_DTC_CHANNELSPEC_DEVCONFIG").
                     on(deviceConfiguration).
                     references(DTC_DEVICECONFIG.name()).
                     map(ChannelSpecImpl.ChannelSpecFields.DEVICE_CONFIG.fieldName()).
-                    onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DTC_CHANNELSPEC_REGMAP").
                     on(channelType).

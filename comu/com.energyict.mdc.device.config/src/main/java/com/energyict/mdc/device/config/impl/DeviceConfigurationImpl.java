@@ -370,6 +370,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         this.configurationPropertiesList.clear();
         this.deviceConfValidationRuleSetUsages.clear();
         this.deviceConfigurationEstimationRuleSetUsages.clear();
+        this.deleteChannelSpecs();
+    }
+
+    private void deleteChannelSpecs() {
+        this.getDataModel()
+                .mapper(ChannelSpec.class)
+                .find(ChannelSpecImpl.ChannelSpecFields.DEVICE_CONFIG.fieldName(), this)
+                .stream()
+                .map(ServerChannelSpec.class::cast)
+                .forEach(ServerChannelSpec::configurationBeingDeleted);
     }
 
     private void validateAllChannelSpecsHaveUniqueObisCodes() {
@@ -617,7 +627,12 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         }
     }
 
+    @Override
     public void removeChannelSpec(ChannelSpec channelSpec) {
+        this.removeChannelSpec((ServerChannelSpec) channelSpec);
+    }
+
+    private void removeChannelSpec(ServerChannelSpec channelSpec) {
         if (isActive()) {
             throw CannotDeleteFromActiveDeviceConfigurationException.forChannelSpec(this.getThesaurus(), channelSpec, this, MessageSeeds.CHANNEL_SPEC_CANNOT_DELETE_FROM_ACTIVE_CONFIG);
         }
