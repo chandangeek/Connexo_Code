@@ -9,6 +9,8 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
@@ -33,10 +35,12 @@ import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
 
 import javax.inject.Inject;
+import javax.ws.rs.HEAD;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,14 +57,16 @@ public class DeviceDataInfoFactory {
     private final Thesaurus thesaurus;
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final Clock clock;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceDataInfoFactory(ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, Thesaurus thesaurus, ValidationRuleInfoFactory validationRuleInfoFactory, Clock clock) {
+    public DeviceDataInfoFactory(ValidationInfoFactory validationInfoFactory, EstimationRuleInfoFactory estimationRuleInfoFactory, Thesaurus thesaurus, ValidationRuleInfoFactory validationRuleInfoFactory, Clock clock, ResourceHelper resourceHelper) {
         this.validationInfoFactory = validationInfoFactory;
         this.estimationRuleInfoFactory = estimationRuleInfoFactory;
         this.thesaurus = thesaurus;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.clock = clock;
+        this.resourceHelper = resourceHelper;
     }
 
     public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation) {
@@ -186,7 +192,8 @@ public class DeviceDataInfoFactory {
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
-            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createMinimalVeeReadingInfo(entry.getKey(), entry.getValue(), deviceValidation));
+            channelIntervalInfo.channelValidationData.put(entry.getKey()
+                    .getId(), validationInfoFactory.createMinimalVeeReadingInfo(entry.getKey(), entry.getValue(), deviceValidation));
         }
 
         for (Channel channel : channels) {
@@ -233,7 +240,11 @@ public class DeviceDataInfoFactory {
         readingInfo.timeStamp = reading.getTimeStamp();
         readingInfo.reportedDateTime = reading.getReportedDateTime();
         readingInfo.readingQualities = createReadingQualitiesInfo(reading);
-        readingInfo.modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
+        Pair<ReadingModificationFlag, QualityCodeSystem> modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
+        if (modificationFlag != null) {
+            readingInfo.modificationFlag = modificationFlag.getFirst();
+            readingInfo.editedInApp = resourceHelper.getApplicationInfo(modificationFlag.getLast());
+        }
     }
 
     /**
@@ -280,7 +291,7 @@ public class DeviceDataInfoFactory {
 
         Quantity collectedValue = reading.getQuantityFor(register.getReadingType());
         int numberOfFractionDigits = ((NumericalRegister) register).getNumberOfFractionDigits();
-        if(collectedValue != null){
+        if (collectedValue != null) {
             numericalReadingInfo.value = collectedValue.getValue().setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
             numericalReadingInfo.unit = register.getRegisterSpec().getRegisterType().getUnit();
             numericalReadingInfo.rawValue = numericalReadingInfo.value;
@@ -304,10 +315,18 @@ public class DeviceDataInfoFactory {
         readingInfo.validationStatus = isValidationStatusActive;
         reading.getValidationStatus().ifPresent(status -> {
             readingInfo.dataValidated = status.completelyValidated();
-            readingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(status.getReadingQualities()));
+            Collection<? extends ReadingQuality> readingQualities = status.getReadingQualities();
+            readingInfo.validationResult = ValidationStatus.forResult(ValidationResult.getValidationResult(readingQualities));
             readingInfo.suspectReason = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
-            readingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(status.getReadingQualities());
-            readingInfo.isConfirmed = validationInfoFactory.isConfirmedData(reading.getActualReading(), status.getReadingQualities());
+            readingInfo.estimatedByRule = estimationRuleInfoFactory.createEstimationRuleInfo(readingQualities);
+            List<? extends ReadingQuality> confirmedQualities = validationInfoFactory.getConfirmedQualities(reading.getActualReading(), readingQualities);
+            readingInfo.isConfirmed = !confirmedQualities.isEmpty();
+            readingInfo.confirmedInApps = confirmedQualities.stream()
+                    .map(ReadingQuality::getType)
+                    .map(ReadingQualityType::system)
+                    .flatMap(Functions.asStream())
+                    .map(resourceHelper::getApplicationInfo)
+                    .collect(Collectors.collectingAndThen(Collectors.toSet(), s -> s.isEmpty() ? null : s));
         });
     }
 
@@ -393,7 +412,8 @@ public class DeviceDataInfoFactory {
         registerSpec.getOverflowValue().ifPresent(overflow -> numericalRegisterInfo.overflow = overflow);
         numericalRegister.getOverflow().ifPresent(overruledOverflowValue -> numericalRegisterInfo.overruledOverflow = overruledOverflowValue);
         Instant timeStamp = numericalRegister.getLastReadingDate().orElse(clock.instant());
-        numericalRegister.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
+        numericalRegister.getCalculatedReadingType(timeStamp)
+                .ifPresent(calculatedReadingType -> numericalRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
         numericalRegisterInfo.multiplier = numericalRegister.getMultiplier(timeStamp).orElseGet(() -> null);
         numericalRegisterInfo.useMultiplier = registerSpec.isUseMultiplier();
         return numericalRegisterInfo;
