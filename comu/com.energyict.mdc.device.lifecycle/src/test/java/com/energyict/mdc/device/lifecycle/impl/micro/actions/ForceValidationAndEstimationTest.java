@@ -6,7 +6,6 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -187,13 +186,12 @@ public class ForceValidationAndEstimationTest {
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         Channel channel = mock(Channel.class, Answers.RETURNS_DEEP_STUBS.get());
         when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel));
-        ReadingQualityRecord suspect = mock(ReadingQualityRecord.class);
         when(channel.findReadingQualities()
                 .ofQualitySystem(QualityCodeSystem.MDC)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .actual()
-                .findFirst())
-                .thenReturn(Optional.of(suspect));
+                .anyMatch())
+                .thenReturn(true);
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
         when(this.device.forValidation()).thenReturn(deviceValidation);
         when(this.device.forEstimation()).thenReturn(deviceEstimation);
