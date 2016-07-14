@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -1668,7 +1669,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void store(MeterReading meterReading) {
         Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
-        meter.store(meterReading);
+        meter.store(QualityCodeSystem.MDC, meterReading);
     }
 
     private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
