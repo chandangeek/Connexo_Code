@@ -408,9 +408,9 @@ public class JSonConverter {
     private boolean hasActiveProcess(ComPort comPort){
         ComServerStatus status = statusService.getStatus();
         if (comPort.isInbound()){
-            return status.getInboundComportMonitors().stream().filter(m -> m.isMonitoring(comPort)).findFirst().isPresent();
+            return status.getInboundComportMonitors().stream().anyMatch(m -> m.isMonitoring(comPort));
         }else {
-            return status.getScheduledComportMonitors().stream().filter(m -> m.isMonitoring(comPort)).findFirst().isPresent();
+            return status.getScheduledComportMonitors().stream().anyMatch(m -> m.isMonitoring(comPort));
         }
     }
 
@@ -419,7 +419,7 @@ public class JSonConverter {
     }
 
     private boolean comPortPoolIncludesComPort(ComPortPool pool, ComPort port){
-        return pool.getComPorts().stream().filter(p -> p.getId() == port.getId()).findFirst().isPresent();
+        return pool.getComPorts().stream().anyMatch(p -> p.getId() == port.getId());
     }
 
     private String format(Instant date, DateTimeFormatGenerator.Mode dateFormatMode, DateTimeFormatGenerator.Mode timeFormatMode) {
@@ -467,7 +467,6 @@ public class JSonConverter {
         }
         return builder.toString();
     }
-
 
     private DateTimeFormatter getDateFormatForCurrentUser(DateTimeFormatGenerator.Mode dateFormatMode, DateTimeFormatGenerator.Mode timeFormatMode){
         return DateTimeFormatGenerator.getDateFormatForUser(dateFormatMode, timeFormatMode, userService.getUserPreferencesService(), threadPrincipalService.getPrincipal());
