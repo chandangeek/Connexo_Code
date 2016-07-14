@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.mdm.common.rest.TimeDurationInfo;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -12,6 +13,7 @@ import com.elster.jupiter.time.TimeDuration;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.Optional;
 
 public class OutputInfoFactory {
     private final ValidationStatusFactory validationStatusFactory;
@@ -21,7 +23,7 @@ public class OutputInfoFactory {
         this.validationStatusFactory = validationStatusFactory;
     }
 
-    public OutputInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable) {
+    private OutputInfo mainInfo(ReadingTypeDeliverable readingTypeDeliverable) {
         OutputInfo outputInfo = new OutputInfo();
         TimeDuration timeDuration = null;
         ReadingType readingType = readingTypeDeliverable.getReadingType();
@@ -45,8 +47,20 @@ public class OutputInfoFactory {
         return outputInfo;
     }
 
+    public OutputInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
+        OutputInfo outputInfo = mainInfo(readingTypeDeliverable);
+        Optional<ChannelsContainer> channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract);
+        channelsContainer
+                .flatMap(container -> container.getChannel(readingTypeDeliverable.getReadingType()))
+                .ifPresent(outputChannel -> {
+                    outputInfo.validationInfo = new UsagePointValidationStatusInfo();
+                    outputInfo.validationInfo.hasSuspects = validationStatusFactory.hasSuspects(Collections.singletonList(outputChannel), channelsContainer.get().getRange());
+                });
+        return outputInfo;
+    }
+
     public OutputInfo fullInfo(ReadingTypeDeliverable readingTypeDeliverable, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
-        OutputInfo outputInfo = asInfo(readingTypeDeliverable);
+        OutputInfo outputInfo = mainInfo(readingTypeDeliverable);
         effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
                 .flatMap(container -> container.getChannel(readingTypeDeliverable.getReadingType()))
                 .ifPresent(outputChannel ->

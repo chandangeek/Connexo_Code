@@ -600,14 +600,15 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("mrid") String mRid, @PathParam("id") long id, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration();
+        MetrologyContract metrologyContract = effectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts()
                 .stream()
                 .filter(mc -> mc.getMetrologyPurpose().getId() == id)
                 .findFirst()
                 .get();
         List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
                 .stream()
-                .map(outputInfoFactory::asInfo)
+                .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMetrologyConfiguration.get(), metrologyContract))
                 .sorted(Comparator.comparing(info -> info.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);

@@ -6,6 +6,7 @@ import java.util.Set;
 public class UsagePointValidationStatusInfo {
     public boolean validationActive;
     public boolean allDataValidated;
+    public boolean hasSuspects;
     public Instant lastChecked;
     public Set<ValidationRuleInfoWithNumber> suspectReason;
 }

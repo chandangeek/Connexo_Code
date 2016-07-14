@@ -531,8 +531,12 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testOutputsOfUsagePointPurpose() {
-        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        UsagePointMetrologyConfiguration metrologyConfiguration = this.mockMetrologyConfiguration(1, "1test");
+        when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMetrologyConfiguration.getChannelsContainer(any())).thenReturn(Optional.empty());
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         String json = target("/usagepoints/MRID/purposes/1/outputs").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
@@ -548,6 +552,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testChannelReadingsOfOutput() {
         Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(2, "2test"));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().get(0);
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().get(0);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);

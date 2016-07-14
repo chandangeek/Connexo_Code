@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.metering.Channel;
@@ -55,6 +56,7 @@ public class ValidationStatusFactory {
             info.suspectReason = getSuspectReasonInfo(validationStatuses);
             info.allDataValidated = allDataValidated(validationEvaluator, channelsContainer.get(), validationStatuses);
             info.validationActive = isValidationActive(effectiveMetrologyConfiguration, metrologyContract);
+            info.hasSuspects = hasSuspects(channels, channelsContainer.get().getRange());
         }
         return info;
     }
@@ -121,5 +123,16 @@ public class ValidationStatusFactory {
     private boolean isValidationActive(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
         return metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()
                 && !usagePointConfigurationService.getValidationRuleSets(metrologyContract).isEmpty();
+    }
+
+    public boolean hasSuspects(List<Channel> channels, Range<Instant> range) {
+        return channels.stream()
+                .anyMatch(channel -> channel.findReadingQualities()
+                        .ofQualitySystems(EnumSet.of(QualityCodeSystem.MDM))
+                        .ofQualityIndex(QualityCodeIndex.SUSPECT)
+                        .inTimeInterval(range)
+                        .actual()
+                        .findFirst()
+                        .isPresent());
     }
 }
