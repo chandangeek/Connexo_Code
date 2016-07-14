@@ -74,13 +74,18 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 });
                 me.setGeneralReadingQualities(me.down('#generalReadingQualities'), me.up('deviceLoadProfilesData').loadProfile.get('validationInfo'));
             } else {
-                var mainReadingQualitiesField = me.down('#mainReadingQualities');
+                var mainReadingQualitiesField = me.down('#mainReadingQualities'),
+                    dataLoggerSlaveField = me.down('#mdc-channel-data-preview-data-logger-slave');
+
                 if (mainReadingQualitiesField) {
                     me.setReadingQualities(mainReadingQualitiesField, record.get('mainValidationInfo'));
                 }
                 me.setReadingQualities(me.down('#bulkReadingQualities'), record.get('bulkValidationInfo'));
                 me.setGeneralReadingQualities(me.down('#generalReadingQualities'), record.get('readingQualities'));
                 me.down('#readingDataValidated').setValue(record.get('dataValidated'));
+                if (dataLoggerSlaveField) {
+                    dataLoggerSlaveField.setValue(record.get('slaveChannel'));
+                }
             }
 
             Ext.resumeLayouts(true);
@@ -293,12 +298,13 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             generalItems.push(
                 {
                     fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
-                    renderer: function() {
-                        if (Ext.isEmpty(me.channelRecord.get('slaveChannel'))) {
+                    itemId: 'mdc-channel-data-preview-data-logger-slave',
+                    renderer: function(slaveChannel) {
+                        if (Ext.isEmpty(slaveChannel)) {
                             return '-';
                         }
-                        var slaveMRID = me.channelRecord.get('slaveChannel').mrid,
-                            channelId = me.channelRecord.get('slaveChannel').channelId;
+                        var slaveMRID = slaveChannel.mrid,
+                            channelId = slaveChannel.channelId;
                         return Ext.String.format('<a href="{0}">{1}</a>',
                             me.router.getRoute('devices/device/channels/channeldata').buildUrl(
                                 {

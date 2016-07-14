@@ -123,6 +123,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 menu: {
                     xtype: 'deviceLoadProfileChannelDataActionMenu',
                     itemId: 'channel-data-grid-action-menu'
+                },
+                renderer: function(value, metaData, record) {
+                    this.disabled = !Ext.isEmpty(record.get('slaveChannel'))
                 }
             }
         ];
