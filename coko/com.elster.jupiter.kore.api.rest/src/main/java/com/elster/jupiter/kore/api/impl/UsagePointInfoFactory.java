@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -138,6 +139,11 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 usagePointInfo.detail.id = details.get(details.size() - 1).getRange().lowerEndpoint().toEpochMilli();
             }
         });
+        map.put("connectionState", (usagePointInfo, usagePoint, uriInfo) -> {
+            ConnectionState connectionState = usagePoint.getConnectionState();
+            usagePointInfo.connectionState = new UsagePointConnectionStateInfo();
+            usagePointInfo.connectionState.connectionStateId = connectionState.getId();
+        });
         map.put("meterActivations", (usagePointInfo, usagePoint, uriInfo) -> usagePointInfo.meterActivations = meterActivationInfoFactory
                 .get()
                 .asLink(usagePoint.getMeterActivations(), Relation.REF_RELATION, uriInfo));
@@ -187,9 +193,13 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 .create();
         Instant now = clock.instant();
         if (usagePointInfo.metrologyConfiguration != null && usagePointInfo.metrologyConfiguration.id != null) {
-            UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper
-                    .findUsagePointMetrologyConfigurationById(usagePointInfo.metrologyConfiguration.id);
-            usagePoint.apply(metrologyConfiguration, now);
+            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(usagePointInfo.metrologyConfiguration.id)
+                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                    .map(UsagePointMetrologyConfiguration.class::cast);
+            if (!metrologyConfiguration.isPresent()) {
+                throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION);
+            }
+            usagePoint.apply(metrologyConfiguration.get(), now);
         }
         return usagePoint;
     }
@@ -204,10 +214,19 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         usagePoint.setReadRoute(usagePointInfo.readRoute);
         usagePoint.setServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark);
         usagePoint.setServicePriority(usagePointInfo.servicePriority);
+
+        if (usagePointInfo.connectionState!=null && usagePointInfo.connectionState.startDate != null) {
+            usagePoint.setConnectionState(findConnectionState(usagePointInfo),
+                    Instant.ofEpochMilli(usagePointInfo.connectionState.startDate));
+        } else if (usagePointInfo.connectionState != null && !usagePoint.getConnectionState().getId().equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId)) {
+            usagePoint.setConnectionState(findConnectionState(usagePointInfo));
+        }
+
         usagePoint.update();
         Optional<UsagePointMetrologyConfiguration> metrologyConfigurationOnUsagePoint = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
         Instant now = clock.instant();
+
         if (usagePointInfo.metrologyConfiguration != null && usagePointInfo.metrologyConfiguration.id != null) {
             UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper
                     .findUsagePointMetrologyConfigurationById(usagePointInfo.metrologyConfiguration.id);
@@ -226,5 +245,13 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 usagePoint.removeMetrologyConfiguration(now);
             }
         }
+    }
+
+    private ConnectionState findConnectionState(UsagePointInfo usagePointInfo){
+        return Arrays.stream(ConnectionState.values())
+                .filter(connectionState -> connectionState.getId()
+                        .equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId))
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_STATE));
     }
 }

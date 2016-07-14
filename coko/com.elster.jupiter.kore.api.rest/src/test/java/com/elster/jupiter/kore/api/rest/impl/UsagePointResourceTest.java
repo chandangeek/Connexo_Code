@@ -14,6 +14,7 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 
 import com.jayway.jsonpath.JsonModel;
@@ -144,6 +145,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         Response response = target("/usagepoints/11").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
+
     @Test
     public void testNoUpdateMetrologyWithIdenticalIds() throws Exception {
         UsagePointInfo info = new UsagePointInfo();
@@ -280,7 +282,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
     public void testUsagePointFields() throws Exception {
         Response response = target("/usagepoints").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<List>get("$")).hasSize(19);
+        Assertions.assertThat(model.<List>get("$")).hasSize(20);
         Assertions.assertThat(model.<List<String>>get("$")).containsOnly(
                 "aliasName",
                 "description",
@@ -299,6 +301,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
                 "servicePriority",
                 "version",
                 "serviceKind",
+                "connectionState",
                 "detail"
         );
     }
