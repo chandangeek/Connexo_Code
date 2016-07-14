@@ -2,8 +2,8 @@ package com.elster.jupiter.mdm.usagepoint.data;
 
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
