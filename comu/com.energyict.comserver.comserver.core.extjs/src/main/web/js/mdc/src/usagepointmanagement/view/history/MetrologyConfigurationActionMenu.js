@@ -14,9 +14,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
                 itemId: 'action-menu-item-mc-edit',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.edit', 'MDC', 'Edit'),
-                tooltip: Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Last version only can be modified'),
-
-                // href: me.router.getRoute('usagepoints/view/history/editmetrologyconfigurationversion').buildUrl()
+                tooltip: Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Last version only can be modified')
             },
             {
                 itemId: 'action-menu-item-mc-remove',
@@ -25,13 +23,11 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
                 tooltip: Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Last version only can be removed')
             }
         ];
-
         me.callParent(arguments);
     },
 
     setMenuItems: function(record){
         var me = this;
-
         if(record){
             me.down('#action-menu-item-mc-edit').setDisabled(!record.get('editable'));
             me.down('#action-menu-item-mc-remove').setDisabled(!record.get('editable') || record.get('current'));
