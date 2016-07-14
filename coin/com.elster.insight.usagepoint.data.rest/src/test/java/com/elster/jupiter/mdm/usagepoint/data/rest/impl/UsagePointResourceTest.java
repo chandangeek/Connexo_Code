@@ -28,6 +28,7 @@ import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -63,6 +64,7 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyString;
@@ -111,8 +113,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void setUp1() {
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
-        when(meteringService.findUsagePointLocation("MRID")).thenReturn(Optional.empty());
-        when(meteringService.findUsagePointGeoCoordinates("MRID")).thenReturn(Optional.empty());
 
         when(serviceCategory.newUsagePoint(anyString(), any(Instant.class))).thenReturn(usagePointBuilder);
         when(usagePointBuilder.withIsSdp(anyBoolean())).thenReturn(usagePointBuilder);
@@ -178,6 +178,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(readingRecord1.getTimePeriod()).thenReturn(Optional.of(range1));
         when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(206, 0));
         when(readingRecord2.getTimePeriod()).thenReturn(Optional.of(range2));
+        when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.of(usagePoint));
+        when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
+        when(usagePoint.getLocation()).thenReturn(Optional.empty());
+        when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
     }
 
     @Test
@@ -312,6 +316,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testLinkMetrologyConfigurationToUsagePoint() {
         when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(usagePointMetrologyConfiguration.isActive()).thenReturn(true);
+        when(usagePoint.getMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
+        Instant now = Instant.ofEpochMilli(1462876396000L);
+        when(usagePoint.getInstallationTime()).thenReturn(now);
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
         casInfo.id = 1L;
 
@@ -329,7 +336,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
         response = target("usagepoints/test/metrologyconfiguration").queryParam("validate", "false").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(200);
-        verify(usagePoint, times(1)).apply(usagePointMetrologyConfiguration);
+        verify(usagePoint, times(1)).apply(usagePointMetrologyConfiguration, now);
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import java.util.Optional;
 
@@ -16,11 +16,15 @@ public class CoordinatesInfo {
     }
 
     public CoordinatesInfo(MeteringService meteringService, String mRID) {
-        Optional<GeoCoordinates> geoCoordinates = meteringService.findUsagePointGeoCoordinates(mRID);
-        coordinatesDisplay = geoCoordinates.isPresent() ? geoCoordinates.get().getCoordinates().toString() : null;
-        spatialCoordinates = geoCoordinates.isPresent() ?
-                String.format("%s:%s:%s", geoCoordinates.get().getCoordinates().getLatitude().getValue().toString(),
-                        geoCoordinates.get().getCoordinates().getLongitude().getValue().toString(),
-                        geoCoordinates.get().getCoordinates().getElevation().getValue().toString()) : null;
+        meteringService.findUsagePoint(mRID).ifPresent(usagePoint ->
+        {
+            Optional<SpatialCoordinates> geoCoordinates = usagePoint.getSpatialCoordinates();
+            coordinatesDisplay = geoCoordinates.isPresent() ? geoCoordinates.get().toString() : null;
+            spatialCoordinates = geoCoordinates.isPresent() ?
+                    String.format("%s:%s:%s", geoCoordinates.get().getLatitude().getValue().toString(),
+                            geoCoordinates.get().getLongitude().getValue().toString(),
+                            geoCoordinates.get().getElevation().getValue().toString()) : null;
+        });
     }
+
 }
