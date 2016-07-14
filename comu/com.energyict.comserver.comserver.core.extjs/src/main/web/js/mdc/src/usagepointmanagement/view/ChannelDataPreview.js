@@ -46,6 +46,26 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                                     ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))], false)
                                     : '-';
                             }
+                        },
+                        {
+                            itemId: 'dataValidated-field',
+                            fieldLabel: Uni.I18n.translate('device.registerData.dataValidated', 'MDC', 'Data validated'),
+                            name: 'dataValidated',
+                            renderer: function (value) {
+                                return value
+                                    ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                    : '-';
+                            }
+                        },
+                        {
+                            itemId: 'validationResult-field',
+                            fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
+                            name: 'validationResult',
+                            renderer: function (value) {
+                                return value
+                                    ? value
+                                    : '-';
+                            }
                         }
                     ]
                 }
@@ -67,6 +87,16 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                                     ? value + ' ' + unit
                                     : '-';
                             }
+                        },
+                        {
+                            itemId: 'validationRules-field',
+                            fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
+                            name: 'validationResult',
+                            renderer: function (value) {
+                                return value
+                                    ? value
+                                    : '-';
+                            }
                         }
                     ]
                 }
@@ -84,10 +114,19 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                 [Uni.DateTime.formatDateLong(new Date(interval.end)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
 
         Ext.suspendLayouts();
+        me.down('#validationRules-field').setVisible(!Ext.isEmpty(record.get('validationRules')));
         Ext.Array.each(me.query('form'), function (form) {
             form.setTitle(title);
-            form.loadRecord(record);
+            form.loadRecord(me.prepareDataForDisplay(record));
         });
         Ext.resumeLayouts(true);
+    },
+
+    prepareDataForDisplay: function (record) {
+        record.beginEdit();
+
+        record.endEdit();
+
+        return record;
     }
 });
