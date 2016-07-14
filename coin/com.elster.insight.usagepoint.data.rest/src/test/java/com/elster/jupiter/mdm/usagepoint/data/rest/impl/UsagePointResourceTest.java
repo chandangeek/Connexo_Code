@@ -7,6 +7,7 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.BaseReadingRecord;
@@ -26,6 +27,7 @@ import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -503,13 +505,20 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testUsagePointPurposes() {
-        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(1, "1test"));
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().stream().findFirst().get();
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        UsagePointMetrologyConfiguration metrologyConfiguration = this.mockMetrologyConfiguration(1, "1test");
+        when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMetrologyConfiguration.getChannelsContainer(any())).thenReturn(Optional.empty());
+        Query query = mock(Query.class);
+        when(validationService.findValidationTasksQuery()).thenReturn(query);
+        MetrologyContract metrologyContract = metrologyConfiguration.getContracts().stream().findFirst().get();
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
         when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
-        when(metrologyContract.getStatus(usagePoint).getKey()).thenReturn("INCOMPLETE");
-        when(metrologyContract.getStatus(usagePoint).getName()).thenReturn("Incomplete");
+        when(status.isComplete()).thenReturn(false);
+        when(status.getKey()).thenReturn("INCOMPLETE");
+        when(status.getName()).thenReturn("Incomplete");
         String json = target("/usagepoints/MRID/purposes").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);

@@ -77,6 +77,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -607,6 +608,7 @@ public class UsagePointResource {
         List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
                 .stream()
                 .map(outputInfoFactory::asInfo)
+                .sorted(Comparator.comparing(info -> info.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
     }

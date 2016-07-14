@@ -25,6 +25,7 @@ import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -71,6 +72,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile ServiceCallService serviceCallService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DataAggregationService dataAggregationService;
+    private volatile TimeService timeService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -93,7 +95,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus("VAL", Layer.REST));
     }
 
     @Override
@@ -211,6 +214,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.locationService = locationService;
     }
 
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -235,6 +243,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(issueService).to(IssueService.class);
             bind(bpmService).to(BpmService.class);
+            bind(timeService).to(TimeService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);

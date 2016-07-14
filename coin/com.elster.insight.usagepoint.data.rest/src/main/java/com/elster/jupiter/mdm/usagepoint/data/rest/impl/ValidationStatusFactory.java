@@ -54,7 +54,7 @@ public class ValidationStatusFactory {
             info.lastChecked = getLastCheckedForChannels(validationEvaluator, channelsContainer.get(), channels);
             info.suspectReason = getSuspectReasonInfo(validationStatuses);
             info.allDataValidated = allDataValidated(validationEvaluator, channelsContainer.get(), validationStatuses);
-            info.validationActive = isValidationAcive(effectiveMetrologyConfiguration, metrologyContract);
+            info.validationActive = isValidationActive(effectiveMetrologyConfiguration, metrologyContract);
         }
         return info;
     }
@@ -92,23 +92,23 @@ public class ValidationStatusFactory {
                 });
         return validationRulesCount.entrySet()
                 .stream()
-                .map(this::getShortValidationRuleWithNumberInfo)
+                .map(this::getValidationRuleWithNumberSimpleInfo)
                 .sorted(Comparator.comparing(validationRuleInfo -> validationRuleInfo.key.name))
                 .collect(Collectors.toSet());
     }
 
-    private ValidationRuleInfoWithNumber getShortValidationRuleWithNumberInfo(Map.Entry<ValidationRule, Long> validationRuleWithNumberEntry) {
+    private void addSuspectValidationRule(Map<ValidationRule, Long> validationRulesCount, ValidationRule validationRule) {
+        validationRulesCount.putIfAbsent(validationRule, 0L);
+        validationRulesCount.compute(validationRule, (k, v) -> v + 1);
+    }
+
+    private ValidationRuleInfoWithNumber getValidationRuleWithNumberSimpleInfo(Map.Entry<ValidationRule, Long> validationRuleWithNumberEntry) {
         ValidationRuleInfoWithNumber info = new ValidationRuleInfoWithNumber();
         info.key = new ValidationRuleInfo();
         info.key.id = validationRuleWithNumberEntry.getKey().getId();
         info.key.displayName = validationRuleWithNumberEntry.getKey().getDisplayName();
         info.value = validationRuleWithNumberEntry.getValue();
         return info;
-    }
-
-    private void addSuspectValidationRule(Map<ValidationRule, Long> validationRulesCount, ValidationRule validationRule) {
-        validationRulesCount.putIfAbsent(validationRule, 0L);
-        validationRulesCount.compute(validationRule, (k, v) -> v + 1);
     }
 
     private boolean allDataValidated(ValidationEvaluator validationEvaluator, ChannelsContainer channelsContainer, List<DataValidationStatus> validationStatuses) {
@@ -118,7 +118,7 @@ public class ValidationStatusFactory {
         return validationEvaluator.isAllDataValidated(channelsContainer);
     }
 
-    private boolean isValidationAcive(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
+    private boolean isValidationActive(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
         return metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()
                 && !usagePointConfigurationService.getValidationRuleSets(metrologyContract).isEmpty();
     }
