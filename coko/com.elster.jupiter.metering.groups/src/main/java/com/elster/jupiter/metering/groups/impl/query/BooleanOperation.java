@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.groups.impl.query;
 
-public abstract class BooleanOperation extends AbstractQueryBuilderOperation {
+abstract class BooleanOperation extends AbstractQueryBuilderOperation {
 
     @Override
     public void visit(OperationVisitor visitor) {
@@ -8,4 +8,5 @@ public abstract class BooleanOperation extends AbstractQueryBuilderOperation {
     }
 
     abstract boolean isUnary();
+
 }

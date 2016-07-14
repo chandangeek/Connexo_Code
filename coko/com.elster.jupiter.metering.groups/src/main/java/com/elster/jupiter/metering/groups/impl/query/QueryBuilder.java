@@ -125,14 +125,14 @@ public class QueryBuilder {
         public void visitFragmentExpression(FragmentExpression expression) {
             throw new UnsupportedOperationException("Fragment expressions not supported.");
         }
-        
+
         @Override
         public void visitEffective(Effective effective) {
         	throw new UnsupportedOperationException("Effective expressions not YET supported.");
         }
     }
 
-    void add(QueryBuilderOperation operation) {
+    private void add(QueryBuilderOperation operation) {
         operations.add(operation);
     }
 

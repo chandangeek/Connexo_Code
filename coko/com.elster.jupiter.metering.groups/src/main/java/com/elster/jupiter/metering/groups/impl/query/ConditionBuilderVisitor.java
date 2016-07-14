@@ -1,10 +1,10 @@
 package com.elster.jupiter.metering.groups.impl.query;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-
 import com.elster.jupiter.metering.groups.impl.QueryBuilderOperation;
 import com.elster.jupiter.util.conditions.Condition;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 class ConditionBuilderVisitor implements OperationVisitor {
 
@@ -49,7 +49,8 @@ class ConditionBuilderVisitor implements OperationVisitor {
         }
     }
 
-    public Condition pop() {
+    Condition pop() {
         return (current.isEmpty() ? Condition.TRUE : current.pop());
     }
+
 }

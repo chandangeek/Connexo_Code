@@ -8,12 +8,18 @@ import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EventType;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.DataModel;
+
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_NAME + "}")
-public abstract class AbstractEndDeviceGroup extends AbstractGroup implements EndDeviceGroup {
+abstract class AbstractEndDeviceGroup extends AbstractGroup implements EndDeviceGroup {
+
+    // ORM inheritance map
+    static final Map<String, Class<? extends EndDeviceGroup>> IMPLEMENTERS = ImmutableMap.of(
+            QueryEndDeviceGroup.TYPE_IDENTIFIER, QueryEndDeviceGroupImpl.class,
+            EnumeratedEndDeviceGroup.TYPE_IDENTIFIER, EnumeratedEndDeviceGroupImpl.class);
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -31,7 +37,7 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
 
     @Override
     public boolean isDynamic() {
-        return this instanceof QueryEndDeviceGroup;
+        return false;
     }
 
     @Override
@@ -54,8 +60,4 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
         this.eventService.postEvent(EventType.ENDDEVICEGROUP_VALIDATE_DELETED.topic(), new EndDeviceGroupEventData(this));
     }
 
-    // ORM inheritance map
-    static final Map<String, Class<? extends EndDeviceGroup>> IMPLEMENTERS = ImmutableMap.of(
-            QueryEndDeviceGroup.TYPE_IDENTIFIER, QueryEndDeviceGroupImpl.class,
-            EnumeratedEndDeviceGroup.TYPE_IDENTIFIER, EnumeratedEndDeviceGroupImpl.class);
 }

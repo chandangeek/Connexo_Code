@@ -7,7 +7,7 @@ public final class OpenBracketOperation extends AbstractQueryBuilderOperation {
     public static final OpenBracketOperation OPEN = new OpenBracketOperation();
     public static final String TYPE_IDENTIFIER = "(((";
 
-    public static OpenBracketOperation atPosition(int i) {
+    static OpenBracketOperation atPosition(int i) {
         OpenBracketOperation openBracketOperation = new OpenBracketOperation();
         openBracketOperation.setPosition(i);
         return openBracketOperation;

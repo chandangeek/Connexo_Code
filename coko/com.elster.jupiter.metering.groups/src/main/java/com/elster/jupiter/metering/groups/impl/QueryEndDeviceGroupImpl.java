@@ -27,7 +27,6 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 
 import javax.inject.Inject;
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -62,7 +61,6 @@ class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEnd
     @NotNull
     private String searchDomain;
 
-    @Valid
     private List<QueryEndDeviceGroupCondition> conditions = new ArrayList<>();
 
     private final MeteringGroupsService meteringGroupService;
@@ -77,6 +75,11 @@ class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEnd
         this.searchService = searchService;
         this.endDeviceGroupMemberCountTimer = endDeviceGroupMemberCountTimer;
         this.thesaurus = thesaurus;
+    }
+
+    @Override
+    public boolean isDynamic() {
+        return true;
     }
 
     @Override
@@ -186,17 +189,22 @@ class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEnd
     }
 
     void addQueryEndDeviceGroupCondition(SearchablePropertyValue searchablePropertyValue) {
-        conditions.add(new QueryEndDeviceGroupCondition().init(
-                        this,
-                        searchablePropertyValue.getValueBean().propertyName,
-                        searchablePropertyValue.getValueBean().operator,
-                        searchablePropertyValue.getValueBean().values)
-        );
+        QueryEndDeviceGroupCondition condition =
+            this.getDataModel()
+                .getInstance(QueryEndDeviceGroupCondition.class)
+                .init(
+                    this,
+                    searchablePropertyValue.getValueBean().propertyName,
+                    searchablePropertyValue.getValueBean().operator,
+                    searchablePropertyValue.getValueBean().values);
+        Save.CREATE.validate(this.getDataModel(), condition);
+        this.getDataModel().persist(condition);
+        this.conditions.add(condition);
     }
 
     @Override
     public void setConditions(List<SearchablePropertyValue> conditions) {
-        this.conditions.clear();
+        this.conditions.forEach(QueryEndDeviceGroupCondition::delete);
         conditions.forEach(this::addQueryEndDeviceGroupCondition);
     }
 
@@ -224,4 +232,9 @@ class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEnd
         this.queryProviderName = queryProviderName;
     }
 
+    @Override
+    public void delete() {
+        this.conditions.forEach(QueryEndDeviceGroupCondition::delete);
+        super.delete();
+    }
 }

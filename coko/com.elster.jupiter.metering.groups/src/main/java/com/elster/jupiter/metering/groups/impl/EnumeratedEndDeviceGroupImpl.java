@@ -25,7 +25,6 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.time.ExecutionTimer;
 import com.elster.jupiter.util.time.Interval;
 
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 
@@ -67,14 +66,14 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
 
     private List<EntryImpl> doGetEntries() {
         if (entries == null) {
-            List<Entry> entryList = getDataModel().mapper(Entry.class).find("endDeviceGroup", this);
-            entries = new ArrayList<>(entryList.size());
-            for (Entry entry : entryList) {
-                entries.add((EntryImpl) entry);
-            }
+            this.entries = new ArrayList<>(this.loadEntries()); // Take a copy of the List
             buildMemberships();
         }
         return entries;
+    }
+
+    private List<EntryImpl> loadEntries() {
+        return getDataModel().mapper(EntryImpl.class).find("endDeviceGroup", this);
     }
 
     private void buildMemberships() {
@@ -88,7 +87,6 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
             EndDeviceMembershipImpl membership = map.get(entry.getEndDevice());
             membership.addRange(entry.getRange());
         }
-
     }
 
     private List<EndDeviceMembershipImpl> getMemberships() {
@@ -96,67 +94,6 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
             getEntries();
         }
         return memberships;
-    }
-
-    static class EntryImpl implements Entry {
-
-        private Reference<EnumeratedEndDeviceGroup> endDeviceGroup = ValueReference.absent();
-        private Reference<EndDevice> endDevice = ValueReference.absent();
-        private Interval interval;
-
-        EntryImpl init(EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Range<Instant> range) {
-            setEndDeviceGroup(endDeviceGroup);
-            setEndDevice(endDevice);
-            this.interval = Interval.of(Effectivity.requireValid(range));
-            return this;
-        }
-
-        static EntryImpl from(DataModel dataModel, EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Range<Instant> range) {
-            return dataModel.getInstance(EntryImpl.class).init(endDeviceGroup, endDevice, range);
-        }
-
-        public void setEndDevice(EndDevice endDevice) {
-            this.endDevice.set(endDevice);
-        }
-
-        public void setEndDeviceGroup(EnumeratedEndDeviceGroup endDeviceGroup) {
-            this.endDeviceGroup.set(endDeviceGroup);
-        }
-
-        @Override
-        public Interval getInterval() {
-            return interval;
-        }
-
-        @Override
-        public EndDevice getEndDevice() {
-            return endDevice.get();
-        }
-
-        public EnumeratedEndDeviceGroup getEndDeviceGroup() {
-            return endDeviceGroup.get();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            EntryImpl entry = (EntryImpl) o;
-
-            return endDeviceGroup.get().getId() == entry.endDeviceGroup.get().getId()
-                    && endDevice.get().getId() == entry.endDevice.get().getId()
-                    && Objects.equals(interval.getStart(), entry.interval.getStart());
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(endDeviceGroup.get().getId(), endDevice.get().getId(), interval.getStart());
-        }
     }
 
     @Override
@@ -208,9 +145,22 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
                 entryDiff.add(EntryImpl.from(getDataModel(), this, membership.getEndDevice(), range));
             }
         }
-        entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
-        entryFactory().update(FluentIterable.from(entryDiff.getRemaining()).toList());
-        entryFactory().persist(FluentIterable.from(entryDiff.getAdditions()).toList());
+        entryFactory().remove(entryDiff.getRemovals().stream().collect(Collectors.toList()));
+        entryFactory().update(entryDiff.getRemaining().stream().collect(Collectors.toList()));
+        entryFactory().persist(entryDiff.getAdditions().stream().collect(Collectors.toList()));
+    }
+
+    @Override
+    public void delete() {
+        List<EntryImpl> entries;
+        if (this.entries == null) {
+            entries = this.loadEntries();
+        } else {
+            entries = this.entries;
+        }
+        entries.forEach(EntryImpl::delete);
+        this.entries.clear();
+        super.delete();
     }
 
     private DataMapper<Entry> entryFactory() {
@@ -299,6 +249,81 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
                 .filter(With.endDevice(endDevice))
                 .findFirst()
                 .orElse(null);
+    }
+
+    static class EntryImpl implements Entry {
+
+        private final DataModel dataModel;
+        private Reference<EnumeratedEndDeviceGroup> endDeviceGroup = ValueReference.absent();
+        private Reference<EndDevice> endDevice = ValueReference.absent();
+        private Interval interval;
+        @SuppressWarnings("unused") // Managed by ORM
+        private Instant createTime;
+        @SuppressWarnings("unused") // Managed by ORM
+        private String userName;
+
+        @Inject
+        EntryImpl(DataModel dataModel) {
+            this.dataModel = dataModel;
+        }
+
+        EntryImpl init(EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Range<Instant> range) {
+            setEndDeviceGroup(endDeviceGroup);
+            setEndDevice(endDevice);
+            this.interval = Interval.of(Effectivity.requireValid(range));
+            return this;
+        }
+
+        static EntryImpl from(DataModel dataModel, EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Range<Instant> range) {
+            return dataModel.getInstance(EntryImpl.class).init(endDeviceGroup, endDevice, range);
+        }
+
+        public void setEndDevice(EndDevice endDevice) {
+            this.endDevice.set(endDevice);
+        }
+
+        public void setEndDeviceGroup(EnumeratedEndDeviceGroup endDeviceGroup) {
+            this.endDeviceGroup.set(endDeviceGroup);
+        }
+
+        @Override
+        public Interval getInterval() {
+            return interval;
+        }
+
+        @Override
+        public EndDevice getEndDevice() {
+            return endDevice.get();
+        }
+
+        public EnumeratedEndDeviceGroup getEndDeviceGroup() {
+            return endDeviceGroup.get();
+        }
+
+        void delete() {
+            this.dataModel.remove(this);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            EntryImpl entry = (EntryImpl) o;
+
+            return endDeviceGroup.get().getId() == entry.endDeviceGroup.get().getId()
+                    && endDevice.get().getId() == entry.endDevice.get().getId()
+                    && Objects.equals(interval.getStart(), entry.interval.getStart());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(endDeviceGroup.get().getId(), endDevice.get().getId(), interval.getStart());
+        }
     }
 
     private abstract static class Active implements Predicate<EndDeviceMembershipImpl> {

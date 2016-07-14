@@ -7,8 +7,9 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 
-public class QueryEndDeviceGroupConditionValue {
+class QueryEndDeviceGroupConditionValue {
     enum Fields {
         DEVICE_GROUP_CONDITION("deviceGroupCondition"),
         VALUE("value"),
@@ -32,6 +33,14 @@ public class QueryEndDeviceGroupConditionValue {
 
     @SuppressWarnings("unused")
     private int position;
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     QueryEndDeviceGroupConditionValue() {
     }
@@ -45,4 +54,5 @@ public class QueryEndDeviceGroupConditionValue {
     public String getValue() {
         return value;
     }
+
 }

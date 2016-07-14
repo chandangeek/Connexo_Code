@@ -7,7 +7,7 @@ public class OrOperation extends BooleanOperation {
     public static final OrOperation OR = new OrOperation();
     public static final String TYPE_IDENTIFIER = "IOR";
 
-    public static OrOperation atPosition(int i) {
+    static OrOperation atPosition(int i) {
         OrOperation orOperation = new OrOperation();
         orOperation.setPosition(i);
         return orOperation;

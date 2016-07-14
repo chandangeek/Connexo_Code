@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -8,9 +9,11 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 
+import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +38,8 @@ class QueryEndDeviceGroupCondition {
         }
     }
 
+    private final DataModel dataModel;
+
     @IsPresent
     private Reference<QueryEndDeviceGroup> endDeviceGroup = ValueReference.absent();
     @NotNull
@@ -44,8 +49,18 @@ class QueryEndDeviceGroupCondition {
     private SearchablePropertyOperator operator;
     @Valid
     private List<QueryEndDeviceGroupConditionValue> conditionValues = new ArrayList<>();
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
-    QueryEndDeviceGroupCondition() {
+    @Inject
+    QueryEndDeviceGroupCondition(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
     QueryEndDeviceGroupCondition init(QueryEndDeviceGroup queryEndDeviceGroup, String searchableProperty, SearchablePropertyOperator searchablePropertyOperator, List<String> values) {
@@ -81,6 +96,11 @@ class QueryEndDeviceGroupCondition {
 
     List<QueryEndDeviceGroupConditionValue> getConditionValues() {
         return Collections.unmodifiableList(conditionValues);
+    }
+
+    void delete() {
+        this.conditionValues.clear();
+        this.dataModel.remove(this);
     }
 
 }

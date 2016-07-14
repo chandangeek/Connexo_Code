@@ -6,12 +6,15 @@ import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchablePropertyValue;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 class EndDeviceGroupBuilderImpl implements EndDeviceGroupBuilder {
@@ -107,14 +110,16 @@ class EndDeviceGroupBuilderImpl implements EndDeviceGroupBuilder {
 
     private class QueryEndDeviceGroupBuilderImpl implements QueryEndDeviceGroupBuilder {
 
-        private QueryEndDeviceGroupImpl underConstruction = queryProvider.get();
+        private final QueryEndDeviceGroupImpl underConstruction = queryProvider.get();
+        private final List<SearchablePropertyValue> conditions = new ArrayList<>();
 
         @Override
         public QueryEndDeviceGroup create() {
             if (built) {
                 throw new IllegalStateException();
             }
-            underConstruction.save();
+            this.underConstruction.save();
+            this.conditions.forEach(this.underConstruction::addQueryEndDeviceGroupCondition);
             try {
                 return underConstruction;
             } finally {
@@ -124,7 +129,7 @@ class EndDeviceGroupBuilderImpl implements EndDeviceGroupBuilder {
 
         @Override
         public QueryEndDeviceGroupBuilder withConditions(SearchablePropertyValue... conditions) {
-            Stream.of(conditions).forEach(underConstruction::addQueryEndDeviceGroupCondition);
+            Stream.of(conditions).forEach(this.conditions::add);
             return this;
         }
 

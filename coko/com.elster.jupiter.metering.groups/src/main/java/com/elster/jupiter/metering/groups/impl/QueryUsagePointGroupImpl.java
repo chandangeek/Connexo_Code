@@ -33,6 +33,11 @@ class QueryUsagePointGroupImpl extends AbstractUsagePointGroup implements QueryU
     }
 
     @Override
+    public boolean isDynamic() {
+        return true;
+    }
+
+    @Override
     public List<UsagePoint> getMembers(Instant instant) {
         return meteringService.getUsagePointQuery().select(getCondition());
     }

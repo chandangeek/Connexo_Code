@@ -24,10 +24,10 @@ import static com.elster.jupiter.orm.ColumnConversion.CHAR2JSON;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
-import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     MTG_UP_GROUP {
@@ -54,9 +54,25 @@ public enum TableSpecs {
             Column groupColumn = table.column("GROUP_ID").number().notNull().conversion(NUMBER2LONG).map("groupId").add();
             Column usagePointColumn = table.column("USAGEPOINT_ID").number().notNull().conversion(NUMBER2LONG).map("usagePointId").add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
-            table.primaryKey("MTG_PK_ENUM_UP_GROUP_ENTRY").on(groupColumn, usagePointColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTG_FK_UPGE_UPG").references(MTG_UP_GROUP.name()).onDelete(CASCADE).map("usagePointGroup").on(groupColumn).add();
-            table.foreignKey("MTG_FK_UPGE_UP").references(UsagePoint.class).onDelete(RESTRICT).map("usagePoint").on(usagePointColumn).add();
+            table.setJournalTableName("MTG_ENUM_UP_IN_GROUPJRNL").since(version(10, 2));
+            table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 2));
+            table.addUserNameColumn("USERNAME", "userName").since(version(10, 2));
+            table
+                .primaryKey("MTG_PK_ENUM_UP_GROUP_ENTRY")
+                .on(groupColumn, usagePointColumn, intervalColumns.get(0))
+                .add();
+            table
+                .foreignKey("MTG_FK_UPGE_UPG")
+                .references(MTG_UP_GROUP.name())
+                .map("usagePointGroup")
+                .on(groupColumn).add();
+            table
+                .foreignKey("MTG_FK_UPGE_UP")
+                .references(UsagePoint.class)
+                .onDelete(RESTRICT)
+                .map("usagePoint")
+                .on(usagePointColumn)
+                .add();
         }
     },
     MTG_QUERY_UP_GROUP_OP {
@@ -70,10 +86,20 @@ public enum TableSpecs {
             table.column("OPERATOR").number().conversion(NUMBER2ENUM).map("operator").add();
             table.column("FIELDNAME").varChar(NAME_LENGTH).map("fieldName").add();
             table.column("BINDVALUES").varChar(SHORT_DESCRIPTION_LENGTH).conversion(CHAR2JSON).map("values").add();
-
-            table.primaryKey("MTG_PK_QUPGOP").on(groupColumn, positionColumn).add();
-            table.foreignKey("MTG_FK_QUPG_QUPGOP").references(MTG_UP_GROUP.name()).onDelete(CASCADE).map("group").reverseMap("operations").reverseMapOrder("position").on(groupColumn).add();
-
+            table.setJournalTableName("MTG_QUERY_UP_GROUP_OPJRNL").since(version(10, 2));
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
+            table
+                .primaryKey("MTG_PK_QUPGOP")
+                .on(groupColumn, positionColumn)
+                .add();
+            table
+                .foreignKey("MTG_FK_QUPG_QUPGOP")
+                .references(MTG_UP_GROUP.name())
+                .map("group")
+                .reverseMap("operations")
+                .reverseMapOrder("position")
+                .on(groupColumn)
+                .add();
         }
     },
     MTG_ED_GROUP {
@@ -103,9 +129,23 @@ public enum TableSpecs {
             Column groupColumn = table.column("GROUP_ID").number().notNull().conversion(NUMBER2LONG).add();
             Column endDeviceColumn = table.column("ENDDEVICE_ID").number().notNull().conversion(NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
+            table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 2));
+            table.addUserNameColumn("USERNAME", "userName").since(version(10, 2));
+            table.setJournalTableName("MTG_ENUM_ED_IN_GROUPJRNL").since(version(10, 2));
             table.primaryKey("MTG_PK_ENUM_ED_GROUP_ENTRY").on(groupColumn, endDeviceColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTG_FK_EDGE_EDG").references(MTG_ED_GROUP.name()).onDelete(CASCADE).map("endDeviceGroup").on(groupColumn).add();
-            table.foreignKey("MTG_FK_EDGE_ED").references(EndDevice.class).onDelete(RESTRICT).map("endDevice").on(endDeviceColumn).add();
+            table
+                .foreignKey("MTG_FK_EDGE_EDG")
+                .references(MTG_ED_GROUP.name())
+                .map("endDeviceGroup")
+                .on(groupColumn)
+                .add();
+            table
+                .foreignKey("MTG_FK_EDGE_ED")
+                .references(EndDevice.class)
+                .onDelete(RESTRICT)
+                .map("endDevice")
+                .on(endDeviceColumn)
+                .add();
         }
     },
     MTG_QUERY_EDG_CONDITION {
@@ -116,14 +156,14 @@ public enum TableSpecs {
             Column groupColumn = table.column("ENDDEVICEGROUP").number().notNull().add();
             Column searchablePropertyColumn = table.column("PROPERTY").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().map(QueryEndDeviceGroupCondition.Fields.SEARCHABLE_PROPERTY.fieldName()).add();
             table.column("OPERATOR").number().notNull().conversion(NUMBER2ENUM).map(QueryEndDeviceGroupCondition.Fields.OPERATOR.fieldName()).add();
-
+            table.setJournalTableName("MTG_QUERY_EDG_CONDITIONJRNL").since(version(10, 2));
+            table.addAuditColumns().forEach(column -> column.since(version(20, 2)));
             table.primaryKey("MTG_PK_QUERY_EDG_CONDITION").on(groupColumn, searchablePropertyColumn).add();
             table.foreignKey("MTG_FK_QUERY_EDG_COND2GROUP")
                     .on(groupColumn)
                     .references(MTG_ED_GROUP.name())
                     .map(QueryEndDeviceGroupCondition.Fields.GROUP.fieldName())
-                    .reverseMap(QueryEndDeviceGroupImpl.Fields.CONDITIONS.fieldName()).composition()
-                    .onDelete(CASCADE)
+                    .reverseMap(QueryEndDeviceGroupImpl.Fields.CONDITIONS.fieldName())
                     .add();
         }
     },
@@ -136,15 +176,15 @@ public enum TableSpecs {
             Column searchablePropertyColumn = table.column("PROPERTY").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().add();
             Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map(QueryEndDeviceGroupConditionValue.Fields.POSITION.fieldName()).add();
             table.column("VALUE").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().map(QueryEndDeviceGroupConditionValue.Fields.VALUE.fieldName()).add();
-
-                    table.primaryKey("MTG_PK_QUERY_EDG_COND_VALUE").on(groupColumn, searchablePropertyColumn, positionColumn).add();
+            table.setJournalTableName("MTG_QUERY_EDG_COND_VALUEJRNL").since(version(10, 2));
+            table.addAuditColumns().forEach(column -> column.since(version(20, 2)));
+            table.primaryKey("MTG_PK_QUERY_EDG_COND_VALUE").on(groupColumn, searchablePropertyColumn, positionColumn).add();
             table.foreignKey("MTG_FK_QUERY_EDG_VALUE2COND")
                     .on(groupColumn, searchablePropertyColumn)
                     .references(MTG_QUERY_EDG_CONDITION.name())
                     .map(QueryEndDeviceGroupConditionValue.Fields.DEVICE_GROUP_CONDITION.fieldName())
                     .reverseMap(QueryEndDeviceGroupCondition.Fields.CONDITION_VALUES.fieldName()).composition()
                     .reverseMapOrder(QueryEndDeviceGroupConditionValue.Fields.POSITION.fieldName())
-                    .onDelete(CASCADE)
                     .add();
         }
     }

@@ -4,10 +4,9 @@ import com.elster.jupiter.util.conditions.Condition;
 
 public class CloseBracketOperation extends AbstractQueryBuilderOperation {
 
-    public static final CloseBracketOperation CLOSE = new CloseBracketOperation();
     public static final String TYPE_IDENTIFIER = ")))";
 
-    public static CloseBracketOperation atPosition(int i) {
+    static CloseBracketOperation atPosition(int i) {
         CloseBracketOperation closeBracketOperation = new CloseBracketOperation();
         closeBracketOperation.setPosition(i);
         return closeBracketOperation;

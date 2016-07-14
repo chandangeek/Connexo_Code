@@ -10,7 +10,7 @@ public final class NotOperation extends BooleanOperation {
     public static final NotOperation NOT = new NotOperation();
     public static final String TYPE_IDENTIFIER = "NOT";
 
-    public static NotOperation atPosition(int i) {
+    static NotOperation atPosition(int i) {
         NotOperation notOperation = new NotOperation();
         notOperation.setPosition(i);
         return notOperation;

@@ -8,8 +8,9 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
 
-public class AbstractGroup {
+abstract class AbstractGroup {
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     @Size(max= Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
@@ -20,9 +21,13 @@ public class AbstractGroup {
     private String type;
 
     //audit columns
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     public String getAliasName() {

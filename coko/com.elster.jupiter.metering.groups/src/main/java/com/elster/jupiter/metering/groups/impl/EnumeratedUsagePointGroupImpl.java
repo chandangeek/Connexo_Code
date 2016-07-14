@@ -79,6 +79,10 @@ class EnumeratedUsagePointGroupImpl extends AbstractUsagePointGroup implements E
         private transient UsagePoint usagePoint;
         private Interval interval;
         private long usagePointId;
+        @SuppressWarnings("unused") // Managed by ORM
+        private Instant createTime;
+        @SuppressWarnings("unused") // Managed by ORM
+        private String userName;
 
         private final DataModel dataModel;
         private final MeteringService meteringService;
