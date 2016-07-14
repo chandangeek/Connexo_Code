@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -68,8 +69,8 @@ public class MeterReadingStorer {
         this.deviceEventFactory = deviceEventFactory;
     }
 
-    void store() {
-    	getReadingTypes();
+    void store(QualityCodeSystem system) {
+        getReadingTypes();
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         if (meterActivations.isEmpty()) {
             createDefaultMeterActivation();
@@ -79,15 +80,14 @@ public class MeterReadingStorer {
         removeOldReadingQualities();
         storeReadingQualities();
         storeEvents(facade.getMeterReading().getEvents());
-        readingStorer.execute();
+        readingStorer.execute(system);
         eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getRange().lowerEndpoint().toEpochMilli(), facade.getRange().upperEndpoint().toEpochMilli()));
     }
 
     private void getReadingTypes() {
-    	facade.readingTypeCodes().forEach(this::findOrCreateReadingType);
+        facade.readingTypeCodes().forEach(this::findOrCreateReadingType);
     }
-    
-    
+
     private void removeOldReadingQualities() {
         Range<Instant> range = facade.getRange();
         if (range != null) {
@@ -103,7 +103,6 @@ public class MeterReadingStorer {
                     .forEach(ReadingQualityRecordImpl::notifyDeleted);
         }
     }
-
 
     private boolean isRelevant(ReadingQualityRecord readingQuality) {
         Map<Instant, BaseReading> readingMap = channelReadings.get(readingQuality.getChannel());
@@ -237,10 +236,10 @@ public class MeterReadingStorer {
     }
 
     private void store(IntervalReading reading, String readingTypeCode) {
-    	ReadingType readingType = Objects.requireNonNull(readingTypes.get(readingTypeCode));
-    	if (!readingType.isRegular()) {
-    		throw new IllegalArgumentException(readingTypeCode + " is not valid for interval readings ");
-    	}
+        ReadingType readingType = Objects.requireNonNull(readingTypes.get(readingTypeCode));
+        if (!readingType.isRegular()) {
+            throw new IllegalArgumentException(readingTypeCode + " is not valid for interval readings ");
+        }
         Channel channel = findOrCreateChannel(reading, readingType);
         if (channel != null) {
             readingStorer.addReading(channel.getCimChannel(readingType).get(), reading);
@@ -249,22 +248,22 @@ public class MeterReadingStorer {
     }
 
     private void findOrCreateReadingType(String code) {
-    	readingTypes.put(code, doFindOrCreateReadingType(code));
+        readingTypes.put(code, doFindOrCreateReadingType(code));
     }
-    
+
     private ReadingType doFindOrCreateReadingType(String code) {
         Optional<ReadingType> readingTypeHolder = dataModel.mapper(ReadingType.class).getOptional(code);
         if (readingTypeHolder.isPresent()) {
             return readingTypeHolder.get();
         } else {
-        	try {
-        		ReadingType readingType = meteringService.createReadingType(code, "");
-        		MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
-        		return readingType;
-        	} catch (UnderlyingSQLFailedException e) {
-        		// maybe some other thread beat us in the race, if not rethrow exception
-        		return dataModel.mapper(ReadingType.class).getOptional(code).orElseThrow(() -> e);
-        	}
+            try {
+                ReadingType readingType = meteringService.createReadingType(code, "");
+                MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
+                return readingType;
+            } catch (UnderlyingSQLFailedException e) {
+                // maybe some other thread beat us in the race, if not rethrow exception
+                return dataModel.mapper(ReadingType.class).getOptional(code).orElseThrow(() -> e);
+            }
         }
     }
 
@@ -344,4 +343,3 @@ public class MeterReadingStorer {
         return newReadingQuality;
     }
 }
-

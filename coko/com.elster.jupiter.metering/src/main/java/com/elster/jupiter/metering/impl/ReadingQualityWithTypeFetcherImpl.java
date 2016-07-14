@@ -3,11 +3,11 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.metering.ReadingQualityFilter;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityIndexFilter;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityTypeFilter;
-import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 
 import com.google.common.collect.Range;
 
@@ -17,20 +17,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
+class ReadingQualityWithTypeFetcherImpl implements ReadingQualityWithTypeFetcher {
     private static final String ANY_INDEX = "\\d+\\.\\d+";
     private String systemsRegexp = "";
     private String indicesRegexp = "";
     private String compoundIndicesRegexp = "";
     private String readingQualityTypeRegexp = "^(";
-    private ReadingQualityFilterImpl filter;
+    private ReadingQualityFetcherImpl filter;
 
-    ReadingQualityWithTypeFilterImpl(ReadingQualityFilterImpl filter) {
+    ReadingQualityWithTypeFetcherImpl(ReadingQualityFetcherImpl filter) {
         this.filter = filter;
     }
 
     @Override
-    public ReadingQualityWithTypeFilter ofQualitySystems(Set<QualityCodeSystem> systems) {
+    public ReadingQualityWithTypeFetcher ofQualitySystems(Set<QualityCodeSystem> systems) {
         this.systemsRegexp = systems.stream()
                 .map(system -> Integer.toString(system.ordinal()))
                 .collect(Collectors.joining("|"));
@@ -38,7 +38,7 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
     }
 
     @Override
-    public ReadingQualityWithTypeFilter ofQualityIndices(Set<QualityCodeIndex> indices) {
+    public ReadingQualityWithTypeFetcher ofQualityIndices(Set<QualityCodeIndex> indices) {
         this.indicesRegexp = indices.stream()
                 .map(index -> Integer.toString(index.category().ordinal()) + "\\." + Integer.toString(index.index()))
                 .collect(Collectors.joining("|"));
@@ -46,7 +46,7 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
     }
 
     @Override
-    public ReadingQualityWithTypeFilter ofQualityIndices(QualityCodeCategory category, Set<Integer> indices) {
+    public ReadingQualityWithTypeFetcher ofQualityIndices(QualityCodeCategory category, Set<Integer> indices) {
         this.indicesRegexp = Integer.toString(category.ordinal()) + "\\." +
                 (indices.isEmpty() ? "\\d+" : "(" + indices.stream()
                 .map(index -> Integer.toString(index))
@@ -55,7 +55,7 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
     }
 
     @Override
-    public ReadingQualityWithTypeFilter ofAnyQualityIndexInCategories(Set<QualityCodeCategory> categories) {
+    public ReadingQualityWithTypeFetcher ofAnyQualityIndexInCategories(Set<QualityCodeCategory> categories) {
         this.indicesRegexp = categories.stream()
                 .map(category -> Integer.toString(category.ordinal()) + "\\.\\d+")
                 .collect(Collectors.joining("|"));
@@ -63,25 +63,25 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
     }
 
     @Override
-    public ReadingQualityWithTypeFilter ofQualitySystem(QualityCodeSystem system) {
+    public ReadingQualityWithTypeFetcher ofQualitySystem(QualityCodeSystem system) {
         this.systemsRegexp = Integer.toString(system.ordinal());
         return this;
     }
 
     @Override
-    public ReadingQualityWithTypeFilter ofQualityIndex(QualityCodeIndex index) {
+    public ReadingQualityWithTypeFetcher ofQualityIndex(QualityCodeIndex index) {
         this.indicesRegexp = Integer.toString(index.category().ordinal()) + "\\." + Integer.toString(index.index());
         return this;
     }
 
     @Override
-    public ReadingQualityWithTypeFilter ofQualityIndex(QualityCodeCategory category, int index) {
+    public ReadingQualityWithTypeFetcher ofQualityIndex(QualityCodeCategory category, int index) {
         this.indicesRegexp = Integer.toString(category.ordinal()) + "\\." + Integer.toString(index);
         return this;
     }
 
     @Override
-    public ReadingQualityWithTypeFilter ofAnyQualityIndexInCategory(QualityCodeCategory category) {
+    public ReadingQualityWithTypeFetcher ofAnyQualityIndexInCategory(QualityCodeCategory category) {
         this.indicesRegexp = Integer.toString(category.ordinal()) + "\\.\\d+";
         return this;
     }
@@ -103,25 +103,25 @@ class ReadingQualityWithTypeFilterImpl implements ReadingQualityWithTypeFilter {
     }
 
     @Override
-    public ReadingQualityFilter inTimeInterval(Range<Instant> interval) {
+    public ReadingQualityFetcher inTimeInterval(Range<Instant> interval) {
         filter.inTimeInterval(interval);
         return this;
     }
 
     @Override
-    public ReadingQualityFilter atTimestamp(Instant timestamp) {
+    public ReadingQualityFetcher atTimestamp(Instant timestamp) {
         filter.atTimestamp(timestamp);
         return this;
     }
 
     @Override
-    public ReadingQualityFilter actual() {
+    public ReadingQualityFetcher actual() {
         filter.actual();
         return this;
     }
 
     @Override
-    public ReadingQualityFilter sorted() {
+    public ReadingQualityFetcher sorted() {
         filter.sorted();
         return this;
     }
