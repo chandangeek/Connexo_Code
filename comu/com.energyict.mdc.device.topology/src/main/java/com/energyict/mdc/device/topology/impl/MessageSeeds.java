@@ -31,7 +31,7 @@ public enum MessageSeeds implements MessageSeed {
     DATA_LOGGER_LINK_EXCEPTION_NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X(1006, DataLoggerLinkException.NO_PHYSICAL_CHANNEL_FOR_READING_TYPE_X, "No physical channel found for reading type {0}"),
     DATA_LOGGER_LINK_INVALID_TERMINATION_DATE(1007, Keys.INVALID_TERMINATION_DATE, "You can not unlink a slave before it's linking date"),
     DATA_LOGGER_SLAVE_NOT_LINKED_AT(1008, Keys.DATA_LOGGER_SLAVE_NOT_LINKED_AT, "Slave {0} is not linked at {1}"),
-    DATA_LOGGER_UNIQUE_KEY_VIOLATION(1009, Keys.DATA_LOGGER_UNIQUE_KEY_VIOLATION, "You have already linked this slave ''{0}'' to this datalogger ''{1}'' at this timestamp ''{2}'', please select another link time"),
+    DATA_LOGGER_UNIQUE_KEY_VIOLATION(1009, Keys.DATA_LOGGER_UNIQUE_KEY_VIOLATION, "You have already linked this slave ''{0}'' to this datalogger ''{1}'' at this timestamp ''{2}''. Please select another linking date"),
     DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED(1010, Keys.DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED, "The slave ''{0}'' was already linked to a datalogger ''{1}'' at the given timestamp ''{2}''"),
     ;
 
