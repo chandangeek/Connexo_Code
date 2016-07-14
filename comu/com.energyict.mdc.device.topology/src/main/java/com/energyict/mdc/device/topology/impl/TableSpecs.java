@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.topology.impl;
 
-import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.topology.CommunicationPathSegment;
-import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
-import com.energyict.mdc.device.topology.PLCNeighbor;
-
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.topology.CommunicationPathSegment;
+import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
+import com.energyict.mdc.device.topology.PLCNeighbor;
 
 import java.util.List;
 
@@ -37,13 +36,13 @@ public enum TableSpecs {
             table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_PHYSGATEWAYREF_ORIGIN").
                     on(originId).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).
                     add();
             table.foreignKey("FK_DTL_PHYSGATEWAYREF_GATEWAY").
                     on(physicalGatewayId).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(PhysicalGatewayReferenceImpl.Field.GATEWAY.fieldName()).
                     add();
@@ -66,19 +65,19 @@ public enum TableSpecs {
             table.primaryKey("PK_DTL_COMPATHSEGMENT").on(source, target, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_COMPATHSEGMENT_SRC").
                     on(source).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(CommunicationPathSegmentImpl.Field.SOURCE.fieldName()).
                     add();
             table.foreignKey("FK_DTL_COMPATHSEGMENT_TARGET").
                     on(target).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(CommunicationPathSegmentImpl.Field.TARGET.fieldName()).
                     add();
             table.foreignKey("FK_DTL_COMPATHSEGMENT_NEXTHOP").
                     on(nextHop).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(CommunicationPathSegmentImpl.Field.NEXT_HOP.fieldName()).
                     add();
@@ -108,13 +107,13 @@ public enum TableSpecs {
             table.primaryKey("PK_DTL_PLCNEIGHBOR").on(device, neighbor, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_PLCNEIGHBOR_DEV").
                     on(device).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(PLCNeighborImpl.Field.DEVICE.fieldName()).
                     add();
             table.foreignKey("FK_DTL_PLCNEIGHBOR_NEIGHBOR").
                     on(neighbor).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(PLCNeighborImpl.Field.NEIGHBOR.fieldName()).
                     add();
@@ -135,7 +134,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DTL_G3ADDRESSINFO").on(device, intervalColumns.get(0)).add();
             table.foreignKey("FK_DTL_G3ADDRESSINFO_DEVICE").
                     on(device).
-                    references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").
+                    references(Device.class).
                     onDelete(CASCADE).
                     map(G3DeviceAddressInformationImpl.Field.DEVICE.fieldName()).
                     add();
