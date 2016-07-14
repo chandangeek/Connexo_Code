@@ -135,4 +135,29 @@ public class UsagePointResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
     }
+
+    @GET
+    @Transactional
+    @Path("/{mRID}/channels/{channelid}/data/{epochMillis}/validation")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
+    public ChannelDataInfo getChannelDataReading(
+            @PathParam("mRID") String mRID,
+            @PathParam("channelid") long channelId,
+            @PathParam("epochMillis") long epochMillis,
+            @BeanParam JsonQueryFilter filter,
+            @BeanParam JsonQueryParameters queryParameters) {
+
+        Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(mRID, channelId);
+
+        Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis - 1), Instant.ofEpochMilli(epochMillis));
+        List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(range);
+
+        List<DataValidationStatus> validationStatuses = validationService.getEvaluator()
+                .getValidationStatus(Collections.singleton(QualityCodeSystem.MDC), channel, intervalReadings, range);
+
+        return intervalReadings.stream()
+                .map(intervalReading -> channelDataInfoFactory.createChannelDataInfo(intervalReading, validationStatuses, true))
+                .findFirst().orElse(null);
+    }
 }
