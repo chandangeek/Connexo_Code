@@ -609,30 +609,33 @@ public enum TableSpecs {
             table.column("PRIORITY").number().notNull().conversion(NUMBER2INT).map(ComTaskEnablementImpl.Fields.PRIORITY.fieldName()).add();
             Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add();
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
-            table.foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT").
-                    on(partialConnectionTask).
-                    references(DTC_PARTIALCONNECTIONTASK.name()).
-                    map(ComTaskEnablementImpl.Fields.PARTIAL_CONNECTION_TASK.fieldName()).add();
-            table.foreignKey("FK_DTC_COMTASKENABLMNT_SECURPS").
-                    on(securityPropertySet).
-                    references(DTC_SECURITYPROPERTYSET.name()).
-                    map(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName()).add();
-            table.foreignKey("FK_DTC_COMTASKENABLMNT_COMTASK").
-                    on(comtask).
-                    references(ComTask.class).
-                    map(ComTaskEnablementImpl.Fields.COM_TASK.fieldName()).add();
-            table.foreignKey("FK_DTC_COMTASKENBLMNT_DCOMCONF").
-                    on(deviceCommunicationConfigation).
-                    references(DTC_DEVICECONFIG.name()).
-                    map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName())
+            table.foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT")
+                    .on(partialConnectionTask)
+                    .references(DTC_PARTIALCONNECTIONTASK.name())
+                    .map(ComTaskEnablementImpl.Fields.PARTIAL_CONNECTION_TASK.fieldName())
+                    .add();
+            table.foreignKey("FK_DTC_COMTASKENABLMNT_SECURPS")
+                    .on(securityPropertySet)
+                    .references(DTC_SECURITYPROPERTYSET.name())
+                    .map(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName())
+                    .add();
+            table.foreignKey("FK_DTC_COMTASKENABLMNT_COMTASK")
+                    .on(comtask)
+                    .references(ComTask.class)
+                    .map(ComTaskEnablementImpl.Fields.COM_TASK.fieldName())
+                    .add();
+            table.foreignKey("FK_DTC_COMTASKENBLMNT_DCOMCONF")
+                    .on(deviceCommunicationConfigation)
+                    .references(DTC_DEVICECONFIG.name())
+                    .map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName())
                     .reverseMap(DeviceConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName())
                     .composition()
                     .onDelete(CASCADE)
                     .add();
-            table.foreignKey("FK_DTC_COMTASKENABLMNT_PDCP").
-                    on(dialectConfigurationProperties).
-                    references(DTC_DIALECTCONFIGPROPERTIES.name()).
-                    map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName())
+            table.foreignKey("FK_DTC_COMTASKENABLMNT_PDCP")
+                    .on(dialectConfigurationProperties)
+                    .references(DTC_DIALECTCONFIGPROPERTIES.name())
+                    .map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName())
                     .onDelete(CASCADE)
                     .add();
             table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask, deviceCommunicationConfigation).add();
@@ -646,7 +649,6 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<DeviceConfValidationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfValidationRuleSetUsage.class);
             table.map(DeviceConfValidationRuleSetUsageImpl.class);
-            table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
             Column validationRuleSetIdColumn =
                     table.column("VALIDATIONRULESETID")
                             .number()
@@ -661,6 +663,8 @@ public enum TableSpecs {
                             .conversion(NUMBER2LONG)
                             .map("deviceConfigurationId")
                             .add();
+            table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
+            table.addAuditColumns();
 
             table.primaryKey("DTC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, deviceConfigurationIdColumn).add();
             table.foreignKey("DTC_FK_RULESET").references(ValidationRuleSet.class).onDelete(RESTRICT).map("validationRuleSet").on(validationRuleSetIdColumn).add();
@@ -674,7 +678,6 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<DeviceConfigurationEstimationRuleSetUsage> table = dataModel.addTable(name(), DeviceConfigurationEstimationRuleSetUsage.class);
             table.map(DeviceConfigurationEstimationRuleSetUsageImpl.class);
-            table.setJournalTableName(name() + "JRNL");
             Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET")
                     .number()
                     .notNull()
@@ -691,6 +694,7 @@ public enum TableSpecs {
                     .conversion(NUMBER2INT)
                     .map(DeviceConfigurationEstimationRuleSetUsageImpl.Fields.POSITION.fieldName())
                     .add();
+            table.setJournalTableName(name() + "JRNL");
             table.addAuditColumns();
 
             table.primaryKey("DTC_PK_ESTRULESETUSAGE").on(estimationRuleSetColumn, deviceConfigurationColumn).add();
