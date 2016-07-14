@@ -36,7 +36,10 @@ Ext.define('Mdc.property.UsagePoint', {
                     if (me.rendered && toolbar && toolbar.rendered && !me.preserveScrollOnRefresh) {
                         me.el.appendChild(toolbar.el);
                     }
-                    me.el.last().setVisible(me.getStore().getTotalCount() > me.pageSize);
+
+                    if (me.rendered) {
+                        me.el.last().setVisible(me.getStore().getTotalCount() > me.pageSize);
+                    }
                 },
                 createPagingToolbar: function() {
                     var list = this;
