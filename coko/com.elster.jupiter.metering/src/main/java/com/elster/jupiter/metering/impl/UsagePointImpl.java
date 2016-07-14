@@ -353,6 +353,10 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void delete() {
         this.removeMetrologyConfigurationCustomPropertySetValues();
+        metrologyConfiguration.all()
+                .stream()
+                .map(EffectiveMetrologyConfigurationOnUsagePointImpl.class::cast)
+                .forEach(EffectiveMetrologyConfigurationOnUsagePointImpl::delete);
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
         dataModel.remove(this);

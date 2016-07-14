@@ -369,6 +369,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void delete() {
+        customPropertySets.clear();
         this.metrologyConfigurationService.getDataModel().remove(this);
         eventService.postEvent(EventType.METROLOGYCONFIGURATION_DELETED.topic(), this);
     }

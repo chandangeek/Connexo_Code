@@ -112,4 +112,8 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
                 .add("configuration", this.metrologyConfiguration)
                 .toString();
     }
+
+    public void delete() {
+        dataModel.remove(this);
+    }
 }

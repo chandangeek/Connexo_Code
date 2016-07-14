@@ -763,7 +763,6 @@ public enum TableSpecs {
             table.foreignKey("FK_MCPS_USAGE_TO_CONFIG")
                     .references(MTR_METROLOGYCONFIG.name())
                     .on(metrologyConfig)
-                    .onDelete(CASCADE)
                     .map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.CUSTOM_PROPERTY_SETS.fieldName())
                     .reverseMapOrder(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.fieldName())
@@ -772,7 +771,6 @@ public enum TableSpecs {
             table.foreignKey("FK_MCAS_USAGE_TO_CPS")
                     .references(RegisteredCustomPropertySet.class)
                     .on(customPropertySet)
-                    .onDelete(CASCADE)
                     .map(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.CUSTOM_PROPERTY_SET.fieldName())
                     .add();
         }
@@ -792,7 +790,6 @@ public enum TableSpecs {
             table.foreignKey("MTR_FK_UPMTRCONFIG_UP")
                     .on(usagePoint)
                     .references(UsagePoint.class)
-                    .onDelete(CASCADE)
                     .map("usagePoint")
                     .reverseMap("metrologyConfiguration")
                     .composition()
@@ -996,7 +993,6 @@ public enum TableSpecs {
             table.foreignKey("FK_MTR_CPSSERVICECATEGORY")
                     .references(MTR_SERVICECATEGORY.name())
                     .on(serviceCategory)
-                    .onDelete(CASCADE)
                     .map(ServiceCategoryCustomPropertySetUsage.Fields.SERVICECATEGORY.fieldName())
                     .reverseMap(ServiceCategoryImpl.Fields.CUSTOMPROPERTYSETUSAGE.fieldName())
                     .reverseMapOrder(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.fieldName())
@@ -1005,7 +1001,6 @@ public enum TableSpecs {
             table.foreignKey("FK_MTR_CPSSERVICECATEGORY_CPS")
                     .references(RegisteredCustomPropertySet.class)
                     .on(customPropertySet)
-                    .onDelete(CASCADE)
                     .map(ServiceCategoryCustomPropertySetUsage.Fields.CUSTOMPROPERTYSET.fieldName())
                     .add();
         }
@@ -1057,7 +1052,6 @@ public enum TableSpecs {
             table.foreignKey("MTR_VALIDCHILD")
                     .references(MTR_FORMULA_NODE.name())
                     .on(parentColumn)
-                    .onDelete(CASCADE)
                     .map("parent")
                     .reverseMap("children")
                     .reverseMapOrder("argumentIndex")
@@ -1076,7 +1070,7 @@ public enum TableSpecs {
             Column expressionNodeColumn = table.column("EXPRESSION_NODE_ID").number().conversion(NUMBER2LONG).add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_FORMULA").on(idColumn).add();
-            table.foreignKey("MTR_VALIDNODE").references(MTR_FORMULA_NODE.name()).on(expressionNodeColumn).onDelete(CASCADE)
+            table.foreignKey("MTR_VALIDNODE").references(MTR_FORMULA_NODE.name()).on(expressionNodeColumn)
                     .map("expressionNode").add();
         }
     },
@@ -1096,7 +1090,6 @@ public enum TableSpecs {
             table.foreignKey("MTR_FK_SERVCATMETERROLE2CAT")
                     .references(MTR_SERVICECATEGORY.name())
                     .on(serviceCategory)
-                    .onDelete(CASCADE)
                     .map(ServiceCategoryMeterRoleUsage.Fields.SERVICECATEGORY.fieldName())
                     .reverseMap(ServiceCategoryImpl.Fields.METERROLEUSAGE.fieldName())
                     .composition()
@@ -1104,7 +1097,6 @@ public enum TableSpecs {
             table.foreignKey("MTR_FK_SERVCATMETERROLE2ROLE")
                     .references(MeterRole.class)
                     .on(meterRole)
-                    .onDelete(CASCADE)
                     .map(ServiceCategoryMeterRoleUsage.Fields.METERROLE.fieldName())
                     .add();
         }
@@ -1131,7 +1123,6 @@ public enum TableSpecs {
             table.foreignKey("FK_USAGE_MCMR_TO_CONFIG")
                     .references(UsagePointMetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
-                    .onDelete(CASCADE)
                     .map(MetrologyConfigurationMeterRoleUsageImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.METER_ROLES.fieldName())
                     .composition()
@@ -1139,7 +1130,6 @@ public enum TableSpecs {
             table.foreignKey("FK_USAGE_MCMR_TO_ROLE")
                     .references(MeterRole.class)
                     .on(meterRoleColumn)
-                    .onDelete(CASCADE)
                     .map(MetrologyConfigurationMeterRoleUsageImpl.Fields.METER_ROLE.fieldName())
                     .add();
         }
@@ -1806,13 +1796,11 @@ public enum TableSpecs {
             table.foreignKey("MTR_FORMULA_TO_DELIVERABLE")
                     .references(MTR_RT_DELIVERABLE.name())
                     .on(readingTypeDeliverableColumn)
-                    .onDelete(CASCADE)
                     .map("readingTypeDeliverable")
                     .add();
             table.foreignKey("MTR_FORMULA_TO_RT_REQ")
                     .references(MTR_RT_REQUIREMENT.name())
                     .on(readingTypeRequirementColumn)
-                    .onDelete(CASCADE)
                     .map("readingTypeRequirement")
                     .add();
         }
