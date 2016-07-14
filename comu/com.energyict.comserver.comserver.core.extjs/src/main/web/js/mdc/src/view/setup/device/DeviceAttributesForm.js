@@ -125,7 +125,10 @@ Ext.define('Mdc.view.setup.device.DeviceAttributesForm', {
                 fieldLabel: Uni.I18n.translate('general.dataLogger', 'MDC', 'Data logger'),
                 hidden: Ext.isEmpty(me.dataLoggerSlave),
                 renderer: function() {
-                    var dataLoggerMRID = me.dataLoggerSlave.get('dataloggermRID');
+                    var dataLoggerMRID = Ext.isEmpty(me.dataLoggerSlave) ? undefined : me.dataLoggerSlave.get('dataloggermRID');
+                    if (Ext.isEmpty(dataLoggerMRID)) {
+                        return '-';
+                    }
                     return Ext.String.format(
                         '<a href="{0}">{1}</a>',
                         '#/devices/' + encodeURIComponent(dataLoggerMRID),
