@@ -102,6 +102,8 @@ Ext.define('Mdc.view.field.ReadingQualities', {
             }
             if (rule.deleted) {
                 str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '&nbsp;' + application  + '<br>';
+            } if (rule.application.id == "MDM") {
+                str += Uni.I18n.translate('device.suspectInInsight', 'MDC', 'Suspect in Insight');
             } else {
                 str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
 
