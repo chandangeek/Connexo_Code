@@ -37,39 +37,39 @@ public interface Table<T> {
     List<String> getDdl(Version version);
 
     /*
-         * adds a column that is incremented on every update
-         * that will be used for optimistic lock checks
-         */
+     * Adds a column that is incremented on every update
+     * that will be used for optimistic lock checks.
+     */
     Column addVersionCountColumn(String name, String dbType, String fieldName);
 
     /*
-     * adds a discriminator column that is used to map a tuple to the correct implementation class
+     * Adds a discriminator column that is used to map a tuple to the correct implementation class.
      */
     Column addDiscriminatorColumn(String name, String dbType);
 
     /*
-     * adds a column that on insert will be set to the create time, and will never be updated
+     * Adds a column that on insert will be set to the create time, and will never be updated.
      */
     Column addCreateTimeColumn(String name, String fieldName);
 
     /*
-     * adds a column that on insert and update will be set to the current time
+     * Adds a column that on insert and update will be set to the current time.
      */
     Column addModTimeColumn(String name, String fieldName);
 
     /*
-     * adds a column that will contain the user name (obtained from ThreadPrincipalService.getPrincipal.getName)
+     * Adds a column that will contain the user name (obtained from ThreadPrincipalService.getPrincipal.getName).
      */
     Column addUserNameColumn(String name, String fieldName);
 
     /*
-     * adds a column named id , database type number mapped to long and
-     * back it with a sequence named tablename + id
+     * Adds a column named id , database type number mapped to long and
+     * back it with a sequence named tablename + id.
      */
     Column addAutoIdColumn();
 
     /*
-     * adds a column named position that will automatically be maintained by the orm layer
+     * Adds a column named position that will automatically be maintained by the orm layer.
      */
     Column addPositionColumn();
 
@@ -83,6 +83,7 @@ public interface Table<T> {
      *
      */
     List<Column> addAuditColumns();
+
     /*
      *  Adds three columns to persist a Quantity field
      *
@@ -92,6 +93,7 @@ public interface Table<T> {
      *
      */
     List<Column> addQuantityColumns(String name, boolean notNull, String fieldName);
+
     /*
      *  Adds three columns to persist a Quantity field
      *
@@ -101,6 +103,7 @@ public interface Table<T> {
      *
      */
     List<Column> addQuantityColumns(String name, boolean notNull, String fieldName, Range... versions);
+
     /*
      *  Adds two column to persist a Money field
      *
@@ -108,6 +111,7 @@ public interface Table<T> {
      *	column name + CURRENCY mapped to fieldName.currency
      */
     List<Column> addMoneyColumns(String name, boolean notNull, String fieldName);
+
     /*
      *  Adds two column to persist an Interval field
      *
@@ -116,6 +120,7 @@ public interface Table<T> {
      *
      */
     List<Column> addIntervalColumns(String fieldName);
+
     /*
      * Adds four columns to persist a RefAny field
      *
@@ -125,10 +130,12 @@ public interface Table<T> {
      *  column name + ID mapped to fieldName.id (the id of the referenced tuple if it has an auto id column as primary key, NULL otherwise)
      */
     List<Column> addRefAnyColumns(String name, boolean notNull, String fieldName);
+
     /*
      * by specifying a journal table name, the orm layer will automatically create a journal table to store obsolete tuple versions
      */
-    void setJournalTableName(String journalTableName);
+    JournalTableVersionOptions setJournalTableName(String journalTableName);
+
     /*
      * activates caching. The cache is shared between all threads of a Java VM,
      * so implementers must make sure the Java type is thread safe
@@ -149,12 +156,15 @@ public interface Table<T> {
     String getSchema();
 
     String getName();
+    String getName(Version version);
 
     String getQualifiedName();
 
     String getJournalTableName();
+    String getJournalTableName(Version version);
 
     boolean hasJournal();
+    boolean hasJournal(Version version);
 
     boolean isCached();
 
@@ -202,7 +212,12 @@ public interface Table<T> {
 
     void previouslyNamed(Range<Version> versionRange, String name);
 
-    String getName(Version version);
-
     SortedSet<Version> changeVersions();
+
+    interface JournalTableVersionOptions {
+        void since(Version version);
+        void upTo(Version version);
+        void during(Range<Version>... ranges);
+    }
+
 }
