@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -9,15 +10,25 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.collections.DualIterable;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
-import com.energyict.mdc.device.data.*;
-import com.google.common.collect.Range;
-
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.Reading;
+import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.RegisterDataUpdater;
+
+import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -184,13 +195,13 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
 
     private class RegisterDataUpdaterImpl implements RegisterDataUpdater {
         private final RegisterImpl<R, RS> register;
+        private final QualityCodeSystem handlingSystem = QualityCodeSystem.MDC;
         private final List<BaseReading> edited = new ArrayList<>();
         private final List<BaseReading> confirmed = new ArrayList<>();
         private final Map<Channel, List<BaseReadingRecord>> obsolete = new HashMap<>();
         private Optional<Instant> activationDate = Optional.empty();
 
         private RegisterDataUpdaterImpl(RegisterImpl<R, RS> register) {
-            super();
             this.register = register;
         }
 
@@ -230,19 +241,19 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
             this.activationDate.ifPresent(this.register.device::ensureActiveOn);
             this.edited.forEach(this::addOrEdit);
             this.confirmed.forEach(this::confirm);
-            this.obsolete.forEach(Channel::removeReadings);
+            this.obsolete.forEach((channel, readings) -> channel.removeReadings(handlingSystem, readings));
         }
 
         private void addOrEdit(BaseReading reading) {
             this.register.device
                 .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
-                .editReadings(Collections.singletonList(reading));
+                .editReadings(handlingSystem, Collections.singletonList(reading));
         }
 
         private void confirm(BaseReading reading) {
             this.register.device
                     .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
-                    .confirmReadings(Collections.singletonList(reading));
+                    .confirmReadings(handlingSystem, Collections.singletonList(reading));
         }
     }
 
