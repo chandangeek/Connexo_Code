@@ -20,7 +20,6 @@ import com.elster.jupiter.time.rest.RelativePeriodPreviewInfo;
 import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -79,14 +78,11 @@ public class RelativePeriodResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         Query<? extends RelativePeriod> query = timeService.getRelativePeriodQuery();
         List<String> category = queryParameters.get("category");
-        Condition condition = Condition.TRUE;
-        if(category !=null && !category.isEmpty()){
-            condition = Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name").isEqualTo(category.get(0));
+        if(category != null && !category.isEmpty()){
+            query.setRestriction(Where.where("relativePeriodCategoryUsages.relativePeriodCategory.name").isEqualTo(category.get(0)));
         }
-        query.setRestriction(condition);
         RestQuery<? extends RelativePeriod> restQuery = restQueryService.wrap(query);
         List<? extends RelativePeriod> relativePeriods = restQuery.select(queryParameters, Order.ascending("name").toUpperCase());
-        relativePeriods.sort((r1, r2) -> r1.getName().compareToIgnoreCase(r2.getName()));
         RelativePeriodInfos relativePeriodInfos = new RelativePeriodInfos(queryParameters.clipToLimit(relativePeriods), thesaurus);
         relativePeriodInfos.total = queryParameters.determineTotal(relativePeriods.size());
 
@@ -201,7 +197,6 @@ public class RelativePeriodResource {
         ZonedDateTime target = relativeDate.getRelativeDate(referenceDate);
         return new RelativeDatePreviewInfo(target);
     }
-
 
     @Path("/categories")
     @GET
