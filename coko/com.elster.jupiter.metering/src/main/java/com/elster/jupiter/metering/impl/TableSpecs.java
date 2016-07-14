@@ -43,7 +43,6 @@ import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.config.AbstractNode;
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePointImpl;
@@ -1571,7 +1570,7 @@ public enum TableSpecs {
 
             table.primaryKey("MTR_EFFECTIVE_CONTRACT_PK").on(idColumn).add();
             table.foreignKey("MTR_EF_CONTRACT_2_EF_CONF")
-                    .on(effectiveConfColumn, intervalColumns.get(0))
+                    .on(effectiveConfColumn)
                     .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.fieldName())
                     .reverseMap("effectiveContracts")
