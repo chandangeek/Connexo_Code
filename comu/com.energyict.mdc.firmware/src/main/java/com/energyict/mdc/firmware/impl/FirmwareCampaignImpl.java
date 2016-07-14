@@ -294,6 +294,7 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
 
     @Override
     public void delete() {
+        this.clearProperties();
         dataModel.remove(this);
     }
 
