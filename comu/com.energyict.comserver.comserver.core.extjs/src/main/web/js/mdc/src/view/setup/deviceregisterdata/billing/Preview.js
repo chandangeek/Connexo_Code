@@ -81,6 +81,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
         return [
             {
                 xtype: 'deviceregisterreportpreview-validation',
+                router: this.router,
                 fieldLabel: ''
             }
         ];
