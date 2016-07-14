@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -158,7 +159,9 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     }
 
     private void validateUsagePointOutputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
-        effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer -> {
+        effectiveMetrologyConfiguration.getEffectiveContract(metrologyContract)
+                .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
+                .ifPresent(channelsContainer -> {
             try (TransactionContext transactionContext = transactionService.getContext()) {
                 validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer).setMetrologyContract(metrologyContract));
                 transactionContext.commit();
