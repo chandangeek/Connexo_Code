@@ -30,7 +30,7 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
         //FixMe will be implemented in next story CXO-1611;
         Map<String, BigDecimal> registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpi.getDeviceGroup());
         Map<String, BigDecimal> channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpi.getDeviceGroup());
-        Map<String, BigDecimal> suspects = aggregateSuspects(registerSuspects, channelsSuspects);
+        Map<String, BigDecimal> totalSuspects = aggregateSuspects(registerSuspects, channelsSuspects);
         dataValidationKpi.getDataValidationKpi().getMembers().stream()
                 .forEach(member -> {
                     if (registerSuspects.get(member.getName()) != null && (registerSuspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
@@ -39,8 +39,8 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                     if (channelsSuspects.get(member.getName()) != null && (channelsSuspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
                         member.score(timestamp, channelsSuspects.get(member.getName()));
                     }
-                    if (suspects.get(member.getName()) != null && (suspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
-                        member.score(timestamp, suspects.get(member.getName()));
+                    if (totalSuspects.get(member.getName()) != null && (totalSuspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
+                        member.score(timestamp, totalSuspects.get(member.getName()));
                     }
                 });
         logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!");
@@ -52,17 +52,17 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                 registerSuspects.keySet()
                         .stream()
                         .filter(register -> registerSuspects.get(register).compareTo(new BigDecimal(0)) == 1)
-                        .map(s -> s.replace(DataValidationKpiImpl.Fields.REGISTER.fieldName(), "")),
+                        .map(s -> s.replace(DataValidationKpiImpl.DataValidationKpiMembers.REGISTER.fieldName(), "")),
                 channelsSuspects.keySet()
                         .stream()
                         .filter(channel -> channelsSuspects.get(channel).compareTo(new BigDecimal(0)) == 1)
-                        .map(s -> s.replace(DataValidationKpiImpl.Fields.CHANNELS.fieldName(), "")))
+                        .map(s -> s.replace(DataValidationKpiImpl.DataValidationKpiMembers.CHANNELS.fieldName(), "")))
                 .distinct()
-                .map(suspect -> DataValidationKpiImpl.Fields.SUSPECT.fieldName() + suspect)
+                .map(suspect -> DataValidationKpiImpl.DataValidationKpiMembers.SUSPECT.fieldName() + suspect)
                 .collect(Collectors.toMap(suspect -> suspect,
-                        s -> registerSuspects.get(s.replace(DataValidationKpiImpl.Fields.SUSPECT.fieldName(), DataValidationKpiImpl.Fields.REGISTER
+                        s -> registerSuspects.get(s.replace(DataValidationKpiImpl.DataValidationKpiMembers.SUSPECT.fieldName(), DataValidationKpiImpl.DataValidationKpiMembers.REGISTER
                                 .fieldName()))
-                                .add(channelsSuspects.get(s.replace(DataValidationKpiImpl.Fields.SUSPECT.fieldName(), DataValidationKpiImpl.Fields.CHANNELS
+                                .add(channelsSuspects.get(s.replace(DataValidationKpiImpl.DataValidationKpiMembers.SUSPECT.fieldName(), DataValidationKpiImpl.DataValidationKpiMembers.CHANNELS
                                         .fieldName())))
                 ));
     }

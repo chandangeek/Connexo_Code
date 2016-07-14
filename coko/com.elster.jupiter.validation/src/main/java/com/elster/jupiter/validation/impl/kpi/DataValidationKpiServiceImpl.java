@@ -86,7 +86,7 @@ public class DataValidationKpiServiceImpl implements DataValidationKpiService{
                     underConstruction.getDeviceGroup().getMembers(Instant.now())
                             .stream()
                             .forEach(device -> underConstruction.dataValidationKpiBuilder(dataValidationKpiBuilder, device
-                                    .getMRID()));
+                                    .getId()));
                 }
                 underConstruction.save();
                 return COMPLETE;

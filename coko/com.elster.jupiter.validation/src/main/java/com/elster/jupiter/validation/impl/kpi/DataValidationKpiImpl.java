@@ -42,14 +42,26 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     public enum Fields {
         DATA_VALIDATION_KPI("dataValidationKpi"),
         DATA_VALIDATION_KPI_TASK("dataValidationKpiTask"),
-        END_DEVICE_GROUP("deviceGroup"),
-        SUSPECT("SUSPECT_"),
-        REGISTER("REGISTER_"),
-        CHANNELS("CHANNELS_");
+        END_DEVICE_GROUP("deviceGroup");
 
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        public String fieldName() {
+            return javaFieldName;
+        }
+    }
+
+    protected enum DataValidationKpiMembers {
+        SUSPECT("SUSPECT_"),
+        REGISTER("REGISTER_"),
+        CHANNELS("CHANNELS_");
+        private final String javaFieldName;
+
+        DataValidationKpiMembers(String javaFieldName) {
             this.javaFieldName = javaFieldName;
         }
 
@@ -107,14 +119,13 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         Save.UPDATE.save(this.dataModel, this);
     }
 
-    void dataValidationKpiBuilder(KpiBuilder builder, String mRID){
+    void dataValidationKpiBuilder(KpiBuilder builder, long deviceId){
         builder.interval(this.frequency);
         Stream.of(DataValidationKpiMembers.values())
                 .map(DataValidationKpiMembers::fieldName)
                 .forEach(member -> builder.member()
-                        .named(member)
+                        .named(member+deviceId)
                         .add());
-        builder.named(mRID);
 
         dataValidationKpi.set(builder.create());
 
