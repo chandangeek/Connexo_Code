@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -215,7 +214,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         usagePoint.setServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark);
         usagePoint.setServicePriority(usagePointInfo.servicePriority);
 
-        if (usagePointInfo.connectionState!=null && usagePointInfo.connectionState.startDate != null) {
+        if (usagePointInfo.connectionState != null && usagePointInfo.connectionState.startDate != null) {
             usagePoint.setConnectionState(findConnectionState(usagePointInfo),
                     Instant.ofEpochMilli(usagePointInfo.connectionState.startDate));
         } else if (usagePointInfo.connectionState != null && !usagePoint.getConnectionState().getId().equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId)) {
@@ -247,7 +246,7 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         }
     }
 
-    private ConnectionState findConnectionState(UsagePointInfo usagePointInfo){
+    private ConnectionState findConnectionState(UsagePointInfo usagePointInfo) {
         return Arrays.stream(ConnectionState.values())
                 .filter(connectionState -> connectionState.getId()
                         .equalsIgnoreCase(usagePointInfo.connectionState.connectionStateId))
