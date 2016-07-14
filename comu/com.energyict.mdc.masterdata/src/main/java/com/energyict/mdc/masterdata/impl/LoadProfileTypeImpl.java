@@ -166,7 +166,9 @@ public class LoadProfileTypeImpl extends PersistentNamedObject<LoadProfileType> 
     }
 
     protected void doDelete() {
+        List<ChannelTypeImpl> channelTypesToRemove = registerTypes.stream().map(LoadProfileTypeChannelTypeUsageImpl::getChannelType).map(ChannelTypeImpl.class::cast).collect(Collectors.toList());
         this.registerTypes.clear();
+        this.dataModel.mapper(ChannelTypeImpl.class).remove(channelTypesToRemove);
         this.getDataMapper().remove(this);
     }
 
