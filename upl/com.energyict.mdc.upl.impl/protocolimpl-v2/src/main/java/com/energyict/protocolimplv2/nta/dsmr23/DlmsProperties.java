@@ -4,7 +4,6 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.*;
 import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
@@ -35,6 +34,7 @@ public class DlmsProperties implements DlmsSessionProperties {
     protected SecurityProvider securityProvider;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
     private String serialNumber = "";
+    private Integer dataTransportSecurityLevel = null;
 
     public DlmsProperties() {
         this.properties = TypedProperties.empty();
@@ -91,7 +91,29 @@ public class DlmsProperties implements DlmsSessionProperties {
 
     @Override
     public int getDataTransportSecurityLevel() {
-        return securityPropertySet.getEncryptionDeviceAccessLevel();
+        if (dataTransportSecurityLevel == null) {
+            dataTransportSecurityLevel = doGetDataTransportSecurityLevel();
+        }
+        return dataTransportSecurityLevel;
+    }
+
+    @Override
+    public void setDataTransportSecurityLevel(int dataTransportSecurityLevel) {
+        this.dataTransportSecurityLevel = dataTransportSecurityLevel;
+    }
+
+    protected int doGetDataTransportSecurityLevel() {
+        return this.getSecurityPropertySet().getEncryptionDeviceAccessLevel();
+    }
+
+    @Override
+    public int getSecuritySuite() {
+        return 0;
+    }
+
+    @Override
+    public void setSecuritySuite(int securitySuite) {
+        //Not used yet for most protocols, subclasses can override
     }
 
     @Override
@@ -314,14 +336,19 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     public GeneralCipheringKeyType getGeneralCipheringKeyType() {
-        String keyTypeDescription = properties.getStringProperty(DlmsProtocolProperties.GENERAL_CIPHERING_KEY_TYPE);
+        String keyTypeDescription = properties.getStringProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
 
         if (keyTypeDescription == null && getCipheringType().equals(CipheringType.GENERAL_CIPHERING)) {
             //In the case of general-ciphering, the key type is a required property
-            throw DeviceConfigurationException.missingProperty(DlmsProtocolProperties.GENERAL_CIPHERING_KEY_TYPE);
+            throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE);
         } else {
             return keyTypeDescription == null ? null : GeneralCipheringKeyType.fromDescription(keyTypeDescription);
         }
+    }
+
+    @Override
+    public boolean isGeneralSigning() {
+        return false;
     }
 
     /**

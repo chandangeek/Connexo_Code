@@ -20,6 +20,7 @@ import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.capabilities.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.security.*;
 import com.energyict.mdc.tasks.ConnectionType;
 import com.energyict.mdc.tasks.DeviceProtocolDialect;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
@@ -45,10 +46,13 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
+import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +64,7 @@ import java.util.Random;
  * @author khe
  * @since 18/06/2015 - 15:07
  */
-public class Beacon3100 extends AbstractDlmsProtocol {
+public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
 
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
 
@@ -113,6 +117,28 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         return FRAMECOUNTER_OBISCODE_1_MNG;
     }
 
+    protected AdvancedDeviceProtocolSecurityCapabilities getSecuritySupport() {
+        if (dlmsSecuritySupport == null) {
+            dlmsSecuritySupport = new DlmsSecuritySuite1And2Support();
+        }
+        return (AdvancedDeviceProtocolSecurityCapabilities) dlmsSecuritySupport;
+    }
+
+    @Override
+    public List<SecuritySuite> getSecuritySuites() {
+        return getSecuritySupport().getSecuritySuites();
+    }
+
+    @Override
+    public List<RequestSecurityLevel> getRequestSecurityLevels() {
+        return getSecuritySupport().getRequestSecurityLevels();
+    }
+
+    @Override
+    public List<ResponseSecurityLevel> getResponseSecurityLevels() {
+        return getSecuritySupport().getResponseSecurityLevels();
+    }
+
     /**
      * First read out the frame counter for the management client, using the public client. It has a pre-established association.
      * Note that this happens without setting up an association, since the it's pre-established for the public client.
@@ -127,7 +153,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         Beacon3100Properties publicClientProperties = new Beacon3100Properties();
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
@@ -135,7 +161,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         try {
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress())).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
-            frameCounter = new Random().nextInt();
+            frameCounter = new SecureRandom().nextInt();
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
@@ -374,7 +400,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-04-07 11:28:31 +0200 (Thu, 07 Apr 2016)$";
+        return "$Date: 2016-07-14 15:12:56 +0200 (Thu, 14 Jul 2016)$";
     }
 
     @Override
@@ -414,4 +440,14 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         return dlmsConfigurationSupport;
     }
 
+    /**
+     * The used security support has changed from DlmsSecuritySupport to DlmsSecuritySuite1And2Support, so we indicate here
+     * that indeed the DlmsSecuritySupport was the previous type of security support.
+     * This is used by the ProtocolSecurityRelationTypeUpgrader to migrate old, existing security properties that were created for
+     * the previous security relation to the new security relation.
+     */
+    @Override
+    public DeviceProtocolSecurityCapabilities getPreviousSecuritySupport() {
+        return new DsmrSecuritySupport();
+    }
 }

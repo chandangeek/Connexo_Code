@@ -6,6 +6,8 @@ import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.GeneralCipheringKeyType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
+import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 
 import java.util.ArrayList;
@@ -32,8 +34,12 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         optionalProperties.add(dlmsKEKPropertySpec());
         optionalProperties.add(dlmsWANKEKPropertySpec());
         optionalProperties.add(pskEncryptionKeyPropertySpec());
-        optionalProperties.add(cipheringTypePropertySpec());
         optionalProperties.add(generalCipheringKeyTypePropertySpec());
+        optionalProperties.add(clientPrivateSigningKeyPropertySpec());
+        optionalProperties.add(clientPrivateKeyAgreementKeyPropertySpec());
+        optionalProperties.add(clientSigningCertificate());
+        optionalProperties.add(serverTLSCertificate());
+        optionalProperties.add(callingAPTitlePropertySpec());
         optionalProperties.add(pollingDelayPropertySpec());
         optionalProperties.remove(ntaSimulationToolPropertySpec());
         optionalProperties.remove(manufacturerPropertySpec());
@@ -45,6 +51,38 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec pollingDelayPropertySpec() {
         return PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(POLLING_DELAY, new TimeDuration(0));
+    }
+
+    private PropertySpec callingAPTitlePropertySpec() {
+        return PropertySpecFactory.fixedLengthHexStringPropertySpec(IDIS.CALLING_AP_TITLE, 8);
+    }
+
+    /**
+     * The private key of the client (the ComServer) used for digital signature (ECDSA)
+     */
+    private PropertySpec clientPrivateSigningKeyPropertySpec() {
+        return PropertySpecFactory.privateKeyAliasPropertySpec(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+    }
+
+    /**
+     * The certificate that matches the private key of the client (the ComServer) used for digital signature (ECDSA)
+     */
+    private PropertySpec clientSigningCertificate() {
+        return PropertySpecFactory.certificateAliasPropertySpec(DlmsSessionProperties.CLIENT_SIGNING_CERTIFICATE);
+    }
+
+    /**
+     * The TLS certificate of the server. Not actively used in the protocols.
+     */
+    private PropertySpec serverTLSCertificate() {
+        return PropertySpecFactory.certificateAliasPropertySpec(DlmsSessionProperties.SERVER_TLS_CERTIFICATE);
+    }
+
+    /**
+     * The private key of the client (the ComServer) used for key agreement (ECDH)
+     */
+    private PropertySpec clientPrivateKeyAgreementKeyPropertySpec() {
+        return PropertySpecFactory.privateKeyAliasPropertySpec(DlmsSessionProperties.CLIENT_PRIVATE_KEY_AGREEMENT_KEY);
     }
 
     protected PropertySpec cipheringTypePropertySpec() {
@@ -61,7 +99,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec generalCipheringKeyTypePropertySpec() {
         return PropertySpecFactory.stringPropertySpecWithValues(
-                DlmsProtocolProperties.GENERAL_CIPHERING_KEY_TYPE,
+                DlmsSessionProperties.GENERAL_CIPHERING_KEY_TYPE,
                 GeneralCipheringKeyType.IDENTIFIED_KEY.getDescription(),
                 GeneralCipheringKeyType.WRAPPED_KEY.getDescription(),
                 GeneralCipheringKeyType.AGREED_KEY.getDescription()

@@ -54,6 +54,7 @@ import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -85,7 +86,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-03-24 17:55:37 +0100 (Thu, 24 Mar 2016)$";
+        return "$Date: 2016-07-14 15:32:13 +0200 (Thu, 14 Jul 2016)$";
     }
 
     public DlmsSession getDlmsSession() {
@@ -131,7 +132,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(16));
         G3GatewayProperties publicClientProperties = new G3GatewayProperties();
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
@@ -139,7 +140,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
         try {
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
-            frameCounter = new Random().nextInt();
+            frameCounter = new SecureRandom().nextInt();
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }

@@ -59,6 +59,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.security.SecureRandom;
+import java.util.*;
 
 /**
  * Protocol that reads out the G3 e-meter connected to an Beacon3100 gateway / concentrator (for the G3 international project).
@@ -104,7 +106,7 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
         clone.setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, PUBLIC_CLIENT);
         AS330DProperties publicClientProperties = new AS330DProperties(false);  //Use gateway logical device ID
         publicClientProperties.addProperties(clone);
-        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, clone));    //SecurityLevel 0:0
+        publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
         publicDlmsSession.assumeConnected(publicClientProperties.getMaxRecPDUSize(), publicClientProperties.getConformanceBlock());
@@ -126,10 +128,10 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
             if (frameCountersStructure != null && frameCountersStructure.nrOfDataTypes() >= 1) {
                 frameCounter = frameCountersStructure.getDataType(0).longValue();
             } else {
-                frameCounter = new Random().nextInt();
+                frameCounter = new SecureRandom().nextInt();
             }
         } catch (DataAccessResultException | ProtocolException e) {
-            frameCounter = new Random().nextInt();
+            frameCounter = new SecureRandom().nextInt();
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         }
@@ -366,6 +368,6 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-26 15:23:38 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: 2016-07-14 14:30:05 +0200 (Thu, 14 Jul 2016)$";
     }
 }

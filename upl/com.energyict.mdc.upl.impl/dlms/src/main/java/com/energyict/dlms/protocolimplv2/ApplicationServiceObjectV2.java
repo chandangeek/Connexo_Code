@@ -17,17 +17,23 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.exceptionhandler.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
+import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
-import com.energyict.protocol.exceptions.CommunicationException;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
-import com.energyict.protocol.exceptions.DataEncryptionException;
-import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.*;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 /**
@@ -47,8 +53,8 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         super(xDlmsAse, protocolLink, securityContext, contextId);
     }
 
-    public ApplicationServiceObjectV2(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId, byte[] calledAPTitle, byte[] calledAEQualifier) {
-        super(xDlmsAse, protocolLink, securityContext, contextId, calledAPTitle, calledAEQualifier);
+    public ApplicationServiceObjectV2(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId, byte[] calledAPTitle, byte[] calledAEQualifier, byte[] callingAEQualifier) {
+        super(xDlmsAse, protocolLink, securityContext, contextId, calledAPTitle, calledAEQualifier, callingAEQualifier);
     }
 
     public ApplicationServiceObjectV2(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext) {
@@ -75,7 +81,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 analyzeAARE(response);
                 getSecurityContext().setResponseSystemTitle(this.acse.getRespondingAPTtitle());
                 if (this.acse.hlsChallengeMatch()) {
-                    disconnect();
+                    silentDisconnect();
                     ConnectionException connectionException = new ConnectionException("Invalid responding authenticationValue.");
                     throw CommunicationException.protocolConnectFailed(connectionException);
                 }
@@ -100,6 +106,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
     private void analyzeAARE(byte[] response) {
         try {
             this.acse.analyzeAARE(response);
+            handleRespondingAEQualifier();
         } catch (ConnectionException e) {                        //Decryption failed
             throw DataEncryptionException.dataEncryptionException(e);
         } catch (IOException e) {
@@ -115,6 +122,50 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             }
         } catch (DLMSConnectionException e) {                    //Invalid frame counter
             throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
+    }
+
+    /**
+     * The (optional) responding-AE-qualifier is the certificate of the server for digital signature.
+     * <p/>
+     * If we received the server signing certificate, there's two possible scenario's:
+     * - if it was already configured as a general property, compare the certificates, they should match.
+     * - if it was not yet configured as a general property, start using the received certificate in this session.
+     */
+    private void handleRespondingAEQualifier() {
+        if (acse.getRespondingApplicationEntityQualifier() != null) {
+            if (getSecurityContext().getSecurityProvider() instanceof GeneralCipheringSecurityProvider) {
+                GeneralCipheringSecurityProvider generalCipheringSecurityProvider = (GeneralCipheringSecurityProvider) getSecurityContext().getSecurityProvider();
+                if (generalCipheringSecurityProvider.getServerSignatureCertificate() == null) {
+                    generalCipheringSecurityProvider.setServerSignatureCertificate(parseEncodedCertificate());
+                } else {
+                    byte[] configuredCertificate;
+                    try {
+                        configuredCertificate = generalCipheringSecurityProvider.getServerSignatureCertificate().getEncoded();
+                    } catch (CertificateEncodingException e) {
+                        silentDisconnect();
+                        throw DeviceConfigurationException.invalidPropertyFormat(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString(), "x", "Should be a valid X.509 v3 certificate");
+                    }
+
+                    if (!Arrays.equals(acse.getRespondingApplicationEntityQualifier(), configuredCertificate)) {
+                        silentDisconnect();
+                        ProtocolException protocolException = new ProtocolException("The received server signing certificate does not match the certificate that is configured in the general properties.");
+                        throw ConnectionCommunicationException.protocolConnectFailed(protocolException);
+                    }
+                }
+            }
+        }
+    }
+
+    private X509Certificate parseEncodedCertificate() {
+        try {
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            InputStream in = new ByteArrayInputStream(acse.getRespondingApplicationEntityQualifier());
+            return (X509Certificate) certFactory.generateCertificate(in);
+        } catch (CertificateException e) {
+            silentDisconnect();
+            ProtocolException protocolException = new ProtocolException("Received an invalid server signing certificate, should be an ASN.1 DER encoded X.509 v3 certificate.");
+            throw ConnectionCommunicationException.unexpectedResponse(protocolException);
         }
     }
 
@@ -138,6 +189,14 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             this.associationStatus = ASSOCIATION_PENDING;
         }
 
+        //HLS3, 4, 5, 6 and 7 require a StoC (Server to Client challengte)
+        if (this.acse.getRespondingAuthenticationValue() == null && (this.securityContext.getAuthenticationType().getLevel() > 2)) {
+            silentDisconnect();
+            ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
+                    ") requires the server to respond with a challenge.");
+            throw CommunicationException.protocolConnectFailed(connectionException);
+        }
+
         switch (this.securityContext.getAuthenticationType()) {
             case LOWEST_LEVEL:
             case LOW_LEVEL:
@@ -155,49 +214,25 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 this.associationStatus = ASSOCIATION_CONNECTED;
                 break;
             case HLS3_MD5: {
-                if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
                     decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
                     analyzeDecryptedResponse(decryptedResponse);
-                } else {
-                    disconnect();
-                    ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
-                            ") requires the server to respond with a challenge.");
-                    throw CommunicationException.protocolConnectFailed(connectionException);
-                }
             }
 
             break;
             case HLS4_SHA1: {
-                if (this.acse.getRespondingAuthenticationValue() != null) {
                     plainText = ProtocolUtils.concatByteArrays(this.acse.getRespondingAuthenticationValue(), this.securityContext.getSecurityProvider().getHLSSecret());
                     decryptedResponse = replyToHLSAuthentication(associationEncryption(plainText));
                     analyzeDecryptedResponse(decryptedResponse);
-                } else {
-                    disconnect();
-                    ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
-                            ") requires the server to respond with a challenge.");
-                    throw CommunicationException.protocolConnectFailed(connectionException);
-                }
             }
 
             break;
             case HLS5_GMAC: {
-
-                if (this.acse.getRespondingAuthenticationValue() != null) {
                     decryptedResponse = replyToHLSAuthentication(this.securityContext.highLevelAuthenticationGMAC(this.acse.getRespondingAuthenticationValue()));
                     analyzeDecryptedResponse(decryptedResponse);
-                } else {
-                    disconnect();
-                    ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
-                            ") requires the server to respond with a challenge.");
-                    throw CommunicationException.protocolConnectFailed(connectionException);
-                }
             }
             break;
             case HLS6_SHA256: {
-                if (this.acse.getRespondingAuthenticationValue() != null) {
-
                     plainText = ProtocolTools.concatByteArrays(
                             this.securityContext.getSecurityProvider().getHLSSecret(),
                             this.securityContext.getSystemTitle(),
@@ -210,17 +245,26 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     decryptedResponse = replyToHLSAuthentication(digest);
 
                     analyzeDecryptedResponse(decryptedResponse);
-                } else {
-                    disconnect();
-                    ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
-                            ") requires the server to respond with a challenge.");
-                    throw CommunicationException.protocolConnectFailed(connectionException);
-                }
             }
             break;
             case HLS7_ECDSA: {
+                plainText = ProtocolTools.concatByteArrays(
+                        this.securityContext.getSystemTitle(),
+                        this.securityContext.getResponseSystemTitle(),
+                        this.acse.getRespondingAuthenticationValue(),
+                        this.securityContext.getSecurityProvider().getCallingAuthenticationValue()
+                );
 
-                //TODO
+                ECDSASignatureImpl signing = new ECDSASignatureImpl(getSecurityContext().getECCCurve());
+                PrivateKey clientPrivateSigningKey = getGeneralCipheringSecurityProvider().getClientPrivateSigningKey();
+                if (clientPrivateSigningKey == null) {
+                    throw DeviceConfigurationException.missingProperty(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY);
+                }
+
+                byte[] signature = signing.sign(plainText, clientPrivateSigningKey);
+                decryptedResponse = replyToHLSAuthentication(signature);
+
+                analyzeDecryptedResponse(decryptedResponse);
             }
             break;
             default: {
@@ -228,6 +272,13 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 throw DeviceConfigurationException.unsupportedPropertyValue("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()));
             }
         }
+    }
+
+    private GeneralCipheringSecurityProvider getGeneralCipheringSecurityProvider() {
+        if (!(this.securityContext.getSecurityProvider() instanceof GeneralCipheringSecurityProvider)) {
+            throw CodingException.protocolImplementationError("General ciphering is not yet supported in the protocol you are using");
+        }
+        return (GeneralCipheringSecurityProvider) this.securityContext.getSecurityProvider();
     }
 
     private byte[] associationEncryption(byte[] plainText) {
@@ -263,12 +314,31 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
 
             calculatedServerDigest = associationEncryption(plainText);
         } else if (this.securityContext.getAuthenticationType() == AuthenticationTypes.HLS7_ECDSA) {
-            //TODO HLS7
-            calculatedServerDigest = null;
+            byte[] plainText = ProtocolTools.concatByteArrays(
+                    this.securityContext.getResponseSystemTitle(),
+                    this.securityContext.getSystemTitle(),
+                    this.securityContext.getSecurityProvider().getCallingAuthenticationValue(),
+                    this.acse.getRespondingAuthenticationValue()
+            );
+
+            ECDSASignatureImpl signing = new ECDSASignatureImpl(getSecurityContext().getECCCurve());
+            X509Certificate serverSignatureCertificate = getGeneralCipheringSecurityProvider().getServerSignatureCertificate();
+            if (serverSignatureCertificate == null) {
+                throw DeviceConfigurationException.missingProperty(SecurityPropertySpecName.SERVER_SIGNING_CERTIFICATE.toString());
+            }
+
+            if (signing.verify(plainText, serverDigest, serverSignatureCertificate.getPublicKey())) {
+                this.associationStatus = ASSOCIATION_CONNECTED;
+                return;
+            } else {
+                silentDisconnect();
+                ProtocolException protocolException = new ProtocolException("Verification of the received digital signature (HLS7 using ECDSA) using the server signing certificate failed.");
+                throw ConnectionCommunicationException.protocolConnectFailed(protocolException);
+            }
         }
 
         if (!Arrays.equals(calculatedServerDigest, serverDigest)) {
-            disconnect();
+            silentDisconnect();
             IOException ioException = new IOException("HighLevelAuthentication failed, client and server challenges do not match.");
             throw CommunicationException.protocolConnectFailed(ioException);
         } else {
@@ -292,15 +362,21 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 berEncodedData = aln.replyToHLSAuthentication(digest);
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
-                disconnect();
+                silentDisconnect();
                 throw CommunicationException.protocolConnectFailed(e);
             } catch (IOException e) {
                 throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
+            } catch (ConnectionCommunicationException e) {
+                if (e.getExceptionReference().equals(ProtocolExceptionReference.UNEXPECTED_RESPONSE) || e.getExceptionReference().equals(ProtocolExceptionReference.UNEXPECTED_PROTOCOL_ERROR)) {
+                    silentDisconnect();
+                }
+                throw e;
             }
+
             try {
                 decryptedResponse = new OctetString(berEncodedData, 0);
             } catch (IOException e) {
-                disconnect();
+                silentDisconnect();
                 throw CommunicationException.protocolConnectFailed(e);
             }
         } else if ((this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_NO_CIPHERING)
@@ -310,7 +386,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 response = asn.replyToHLSAuthentication(digest);
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
-                disconnect();
+                silentDisconnect();
                 throw CommunicationException.protocolConnectFailed(e);
             } catch (IOException e) {
                 throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
@@ -321,7 +397,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 decryptedResponse = new OctetString(response, 0);
             } catch (IOException e) {
-                disconnect();
+                silentDisconnect();
                 throw CommunicationException.protocolConnectFailed(e);
             }
         } else {
@@ -357,7 +433,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         }
     }
 
-    private void disconnect() {
+    private void silentDisconnect() {
         try {
             releaseAssociation();
             getDlmsV2Connection().disconnectMAC();

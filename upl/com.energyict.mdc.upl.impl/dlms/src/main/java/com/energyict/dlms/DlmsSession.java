@@ -308,7 +308,7 @@ public class DlmsSession implements ProtocolLink {
      */
     protected ApplicationServiceObject buildAso() {
         if (getProperties().isNtaSimulationTool()) {
-            return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null);
+            return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId(), getProperties().getSerialNumber().getBytes(), null, null);
         } else {
             return new ApplicationServiceObject(buildXDlmsAse(), this, buildSecurityContext(), getContextId());
         }
@@ -365,7 +365,7 @@ public class DlmsSession implements ProtocolLink {
         return new SecurityContext(
                 getProperties().getDataTransportSecurityLevel(),
                 getProperties().getAuthenticationSecurityLevel(),
-                0, // TODO: check what this means
+                0, // Suite 0: AES-GCM-128
                 (getProperties().getSystemIdentifier() == null) ? null : getProperties().getSystemIdentifier(),
                 getProperties().getSecurityProvider(),
                 getProperties().getCipheringType().getType()

@@ -57,13 +57,14 @@ public class XDlmsEncryptionTest {
 		(byte) 0x68, (byte) 0x55
 	};
 	private static final int	SYSTEM_TITLE_LENGTH	= 8;
+	private static final int SECURITY_SUITE = 0;
 
 	/**
 	 * Test method for {@link com.energyict.encryption.XDlmsEncryption#setSystemTitle(byte[])}.
 	 */
 	@Test
 	public final void testSetSystemTitle() {
-		XDlmsEncryption xdlms = new XDlmsEncryption();
+		XDlmsEncryption xdlms = new XDlmsEncryption(SECURITY_SUITE);
 		try {
 			xdlms.setSystemTitle(null);
 			fail("Previous method call should have thrown an exception");
@@ -96,7 +97,7 @@ public class XDlmsEncryptionTest {
 	 */
 	@Test
 	public final void testGenerateCipheredAPDU() {
-		XDlmsEncryption xdlms = new XDlmsEncryption();
+		XDlmsEncryption xdlms = new XDlmsEncryption(SECURITY_SUITE);
 		xdlms.setSystemTitle(SYSTEM_TITLE);
 		xdlms.setFrameCounter(FRAME_COUNTER);
 		xdlms.setGlobalKey(GLOBAL_KEY);
@@ -111,7 +112,7 @@ public class XDlmsEncryptionTest {
 	 */
 	@Test
 	public final void testToString() {
-		XDlmsEncryption xdlms = new XDlmsEncryption();
+		XDlmsEncryption xdlms = new XDlmsEncryption(SECURITY_SUITE);
 		assertNotNull(xdlms.toString());
 		xdlms.setSystemTitle(SYSTEM_TITLE);
 		assertNotNull(xdlms.toString());

@@ -119,7 +119,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-06-13 09:30:28 +0300 (Mon, 13 Jun 2016)$";
+        return "$Date: 2016-07-14 14:32:42 +0200 (Thu, 14 Jul 2016)$";
     }
 
     /**
@@ -275,7 +275,6 @@ public class AM540 extends AM130 implements SerialNumberSupport {
             am540Cache = (AM540Cache) deviceProtocolCache;
         }
     }
-
 
     /**
      * Method to check whether the cache needs to be read out or not, if so the read will be forced

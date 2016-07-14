@@ -85,18 +85,41 @@ public class EventPushNotificationParser {
         return comChannel;
     }
 
-    public void parseInboundFrame() {
+    /**
+     * Parses the inbound frame. Currently supported security:
+     * - plain event notification frame (tag 0xC2 COSEM_EVENTNOTIFICATIONRESUEST)
+     * - event notification frame secured with general-global ciphering (tag 0xDB GENERAL_GLOBAL_CIPHERING)
+     * - event notification frame secured with general ciphering (tag 0xDD GENERAL_CIPHERING)
+     * - event notification frame secured with general signing (tag 0xDF GENERAL_SIGNING)
+     * <p/>
+     * Not supported:
+     * - ded-event-notification-request (tag 0xCA DED_EVENTNOTIFICATION_REQUEST) because we don't have a dedicated session key available
+     * - glo-event-notification-request (tag 0xD2 GLO_EVENTNOTIFICATION_REQUEST) because it does not contain a system-title to identify the device
+     */
+    public void readAndParseInboundFrame() {
         ByteBuffer inboundFrame = readInboundFrame();
         byte[] header = new byte[8];
         inboundFrame.get(header);
+
+        parseInboundFrame(inboundFrame);
+    }
+
+    private void parseInboundFrame(ByteBuffer inboundFrame) {
         byte tag = inboundFrame.get();
         if (tag == getCosemNotificationAPDUTag()) {
-            parseAPDU(inboundFrame);
+            parsePlainAPDU(inboundFrame);
         } else if (tag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING) {
-            parseEncryptedFrame(inboundFrame);
+            parseGeneralGlobalFrame(inboundFrame);
+        } else if (tag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
+            parseGeneralCipheringFrame(inboundFrame);
+        } else if (tag == DLMSCOSEMGlobals.GENERAL_SIGNING) {
+            parseGeneralSigningFrame(inboundFrame);
         } else {
-            //TODO support general ciphering & general signing (suite 0, 1 and 2)
-            throw DataParseException.ioException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" + getCosemNotificationAPDUTag() + "' or '" + DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "'"));
+            throw DataParseException.ioException(new ProtocolException("Unexpected tag '" + tag + "' in received push event notification. Expected '" +
+                    getCosemNotificationAPDUTag() + "', '" +
+                    DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING + "', '" +
+                    DLMSCOSEMGlobals.GENERAL_CIPHERING + "' or '" +
+                    DLMSCOSEMGlobals.GENERAL_SIGNING + "'"));
         }
     }
 
@@ -104,38 +127,45 @@ public class EventPushNotificationParser {
         return deviceIdentifier;
     }
 
-    private void parseEncryptedFrame(ByteBuffer inboundFrame) {
-        int systemTitleLength = inboundFrame.get() & 0xFF;
-        byte[] systemTitle = new byte[systemTitleLength];
-        inboundFrame.get(systemTitle);
-        deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(systemTitle);
-
-        int remainingLength = inboundFrame.get() & 0xFF;
-        int securityPolicy = inboundFrame.get() & 0xFF;
-
-        if (getSecurityPropertySet().getEncryptionDeviceAccessLevel() != (securityPolicy / 16)) {
-            throw DataParseException.ioException(new ProtocolException(
-                    "Security mismatch: received incoming event push notification encrypted with security policy " + (securityPolicy / 16) + ", but device in EIServer is configured with security level " + getSecurityPropertySet().getEncryptionDeviceAccessLevel()));
-        }
-
+    private void parseGeneralGlobalFrame(ByteBuffer inboundFrame) {
         SecurityContext securityContext = getSecurityContext();
-        securityContext.setResponseSystemTitle(systemTitle);
 
-        ByteBuffer decryptedFrame;
-        byte[] cipherFrame = new byte[inboundFrame.remaining()];
-        inboundFrame.get(cipherFrame);
-        byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00, (byte) remainingLength, (byte) securityPolicy}, cipherFrame);
-        try {
-            decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportDecryption(securityContext, fullCipherFrame));
-        } catch (DLMSConnectionException e) {
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
-        }
-        byte plainTag = decryptedFrame.get();
-        if (plainTag != getCosemNotificationAPDUTag()) {
-            throw DataParseException.ioException(new ProtocolException("Unexpected tag after decrypting an incoming event push notification: " + plainTag + ", expected " + getCosemNotificationAPDUTag()));
-        }
+        byte[] remaining = new byte[inboundFrame.remaining()];
+        inboundFrame.get(remaining);
+        byte[] generalGlobalResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING}, remaining);
 
-        parseAPDU(decryptedFrame);
+        ByteBuffer decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(securityContext, generalGlobalResponse));
+        deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(securityContext.getResponseSystemTitle());
+
+        parseInboundFrame(decryptedFrame);
+    }
+
+    private void parseGeneralCipheringFrame(ByteBuffer inboundFrame) {
+        SecurityContext securityContext = getSecurityContext();
+
+        byte[] remaining = new byte[inboundFrame.remaining()];
+        inboundFrame.get(remaining);
+        byte[] generalCipheredResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_CIPHERING}, remaining);
+
+        ByteBuffer decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(securityContext, generalCipheredResponse));
+        deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(securityContext.getResponseSystemTitle());
+
+        //Now parse the resulting APDU again, it could be a plain or a ciphered APDU.
+        parseInboundFrame(decryptedFrame);
+    }
+
+    private void parseGeneralSigningFrame(ByteBuffer inboundFrame) {
+        SecurityContext securityContext = getSecurityContext();
+
+        byte[] remaining = new byte[inboundFrame.remaining()];
+        inboundFrame.get(remaining);
+        byte[] generalSignedResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_SIGNING}, remaining);
+
+        ByteBuffer decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.unwrapGeneralSigning(securityContext, generalSignedResponse));
+        deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(securityContext.getResponseSystemTitle());
+
+        //Now parse the resulting APDU again, it could be a plain or a ciphered APDU.
+        parseInboundFrame(decryptedFrame);
     }
 
     protected byte getCosemNotificationAPDUTag() {
@@ -204,7 +234,7 @@ public class EventPushNotificationParser {
      * - cosem-attribute-descriptor (class ID, obiscode and attribute number)
      * - attribute-value (Data)
      */
-    protected void parseAPDU(ByteBuffer inboundFrame) {
+    protected void parsePlainAPDU(ByteBuffer inboundFrame) {
         byte dateLength = inboundFrame.get();
         inboundFrame.get(new byte[dateLength]); //Skip the date field
 
