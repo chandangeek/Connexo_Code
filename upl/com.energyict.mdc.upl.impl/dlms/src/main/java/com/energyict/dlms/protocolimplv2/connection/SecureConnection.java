@@ -203,43 +203,43 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection {
 
                             // If it's a general-signing APDU, check its signature and unwrap it.
                             // Note that its contents can still be a ciphered APDU, it will be decrypted below.
-                            byte cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
+                            cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
                             if (cipheredTag == DLMSCOSEMGlobals.GENERAL_SIGNING) {
                                 securedResponse = unwrapGeneralSigning(ProtocolUtils.getSubArray(securedResponse, 3));
                                 securedResponse = ProtocolUtils.concatByteArrays(leading, securedResponse);
                                 cipheredTag = securedResponse[LOCATION_SECURED_XDLMS_APDU_TAG];
                             }
 
-                    //Check if the response tag is know and decrypt the data if necessary
-                    if (cipheredTag == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
-                        //Return any errors as-is
-                        return securedResponse;
-                    } else if (XdlmsApduTags.isPlainTag(cipheredTag)) {
-                        if (this.aso.getSecurityContext().getSecurityPolicy().isResponsePlain()) {
-                            return securedResponse;
-                        } else {
-                            ProtocolException protocolException = new ProtocolException("Received an unsecured response, this is not allowed according to the configured (minimum) security policy for responses. Aborting.");
-                            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
-                        }
-                    } else if (XdlmsApduTags.contains(cipheredTag)) {
-                        //Service specific ciphering
-                        // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
-                        // Strip the 3 leading bytes before decrypting
-                        decryptedResponse = decrypt(ProtocolUtils.getSubArray(securedResponse, 3));
-                    } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
-                        //General global/dedicated ciphering
-                        // Strip the 3 leading bytes before decrypting
-                        decryptedResponse = decryptGeneralGloOrDedCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
-                    } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
-                        //General ciphering
-                        decryptedResponse = decryptGeneralCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
-                    } else if (cipheredTag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
-                        // Return as-is, content can only be decrypted once all blocks are received
-                        // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
-                        return securedResponse;
-                    } else {
-                        IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
-                        throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
+                            //Check if the response tag is know and decrypt the data if necessary
+                            if (cipheredTag == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
+                                //Return any errors as-is
+                                return securedResponse;
+                            } else if (XdlmsApduTags.isPlainTag(cipheredTag)) {
+                                if (this.aso.getSecurityContext().getSecurityPolicy().isResponsePlain()) {
+                                    return securedResponse;
+                                } else {
+                                    ProtocolException protocolException = new ProtocolException("Received an unsecured response, this is not allowed according to the configured (minimum) security policy for responses. Aborting.");
+                                    throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+                                }
+                            } else if (XdlmsApduTags.contains(cipheredTag)) {
+                                //Service specific ciphering
+                                // FIXME: Strip the 3 leading bytes before decryption -> due to old HDLC code
+                                // Strip the 3 leading bytes before decrypting
+                                decryptedResponse = decrypt(ProtocolUtils.getSubArray(securedResponse, 3));
+                            } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING || cipheredTag == DLMSCOSEMGlobals.GENERAL_DEDICATED_CIPTHERING) {
+                                //General global/dedicated ciphering
+                                // Strip the 3 leading bytes before decrypting
+                                decryptedResponse = decryptGeneralGloOrDedCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
+                            } else if (cipheredTag == DLMSCOSEMGlobals.GENERAL_CIPHERING) {
+                                //General ciphering
+                                decryptedResponse = decryptGeneralCiphering(ProtocolUtils.getSubArray(securedResponse, 3));
+                            } else if (cipheredTag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
+                                // Return as-is, content can only be decrypted once all blocks are received
+                                // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
+                                return securedResponse;
+                            } else {
+                                IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
+                                throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
                             }
                         }
                     } catch (DLMSConnectionException e) {

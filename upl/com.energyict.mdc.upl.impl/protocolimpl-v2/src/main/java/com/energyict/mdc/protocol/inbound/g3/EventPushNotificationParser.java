@@ -134,7 +134,13 @@ public class EventPushNotificationParser {
         inboundFrame.get(remaining);
         byte[] generalGlobalResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING}, remaining);
 
-        ByteBuffer decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(securityContext, generalGlobalResponse));
+        ByteBuffer decryptedFrame;
+        try {
+            decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(securityContext, generalGlobalResponse));
+        } catch (DLMSConnectionException e) {
+            //Invalid frame counter
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
         deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(securityContext.getResponseSystemTitle());
 
         parseInboundFrame(decryptedFrame);
@@ -147,7 +153,13 @@ public class EventPushNotificationParser {
         inboundFrame.get(remaining);
         byte[] generalCipheredResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_CIPHERING}, remaining);
 
-        ByteBuffer decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(securityContext, generalCipheredResponse));
+        ByteBuffer decryptedFrame;
+        try {
+            decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralDecryption(securityContext, generalCipheredResponse));
+        } catch (DLMSConnectionException e) {
+            //Invalid frame counter
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+        }
         deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(securityContext.getResponseSystemTitle());
 
         //Now parse the resulting APDU again, it could be a plain or a ciphered APDU.
@@ -375,7 +387,7 @@ public class EventPushNotificationParser {
 
     private void createCollectedLogBook(List<MeterEvent> meterEvents) {
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
-        for(MeterEvent meterEvent: meterEvents){
+        for (MeterEvent meterEvent : meterEvents) {
             meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(meterEvent));
         }
         collectedLogBook = MdcManager.getCollectedDataFactory().createCollectedLogBook(new LogBookIdentifierByObisCodeAndDevice(deviceIdentifier, logbookObisCode));
@@ -404,7 +416,7 @@ public class EventPushNotificationParser {
         }
     }
 
-    private int getAlarmRegister(ObisCode obisCode){
+    private int getAlarmRegister(ObisCode obisCode) {
         if (obisCode.equals(ObisCode.fromString("0.0.97.98.20.255"))) {
             return 1;
         } else if (obisCode.equals(ObisCode.fromString("0.0.97.98.21.255"))) {
