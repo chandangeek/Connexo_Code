@@ -126,7 +126,7 @@ public class EventPushNotificationParserTest extends TestCase {
         Throwable expected = null;
         try {
             //Business code
-            parser.parseInboundFrame();
+            parser.readAndParseInboundFrame();
         } catch (DataParseException e) {
             expected = e;
         }
@@ -138,7 +138,7 @@ public class EventPushNotificationParserTest extends TestCase {
         EventPushNotificationParser parser = spyParser(BEACON_NOTIFICATION_1_3_0);
 
         //Business code
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
 
         assertEquals(parser.getDeviceIdentifier().getIdentifier(), "34157300028003");
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -154,7 +154,7 @@ public class EventPushNotificationParserTest extends TestCase {
         Throwable expected = null;
         try {
             //Business code
-            parser.parseInboundFrame();
+            parser.readAndParseInboundFrame();
         } catch (DataParseException e) {
             expected = e;
         }
@@ -166,7 +166,7 @@ public class EventPushNotificationParserTest extends TestCase {
         EventPushNotificationParser parser = spyParser(BEACON_NOTIFICATION_1_4_0);
 
         //Business code
-        parser.parseInboundFrame();
+        parser.readAndParseInboundFrame();
 
         assertEquals(parser.getDeviceIdentifier().getIdentifier(), "Equipment-Identifier");
         MeterProtocolEvent meterProtocolEvent = parser.getCollectedLogBook().getCollectedMeterEvents().get(0);
@@ -308,7 +308,7 @@ public class EventPushNotificationParserTest extends TestCase {
         PushEventNotification pushEventNotification = new PushEventNotification();
         pushEventNotification.initComChannel(parser.getComChannel());
         pushEventNotification.initializeDiscoveryContext(context);
-        pushEventNotification.getEventPushNotificationParser().parseInboundFrame();
+        pushEventNotification.getEventPushNotificationParser().readAndParseInboundFrame();
         pushEventNotification.collectedLogBook = pushEventNotification.getEventPushNotificationParser().getCollectedLogBook();
         assertEquals(pushEventNotification.getLoggingMessage(), "Received inbound event notification from [device with serial number 660-00545D-1125].  Message: 'G3 : Node [0223:7EFF:FEFD:AAE9] [0x0006] has registered on the network', protocol code: '194'");
     }

@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>9.1-FEAT02.0-SNAPSHOT</version>
+        <version>9.1.34-SNAPSHOT</version>
     </parent>
 
     <dependencies>
