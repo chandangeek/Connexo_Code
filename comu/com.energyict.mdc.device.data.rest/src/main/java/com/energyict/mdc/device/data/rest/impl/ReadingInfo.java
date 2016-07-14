@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -29,6 +30,7 @@ public abstract class ReadingInfo {
     @JsonProperty("modificationFlag")
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
     public ReadingModificationFlag modificationFlag;
+    public SlaveRegisterInfo slaveRegister;
 
     public ReadingInfo() {
     }
