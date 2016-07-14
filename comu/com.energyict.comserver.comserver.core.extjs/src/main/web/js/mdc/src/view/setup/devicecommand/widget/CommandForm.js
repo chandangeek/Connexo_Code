@@ -21,6 +21,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
         {
             fieldLabel: Uni.I18n.translate('deviceCommand.add.commandCategorys', 'MDC', 'Command categories'),
             name: 'commandCategory',
+            itemId: 'mdc-addCommand-categories-combo',
             store: 'Mdc.store.DeviceMessageCategories',
             displayField: 'name',
             valueField: 'id',
@@ -30,6 +31,7 @@ Ext.define('Mdc.view.setup.devicecommand.widget.CommandForm', {
         {
             fieldLabel: Uni.I18n.translate('deviceCommand.add.command', 'MDC', 'Command'),
             name: 'command',
+            itemId: 'mdc-addCommand-commands-combo',
             displayField: 'name',
             valueField: 'id',
             editable: false,
