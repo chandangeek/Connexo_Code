@@ -60,7 +60,7 @@ class RequirementsFromExpressionNode implements ServerExpressionNode.Visitor<Lis
         List<VirtualRequirementNode> result = new ArrayList();
         result.addAll(operation.getLeftOperand().accept(this));
         result.addAll(operation.getRightOperand().accept(this));
-        return null;
+        return new ArrayList();
     }
 
     @Override
