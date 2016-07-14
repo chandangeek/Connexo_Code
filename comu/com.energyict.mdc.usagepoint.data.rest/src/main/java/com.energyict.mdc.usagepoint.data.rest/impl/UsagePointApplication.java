@@ -9,6 +9,9 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.PropertyUtils;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.energyict.mdc.device.data.DeviceService;
 
 import com.google.common.collect.ImmutableSet;
@@ -33,6 +36,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
+    private volatile ValidationService validationService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(UsagePointResource.class);
@@ -41,6 +45,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
     }
 
     @Reference
@@ -94,12 +103,15 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
             bind(transactionService).to(TransactionService.class);
+            bind(validationService).to(ValidationService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(MeterInfoFactory.class).to(MeterInfoFactory.class);
             bind(UsagePointChannelInfoFactory.class).to(UsagePointChannelInfoFactory.class);
             bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ChannelDataInfoFactory.class).to(ChannelDataInfoFactory.class);
+            bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+            bind(PropertyUtils.class).to(PropertyUtils.class);
         }
     }
 }

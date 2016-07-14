@@ -1,6 +1,8 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -11,6 +13,8 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.services.ListPager;
 
 import com.google.common.collect.Range;
@@ -28,6 +32,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,16 +43,19 @@ public class UsagePointResource {
     private final UsagePointChannelInfoFactory usagePointChannelInfoFactory;
     private final ResourceHelper resourceHelper;
     private final ChannelDataInfoFactory channelDataInfoFactory;
+    private final ValidationService validationService;
 
     @Inject
     public UsagePointResource(MeterInfoFactory meterInfoFactory,
                               UsagePointChannelInfoFactory usagePointChannelInfoFactory,
                               ResourceHelper resourceHelper,
-                              ChannelDataInfoFactory channelDataInfoFactory) {
+                              ChannelDataInfoFactory channelDataInfoFactory,
+                              ValidationService validationService) {
         this.meterInfoFactory = meterInfoFactory;
         this.usagePointChannelInfoFactory = usagePointChannelInfoFactory;
         this.resourceHelper = resourceHelper;
         this.channelDataInfoFactory = channelDataInfoFactory;
+        this.validationService = validationService;
     }
 
     @GET
@@ -88,9 +96,11 @@ public class UsagePointResource {
     public UsagePointChannelInfo getChannel(
             @PathParam("mRID") String mRID,
             @PathParam("channelid") long channelId) {
+
         UsagePoint usagePoint = resourceHelper.fetchUsagePoint(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = resourceHelper.getEffectiveMetrologyConfigurationOnUsagePoint(usagePoint);
         Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
+
         return usagePointChannelInfoFactory.from(channel, usagePoint, effectiveMetrologyConfiguration.getMetrologyConfiguration());
     }
 
@@ -104,12 +114,20 @@ public class UsagePointResource {
             @PathParam("channelid") long channelId,
             @BeanParam JsonQueryFilter filter,
             @BeanParam JsonQueryParameters queryParameters) {
+
         Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(mRID, channelId);
+
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            List<ChannelDataInfo> infos = channel.getIntervalReadings(range).stream()
-                    .map(channelDataInfoFactory::createChannelDataInfo)
+            List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(range);
+
+            List<DataValidationStatus> validationStatuses = validationService.getEvaluator()
+                    .getValidationStatus(Collections.singleton(QualityCodeSystem.MDC), channel, intervalReadings, range);
+
+            List<ChannelDataInfo> infos = intervalReadings.stream()
+                    .map(intervalReading -> channelDataInfoFactory.createChannelDataInfo(intervalReading, validationStatuses, false))
                     .collect(Collectors.toList());
+
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
             PagedInfoList pagedInfoList = PagedInfoList.fromPagedList("data", paginatedChannelData, queryParameters);
             return Response.ok(pagedInfoList).build();
