@@ -16,7 +16,7 @@ import java.util.Objects;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class IntervalLengthFromExpressionNode implements ServerExpressionNode.Visitor<IntervalLength> {
+class IntervalLengthFromExpressionNode implements ServerExpressionNode.Visitor<IntervalLength> {
 
     @Override
     public IntervalLength visitConstant(NumericalConstantNode constant) {
@@ -25,6 +25,11 @@ public class IntervalLengthFromExpressionNode implements ServerExpressionNode.Vi
 
     @Override
     public IntervalLength visitConstant(StringConstantNode constant) {
+        return null;
+    }
+
+    @Override
+    public IntervalLength visitProperty(CustomPropertyNode property) {
         return null;
     }
 
@@ -56,8 +61,8 @@ public class IntervalLengthFromExpressionNode implements ServerExpressionNode.Vi
     @Override
     public IntervalLength visitOperation(OperationNode operationNode) {
         return this.findFirst(Arrays.asList(
-                        operationNode.getLeftOperand(),
-                        operationNode.getRightOperand()));
+                operationNode.getLeftOperand(),
+                operationNode.getRightOperand()));
     }
 
     @Override

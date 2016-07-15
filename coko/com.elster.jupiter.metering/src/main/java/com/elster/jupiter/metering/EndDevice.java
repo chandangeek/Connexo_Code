@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -43,18 +44,6 @@ public interface EndDevice extends IdentifiedObject {
 
     void delete();
 
-    Optional<Location> getLocation();
-
-    void setLocation(Location location);
-
-    long getLocationId();
-
-    Optional<GeoCoordinates> getGeoCoordinates();
-
-    long getGeoCoordinatesId();
-
-    void setGeoCoordinates(GeoCoordinates geoCoordinates);
-
     Optional<HeadEndInterface> getHeadEndInterface();
 
     EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
@@ -70,6 +59,14 @@ public interface EndDevice extends IdentifiedObject {
     void setSerialNumber(String serialNumber);
 
     void setMRID(String mrid);
+
+    void setLocation(Location location);
+
+    Optional<Location> getLocation();
+
+    Optional<SpatialCoordinates> getSpatialCoordinates();
+
+    void setSpatialCoordinates(SpatialCoordinates spatialCoordinates);
 
     /**
      * Gets the {@link FiniteStateMachine} that determines the possible {@link State}s.

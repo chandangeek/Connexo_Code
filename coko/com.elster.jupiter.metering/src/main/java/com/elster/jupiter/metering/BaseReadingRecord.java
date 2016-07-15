@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.units.Quantity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BaseReadingRecord extends BaseReading {
     List<Quantity> getQuantities();
@@ -19,7 +20,7 @@ public interface BaseReadingRecord extends BaseReading {
 
     List<? extends ReadingType> getReadingTypes();
 
-    ProcessStatus getProcesStatus();
+    ProcessStatus getProcessStatus();
 
     void setProcessingFlags(ProcessStatus.Flag... flags);
     
@@ -29,15 +30,19 @@ public interface BaseReadingRecord extends BaseReading {
     List<? extends ReadingQualityRecord> getReadingQualities();
     
     default boolean edited() {
-    	return getProcesStatus().get(ProcessStatus.Flag.EDITED);
+        return getProcessStatus().get(ProcessStatus.Flag.EDITED);
     }
     
     default boolean wasAdded() {
-    	return edited() && 
-    		getReadingQualities().stream().anyMatch(quality -> quality.getType().qualityIndex().orElse(null) == QualityCodeIndex.ADDED);     			
+        return edited() && getReadingQualities().stream()
+                .map(ReadingQualityRecord::getType)
+                .map(ReadingQualityType::qualityIndex)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .anyMatch(index -> index == QualityCodeIndex.ADDED);
     }
 
     default boolean confirmed() {
-        return getProcesStatus().get(ProcessStatus.Flag.CONFIRMED);
+        return getProcessStatus().get(ProcessStatus.Flag.CONFIRMED);
     }
 }

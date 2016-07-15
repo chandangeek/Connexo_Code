@@ -20,6 +20,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
+import com.elster.jupiter.util.streams.Functions;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,7 +44,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-19 (14:37)
  */
-public class StateMachineSwitcher implements MessageHandler {
+class StateMachineSwitcher implements MessageHandler {
 
     /**
      * The number of devices that this component will process in one transaction.
@@ -62,21 +63,21 @@ public class StateMachineSwitcher implements MessageHandler {
         return new StateMachineSwitcher(dataModel);
     }
 
-    public static StateMachineSwitcher forPublishing(DataModel dataModel, MessageService messageService, JsonService jsonService) {
+    static StateMachineSwitcher forPublishing(DataModel dataModel, MessageService messageService, JsonService jsonService) {
         StateMachineSwitcher switcher = new StateMachineSwitcher(dataModel);
         switcher.messageService = messageService;
         switcher.jsonService = jsonService;
         return switcher;
     }
 
-    public static StateMachineSwitcher forPublishing(int batchSize, DataModel dataModel, MessageService messageService, JsonService jsonService) {
+    static StateMachineSwitcher forPublishing(int batchSize, DataModel dataModel, MessageService messageService, JsonService jsonService) {
         StateMachineSwitcher switcher = new StateMachineSwitcher(dataModel, batchSize);
         switcher.messageService = messageService;
         switcher.jsonService = jsonService;
         return switcher;
     }
 
-    public static StateMachineSwitcher forHandling(DataModel dataModel, EventService eventService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService) {
+    static StateMachineSwitcher forHandling(DataModel dataModel, EventService eventService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService) {
         StateMachineSwitcher switcher = new StateMachineSwitcher(dataModel);
         switcher.jsonService = jsonService;
         switcher.finiteStateMachineService = finiteStateMachineService;
@@ -215,7 +216,8 @@ public class StateMachineSwitcher implements MessageHandler {
     private List<State> toStates(Set<String> stateNames, FiniteStateMachine stateMachine) {
         return stateNames
                 .stream()
-                .map(s -> stateMachine.getState(s).get())
+                .map(stateMachine::getState)
+                .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
     }
 
@@ -229,7 +231,7 @@ public class StateMachineSwitcher implements MessageHandler {
      * @param newStateMachine The new FiniteStateMachine
      * @param deviceAmrIdSubquery The Subquery that returns the set of EndDevice that will be switched
      */
-    public void publishEvents(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
+    void publishEvents(Instant effective, FiniteStateMachine oldStateMachine, FiniteStateMachine newStateMachine, Subquery deviceAmrIdSubquery) {
         DestinationSpec destinationSpec = this.messageService.getDestinationSpec(SwitchStateMachineEvent.DESTINATION).get();
         Condition condition =
                 where("status.interval").isEffective()
@@ -246,7 +248,7 @@ public class StateMachineSwitcher implements MessageHandler {
                 .forEach(event -> event.publish(destinationSpec, this.jsonService));
     }
 
-    private static class IncompatibleStateNameSqlFragment implements SqlFragment {
+    private static final class IncompatibleStateNameSqlFragment implements SqlFragment {
         private final FiniteStateMachine stateMachine;
 
         private IncompatibleStateNameSqlFragment(FiniteStateMachine stateMachine) {

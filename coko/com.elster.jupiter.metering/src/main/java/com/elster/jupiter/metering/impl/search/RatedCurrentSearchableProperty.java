@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
+class RatedCurrentSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -31,7 +31,7 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
     private static final String FIELD_NAME = "detail.ratedCurrent";
 
     @Inject
-    public RatedCurrentSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    RatedCurrentSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -87,9 +87,10 @@ public class RatedCurrentSearchableProperty implements SearchableUsagePointPrope
                 .specForValuesOf(new QuantityValueFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_RATEDCURRENT)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 0, "A"),
-                        Quantity.create(new BigDecimal(0), 3, "A"),
-                        Quantity.create(new BigDecimal(0), 6, "A"))
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "A"),
+                        Quantity.create(BigDecimal.ZERO, 3, "A"),
+                        Quantity.create(BigDecimal.ZERO, 6, "A"))
                 .finish();
     }
 

@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.readings.MeterReading;
 
@@ -14,7 +15,12 @@ public interface Meter extends EndDevice, ReadingContainer {
 
     String TYPE_IDENTIFIER = "M";
 
-    void store(MeterReading reading);
+    /**
+     * Stores {@link MeterReading}.
+     * @param system {@link QualityCodeSystem} that handles storage.
+     * @param reading {@link MeterReading} to store.
+     */
+    void store(QualityCodeSystem system, MeterReading reading);
 
     List<? extends MeterActivation> getMeterActivations();
 

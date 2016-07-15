@@ -10,7 +10,7 @@ import java.time.temporal.TemporalAmount;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-05 (15:14)
  */
-public interface TemporalAmountFactory {
+interface TemporalAmountFactory {
 
     TemporalAmount from(ReadingType readingType);
 

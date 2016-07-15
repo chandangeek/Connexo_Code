@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeTemplateImplTestIT {
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @BeforeClass
     public static void beforeClass() {
@@ -179,7 +179,7 @@ public class ReadingTypeTemplateImplTestIT {
                 .done();
         int persistedAttributes = getPersistedAttributes().size();
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME, null).done();
-        assertThat(getPersistedAttributes()).hasSize(persistedAttributes-1);
+        assertThat(getPersistedAttributes()).hasSize(persistedAttributes - 1);
     }
 
     @Test

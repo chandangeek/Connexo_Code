@@ -17,8 +17,13 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
+import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -74,7 +79,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     private final MetrologyConfigurationServiceImpl metrologyConfigurationService;
 
     @Inject
-    public InstallerImpl(DataModel dataModel, MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, Clock clock, MetrologyConfigurationServiceImpl metrologyConfigurationService) {
+    public InstallerImpl(DataModel dataModel, MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, Clock clock, MetrologyConfigurationServiceImpl metrologyConfigurationService, MeteringDataModelServiceImpl meteringDataModelService) {
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.idsService = idsService;
@@ -84,8 +89,8 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
         this.thesaurus = thesaurus;
         this.messageService = messageService;
         this.metrologyConfigurationService = metrologyConfigurationService;
-        this.createAllReadingTypes = meteringService.isCreateAllReadingTypes();
-        this.requiredReadingTypes = meteringService.getRequiredReadingTypes();
+        this.createAllReadingTypes = meteringDataModelService.isCreateAllReadingTypes();
+        this.requiredReadingTypes = meteringDataModelService.getRequiredReadingTypes();
         this.clock = clock;
     }
 
@@ -153,8 +158,21 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
                 this::createSqlAggregationComponents,
                 logger
         );
-        metrologyConfigurationService.install(logger);
-
+        doTry(
+                "Create Meter Roles",
+                this::createMeterRoles,
+                logger
+        );
+        doTry(
+                "Create Metrology Purposes",
+                this::createMetrologyPurposes,
+                logger
+        );
+        doTry(
+                "Create Reading Type templates",
+                this::createReadingTypeTemplates,
+                logger
+        );
         doTry(
                 "Create Location Member table",
                 () -> new CreateLocationMemberTableOperation(dataModel, meteringService.getLocationTemplate()).execute(),
@@ -176,24 +194,42 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     @Override
     public String getModuleName() {
-        return MeteringService.COMPONENTNAME;
+        return MeteringDataModelService.COMPONENT_NAME;
     }
 
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_USAGE_POINT
-                        .getKey(), DefaultTranslationKey.RESOURCE_USAGE_POINT_DESCRIPTION.getKey(),
-                Arrays.asList(
-                        Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
-                        Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
-                        Privileges.Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS)));
-        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_READING_TYPE
-                        .getKey(), DefaultTranslationKey.RESOURCE_READING_TYPE_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.ADMINISTER_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
-        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY
-                        .getKey(), DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
-                Arrays.asList(Privileges.Constants.VIEW_SERVICECATEGORY)));
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        DefaultTranslationKey.RESOURCE_USAGE_POINT.getKey(),
+                        DefaultTranslationKey.RESOURCE_USAGE_POINT_DESCRIPTION.getKey(),
+                        Arrays.asList(
+                                Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT,
+                                Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT,
+                                Privileges.Constants.ADMINISTER_USAGEPOINT_TIME_SLICED_CPS)));
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        DefaultTranslationKey.RESOURCE_READING_TYPE.getKey(),
+                        DefaultTranslationKey.RESOURCE_READING_TYPE_DESCRIPTION.getKey(),
+                        Arrays.asList(Privileges.Constants.ADMINISTER_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY.getKey(),
+                        DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
+                        Arrays.asList(Privileges.Constants.VIEW_SERVICECATEGORY)));
+
+        resources.add(
+                userService.createModuleResourceWithPrivileges(
+                        getModuleName(),
+                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION.getKey(),
+                        DefaultTranslationKey.RESOURCE_METROLOGY_CONFIGURATION_DESCRIPTION.getKey(),
+                        Arrays.asList(
+                                Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION,
+                                Privileges.Constants.VIEW_METROLOGY_CONFIGURATION)));
         return resources;
     }
 
@@ -348,6 +384,38 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
                             "type.Flags_Array.sql",
                             "function.aggFlags.sql");
         }
+    }
+
+
+    private void createMeterRoles() {
+        metrologyConfigurationService.newMeterRole(DefaultMeterRole.DEFAULT.getNlsKey());//available to all service categories, so no need to attach
+        MeterRole production = metrologyConfigurationService.newMeterRole(DefaultMeterRole.PRODUCTION.getNlsKey());
+        MeterRole consumption = metrologyConfigurationService.newMeterRole(DefaultMeterRole.CONSUMPTION.getNlsKey());
+        MeterRole main = metrologyConfigurationService.newMeterRole(DefaultMeterRole.MAIN.getNlsKey());
+        MeterRole check = metrologyConfigurationService.newMeterRole(DefaultMeterRole.CHECK.getNlsKey());
+        MeterRole peakConsumption = metrologyConfigurationService.newMeterRole(DefaultMeterRole.PEAK_CONSUMPTION.getNlsKey());
+        MeterRole offPeakConsumption = metrologyConfigurationService.newMeterRole(DefaultMeterRole.OFF_PEAK_CONSUMPTION.getNlsKey());
+
+        attachMeterRolesToServiceCategory(meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get(), production, consumption, main, check);
+        attachMeterRolesToServiceCategory(meteringService.getServiceCategory(ServiceKind.GAS).get(), consumption, main, check);
+        attachMeterRolesToServiceCategory(meteringService.getServiceCategory(ServiceKind.WATER).get(), consumption, main, check, peakConsumption, offPeakConsumption);
+        attachMeterRolesToServiceCategory(meteringService.getServiceCategory(ServiceKind.HEAT).get(), consumption, main, check);
+    }
+
+    private void attachMeterRolesToServiceCategory(ServiceCategory serviceCategory, MeterRole... meterRoles) {
+        for (MeterRole meterRole : meterRoles) {
+            serviceCategory.addMeterRole(meterRole);
+        }
+    }
+
+    private void createMetrologyPurposes() {
+        metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.BILLING);
+        metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION);
+        metrologyConfigurationService.createMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING);
+    }
+
+    private void createReadingTypeTemplates() {
+        new ReadingTypeTemplateInstaller(metrologyConfigurationService).install();
     }
 
     private void createEndDeviceControlTypes(Logger logger) {

@@ -1,5 +1,10 @@
 package com.elster.jupiter.metering.config;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.properties.PropertySpec;
+
+import aQute.bnd.annotation.ProviderType;
+
 import java.math.BigDecimal;
 
 /**
@@ -8,13 +13,14 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-30 (11:47)
  */
+@ProviderType
 public interface ReadingTypeDeliverableBuilder {
 
     FormulaBuilder deliverable(ReadingTypeDeliverable readingTypeDeliverable);
 
     FormulaBuilder requirement(ReadingTypeRequirement value);
 
-    FormulaBuilder requirement(ReadingTypeRequirementNode existingNode);
+    FormulaBuilder property(CustomPropertySet customPropertySet, PropertySpec propertySpec);
 
     FormulaBuilder nullValue();
 

@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor}
@@ -15,66 +14,94 @@ import java.util.Objects;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-public class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<String> {
+class FromClauseForExpressionNode implements ServerExpressionNode.Visitor<Void> {
+
+    private final String defaultTableName;
+    private String propertyTableName;
+    private String timeSeriesTableName;
+
+    FromClauseForExpressionNode(String defaultTableName) {
+        this.defaultTableName = defaultTableName;
+    }
+
+    String getTableName() {
+        if (this.timeSeriesTableName != null) {
+            return this.timeSeriesTableName;
+        } else if (this.propertyTableName != null) {
+            return this.propertyTableName;
+        } else {
+            return this.defaultTableName;
+        }
+    }
 
     @Override
-    public String visitConstant(NumericalConstantNode constant) {
+    public Void visitConstant(NumericalConstantNode constant) {
         return null;
     }
 
     @Override
-    public String visitConstant(StringConstantNode constant) {
+    public Void visitConstant(StringConstantNode constant) {
         return null;
     }
 
     @Override
-    public String visitNull(NullNode nullNode) {
+    public Void visitProperty(CustomPropertyNode property) {
+        this.propertyTableName = property.sqlName();
         return null;
     }
 
     @Override
-    public String visitSqlFragment(SqlFragmentNode variable) {
+    public Void visitNull(NullNode nullNode) {
         return null;
     }
 
     @Override
-    public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        return deliverable.sqlName();
+    public Void visitSqlFragment(SqlFragmentNode variable) {
+        return null;
     }
 
     @Override
-    public String visitVirtualRequirement(VirtualRequirementNode requirement) {
-        return requirement.sqlName();
+    public Void visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
+        // First one wins (for backwards compatibility)
+        if (this.timeSeriesTableName == null) {
+            this.timeSeriesTableName = deliverable.sqlName();
+        }
+        return null;
     }
 
     @Override
-    public String visitUnitConversion(UnitConversionNode unitConversionNode) {
+    public Void visitVirtualRequirement(VirtualRequirementNode requirement) {
+        // First one wins (for backwards compatibility)
+        if (this.timeSeriesTableName == null) {
+            this.timeSeriesTableName = requirement.sqlName();
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitUnitConversion(UnitConversionNode unitConversionNode) {
         return unitConversionNode.getExpressionNode().accept(this);
     }
 
     @Override
-    public String visitOperation(OperationNode operationNode) {
-        return this.findFirst(Arrays.asList(
-                        operationNode.getLeftOperand(),
-                        operationNode.getRightOperand()));
+    public Void visitOperation(OperationNode operationNode) {
+        return this.acceptAll(Arrays.asList(
+                operationNode.getLeftOperand(),
+                operationNode.getRightOperand()));
     }
 
     @Override
-    public String visitFunctionCall(FunctionCallNode functionCall) {
-        return this.findFirst(functionCall.getArguments());
+    public Void visitFunctionCall(FunctionCallNode functionCall) {
+        return this.acceptAll(functionCall.getArguments());
     }
 
-    private String findFirst(List<ServerExpressionNode> children) {
-        return children
-                .stream()
-                .map(child -> child.accept(this))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+    private Void acceptAll(List<ServerExpressionNode> children) {
+        children.forEach(child -> child.accept(this));
+        return null;
     }
 
     @Override
-    public String visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
+    public Void visitTimeBasedAggregation(TimeBasedAggregationNode aggregationNode) {
         return aggregationNode.getAggregatedExpression().accept(this);
     }
 

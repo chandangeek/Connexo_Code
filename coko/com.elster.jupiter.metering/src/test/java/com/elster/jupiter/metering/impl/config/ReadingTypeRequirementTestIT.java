@@ -37,7 +37,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeRequirementTestIT {
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
     private static MetrologyConfiguration metrologyConfiguration;
 
     @BeforeClass

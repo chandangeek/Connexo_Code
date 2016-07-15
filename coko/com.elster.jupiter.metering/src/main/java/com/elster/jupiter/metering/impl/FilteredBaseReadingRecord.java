@@ -2,10 +2,11 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.util.units.Quantity;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -27,8 +28,8 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
     }
 
     @Override
-    public ProcessStatus getProcesStatus() {
-        return filtered.getProcesStatus();
+    public ProcessStatus getProcessStatus() {
+        return filtered.getProcessStatus();
     }
 
     @Override
@@ -99,11 +100,11 @@ public class FilteredBaseReadingRecord implements BaseReadingRecord {
 
     @Override
     public List<? extends ReadingQualityRecord> getReadingQualities() {
-    	return filtered.getReadingQualities();
+        return filtered.getReadingQualities();
     }
     
     @Override
     public BaseReadingRecord filter(ReadingType readingType) {
-    	return filtered.filter(readingType);
+        return filtered.filter(readingType);
     }
 }

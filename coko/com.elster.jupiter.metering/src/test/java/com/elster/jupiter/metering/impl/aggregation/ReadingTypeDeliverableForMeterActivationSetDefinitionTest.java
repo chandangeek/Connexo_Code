@@ -1,11 +1,11 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
@@ -34,22 +34,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Tests the {@link ReadingTypeDeliverableForMeterActivation#appendDefinitionTo(ClauseAwareSqlBuilder)} method.
+ * Tests the {@link ReadingTypeDeliverableForMeterActivationSet#appendDefinitionTo(ClauseAwareSqlBuilder)} method.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-04-25 (10:04)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
+public class ReadingTypeDeliverableForMeterActivationSetDefinitionTest {
 
-    public static final long DELIVERABLE_ID = 97L;
+    private static final long DELIVERABLE_ID = 97L;
 
     @Mock
     private ReadingTypeDeliverable deliverable;
     @Mock
     private ReadingType readingType;
     @Mock
-    private MeterActivation meterActivation;
+    private MeterActivationSet meterActivationSet;
     @Mock
     private ClauseAwareSqlBuilder clauseAwareSqlBuilder;
     private SqlBuilder withClauseSqlBuilder;
@@ -67,23 +67,23 @@ public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
         when(this.readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(this.readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(this.readingType.getCommodity()).thenReturn(Commodity.ELECTRICITY_PRIMARY_METERED);
-        when(this.readingType.getMRID()).thenReturn(ReadingTypeDeliverableForMeterActivationDefinitionTest.class.getSimpleName());
-        when(this.meterActivation.getRange()).thenReturn(this.aggregationPeriod);
+        when(this.readingType.getMRID()).thenReturn(ReadingTypeDeliverableForMeterActivationSetDefinitionTest.class.getSimpleName());
+        when(this.meterActivationSet.getRange()).thenReturn(this.aggregationPeriod);
         this.withClauseSqlBuilder = new SqlBuilder();
         when(this.clauseAwareSqlBuilder
                 .with(
-                    anyString(),
-                    any(Optional.class),
-                    anyVararg()))
-            .thenReturn(this.withClauseSqlBuilder);
+                        anyString(),
+                        any(Optional.class),
+                        anyVararg()))
+                .thenReturn(this.withClauseSqlBuilder);
         this.selectClauseSqlBuilder = new SqlBuilder();
         when(this.clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseSqlBuilder);
     }
 
     @Test
     public void appendDefinitionTo() {
-        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(expressionReadingType);
+        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.MINUTE15, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(expressionReadingType);
 
         // Business method
         testInstance.appendDefinitionTo(this.clauseAwareSqlBuilder);
@@ -91,38 +91,38 @@ public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
         // Asserts
         verify(this.clauseAwareSqlBuilder)
                 .with(
-                    eq("rod97_1"),
-                    any(Optional.class),
-                    eq(SqlConstants.TimeSeriesColumnNames.ID.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.RECORDTIME.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName()),
-                    eq(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName()));
+                        eq("rod97_1"),
+                        any(Optional.class),
+                        eq(SqlConstants.TimeSeriesColumnNames.ID.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.RECORDTIME.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName()),
+                        eq(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName()));
         assertThat(this.withClauseSqlBuilder.getText()).isEqualTo("SELECT -1, 0, 0, 0, 0,  ? , sysdate  FROM dual");
         String selectClause = this.selectClauseSqlBuilder.getText().replace("\n", " ");
-        assertThat(selectClause).isEqualTo("'ReadingTypeDeliverableForMeterActivationDefinitionTest', rod97_1.value, rod97_1.localdate, rod97_1.timestamp, rod97_1.processStatus, 1   FROM rod97_1");
+        assertThat(selectClause).isEqualTo("'ReadingTypeDeliverableForMeterActivationSetDefinitionTest', rod97_1.value, rod97_1.localdate, rod97_1.timestamp, rod97_1.processStatus, 1   FROM rod97_1");
     }
 
     @Test
     public void appendDefinitionToWithAutoTimeBasedAggregation() {
-        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.HOUR1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
         when(this.readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(expressionReadingType);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(expressionReadingType);
 
         // Business method
         testInstance.appendDefinitionTo(this.clauseAwareSqlBuilder);
 
         // Asserts
         String selectClause = this.selectClauseSqlBuilder.getText().replace("\n", " ");
-        assertThat(selectClause).isEqualToIgnoringCase("'ReadingTypeDeliverableForMeterActivationDefinitionTest', SUM(rod97_1.value), TRUNC(rod97_1.localdate, 'MONTH'), MAX(rod97_1.timestamp), aggFlags(cast(collect(distinct rod97_1.processStatus) as Flags_Array)), count(*)   FROM rod97_1 GROUP BY TRUNC(rod97_1.localdate, 'MONTH')");
+        assertThat(selectClause).isEqualToIgnoringCase("'ReadingTypeDeliverableForMeterActivationSetDefinitionTest', SUM(rod97_1.value), TRUNC(rod97_1.localdate, 'MONTH'), MAX(rod97_1.timestamp), aggFlags(cast(collect(distinct rod97_1.processStatus) as Flags_Array)), count(*)   FROM rod97_1 GROUP BY TRUNC(rod97_1.localdate, 'MONTH')");
     }
 
     @Test
     public void appendDefinitionToWithExpertTimeBasedAggregation() {
-        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.MONTH1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Commodity.ELECTRICITY_PRIMARY_METERED);
+        VirtualReadingType expressionReadingType = VirtualReadingType.from(IntervalLength.MONTH1, MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR, Accumulation.DELTADELTA, Commodity.ELECTRICITY_PRIMARY_METERED);
         when(this.readingType.getMacroPeriod()).thenReturn(MacroPeriod.MONTHLY);
         when(this.readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.NOTAPPLICABLE);
         FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
@@ -131,9 +131,9 @@ public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
         VirtualReadingTypeRequirement virtualRequirement = mock(VirtualReadingTypeRequirement.class);
         when(virtualRequirement.sqlName()).thenReturn("rid97_1001_1");
         when(virtualFactory.requirementFor(eq(Formula.Mode.AUTO), eq(requirement), eq(this.deliverable), any(VirtualReadingType.class))).thenReturn(virtualRequirement);
-        ServerExpressionNode expertExpression = new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, this.deliverable, this.meterActivation);
+        ServerExpressionNode expertExpression = new VirtualRequirementNode(Formula.Mode.AUTO, virtualFactory, requirement, this.deliverable, this.meterActivationSet);
         this.expressionNode = new TimeBasedAggregationNode(expertExpression, AggregationFunction.AVG, IntervalLength.MONTH1);
-        ReadingTypeDeliverableForMeterActivation testInstance = this.testInstance(Formula.Mode.EXPERT, expressionReadingType);
+        ReadingTypeDeliverableForMeterActivationSet testInstance = this.testInstance(Formula.Mode.EXPERT, expressionReadingType);
 
         // Business method
         testInstance.appendDefinitionTo(this.clauseAwareSqlBuilder);
@@ -143,16 +143,15 @@ public class ReadingTypeDeliverableForMeterActivationDefinitionTest {
         assertThat(withSelectClause).isEqualToIgnoringCase("SELECT -1, MAX(rid97_1001_1.timestamp), 0, 0, aggFlags(cast(collect(distinct rid97_1001_1.processStatus) as Flags_Array)), AVG(), TRUNC(rid97_1001_1.localdate, 'MONTH')  FROM rid97_1001_1 GROUP BY TRUNC(rid97_1001_1.LOCALDATE, 'MONTH')");
     }
 
-    private ReadingTypeDeliverableForMeterActivation testInstance(VirtualReadingType virtualReadingType) {
+    private ReadingTypeDeliverableForMeterActivationSet testInstance(VirtualReadingType virtualReadingType) {
         return this.testInstance(Formula.Mode.AUTO, virtualReadingType);
     }
 
-    private ReadingTypeDeliverableForMeterActivation testInstance(Formula.Mode mode, VirtualReadingType virtualReadingType) {
-        return new ReadingTypeDeliverableForMeterActivation(
+    private ReadingTypeDeliverableForMeterActivationSet testInstance(Formula.Mode mode, VirtualReadingType virtualReadingType) {
+        return new ReadingTypeDeliverableForMeterActivationSet(
                 mode,
                 this.deliverable,
-                this.meterActivation,
-                this.aggregationPeriod,
+                this.meterActivationSet,
                 1,
                 this.expressionNode,
                 virtualReadingType);
