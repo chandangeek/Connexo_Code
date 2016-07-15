@@ -1,10 +1,10 @@
 Ext.define('Mdc.view.field.ReadingQualities', {
-    extend:'Ext.form.field.Display',
+    extend: 'Ext.form.field.Display',
     alias: 'widget.reading-qualities-field',
     fieldLabel: Uni.I18n.translate('devicechannelsreadings.readingqualities.title', 'MDC', 'Reading qualities'),
     htmlEncode: false,
 
-    renderer : function(value, field) {
+    renderer: function (value, field) {
         field.show();
         if (value.isConfirmed) {
             return this.getConfirmed(value.confirmedInApps);
@@ -17,13 +17,13 @@ Ext.define('Mdc.view.field.ReadingQualities', {
         }
     },
 
-    getConfirmed: function(apps) {
+    getConfirmed: function (apps) {
         return apps && apps.length
             ? Uni.I18n.translate('general.confirmedIn', 'MDC', 'Confirmed in {0}', _.pluck(apps, 'name').join(', '))
             : Uni.I18n.translate('general.confirmed', 'MDC', 'Confirmed')
     },
 
-    getEstimatedByRule: function(estimatedRule) {
+    getEstimatedByRule: function (estimatedRule) {
         var me = this,
             application = estimatedRule.application,
             url = me.router.getRoute('administration/estimationrulesets/estimationruleset/rules/rule').buildUrl({
@@ -36,16 +36,16 @@ Ext.define('Mdc.view.field.ReadingQualities', {
             : me.makeLink(application, url, estimatedRule.name);
 
         return application
-            ? Uni.I18n.translate('deviceChannelData.estimatedAccordingToApp', 'MDC', 'Estimated in {0} according to {1}',[
-                application.name,
-                estimatedRuleName
-            ], false)
-            : Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to {0}',[
-                estimatedRuleName
-            ], false);
+            ? Uni.I18n.translate('deviceChannelData.estimatedAccordingToApp', 'MDC', 'Estimated in {0} according to {1}', [
+            application.name,
+            estimatedRuleName
+        ], false)
+            : Uni.I18n.translate('deviceChannelData.estimatedAccordingTo', 'MDC', 'Estimated according to {0}', [
+            estimatedRuleName
+        ], false);
     },
 
-    makeLink: function(application, url, value) {
+    makeLink: function (application, url, value) {
         var appUrl = application ? Uni.store.Apps.getAppUrl(application.name) : null;
 
         if (Ext.isObject(appUrl)) {
@@ -53,8 +53,8 @@ Ext.define('Mdc.view.field.ReadingQualities', {
         }
 
         return appUrl
-          ? ('<a href="' + appUrl + url.slice(1) +  '">' + value + '</a>')
-          : value;
+            ? ('<a href="' + appUrl + url.slice(1) + '">' + value + '</a>')
+            : value;
     },
 
     getValidationRules: function (rules) {
@@ -66,7 +66,7 @@ Ext.define('Mdc.view.field.ReadingQualities', {
 
         Ext.Array.each(rules, function (rule) {
             var application = rule.application
-                ? '<span class="application">'+ Uni.I18n.translate('general.application', 'MDC', '({0})', [rule.application.name]) + '</span>'
+                ? '<span class="application">' + Uni.I18n.translate('general.application', 'MDC', '({0})', [rule.application.name]) + '</span>'
                 : '';
             if (!Ext.isEmpty(rule.properties)) {
                 switch (rule.implementation) {
@@ -101,8 +101,9 @@ Ext.define('Mdc.view.field.ReadingQualities', {
                 prop = '';
             }
             if (rule.deleted) {
-                str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '&nbsp;' + application  + '<br>';
-            } if (rule.application.id == "MDM") {
+                str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'MDC', '(removed rule)') + prop + '</span>' + '&nbsp;' + application + '<br>';
+            }
+            if (rule.application.id == "MDM") {
                 str += Uni.I18n.translate('device.suspectInInsight', 'MDC', 'Suspect in Insight');
             } else {
                 str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
