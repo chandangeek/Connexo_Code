@@ -9,6 +9,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
 
     router: null,
     device: null,
+    activeTab: null,
 
     initComponent: function () {
         var me = this;
@@ -33,7 +34,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                     xtype: 'tabpanel',
                     margin: '20 0 0 0',
                     itemId: 'device-history-tab-panel',
-                    activeTab: 0,
+                    activeTab: me.activeTab,
                     width: '100%',
                     items: [
                         {
