@@ -156,8 +156,6 @@ public class UsagePointResource {
         List<DataValidationStatus> validationStatuses = validationService.getEvaluator()
                 .getValidationStatus(Collections.singleton(QualityCodeSystem.MDC), channel, intervalReadings, range);
 
-        return intervalReadings.stream()
-                .map(intervalReading -> channelDataInfoFactory.createChannelDataInfo(intervalReading, validationStatuses, true))
-                .findFirst().orElse(null);
+        return channelDataInfoFactory.createChannelDataInfo(resourceHelper.findReadingOrThrowException(intervalReadings), validationStatuses, true);
     }
 }

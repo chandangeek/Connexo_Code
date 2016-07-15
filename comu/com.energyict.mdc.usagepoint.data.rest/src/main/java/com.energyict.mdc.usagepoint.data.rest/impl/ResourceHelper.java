@@ -1,6 +1,7 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -9,6 +10,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.util.streams.Functions;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class ResourceHelper {
     private final MeteringService meteringService;
@@ -53,5 +55,11 @@ public class ResourceHelper {
                 .flatMap(channelsContainer -> channelsContainer.getChannels().stream())
                 .filter(channel -> channel.getId() == channelId)
                 .findFirst().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CHANNEL_WITH_ID, channelId));
+    }
+
+    public IntervalReadingRecord findReadingOrThrowException(List<IntervalReadingRecord> intervalReadings) {
+        return intervalReadings.stream()
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_READING_FOUND));
     }
 }
