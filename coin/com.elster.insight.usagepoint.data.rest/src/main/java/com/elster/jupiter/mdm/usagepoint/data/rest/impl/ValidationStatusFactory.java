@@ -61,10 +61,9 @@ public class ValidationStatusFactory {
         return info;
     }
 
-    private List<DataValidationStatus> getDataValidationStatuses(ValidationEvaluator validationEvaluator, List<Channel> chanels) {
-        List<CimChannel> allOutputsAsCimChannels = chanels
-                .stream()
-                .map(channel -> channel.getCimChannel(channel.getMainReadingType()))
+    private List<DataValidationStatus> getDataValidationStatuses(ValidationEvaluator validationEvaluator, List<Channel> channels) {
+        List<CimChannel> allOutputsAsCimChannels = channels.stream()
+                .map(channel -> channel.getCimChannel(channel.getMainReadingType())) // All channels for usage point have only main reading type, see AggregatedChannelImpl#getBulkQuantityReadingType()
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
         return validationEvaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM), allOutputsAsCimChannels, Collections.emptyList(), lastMonth());
