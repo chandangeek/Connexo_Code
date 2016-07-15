@@ -113,7 +113,7 @@ public class UsagePointResource {
         defaultLevels.put(Duration.ofMinutes(5), Period.ofWeeks(1));
         defaultLevels.put(Duration.ofMinutes(15), Period.ofWeeks(2));
         defaultLevels.put(Duration.ofHours(1), Period.ofMonths(2));
-        defaultLevels.put(Duration.ofDays(1), Period.ofYears(1));
+        defaultLevels.put(Period.ofDays(1), Period.ofYears(1));
         defaultLevels.put(Period.ofWeeks(1), Period.ofYears(2));
         defaultLevels.put(Period.ofMonths(1), Period.ofYears(10));
         defaultLevels.put(Period.ofMonths(3), Period.ofYears(20));
