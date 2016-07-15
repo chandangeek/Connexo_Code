@@ -198,7 +198,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration) {
-        ReadingTypeRequirementsCollector requirementChecker = new ReadingTypeRequirementsCollector();
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
         metrologyConfiguration.getContracts()
                 .stream()
                 .filter(MetrologyContract::isMandatory)

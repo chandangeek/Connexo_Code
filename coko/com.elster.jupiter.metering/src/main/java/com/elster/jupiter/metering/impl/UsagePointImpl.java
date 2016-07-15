@@ -610,16 +610,16 @@ public class UsagePointImpl implements UsagePoint {
     public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration(when).get();
 
-        ReadingTypeRequirementsCollector requirementChecker = new ReadingTypeRequirementsCollector();
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
 
         metrologyConfiguration.getDeliverables()
                 .stream()
                 .filter(deliverable -> readingTypes.contains(deliverable.getReadingType()))
                 .map(ReadingTypeDeliverable::getFormula)
                 .map(Formula::getExpressionNode)
-                .forEach(expressionNode -> expressionNode.accept(requirementChecker));
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
 
-        List<ReadingTypeRequirement> readingTypeRequirements = requirementChecker.getReadingTypeRequirements();
+        List<ReadingTypeRequirement> readingTypeRequirements = requirementsCollector.getReadingTypeRequirements();
         List<MeterActivationSet> meterActivationSets = dataAggregationService.getMeterActivationSets(this, when)
                 .collect(Collectors.toList());
 

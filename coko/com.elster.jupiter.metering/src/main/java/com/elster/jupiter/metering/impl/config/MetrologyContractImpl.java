@@ -167,14 +167,14 @@ public class MetrologyContractImpl implements MetrologyContract {
     MetrologyContractStatusKey getMetrologyContractStatusKey(UsagePoint usagePoint) {
         if (this.metrologyConfiguration.isPresent() && this.metrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
             UsagePointMetrologyConfiguration configuration = (UsagePointMetrologyConfiguration) this.metrologyConfiguration.get();
-            ReadingTypeRequirementsCollector requirementChecker = new ReadingTypeRequirementsCollector();
+            ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
             getDeliverables()
                     .stream()
                     .map(ReadingTypeDeliverable::getFormula)
                     .map(Formula::getExpressionNode)
-                    .forEach(expressionNode -> expressionNode.accept(requirementChecker));
+                    .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
 
-            List<MeterRole> meterRoles = requirementChecker.getReadingTypeRequirements()
+            List<MeterRole> meterRoles = requirementsCollector.getReadingTypeRequirements()
                     .stream()
                     .map(configuration::getMeterRoleFor)
                     .filter(Optional::isPresent)
