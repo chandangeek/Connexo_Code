@@ -118,6 +118,7 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
         when(validationEvaluator.getLastChecked(channelsContainer, readingType)).thenReturn(Optional.of(DAY_BEFORE));
         when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(false);
+        when(dataValidationStatus.completelyValidated()).thenReturn(false);
         when(validationEvaluator.getValidationStatus(anySetOf(QualityCodeSystem.class), eq(Collections.singletonList(cimChannel)), eq(Collections.emptyList()), any()))
                 .thenReturn(Collections.singletonList(dataValidationStatus));
     }
