@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.DeviceService;
 
 import javax.annotation.Priority;
@@ -37,7 +38,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+public class
+UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock
     MeteringService meteringService;
@@ -47,6 +49,8 @@ public class UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyT
     TransactionService transactionService;
     @Mock
     static SecurityContext securityContext;
+    @Mock
+    ValidationService validationService;
 
     @Override
     protected Application getApplication() {
@@ -64,6 +68,7 @@ public class UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyT
         app.setTransactionService(transactionService);
         app.setNlsService(nlsService);
         app.setDeviceService(deviceService);
+        app.setValidationService(validationService);
         return app;
     }
 

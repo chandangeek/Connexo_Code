@@ -11,4 +11,5 @@ public class UsagePointChannelInfo {
     public TimeDurationInfo interval;
     public ReadingTypeInfo readingType;
     public List<UsagePointDeviceChannelInfo> deviceChannels;
+    public String flowUnit;
 }
