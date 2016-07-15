@@ -1,12 +1,16 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.time.DayMonthTime;
 
 import java.time.Clock;
+import java.util.List;
 
 /**
  * Adds behavior to {@link MeteringService} that is specific
@@ -27,7 +31,15 @@ public interface ServerMeteringService extends MeteringService {
 
     Clock getClock();
 
+    AmrSystemImpl createAmrSystem(int id, String name);
+
     EndDeviceEventTypeImpl createEndDeviceEventType(String mRID);
+
+    void createAllReadingTypes(List<Pair<String, String>> readingTypes);
+
+    ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind, boolean active);
+
+    MultiplierType createMultiplierType(MultiplierType.StandardType standardType);
 
     EndDeviceControlTypeImpl createEndDeviceControlType(String mRID);
 

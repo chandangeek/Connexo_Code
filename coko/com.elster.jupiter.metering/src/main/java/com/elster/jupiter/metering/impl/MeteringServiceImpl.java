@@ -431,7 +431,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return thesaurus;
     }
 
-    AmrSystemImpl createAmrSystem(int id, String name) {
+    @Override
+    public AmrSystemImpl createAmrSystem(int id, String name) {
         AmrSystemImpl system = dataModel.getInstance(AmrSystemImpl.class).init(id, name);
         system.save();
         return system;
@@ -452,7 +453,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     // bulk insert
-    void createAllReadingTypes(List<Pair<String, String>> readingTypes) {
+    @Override
+    public void createAllReadingTypes(List<Pair<String, String>> readingTypes) {
         List<ReadingType> availableReadingTypes = getAvailableReadingTypes();
         List<String> availableReadingTypeCodes =
                 availableReadingTypes.parallelStream()
@@ -471,7 +473,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
                 .forEach(listPer1000 -> dataModel.mapper(ReadingType.class).persist(listPer1000));
     }
 
-    ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind, boolean active) {
+    @Override
+    public ServiceCategoryImpl createServiceCategory(ServiceKind serviceKind, boolean active) {
         ServiceCategoryImpl serviceCategory = dataModel.getInstance(ServiceCategoryImpl.class).init(serviceKind);
         serviceCategory.setActive(active);
         dataModel.persist(serviceCategory);
@@ -549,7 +552,8 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return multiplierType;
     }
 
-    MultiplierType createMultiplierType(MultiplierType.StandardType standardType) {
+    @Override
+    public MultiplierType createMultiplierType(MultiplierType.StandardType standardType) {
         MultiplierTypeImpl multiplierType = this.dataModel.getInstance(MultiplierTypeImpl.class)
                 .initWithNlsNameKey(standardType.translationKey());
         multiplierType.save();

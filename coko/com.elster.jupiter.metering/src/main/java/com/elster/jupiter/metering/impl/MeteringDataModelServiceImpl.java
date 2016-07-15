@@ -156,7 +156,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     public final void activate(BundleContext bundleContext) {
         createServices(bundleContext);
         registerDatabaseTables();
-        registerDataModel();
+        registerDataModel(bundleContext);
         installDataModel();
         registerServices(bundleContext);
     }
@@ -178,10 +178,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.metrologyConfigurationService, this.clock, this.licenseService);
     }
 
-    private void registerDataModel() {
+    private void registerDataModel(BundleContext bundleContext) {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
+                bind(BundleContext.class).toInstance(bundleContext);
                 bind(MeteringDataModelService.class).toInstance(MeteringDataModelServiceImpl.this);
                 bind(MeteringDataModelServiceImpl.class).toInstance(MeteringDataModelServiceImpl.this);
                 bind(ChannelBuilder.class).to(ChannelBuilderImpl.class);
