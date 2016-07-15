@@ -249,7 +249,7 @@ class Profile extends VDEWProfile {
     
     private int checkIntervalPeriod(String string) throws IOException {
         
-        int mInterval = Integer.parseInt(string) * 15;
+        int mInterval = Integer.parseInt(string) * 15 ;
         
         if( mInterval != pInterval ) {
             String msg = 
