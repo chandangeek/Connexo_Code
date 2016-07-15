@@ -69,6 +69,10 @@ public class ColumnImpl implements ExistingColumn {
         }
     }
 
+    @Override
+    public boolean isVirtual() {
+        return false;
+    }
 
     public boolean isAutoId() {
         if (!"ID".equals(name)) {

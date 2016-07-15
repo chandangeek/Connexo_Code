@@ -192,7 +192,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
         for (int i = 0; i < getColumns().size(); i++) {
             Column each = getColumns().get(i);
             Column otherCol = other.getColumns().get(i);
-            if (!each.getName().equals(otherCol.getName())) {
+            if (!each.getName().equalsIgnoreCase(otherCol.getName())) {
                 return false;
             }
         }
