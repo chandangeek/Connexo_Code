@@ -74,7 +74,7 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
         getRegisters().add(new HoldingRegister(0xBBE, 2, ObisCode.fromString("1.0.91.7.0.255"), Unit.get(BaseUnit.AMPERE, MILLI_SCALE), "Neutral N").setParser(UnsignedValueCheckNotAvailableParser));
         getRegisters().add(new HoldingRegister(0xBF4, 2, ObisCode.fromString("1.0.1.7.0.255"), Unit.get(BaseUnit.WATT, DECA_SCALE), "Active Power Total").setParser(SignedValueCheckNotAvailableParser));
         getRegisters().add(new HoldingRegister(0xBFC, 2, ObisCode.fromString("1.0.3.7.0.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVE, DECA_SCALE), "Reactive Power Total").setParser(SignedValueCheckNotAvailableParser));
-        getRegisters().add(new HoldingRegister(0xC04, 2, ObisCode.fromString("1.0.9.7.0.255"), Unit.get(BaseUnit.VOLTAMPERE, DECA_SCALE), "Apparent Power Total").setParser(UnsignedValueCheckNotAvailableParser));
+        getRegisters().add(new HoldingRegister(0xC04, 2, ObisCode.fromString("1.0.9.7.0.255"), Unit.get(BaseUnit.VOLTAMPEREHOUR, DECA_SCALE), "Apparent Power Total").setParser(UnsignedValueCheckNotAvailableParser));
         getRegisters().add(new HoldingRegister(0xC0C, 2, ObisCode.fromString("1.0.13.7.0.255"), Unit.get(BaseUnit.UNITLESS, MILLI_SCALE), "Power Factor Total").setParser(SignedValueCheckNotAvailableParser));
         getRegisters().add(new HoldingRegister(0xBEE, 2, ObisCode.fromString("1.0.21.7.0.255"), Unit.get(BaseUnit.WATT, DECA_SCALE), "Active Power A").setParser(SignedValueCheckNotAvailableParser));
         getRegisters().add(new HoldingRegister(0xBF0, 2, ObisCode.fromString("1.0.41.7.0.255"), Unit.get(BaseUnit.WATT, DECA_SCALE), "Active Power B").setParser(SignedValueCheckNotAvailableParser));
@@ -82,22 +82,30 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
         getRegisters().add(new HoldingRegister(0xBF6, 2, ObisCode.fromString("1.0.23.7.0.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVE, DECA_SCALE), "Reactive Power A").setParser(SignedValueCheckNotAvailableParser));
         getRegisters().add(new HoldingRegister(0xBF8, 2, ObisCode.fromString("1.0.43.7.0.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVE, DECA_SCALE), "Reactive Power B").setParser(SignedValueCheckNotAvailableParser));
         getRegisters().add(new HoldingRegister(0xBFA, 2, ObisCode.fromString("1.0.63.7.0.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVE, DECA_SCALE), "Reactive Power C").setParser(SignedValueCheckNotAvailableParser));
-        getRegisters().add(new HoldingRegister(0xBFE, 2, ObisCode.fromString("1.0.29.7.0.255"), Unit.get(BaseUnit.VOLTAMPERE, DECA_SCALE), "Apparent Power A").setParser(UnsignedValueCheckNotAvailableParser));
-        getRegisters().add(new HoldingRegister(0xC00, 2, ObisCode.fromString("1.0.49.7.0.255"), Unit.get(BaseUnit.VOLTAMPERE, DECA_SCALE), "Apparent Power B").setParser(UnsignedValueCheckNotAvailableParser));
-        getRegisters().add(new HoldingRegister(0xC02, 2, ObisCode.fromString("1.0.69.7.0.255"), Unit.get(BaseUnit.VOLTAMPERE, DECA_SCALE), "Apparent Power C").setParser(UnsignedValueCheckNotAvailableParser));
+        getRegisters().add(new HoldingRegister(0xBFE, 2, ObisCode.fromString("1.0.29.7.0.255"), Unit.get(BaseUnit.VOLTAMPEREHOUR, KILO_SCALE), "Apparent Power A").setParser(UnsignedValueCheckNotAvailableParser));
+        getRegisters().add(new HoldingRegister(0xC00, 2, ObisCode.fromString("1.0.49.7.0.255"), Unit.get(BaseUnit.VOLTAMPEREHOUR, KILO_SCALE), "Apparent Power B").setParser(UnsignedValueCheckNotAvailableParser));
+        getRegisters().add(new HoldingRegister(0xC02, 2, ObisCode.fromString("1.0.69.7.0.255"), Unit.get(BaseUnit.VOLTAMPEREHOUR, KILO_SCALE), "Apparent Power C").setParser(UnsignedValueCheckNotAvailableParser));
         getRegisters().add(new HoldingRegister(0xC06, 2, ObisCode.fromString("1.0.33.7.0.255"), Unit.get(BaseUnit.UNITLESS, MILLI_SCALE), "Power Factor A").setParser(SignedValueCheckNotAvailableParser));
         getRegisters().add(new HoldingRegister(0xC08, 2, ObisCode.fromString("1.0.53.7.0.255"), Unit.get(BaseUnit.UNITLESS, MILLI_SCALE), "Power Factor B").setParser(SignedValueCheckNotAvailableParser));
         getRegisters().add(new HoldingRegister(0xC0A, 2, ObisCode.fromString("1.0.73.7.0.255"), Unit.get(BaseUnit.UNITLESS, MILLI_SCALE), "Power Factor C").setParser(SignedValueCheckNotAvailableParser));
 
         //Energy values
-        getRegisters().add(new HoldingRegister(0xC84, 4, ObisCode.fromString("170.3.12.132.5.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered (Into Load)").setParser(SignedValueParser));
-        getRegisters().add(new HoldingRegister(0xC88, 4, ObisCode.fromString("170.3.12.136.5.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Received (Out of Load)").setParser(SignedValueParser));
-        getRegisters().add(new HoldingRegister(0xC8C, 4, ObisCode.fromString("1.0.1.8.0.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered + Received").setParser(SignedValueParser));
-        getRegisters().add(new HoldingRegister(0xC9C, 4, ObisCode.fromString("1.0.3.8.0.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, KILO_SCALE), "Reactive Energy Delivered + Received").setParser(SignedValueParser));
-        getRegisters().add(new HoldingRegister(0xC90, 4, ObisCode.fromString("1.0.2.8.0.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered- Received").setParser(SignedValueParser));
-        getRegisters().add(new HoldingRegister(0xCAC, 4, ObisCode.fromString("1.0.1.8.1.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Apparent Energy Delivered + Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC84, 4, ObisCode.fromString("1.0.1.8.0.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered (Into Load)").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC88, 4, ObisCode.fromString("1.0.2.8.0.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Received (Out of Load)").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC94, 4, ObisCode.fromString("1.0.3.8.0.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, KILO_SCALE), "Reactive Energy Delivered").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC98, 4, ObisCode.fromString("1.0.4.8.0.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, KILO_SCALE), "Reactive Energy Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xCA4, 4, ObisCode.fromString("1.0.9.8.0.255"), Unit.get(BaseUnit.VOLTAMPEREHOUR, KILO_SCALE), "Apparent Energy Delivered").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xCA8, 4, ObisCode.fromString("1.0.10.8.0.255"), Unit.get(BaseUnit.VOLTAMPEREHOUR, KILO_SCALE), "Apparent Energy Received").setParser(SignedValueParser));
         getRegisters().add(new HoldingRegister(0xC9C, 4, ObisCode.fromString("1.0.3.8.1.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, KILO_SCALE), "Reactive Energy Delivered + Received").setParser(SignedValueParser));
-        getRegisters().add(new HoldingRegister(0xCB0, 4, ObisCode.fromString("1.0.2.8.1.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Apparent Energy Delivered - Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xCB0, 4, ObisCode.fromString("1.0.2.8.1.255"), Unit.get(BaseUnit.VOLTAMPEREHOUR, KILO_SCALE), "Apparent Energy Delivered - Received").setParser(SignedValueParser));
+
+        getRegisters().add(new HoldingRegister(0xC8C, 4, ObisCode.fromString("1.0.1.8.1.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered + Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC9C, 4, ObisCode.fromString("1.0.3.8.1.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, KILO_SCALE), "Reactive Energy Delivered + Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC90, 4, ObisCode.fromString("1.0.1.8.2.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered- Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xCAC, 4, ObisCode.fromString("1.0.9.8.1.255"), Unit.get(BaseUnit.VOLTAMPEREHOUR, KILO_SCALE), "Apparent Energy Delivered + Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xCA0, 4, ObisCode.fromString("1.0.3.8.2.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, KILO_SCALE), "Reactive Energy Delivered - Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xCA0, 4, ObisCode.fromString("1.0.9.8.2.255"), Unit.get(BaseUnit.VOLTAMPEREHOUR, KILO_SCALE), "Apparent Energy Delivered - Received").setParser(SignedValueParser));
+
 //        getRegisters().add(new HoldingRegister(0xC68A, 2, ObisCode.fromString("1.0.131.5.0.255"), Unit.get(BaseUnit.SECOND), "Last date for Record average P/Q/S in second since 01/01/2000").setParser(UnsignedValueCheckNotAvailableParser));
 //        getRegisters().add(new HoldingRegister(0xC68C, 1, ObisCode.fromString("1.0.1.5.0.255"), Unit.get(BaseUnit.WATT), "Last average (P+) (not affected by CT and VT)").setParser(UnsignedValueCheckNotAvailableParser));
 
