@@ -202,4 +202,8 @@ public class ReadingTypeTemplateAttributeImpl implements ReadingTypeTemplateAttr
                 ? String.valueOf(getCode().get())
                 : this.values.isEmpty() ? "*" : "(" + getPossibleValues().stream().map(String::valueOf).collect(Collectors.joining(",")) + ")";
     }
+
+    void prepareDelete() {
+        values.clear();
+    }
 }

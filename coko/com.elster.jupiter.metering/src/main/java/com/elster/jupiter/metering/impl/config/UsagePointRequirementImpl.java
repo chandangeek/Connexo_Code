@@ -128,4 +128,8 @@ public class UsagePointRequirementImpl implements UsagePointRequirement {
         result = 31 * result + (searchableProperty != null ? searchableProperty.hashCode() : 0);
         return result;
     }
+
+    void prepareDelete() {
+        conditionValues.clear();
+    }
 }

@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 
 public class ReadingTypeTemplateAttributeValueImpl {
 
@@ -26,6 +27,15 @@ public class ReadingTypeTemplateAttributeValueImpl {
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeTemplateAttribute> attribute = Reference.empty();
     private int code;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public ReadingTypeTemplateAttributeValueImpl() {

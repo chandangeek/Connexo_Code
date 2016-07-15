@@ -113,7 +113,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
                 .toString();
     }
 
-    public void delete() {
-        dataModel.remove(this);
+    public void prepareDelete() {
+        effectiveContracts.clear();
     }
 }

@@ -105,7 +105,7 @@ public class FormulaImpl implements ServerFormula {
     public void delete() {
         dataModel.remove(this);
         if (this.expressionNode.isPresent()) {
-            dataModel.remove(this.expressionNode.get());
+            expressionNode.get().delete(dataModel);
         }
     }
 

@@ -74,6 +74,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Functions.first;
 
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
 public class UsagePointImpl implements UsagePoint {
@@ -356,7 +357,10 @@ public class UsagePointImpl implements UsagePoint {
         metrologyConfiguration.all()
                 .stream()
                 .map(EffectiveMetrologyConfigurationOnUsagePointImpl.class::cast)
-                .forEach(EffectiveMetrologyConfigurationOnUsagePointImpl::delete);
+                .forEach(
+                        first(EffectiveMetrologyConfigurationOnUsagePointImpl::prepareDelete)
+                        .andThen(metrologyConfiguration::remove)
+                );
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
         dataModel.remove(this);

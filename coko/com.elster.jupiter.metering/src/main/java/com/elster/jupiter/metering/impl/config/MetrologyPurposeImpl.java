@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.Table;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.Optional;
 
 public class MetrologyPurposeImpl implements MetrologyPurpose {
@@ -48,6 +49,15 @@ public class MetrologyPurposeImpl implements MetrologyPurpose {
     private String description;
     private boolean translatable;
     private DefaultMetrologyPurpose defaultPurpose;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public MetrologyPurposeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

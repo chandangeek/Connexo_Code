@@ -336,8 +336,9 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
                 .isEmpty()) {
             throw new CannotDeleteReadingTypeDeliverableException(metrologyConfigurationService.getThesaurus(), deliverable.getName());
         }
+        ((ReadingTypeDeliverableImpl) deliverable).prepareDelete();
         if (this.deliverables.remove(deliverable)) {
-            ((ServerFormula) deliverable.getFormula()).delete();
+            this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_DELETED.topic(), deliverable);
             touch();
         }
     }
@@ -369,6 +370,9 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void delete() {
+        deliverables.clear();
+        metrologyContracts.clear();
+        readingTypeRequirements.clear();
         customPropertySets.clear();
         this.metrologyConfigurationService.getDataModel().remove(this);
         eventService.postEvent(EventType.METROLOGYCONFIGURATION_DELETED.topic(), this);

@@ -243,8 +243,8 @@ public enum TableSpecs {
             table.since(version(10, 2));
             table.setJournalTableName("MTR_LOCATIONMEMBER_JRNL");
             table.map(LocationMemberImpl.class);
-            table.addAuditColumns();
             TableBuilder.buildLocationMemberTable(table, MeteringServiceImpl.getLocationTemplateMembers());
+            table.addAuditColumns();
         }
     },
     MTR_AMRSYSTEM {
@@ -1190,7 +1190,6 @@ public enum TableSpecs {
             table.foreignKey("FK_TEMPLATE_ATTR_TO_TEMPLATE")
                     .references(ReadingTypeTemplate.class)
                     .on(templateColumn)
-                    .onDelete(CASCADE)
                     .map(ReadingTypeTemplateAttributeImpl.Fields.TEMPLATE.fieldName())
                     .reverseMap(ReadingTypeTemplateImpl.Fields.ATTRIBUTES.fieldName())
                     .composition()
@@ -1222,7 +1221,6 @@ public enum TableSpecs {
             table.foreignKey("FK_RT_TPL_ATTR_VALUE_TO_ATTR")
                     .references(ReadingTypeTemplateAttribute.class)
                     .on(attrColumn)
-                    .onDelete(CASCADE)
                     .map(ReadingTypeTemplateAttributeValueImpl.Fields.ATTR.fieldName())
                     .reverseMap(ReadingTypeTemplateAttributeImpl.Fields.POSSIBLE_VALUES.fieldName())
                     .composition()
@@ -1264,7 +1262,6 @@ public enum TableSpecs {
             table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
-                    .onDelete(CASCADE)
                     .map(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.RT_REQUIREMENTS.fieldName())
                     .composition()
@@ -1312,7 +1309,6 @@ public enum TableSpecs {
             table.foreignKey("FK_RT_REQ_ATTR_VALUE_TO_RT_REQ")
                     .references(ReadingTypeRequirement.class)
                     .on(requirementColumn)
-                    .onDelete(CASCADE)
                     .map(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.READING_TYPE_REQUIREMENT.fieldName())
                     .reverseMap(ReadingTypeRequirementImpl.Fields.ATTRIBUTES.fieldName())
                     .composition()
@@ -1346,7 +1342,6 @@ public enum TableSpecs {
             table.foreignKey("FK_REQ2ROLE_TO_CONFIG")
                     .references(UsagePointMetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
-                    .onDelete(CASCADE)
                     .map(ReadingTypeRequirementMeterRoleUsage.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.REQUIREMENT_TO_ROLE_REFERENCES.fieldName())
                     .composition()
@@ -1354,13 +1349,11 @@ public enum TableSpecs {
             table.foreignKey("FK_REQ2ROLE_TO_ROLE")
                     .references(MeterRole.class)
                     .on(meterRoleColumn)
-                    .onDelete(CASCADE)
                     .map(ReadingTypeRequirementMeterRoleUsage.Fields.METER_ROLE.fieldName())
                     .add();
             table.foreignKey("FK_REQ2ROLE_TO_REQ")
                     .references(ReadingTypeRequirement.class)
                     .on(requirementColumn)
-                    .onDelete(CASCADE)
                     .map(ReadingTypeRequirementMeterRoleUsage.Fields.READING_TYPE_REQUIREMENT.fieldName())
                     .add();
         }
@@ -1429,7 +1422,6 @@ public enum TableSpecs {
             table.foreignKey("MTR_CONTRACT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
-                    .onDelete(CASCADE)
                     .map(MetrologyContractImpl.Fields.METROLOGY_CONFIG.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.METROLOGY_CONTRACTS.fieldName())
                     .composition()
@@ -1468,7 +1460,6 @@ public enum TableSpecs {
             Column formulaColumn = table
                     .column(ReadingTypeDeliverableImpl.Fields.FORMULA.name())
                     .number()
-                    .notNull()
                     .add();
             table.addAuditColumns();
 
@@ -1477,7 +1468,6 @@ public enum TableSpecs {
             table.foreignKey("MTR_DELIVERABLE_TO_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
-                    .onDelete(CASCADE)
                     .map(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.DELIVERABLES.fieldName())
                     .composition()
@@ -1490,7 +1480,6 @@ public enum TableSpecs {
             table.foreignKey("MTR_DELIVERABLE_TO_FORMULA")
                     .references(Formula.class)
                     .on(formulaColumn)
-                    .onDelete(CASCADE)
                     .map(ReadingTypeDeliverableImpl.Fields.FORMULA.fieldName())
                     .add();
         }
@@ -1519,7 +1508,6 @@ public enum TableSpecs {
                     .on(metrologyContractColumn)
                     .map(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.fieldName())
                     .reverseMap(MetrologyContractImpl.Fields.DELIVERABLES.fieldName())
-                    .onDelete(CASCADE)
                     .composition()
                     .add();
             table.foreignKey("FK_CONTR_DELIVER_TO_DELIVER")
@@ -1561,7 +1549,6 @@ public enum TableSpecs {
                     .map(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.fieldName())
                     .reverseMap(MetrologyConfigurationImpl.Fields.USAGE_POINT_REQUIREMENTS.fieldName())
                     .composition()
-                    .onDelete(CASCADE)
                     .add();
         }
     },
@@ -1601,7 +1588,6 @@ public enum TableSpecs {
                     .reverseMap(UsagePointRequirementImpl.Fields.CONDITION_VALUES.fieldName())
                     .reverseMapOrder(UsagePointRequirementValue.Fields.POSITION.fieldName())
                     .composition()
-                    .onDelete(CASCADE)
                     .add();
         }
     },
@@ -1624,13 +1610,11 @@ public enum TableSpecs {
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.fieldName())
                     .reverseMap("effectiveContracts")
                     .composition()
-                    .onDelete(CASCADE)
                     .add();
             table.foreignKey("MTR_EF_CONTRACT_2_CONTRACT")
                     .on(metrologyContractColumn)
                     .references(MetrologyContract.class)
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.fieldName())
-                    .onDelete(CASCADE)
                     .add();
         }
     },

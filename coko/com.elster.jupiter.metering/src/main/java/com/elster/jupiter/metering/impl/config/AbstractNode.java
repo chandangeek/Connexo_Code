@@ -126,7 +126,7 @@ public abstract class AbstractNode implements ServerExpressionNode {
 
     @Override
     public void delete(DataModel dataModel) {
-        children.clear();
+        children.stream().forEach(serverExpressionNode -> serverExpressionNode.delete(dataModel));
         dataModel.remove(this);
     }
 
