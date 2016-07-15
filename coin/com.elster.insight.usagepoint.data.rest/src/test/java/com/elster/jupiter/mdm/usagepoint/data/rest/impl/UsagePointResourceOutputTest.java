@@ -51,6 +51,10 @@ import static org.mockito.Mockito.when;
 
 public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJerseyTest {
     public static final Instant NOW = ZonedDateTime.of(2016, 6, 1, 12, 40, 30, 0, ZoneId.systemDefault()).toInstant();
+    public static final Instant DAY_BEFORE = NOW.minus(1, ChronoUnit.DAYS);
+    public static final String FORMULA_DESCR = "divide(15min A+ Wh, constant(1000))";
+    public static final String READING_TYPE_MRID = "13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+
     @Rule
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
 
@@ -95,7 +99,7 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         when(clock.instant()).thenReturn(NOW);
         when(meteringService.findUsagePoint("UP")).thenReturn(Optional.of(usagePoint));
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(validationRuleSet));
-        readingType = mockReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        readingType = mockReadingType(READING_TYPE_MRID);
         setDataValidationTaskStub();
         when(usagePoint.getId()).thenReturn(1L);
         when(usagePoint.getMRID()).thenReturn("UP");
@@ -110,7 +114,7 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         when(validationRule.getDisplayName()).thenReturn("Validation Rule");
         when(dataValidationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
-        when(validationEvaluator.getLastChecked(channelsContainer, readingType)).thenReturn(Optional.of(NOW.minus(1, ChronoUnit.DAYS)));
+        when(validationEvaluator.getLastChecked(channelsContainer, readingType)).thenReturn(Optional.of(DAY_BEFORE));
         when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(false);
         when(validationEvaluator.getValidationStatus(anySetOf(QualityCodeSystem.class), eq(Collections.singletonList(cimChannel)), eq(Collections.emptyList()), any()))
                 .thenReturn(Collections.singletonList(dataValidationStatus));
@@ -164,7 +168,7 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
 
     private void setDeliverableStub() {
         Formula formula = mock(Formula.class);
-        when(formula.getDescription()).thenReturn("testDescription");
+        when(formula.getDescription()).thenReturn(FORMULA_DESCR);
         when(deliverable.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(deliverable.getReadingType()).thenReturn(readingType);
         when(deliverable.getName()).thenReturn("Deliverable");
@@ -176,11 +180,9 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
     public void testDataValidationTaskInfoOnMetrologyContract() {
         String json = target("/usagepoints/UP/purposes").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Object>get("$.purposes[0].dataValidationTasks")).isNotNull();
         assertThat(jsonModel.<Number>get("$.purposes[0].dataValidationTasks[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.purposes[0].dataValidationTasks[0].name")).isEqualTo("Validation Task");
         assertThat(jsonModel.<Number>get("$.purposes[0].dataValidationTasks[0].metrologyContract.id")).isEqualTo(1);
-        assertThat(jsonModel.<Object>get("$.purposes[0].dataValidationTasks[0].schedule")).isNotNull();
         assertThat(jsonModel.<Number>get("$.purposes[0].dataValidationTasks[0].schedule.count")).isEqualTo(5);
         assertThat(jsonModel.<String>get("$.purposes[0].dataValidationTasks[0].schedule.timeUnit")).isEqualTo("days");
     }
@@ -189,12 +191,10 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
     public void testValidationStatusInfoOnMetrologyContract() {
         String json = target("/usagepoints/UP/purposes").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Object>get("$.purposes[0].validationInfo")).isNotNull();
         assertThat(jsonModel.<Boolean>get("$.purposes[0].validationInfo.validationActive")).isTrue();
         assertThat(jsonModel.<Boolean>get("$.purposes[0].validationInfo.allDataValidated")).isFalse();
         assertThat(jsonModel.<Boolean>get("$.purposes[0].validationInfo.hasSuspects")).isTrue();
-        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.lastChecked")).isEqualTo(NOW.minus(1, ChronoUnit.DAYS).toEpochMilli());
-        assertThat(jsonModel.<Object>get("$.purposes[0].validationInfo.suspectReason")).isNotNull();
+        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.lastChecked")).isEqualTo(DAY_BEFORE.toEpochMilli());
         assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].key.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.purposes[0].validationInfo.suspectReason[0].key.displayName")).isEqualTo("Validation Rule");
         assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].value")).isEqualTo(1);
@@ -209,8 +209,27 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<String>get("$.outputs[0].name")).isEqualTo("Deliverable");
         assertThat(jsonModel.<Number>get("$.outputs[0].interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.outputs[0].interval.timeUnit")).isEqualTo("minutes");
-        assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
-        assertThat(jsonModel.<String>get("$.outputs[0].formula.description")).isEqualTo("testDescription");
+        assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo(READING_TYPE_MRID);
+        assertThat(jsonModel.<String>get("$.outputs[0].formula.description")).isEqualTo(FORMULA_DESCR);
         assertThat(jsonModel.<Boolean>get("$.outputs[0].validationInfo.hasSuspects")).isTrue();
+    }
+
+    @Test
+    public void testUsagePointSingleDeliverableInfo() {
+        String json = target("/usagepoints/UP/purposes/1/outputs/1").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("Deliverable");
+        assertThat(jsonModel.<Number>get("$.interval.count")).isEqualTo(15);
+        assertThat(jsonModel.<String>get("$.interval.timeUnit")).isEqualTo("minutes");
+        assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo(READING_TYPE_MRID);
+        assertThat(jsonModel.<String>get("$.formula.description")).isEqualTo(FORMULA_DESCR);
+        assertThat(jsonModel.<Boolean>get("$.validationInfo.validationActive")).isTrue();
+        assertThat(jsonModel.<Boolean>get("$.validationInfo.allDataValidated")).isFalse();
+        assertThat(jsonModel.<Boolean>get("$.validationInfo.hasSuspects")).isTrue();
+        assertThat(jsonModel.<Number>get("$.validationInfo.lastChecked")).isEqualTo(DAY_BEFORE.toEpochMilli());
+        assertThat(jsonModel.<Number>get("$.validationInfo.suspectReason[0].key.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.validationInfo.suspectReason[0].key.displayName")).isEqualTo("Validation Rule");
+        assertThat(jsonModel.<Number>get("$.validationInfo.suspectReason[0].value")).isEqualTo(1);
     }
 }

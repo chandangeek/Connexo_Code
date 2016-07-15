@@ -68,6 +68,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -77,8 +78,7 @@ import static org.mockito.Mockito.when;
 public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyTest {
 
     public static final Instant NOW = ZonedDateTime.of(2015, 12, 10, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
-    public static final Instant LAST_READING = ZonedDateTime.of(2015, 12, 9, 10, 43, 13, 0, ZoneId.systemDefault()).toInstant();
-    private static long intervalStart = 1410774630000L;
+
     @Rule
     public TestRule timeZoneNeutral = Using.timeZoneOfMcMurdo();
     @Mock
@@ -156,7 +156,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(meteringService.findUsagePoint("test")).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
         when(metrologyConfigurationService.findMetrologyConfiguration(1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
-        when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Arrays.asList(usagePointMetrologyConfiguration));
+        when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Collections.singletonList(usagePointMetrologyConfiguration));
 
         UsagePointCustomPropertySetExtension extension = mock(UsagePointCustomPropertySetExtension.class);
         when(extension.getAllPropertySets()).thenReturn(Collections.emptyList());
@@ -164,11 +164,11 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(extension.getPropertySet(1L)).thenReturn(usagePointPropertySet);
         when(usagePointPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
-        when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Arrays.asList(registeredCustomPropertySet));
+        when(customPropertySetService.findActiveCustomPropertySets(UsagePoint.class)).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
         when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
-        when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Arrays.asList(usagePointMetrologyConfiguration));
+        when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Collections.singletonList(usagePointMetrologyConfiguration));
         when(usagePoint.forCustomProperties().getPropertySet(1L)).thenReturn(usagePointPropertySet);
 
         Range<Instant> range1 = Ranges.openClosed(Instant.ofEpochMilli(1410774620100L), Instant.ofEpochMilli(1410774620200L));
@@ -297,7 +297,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testGetLinkableMetrologyConfigurations() {
-        when(usagePointMetrologyConfiguration.getCustomPropertySets()).thenReturn(Arrays.asList(registeredCustomPropertySet));
+        when(usagePointMetrologyConfiguration.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         when(usagePointMetrologyConfiguration.getId()).thenReturn(1L);
         when(usagePointMetrologyConfiguration.getName()).thenReturn("TestMC");
         when(metrologyConfigurationCustomPropertySetUsage.getRegisteredCustomPropertySet()).thenReturn(registeredCustomPropertySet);
@@ -325,7 +325,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         info.id = 1L;
         info.name = "Test";
         info.version = 1L;
-        info.customPropertySets = Arrays.asList(casInfo);
+        info.customPropertySets = Collections.singletonList(casInfo);
         Response response = target("usagepoints/test/metrologyconfiguration").queryParam("validate", "true")
                 .queryParam("customPropertySetId", 1L)
                 .request()
@@ -537,9 +537,9 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().get(0);
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().get(0);
         CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
-        when(dataAggregationService.calculate(any(UsagePoint.class), any(MetrologyContract.class), any(Range.class))).thenReturn(calculatedMetrologyContractData);
-        List channelData = Arrays.asList(readingRecord1, readingRecord2);
-        when(calculatedMetrologyContractData.getCalculatedDataFor(readingTypeDeliverable)).thenReturn(channelData);
+        when(dataAggregationService.calculate(any(UsagePoint.class), any(MetrologyContract.class), any())).thenReturn(calculatedMetrologyContractData);
+        List<BaseReadingRecord> channelData = Arrays.asList(readingRecord1, readingRecord2);
+        doReturn(channelData).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
         String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
         String json = target("usagepoints/MRID/purposes/1/outputs/1/data").queryParam("filter", filter).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
