@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
-import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -20,6 +11,14 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.exceptions.LoadProfileTypeIsNotConfiguredOnDeviceTypeException;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -34,7 +33,7 @@ import java.util.List;
  * Date: 9/11/12
  * Time: 10:24
  */
-public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements ServerLoadProfileSpec {
+class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> implements ServerLoadProfileSpec {
 
     @IsPresent(groups = { Save.Create.class, Save.Update.class }, message = "{" + MessageSeeds.Keys.LOAD_PROFILE_SPEC_LOAD_PROFILE_TYPE_IS_REQUIRED + "}")
     private final Reference<LoadProfileType> loadProfileType = ValueReference.absent();
@@ -53,7 +52,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     private List<ChannelSpec> channelSpecs = new ArrayList<>();
 
     @Inject
-    public LoadProfileSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    LoadProfileSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(LoadProfileSpec.class, dataModel, eventService, thesaurus);
     }
 
@@ -92,7 +91,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         return getLoadProfileType().getInterval();
     }
 
-    void validateBeforeAddToDeviceConfiguration () {
+    private void validateBeforeAddToDeviceConfiguration() {
         this.validateDeviceTypeContainsLoadProfileType();
         Save.CREATE.validate(this.getDataModel(), this);
     }
@@ -113,7 +112,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
         return false;
     }
 
-    void validateUpdate () {
+    private void validateUpdate() {
         Save.UPDATE.validate(this.getDataModel(), this);
     }
 
@@ -254,7 +253,7 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
 
         final LoadProfileSpecImpl loadProfileSpec;
 
-        protected LoadProfileSpecUpdater(LoadProfileSpecImpl loadProfileSpec) {
+        LoadProfileSpecUpdater(LoadProfileSpecImpl loadProfileSpec) {
             this.loadProfileSpec = loadProfileSpec;
         }
 

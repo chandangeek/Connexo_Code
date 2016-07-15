@@ -4,9 +4,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 
 /**
- * Provides server side functionality regarding a SecurityPropertySet
+ * Provides server side functionality regarding a SecurityPropertySet.
  */
-public interface ServerSecurityPropertySet extends SecurityPropertySet {
+interface ServerSecurityPropertySet extends SecurityPropertySet {
 
     /**
      * Clones the current SecurityPropertySet
@@ -15,4 +15,9 @@ public interface ServerSecurityPropertySet extends SecurityPropertySet {
      * @return the cloned SecurityPropertySet
      */
     SecurityPropertySet cloneForDeviceConfig(DeviceConfiguration deviceConfiguration);
+
+    DeleteEventType deleteEventType();
+
+    void prepareDelete();
+
 }

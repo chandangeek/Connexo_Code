@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.rest.MinTimeDuration;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.SchedulingService;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,6 +8,13 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.rest.MinTimeDuration;
+import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -28,7 +27,7 @@ import javax.validation.constraints.NotNull;
  */
 @ConnectionTypeDirectionValidForConnectionTask(groups = {Save.Create.class, Save.Update.class}, direction = ConnectionType.Direction.OUTBOUND)
 @DeviceConfigurationMustBeDirectlyAddressable(groups = {Save.Create.class, Save.Update.class})
-public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialOutboundConnectionTask {
+abstract class PartialOutboundConnectionTaskImpl extends PartialConnectionTaskImpl implements PartialOutboundConnectionTask {
 
     enum Fields {
         NEXT_EXECUTION_SPECS("nextExecutionSpecs");

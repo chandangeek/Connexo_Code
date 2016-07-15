@@ -6,9 +6,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.impl.DeviceTypeImpl;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -21,7 +26,7 @@ import java.util.function.Predicate;
  * Straightforward implementation of a DeviceConfigConflictMapping
  */
 @OnlyOneSolutionPerDataSource(groups = {Save.Create.class, Save.Update.class})
-public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapping{
+public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapping {
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -58,14 +63,18 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     @Valid
     private List<ConflictingSecuritySetSolution> securitySetSolutions = new ArrayList<>();
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
 
     // audit fields
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
-
 
     @Inject
     public DeviceConfigConflictMappingImpl(DataModel dataModel, EventService eventService) {
@@ -121,7 +130,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         return this.version;
     }
 
-    public void recalculateSolvedState(AbstractConflictSolution conflictingSolution) {
+    void recalculateSolvedState(AbstractConflictSolution conflictingSolution) {
         conflictingSolution.update();
         this.update();
     }
@@ -152,7 +161,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         return conflictingConnectionMethodSolution -> conflictingConnectionMethodSolution.getConflictingMappingAction().equals(ConflictingMappingAction.NOT_DETERMINED_YET);
     }
 
-    public ConflictingConnectionMethodSolution newConflictingConnectionMethods(PartialConnectionTask origin) {
+    ConflictingConnectionMethodSolution newConflictingConnectionMethods(PartialConnectionTask origin) {
         markAsNotSolved();
         ConflictingConnectionMethodSolution connectionMethodSolution = dataModel.getInstance(ConflictingConnectionMethodSolutionImpl.class).initialize(this, origin);
         this.connectionMethodSolutions.add(connectionMethodSolution);
@@ -160,7 +169,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         return connectionMethodSolution;
     }
 
-    public ConflictingSecuritySetSolution newConflictingSecurityPropertySets(SecurityPropertySet origin) {
+    ConflictingSecuritySetSolution newConflictingSecurityPropertySets(SecurityPropertySet origin) {
         markAsNotSolved();
         ConflictingSecuritySetSolution securitySetSolution = dataModel.getInstance(ConflictingSecuritySetSolutionImpl.class).initialize(this, origin);
         this.securitySetSolutions.add(securitySetSolution);

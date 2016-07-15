@@ -12,6 +12,7 @@ import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -41,6 +42,15 @@ class AllowedCalendarImpl implements AllowedCalendar {
     private String name;
     @IsPresent
     private Reference<Calendar> calendar = ValueReference.absent();
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
+
     private DataModel dataModel;
 
     @Inject
@@ -70,9 +80,7 @@ class AllowedCalendarImpl implements AllowedCalendar {
         if (this.isGhost()) {
             return name;
         } else {
-            return this.calendar.getOptional()
-                    .get()
-                    .getName();
+            return this.calendar.getOptional().get().getName();
         }
     }
 

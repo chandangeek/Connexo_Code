@@ -2,21 +2,20 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.NextExecutionSpecBuilder;
-import com.energyict.mdc.device.config.PartialOutboundConnectionTask;
 import com.energyict.mdc.device.config.PartialOutboundConnectionTaskBuilder;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.elster.jupiter.time.TemporalExpression;
 
 /**
  * Copyrights EnergyICT
  * Date: 13/03/14
  * Time: 15:12
  */
-public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends PartialOutboundConnectionTask> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialOutboundConnectionTaskBuilder<S, U> {
+abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends PartialOutboundConnectionTaskImpl> extends AbstractPartialConnectionTaskBuilder<S, OutboundComPortPool, U> implements PartialOutboundConnectionTaskBuilder<S, U> {
 
     private final SchedulingService schedulingService;
     private NextExecutionSpecs nextExecutionSpecs;

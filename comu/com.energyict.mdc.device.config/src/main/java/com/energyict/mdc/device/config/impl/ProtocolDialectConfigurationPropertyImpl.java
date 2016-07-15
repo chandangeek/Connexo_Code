@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
-import com.energyict.mdc.device.config.events.EventType;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
+import com.energyict.mdc.device.config.events.EventType;
 
 import javax.validation.constraints.Size;
 import java.time.Instant;
@@ -17,18 +16,22 @@ import java.time.Instant;
  * Time: 16:43
  */
 @SizeForDynamicAttributeName(max = 4000, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-public class ProtocolDialectConfigurationPropertyImpl implements ProtocolDialectConfigurationProperty {
+class ProtocolDialectConfigurationPropertyImpl implements ProtocolDialectConfigurationProperty {
 
     private Reference<ProtocolDialectConfigurationPropertiesImpl> properties = ValueReference.absent();
     @Size(max = 255, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     private String value;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
 
-    public static ProtocolDialectConfigurationPropertyImpl forKey(ProtocolDialectConfigurationPropertiesImpl props, String name) {
+    static ProtocolDialectConfigurationPropertyImpl forKey(ProtocolDialectConfigurationPropertiesImpl props, String name) {
         ProtocolDialectConfigurationPropertyImpl property = new ProtocolDialectConfigurationPropertyImpl();
         property.name = name;
         property.properties.set(props);

@@ -72,10 +72,6 @@ class DeviceConfValidationRuleSetUsageImpl implements DeviceConfValidationRuleSe
         dataModel.remove(this);
     }
 
-    void setValidationRuleSetIdRuleSetId(long validationRuleSetId) {
-        this.validationRuleSetId = validationRuleSetId;
-    }
-
     void setDeviceConfigurationId(long deviceConfigurationId) {
         this.deviceConfigurationId = deviceConfigurationId;
     }

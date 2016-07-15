@@ -367,7 +367,7 @@ public class DeviceMessageFileImplIT {
         long version = deviceType.getVersion();
 
         // Business method
-        deviceType.removeDeviceMessageFile(mock(DeviceMessageFile.class));
+        deviceType.removeDeviceMessageFile(mock(ServerDeviceMessageFile.class));
 
         // Asserts
         assertThat(deviceType.getVersion()).isEqualTo(version);
@@ -390,7 +390,7 @@ public class DeviceMessageFileImplIT {
         long version = deviceType.getVersion();
 
         // Business method
-        deviceType.removeDeviceMessageFile(mock(DeviceMessageFile.class));
+        deviceType.removeDeviceMessageFile(mock(ServerDeviceMessageFile.class));
 
         // Asserts
         assertThat(deviceType.getDeviceMessageFiles()).isNotEmpty();

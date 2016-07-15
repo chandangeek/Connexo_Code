@@ -8,7 +8,7 @@ import com.energyict.mdc.device.config.DeviceType;
 
 import java.util.Objects;
 
-public class DeviceTypeCustomPropertySetUsageImpl implements DeviceTypeCustomPropertySetUsage {
+class DeviceTypeCustomPropertySetUsageImpl implements DeviceTypeCustomPropertySetUsage {
 
     public enum Fields {
         DEVICETYPE("deviceType"),

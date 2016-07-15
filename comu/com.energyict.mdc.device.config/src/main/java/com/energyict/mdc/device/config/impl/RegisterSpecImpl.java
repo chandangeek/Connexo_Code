@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.RegisterSpec;
-import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
@@ -18,6 +10,14 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.validation.ValidationRule;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredOnDeviceTypeException;
+import com.energyict.mdc.masterdata.MeasurementType;
+import com.energyict.mdc.masterdata.RegisterType;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -27,12 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObject<T> implements ServerRegisterSpec {
+abstract class RegisterSpecImpl<T extends RegisterSpec> extends PersistentIdObject<T> implements ServerRegisterSpec {
 
-    protected static final String NUMERICAL_DISCRIMINATOR = "0";
-    protected static final String TEXTUAL_DISCRIMINATOR = "1";
+    private static final String NUMERICAL_DISCRIMINATOR = "0";
+    private static final String TEXTUAL_DISCRIMINATOR = "1";
     static final Map<String, Class<? extends RegisterSpec>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends RegisterSpec>>of(
+            ImmutableMap.of(
                     NUMERICAL_DISCRIMINATOR, NumericalRegisterSpecImpl.class,
                     TEXTUAL_DISCRIMINATOR, TextualRegisterSpecImpl.class);
 
@@ -52,7 +52,7 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
     private Instant modTime;
 
     @Inject
-    public RegisterSpecImpl(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    RegisterSpecImpl(Class<T> domainClass, DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(domainClass, dataModel, eventService, thesaurus);
     }
 
@@ -96,7 +96,7 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
         return this.modTime;
     }
 
-    protected void validateBeforeAddToConfiguration() {
+    void validateBeforeAddToConfiguration() {
         Save.CREATE.validate(this.getDataModel(), this);
         this.validate();
     }

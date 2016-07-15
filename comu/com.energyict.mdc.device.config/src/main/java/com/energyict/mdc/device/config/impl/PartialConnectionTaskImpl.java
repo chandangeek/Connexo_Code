@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -18,6 +9,15 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialConnectionTaskProperty;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -40,9 +40,9 @@ import java.util.Optional;
  * @author sva
  * @since 21/01/13 - 16:44
  */
-public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask {
+abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialConnectionTask> implements ServerPartialConnectionTask {
 
-    public static final Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends PartialConnectionTask>>of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialScheduledConnectionTaskImpl.class);
+    public static final Map<String, Class<? extends PartialConnectionTask>> IMPLEMENTERS = ImmutableMap.of("0", PartialConnectionInitiationTaskImpl.class, "1", PartialInboundConnectionTaskImpl.class, "2", PartialScheduledConnectionTaskImpl.class);
 
     enum Fields {
         CONNECTION_TYPE_PLUGGABLE_CLASS("pluggableClass");
@@ -96,6 +96,10 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     protected abstract ValidateDeleteEventType validateDeleteEventType();
 
+    void prepareDelete() {
+        this.properties.clear();
+    }
+
     @Override
     protected void validateDelete () {
         this.getEventService().postEvent(this.validateDeleteEventType().topic(), this);
@@ -133,7 +137,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     @Override
     public List<PartialConnectionTaskProperty> getProperties () {
-        return Collections.<PartialConnectionTaskProperty>unmodifiableList(properties);
+        return Collections.unmodifiableList(properties);
     }
 
     public void setProperty(String key, Object value) {
@@ -219,7 +223,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
     }
 
     // only to be used in the setDefault
-    public void clearDefault() {
+    void clearDefault() {
         this.isDefault = false;
         this.post();
     }
@@ -253,7 +257,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         return new PartialConnectionTaskUpdateDetailsImpl(this, this.addedOrRemovedRequiredProperties);
     }
 
-    public static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskPropertyImpl> {
+    static class HasSpecValidator implements ConstraintValidator<PartialConnectionTaskPropertyMustHaveSpec, PartialConnectionTaskPropertyImpl> {
 
         @Override
         public void initialize(PartialConnectionTaskPropertyMustHaveSpec constraintAnnotation) {
@@ -266,7 +270,7 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         }
     }
 
-    public static class ValueValidator implements ConstraintValidator<PartialConnectionTaskPropertyValueHasCorrectType, PartialConnectionTaskPropertyImpl> {
+    static class ValueValidator implements ConstraintValidator<PartialConnectionTaskPropertyValueHasCorrectType, PartialConnectionTaskPropertyImpl> {
 
         @Override
         public void initialize(PartialConnectionTaskPropertyValueHasCorrectType constraintAnnotation) {

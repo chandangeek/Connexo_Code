@@ -16,9 +16,13 @@ import java.time.Instant;
 class DeviceTypeLogBookTypeUsage {
     private Reference<DeviceType> deviceType = ValueReference.absent();
     private Reference<LogBookType> logBookType = ValueReference.absent();
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
 
     // For orm service only
@@ -40,7 +44,7 @@ class DeviceTypeLogBookTypeUsage {
         return logBookType.get();
     }
 
-    public boolean sameLogBookType (LogBookType logBookType) {
+    boolean sameLogBookType(LogBookType logBookType) {
         return this.getLogBookType().getId() == logBookType.getId();
     }
 
