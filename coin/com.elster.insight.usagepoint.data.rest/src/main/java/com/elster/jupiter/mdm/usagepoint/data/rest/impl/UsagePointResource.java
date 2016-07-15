@@ -6,7 +6,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -17,9 +18,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
-import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
-import com.elster.jupiter.metering.aggregation.DataAggregationService;
-import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -29,7 +27,6 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -49,6 +46,7 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfo;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -75,6 +73,7 @@ import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -95,7 +94,6 @@ public class UsagePointResource {
     private final CustomPropertySetService customPropertySetService;
     private final CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private final ServiceCallService serviceCallService;
-    private final DataAggregationService dataAggregationService;
     private final ServiceCallInfoFactory serviceCallInfoFactory;
     private final Thesaurus thesaurus;
 
@@ -116,7 +114,6 @@ public class UsagePointResource {
                               ServiceCallService serviceCallService, ServiceCallInfoFactory serviceCallInfoFactory,
                               Provider<UsagePointCustomPropertySetResource> usagePointCustomPropertySetResourceProvider,
                               CustomPropertySetService customPropertySetService,
-                              DataAggregationService dataAggregationService,
                               UsagePointInfoFactory usagePointInfoFactory,
                               CustomPropertySetInfoFactory customPropertySetInfoFactory,
                               ExceptionFactory exceptionFactory,
@@ -131,7 +128,6 @@ public class UsagePointResource {
         this.meteringService = meteringService;
         this.clock = clock;
         this.serviceCallService = serviceCallService;
-        this.dataAggregationService = dataAggregationService;
         this.serviceCallInfoFactory = serviceCallInfoFactory;
         this.usagePointCustomPropertySetResourceProvider = usagePointCustomPropertySetResourceProvider;
         this.customPropertySetService = customPropertySetService;
@@ -643,27 +639,40 @@ public class UsagePointResource {
                                                  @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
-                .stream()
-                .filter(mc -> mc.getId() == purposeId)
-                .findFirst()
-                .get();
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables()
-                .stream()
-                .filter(d -> d.getId() == outputId)
-                .findFirst()
-                .get();
+        MetrologyContract metrologyContract = fetchMetrologyContract(usagePoint, purposeId);
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            try {
-                CalculatedMetrologyContractData calculatedMetrologyContractData = dataAggregationService.calculate(usagePoint, metrologyContract, range);
-                List<? extends BaseReadingRecord> channelData = calculatedMetrologyContractData.getCalculatedDataFor(readingTypeDeliverable);
-                outputChannelDataInfoList = channelData.stream().map(baseReadingRecord -> outputChannelDataInfoFactory.createChannelDataInfo(baseReadingRecord)).collect(Collectors.toList());
-            } catch (MetrologyContractDoesNotApplyToUsagePointException | UnderlyingSQLFailedException ex) {
-                outputChannelDataInfoList = Collections.emptyList();
-            }
+            List<Channel> channels = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get().getChannels();
+            List<DataValidationStatus> dataValidationStatusList = fetchDataValidationStatuses(channels, range);
+            outputChannelDataInfoList = channels
+                    .stream()
+                    .flatMap(channel -> channel.getIntervalReadings(range).stream())
+                    .map(intervalReadingRecord -> outputChannelDataInfoFactory.createChannelDataInfo(intervalReadingRecord, dataValidationStatusList))
+                    .collect(Collectors.toList());
         }
         return PagedInfoList.fromCompleteList("data", outputChannelDataInfoList, queryParameters);
+    }
+
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{mrid}/purposes/{purposeId}/outputs/{outputId}/data/{epochMillis}/validation")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
+    public OutputChannelDataInfo getOutputChannelDataWithValidation(@PathParam("mrid") String mRid, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
+                                                                    @PathParam("epochMillis") long epochMillis, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
+        MetrologyContract metrologyContract = fetchMetrologyContract(usagePoint, purposeId);
+        List<Channel> channels = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get().getChannels();
+        Instant to = Instant.ofEpochMilli(epochMillis);
+        List<DataValidationStatus> dataValidationStatusList = fetchDataValidationStatuses(channels, Range.singleton(to));
+        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, usagePoint.getZoneId());
+        IntervalReadingRecord intervalReadingRecord = channels
+                .stream()
+                .flatMap(channel -> channel.getIntervalReadings(Ranges.openClosed(zonedDateTime.minus(channel.getIntervalLength().get()).toInstant(), to)).stream())
+                .filter(reading -> reading.getTimeStamp().equals(Instant.ofEpochMilli(epochMillis)))
+                .findFirst()
+                .get();
+        return outputChannelDataInfoFactory.createChannelDataInfoWithValidationRules(intervalReadingRecord, dataValidationStatusList);
     }
 
     @GET
@@ -688,5 +697,22 @@ public class UsagePointResource {
                 .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(Collections.singleton(QualityCodeSystem.MDM), channelsContainer)
                         .setMetrologyContract(metrologyContract), Instant.ofEpochMilli(purposeInfo.lastChecked)));
         return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    private MetrologyContract fetchMetrologyContract(UsagePoint usagePoint, long purposeId) {
+        return usagePoint.getMetrologyConfiguration().get().getContracts()
+                .stream()
+                .filter(mc -> mc.getId() == purposeId)
+                .findFirst()
+                .get();
+    }
+
+    private List<DataValidationStatus> fetchDataValidationStatuses(List<Channel> channels, Range<Instant> range) {
+        return channels
+                .stream()
+                .flatMap(channel -> validationService.getEvaluator()
+                        .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, channel.getIntervalReadings(range), range)
+                        .stream())
+                .collect(Collectors.toList());
     }
 }

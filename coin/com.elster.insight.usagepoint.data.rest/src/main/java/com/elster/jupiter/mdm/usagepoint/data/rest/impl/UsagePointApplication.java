@@ -28,6 +28,7 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -239,6 +240,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
             bind(OutputChannelDataInfoFactory.class).to(OutputChannelDataInfoFactory.class);
