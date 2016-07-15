@@ -106,18 +106,18 @@ import java.util.stream.Stream;
 public class UsagePointResource {
 
     private static TemporalAmountComparator temporalAmountComparator = new TemporalAmountComparator();
-    private static TreeMap<TemporalAmount, TemporalAmount> defaultLevels = new TreeMap<>(temporalAmountComparator);
+    private static TreeMap<TemporalAmount, TemporalAmount> validationOverviewLevelsPerIntervalLength = new TreeMap<>(temporalAmountComparator);
 
     static {
-        defaultLevels.put(Duration.ofMinutes(1), Period.ofDays(1));
-        defaultLevels.put(Duration.ofMinutes(5), Period.ofWeeks(1));
-        defaultLevels.put(Duration.ofMinutes(15), Period.ofWeeks(2));
-        defaultLevels.put(Duration.ofHours(1), Period.ofMonths(2));
-        defaultLevels.put(Period.ofDays(1), Period.ofYears(1));
-        defaultLevels.put(Period.ofWeeks(1), Period.ofYears(2));
-        defaultLevels.put(Period.ofMonths(1), Period.ofYears(10));
-        defaultLevels.put(Period.ofMonths(3), Period.ofYears(20));
-        defaultLevels.put(Period.ofYears(1), Period.ofYears(20));
+        validationOverviewLevelsPerIntervalLength.put(Duration.ofMinutes(1), Period.ofDays(1));
+        validationOverviewLevelsPerIntervalLength.put(Duration.ofMinutes(5), Period.ofWeeks(1));
+        validationOverviewLevelsPerIntervalLength.put(Duration.ofMinutes(15), Period.ofWeeks(2));
+        validationOverviewLevelsPerIntervalLength.put(Duration.ofHours(1), Period.ofMonths(2));
+        validationOverviewLevelsPerIntervalLength.put(Period.ofDays(1), Period.ofYears(1));
+        validationOverviewLevelsPerIntervalLength.put(Period.ofWeeks(1), Period.ofYears(2));
+        validationOverviewLevelsPerIntervalLength.put(Period.ofMonths(1), Period.ofYears(10));
+        validationOverviewLevelsPerIntervalLength.put(Period.ofMonths(3), Period.ofYears(20));
+        validationOverviewLevelsPerIntervalLength.put(Period.ofYears(1), Period.ofYears(20));
     }
 
     private final RestQueryService queryService;
@@ -785,7 +785,7 @@ public class UsagePointResource {
     }
 
     private Optional<TemporalAmount> getValidationOverviewIntervalLength(TemporalAmount intervalLength) {
-        Map.Entry<TemporalAmount, TemporalAmount> targetInterval = defaultLevels.ceilingEntry(intervalLength);
+        Map.Entry<TemporalAmount, TemporalAmount> targetInterval = validationOverviewLevelsPerIntervalLength.ceilingEntry(intervalLength);
         return targetInterval != null ? Optional.of(targetInterval.getValue()) : Optional.empty();
     }
 
