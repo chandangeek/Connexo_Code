@@ -245,6 +245,8 @@ public class DeviceInfoFactoryTest {
         when(amrSystem.findMeter("" + DATALOGGER_ID)).thenReturn(Optional.of(meter));
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
 
+        when(topologyService.getSlaveChannel(any(Channel.class), any(Instant.class))).thenReturn(Optional.empty());
+
         when(topologyService.getPhysicalGateway(dataLogger)).thenReturn(Optional.empty());
         when(topologyService.getSlaveChannel(eq(dataLoggerChn1), any(Instant.class))).thenReturn(Optional.of(slaveChn1));
         when(topologyService.getSlaveChannel(eq(dataLoggerChn2), any(Instant.class))).thenReturn(Optional.empty());

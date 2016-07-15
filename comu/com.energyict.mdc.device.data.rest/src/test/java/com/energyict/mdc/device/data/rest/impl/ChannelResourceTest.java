@@ -21,6 +21,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -279,6 +280,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceType.isDataloggerSlave()).thenReturn(false);
+        when(topologyService.getSlaveChannel(any(Channel.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     private ReadingQualityRecord mockReadingQuality(String code) {
@@ -304,7 +306,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelData() throws UnsupportedEncodingException {
-        String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).create();
+        String filter = ExtjsFilter.filter().property("intervalStart", intervalStart).property("intervalEnd", intervalEnd).create();
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd)))));
 
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
@@ -313,8 +317,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(6);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(1410774630000L);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1410828630000L);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(intervalStart);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(intervalEnd);
         assertThat(jsonModel.<List<?>>get("$.data[0].intervalFlags")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].intervalFlags[0]")).isEqualTo(BATTERY_LOW);
         assertThat(jsonModel.<String>get("$.data[0].collectedValue")).isEqualTo("200.000");
@@ -401,6 +405,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testChannelDataFilteredMatches() throws UnsupportedEncodingException {
         String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect", "suspect").create();
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd)))));
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
                 .request().get(String.class);

@@ -86,17 +86,14 @@ public class RegisterDataResource {
                 flatMap(registerRangePair -> {
                     Register<?, ?> register1 = registerRangePair.getFirst();
                     List<? extends Reading> readings = register1.getReadings(Interval.of(registerRangePair.getLast()));
-                    return readings.stream()
-                            .flatMap(registerReading -> {
-                                List<ReadingInfo> infoList = deviceDataInfoFactory.asReadingsInfoList(readings, register1, device.forValidation()
-                                        .isValidationActive(register1, this.clock.instant()), register.equals(register1) ? null : register1.getDevice());
-                                // sort the list of readings
-                                Collections.sort(infoList, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
-                                addDeltaCalculationIfApplicable(register1, infoList);
-                                return infoList.stream()
-                                        // filter the list of readings based on user parameters
-                                        .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects));
-                            });
+                    List<ReadingInfo> infoList = deviceDataInfoFactory.asReadingsInfoList(readings, register1, device.forValidation()
+                            .isValidationActive(register1, this.clock.instant()), register.equals(register1) ? null : register1.getDevice());
+                    // sort the list of readings
+                    Collections.sort(infoList, (ri1, ri2) -> ri2.timeStamp.compareTo(ri1.timeStamp));
+                    addDeltaCalculationIfApplicable(register1, infoList);
+                    return infoList.stream()
+                            // filter the list of readings based on user parameters
+                            .filter(resourceHelper.getSuspectsFilter(filter, this::hasSuspects));
                 }).collect(Collectors.toList());
 
 

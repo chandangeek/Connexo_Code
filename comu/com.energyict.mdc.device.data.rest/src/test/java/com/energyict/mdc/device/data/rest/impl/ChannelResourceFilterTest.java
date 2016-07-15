@@ -98,6 +98,7 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(channel4.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceType.isDataloggerSlave()).thenReturn(false);
+        when(topologyService.getSlaveChannel(any(Channel.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     private Channel mockChannel(long id, ReadingType readingType){

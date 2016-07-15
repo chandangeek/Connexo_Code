@@ -46,6 +46,7 @@ import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
@@ -170,6 +171,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.findDataloggerReference(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findDataLoggerChannelUsagesForChannels(any(Channel.class), any(Range.class))).thenReturn(Collections.emptyList());
+        when(topologyService.getSlaveChannel(any(Channel.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     @Test
@@ -777,6 +779,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
             start += 900;
         }
         when(channel1.getChannelData(any(Range.class))).thenReturn(loadProfileReadings);
+        Range<Instant> range = Range.closedOpen(Instant.ofEpochMilli(1410774630000L), Instant.ofEpochMilli(1410828630000L));
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel1, range)));
 
         String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
         Map response = target("/devices/mrid2/channels/7/data")
