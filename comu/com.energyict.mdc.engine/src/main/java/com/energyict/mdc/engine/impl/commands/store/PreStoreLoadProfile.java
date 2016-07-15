@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +81,7 @@ public class PreStoreLoadProfile {
             NOT_PROCESSED,
             OK,
             LOADPROFILE_NOT_FOUND,
-            NO_INTERVALS_COLLECTED;
+            NO_INTERVALS_COLLECTED
         }
 
         private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
@@ -129,7 +130,7 @@ public class PreStoreLoadProfile {
         }
 
         List<IntervalBlock> getIntervalBlocks() {
-            return intervalBlocks;
+            return Collections.unmodifiableList(intervalBlocks);
         }
 
         protected boolean addIntervalBlock(IntervalBlock intervalBlock){
@@ -164,13 +165,11 @@ public class PreStoreLoadProfile {
             Unit configuredUnit = mdcReadingTypeUtilService.getMdcUnitFor(readingTypeMRID);
             int scaler = getScaler(unit, configuredUnit);
             IntervalBlockImpl processingBlock = IntervalBlockImpl.of(readingTypeMRID);
-            for (IntervalReading intervalReading : intervalBlock.getIntervals()) {
-                if (rangeToProcess.contains(intervalReading.getTimeStamp())) {
-                    IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
-                    IntervalReading multipliedReading = getMultipliedReading(multiplier, scaledIntervalReading);
-                    processingBlock.addIntervalReading(multipliedReading);
-                }
-            }
+            intervalBlock.getIntervals().stream().filter(intervalReading -> rangeToProcess.contains(intervalReading.getTimeStamp())).forEach(intervalReading -> {
+                IntervalReading scaledIntervalReading = getScaledIntervalReading(scaler, intervalReading);
+                IntervalReading multipliedReading = getMultipliedReading(multiplier, scaledIntervalReading);
+                processingBlock.addIntervalReading(multipliedReading);
+            });
             return processingBlock;
         }
 
@@ -210,14 +209,6 @@ public class PreStoreLoadProfile {
             }
         }
 
-        final protected void checkIfYouHaveAnEmptyChannel(List<IntervalBlock> processedBlocks) {
-            final Optional<IntervalBlock> blockWithNoIntervals = processedBlocks.stream().filter(intervalBlock -> intervalBlock.getIntervals().isEmpty()).findAny();
-            if (blockWithNoIntervals.isPresent()) {
-                this.preStoreResult = PreStoreResult.NO_INTERVALS_COLLECTED;
-            } else {
-                this.intervalBlocks = processedBlocks;
-            }
-        }
     }
 
     static class CompositePreStoredLoadProfile extends PreStoredLoadProfile {
@@ -234,7 +225,6 @@ public class PreStoreLoadProfile {
             for (Pair<IntervalBlock, ChannelInfo> intervalBlockChannelInfoPair : DualIterable.endWithLongest(MeterDataFactory.createIntervalBlocksFor(collectedLoadProfile), collectedLoadProfile.getChannelInfo())) {
                 IntervalBlock intervalBlock = intervalBlockChannelInfoPair.getFirst();
                 ChannelInfo channelInfo = intervalBlockChannelInfoPair.getLast();
-                String readingType = channelInfo.getReadingTypeMRID();
                 comServerDAO.getStorageLoadProfileIdentifiers(getOfflineLoadProfile(), channelInfo.getReadingTypeMRID(), getRangeForNewIntervalStorage(intervalStorageEnd)).forEach(pair -> {
                     IntervalBlock processed = null;
                     if (pair.getFirst().isDataLoggerSlaveLoadProfile()) {
@@ -281,7 +271,7 @@ public class PreStoreLoadProfile {
         }
 
         List<PreStoredLoadProfile> getPreStoredLoadProfiles(){
-            return preStoredLoadProfiles;
+            return Collections.unmodifiableList(preStoredLoadProfiles);
         }
 
     }

@@ -1,19 +1,20 @@
 package com.energyict.mdc.engine.impl.commands.offline;
 
-import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,9 +96,9 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      * Note that this may cause recursive calls to other objects that can go offline.
      */
     protected void goOffline() {
-        setLoadProfileId((int) this.loadProfile.getId());
+        setLoadProfileId(this.loadProfile.getId());
         setDeviceId(this.loadProfile.getDevice().getId());
-        setLoadProfileTypeId((int) this.loadProfile.getLoadProfileSpec().getLoadProfileType().getId());
+        setLoadProfileTypeId(this.loadProfile.getLoadProfileSpec().getLoadProfileType().getId());
         setSerialNumber(this.loadProfile.getDevice().getSerialNumber());
         setLastReading(this.loadProfile.getLastReading().orElse(null));
         setLoadProfileInterval(this.loadProfile.getLoadProfileSpec().getInterval());
@@ -197,7 +198,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      */
     @Override
     public List<OfflineLoadProfileChannel> getChannels() {
-        return loadProfileChannels;
+        return Collections.unmodifiableList(loadProfileChannels);
     }
 
     /**
@@ -208,7 +209,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
      */
     @Override
     public List<OfflineLoadProfileChannel> getAllChannels() {
-        return allLoadProfileChannels;
+        return Collections.unmodifiableList(allLoadProfileChannels);
     }
 
     @Override
@@ -233,7 +234,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         this.loadProfileChannels = loadProfileChannels;
     }
 
-    private void setLoadProfileId(final int loadProfileId) {
+    private void setLoadProfileId(final long loadProfileId) {
         this.loadProfileId = loadProfileId;
     }
 
@@ -249,7 +250,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
         this.deviceId = deviceId;
     }
 
-    private void setLoadProfileTypeId(final int loadProfileTypeId) {
+    private void setLoadProfileTypeId(final long loadProfileTypeId) {
         this.loadProfileTypeId = loadProfileTypeId;
     }
 
