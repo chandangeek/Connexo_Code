@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -57,7 +58,12 @@ public class ChannelInfo {
         info.name = channel.getName();
         info.interval = new TimeDurationInfo(channel.getInterval());
         info.lastReading = channel.getLastReading().orElse(null);
-        info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
+        Optional<Channel> slaveChannel = topologyService.getSlaveChannel(channel, clock.instant());
+        if (!slaveChannel.isPresent()) {
+            info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
+        } else {
+            info.lastValueTimestamp = slaveChannel.get().getLastDateTime().orElse(null);
+        }
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
         channel.getCalculatedReadingType(clock.instant()).ifPresent(readingType1 -> info.calculatedReadingType = new ReadingTypeInfo(readingType1));
         channel.getChannelSpec().getOverflow().ifPresent(channelSpecOverflow -> info.overflowValue = channelSpecOverflow);
