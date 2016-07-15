@@ -13,7 +13,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
@@ -252,7 +252,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                     if (deliverableReadingTypeMRIDs.stream().anyMatch(ruleSetReadingTypeMRIDs::contains)) {
                         return true;
                     } else {
-                        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+                        ReadingTypeRequirementsCollector requirementChecker = new ReadingTypeRequirementsCollector();
                         metrologyContract.getDeliverables()
                                 .stream()
                                 .map(ReadingTypeDeliverable::getFormula)
