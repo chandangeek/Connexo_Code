@@ -13,6 +13,7 @@ import java.util.List;
 
 public class ColumnImpl implements ExistingColumn {
 
+    private static final int MAX_ORACLE_VARCHAR_DATATYPE_SIZE = 4000;
     @SuppressWarnings("unused")
     private String tableName;
     private String name;
@@ -55,7 +56,7 @@ public class ColumnImpl implements ExistingColumn {
     private void callTypeApi(Column.Builder column) {
         switch (dataType) {
             case Types.VARCHAR:
-                column.varChar(characterLength);
+                column.varChar(Math.min(characterLength, MAX_ORACLE_VARCHAR_DATATYPE_SIZE));
                 return;
             case Types.NUMERIC:
                 column.number();

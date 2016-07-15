@@ -36,6 +36,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1114,6 +1115,23 @@ public class TableImpl<T> implements Table<T> {
         Set<String> set = new HashSet<>(nameHistory.asMapOfRanges().values());
         set.add(name);
         return set;
+    }
+
+    public String previousJournalTableName(Version version) {
+        return journalNameHistory.subRangeMap(Range.lessThan(version))
+                .asMapOfRanges()
+                .entrySet()
+                .stream()
+                .max(Comparator.comparing(Map.Entry::getKey, Comparator.comparing(Range::upperEndpoint)))
+                .map(Map.Entry::getValue)
+                .orElse(null);
+    }
+
+    public Set<String> getJournalTableNames() {
+        return journalNameHistory.asMapOfRanges()
+                .values()
+                .stream()
+                .collect(Collectors.toSet());
     }
 
     private class JournalTableVersionOptionsImpl implements JournalTableVersionOptions {
