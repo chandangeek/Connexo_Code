@@ -5,4 +5,5 @@ Private-Package:  \
 	com.elster.jupiter.mdm.usagepoint.config.impl.errors, \
 	com.elster.jupiter.mdm.usagepoint.config.impl.validation
 Export-Package:  \
-	com.elster.jupiter.mdm.usagepoint.config
+	com.elster.jupiter.mdm.usagepoint.config, \
+	com.elster.jupiter.mdm.usagepoint.config.security

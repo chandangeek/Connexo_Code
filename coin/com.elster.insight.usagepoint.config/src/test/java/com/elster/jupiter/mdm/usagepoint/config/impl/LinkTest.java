@@ -1,16 +1,18 @@
 package com.elster.jupiter.mdm.usagepoint.config.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-
-import java.util.Optional;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -34,66 +36,28 @@ public class LinkTest {
         inMemoryBootstrapModule.deactivate();
     }
 
-    private UsagePointConfigurationService getUsagePointConfigurationService() {
-        return inMemoryBootstrapModule.getUsagePointConfigurationService();
-    }
-
-    private MetrologyConfigurationService getMetrologyConfigurationService() {
-        return inMemoryBootstrapModule.getMetrologyConfigurationService();
-    }
-
-    private TransactionService getTransactionService() {
-        return inMemoryBootstrapModule.getTransactionService();
-    }
-
-    private ValidationService getValidationService() {
-        return inMemoryBootstrapModule.getValidationService();
-    }
-
     @Test
     public void testMCValRuleSetLink() {
-        MetrologyConfiguration mc;
-        ValidationRuleSet vrs1;
-        ValidationRuleSet vrs2;
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            ServiceCategory serviceCategory = inMemoryBootstrapModule.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-            ValidationService valService = getValidationService();
-            mc = getMetrologyConfigurationService().newMetrologyConfiguration("MC1", serviceCategory).create();
-            vrs1 = valService.createValidationRuleSet("Rule #1", "INS");
-            upcService.addValidationRuleSet(mc, vrs1);
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            Optional<MetrologyConfiguration> mc2 = getMetrologyConfigurationService().findMetrologyConfiguration(mc.getId());
-            assertThat(mc2).isPresent();
-            assertThat(upcService.getValidationRuleSets(mc2.get())).hasSize(1);
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            ValidationService valService = getValidationService();
-            vrs2 = valService.createValidationRuleSet("Rule #2", "INS");
-            vrs2.save();
-            upcService.addValidationRuleSet(mc, vrs2);
-            Optional<MetrologyConfiguration> mc2 = getMetrologyConfigurationService().findMetrologyConfiguration(mc.getId());
-            assertThat(mc2).isPresent();
-            assertThat(upcService.getValidationRuleSets(mc2.get())).hasSize(2);
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            Optional<MetrologyConfiguration> mc2 = getMetrologyConfigurationService().findMetrologyConfiguration(mc.getId());
-            assertThat(mc2).isPresent();
-            upcService.removeValidationRuleSet(mc2.get(), vrs1);
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            Optional<MetrologyConfiguration> mc2 = getMetrologyConfigurationService().findMetrologyConfiguration(mc.getId());
-            assertThat(mc2).isPresent();
-            assertThat(upcService.getValidationRuleSets(mc2.get())).hasSize(1);
+        try (TransactionContext context = inMemoryBootstrapModule.getTransactionService().getContext()) {
+            UsagePointConfigurationService usagePointConfigurationService = inMemoryBootstrapModule.getUsagePointConfigurationService();
+            ServerMetrologyConfigurationService serverMetrologyConfigurationService = inMemoryBootstrapModule.getMetrologyConfigurationService();
+            ValidationService validationService = inMemoryBootstrapModule.getValidationService();
+            MeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+
+            ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+            UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = serverMetrologyConfigurationService
+                    .newUsagePointMetrologyConfiguration("Test residential prosumer with 2 meters", serviceCategory).create();
+            MetrologyPurpose purposeBilling = serverMetrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING).get();
+            MetrologyContract contractBilling = usagePointMetrologyConfiguration.addMandatoryMetrologyContract(purposeBilling);
+            ValidationRuleSet vrs1 = validationService.createValidationRuleSet("Rule #1", QualityCodeSystem.MDM);
+            usagePointConfigurationService.addValidationRuleSet(contractBilling, vrs1);
+            assertThat(serverMetrologyConfigurationService.findMetrologyConfiguration(usagePointMetrologyConfiguration.getId())).isPresent();
+            assertThat(usagePointConfigurationService.getValidationRuleSets(contractBilling)).hasSize(1);
+            ValidationRuleSet vrs2 = validationService.createValidationRuleSet("Rule #2", QualityCodeSystem.MDM);
+            usagePointConfigurationService.addValidationRuleSet(contractBilling, vrs2);
+            assertThat(usagePointConfigurationService.getValidationRuleSets(contractBilling)).hasSize(2);
+            usagePointConfigurationService.removeValidationRuleSet(contractBilling, vrs1);
+            assertThat(usagePointConfigurationService.getValidationRuleSets(contractBilling)).hasSize(1);
             context.commit();
         }
     }
