@@ -84,6 +84,6 @@ class SqlDiffFileListener implements DifferencesListener {
     private Writer tryCreateFile() throws IOException {
         Path targetFile = fileSystem.getPath("./logs/connexo_difference.sql");
         Files.createDirectories(targetFile.getParent());
-        return new OutputStreamWriter(Files.newOutputStream(targetFile, StandardOpenOption.CREATE));
+        return new OutputStreamWriter(Files.newOutputStream(targetFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE));
     }
 }
