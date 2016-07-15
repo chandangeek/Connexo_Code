@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.time.DayMonthTime;
 
 import java.time.Clock;
 
@@ -29,4 +30,21 @@ public interface ServerMeteringService extends MeteringService {
     EndDeviceEventTypeImpl createEndDeviceEventType(String mRID);
 
     EndDeviceControlTypeImpl createEndDeviceControlType(String mRID);
+
+    /**
+     * Creates the one and only {@link GasDayOptions}.
+     *
+     * @param yearStart The start of the gas year
+     * @return The GasDayOptions
+     * @throws IllegalStateException Thrown when GasDayOptions have already been created before
+     */
+    GasDayOptions createGasDayOptions(DayMonthTime yearStart);
+
+    /**
+     * Gets the GasDayOptions that were created at system installation time.
+     *
+     * @return The GasDayOptions
+     */
+    GasDayOptions getGasDayOptions();
+
 }

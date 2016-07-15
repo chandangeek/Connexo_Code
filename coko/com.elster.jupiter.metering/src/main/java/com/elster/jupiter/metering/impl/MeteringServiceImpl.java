@@ -54,6 +54,7 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
+import com.elster.jupiter.util.time.DayMonthTime;
 
 import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
@@ -81,8 +82,8 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class MeteringServiceImpl implements ServerMeteringService {
-    private static String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
-    private static String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
+    private static final String LOCATION_TEMPLATE = "com.elster.jupiter.location.template";
+    private static final String LOCATION_TEMPLATE_MANDATORY_FIELDS = "com.elster.jupiter.location.template.mandatoryfields";
     private static final String MDC_URL = "com.energyict.mdc.url";
     private static final String ENERGY_AXIS_URL = "com.elster.jupiter.energyaxis.url";
 
@@ -302,9 +303,9 @@ public class MeteringServiceImpl implements ServerMeteringService {
     /**
      * This method has an effect on resulting tableSpec, it must be called before adding TableSpecs
      *
-     * @param bundleContext
+     * @param bundleContext The BundleContext
      */
-    public final void defineLocationTemplates(BundleContext bundleContext) {
+    final void defineLocationTemplates(BundleContext bundleContext) {
         if (bundleContext != null) {
             supportedApplicationsUrls.put(KnownAmrSystem.MDC, bundleContext.getProperty(MDC_URL));
             supportedApplicationsUrls.put(KnownAmrSystem.ENERGY_AXIS, bundleContext.getProperty(ENERGY_AXIS_URL));
@@ -320,7 +321,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
     /**
      * This method highly depends on dataModel, so call it after database installation
      */
-    public final void readLocationTemplatesFromDatabase() {
+    final void readLocationTemplatesFromDatabase() {
         if (upgradeService.isInstalled(identifier("Pulse", MeteringDataModelService.COMPONENT_NAME), version(10, 2))) {
             getLocationTemplateFromDB().ifPresent(template -> {
                 locationTemplate = template;
@@ -451,7 +452,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     // bulk insert
-    public void createAllReadingTypes(List<Pair<String, String>> readingTypes) {
+    void createAllReadingTypes(List<Pair<String, String>> readingTypes) {
         List<ReadingType> availableReadingTypes = getAvailableReadingTypes();
         List<String> availableReadingTypeCodes =
                 availableReadingTypes.parallelStream()
@@ -499,19 +500,19 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return vault -> periodHolder.filter(period -> !vault.getRetention().equals(period)).isPresent();
     }
 
-    List<Vault> registerVaults() {
+    private List<Vault> registerVaults() {
         return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.IRREGULARVAULTID)
                 .map(Arrays::asList)
                 .orElse(Collections.emptyList());
     }
 
-    List<Vault> intervalVaults() {
+    private List<Vault> intervalVaults() {
         return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.INTERVALVAULTID)
                 .map(Arrays::asList)
                 .orElse(Collections.emptyList());
     }
 
-    List<Vault> dailyVaults() {
+    private List<Vault> dailyVaults() {
         return idsService.getVault(MeteringService.COMPONENTNAME, ChannelImpl.DAILYVAULTID)
                 .map(Arrays::asList)
                 .orElse(Collections.emptyList());
@@ -583,7 +584,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return locationTemplate;
     }
 
-    public Optional<LocationTemplate> getLocationTemplateFromDB() {
+    private Optional<LocationTemplate> getLocationTemplateFromDB() {
         List<LocationTemplate> template = new ArrayList<>(dataModel.mapper(LocationTemplate.class).find());
         if (!template.isEmpty()) {
             LocationTemplateImpl dbTemplate = LocationTemplateImpl
@@ -595,8 +596,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
         return Optional.empty();
     }
 
-
-    public static List<TemplateField> getLocationTemplateMembers() {
+    static List<TemplateField> getLocationTemplateMembers() {
         return locationTemplateMembers;
     }
 
@@ -646,4 +646,15 @@ public class MeteringServiceImpl implements ServerMeteringService {
                 .parseTemplate(locationTemplateFields, locationTemplateMandatoryFields);
         locationTemplateMembers = ImmutableList.copyOf(locationTemplate.getTemplateMembers());
     }
+
+    @Override
+    public GasDayOptions createGasDayOptions(DayMonthTime yearStart) {
+        return GasDayOptionsImpl.create(this.dataModel, yearStart);
+    }
+
+    @Override
+    public GasDayOptions getGasDayOptions() {
+        return this.dataModel.mapper(GasDayOptions.class).getOptional(GasDayOptionsImpl.SINGLETON_ID).orElse(null);
+    }
+
 }
