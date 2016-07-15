@@ -42,7 +42,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Setup', {
                                     ]
                                 },
                                 previewComponent: {
-                                    xtype: 'deviceregisterreportpreview-billing'
+                                    xtype: 'deviceregisterreportpreview-billing',
+                                    mentionDataLoggerSlave: me.mentionDataLoggerSlave,
+                                    router: me.router
                                 }
                             }
                         ]

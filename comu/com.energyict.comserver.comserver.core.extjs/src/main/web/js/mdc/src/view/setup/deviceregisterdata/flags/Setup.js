@@ -42,7 +42,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Setup', {
                                     ]
                                 },
                                 previewComponent: {
-                                    xtype: 'deviceregisterreportpreview-flags'
+                                    xtype: 'deviceregisterreportpreview-flags',
+                                    mentionDataLoggerSlave: me.mentionDataLoggerSlave,
+                                    router: me.router
                                 }
                             }
                         ]

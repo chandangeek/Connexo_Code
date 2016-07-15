@@ -42,7 +42,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Setup', {
                                     ]
                                 },
                                 previewComponent: {
-                                    xtype: 'deviceregisterreportpreview-text'
+                                    xtype: 'deviceregisterreportpreview-text',
+                                    mentionDataLoggerSlave: me.mentionDataLoggerSlave,
+                                    router: me.router
                                 }
                             }
                         ]

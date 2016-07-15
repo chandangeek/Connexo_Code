@@ -8,6 +8,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
 
     frame: true,
 
+    mentionDataLoggerSlave: false,
+    router: null,
+
     tools: [
         {
             xtype: 'button',
@@ -24,7 +27,37 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
 
     initComponent: function () {
         var me = this;
-
+        if (me.mentionDataLoggerSlave) {
+            me.on('afterrender', function() {
+                me.down('#mdc-register-data-preview-fields-container').insert(1,
+                    {
+                        xtype: 'displayfield',
+                        labelWidth: 200,
+                        fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                        itemId: 'mdc-register-data-preview-data-logger-slave',
+                        name: 'slaveRegister',
+                        renderer: function() {
+                            var record = this.up('form').getRecord(),
+                                slaveRegister = record ? record.get('slaveRegister') : undefined;
+                            if (Ext.isEmpty(slaveRegister)) {
+                                return '-';
+                            }
+                            var slaveMRID = slaveRegister.mrid,
+                                registerId = slaveRegister.registerId;
+                            return Ext.String.format('<a href="{0}">{1}</a>',
+                                me.router.getRoute('devices/device/registers/registerdata').buildUrl(
+                                    {
+                                        mRID: encodeURIComponent(slaveMRID),
+                                        registerId: registerId
+                                    },
+                                    me.router.queryParams
+                                ),
+                                slaveMRID);
+                        }
+                    }
+                );
+            });
+        }
         me.callParent(arguments);
     }
 });

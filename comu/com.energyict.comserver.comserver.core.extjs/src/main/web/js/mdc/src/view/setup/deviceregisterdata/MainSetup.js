@@ -6,6 +6,10 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainSetup', {
     requires: [
         'Mdc.view.setup.deviceregisterdata.RegisterTopFilter'
     ],
+
+    mentionDataLoggerSlave: false,
+    router: null,
+
     initComponent: function () {
         var me = this;
         me.callParent(arguments);

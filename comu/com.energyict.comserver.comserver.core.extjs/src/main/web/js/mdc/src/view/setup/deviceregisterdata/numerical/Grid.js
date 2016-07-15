@@ -95,6 +95,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
                 menu: {
                     xtype: 'deviceregisterdataactionmenu'
+                },
+                renderer: function(value, metaData, record) {
+                    this.disabled = !Ext.isEmpty(record.get('slaveRegister'))
                 }
             }
         ];

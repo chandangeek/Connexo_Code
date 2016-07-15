@@ -12,6 +12,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Preview', {
         },
         items: [
             {
+                itemId: 'mdc-register-data-preview-fields-container',
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 200,

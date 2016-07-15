@@ -19,6 +19,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
         items: [
             {
                 xtype: 'fieldcontainer',
+                itemId: 'mdc-register-data-preview-fields-container',
                 labelAlign: 'top',
                 layout: 'vbox',
                 defaults: {
