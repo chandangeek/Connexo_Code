@@ -268,7 +268,9 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     showDeviceRegisterConfigurationDetailsView: function (mRID, registerId, tabController) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice');
+            registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice'),
+            slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveRegisterHistory');
+
         me.fromSpecification = true;
         contentPanel.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
@@ -290,7 +292,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                                         registerId: registerId,
                                         router: me.getController('Uni.controller.history.Router'),
                                         showDataLoggerSlaveField: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                                        showDataLoggerSlaveHistory: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')
+                                        showDataLoggerSlaveHistory: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
+                                        dataLoggerSlaveHistoryStore: slaveHistoryStore
                                     }),
                                     form = config.down('#deviceRegisterConfigurationDetailForm'),
                                     multiplierField = form.down('[name=multiplier]'),
@@ -324,7 +327,6 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                             },
                             loadSlaveHistoryIfNeeded = function() {
                                 if (!Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger')) {
-                                    var slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveRegisterHistory');
                                     slaveHistoryStore.getProxy().setUrl(mRID, registerId);
                                     slaveHistoryStore.load(function() {
                                         func();

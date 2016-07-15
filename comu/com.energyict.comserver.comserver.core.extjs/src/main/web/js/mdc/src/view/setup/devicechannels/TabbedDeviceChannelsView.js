@@ -28,6 +28,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     contentName: null,
     filterDefault: {},
     mentionDataLoggerSlave: false,
+    dataLoggerSlaveHistoryStore: null,
 
     initComponent: function () {
         var me = this;
@@ -45,7 +46,8 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                         items: {
                             xtype: 'deviceLoadProfileChannelOverview',
                             router: me.router,
-                            device: me.device
+                            device: me.device,
+                            dataLoggerSlaveHistoryStore: me.dataLoggerSlaveHistoryStore
                         }
                     },
                     {

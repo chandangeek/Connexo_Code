@@ -13,6 +13,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
     device: null,
     router: null,
     showDataLoggerSlaveHistory: false,
+    dataLoggerSlaveHistoryStore: null,
 
     initComponent: function () {
         var me = this;
@@ -153,7 +154,8 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
             me.on('afterrender', function() {
                 me.down('#mdc-channel-preview-main-form').add(
                     {
-                        xtype: 'dataLogger-slaveChannelHistory'
+                        xtype: 'dataLogger-slaveChannelHistory',
+                        dataLoggerSlaveHistoryStore: me.dataLoggerSlaveHistoryStore
                     }
                 );
             }, me, {single:true});
