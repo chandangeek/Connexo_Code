@@ -41,7 +41,7 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
@@ -610,7 +610,7 @@ public class UsagePointImpl implements UsagePoint {
     public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfiguration(when).get();
 
-        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+        ReadingTypeRequirementsCollector requirementChecker = new ReadingTypeRequirementsCollector();
 
         metrologyConfiguration.getDeliverables()
                 .stream()

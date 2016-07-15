@@ -13,7 +13,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.SelfObjectValidator;
 import com.elster.jupiter.metering.impl.config.SelfValid;
@@ -198,7 +198,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration) {
-        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+        ReadingTypeRequirementsCollector requirementChecker = new ReadingTypeRequirementsCollector();
         metrologyConfiguration.getContracts()
                 .stream()
                 .filter(MetrologyContract::isMandatory)
