@@ -11,10 +11,12 @@ import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
+import com.energyict.protocolimpl.modbus.enerdis.enerium200.core.Utils;
 import com.energyict.protocolimpl.modbus.schneider.powerlogic.profile.ProfileBuilder;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -159,10 +161,25 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
 
     @Override
     public void setTime() throws IOException {
-        getDateTimeRegister().getWriteMultipleRegisters(DateTime.getCurrentDate(getTimeZone()));
+        Calendar instTime = Calendar.getInstance( gettimeZone() );
+
+        byte[] rawDate = getBytesFromDate(instTime.getTime());
+        Utils.writeRawByteValues(getCommandParameter1Register().getReg(), Utils.SETCLOCK , rawDate, this);
     }
+
+
+    public static byte[] getBytesFromDate(Date date) {
+        long secondsSince1970GMT = (date.getTime() / 1000) + 3600;
+        byte[] returnValue = ProtocolUtils.getSubArray2(Utils.longToBytes(secondsSince1970GMT), 4, 4);
+        return returnValue;
+    }
+
     private AbstractRegister getDateTimeRegister() throws IOException {
         return getRegisterFactory().findRegister(PM5561RegisterFactory.CurrentDateTime);
     }
 
+
+    private AbstractRegister getCommandParameter1Register() throws IOException {
+        return getRegisterFactory().findRegister(PM5561RegisterFactory.CommandParameter1);
+    }
 }
