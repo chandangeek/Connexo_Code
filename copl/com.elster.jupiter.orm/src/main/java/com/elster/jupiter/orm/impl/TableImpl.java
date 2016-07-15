@@ -756,7 +756,7 @@ public class TableImpl<T> implements Table<T> {
         List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
         for (int i = 0; i < primaryKeyColumns.size(); i++) {
             if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
-                throw new IllegalStateException(MessageFormat.format("Table '{0}' : Primary key columns must be defined first and in order", getName()));
+                throw new IllegalStateException(MessageFormat.format("Table ''{0}'' : Primary key columns must be defined first and in order", getName()));
             }
         }
         getForeignKeyConstraints().forEach(ForeignKeyConstraintImpl::prepare);
