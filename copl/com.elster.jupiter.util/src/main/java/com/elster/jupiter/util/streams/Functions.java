@@ -1,6 +1,7 @@
 package com.elster.jupiter.util.streams;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -18,4 +19,13 @@ public enum Functions {
         return op -> op.map(Stream::of).orElseGet(Stream::empty);
     }
 
+    /**
+     * This method exists solely to cleanly decorate a method reference as a Consumer so the andThen() can be called on it :
+     *
+     * e.g. : first(System.out::println).andThen(System.err::println)
+     *
+     */
+    public static <T> Consumer<T> first(Consumer<T> consumer) {
+        return consumer;
+    }
 }
