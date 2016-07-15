@@ -8,11 +8,12 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
     initComponent: function () {
         var me = this,
             readingType = me.channel.get('readingType'),
-            unit = readingType && readingType.names ? readingType.names.unitOfMeasure : '',
             defaults = {
                 xtype: 'displayfield',
                 labelWidth: 200
             };
+
+        me.unit = readingType && readingType.names ? readingType.names.unitOfMeasure : '';
 
         me.items = [
             {
@@ -54,17 +55,15 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                             renderer: function (value) {
                                 return value
                                     ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
-                                    : '-';
+                                    : Uni.I18n.translate('general.no', 'MDC', 'No');
                             }
                         },
                         {
                             itemId: 'validationResult-field',
                             fieldLabel: Uni.I18n.translate('device.dataValidation.validationResult', 'MDC', 'Validation result'),
                             name: 'validationResult',
-                            renderer: function (value) {
-                                return value
-                                    ? value
-                                    : '-';
+                            renderer: function () {
+                                return me.displayValidationResult(false);
                             }
                         }
                     ]
@@ -83,9 +82,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                             fieldLabel: Uni.I18n.translate('general.value', 'MDC', 'Value'),
                             name: 'value',
                             renderer: function (value) {
-                                return value
-                                    ? value + ' ' + unit
-                                    : '-';
+                                return me.displayValidationResult(true, value);
                             }
                         },
                         {
@@ -113,20 +110,46 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                 'general.dateAtTime', 'MDC', '{0} at {1}',
                 [Uni.DateTime.formatDateLong(new Date(interval.end)), Uni.DateTime.formatTimeLong(new Date(interval.end))], false);
 
+        me.record = record;
         Ext.suspendLayouts();
         me.down('#validationRules-field').setVisible(!Ext.isEmpty(record.get('validationRules')));
         Ext.Array.each(me.query('form'), function (form) {
             form.setTitle(title);
-            form.loadRecord(me.prepareDataForDisplay(record));
+            form.loadRecord(record);
         });
         Ext.resumeLayouts(true);
     },
 
-    prepareDataForDisplay: function (record) {
-        record.beginEdit();
+    displayValidationResult: function (showValue, value) {
+        if (!this.record) {
+            return '-'
+        }
+        var me = this,
+            result,
+            validation = me.record.get('validation'),
+            flags = {
+                NOT_VALIDATED: {
+                    icon: '<span class="icon-flag6"></span>',
+                    text: Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated')
+                },
+                SUSPECT: {
+                    icon: '<span class="icon-flag5" style="color:red"></span>',
+                    text: Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect')
+                },
+                INFORMATIVE: {
+                    icon: '<span class="icon-flag5" style="color:yellow"></span>',
+                    text: Uni.I18n.translate('validationStatus.informative', 'MDC', 'Informative')
+                }
+            };
 
-        record.endEdit();
+        if (showValue) {
+            result = (!Ext.isEmpty(value) ? value + ' ' + me.unit : '')
+                + '(' + flags[validation].text + ')'
+                + ' ' + flags[validation].icon;
+        } else {
+            result = flags[validation].text + ' ' + flags[validation].icon;
+        }
 
-        return record;
+        return result;
     }
 });

@@ -3,7 +3,8 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
 
     models: [
         'Mdc.usagepointmanagement.model.UsagePoint',
-        'Mdc.usagepointmanagement.model.Channel'
+        'Mdc.usagepointmanagement.model.Channel',
+        'Mdc.usagepointmanagement.model.ChannelReading'
     ],
 
     stores: [
@@ -94,10 +95,21 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
 
     showPreview: function (selectionModel, record) {
         var me = this,
-            preview = me.getPreview(),
-            interval = record.get('interval');
+            preview = me.getPreview();
 
-        preview.loadRecord(record);
+        if (record.get('validation') === 'NOT_VALIDATED') {
+            preview.loadRecord(record);
+        } else {
+            preview.setLoading();
+            me.getModel('Mdc.usagepointmanagement.model.ChannelReading').load(record.getId(), {
+                success: function (reading) {
+                    preview.loadRecord(reading);
+                },
+                callback: function () {
+                    preview.setLoading(false);
+                }
+            });
+        }
     },
 
     setDataFilter: function (channel) {
