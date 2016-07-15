@@ -14,6 +14,8 @@ import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleSetVersionInfo;
 
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Range;
@@ -108,6 +110,10 @@ public class ValidationStatusFactory {
         info.key = new ValidationRuleInfo();
         info.key.id = validationRuleWithNumberEntry.getKey().getId();
         info.key.displayName = validationRuleWithNumberEntry.getKey().getDisplayName();
+        info.key.ruleSetVersion = new ValidationRuleSetVersionInfo();
+        info.key.ruleSetVersion.id = validationRuleWithNumberEntry.getKey().getRuleSetVersion().getId();
+        info.key.ruleSetVersion.ruleSet = new ValidationRuleSetInfo();
+        info.key.ruleSetVersion.ruleSet.id = validationRuleWithNumberEntry.getKey().getRuleSet().getId();
         info.value = validationRuleWithNumberEntry.getValue();
         return info;
     }

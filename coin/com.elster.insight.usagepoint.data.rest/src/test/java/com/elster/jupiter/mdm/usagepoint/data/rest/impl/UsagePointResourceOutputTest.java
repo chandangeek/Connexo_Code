@@ -26,6 +26,7 @@ import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -90,6 +91,8 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
     @Mock
     private ValidationRuleSet validationRuleSet;
     @Mock
+    private ValidationRuleSetVersion validationRuleSetVersion;
+    @Mock
     private ValidationRule validationRule;
     @Mock
     private DataValidationStatus dataValidationStatus;
@@ -110,8 +113,7 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         setMetrologyContractStub();
         setChannelStub();
         setDeliverableStub();
-        when(validationRule.getId()).thenReturn(1L);
-        when(validationRule.getDisplayName()).thenReturn("Validation Rule");
+        setValidationRuleStub();
         when(dataValidationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
         when(validationEvaluator.getLastChecked(channelsContainer, readingType)).thenReturn(Optional.of(DAY_BEFORE));
@@ -176,6 +178,16 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         when(deliverable.getId()).thenReturn(1L);
     }
 
+    private void setValidationRuleStub() {
+        when(validationRule.getId()).thenReturn(1L);
+        when(validationRule.getDisplayName()).thenReturn("Validation Rule");
+        when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
+        when(validationRule.getRuleSet()).thenReturn(validationRuleSet);
+        when(validationRuleSetVersion.getId()).thenReturn(1L);
+        when(validationRuleSetVersion.getRuleSet()).thenReturn(validationRuleSet);
+        when(validationRuleSet.getId()).thenReturn(1L);
+    }
+
     @Test
     public void testDataValidationTaskInfoOnMetrologyContract() {
         String json = target("/usagepoints/UP/purposes").request().get(String.class);
@@ -197,6 +209,8 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.lastChecked")).isEqualTo(DAY_BEFORE.toEpochMilli());
         assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].key.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.purposes[0].validationInfo.suspectReason[0].key.displayName")).isEqualTo("Validation Rule");
+        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].key.ruleSetVersion.id")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].key.ruleSetVersion.ruleSet.id")).isEqualTo(1);
         assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].value")).isEqualTo(1);
     }
 
@@ -230,6 +244,8 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<Number>get("$.validationInfo.lastChecked")).isEqualTo(DAY_BEFORE.toEpochMilli());
         assertThat(jsonModel.<Number>get("$.validationInfo.suspectReason[0].key.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.validationInfo.suspectReason[0].key.displayName")).isEqualTo("Validation Rule");
+        assertThat(jsonModel.<Number>get("$.validationInfo.suspectReason[0].key.ruleSetVersion.id")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.validationInfo.suspectReason[0].key.ruleSetVersion.ruleSet.id")).isEqualTo(1);
         assertThat(jsonModel.<Number>get("$.validationInfo.suspectReason[0].value")).isEqualTo(1);
     }
 }
