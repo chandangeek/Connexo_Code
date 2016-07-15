@@ -18,8 +18,7 @@ import java.util.List;
 public class ProfileBuilder {
 
     private static final int SECONDS_PER_MINUTE = 60;
-    private static final int REGULAR_NUMBER_OF_PROFILE_RECORDS_PER_PROFILE_BLOCK = 1;
-    private static final int REGULAR_NUMBER_OF_CHANNELS = 9;
+    private static final int REGULAR_NUMBER_OF_CHANNELS = 8;
     private PM5561 protocol;
     private ProfileBlock lastProfileBlock;
     private double ratio = 1;
@@ -52,8 +51,6 @@ public class ProfileBuilder {
             firstRecord = (BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_FIRST_RECORD).value();
         }
         List<ProfileBlock> profileDataBlocks = new ArrayList<ProfileBlock>();
-
-        profileDataBlocks.add(getLastProfileBlock());
         ProfileBlock profileBlock = getLastProfileBlock();
         if(numberOfRecords == null) {
             numberOfRecords = (BigDecimal) protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_NUMBER_OF_RECORDS).value();
@@ -65,10 +62,12 @@ public class ProfileBuilder {
             loadProfileRecordItem1 = protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_RECORD_ITEM1);
         }
         int index = firstRecord.intValue();
-        while (from.before(profileBlock.getOldestProfileRecordDate()) && index < lastRecord.intValue()) {
-            ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + index++);
-            profileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS);
-            profileDataBlocks.add(profileBlock);
+        while (index < lastRecord.intValue()) {
+            ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + index);
+            profileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS, protocol.getTimeZone());
+            if(from.before(profileBlock.getOldestProfileRecordDate())) {
+                profileDataBlocks.add(profileBlock);
+            }
             index++;
         }
 
@@ -81,9 +80,9 @@ public class ProfileBuilder {
 
         for (ProfileBlock profileDataBlock : profileDataBlocks) {
             for (IntervalData intervalData : profileDataBlock.getProfileData().getIntervalDatas()) {
-                if (intervalData.getEndTime().after(from) && intervalData.getEndTime().before(to)) {
+               // if (intervalData.getEndTime().after(from) && intervalData.getEndTime().before(to)) {
                     profileData.addInterval(intervalData);  // Only add entries fitting within the time boundaries
-                }
+                //}
             }
         }
 
@@ -96,7 +95,7 @@ public class ProfileBuilder {
         }
         if (this.lastProfileBlock == null) {
             ReadGeneralReferenceRequest readGeneralReferenceRequest = protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_RECORD_ITEM1).getReadGeneralReferenceRequest(lastRecord.intValue());
-            this.lastProfileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS);
+            this.lastProfileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS, protocol.getTimeZone());
         }
         return this.lastProfileBlock;
     }

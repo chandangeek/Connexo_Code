@@ -58,13 +58,24 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
         setAce4000Connection(new ACE4000Connection(comChannel, this, false));
     }
 
+    public String getSerialNumber() {
+        //Return the configured serial number for the basic check task.
+        //We already know that the serial number is correct because the inbound session successfully identified a device in EIServer, leading up to this outbound session.
+        return getConfiguredSerialNumber();
+    }
+
+    @Override
+    public DeviceIdentifier getDeviceIdentifier() {
+        return new DeviceIdentifierById(getOfflineDevice().getId());
+    }
+
     @Override
     public String getProtocolDescription() {
         return "Actaris ACE4000 MeterXML";
     }
 
     public String getVersion() {
-        return "$Date: 2016-06-23 18:11:26 +0200 (Thu, 23 Jun 2016)$";
+        return "$Date: 2016-06-29 13:42:57 +0200 (Wed, 29 Jun 2016)$";
     }
 
     @Override

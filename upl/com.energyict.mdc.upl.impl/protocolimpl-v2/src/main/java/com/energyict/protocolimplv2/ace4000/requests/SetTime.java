@@ -14,6 +14,7 @@ public class SetTime extends AbstractRequest<Date, Boolean> {
 
     public SetTime(ACE4000Outbound ace4000) {
         super(ace4000);
+        multiFramedAnswer = true;
     }
 
     protected void doBefore() {

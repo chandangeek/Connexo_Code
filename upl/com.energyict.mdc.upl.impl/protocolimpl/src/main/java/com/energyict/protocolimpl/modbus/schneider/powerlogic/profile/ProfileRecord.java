@@ -5,9 +5,6 @@ import java.util.List;
 
 
 public class ProfileRecord {
-
-    private static long EPOCH_FIRST_JAN_2000 = 946684800;
-
     private Date date;
     private List values;
     private boolean incompleteIntegrationPeriod;
@@ -18,7 +15,7 @@ public class ProfileRecord {
     public static ProfileRecord parse(List values) {
         ProfileRecord profileRecord = new ProfileRecord();
         profileRecord.setDate((Date) values.get(0));
-        profileRecord.setIncompleteIntegrationPeriod(values.get(0) != 0);
+        profileRecord.setIncompleteIntegrationPeriod(values.get(0).equals(0));
         profileRecord.setValues(values.subList(1, values.size()));
         return profileRecord;
     }

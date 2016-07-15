@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.security.SecureRandom;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -472,7 +473,7 @@ public class C1222Layer extends C12Layer2 {
 
     private int getRandomInteger(int min, int max, int valueToExclude) {
         int result = 0;
-        Random random = new Random();
+        SecureRandom random = new SecureRandom();
         do {
             result = random.nextInt();
         } while (result < min || result > max || valueToExclude == result);

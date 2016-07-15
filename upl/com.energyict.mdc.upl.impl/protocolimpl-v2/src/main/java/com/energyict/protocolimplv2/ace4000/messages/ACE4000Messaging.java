@@ -1,20 +1,17 @@
 package com.energyict.protocolimplv2.ace4000.messages;
 
-import com.energyict.cpo.Environment;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Code;
-import com.energyict.mdw.core.MeteringWarehouse;
-import com.energyict.mdw.core.MeteringWarehouseFactory;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.ace4000.ACE4000MessageExecutor;
 import com.energyict.protocolimplv2.ace4000.ACE4000Outbound;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.tariff.CodeTableBase64Builder;
+import com.energyict.protocolimplv2.common.objectserialization.codetable.CodeTableBase64Builder;
 import com.energyict.protocolimplv2.messages.*;
 
 import java.text.SimpleDateFormat;
@@ -98,8 +95,7 @@ public class ACE4000Messaging implements DeviceMessageSupport {
         } else if (propertySpec.getName().equals(contactorActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(CODE_TABLE_ID)) {
-            Environment.getDefault();
-            Code codeTable = mw().getCodeFactory().find((Integer) messageAttribute);
+            Code codeTable = ((Code) messageAttribute);
             return CodeTableBase64Builder.getXmlStringFromCodeTable(codeTable);
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
@@ -109,14 +105,5 @@ public class ACE4000Messaging implements DeviceMessageSupport {
     @Override
     public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return "";
-    }
-
-    /*
-        To be used only in com.energyict.protocolimplv2.ace4000.messages.ACE4000Messaging.format
-     and com.energyict.protocolimplv2.ace4000.messages.ACE4000Messaging.prepareMessageContext methods
-     */
-    private MeteringWarehouse mw() {
-        MeteringWarehouse result = MeteringWarehouse.getCurrent();
-        return (result == null) ? new MeteringWarehouseFactory().getBatch() : result;
     }
 }

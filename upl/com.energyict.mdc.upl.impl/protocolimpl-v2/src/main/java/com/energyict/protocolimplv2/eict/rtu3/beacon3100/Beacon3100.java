@@ -56,7 +56,6 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Copyrights EnergyICT
@@ -400,7 +399,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-07-14 15:12:56 +0200 (Thu, 14 Jul 2016)$";
+        return "$Date: 2016-07-15 09:48:36 +0200 (Fri, 15 Jul 2016)$";
     }
 
     @Override

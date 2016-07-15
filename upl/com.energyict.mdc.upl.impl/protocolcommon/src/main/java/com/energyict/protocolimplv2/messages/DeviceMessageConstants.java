@@ -35,6 +35,7 @@ public class DeviceMessageConstants {
     public static final String deviceIdsAttributeName = "FirmwareDeviceMessage.deviceIds";
     public static final String UnicastClientWPort = "FirmwareDeviceMessage.UnicastClientWPort";
     public static final String BroadcastClientWPort = "FirmwareDeviceMessage.BroadcastClientWPort";
+    public static final String MulticastClientWPort = "FirmwareDeviceMessage.MulticastClientWPort";
     public static final String LogicalDeviceLSap = "FirmwareDeviceMessage.LogicalDeviceLSap";
     public static final String SecurityLevelUnicast = "FirmwareDeviceMessage.SecurityLevelUnicast";
     public static final String SecurityLevelBroadcast = "FirmwareDeviceMessage.SecurityLevelBroadcast";

@@ -27,7 +27,7 @@ public class ReadGeneralReferenceRequest extends AbstractRequest{
     @Override
     protected void parse(ResponseData responseData) throws IOException {
         int offset = DEFAULT_OFFSET;
-        values = ProtocolUtils.getSubArray2(responseData.getData(),offset, responseData.getData().length -offset - 1);
+        values = ProtocolUtils.getSubArray2(responseData.getData(),offset, responseData.getData().length -offset);
     }
 
     @Override

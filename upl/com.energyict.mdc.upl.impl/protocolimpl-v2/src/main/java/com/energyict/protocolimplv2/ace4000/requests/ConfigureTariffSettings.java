@@ -42,7 +42,7 @@ public class ConfigureTariffSettings extends AbstractConfigMessage {
             CodeObject codeObject = validateAndGetCodeObject(codeTableBase64);
             trackingId = getAce4000().getObjectFactory().sendTariffConfiguration(number, numberOfRates, codeObject);
         } catch (ApplicationException | IOException e) {  //Thrown while parsing the code table
-            failMessage("Tariff configuration failed, invalid code table settings");
+            failMessage("Tariff configuration failed, invalid code table settings: " + e.getMessage());
         }
     }
 

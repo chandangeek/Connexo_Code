@@ -10,7 +10,7 @@ import com.energyict.protocol.UnsupportedException;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class MockSecurityProvider implements SecurityProvider {
 
@@ -198,7 +198,7 @@ public class MockSecurityProvider implements SecurityProvider {
      * @return the initial frameCounter
      */
     public long getInitialFrameCounter() {
-        Random generator = new Random();
+        SecureRandom generator = new SecureRandom();
         return generator.nextLong();
     }
 

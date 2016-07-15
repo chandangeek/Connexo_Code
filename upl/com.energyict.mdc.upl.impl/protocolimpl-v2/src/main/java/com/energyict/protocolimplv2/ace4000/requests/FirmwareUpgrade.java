@@ -22,6 +22,7 @@ public class FirmwareUpgrade extends AbstractRequest<OfflineDeviceMessage, Colle
 
     public FirmwareUpgrade(ACE4000Outbound ace4000) {
         super(ace4000);
+        multiFramedAnswer = true;
     }
 
     protected void doBefore() {

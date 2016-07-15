@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
+import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.exceptions.CommunicationException;
 
@@ -55,22 +56,28 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     public DiscoverResultType doDiscovery() {
         getEventPushNotificationParser().readAndParseInboundFrame();
         collectedLogBook = getEventPushNotificationParser().getCollectedLogBook();
-
         context.logOnAllLoggerHandlers(getLoggingMessage(), Level.INFO);
-
         if (isJoinAttempt()) {
             G3GatewayPSKProvider pskProvider = getPskProvider();
             String joiningMacAddress = getMeterProtocolEvent().getMessage();
             pskProvider.addJoiningMacAddress(joiningMacAddress);
             try {
-                pskProvider.providePSK(joiningMacAddress, getEventPushNotificationParser().getSecurityPropertySet());
+                doProvide(pskProvider, joiningMacAddress);
             } catch (CommunicationException e) {
-                context.logOnAllLoggerHandlers(e.getMessage(), Level.WARNING);
-                pskProvider.provideError(joiningMacAddress);
+                pskProvider.provideError(e.getMessage());
             }
         }
-
         return DiscoverResultType.DATA;
+    }
+
+    protected void doProvide(G3GatewayPSKProvider pskProvider, String joiningMacAddress) throws CommunicationException {
+        DeviceProtocolSecurityPropertySet securityPropertySet = getEventPushNotificationParser().getSecurityPropertySet();
+        Boolean onHold = getEventPushNotificationParser().getInboundComTaskOnHold();
+        if (onHold) {
+            pskProvider.provideError(getErrorMessage());
+        } else {
+            pskProvider.providePSK(joiningMacAddress, securityPropertySet);
+        }
     }
 
     protected String getLoggingMessage() {
@@ -93,6 +100,18 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         }
 
         return logMessage.toString();
+    }
+
+    protected String getErrorMessage() {
+        StringBuilder errMessage = new StringBuilder();
+        errMessage.append("Inbound comm task is configured for [");
+        if (getDeviceIdentifier() != null) {
+            errMessage.append(getDeviceIdentifier().toString());
+        } else {
+            errMessage.append("unknown");
+        }
+        errMessage.append("], but it is set on hold");
+        return errMessage.toString();
     }
 
     private boolean isJoinAttempt() {
@@ -136,7 +155,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-07-14 16:01:10 +0200 (Thu, 14 Jul 2016)$";
+        return "$Date: 2016-07-15 09:45:38 +0200 (Fri, 15 Jul 2016)$";
     }
 
     @Override

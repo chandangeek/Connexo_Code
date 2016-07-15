@@ -4,7 +4,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.elster.garnet.common.field.AbstractField;
 import com.energyict.protocolimplv2.elster.garnet.exception.ParsingException;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * @author sva
@@ -13,7 +13,7 @@ import java.util.Random;
 public class SessionKeyPart extends AbstractField<SessionKeyPart> {
 
     public static final int LENGTH = 8;
-    private static final Random RANDOM = new Random();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     private byte[] partOfSessionKey;
 

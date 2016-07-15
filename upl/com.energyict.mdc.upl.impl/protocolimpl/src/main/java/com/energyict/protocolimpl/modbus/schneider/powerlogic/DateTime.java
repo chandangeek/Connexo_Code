@@ -1,5 +1,7 @@
 package com.energyict.protocolimpl.modbus.schneider.powerlogic;
 
+import com.energyict.protocol.ProtocolUtils;
+
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -7,7 +9,6 @@ import java.util.TimeZone;
  * @author sva
  * @since 18/03/2015 - 16:52
  *
- * @Deprecated - currently out of scope of the protocol
  */
 public class DateTime {
 
@@ -27,6 +28,11 @@ public class DateTime {
     private static int minuteProfile = Integer.parseInt("1");
     private static int secondsProfile = Integer.parseInt("2");
 
+    private static int yearIndex = 0;
+    private static int monthIndex = 1;
+    private static int dayIndex = 2;
+    private static int hourIndex = 3;
+    private static int minuteIndex = 4;
 
     public DateTime() {
     }
@@ -69,7 +75,7 @@ public class DateTime {
         return createDateTime();
     }
 
-    /**
+       /**
      * The DateTime object is created.
      * <b>GMT TimeZone is used because the meter has no knowledge of Timezones</b>
      *
@@ -92,8 +98,8 @@ public class DateTime {
      * @param dateTimeRegisters
      * @return a DateTime object with the date and time calculated form the input
      */
-    public static DateTime parseProfileDateTime(byte[] dateTimeRegisters){
-        if(dateTimeRegisters.length != 3){
+    public static DateTime parseProfileDateTime(byte[] dateTimeRegisters, TimeZone timeZone){
+        if(dateTimeRegisters.length != 8){
             throw new IllegalArgumentException("The dateTime did not contain 3 digits but " + dateTimeRegisters.length);
         }
         day = dateTimeRegisters[dayProfile]&0x00FF;
@@ -103,6 +109,58 @@ public class DateTime {
         hour = (dateTimeRegisters[hourProfile]&0xFF00)>>8;
         minutes = dateTimeRegisters[minuteProfile]&0x00FF;
         milliSeconds = (dateTimeRegisters[secondsProfile]&0xFF00)>>8;
-        return createDateTime();
+        return createDateTime(timeZone);
+    }
+
+    /**
+     * Construct a byteArray containing the current date in the FP93B dateTime format
+     *
+     * @return byteArray contain the current Date
+     */
+    public static byte[] getCurrentDate(TimeZone timeZone) {
+        Calendar gmtCal = ProtocolUtils.getCalendar(timeZone);
+        gmtCal.setTimeInMillis(System.currentTimeMillis());
+        byte[] dateArray = new byte[6];
+        dateArray[0] = (byte) gmtCal.get(Calendar.YEAR);
+        dateArray[1] = (byte) (gmtCal.get(Calendar.MONTH) + 1);
+        dateArray[2] = (byte) (gmtCal.get(Calendar.DAY_OF_MONTH));
+        dateArray[3] = (byte) gmtCal.get(Calendar.HOUR_OF_DAY);
+        dateArray[4] = (byte) gmtCal.get(Calendar.MINUTE);
+        dateArray[5] = (byte) gmtCal.get(Calendar.SECOND);
+        return dateArray;
+    }
+
+    public static DateTime parseDateTime(int[] values, TimeZone timeZone) {
+        if (values.length != 6) {
+            throw new IllegalArgumentException("The dateTime did not contain 6 digits but " + values.length);
+        }
+
+        year = values[yearIndex];
+        month = values[monthIndex];
+        day = values[dayIndex];
+        hour = values[hourIndex];
+        minutes = values[minuteIndex];
+        return createDateTime(timeZone);
+    }
+
+    /**
+     * The DateTime object is created.
+     *
+     * @return the DateTimeObject
+     */
+    private static DateTime createDateTime(TimeZone timeZone) {
+        Calendar cal = Calendar.getInstance(timeZone);
+        cal.set(year, month - 1, day, hour, minutes);
+        cal.set(Calendar.MILLISECOND, 0);
+        return new DateTime(cal);
+    }
+
+    public static DateTime parseDateTime(int y, int m, int d, int h, int mi, TimeZone timeZone) {
+        year = y;
+        month = m;
+        day = d;
+        hour = h;
+        minutes = mi;
+        return createDateTime(timeZone);
     }
 }

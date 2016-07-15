@@ -551,6 +551,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
         String unicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, UnicastClientWPort).getDeviceMessageAttributeValue();
         String broadcastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, BroadcastClientWPort).getDeviceMessageAttributeValue();
+        String multicastClientWPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, MulticastClientWPort).getDeviceMessageAttributeValue();
         String logicalDeviceLSap = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, LogicalDeviceLSap).getDeviceMessageAttributeValue();
         String securityLevelUnicast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelUnicast).getDeviceMessageAttributeValue();
         String securityLevelBroadcast = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, SecurityLevelBroadcast).getDeviceMessageAttributeValue();
@@ -568,6 +569,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         ArrayList<MulticastProperty> multicastProperties = new ArrayList<>();
         multicastProperties.add(new MulticastProperty("UnicastClientWPort", unicastClientWPort));
         multicastProperties.add(new MulticastProperty("BroadcastClientWPort", broadcastClientWPort));
+        multicastProperties.add(new MulticastProperty("MulticastClientWPort", multicastClientWPort));
         multicastProperties.add(new MulticastProperty("LogicalDeviceLSap", logicalDeviceLSap));
         multicastProperties.add(new MulticastProperty("SecurityLevelUnicast", securityLevelUnicast));
         multicastProperties.add(new MulticastProperty("SecurityLevelBroadcast", securityLevelBroadcast));

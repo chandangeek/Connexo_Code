@@ -122,7 +122,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.year, BigDecimal.ZERO),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.month, BigDecimal.ZERO),
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.day),
-            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.dayOfWeek, "--", "MO", "TU", "WE", "TH", "FR", "SA", "SU")    ),
+            PropertySpecFactory.stringPropertySpecWithValuesAndDefaultValue(DeviceMessageConstants.dayOfWeek, "--", "MO", "TU", "WE", "TH", "FR", "SA", "SU")),
     ConfigureBillingPeriodLength(49, PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.billingPeriodLengthAttributeName)),
     WriteNewOnDemandBillingDate(50,
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.setOnDemandBillingDateAttributeName),
@@ -211,9 +211,9 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.higherCalorificValueAttributeName)),
     ChangeMeterLocation(68, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.meterLocationAttributeName)),
     SendShortDisplayMessage(69,
-            PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.SHORT_DISPLAY_MESSAGE, 8)),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SHORT_DISPLAY_MESSAGE)),
     SendLongDisplayMessage(70,
-            PropertySpecFactory.fixedLengthStringPropertySpec(DeviceMessageConstants.LONG_DISPLAY_MESSAGE, 1024)),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.LONG_DISPLAY_MESSAGE)),
     ResetDisplayMessage(71),
     ConfigureLCDDisplay(72,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.NUMBER_OF_DIGITS_BEFORE_COMMA,
@@ -225,8 +225,8 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
                     new BigDecimal(1),
                     new BigDecimal(2),
                     new BigDecimal(3)),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.DISPLAY_SEQUENCE),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.DISPLAY_CYCLE_TIME)
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DISPLAY_SEQUENCE),
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.DISPLAY_CYCLE_TIME)
     ),
     ConfigureLoadProfileDataRecording(73,
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.ENABLE_DISABLE,
@@ -329,18 +329,18 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SWITCHING_MOMENTS_DAILY_PROFILE0),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS_DAILY_PROFILE0),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE0),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE0),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SWITCHING_MOMENTS_DAILY_PROFILE1),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS_DAILY_PROFILE1),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.THRESHOLDS_MOMENTS),
-            PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE1),
+            PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE1),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DAY_PROFILES),
-            PropertySpecFactory.datePropertySpec(DeviceMessageConstants.ACTIVATION_DATE)
+            PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ACTIVATION_DATE)
 
     ),
     ConfigureEmergencyConsumptionLimitation(77,
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.DURATION_MINUTES, new BigDecimal(1), new BigDecimal(65535)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.TRESHOLD_VALUE) ,
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.TRESHOLD_VALUE),
             PropertySpecFactory.bigDecimalPropertySpecWithValues(DeviceMessageConstants.TRESHOLD_UNIT,
                     new BigDecimal(0),
                     new BigDecimal(1)),
@@ -349,7 +349,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     ConfigureTariffSettings(78,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.UNIQUE_TARIFF_ID_NO),
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.NUMBER_OF_TARIFF_RATES, new BigDecimal(0), new BigDecimal(4)),
-            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CODE_TABLE_ID)
+            PropertySpecFactory.codeTableReferencePropertySpec(DeviceMessageConstants.CODE_TABLE_ID)
     );
 
     private final List<PropertySpec> deviceMessagePropertySpecs;

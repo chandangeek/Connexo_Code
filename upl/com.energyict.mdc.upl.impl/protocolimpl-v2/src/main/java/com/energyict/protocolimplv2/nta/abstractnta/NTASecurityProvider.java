@@ -10,7 +10,6 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.Random;
 
 /**
  * Default implementation of the V2 SecurityProvider.

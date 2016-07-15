@@ -1,9 +1,9 @@
 package com.energyict.protocolimplv2.common.objectserialization.codetable.objects;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.mdw.core.Code;
 import com.energyict.mdw.core.CodeCalendar;
 import com.energyict.mdw.core.CodeDayType;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,24 +67,8 @@ public class CodeObject implements Serializable {
         return calendars;
     }
 
-    public List<CodeCalendarObject> getHolidayCalendars() {
-        List<CodeCalendarObject> holidays = new ArrayList<>();
-        for (CodeCalendarObject co : calendars) {
-            if (co.isHoliday() && !holidays.contains(co)) {
-                holidays.add(co);
-            }
-        }
-        return holidays;
-    }
-
-    public List<CodeCalendarObject> getCustomDayCalendars() {
-        List<CodeCalendarObject> customDays = new ArrayList<>();
-        for (CodeCalendarObject co : calendars) {
-            if (co.isCustomDay() && !customDays.contains(co)) {
-                customDays.add(co);
-            }
-        }
-        return customDays;
+    public void setCalendars(List<CodeCalendarObject> calendars) {
+        this.calendars = calendars;
     }
 
     public List<CodeCalendarObject> getSpecialDayCalendars() {
@@ -97,39 +81,8 @@ public class CodeObject implements Serializable {
         return specialDays;
     }
 
-    public void setCalendars(List<CodeCalendarObject> calendars) {
-        this.calendars = calendars;
-    }
-
     public List<CodeDayTypeObject> getDayTypes() {
         return dayTypes;
-    }
-
-    public CodeDayTypeObject getWeekday(int period) throws BusinessException {
-        for (CodeDayTypeObject dayType : dayTypes) {
-            if (dayType.isWeekday() && dayType.isPeriod(period)) {
-                return dayType;
-            }
-        }
-        throw new BusinessException("No weekday found for period [" + period + "]!");
-    }
-
-    public CodeDayTypeObject getSaturday(int period) throws BusinessException {
-        for (CodeDayTypeObject dayType : dayTypes) {
-            if (dayType.isSaturday() && dayType.isPeriod(period)) {
-                return dayType;
-            }
-        }
-        throw new BusinessException("No saturday found for period [" + period + "]!");
-    }
-
-    public CodeDayTypeObject getHoliday(int period) throws BusinessException {
-        for (CodeDayTypeObject dayType : dayTypes) {
-            if (dayType.isHoliday() && dayType.isPeriod(period)) {
-                return dayType;
-            }
-        }
-        throw new BusinessException("No holiday found for period [" + period + "]!");
     }
 
     public void setDayTypes(List<CodeDayTypeObject> dayTypes) {
@@ -178,20 +131,6 @@ public class CodeObject implements Serializable {
 
     public String getName() {
         return name;
-    }
-
-    public int getTariffIdentifier() {
-        if (getName() != null) {
-            String[] nameParts = getName().split("_");
-            if (getName().split("_").length > 1) {
-                try {
-                    return Integer.valueOf(nameParts[nameParts.length - 1]);
-                } catch (NumberFormatException e) {
-                    return -1;
-                }
-            }
-        }
-        return -1;
     }
 
     public void setName(String name) {
@@ -257,24 +196,5 @@ public class CodeObject implements Serializable {
         sb.append(", dayTypes=").append(dayTypes);
         sb.append('}');
         return sb.toString();
-    }
-
-    public int getDefaultBand() throws BusinessException {
-        CodeDayTypeObject defaultDay = getDefaultDayType();
-        List<CodeDayTypeDefObject> dayTypeDefs = defaultDay.getDayTypeDefs();
-        if (!dayTypeDefs.isEmpty()) {
-            CodeDayTypeDefObject defaultBand = dayTypeDefs.get(0);
-            return defaultBand.getCodeValue();
-        }
-        throw new BusinessException("No default codetable found!");
-    }
-
-    private CodeDayTypeObject getDefaultDayType() throws BusinessException {
-        for (CodeDayTypeObject dayType : dayTypes) {
-            if (dayType.isDefault()) {
-                return dayType;
-            }
-        }
-        throw new BusinessException("No default dayType found!");
     }
 }

@@ -54,13 +54,11 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-import java.security.SecureRandom;
-import java.util.*;
 
 /**
  * Protocol that reads out the G3 e-meter connected to an Beacon3100 gateway / concentrator (for the G3 international project).
@@ -368,6 +366,6 @@ public class AS330D extends AbstractDlmsProtocol implements SerialNumberSupport 
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-07-14 14:30:05 +0200 (Thu, 14 Jul 2016)$";
+        return "$Date: 2016-07-15 09:43:47 +0200 (Fri, 15 Jul 2016)$";
     }
 }

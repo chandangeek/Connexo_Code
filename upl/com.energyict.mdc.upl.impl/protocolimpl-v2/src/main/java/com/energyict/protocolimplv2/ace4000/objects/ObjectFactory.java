@@ -175,9 +175,13 @@ public class ObjectFactory {
 
     public Reject getReject() {
         if (reject == null) {
-            reject = new Reject(null);
+            reject = new Reject(this);
         }
         return reject;
+    }
+
+    public void resetReject() {
+        this.reject = null;
     }
 
     public ContactorControlCommand getContactorControlCommand() {
@@ -696,7 +700,9 @@ public class ObjectFactory {
         getSyncTime().setMeterTime(meterTime);
         getSyncTime().setReceiveTime(receiveTime);
         getSyncTime().request();
-        //No need to track the result, this only serves as an ack for the meter after receiving its date and time
+
+        //Read in the ack for this sync request and move on.
+        getAce4000().getAce4000Connection().readFrames(false);
     }
 
     /**
@@ -811,8 +817,10 @@ public class ObjectFactory {
                         getNegativeAcknowledge().parse(mdElement);                          //Contains tracking ID of the request that failed
                         log(Level.INFO, "Received a negative acknowledgement, reason: " + getNegativeAcknowledge().getReasonDescription());
                         updateRequestFailed(new Tracker(getNegativeAcknowledge().getFailedTrackingId()), getNegativeAcknowledge().getReasonDescription());
-                    } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.REJECT)) { //Should never happen
+                    } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.REJECT)) {
+                        int trackingID = getTrackingID();   //This is the trackingID of the ACK on our config request
                         getReject().parse(mdElement);
+                        updateRequestFailed(new Tracker(trackingID), getReject().getReasonDescription());
                         log(Level.INFO, "Message was rejected, reason: " + getReject().getReasonDescription());
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.LOADPR)) {
                         log(Level.INFO, "Received a loadProfile element.");

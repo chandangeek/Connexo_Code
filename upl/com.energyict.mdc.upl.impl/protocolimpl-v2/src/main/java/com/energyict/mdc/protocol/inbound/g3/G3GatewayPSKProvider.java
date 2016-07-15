@@ -87,7 +87,7 @@ public class G3GatewayPSKProvider {
             providePSK(gatewayProtocol);
             joiningMacAddresses.remove(macAddress);
         } catch (CommunicationException e) {
-            communicationError(macAddress);
+            communicationError("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.");
             throw e;
         }
 
@@ -117,18 +117,20 @@ public class G3GatewayPSKProvider {
      * The other threads that want to call this method (on the same instance of this class) will automatically wait.
      * Close the TCP connection, this will also release the current association to the beacon.
      * The next inbound frame will set it up again.
+     * @param errorMessage
      */
-    public synchronized void provideError(String macAddress) {
-        communicationError(macAddress);
+    public synchronized void provideError(String errorMessage) {
+        communicationError(errorMessage);
     }
 
     /**
      * Close the TCP connection, this will also release the current association to the beacon.
      * The next inbound frame will set it up again.
+     * @param errorMessage
      */
-    private void communicationError(String macAddress) {
+    private void communicationError(String errorMessage) {
         try {
-            context.logOnAllLoggerHandlers("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.", Level.WARNING);
+            context.logOnAllLoggerHandlers(errorMessage, Level.WARNING);
             if (tcpComChannel != null) {
                 this.tcpComChannel.close();
             }

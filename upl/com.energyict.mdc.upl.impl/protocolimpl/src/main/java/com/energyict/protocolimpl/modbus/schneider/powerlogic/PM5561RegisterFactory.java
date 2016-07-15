@@ -104,7 +104,7 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
         getRegisters().add(new HoldingRegister(0xC84, 4, ObisCode.fromString("170.3.12.132.133.255"), "Active Energy Delivered (Into Load)").setParser(Integer.toString(DataTypeSelector.LONG_DATA_TYPE.getDataTypeCode())));
 
         //CurrentDateTime
-        getRegisters().add(new HoldingRegister(0x72D, 6, CurrentDateTime));
+        getRegisters().add(new HoldingRegister(0x72C, 6, CurrentDateTime));
 
         //Load Profiles
         getRegisters().add(new HoldingRegister(0x856, 1, ObisCode.fromString("0.1.128.0.0.255"), "Energy Channel").setParser(UnsignedValueParser));

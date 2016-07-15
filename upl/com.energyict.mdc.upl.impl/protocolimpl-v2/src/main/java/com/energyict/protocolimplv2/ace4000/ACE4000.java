@@ -5,9 +5,7 @@ import com.energyict.cpo.TypedProperties;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.support.SerialNumberSupport;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
-import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
 import java.util.ArrayList;
@@ -24,37 +22,32 @@ import java.util.logging.Logger;
  * Time: 16:47
  * Author: khe
  */
-public abstract class ACE4000 extends NoOrPasswordSecuritySupport implements SerialNumberSupport {
+public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
 
+    protected String serialNumber = null;
+    //Used by both inbound and outbound protocols
+    protected ObjectFactory objectFactory;
     private ACE4000Connection ace4000Connection;
     private ACE4000Properties properties;
-    protected String serialNumber = null;
-
     private List<CollectedRegister> collectedBillingRegisters;
     private List<CollectedRegister> collectedMBusBillingRegisters;
     private List<CollectedRegister> collectedInstantRegisters;
     private List<CollectedRegister> collectedMaxDemandRegisters;
     private List<CollectedRegister> collectedCurrentRegisters;
     private List<CollectedRegister> collectedMBusCurrentRegisters;
-
     /**
      * Serves as a storage of all received RegisterValue ObisCodes.
      */
     private List<ObisCode> receivedRegisterObisCodeList = new ArrayList<>();
 
-    //Used by both inbound and outbound protocols
-    protected ObjectFactory objectFactory;
+    public abstract DeviceIdentifier getDeviceIdentifier();
 
     public ACE4000Connection getAce4000Connection() {
         return ace4000Connection;
     }
 
-    public DeviceIdentifier getDeviceIdentifier() {
-        return new DialHomeIdDeviceIdentifier(serialNumber);
-    }
-
-    public String getSerialNumber() {
-        return serialNumber;
+    public void setAce4000Connection(ACE4000Connection ace4000Connection) {
+        this.ace4000Connection = ace4000Connection;
     }
 
     public void setSerialNumber(String serialNumber) {
@@ -67,10 +60,6 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport implements Ser
      * Return the serial number of the device that is configured in EIServer
      */
     public abstract String getConfiguredSerialNumber();
-
-    public void setAce4000Connection(ACE4000Connection ace4000Connection) {
-        this.ace4000Connection = ace4000Connection;
-    }
 
     public ACE4000Properties getProperties() {
         if (properties == null) {

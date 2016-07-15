@@ -26,6 +26,7 @@ public abstract class AbstractConfigMessage extends AbstractRequest<OfflineDevic
     protected AbstractConfigMessage(ACE4000Outbound ace4000) {
         super(ace4000);
         this.messageExecutor = getAce4000().getMessageProtocol().getMessageExecutor();
+        multiFramedAnswer = true;       //We expect to receive an ACK for the request, and then either a CAK or a NAK or a REJECT to the configuration change
     }
 
     @Override
@@ -59,6 +60,7 @@ public abstract class AbstractConfigMessage extends AbstractRequest<OfflineDevic
             collectedMessage.setDeviceProtocolInformation(msg);
             setResult(collectedMessage);
         }
+        getAce4000().getObjectFactory().resetReject();
     }
 
     protected Integer convertToSubIntervalDurationCode(int subIntervalDuration) {
