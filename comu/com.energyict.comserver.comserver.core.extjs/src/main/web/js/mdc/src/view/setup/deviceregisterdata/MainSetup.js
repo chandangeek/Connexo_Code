@@ -1,5 +1,5 @@
 Ext.define('Mdc.view.setup.deviceregisterdata.MainSetup', {
-    extend: 'Uni.view.container.ContentContainer',
+    extend: 'Ext.container.Container',
     alias: 'widget.deviceRegisterDataPage',
     mRID: null,
     registerId: null,
@@ -8,10 +8,5 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainSetup', {
     ],
 
     mentionDataLoggerSlave: false,
-    router: null,
-
-    initComponent: function () {
-        var me = this;
-        me.callParent(arguments);
-    }
+    router: null
 });

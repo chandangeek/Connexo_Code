@@ -6,10 +6,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Setup', {
     initComponent: function () {
         var me = this;
 
-        me.content = [
+        me.items = [
             {
                 xtype: 'panel',
-                ui: 'large',
                 items: [
                     {
                         xtype: 'mdc-registers-topfilter',
