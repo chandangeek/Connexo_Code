@@ -110,7 +110,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.timeofuseondevice.controller.TimeOfUse',
         'Mdc.filemanagement.controller.FileManagement',
         'Mdc.metrologyconfiguration.controller.ListView',
-        'Mdc.metrologyconfiguration.controller.AddView'
+        'Mdc.metrologyconfiguration.controller.AddView',
+        'Mdc.usagepointmanagement.controller.UsagePointHistory'
     ],
 
     stores: [
