@@ -4,6 +4,11 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop'
     ],
+    plugins: [
+        {
+            ptype: 'bufferedrenderer',
+        }
+    ],
     channel: null,
 
     initComponent: function () {
@@ -28,8 +33,22 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGrid', {
                 header: unit
                     ? Uni.I18n.translate('general.value', 'MDC', 'Value ({0})', [unit])
                     : Uni.I18n.translate('general.value.empty', 'MDC', 'Value'),
+                flex: 2,
+                dataIndex: 'value',
+                align: 'right'
+            },
+            {
+                dataIndex: 'validation',
                 flex: 1,
-                dataIndex: 'value'
+                renderer: function (value) {
+                    var validationMap = {
+                        NOT_VALIDATED: '<span class="icon-flag6" data-qtip="' + Uni.I18n.translate('devicechannelsreadings.validationResult.notvalidated', 'MDC', 'Not validated') + '"></span>',
+                        SUSPECT: '<span class="icon-flag5" style="color:red" data-qtip="' + Uni.I18n.translate('validationStatus.suspect', 'MDC', 'Suspect') + '"></span>',
+                        INFORMATIVE: '<span class="icon-flag5" style="color:yellow" data-qtip="' + Uni.I18n.translate('validationStatus.informative', 'MDC', 'Informative') + '"></span>'
+                    };
+
+                    return validationMap[value];
+                }
             }
         ];
 

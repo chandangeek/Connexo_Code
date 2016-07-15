@@ -4,6 +4,16 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
     channel: null,
     zoomLevels: null,
 
+    listeners: {
+        resize: {
+            fn: function (graphView, width, height) {
+                if (this.chart) {
+                    this.chart.setSize(width, height, false);
+                }
+            }
+        }
+    },
+
     items: [
         {
             xtype: 'container',
@@ -45,7 +55,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
 
         intervalLengthInMs = zoomLevelsStore.getIntervalInMs(me.channel.get('interval'));
 
-        switch ('volume'/*me.channel.get('flowUnit')*/) {
+        switch (me.channel.get('flowUnit')) {
             case 'flow':
                 seriesObject['type'] = 'line';
                 seriesObject['step'] = false;
@@ -77,74 +87,41 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
         var me = this,
             data = [],
             missedValues = [],
-            collectedUnitOfMeasure = me.channel.get('readingType').names.unitOfMeasure,
-        //calculatedUnitOfMeasure = me.channel.get('calculatedReadingType') ? me.channel.get('calculatedReadingType').names.unitOfMeasure : collectedUnitOfMeasure,
-            okColor = "#70BB51",
-            estimatedColor = "#568343",
-            suspectColor = 'rgba(235, 86, 66, 1)',
-            informativeColor = "#dedc49",
-            notValidatedColor = "#71adc7",
-            tooltipOkColor = 'rgba(255, 255, 255, 0.85)',
-            tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)',
-            tooltipEstimatedColor = 'rgba(86, 131, 67, 0.3)',
-            tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)',
-            tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
+            unit = me.channel.get('readingType').names.unitOfMeasure;
+        validationMap = {
+            NOT_VALIDATED: {
+                barColor: 'rgba(113,173,199,1)',
+                tooltipColor: 'rgba(0,131,200,0.3)',
+                icon: '<span class="icon-flag6"></span>'
+            },
+            SUSPECT: {
+                barColor: 'rgba(235,86,66,1)',
+                tooltipColor: 'rgba(235,86,66,0.3)',
+                icon: '<span class="icon-flag5" style="color:red"></span>'
+            },
+            INFORMATIVE: {
+                barColor: 'rgba(222,220,73,1)',
+                tooltipColor: 'rgba(222,220,73,0.3)',
+                icon: '<span class="icon-flag5" style="color:yellow"></span>'
+            }
+        };
 
         me.store.each(function (record) {
             var point = {},
-                interval = record.get('interval');
-            //mainValidationInfo = record.get('mainValidationInfo'),
-            //bulkValidationInfo = record.get('bulkValidationInfo'),
-            //properties = record.get('readingProperties');
+                interval = record.get('interval'),
+                validation = record.get('validation');
 
             point.x = interval.start;
             point.id = point.x;
             point.y = parseFloat(record.get('value')) || null;
             point.intervalEnd = interval.end;
-            //point.collectedValue = record.get('collectedValue');
-            point.collectedUnitOfMeasure = collectedUnitOfMeasure;
-            //point.calculatedUnitOfMeasure = calculatedUnitOfMeasure;
-            point.color = okColor;
-            point.tooltipColor = tooltipOkColor;
+            point.color = validationMap[validation].barColor;
+            point.tooltipColor = validationMap[validation].tooltipColor;
+            point.icon = validationMap[validation].icon;
+            point.unit = unit;
             //point.multiplier = record.get('multiplier');
 
-            //if (mainValidationInfo.valueModificationFlag == 'EDITED') {
-            //    point.edited = true;
-            //}
-            //if (mainValidationInfo.estimatedByRule) {
-            //    point.color = estimatedColor;
-            //    point.tooltipColor = tooltipEstimatedColor;
-            //} else if (properties.delta.notValidated) {
-            //    point.color = notValidatedColor;
-            //    point.tooltipColor = tooltipNotValidatedColor
-            //} else if (properties.delta.suspect) {
-            //    point.color = suspectColor;
-            //    point.tooltipColor = tooltipSuspectColor
-            //} else if (properties.delta.informative) {
-            //    point.color = informativeColor;
-            //    point.tooltipColor = tooltipInformativeColor;
-            //}
-            //
-            //if (bulkValidationInfo.valueModificationFlag == 'EDITED') {
-            //    point.bulkEdited = true;
-            //}
-
-            //Ext.merge(point, properties);
             data.push(point);
-
-
-            //!point.y && (point.y = null);
-            //if (!point.y) {
-            //if (properties.delta.suspect) {
-            //    missedValues.push({
-            //        id: record.get('interval').start,
-            //        from: record.get('interval').start,
-            //        to: record.get('interval').end,
-            //        color: 'rgba(235, 86, 66, 0.3)'
-            //    });
-            //    record.set('plotBand', true);
-            //}
-            //}
         });
 
         return {data: data, missedValues: missedValues};
@@ -231,34 +208,17 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
                 formatter: function (tooltip) {
                     var html = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x),
                         point = this.points[0].point,
-                        deltaIcon,
-                        bulkIcon,
                         bgColor,
-                        iconSpan = '<span class="{icon}" ' + 'style="height: 16px; ' + 'width: 16px; ' +
-                            'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
                         editedIconSpan = '<span class="uni-icon-edit"' + 'style="height: 13px; ' + 'width: 13px; ' +
                             'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
-                        calculatedValue,
                         value;
 
-                    if (point.delta && point.delta.suspect) {
-                        deltaIcon = 'icon-validation-red';
-                    } else if (point.delta && point.delta.notValidated) {
-                        deltaIcon = 'icon-validation-black';
-                    }
-
-                    if (point.bulk && point.bulk.suspect) {
-                        bulkIcon = 'icon-validation-red';
-                    } else if (point.bulk && point.bulk.notValidated) {
-                        bulkIcon = 'icon-validation-black';
-                    }
-
-                    value = point.y ? point.y + ' ' + point.collectedUnitOfMeasure : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
+                    value = !Ext.isEmpty(point.y) ? point.y + ' ' + point.unit : Uni.I18n.translate('general.missing', 'MDC', 'Missing');
                     html += '<br/>' + Uni.I18n.translate('devicechannels.interval', 'MDC', 'Interval') + ' ' + Highcharts.dateFormat('%H:%M', point.x);
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
-                    html += '<tr><td><b>' + Uni.I18n.translate('general.value', 'MDC', 'Value') + ':</b></td><td>' + value + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
+                    html += '<tr><td><b>' + Uni.I18n.translate('general.value', 'MDC', 'Value') + ':</b></td><td>' + value + (point.edited ? editedIconSpan : '') + ' ' + point.icon + '</td></tr>';
                     if (point.multiplier) {
                         html += '<tr><td><b>' + Uni.I18n.translate('general.multiplier', 'MDC', 'Multiplier') + ':</b></td><td>' + point.multiplier + '</td></tr>';
                     }

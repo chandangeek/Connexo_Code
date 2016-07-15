@@ -7,13 +7,12 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
 
     initComponent: function () {
         var me = this,
-            readingType = me.channel.get('readingType'),
             defaults = {
                 xtype: 'displayfield',
                 labelWidth: 200
             };
 
-        me.unit = readingType && readingType.names ? readingType.names.unitOfMeasure : '';
+        me.unit = me.channel.get('readingType').names.unitOfMeasure;
 
         me.items = [
             {

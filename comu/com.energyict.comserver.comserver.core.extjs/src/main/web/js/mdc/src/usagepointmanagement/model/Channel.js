@@ -1,6 +1,6 @@
 Ext.define('Mdc.usagepointmanagement.model.Channel', {
     extend: 'Ext.data.Model',
-    fields: ['dataUntil', 'interval', 'readingType', 'deviceChannels'],
+    fields: ['dataUntil', 'interval', 'readingType', 'deviceChannels', 'flowUnit'],
     proxy: {
         type: 'rest',
         urlTpl: '/api/upr/usagepoints/{mRID}/channels',
