@@ -758,28 +758,24 @@ public class UsagePointResource {
                 .filter(contract -> contract.getMetrologyPurpose().getId() == purposeId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, purposeId, mrId));
-        Optional<TemporalAmount> max = metrologyContract.getDeliverables().stream()
+        TemporalAmount max = metrologyContract.getDeliverables().stream()
                 .map(ReadingTypeDeliverable::getReadingType)
                 .filter(ReadingType::isRegular)
                 .map(ReadingType::getIntervalLength)
                 .flatMap(Functions.asStream())
-                .max(temporalAmountComparator::compare);
-        List<IdWithNameInfo> infos;
-        if (max.isPresent()) {
-            infos = getRelativePeriodsDefaultOnTop(max.get()).stream().map(rp -> new IdWithNameInfo(rp.getId(), rp.getName())).collect(Collectors.toList());
-        } else {
-            // registers case
-            RelativePeriod allRelativePeriod = timeService.getAllRelativePeriod();
-            infos = Collections.singletonList(new IdWithNameInfo(allRelativePeriod.getId(), allRelativePeriod.getName()));
-        }
+                .max(temporalAmountComparator::compare)
+                .orElse(Period.ofYears(1));//return max period to cover the use-case with registers when there is no intervalLength
+        List<IdWithNameInfo> infos = getRelativePeriodsDefaultOnTop(max).stream()
+                .map(rp -> new IdWithNameInfo(rp.getId(), rp.getName()))
+                .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("relativePeriods", infos, queryParameters);
     }
 
     private List<? extends RelativePeriod> getRelativePeriodsDefaultOnTop(TemporalAmount intervalLength) {
         ZonedDateTime now = ZonedDateTime.now(clock);
-        TemporalAmount defaultIntervalLength = getValidationOverviewIntervalLength(intervalLength).orElse(intervalLength);
+        TemporalAmount targetIntervalLength = getValidationOverviewIntervalLength(intervalLength).orElse(intervalLength);
         return fetchRelativePeriods().stream()
-                .sorted(Comparator.comparing(relativePeriod -> getIntervalLengthDifference(relativePeriod, defaultIntervalLength, now)))
+                .sorted(Comparator.comparing(relativePeriod -> getIntervalLengthDifference(relativePeriod, targetIntervalLength, now)))
                 .collect(Collectors.toList());
     }
 
@@ -794,19 +790,20 @@ public class UsagePointResource {
     }
 
     private long getIntervalLengthDifference(RelativePeriod relativePeriod, TemporalAmount targetIntervalLength, ZonedDateTime referenceTime) {
-        ZonedDateTime relativePeriodStart = relativePeriod.getRelativeDateFrom().getRelativeDate(referenceTime);
-        ZonedDateTime relativePeriodEnd = relativePeriod.getRelativeDateTo().getRelativeDate(referenceTime);
+        Range<ZonedDateTime> interval = relativePeriod.getOpenClosedZonedInterval(referenceTime);
+        ZonedDateTime relativePeriodStart = interval.lowerEndpoint();
+        ZonedDateTime relativePeriodEnd = interval.upperEndpoint();
         if (relativePeriodStart.isAfter(referenceTime)) {
-            // period starts in the future, this is not we what we need, so return max interval length
+            // period starts in the future, this is not what we need, so return max interval length
             return getIntervalLength(Range.openClosed(referenceTime, relativePeriodStart.plus(targetIntervalLength)));
         }
-        long targetLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodStart.plus(targetIntervalLength)));
         long relativePeriodLength;
         if (relativePeriodEnd.isAfter(referenceTime)) {
             relativePeriodLength = getIntervalLength(Range.openClosed(relativePeriodStart, referenceTime));
         } else {
             relativePeriodLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodEnd));
         }
+        long targetLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodStart.plus(targetIntervalLength)));
         return Math.abs(targetLength - relativePeriodLength);
     }
 
