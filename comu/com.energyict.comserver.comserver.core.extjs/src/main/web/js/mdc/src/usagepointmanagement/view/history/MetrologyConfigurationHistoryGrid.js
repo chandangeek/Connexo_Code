@@ -3,7 +3,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryG
     alias: 'widget.metrology-configuration-history-grid',
     // overflowY: 'auto',
     router: null,
-
+    usagePoint: null,
     requires: [
         'Uni.grid.column.Action',
         'Mdc.usagepointmanagement.store.MetrologyConfigurationVersions',
@@ -57,7 +57,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryG
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 menu: {
                     xtype: 'metrology-configuration-versions-action-menu',
-                    // router: me.router,
+                    usagePoint: me.usagePoint,
                     itemId: 'metrology-configuration-versions-action-menu-id'
                 },
                 flex: 1

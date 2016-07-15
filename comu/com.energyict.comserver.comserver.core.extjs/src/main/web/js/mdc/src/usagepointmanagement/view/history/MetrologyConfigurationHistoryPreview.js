@@ -5,22 +5,28 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryP
         'Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMenu'
     ],
     frame: true,
-
+    usagePoint: null,
     record: null,
 
-    tools: [
-        {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            privileges: Mdc.privileges.UsagePoint.canAdmin(),
-            itemId: 'actions-button',
-            iconCls: 'x-uni-action-iconD',
-            menu: {
-                xtype: 'metrology-configuration-versions-action-menu',
-                itemId: 'metrology-configuration-versions-action-menu-preview-id'
+    initComponent: function () {
+        var me = this;
+        me.tools = [
+            {
+                xtype: 'button',
+                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                privileges: Mdc.privileges.UsagePoint.canAdmin(),
+                itemId: 'actions-button',
+                iconCls: 'x-uni-action-iconD',
+                menu: {
+                    xtype: 'metrology-configuration-versions-action-menu',
+                    itemId: 'metrology-configuration-versions-action-menu-id',
+                    usagePoint: me.usagePoint
+                }
             }
-        }
-    ],
+        ],
+            me.callParent(arguments)
+    },
+
     items: [
         {
             xtype: 'form',

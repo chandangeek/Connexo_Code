@@ -3,6 +3,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistory'
     alias: 'widget.metrology-configuration-history-tab',
     itemId: 'metrology-configuration-history',
     router: null,
+    usagePoint: null,
 
     requires: [
         'Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistoryGrid',
@@ -19,7 +20,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistory'
                 grid: {
                     xtype: 'metrology-configuration-history-grid',
                     itemId: 'metrology-configuration-history-grid-id',
-                    router: me.router
+                    router: me.router,
+                    usagePoint: me.usagePoint
                 },
                 emptyComponent: {
                     xtype: 'no-items-found-panel',
@@ -41,7 +43,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistory'
                 },
                 previewComponent: {
                     xtype: 'metrology-configuration-history-preview',
-                    itemId: 'metrology-configuration-history-preview-id'
+                    itemId: 'metrology-configuration-history-preview-id',
+                    usagePoint: me.usagePoint
                 }
             }
         ];
