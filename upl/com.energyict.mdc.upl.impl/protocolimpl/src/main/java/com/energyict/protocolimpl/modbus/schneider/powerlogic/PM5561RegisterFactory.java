@@ -90,18 +90,16 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
         getRegisters().add(new HoldingRegister(0xC0A, 2, ObisCode.fromString("1.0.73.7.0.255"), Unit.get(BaseUnit.UNITLESS, MILLI_SCALE), "Power Factor C").setParser(SignedValueCheckNotAvailableParser));
 
         //Energy values
-        getRegisters().add(new HoldingRegister(0xC8C, 2, ObisCode.fromString("1.0.1.8.0.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered + Received").setParser(UnsignedValueCheckNotAvailableParser));
-        getRegisters().add(new HoldingRegister(0xC9C, 2, ObisCode.fromString("1.0.3.8.0.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, KILO_SCALE), "Reactive Energy Delivered + Received").setParser(UnsignedValueCheckNotAvailableParser));
-        getRegisters().add(new HoldingRegister(0xC90, 2, ObisCode.fromString("1.0.2.8.0.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered- Received").setParser(UnsignedValueCheckNotAvailableParser));
-        getRegisters().add(new HoldingRegister(0xCAC, 2, ObisCode.fromString("1.0.1.8.1.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Apparent Energy Delivered + Received").setParser(UnsignedValueCheckNotAvailableParser));
-        getRegisters().add(new HoldingRegister(0xC9C, 2, ObisCode.fromString("1.0.3.8.1.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, KILO_SCALE), "Reactive Energy Delivered + Received").setParser(UnsignedValueCheckNotAvailableParser));
-        getRegisters().add(new HoldingRegister(0xCB0, 2, ObisCode.fromString("1.0.2.8.1.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Apparent Energy Delivered - Received").setParser(UnsignedValueCheckNotAvailableParser));
+        getRegisters().add(new HoldingRegister(0xC84, 4, ObisCode.fromString("170.3.12.132.5.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered (Into Load)").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC88, 4, ObisCode.fromString("170.3.12.136.5.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Received (Out of Load)").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC8C, 4, ObisCode.fromString("1.0.1.8.0.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered + Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC9C, 4, ObisCode.fromString("1.0.3.8.0.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, KILO_SCALE), "Reactive Energy Delivered + Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC90, 4, ObisCode.fromString("1.0.2.8.0.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Active Energy Delivered- Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xCAC, 4, ObisCode.fromString("1.0.1.8.1.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Apparent Energy Delivered + Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xC9C, 4, ObisCode.fromString("1.0.3.8.1.255"), Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, KILO_SCALE), "Reactive Energy Delivered + Received").setParser(SignedValueParser));
+        getRegisters().add(new HoldingRegister(0xCB0, 4, ObisCode.fromString("1.0.2.8.1.255"), Unit.get(BaseUnit.WATTHOUR, KILO_SCALE), "Apparent Energy Delivered - Received").setParser(SignedValueParser));
 //        getRegisters().add(new HoldingRegister(0xC68A, 2, ObisCode.fromString("1.0.131.5.0.255"), Unit.get(BaseUnit.SECOND), "Last date for Record average P/Q/S in second since 01/01/2000").setParser(UnsignedValueCheckNotAvailableParser));
 //        getRegisters().add(new HoldingRegister(0xC68C, 1, ObisCode.fromString("1.0.1.5.0.255"), Unit.get(BaseUnit.WATT), "Last average (P+) (not affected by CT and VT)").setParser(UnsignedValueCheckNotAvailableParser));
-
-
-        //Energy values per tariff
-        getRegisters().add(new HoldingRegister(0xC84, 4, ObisCode.fromString("170.3.12.132.133.255"), "Active Energy Delivered (Into Load)").setParser(Integer.toString(DataTypeSelector.LONG_DATA_TYPE.getDataTypeCode())));
 
         //CurrentDateTime
         getRegisters().add(new HoldingRegister(0x72C, 6, CurrentDateTime));
@@ -190,7 +188,7 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
                     if (values.length == 1 | values.length == 2 | values.length == 4) {           // Signed register
                         byte[] intBitsArray = getByteArrayFromValue(values, bigEndianEncoding);
                         BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
-                        return new BigDecimal(bigInteger);
+                        return new BigDecimal(bigInteger.intValue()/1000);
                     } else {
                         throw new ModbusException("ParserFactory, SignedValueParser, received data has invalid length (" + values.length + ")");
                     }
