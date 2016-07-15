@@ -749,6 +749,8 @@ public class UsagePointResource {
     @GET
     @Path("/{mrId}/validationSummaryPeriods")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public PagedInfoList getDataValidationStatisticsRelativePeriods(@PathParam("mrId") String mrId,
                                                                     @QueryParam("purposeId") long purposeId,
                                                                     @BeanParam JsonQueryParameters queryParameters) {
