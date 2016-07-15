@@ -203,8 +203,8 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 .stream()
                 .filter(MetrologyContract::isMandatory)
                 .flatMap(contract -> contract.getDeliverables().stream())
-                .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(requirementChecker));
-        return requirementChecker.getReadingTypeRequirements();
+                .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(requirementsCollector));
+        return requirementsCollector.getReadingTypeRequirements();
     }
 
     private List<ReadingTypeRequirement> getUnmatchedMeterReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingTypeRequirement> mandatoryReadingTypeRequirements, Map.Entry<MeterRole, Meter> mappingEntry) {
