@@ -8,6 +8,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
@@ -66,6 +67,8 @@ public interface DeviceDataModelService {
     BatchService batchService();
 
     MessageService messageService();
+
+    ValidationService validationService();
 
     JsonService jsonService();
 

@@ -2,25 +2,21 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-
-import javax.inject.Inject;
+import com.energyict.mdc.device.data.PassiveCalendar;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 
 import java.time.Instant;
 import java.util.Optional;
 
-public class PassiveEffectiveCalendarImpl implements PassiveEffectiveCalendar{
+class PassiveCalendarImpl implements PassiveCalendar {
 
     public enum Fields {
         ID("id"),
         CALENDAR("allowedCalendar"),
         ACTIVATIONDATE("activationDate"),
         DEVICE("device"),
-        COMTASKEXECUTION("comTaskExecution");
+        DEVICEMESSAGE("deviceMessage");
 
         private final String javaFieldName;
 
@@ -33,12 +29,11 @@ public class PassiveEffectiveCalendarImpl implements PassiveEffectiveCalendar{
         }
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
-
     private Reference<AllowedCalendar> allowedCalendar = ValueReference.absent();
-    private Reference<Device> device = ValueReference.absent();
     private Instant activationDate;
-    private Reference<ComTaskExecution> comTaskExecution = ValueReference.absent();
+    private Reference<DeviceMessage> deviceMessage = ValueReference.absent();
 
     @Override
     public AllowedCalendar getAllowedCalendar() {
@@ -63,12 +58,14 @@ public class PassiveEffectiveCalendarImpl implements PassiveEffectiveCalendar{
         this.activationDate = activationDate;
     }
 
-    public void setDevice(Device device) {
-        this.device.set(device);
+    @Override
+    public Optional<DeviceMessage> getDeviceMessage() {
+        return deviceMessage.getOptional();
     }
 
     @Override
-    public Optional<ComTaskExecution> getComTaskExecution() {
-        return comTaskExecution.getOptional();
+    public void setDeviceMessage(DeviceMessage deviceMessage) {
+        this.deviceMessage.set(deviceMessage);
     }
+
 }

@@ -10,6 +10,8 @@ import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -31,7 +33,6 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
@@ -53,6 +54,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -64,15 +66,23 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MeterActivationTimestampNotAfterLastActivationException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
+import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
 import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
+import com.energyict.mdc.protocol.api.tasks.TopologyAction;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
+import com.energyict.mdc.tasks.ClockTask;
+import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.ProtocolTask;
 
 import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
@@ -123,6 +133,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     private ReadingType forwardBulkSecondaryEnergyReadingType;
     private ReadingType forwardDeltaSecondaryEnergyReadingType;
+    private ReadingType reverseDeltaSecondaryMonthlyEnergyReadingType;
     private ReadingType forwardBulkPrimaryEnergyReadingType;
     private ReadingType forwardDeltaPrimaryMonthlyEnergyReadingType;
     private ReadingType reverseBulkSecondaryEnergyReadingType;
@@ -193,6 +204,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
         this.reverseBulkPrimaryEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(reverseBulkPrimaryCode).get();
+        this.reverseDeltaSecondaryMonthlyEnergyReadingType = inMemoryPersistence.getMeteringService()
+                .getReadingType(getReverseSecondaryBulkReadingTypeCodeBuilder().accumulate(Accumulation.DELTADELTA).period(MacroPeriod.MONTHLY).code())
+                .get();
         this.reverseEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(reverseBulkSecondaryEnergyReadingType).getObisCode();
         this.averageForwardEnergyReadingTypeMRID = ReadingTypeCodeBuilder
                 .of(Commodity.ELECTRICITY_SECONDARY_METERED)
@@ -1415,7 +1429,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void createMeterConfigurationForMultipliedRegisterSpecTest() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
-
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", "DeviceWithMultiplierOnRegister");
         device.save();
         device.setMultiplier(BigDecimal.TEN);
@@ -1430,6 +1443,58 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                         value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID());
             }
         });
+    }
+
+    @Test
+    @Transactional
+    public void headEndInterfaceCreatesCorrectKoreChannels() {
+        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
+        RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("LoadProfileType", loadProfileObisCode, TimeDuration.months(1), Arrays.asList(registerType1, registerType2));
+        loadProfileType.save();
+        ChannelType channelTypeForRegisterType1 = loadProfileType.findChannelType(registerType1).get();
+        ChannelType channelTypeForRegisterType2 = loadProfileType.findChannelType(registerType2).get();
+        deviceType.addLoadProfileType(loadProfileType);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigWithMultipliedChannels");
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
+        BigDecimal overflow = BigDecimal.valueOf(9999);
+        final int nbrOfFractionDigits = 3;
+        deviceConfigurationBuilder.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder)
+                .nbrOfFractionDigits(nbrOfFractionDigits)
+                .overflow(overflow)
+                .useMultiplierWithCalculatedReadingType(forwardDeltaPrimaryMonthlyEnergyReadingType);
+        deviceConfigurationBuilder.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder)
+                .nbrOfFractionDigits(nbrOfFractionDigits)
+                .overflow(overflow);
+
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        deviceConfiguration.activate();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers");
+        device.save();
+        device.setMultiplier(BigDecimal.TEN);
+        Meter meter = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get();
+
+        int channelSize = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().size();
+        assertThat(channelSize)
+                .withFailMessage("You should have 2 channels, but you got " + channelSize + ". This is probably because you created your MeterActivation first before you updated the MeterConfiguration")
+                .isEqualTo(2);
+        assertThat(meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels()).haveExactly(1, new Condition<com.elster.jupiter.metering.Channel>() {
+            @Override
+            public boolean matches(com.elster.jupiter.metering.Channel channel) {
+                return channel.getMainReadingType().getMRID().equals(forwardDeltaPrimaryMonthlyEnergyReadingType.getmRID())
+                        && channel.getBulkQuantityReadingType().isPresent() && channel.getBulkQuantityReadingType().get().getMRID().equals(channelTypeForRegisterType1.getReadingType().getMRID());
+            }
+        });
+        assertThat(meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels()).haveExactly(1, new Condition<com.elster.jupiter.metering.Channel>() {
+            @Override
+            public boolean matches(com.elster.jupiter.metering.Channel channel) {
+                return channel.getMainReadingType().getMRID().equals(reverseDeltaSecondaryMonthlyEnergyReadingType.getmRID())
+                        && channel.getBulkQuantityReadingType().isPresent() && channel.getBulkQuantityReadingType().get().getmRID().equals(channelTypeForRegisterType2.getReadingType().getmRID());
+            }
+        });
+
     }
 
     @Test
@@ -2297,9 +2362,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         ReadingType minutes15DeltaAPlus = inMemoryPersistence.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         ReadingType monthlyDeltaAPlus = inMemoryPersistence.getMeteringService().getReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
 
-        MetrologyConfiguration mc0 = createMetrologyConfiguration("mc0", Collections.singletonList(monthlyBulkAMinus));
-        MetrologyConfiguration mc1 = createMetrologyConfiguration("mc1", Arrays.asList(monthlyBulkAPlus, minutes15DeltaAPlus));
-        MetrologyConfiguration mc2 = createMetrologyConfiguration("mc2", Collections.singletonList(monthlyDeltaAPlus));
+        UsagePointMetrologyConfiguration mc0 = createMetrologyConfiguration("mc0", Collections.singletonList(monthlyBulkAMinus));
+        UsagePointMetrologyConfiguration mc1 = createMetrologyConfiguration("mc1", Arrays.asList(monthlyBulkAPlus, minutes15DeltaAPlus));
+        UsagePointMetrologyConfiguration mc2 = createMetrologyConfiguration("mc2", Collections.singletonList(monthlyDeltaAPlus));
 
         usagePoint.apply(mc0, Instant.ofEpochMilli(96L));
         usagePoint.apply(mc1, Instant.ofEpochMilli(97L));
@@ -2345,7 +2410,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .create();
     }
 
-    private MetrologyConfiguration createMetrologyConfiguration(String name, List<ReadingType> readingTypes) {
+    private UsagePointMetrologyConfiguration createMetrologyConfiguration(String name, List<ReadingType> readingTypes) {
         ServiceCategory serviceCategory = inMemoryPersistence.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
         MetrologyConfigurationService metrologyConfigurationService = inMemoryPersistence.getMetrologyConfigurationService();
         MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION).get();
@@ -2355,8 +2420,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         mc.addMeterRole(meterRoleDefault);
         MetrologyContract metrologyContract = mc.addMandatoryMetrologyContract(purpose);
         for (ReadingType readingType : readingTypes) {
-            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mc.newReadingTypeRequirement(readingType.getFullAliasName())
-                    .withMeterRole(meterRoleDefault)
+            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mc.newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
                     .withReadingType(readingType);
             ReadingTypeDeliverableBuilder builder = mc.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
             ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
@@ -2437,5 +2501,98 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .flow(FlowDirection.REVERSE)
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR);
+    }
+
+    @Test
+    @Transactional
+    @Expected(NoStatusInformationTaskException.class)
+    public void testNoStatusInformationTaskAvailable() {
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        device.runStatusInformationTask(ComTaskExecution::runNow);
+    }
+
+    @Test
+    @Transactional
+    public void runStatusInformationComTaskTest() {
+        createComTaskWithStatusInformation();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        assertThat(device.getComTaskExecutions()).hasSize(0);
+        assertThat(device.getDeviceConfiguration().getComTaskEnablements()).hasSize(2);
+        device.runStatusInformationTask(ComTaskExecution::runNow);
+        assertThat(device.getComTaskExecutions()).hasSize(1);
+        assertThat(device.getComTaskExecutions().get(0).getProtocolTasks()).hasSize(2);
+        boolean containsClockTask = false;
+        for(ProtocolTask protocolTask: device.getComTaskExecutions().get(0).getProtocolTasks()) {
+            if(protocolTask instanceof ClockTask) {
+                containsClockTask = true;
+            }
+        }
+        assertThat(containsClockTask).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void runStatusInformationComTaskTwiceTest() {
+        createComTaskWithStatusInformation();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        device.save();
+        device.runStatusInformationTask(ComTaskExecution::runNow);
+        assertThat(device.getComTaskExecutions()).hasSize(1);
+        assertThat(device.getComTaskExecutions().get(0).getProtocolTasks()).hasSize(2);
+        Instant plannedTime = device.getComTaskExecutions().get(0).getPlannedNextExecutionTimestamp();
+        device.runStatusInformationTask(ComTaskExecution::runNow);
+        assertThat(device.getComTaskExecutions()).hasSize(1);
+        assertThat(device.getComTaskExecutions().get(0).getProtocolTasks()).hasSize(2);
+        assertThat(plannedTime.isBefore(device.getComTaskExecutions().get(0).getPlannedNextExecutionTimestamp()));
+    }
+
+    protected void createComTaskWithStatusInformation() {
+        ComTask comTask1 = inMemoryPersistence.getTaskService().newComTask("StatusInformationComTaskAndTopology");
+        comTask1.setStoreData(true);
+        comTask1.setMaxNrOfTries(3);
+        comTask1.createStatusInformationTask();
+        comTask1.createTopologyTask(TopologyAction.UPDATE);
+        comTask1.save();
+        ComTask comTask2 = inMemoryPersistence.getTaskService().newComTask("StatusInformationAndClock");
+        comTask2.setStoreData(true);
+        comTask2.setMaxNrOfTries(3);
+        comTask2.createStatusInformationTask();
+        comTask2.createClockTask(ClockTaskType.SETCLOCK)
+                .maximumClockDifference(TimeDuration.days(1))
+                .minimumClockDifference(TimeDuration.NONE)
+                .add();
+        comTask2.save();
+        ProtocolDialectConfigurationProperties configDialect = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
+        deviceConfiguration.save();
+        enableComTask(comTask1, configDialect);
+        enableComTask(comTask2, configDialect);
+    }
+
+    private void enableComTask(ComTask comTask1, ProtocolDialectConfigurationProperties configDialect) {
+        deviceConfiguration.enableComTask(comTask1, this.securityPropertySet, configDialect)
+                .useDefaultConnectionTask(true)
+                .setPriority(213)
+                .add();
+    }
+
+    protected class ComTaskExecutionDialect implements DeviceProtocolDialect {
+
+        @Override
+        public String getDeviceProtocolDialectName() {
+            return "ProtocolDialectName";
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "It's a Dell Display";
+        }
+
+        @Override
+        public Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet() {
+            return Optional.empty();
+        }
+
     }
 }

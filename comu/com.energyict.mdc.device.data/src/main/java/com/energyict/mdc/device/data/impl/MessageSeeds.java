@@ -112,7 +112,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_SEARCH_DOMAIN(2087, Keys.INVALID_SEARCH_DOMAIN, "You are trying to look for an invalid search domain : {0}"),
     NO_DESTINATION_SPEC_FOUND(2088, Keys.NO_DESTINATION_SPEC_FOUND, "No destination spec found for : {0}"),
     NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND(2089, Keys.NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND, "No device config change business lock found for id {0}"),
-    NO_DEVICE_FOUND_FOR_MRID(2090, Keys.NO_DEVICE_FOUND_FOR_MRID, "No device found for mrid {0}"),
+    NO_DEVICE_FOUND_FOR_MRID(2090, Keys.NO_DEVICE_FOUND_FOR_MRID, "No device found for MRID {0}"),
     INCORRECT_DEVICE_VERSION(2091, Keys.INCORRECT_DEVICE_VERSION, "No device found for id {0} and version {1}"),
     NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND(2092, Keys.NO_DEVICE_CONFIG_CHANGE_SINGLE_DEVICE_BUSINESS_LOCK_FOUND, "No device config change business lock for single device found for id {0}"),
     BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG(2093, Keys.BULK_CHANGE_CONFIG_ONLY_ON_SEARCH_OF_CONFIG, "You need to search a specific device configuration in order to use the bulk action for change device configuration"),
@@ -139,8 +139,7 @@ public enum MessageSeeds implements MessageSeed {
     INCOMPLETE_LOADLIMIT(2113, Keys.INCOMPLETE_LOADLIMIT, "Received incomplete load limit - please make sure to specify both the limit and the unit."),
     UNKNOWN_READING_TYPE(2114, Keys.UNKNOWN_READING_TYPE, "The requested load limit reading type is not supported at this time"),
     NO_COMTASK_FOR_STATUS_INFORMATION(2115, Keys.NO_COMTASK_FOR_STATUS_INFORMATION, "A comtask to verify the status information could not be located"),
-    UNSPPORTED_COMMAND(2116, Keys.UNSPPORTED_COMMAND, "Unsupported Command {0} for device {1}"),
-    NO_DESTINATION_SPEC(2117, Keys.NO_DESTINATION_SPEC, "No such Destination Spec"),
+    NO_DESTINATION_SPEC(2117, Keys.NO_DESTINATION_SPEC, "No such destination spec"),
     DUPLICATE_REGISTER_OBISCODE(2118, Keys.DUPLICATE_REGISTER_OBISCODE, "The OBIS code must be unique for all registers of your device"),
     DUPLICATE_CHANNEL_OBISCODE(2119, Keys.DUPLICATE_CHANNEL_OBISCODE, "The OBIS code must be unique for all the channels of your load profile"),
     OVERFLOW_INCREASED(2120, Keys.OVERFLOW_INCREASED, "The overflow value should not exceed the value of the configuration"),
@@ -150,6 +149,12 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(2124, "usagePointAlreadyLinkedToAnotherDeviceXUntil", "The usage point is already linked to device {0} starting from {1} until {2}"),
     METER_ACTIVATION_TIMESTAMP_NOT_AFTER_LAST_ACTIVATION(2125, "meterActivationTimestampNotAfterLastActivation", "The activation date {0} should be after the last meter activation date {1}"),
     CHANGE_DEVICE_CONFIG_UNSATISFIED_REQUIREMENTS(2126, "changeDeviceConfigUnsatisfiedRequirements", "The device {0} can’t have the device configuration {1} because this device configuration doesn’t have the following reading types that are specified in the metrology configuration versions of the usage points that are linked to this device: \n {2}")
+    NO_SUCH_END_DEVICE_CONTROL_TYPE(2126, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
+    NO_SUCH_DEVICE_MESSAGE_SPEC(2127, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
+    NO_STATUS_INFORMATION_COMTASK(2128, Keys.NO_STATUS_INFORMATION_COMTASK, "A comtask to read out the status information could not be located"),
+    DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2129, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
+    COULD_NOT_FIND_SERVICE_CALL_TYPE(2130, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
+    COMMAND_ARGUMENT_SPEC_NOT_FOUND(2131, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
     ;
 
     private final int number;
@@ -269,6 +274,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_MESSAGE_DONT_UPDATE_RELEASE_DATE_AFTER_SENT = "deviceMessage.releaseDate.update.sent";
         public static final String DEVICE_MESSAGE_STATUS_INVALID_MOVE = "deviceMessage.status.invalid.move";
         public static final String DEVICE_MESSAGE_INVALID_REVOKE = "deviceMessage.revoke.invalid.status";
+        public static final String DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER = "deviceMessage.revoke.picked.up.by.comserver";
         public static final String DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED = "releaseDateIsRequired.deviceMessage";
         public static final String DUPLICATE_FOUND = "duplicateFound";
         public static final String CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER = "deviceIdentifier.not.found";
@@ -319,12 +325,14 @@ public enum MessageSeeds implements MessageSeed {
         public static final String UNKNOWN_READING_TYPE = "The.requested.load.limit.reading.type.is.not.supported.at.this.time";
         public static final String NO_COMTASK_FOR_STATUS_INFORMATION = "A.comtask.to.verify.the.status.information.could.not.be.located";
         public static final String NO_SUCH_DEVICE = "No.such.device";
-        public static final String UNSPPORTED_COMMAND = "Unsupported.Command.{0}.for.device.{1}";
         public static final String NO_DESTINATION_SPEC = "No.such.Destination.Spec";
         public static final String DUPLICATE_REGISTER_OBISCODE = "duplicate.register.obiscode";
         public static final String DUPLICATE_CHANNEL_OBISCODE = "duplicate.channel.obiscode";
         public static final String OVERFLOW_INCREASED = "overflow.increased";
         public static final String VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE = "cannot.change.obiscode.config.already.overriden.device";
         public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT = "unsatisfied.reading.type.requirements.of.usage.point";
+        public static final String NO_STATUS_INFORMATION_COMTASK = "no.status.information.comtask";
+        public static final String COULD_NOT_FIND_SERVICE_CALL_TYPE = "could.not.find.service.call.type";
+        public static final String COMMAND_ARGUMENT_SPEC_NOT_FOUND = "command.argument.spec.not.found";
     }
 }
