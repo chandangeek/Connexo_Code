@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -26,7 +27,6 @@ import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
-import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
 import java.time.Instant;
@@ -34,7 +34,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -45,7 +44,7 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -96,6 +95,7 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         when(clock.instant()).thenReturn(NOW);
         when(meteringService.findUsagePoint("UP")).thenReturn(Optional.of(usagePoint));
         when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(validationRuleSet));
+        readingType = mockReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         setDataValidationTaskStub();
         when(usagePoint.getId()).thenReturn(1L);
         when(usagePoint.getMRID()).thenReturn("UP");
@@ -104,17 +104,15 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         setMetrologyContractStub();
-        readingType = mockReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         setChannelStub();
-        when(deliverable.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-        when(deliverable.getReadingType()).thenReturn(readingType);
+        setDeliverableStub();
         when(validationRule.getId()).thenReturn(1L);
         when(validationRule.getDisplayName()).thenReturn("Validation Rule");
         when(dataValidationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
         when(validationService.getEvaluator()).thenReturn(validationEvaluator);
         when(validationEvaluator.getLastChecked(channelsContainer, readingType)).thenReturn(Optional.of(NOW.minus(1, ChronoUnit.DAYS)));
         when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(false);
-        when(validationEvaluator.getValidationStatus(anySet(), eq(Collections.singletonList(cimChannel)), eq(Collections.emptyList()), any(Range.class)))
+        when(validationEvaluator.getValidationStatus(anySetOf(QualityCodeSystem.class), eq(Collections.singletonList(cimChannel)), eq(Collections.emptyList()), any()))
                 .thenReturn(Collections.singletonList(dataValidationStatus));
     }
 
@@ -147,6 +145,7 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
 
     private void setChannelStub() {
         when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel));
+        when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
         when(channel.getChannelsContainer()).thenReturn(channelsContainer);
         when(channel.getMainReadingType()).thenReturn(readingType);
         when(channel.getCimChannel(readingType)).thenReturn(Optional.of(cimChannel));
@@ -155,12 +154,22 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
 
     private void setReadingQualityFilterStub() {
         when(channel.findReadingQualities()).thenReturn(readingQualityFilter);
-        when(readingQualityFilter.ofQualitySystems(any(EnumSet.class))).thenReturn(readingQualityFilter);
+        when(readingQualityFilter.ofQualitySystems(anySetOf(QualityCodeSystem.class))).thenReturn(readingQualityFilter);
         when(readingQualityFilter.ofQualityIndex(any(QualityCodeIndex.class))).thenReturn(readingQualityFilter);
-        when(readingQualityFilter.inTimeInterval(any(Range.class))).thenReturn(readingQualityFilter);
+        when(readingQualityFilter.inTimeInterval(any())).thenReturn(readingQualityFilter);
         when(readingQualityFilter.actual()).thenReturn(readingQualityFilter);
         ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
         when(readingQualityFilter.findFirst()).thenReturn(Optional.of(readingQualityRecord));
+    }
+
+    private void setDeliverableStub() {
+        Formula formula = mock(Formula.class);
+        when(formula.getDescription()).thenReturn("testDescription");
+        when(deliverable.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(deliverable.getReadingType()).thenReturn(readingType);
+        when(deliverable.getName()).thenReturn("Deliverable");
+        when(deliverable.getFormula()).thenReturn(formula);
+        when(deliverable.getId()).thenReturn(1L);
     }
 
     @Test
@@ -189,5 +198,19 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].key.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.purposes[0].validationInfo.suspectReason[0].key.displayName")).isEqualTo("Validation Rule");
         assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].value")).isEqualTo(1);
+    }
+
+    @Test
+    public void testUsagePointDeliverablesInfo() {
+        String json = target("/usagepoints/UP/purposes/1/outputs").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.outputs[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.outputs[0].name")).isEqualTo("Deliverable");
+        assertThat(jsonModel.<Number>get("$.outputs[0].interval.count")).isEqualTo(15);
+        assertThat(jsonModel.<String>get("$.outputs[0].interval.timeUnit")).isEqualTo("minutes");
+        assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        assertThat(jsonModel.<String>get("$.outputs[0].formula.description")).isEqualTo("testDescription");
+        assertThat(jsonModel.<Boolean>get("$.outputs[0].validationInfo.hasSuspects")).isTrue();
     }
 }

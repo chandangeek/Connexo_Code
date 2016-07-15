@@ -530,25 +530,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     }
 
     @Test
-    public void testOutputsOfUsagePointPurpose() {
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-        UsagePointMetrologyConfiguration metrologyConfiguration = this.mockMetrologyConfiguration(1, "1test");
-        when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-        when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
-        when(effectiveMetrologyConfiguration.getChannelsContainer(any())).thenReturn(Optional.empty());
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
-        String json = target("/usagepoints/MRID/purposes/1/outputs").request().get(String.class);
-        JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.outputs[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.outputs[0].name")).isEqualTo("testDeliveralble");
-        assertThat(jsonModel.<Number>get("$.outputs[0].interval.count")).isEqualTo(15);
-        assertThat(jsonModel.<String>get("$.outputs[0].interval.timeUnit")).isEqualTo("minutes");
-        assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
-        assertThat(jsonModel.<String>get("$.outputs[0].formula.description")).isEqualTo("testDescription");
-    }
-
-    @Test
     public void testChannelReadingsOfOutput() {
         Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(2, "2test"));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
