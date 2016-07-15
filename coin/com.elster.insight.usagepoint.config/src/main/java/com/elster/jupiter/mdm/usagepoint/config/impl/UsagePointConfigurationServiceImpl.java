@@ -252,13 +252,13 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                     if (deliverableReadingTypeMRIDs.stream().anyMatch(ruleSetReadingTypeMRIDs::contains)) {
                         return true;
                     } else {
-                        ReadingTypeRequirementsCollector requirementChecker = new ReadingTypeRequirementsCollector();
+                        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
                         metrologyContract.getDeliverables()
                                 .stream()
                                 .map(ReadingTypeDeliverable::getFormula)
                                 .map(Formula::getExpressionNode)
-                                .forEach(expressionNode -> expressionNode.accept(requirementChecker));
-                        for (ReadingTypeRequirement readingTypeRequirement : requirementChecker.getReadingTypeRequirements()) {
+                                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+                        for (ReadingTypeRequirement readingTypeRequirement : requirementsCollector.getReadingTypeRequirements()) {
                             if (readingTypeRequirement instanceof FullySpecifiedReadingTypeRequirement && ruleSetReadingTypes.contains(((FullySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingType())) {
                                 return true;
                             } else if (readingTypeRequirement instanceof PartiallySpecifiedReadingTypeRequirement) {
