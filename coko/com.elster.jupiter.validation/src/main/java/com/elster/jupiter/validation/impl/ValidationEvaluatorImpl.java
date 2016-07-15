@@ -6,18 +6,23 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.streams.DecoratedStream;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsLast;
 
 /**
  * Created by tgr on 5/09/2014.
@@ -35,6 +40,18 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
         return validationService.getPersistedChannelsContainerValidations(channelsContainer)
                 .stream()
                 .allMatch(ChannelsContainerValidation::isAllDataValidated);
+    }
+
+    @Override
+    public boolean isAllDataValidated(List<Channel> channels) {
+        Comparator<Instant> comparator = nullsLast(naturalOrder());
+        return DecoratedStream.decorate(channels.stream())
+                .map(Channel::getChannelsContainer)
+                .distinct(HasId::getId)
+                .flatMap(channelsContainer -> validationService.getPersistedChannelsContainerValidations(channelsContainer).stream())
+                .flatMap(channelsContainerValidation -> channelsContainerValidation.getChannelValidations().stream())
+                .filter(channelValidation -> channels.contains(channelValidation.getChannel()))
+                .noneMatch(channelValidation -> channelValidation.hasActiveRules() && comparator.compare(channelValidation.getLastChecked(), channelValidation.getChannel().getLastDateTime()) < 0);
     }
 
     @Override
