@@ -62,7 +62,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
         //there is no possibility to display HTML inside of legend, so legend is separated from chart
         me.items = [{
             xtype: 'chart',
-            width: 200,
+            width: 180,
             height: 150,
             animate: false,
             //legend: {
@@ -78,8 +78,8 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                 //showInLegend: true,
                 tips: {
                     trackMouse: true,
-                    width: 140,
-                    height: 28,
+                    //width: 140,
+                    //height: 28,
                     renderer: function(storeItem, item) {
                         // calculate and display percentage on hover
                         var total = 0;
