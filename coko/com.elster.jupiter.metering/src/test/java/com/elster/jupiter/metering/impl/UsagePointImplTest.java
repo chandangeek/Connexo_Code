@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -105,6 +106,8 @@ public class UsagePointImplTest {
     @Mock
     private ServerMetrologyConfigurationService metrologyConfigurationService;
     @Mock
+    private ServerDataAggregationService dataAggregationService;
+    @Mock
     private Thesaurus thesaurus;
     @Mock
     private DataMapper<MeterActivation> meterActivationMapper;
@@ -145,7 +148,7 @@ public class UsagePointImplTest {
         when(representation4.getDelegate()).thenReturn(user4);
         when(dataModel.mapper(MeterActivation.class)).thenReturn(meterActivationMapper);
 
-        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider, customPropertySetService, meteringService, metrologyConfigurationService)
+        usagePoint = new UsagePointImpl(clock, dataModel, eventService, thesaurus, meterActivationProvider, accountabilityProvider, customPropertySetService, meteringService, metrologyConfigurationService, dataAggregationService)
                 .init(MR_ID, serviceCategory);
         usagePoint.setInstallationTime(Instant.EPOCH);
     }

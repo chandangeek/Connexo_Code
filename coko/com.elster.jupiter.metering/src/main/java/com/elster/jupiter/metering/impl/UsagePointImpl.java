@@ -30,6 +30,7 @@ import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.ami.UnsupportedCommandException;
@@ -42,6 +43,7 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -79,7 +81,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -146,6 +147,7 @@ public class UsagePointImpl implements UsagePoint {
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     private final CustomPropertySetService customPropertySetService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
+    private final ServerDataAggregationService dataAggregationService;
     private transient UsagePointCustomPropertySetExtensionImpl customPropertySetExtension;
 
     @Inject
@@ -153,7 +155,10 @@ public class UsagePointImpl implements UsagePoint {
             Clock clock, DataModel dataModel, EventService eventService,
             Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
-            CustomPropertySetService customPropertySetService, MeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
+            CustomPropertySetService customPropertySetService,
+            MeteringService meteringService,
+            ServerMetrologyConfigurationService metrologyConfigurationService,
+            ServerDataAggregationService dataAggregationService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -163,6 +168,7 @@ public class UsagePointImpl implements UsagePoint {
         this.customPropertySetService = customPropertySetService;
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.dataAggregationService = dataAggregationService;
     }
 
     UsagePointImpl init(String mRID, ServiceCategory serviceCategory) {
@@ -614,8 +620,15 @@ public class UsagePointImpl implements UsagePoint {
                 .forEach(expressionNode -> expressionNode.accept(requirementChecker));
 
         List<ReadingTypeRequirement> readingTypeRequirements = requirementChecker.getReadingTypeRequirements();
+        List<MeterActivationSet> meterActivationSets = dataAggregationService.getMeterActivationSets(this, when)
+                .collect(Collectors.toList());
 
         List <ReadingType> configuredReadingTypes= this.getMeterActivations(when).stream()
+                .filter(meterActivation -> meterActivationSets.stream()
+                        .anyMatch(meterActivationSet -> readingTypeRequirements.stream()
+                                .anyMatch(requirement -> meterActivation.getChannelsContainer()
+                                        .getChannels()
+                                        .containsAll(meterActivationSet.getMatchingChannelsFor(requirement)))))
                 .map(ma ->  getConfiguredMatchingReadingTypes(ma,readingTypeRequirements))
                 .flatMap(Collection::stream)
                 .distinct()

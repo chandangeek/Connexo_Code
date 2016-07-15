@@ -18,6 +18,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -110,6 +111,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private DataAggregationService dataAggregationService;
     private UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private MetrologyConfigurationServiceImpl metrologyConfigurationService;
+    private ServerDataAggregationService serverDataAggregationService;
 
     private boolean createAllReadingTypes;
     private String[] requiredReadingTypes;
@@ -206,6 +208,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MessageService.class).toInstance(messageService);
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
                 bind(DataAggregationService.class).toInstance(dataAggregationService);
+                bind(ServerDataAggregationService.class).toInstance((ServerDataAggregationService) dataAggregationService);
             }
         });
     }
