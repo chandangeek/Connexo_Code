@@ -1,10 +1,14 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.CimChannel;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -16,15 +20,21 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -35,6 +45,9 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJerseyTest {
@@ -60,28 +73,49 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
     private Query<DataValidationTask> dataValidationTaskQuery;
     @Mock
     private ChannelsContainer channelsContainer;
-    @Mock
     private ReadingType readingType;
     @Mock
     private ReadingTypeDeliverable deliverable;
     @Mock
     private Channel channel;
     @Mock
+    private CimChannel cimChannel;
+    @Mock
     private MetrologyContract.Status status;
+    @Mock
+    private ReadingQualityWithTypeFilter readingQualityFilter;
+    @Mock
+    private ValidationRuleSet validationRuleSet;
+    @Mock
+    private ValidationRule validationRule;
+    @Mock
+    private DataValidationStatus dataValidationStatus;
 
     @Before
     public void setStubs() {
         when(clock.instant()).thenReturn(NOW);
         when(meteringService.findUsagePoint("UP")).thenReturn(Optional.of(usagePoint));
-        when(validationService.getEvaluator()).thenReturn(validationEvaluator);
+        when(usagePointConfigurationService.getValidationRuleSets(metrologyContract)).thenReturn(Collections.singletonList(validationRuleSet));
         setDataValidationTaskStub();
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(usagePoint.getId()).thenReturn(1L);
         when(usagePoint.getMRID()).thenReturn("UP");
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         setMetrologyContractStub();
+        readingType = mockReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        setChannelStub();
+        when(deliverable.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(deliverable.getReadingType()).thenReturn(readingType);
+        when(validationRule.getId()).thenReturn(1L);
+        when(validationRule.getDisplayName()).thenReturn("Validation Rule");
+        when(dataValidationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
+        when(validationService.getEvaluator()).thenReturn(validationEvaluator);
+        when(validationEvaluator.getLastChecked(channelsContainer, readingType)).thenReturn(Optional.of(NOW.minus(1, ChronoUnit.DAYS)));
+        when(validationEvaluator.isAllDataValidated(channelsContainer)).thenReturn(false);
+        when(validationEvaluator.getValidationStatus(anySet(), eq(Collections.singletonList(cimChannel)), eq(Collections.emptyList()), any(Range.class)))
+                .thenReturn(Collections.singletonList(dataValidationStatus));
     }
 
     private void setDataValidationTaskStub() {
@@ -106,9 +140,27 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         when(metrologyContract.getId()).thenReturn(1L);
         when(metrologyContract.getStatus(usagePoint)).thenReturn(status);
         when(metrologyContract.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-        when(status.isComplete()).thenReturn(false);
-        when(status.getKey()).thenReturn("INCOMPLETE");
-        when(status.getName()).thenReturn("Incomplete");
+        when(status.isComplete()).thenReturn(true);
+        when(status.getKey()).thenReturn("COMPLETE");
+        when(status.getName()).thenReturn("Complete");
+    }
+
+    private void setChannelStub() {
+        when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel));
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel.getMainReadingType()).thenReturn(readingType);
+        when(channel.getCimChannel(readingType)).thenReturn(Optional.of(cimChannel));
+        setReadingQualityFilterStub();
+    }
+
+    private void setReadingQualityFilterStub() {
+        when(channel.findReadingQualities()).thenReturn(readingQualityFilter);
+        when(readingQualityFilter.ofQualitySystems(any(EnumSet.class))).thenReturn(readingQualityFilter);
+        when(readingQualityFilter.ofQualityIndex(any(QualityCodeIndex.class))).thenReturn(readingQualityFilter);
+        when(readingQualityFilter.inTimeInterval(any(Range.class))).thenReturn(readingQualityFilter);
+        when(readingQualityFilter.actual()).thenReturn(readingQualityFilter);
+        ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
+        when(readingQualityFilter.findFirst()).thenReturn(Optional.of(readingQualityRecord));
     }
 
     @Test
@@ -124,4 +176,18 @@ public class UsagePointResourceOutputTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<String>get("$.purposes[0].dataValidationTasks[0].schedule.timeUnit")).isEqualTo("days");
     }
 
+    @Test
+    public void testValidationStatusInfoOnMetrologyContract() {
+        String json = target("/usagepoints/UP/purposes").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Object>get("$.purposes[0].validationInfo")).isNotNull();
+        assertThat(jsonModel.<Boolean>get("$.purposes[0].validationInfo.validationActive")).isTrue();
+        assertThat(jsonModel.<Boolean>get("$.purposes[0].validationInfo.allDataValidated")).isFalse();
+        assertThat(jsonModel.<Boolean>get("$.purposes[0].validationInfo.hasSuspects")).isTrue();
+        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.lastChecked")).isEqualTo(NOW.minus(1, ChronoUnit.DAYS).toEpochMilli());
+        assertThat(jsonModel.<Object>get("$.purposes[0].validationInfo.suspectReason")).isNotNull();
+        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].key.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.purposes[0].validationInfo.suspectReason[0].key.displayName")).isEqualTo("Validation Rule");
+        assertThat(jsonModel.<Number>get("$.purposes[0].validationInfo.suspectReason[0].value")).isEqualTo(1);
+    }
 }

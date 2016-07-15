@@ -54,7 +54,7 @@ public class ValidationStatusFactory {
             List<DataValidationStatus> validationStatuses = getDataValidationStatuses(validationEvaluator, channels);
             info.lastChecked = getLastCheckedForChannels(validationEvaluator, channelsContainer.get(), channels);
             info.suspectReason = getSuspectReasonInfo(validationStatuses);
-            info.allDataValidated = allDataValidated(validationEvaluator, channelsContainer.get(), validationStatuses);
+            info.allDataValidated = allDataValidated(validationEvaluator, channelsContainer.get());
             info.validationActive = isValidationActive(effectiveMetrologyConfiguration, metrologyContract);
             info.hasSuspects = hasSuspects(channels, channelsContainer.get().getRange());
         }
@@ -112,10 +112,7 @@ public class ValidationStatusFactory {
         return info;
     }
 
-    private boolean allDataValidated(ValidationEvaluator validationEvaluator, ChannelsContainer channelsContainer, List<DataValidationStatus> validationStatuses) {
-        if (!validationStatuses.isEmpty()) {
-            return validationStatuses.stream().allMatch(DataValidationStatus::completelyValidated);
-        }
+    private boolean allDataValidated(ValidationEvaluator validationEvaluator, ChannelsContainer channelsContainer) {
         return validationEvaluator.isAllDataValidated(channelsContainer);
     }
 
