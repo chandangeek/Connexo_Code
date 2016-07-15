@@ -2,7 +2,11 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.output-kpi-widget',
     overflowY: 'auto',
-    layout: 'fit',
+
+    layout: {
+        type: 'hbox',
+        align: 'middle'
+    },
 
     requires: [
         'Ext.chart.Chart',
@@ -11,41 +15,67 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
 
     config: {
         output: null,
+        purpose: null,
         router: null
+    },
+
+    titleAlign: 'center',
+    header: {
+        htmlEncode: false
     },
 
     initComponent: function () {
         var me = this,
             output = me.getOutput(),
-            router = me.getRouter,
+            router = me.getRouter(),
+            purpose = me.getPurpose(),
+            url = router.getRoute('usagepoints/view/purpose/output').buildUrl({
+                purposeId: purpose.id,
+                outputId: output.getId()
+            }),
             data = []
             ;
 
-        output.get('statistics').map(function(item){
+        output.get('statistics').map(function(item) {
+            var queryParams = {};
+            queryParams[item.key] = true;
             data.push({
                 name: item.displayName,
-                data: item.count
-            })
+                data: item.count,
+                url: router.getRoute('usagepoints/view/purpose/output').buildUrl({
+                    purposeId: purpose.id,
+                    outputId: output.getId(),
+                    tab: 'registers'
+                }, queryParams)
+            });
         });
 
         var store = Ext.create('Ext.data.JsonStore', {
-            fields: ['name', 'data'],
+            fields: ['name', 'data', 'url'],
             data: data
         });
 
-        me.title = output.get('name');
-        me.items = {
+        me.title = '<a href="' + url + '">'
+            + Ext.String.htmlEncode(output.get('name'))
+            + '</a>';
+
+        //there is no possibility to display HTML inside of legend, so legend is separated from chart
+        me.items = [{
             xtype: 'chart',
-            width: 300,
-            height: 200,
+            width: 200,
+            height: 150,
             animate: false,
-            legend: true,
+            //legend: {
+            //    position: 'right',
+            //    boxStrokeWidth: 0
+            //},
+            shadow: false,
             store: store,
             theme: 'Base',
             series: [{
                 type: 'pie',
                 angleField: 'data',
-                showInLegend: true,
+                //showInLegend: true,
                 tips: {
                     trackMouse: true,
                     width: 140,
@@ -62,17 +92,22 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                 highlight: {
                     opacity: 0.6,
                     segment: {
-                        margin: 0
+                        margin: 4
                     }
-                },
-                label: {
-                    field: 'name',
-                    display: 'rotate',
-                    contrast: true,
-                    font: '18px Arial'
                 }
             }]
-        };
+        }, {
+            xtype: 'dataview',
+            store: store,
+            itemSelector: 'div.legend',
+            tpl: new Ext.XTemplate(
+                '<tpl for=".">',
+                    '<div class="legend">',
+                        '<b>{name}</b>: <a href="{url}">{data}</a>',
+                    '</div>',
+                '</tpl>'
+            )
+        }];
 
         this.callParent(arguments);
     }

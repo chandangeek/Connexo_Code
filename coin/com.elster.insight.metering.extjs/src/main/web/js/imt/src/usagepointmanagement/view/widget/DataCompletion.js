@@ -16,6 +16,12 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
     layout: 'fit',
     store: 'Imt.usagepointmanagement.store.DataCompletion',
 
+    //todo: change it after integration
+    config: {
+        purpose: {id: 1},
+        period: {id: 1}
+    },
+
     initComponent: function () {
         var me = this,
             store;
@@ -70,8 +76,8 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
         store = me.getStore();
         store.getProxy().extraParams = {
             usagePointMRID: me.usagePoint.get('mRID'),
-            purposeId: 1, //todo: change it after integration
-            periodId: 1 //todo: change it after integration
+            purposeId: me.getPurpose().id,
+            periodId: me.getPeriod().id
         };
 
         store.load();
@@ -122,6 +128,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
         return {
             xtype: 'output-kpi-widget',
             output: output,
+            purpose: me.getPurpose(),
             router: me.router
         };
     }
