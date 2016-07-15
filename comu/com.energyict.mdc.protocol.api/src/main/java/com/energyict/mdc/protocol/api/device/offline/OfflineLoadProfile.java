@@ -1,13 +1,13 @@
 package com.energyict.mdc.protocol.api.device.offline;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Offline;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -88,7 +88,7 @@ public interface OfflineLoadProfile extends Offline {
 
     public String getDeviceMRID();
 
-    public DeviceIdentifier<?> getDeviceIdentifier();
+    public DeviceIdentifier<? extends BaseDevice> getDeviceIdentifier();
 
     public LoadProfileIdentifier getLoadProfileIdentifier();
 
