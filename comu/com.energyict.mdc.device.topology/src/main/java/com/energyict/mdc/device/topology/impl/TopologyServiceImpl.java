@@ -456,21 +456,35 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
     }
 
-    private <T> void constructTimeLine(T channel, Range<Instant> range, List<DataLoggerChannelUsage> dataLoggerChannelUsages, List<Pair<T, Range<Instant>>> timeLine, Function<DataLoggerChannelUsage, Optional<T>> slaveItem) {
+    /**
+     * Constructs a timeLine based on the given dataLoggerDataSource and the slave resources which were potentially presentin the requested range
+     *
+     * @param dataLoggerDataSource the Data source (channel or register) of the datalogger (or just a  plain device)
+     * @param range the range in where we need to construct the timeline
+     * @param dataLoggerChannelUsages the list of usages that are valid for the given range
+     * @param timeLine the timeline object which we need to populate
+     * @param slaveItem the function that will look up the corresponding slave data source for a specific dataLoggerDataSource
+     * @param <T> the generic type of a Channel/Register
+     */
+    private <T> void constructTimeLine(T dataLoggerDataSource, Range<Instant> range, List<DataLoggerChannelUsage> dataLoggerChannelUsages, List<Pair<T, Range<Instant>>> timeLine, Function<DataLoggerChannelUsage, Optional<T>> slaveItem) {
         dataLoggerChannelUsages.forEach(dataLoggerChannelUsage -> {
             Optional<Pair<T, Range<Instant>>> lastListItem = getLastListItem(timeLine);
+            // if we don't have a consecutive 'range', then add a timeLine entry for the original 'dataLoggerDataSource
             if (lastListItem.isPresent() && (!lastListItem.get().getLast().lowerEndpoint().equals(dataLoggerChannelUsage.getRange().upperEndpoint()))) {
-                timeLine.add(Pair.of(channel, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
-            } else if (!range.hasUpperBound() && dataLoggerChannelUsage.getRange().hasUpperBound()) {
-                timeLine.add(Pair.of(channel, Range.atLeast(dataLoggerChannelUsage.getRange().upperEndpoint())));
-            } else if (range.hasUpperBound() && range.upperEndpoint().isAfter(dataLoggerChannelUsage.getRange().upperEndpoint())) { // the end of the range is larger then the last linked slave
-                timeLine.add(Pair.of(channel, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), range.upperEndpoint())));
+                timeLine.add(Pair.of(dataLoggerDataSource, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
+            } else { // we need to add the first item
+                if (!range.hasUpperBound() && dataLoggerChannelUsage.getRange().hasUpperBound()) {
+                    timeLine.add(Pair.of(dataLoggerDataSource, Range.atLeast(dataLoggerChannelUsage.getRange().upperEndpoint())));
+                } else if (range.hasUpperBound() && dataLoggerChannelUsage.getRange().hasUpperBound() && range.upperEndpoint()
+                        .isAfter(dataLoggerChannelUsage.getRange().upperEndpoint())) { // the end of the range is larger then the last linked slave
+                    timeLine.add(Pair.of(dataLoggerDataSource, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), range.upperEndpoint())));
+                }
             }
             slaveItem.apply(dataLoggerChannelUsage).ifPresent(slaveChannel -> timeLine.add(Pair.of(slaveChannel, getLowerBoundClippedRange(dataLoggerChannelUsage.getRange(), range))));
         });
         Optional<Pair<T, Range<Instant>>> lastListItem = getLastListItem(timeLine);
         if (lastListItem.isPresent() && range.lowerEndpoint().isBefore(lastListItem.get().getLast().lowerEndpoint())) {
-            timeLine.add(Pair.of(channel, Range.closedOpen(range.lowerEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
+            timeLine.add(Pair.of(dataLoggerDataSource, Range.closedOpen(range.lowerEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
         }
     }
 
