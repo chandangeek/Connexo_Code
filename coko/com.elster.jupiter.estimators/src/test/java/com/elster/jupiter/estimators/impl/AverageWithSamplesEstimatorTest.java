@@ -23,8 +23,7 @@ import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -115,10 +114,8 @@ public class AverageWithSamplesEstimatorTest {
     private CimChannel deltaCimChannel, bulkCimChannel, advanceCimChannel;
     @Mock
     private Meter meter;
-    @Mock
-    private ReadingQualityRecord suspect;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ReadingQualityWithTypeFilter deltaFilter, advanceFilter;
+    private ReadingQualityWithTypeFetcher deltaFetcher, advanceFetcher;
 
     private LogRecorder logRecorder;
 
@@ -143,8 +140,8 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(Optional.of(deltaCimChannel)).when(channel).getCimChannel(deltaReadingType);
         doReturn(Optional.of(advanceCimChannel)).when(otherChannel).getCimChannel(advanceReadingType);
 
-        doReturn(deltaFilter).when(deltaCimChannel).findReadingQualities();
-        doReturn(advanceFilter).when(advanceCimChannel).findReadingQualities();
+        doReturn(deltaFetcher).when(deltaCimChannel).findReadingQualities();
+        doReturn(advanceFetcher).when(advanceCimChannel).findReadingQualities();
 
         doReturn(START.toInstant()).when(channelsContainer).getStart();
         doReturn(Optional.of(LAST_CHECKED.toInstant())).when(validationService).getLastChecked(channel);
@@ -191,7 +188,7 @@ public class AverageWithSamplesEstimatorTest {
         List<BaseReadingRecord> readingRecords = new ArrayList<>(number);
         for (Instant timestamp : timestamps) {
             readingRecords.add(mockDeltaReadingWithQuality(timestamp, values[i++],
-                    badTimes.contains(timestamp) ? suspect : null));
+                    badTimes.contains(timestamp)));
         }
         return readingRecords;
     }
@@ -213,7 +210,7 @@ public class AverageWithSamplesEstimatorTest {
                     return Stream.of(mainTime, mainTime.plusMinutes(15))
                             .map(ZonedDateTime::toInstant)
                             .map(instant -> mockDeltaReadingWithQuality(instant, values[i - start],
-                                    sourTimes.contains(instant) ? suspect : null));
+                                    sourTimes.contains(instant)));
                 })
                 .flatMap(Function.identity())
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -221,15 +218,15 @@ public class AverageWithSamplesEstimatorTest {
 
     private void buildReadingsForSuccessfulEstimationWithDelta() {
         doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
-        BaseReadingRecord preAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.minusMinutes(35).toInstant(), 14L, null);
-        BaseReadingRecord postAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.plusMinutes(35).toInstant(), 32L, null);
+        BaseReadingRecord preAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.minusMinutes(35).toInstant(), 14L, false);
+        BaseReadingRecord postAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.plusMinutes(35).toInstant(), 32L, false);
         doReturn(singletonList(preAdvanceReading)).when(channelsContainer).getReadingsBefore(ESTIMABLE_TIME.toInstant(), advanceReadingType, 1);
         doReturn(singletonList(postAdvanceReading)).when(channelsContainer).getReadings(Range.atLeast(ESTIMABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
-        BaseReadingRecord pre1Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.minusMinutes(30).toInstant(), 3L, null);
-        BaseReadingRecord pre2Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.minusMinutes(15).toInstant(), 3L, null);
+        BaseReadingRecord pre1Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.minusMinutes(30).toInstant(), 3L, false);
+        BaseReadingRecord pre2Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.minusMinutes(15).toInstant(), 3L, false);
         doReturn(asList(pre1Reading, pre2Reading)).when(channel).getReadings(Range.openClosed(ESTIMABLE_TIME.minusMinutes(35).toInstant(), ESTIMABLE_TIME.minusMinutes(15).toInstant()));
-        BaseReadingRecord post1Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.plusMinutes(30).toInstant(), 4L, null);
-        BaseReadingRecord post2Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.plusMinutes(45).toInstant(), 6L, null);
+        BaseReadingRecord post1Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.plusMinutes(30).toInstant(), 4L, false);
+        BaseReadingRecord post2Reading = mockDeltaReadingWithQuality(ESTIMABLE_TIME.plusMinutes(45).toInstant(), 6L, false);
         doReturn(asList(post1Reading, post2Reading)).when(channel).getReadings(Range.openClosed(ESTIMABLE_TIME.plusMinutes(15).toInstant(), ESTIMABLE_TIME.plusMinutes(45).toInstant()));
         doReturn(singletonList(ESTIMABLE_TIME.plusMinutes(30).toInstant())).when(channel).toList(Range.openClosed(ESTIMABLE_TIME.plusMinutes(15).toInstant(), ESTIMABLE_TIME.plusMinutes(35).toInstant()));
         doReturn(ESTIMABLE_TIME.plusMinutes(45).toInstant()).when(channel).getNextDateTime(ESTIMABLE_TIME.plusMinutes(30).toInstant());
@@ -238,16 +235,16 @@ public class AverageWithSamplesEstimatorTest {
         doReturn(Optional.of(Duration.ofMinutes(15))).when(channel).getIntervalLength();
     }
 
-    private BaseReadingRecord mockDeltaReadingWithQuality(Instant instant, Long value, ReadingQualityRecord quality) {
-        when(deltaFilter
+    private BaseReadingRecord mockDeltaReadingWithQuality(Instant instant, Long value, boolean hasQuality) {
+        when(deltaFetcher
                 .atTimestamp(instant)
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.ACCEPTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.ESTIMATED, QualityCodeCategory.EDITED))
-                .findFirst())
-                .thenReturn(Optional.ofNullable(quality));
+                .noneMatch())
+                .thenReturn(!hasQuality);
         return mockDeltaReading(instant, value);
     }
 
@@ -255,16 +252,16 @@ public class AverageWithSamplesEstimatorTest {
         return mockReading(instant, value, readingType);
     }
 
-    private BaseReadingRecord mockAdvanceReadingWithQuality(Instant instant, Long value, ReadingQualityRecord quality) {
-        when(advanceFilter
+    private BaseReadingRecord mockAdvanceReadingWithQuality(Instant instant, Long value, boolean hasQuality) {
+        when(advanceFetcher
                 .atTimestamp(instant)
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.OVERFLOWCONDITIONDETECTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                .findFirst())
-                .thenReturn(Optional.ofNullable(quality));
+                .noneMatch())
+                .thenReturn(!hasQuality);
         return mockAdvanceReading(instant, value);
     }
 
@@ -337,14 +334,14 @@ public class AverageWithSamplesEstimatorTest {
         List<BaseReadingRecord> readingRecords = buildReadings();
         doReturn(Unit.WATT_HOUR.amount(BigDecimal.valueOf(100))).when(readingRecords.get(7)).getQuantity(readingType);
         doReturn(readingRecords).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
-        when(deltaFilter
+        when(deltaFetcher
                 .atTimestamp(ESTIMABLE_TIME.plusDays(7).toInstant())
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.ACCEPTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.ESTIMATED, QualityCodeCategory.EDITED))
-                .findFirst()).thenReturn(Optional.of(suspect));
+                .noneMatch()).thenReturn(false);
 
         Map<String, Object> props = ImmutableMap.<String, Object>builder()
                 .put(AverageWithSamplesEstimator.MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L)
@@ -452,13 +449,13 @@ public class AverageWithSamplesEstimatorTest {
         Stream.of(
                 Range.openClosed(ESTIMABLE_TIME.minusMinutes(35).toInstant(), ESTIMABLE_TIME.minusMinutes(15).toInstant()),
                 Range.openClosed(ESTIMABLE_TIME.plusMinutes(15).toInstant(), ESTIMABLE_TIME.plusMinutes(45).toInstant())
-        ).forEach(instantRange -> when(deltaFilter
+        ).forEach(instantRange -> when(deltaFetcher
                         .ofQualitySystems(SYSTEMS)
                         .ofQualityIndex(QualityCodeIndex.SUSPECT)
                         .inTimeInterval(instantRange)
                         .actual()
-                        .findFirst())
-                        .thenReturn(Optional.empty()));
+                        .anyMatch())
+                        .thenReturn(false));
 
         doReturn(deltaCimChannel).when(block).getCimChannel();
         doReturn(asList(estimable, estimable2)).when(block).estimatables();
@@ -483,8 +480,8 @@ public class AverageWithSamplesEstimatorTest {
     @Test
     public void testEstimateFailsWhenPriorAdvanceReadingIsSuspectEstimatedOrHasOverflowQuality() {
         doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
-        BaseReadingRecord preAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.minusMinutes(35).toInstant(), 14L, suspect);
-        BaseReadingRecord postAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.plusMinutes(35).toInstant(), 32L, null);
+        BaseReadingRecord preAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.minusMinutes(35).toInstant(), 14L, true);
+        BaseReadingRecord postAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.plusMinutes(35).toInstant(), 32L, false);
         doReturn(singletonList(preAdvanceReading)).when(channelsContainer).getReadingsBefore(ESTIMABLE_TIME.toInstant(), advanceReadingType, 1);
         doReturn(singletonList(postAdvanceReading)).when(channelsContainer).getReadings(Range.atLeast(ESTIMABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
 
@@ -512,8 +509,8 @@ public class AverageWithSamplesEstimatorTest {
     @Test
     public void testEstimateFailsWhenLaterAdvanceReadingIsSuspectEstimatedOrHasOverflowQuality() {
         doReturn(buildTwiceTheReadings()).when(channel).getReadings(Range.openClosed(START.toInstant(), LAST_CHECKED.toInstant()));
-        BaseReadingRecord preAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.minusMinutes(35).toInstant(), 14L, null);
-        BaseReadingRecord postAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.plusMinutes(35).toInstant(), 32L, suspect);
+        BaseReadingRecord preAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.minusMinutes(35).toInstant(), 14L, false);
+        BaseReadingRecord postAdvanceReading = mockAdvanceReadingWithQuality(ESTIMABLE_TIME.plusMinutes(35).toInstant(), 32L, true);
         doReturn(singletonList(preAdvanceReading)).when(channelsContainer).getReadingsBefore(ESTIMABLE_TIME.toInstant(), advanceReadingType, 1);
         doReturn(singletonList(postAdvanceReading)).when(channelsContainer).getReadings(Range.atLeast(ESTIMABLE_TIME.plusMinutes(15).toInstant()), advanceReadingType);
 
@@ -559,13 +556,13 @@ public class AverageWithSamplesEstimatorTest {
                 Range.openClosed(ESTIMABLE_TIME.minusMinutes(35).toInstant(), ESTIMABLE_TIME.minusMinutes(15).toInstant()),
                 Range.openClosed(ESTIMABLE_TIME.plusMinutes(15).toInstant(), ESTIMABLE_TIME.plusMinutes(45).toInstant())
         ).forEach(instantRange -> {
-            when(deltaFilter
+            when(deltaFetcher
                     .ofQualitySystems(SYSTEMS)
                     .ofQualityIndex(QualityCodeIndex.SUSPECT)
                     .inTimeInterval(instantRange)
                     .actual()
-                    .findFirst())
-                    .thenReturn(Optional.of(suspect));
+                    .anyMatch())
+                    .thenReturn(true);
 
             EstimationResult result = estimator.estimate(singletonList(block), QualityCodeSystem.MDC);
 
@@ -574,13 +571,13 @@ public class AverageWithSamplesEstimatorTest {
             JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.startsWith("Failed estimation with rule:")).atLevel(Level.INFO);
             JupiterAssertions.assertThat(logRecorder).hasRecordWithMessage(message -> message.endsWith("since there are other suspects between the advance readings")).atLevel(Level.INFO);
 
-            when(deltaFilter
+            when(deltaFetcher
                     .ofQualitySystems(SYSTEMS)
                     .ofQualityIndex(QualityCodeIndex.SUSPECT)
                     .inTimeInterval(instantRange)
                     .actual()
-                    .findFirst())
-                    .thenReturn(Optional.empty());
+                    .anyMatch())
+                    .thenReturn(false);
         });
     }
 
