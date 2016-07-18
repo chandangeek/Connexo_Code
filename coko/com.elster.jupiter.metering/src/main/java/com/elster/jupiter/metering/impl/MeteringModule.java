@@ -62,7 +62,7 @@ public class MeteringModule extends AbstractModule {
     }
 
     public MeteringModule withDataAggregationService(DataAggregationService dataAggregationService) {
-        if (dataAggregationService != null) {
+        if (dataAggregationService != null && !(dataAggregationService instanceof ServerDataAggregationService)) {
             this.dataAggregationMock = new ServerDataAggregationService() {
                 @Override
                 public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {

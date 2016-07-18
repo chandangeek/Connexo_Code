@@ -27,8 +27,7 @@ class MeterActivationSetStreamBuilder {
     }
 
     MeterActivationSetStreamBuilder(UsagePoint usagePoint, Instant when) {
-        this.usagePoint = usagePoint;
-        this.period = Range.singleton(when);
+        this(usagePoint, Range.singleton(when));
     }
 
     Stream<MeterActivationSet> build() {
