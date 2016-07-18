@@ -408,7 +408,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     Optional<Channel> getChannel(Device device, com.elster.jupiter.metering.Channel channel) {
         ReadingType readingType = channel.getMainReadingType();
-        return device.getChannels().stream().filter((mdcChannel) -> mdcChannel.getCalculatedReadingType(Instant.now()).orElse(mdcChannel.getReadingType()) == readingType).findFirst();
+        return device.getChannels().stream().filter((mdcChannel) -> mdcChannel.getCalculatedReadingType(clock.instant()).orElse(mdcChannel.getReadingType()) == readingType).findFirst();
     }
 
     @Override
@@ -419,7 +419,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     Optional<Register> getRegister(Device device, com.elster.jupiter.metering.Channel channel) {
         ReadingType readingType = channel.getMainReadingType();
-        return device.getRegisters().stream().filter((mdcChannel) -> mdcChannel.getCalculatedReadingType(Instant.now()).orElse(mdcChannel.getReadingType()) == readingType).findFirst();
+        return device.getRegisters().stream().filter((mdcChannel) -> mdcChannel.getCalculatedReadingType(clock.instant()).orElse(mdcChannel.getReadingType()) == readingType).findFirst();
     }
 
     @Override
@@ -489,11 +489,19 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     private Range<Instant> getLowerBoundClippedRange(Range<Instant> slaveRange, Range<Instant> requestedRange) {
+        Instant lowerEndPoint;
+        Instant upperEndPoint;
         if (requestedRange.lowerEndpoint().isBefore(slaveRange.lowerEndpoint())) {
-            return slaveRange;
+            lowerEndPoint = slaveRange.lowerEndpoint();
         } else {
-            return Range.closedOpen(requestedRange.lowerEndpoint(), slaveRange.upperEndpoint());
+            lowerEndPoint = requestedRange.lowerEndpoint();
         }
+        if (slaveRange.hasUpperBound()) {
+            upperEndPoint = slaveRange.upperEndpoint();
+        } else {
+            upperEndPoint = requestedRange.upperEndpoint();
+        }
+        return Range.closedOpen(lowerEndPoint, upperEndPoint);
     }
 
     private Function<DataLoggerChannelUsage, Optional<Channel>> getSlaveChannel() {
