@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.ami.servicecall;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -15,7 +16,7 @@ import javax.validation.constraints.Size;
  * @author sva
  * @since 03/06/2016 - 15:39
  */
-public class CompletionOptionsServiceCallDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class CompletionOptionsServiceCallDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
@@ -40,7 +41,6 @@ public class CompletionOptionsServiceCallDomainExtension implements PersistentDo
     }
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String destinationSpec;
@@ -52,7 +52,7 @@ public class CompletionOptionsServiceCallDomainExtension implements PersistentDo
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public Reference<ServiceCall> getServiceCall() {
