@@ -64,7 +64,9 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
                     return false;
                 }
                 Optional<ChannelValidation> channelValidation = validation.getChannelValidation(channel);
-                if (channelValidation.isPresent() && channelValidation.get().hasActiveRules() && comparator.compare(channelValidation.get().getLastChecked(), channel.getLastDateTime()) < 0) {
+                if (!channelValidation.isPresent()
+                        || !channelValidation.get().hasActiveRules()
+                        || comparator.compare(channelValidation.get().getLastChecked(), channel.getLastDateTime()) < 0) {
                     return false;
                 }
             }
