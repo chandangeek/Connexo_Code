@@ -2,7 +2,8 @@ package com.elster.jupiter.mdm.usagepoint.data;
 
 
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.config.EffectiveMetrologyContractOnUsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 
 import aQute.bnd.annotation.ProviderType;
@@ -17,5 +18,6 @@ public interface UsagePointDataService {
 
     ChannelDataValidationSummary getValidationSummary(Channel channel, Range<Instant> interval);
 
-    Map<ReadingTypeDeliverable, ChannelDataValidationSummary> getValidationSummary(EffectiveMetrologyContractOnUsagePoint contract, Range<Instant> interval);
+    Map<ReadingTypeDeliverable, ChannelDataValidationSummary> getValidationSummary(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
+                                                                                   MetrologyContract contract, Range<Instant> interval);
 }

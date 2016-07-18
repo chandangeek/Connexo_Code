@@ -8,7 +8,8 @@ import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.config.EffectiveMetrologyContractOnUsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
@@ -145,10 +146,12 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     }
 
     @Override
-    public Map<ReadingTypeDeliverable, ChannelDataValidationSummary> getValidationSummary(EffectiveMetrologyContractOnUsagePoint contract,
-                                                                                          Range<Instant> interval) {
-        ChannelsContainer container = contract.getChannelsContainer();
-        return contract.getMetrologyContract().getDeliverables().stream().collect(Collectors.toMap(
+    public Map<ReadingTypeDeliverable, ChannelDataValidationSummary> getValidationSummary(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration,
+                                                                                          MetrologyContract contract, Range<Instant> interval) {
+        ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(contract)
+                .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT,
+                        contract.getMetrologyPurpose().getId(), effectiveMetrologyConfiguration.getUsagePoint().getMRID()) {});
+        return contract.getDeliverables().stream().collect(Collectors.toMap(
                 Function.identity(),
                 deliverable -> container.getChannel(deliverable.getReadingType()) // channel cannot be unfound
                         .map(channel -> getValidationSummary(channel, interval))
@@ -156,8 +159,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 (summary1, summary2) -> { // merge should not appear since no ReadingTypeDeliverable duplication allowed
                     throw new LocalizedException(thesaurus,
                             MessageSeeds.DUPLICATE_READINGTYPE_ON_METROLOGY_CONTRACT,
-                            contract.getMetrologyContract().getId()) {
-                    };
+                            contract.getId()) {};
                 },
                 LinkedHashMap::new
         ));
