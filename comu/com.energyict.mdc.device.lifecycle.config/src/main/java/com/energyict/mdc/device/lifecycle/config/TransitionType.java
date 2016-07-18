@@ -281,7 +281,8 @@ public enum TransitionType {
                     MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
                     MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
                     MicroCheck.ALL_DATA_VALIDATED,
-                    MicroCheck.ALL_DATA_VALID);
+                    MicroCheck.ALL_DATA_VALID,
+                    MicroCheck.NO_ACTIVE_SERVICE_CALLS);
         }
         @Override
         public Set<MicroAction> optionalActions() {
@@ -307,7 +308,8 @@ public enum TransitionType {
             return EnumSet.of(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
                     MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
                     MicroCheck.ALL_DATA_VALIDATED,
-                    MicroCheck.ALL_DATA_VALID);
+                    MicroCheck.ALL_DATA_VALID,
+                    MicroCheck.NO_ACTIVE_SERVICE_CALLS);
         }
         @Override
         public Set<MicroAction> optionalActions() {
