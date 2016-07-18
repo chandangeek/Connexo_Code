@@ -816,9 +816,9 @@ sub start_tomcat {
                     chomp($line);
                     my ($name,$deploymentid)  = split(';', $line);
                     if ("$ACTIVATE_SSO" eq "yes") {
-                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD $CONNEXO_DIR/partners/flow/mdc/$name $deploymentid");
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid");
                     } else {
-                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD $CONNEXO_DIR/partners/flow/mdc/$name $deploymentid");
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid");
                     }
                 }
                 close(INPUT);
