@@ -2,14 +2,17 @@ package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
+import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
@@ -22,6 +25,10 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +37,9 @@ import java.util.stream.Collectors;
 
 class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<DeviceInstallationImportRecord> {
 
-    DeviceInstallationImportProcessor(DeviceDataImporterContext context) {
+    private static final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.longDate().withLongTime().build().withZone(ZoneId.systemDefault());
+
+    public DeviceInstallationImportProcessor(DeviceDataImporterContext context) {
         super(context);
     }
 
@@ -40,8 +49,8 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
         List<String> geoCoordinatesData = data.getGeoCoordinates();
         EndDevice endDevice = super.getContext().getMeteringService().findEndDevice(data.getDeviceMRID())
                 .orElseThrow(() -> new ProcessorException(MessageSeeds.NO_DEVICE, data.getLineNumber(), data.getDeviceMRID()));
-        if (locationData!=null && !locationData.isEmpty()) {
-            LocationBuilder builder = super.getContext().getMeteringService().newLocationBuilder();
+        if(locationData!=null && !locationData.isEmpty()){
+            LocationBuilder builder = endDevice.getAmrSystem().newMeter(endDevice.getAmrId()).newLocationBuilder();
             Map<String, Integer> ranking = super.getContext()
                     .getMeteringService()
                     .getLocationTemplate()
@@ -73,7 +82,7 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
                             }
                         });
             }
-            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMember(locationData
+            Optional<LocationBuilder.LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(locationData
                     .get(ranking.get("locale")));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), data, ranking);
@@ -83,9 +92,8 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
             endDevice.setLocation(builder.create());
         }
 
-        if (geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && validateGeoCoordinatesData(geoCoordinatesData)) {
-            endDevice.setGeoCoordinates(super.getContext().getMeteringService()
-                    .createGeoCoordinates(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
+        if(geoCoordinatesData!=null && !geoCoordinatesData.isEmpty() && !geoCoordinatesData.contains(null)){
+            endDevice.setSpatialCoordinates(new SpatialCoordinatesFactory().fromStringValue(geoCoordinatesData.stream().reduce((s, t) -> s + ":" + t).get()));
         }
         endDevice.update();
     }
@@ -141,15 +149,34 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
     }
 
     private void setUsagePoint(Device device, UsagePoint usagePoint, DeviceInstallationImportRecord data) {
-        getContext().getMeteringService()
-                .findAmrSystem(KnownAmrSystem.MDC.getId())
-                .ifPresent(amrSystem -> this.setUsagePoint(device, usagePoint, data, amrSystem));
+        try {
+            device.activate(data.getTransitionDate().orElse(getContext().getClock().instant()), usagePoint);
+        } catch (UsagePointAlreadyLinkedToAnotherDeviceException e) {
+            rethrowAsProcessorException(e, data, usagePoint);
+        } catch (UnsatisfiedReadingTypeRequirementsOfUsagePointException e) {
+            rethrowAsProcessorException(e, data, device, usagePoint);
+        }
     }
 
-    private void setUsagePoint(Device device, UsagePoint usagePoint, DeviceInstallationImportRecord data, AmrSystem amrSystem) {
-        amrSystem
-            .findMeter(String.valueOf(device.getId()))
-            .ifPresent(meter -> usagePoint.activate(meter, data.getTransitionDate().orElse(getContext().getClock().instant())));
+    private void rethrowAsProcessorException(UsagePointAlreadyLinkedToAnotherDeviceException cause, DeviceInstallationImportRecord data, UsagePoint usagePoint) {
+        Instant start = cause.getMeterActivation().getStart();
+        Instant end = cause.getMeterActivation().getEnd();
+        if (end == null) {
+            throw new ProcessorException(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE,
+                    data.getLineNumber(), usagePoint.getMRID(), cause.getMeterActivation().getMeter().get().getMRID(), getFormattedInstant(start));
+        } else {
+            throw new ProcessorException(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL,
+                    data.getLineNumber(), usagePoint.getMRID(), cause.getMeterActivation().getMeter().get().getMRID(), getFormattedInstant(start), getFormattedInstant(end));
+        }
+    }
+
+    private void rethrowAsProcessorException(UnsatisfiedReadingTypeRequirementsOfUsagePointException ex, DeviceInstallationImportRecord data, Device device, UsagePoint usagePoint) {
+        throw new ProcessorException(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, data.getLineNumber(), device.getmRID(), usagePoint.getMRID(),
+                UnsatisfiedReadingTypeRequirementsOfUsagePointException.buildRequirementsString(ex.getUnsatisfiedRequirements()));
+    }
+
+    static String getFormattedInstant(Instant time) {
+        return timeFormatter.format(LocalDateTime.ofInstant(time, ZoneId.systemDefault()));
     }
 
     @Override
@@ -193,15 +220,4 @@ class DeviceInstallationImportProcessor extends DeviceTransitionImportProcessor<
                 .setLocale(data.getLocation().get(ranking.get("locale")));
         return builder;
     }
-
-    private boolean validateGeoCoordinatesData(List<String> geoCoordinatesData){
-        int count = 0;
-        for (String geoElement : geoCoordinatesData) {
-            if (geoElement == null){
-                count++;
-            }
-        }
-        return count < 2;
-    }
-
 }

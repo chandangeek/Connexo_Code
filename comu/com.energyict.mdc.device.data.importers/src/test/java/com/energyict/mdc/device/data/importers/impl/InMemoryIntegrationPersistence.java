@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.calendar.impl.CalendarModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -8,6 +9,7 @@ import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -26,6 +28,9 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -39,6 +44,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
@@ -52,6 +59,7 @@ import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -64,7 +72,10 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.ZoneOffset;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class InMemoryIntegrationPersistence {
 
@@ -83,6 +94,7 @@ public class InMemoryIntegrationPersistence {
                 new MockModule(),
                 bootstrapModule,
                 new InMemoryMessagingModule(),
+                new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new IdsModule(),
                 new MeteringModule("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0"),
@@ -98,6 +110,9 @@ public class InMemoryIntegrationPersistence {
                 new TransactionModule(showSqlLogging),
                 new NlsModule(),
                 new UserModule(),
+                new FileImportModule(),
+                new WebServicesModule(),
+                new AppServiceModule(),
                 new MeteringGroupsModule(),
                 new SearchModule(),
                 new IssuesModule(),
@@ -125,11 +140,18 @@ public class InMemoryIntegrationPersistence {
                 );
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
+            initializeCustomPropertySets();
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(DeviceDataImporterContext.class);
             ctx.commit();
         }
+    }
+
+    private void initializeCustomPropertySets() {
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
     }
 
     public void cleanUpDataBase() throws SQLException {
