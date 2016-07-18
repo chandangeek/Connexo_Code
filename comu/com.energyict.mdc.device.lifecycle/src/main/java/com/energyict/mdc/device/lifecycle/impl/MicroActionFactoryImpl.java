@@ -7,10 +7,13 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.ActivateConnectionTasks;
+import com.energyict.mdc.device.lifecycle.impl.micro.actions.CancelAllServiceCalls;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.CloseAllIssues;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.CloseMeterActivation;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.CreateMeterActivation;
@@ -30,6 +33,8 @@ import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetMultiplier;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartCommunication;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartRecurringCommunication;
 import com.energyict.mdc.device.topology.TopologyService;
+
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -53,6 +58,8 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile IssueService issueService;
+    private volatile IssueDataCollectionService issueDataCollectionService;
+    private volatile ServiceCallService serviceCallService;
 
     // For OSGi purposes only
     public MicroActionFactoryImpl() {
@@ -105,6 +112,12 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
+    }
+
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -163,6 +176,9 @@ public class MicroActionFactoryImpl implements ServerMicroActionFactory {
             }
             case REMOVE_LOCATION: {
                 return new RemoveLocation(thesaurus);
+            }
+            case CANCEL_ALL_SERVICE_CALLS: {
+                return new CancelAllServiceCalls(thesaurus, serviceCallService);
             }
             case LINK_TO_USAGE_POINT: {
                 return new LinkToUsagePoint(thesaurus);
