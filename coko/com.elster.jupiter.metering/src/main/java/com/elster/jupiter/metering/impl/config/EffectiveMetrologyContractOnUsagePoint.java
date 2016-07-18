@@ -11,8 +11,7 @@ import aQute.bnd.annotation.ProviderType;
 
 /**
  * Models the effective relationship between
- * {@link UsagePoint} and {@link MetrologyContract}
- * that is allowed to change over time.
+ * {@link UsagePoint} and {@link MetrologyContract} mediated with {@link EffectiveMetrologyConfigurationOnUsagePoint}.
  */
 @ProviderType
 public interface EffectiveMetrologyContractOnUsagePoint extends HasId, Effectivity {
