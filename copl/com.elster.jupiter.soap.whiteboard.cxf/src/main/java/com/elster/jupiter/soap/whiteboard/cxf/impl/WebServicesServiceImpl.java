@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
@@ -28,6 +29,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,9 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     @Inject // For test purposes only
-    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService, UpgradeService upgradeService, BundleContext bundleContext, EventService eventService, UserService userService, NlsService nlsService, TransactionService transactionService) {
+    public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService,
+                                  UpgradeService upgradeService, BundleContext bundleContext, EventService eventService,
+                                  UserService userService, NlsService nlsService, TransactionService transactionService) {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
@@ -111,7 +115,8 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public Optional<WebService> getWebService(String webServiceName) {
-        if (webServices.containsKey(webServiceName)) {
+        final EndPointFactory endPointFactory = webServices.get(webServiceName);
+        if (endPointFactory != null) {
             return Optional.of(new WebService() {
                 @Override
                 public String getName() {
@@ -120,7 +125,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
                 @Override
                 public boolean isInbound() {
-                    return webServices.get(webServiceName).isInbound();
+                    return endPointFactory.isInbound();
                 }
             });
         } else {
@@ -146,10 +151,10 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public void publishEndPoint(EndPointConfiguration endPointConfiguration) {
-        if (webServices.containsKey(endPointConfiguration.getWebServiceName())) {
+        EndPointFactory endPointFactory = webServices.get(endPointConfiguration.getWebServiceName());
+        if (endPointFactory != null) {
             try {
-                ManagedEndpoint managedEndpoint = webServices.get(endPointConfiguration.getWebServiceName())
-                        .createEndpoint(endPointConfiguration);
+                ManagedEndpoint managedEndpoint = endPointFactory.createEndpoint(endPointConfiguration);
                 managedEndpoint.publish();
                 endpoints.put(endPointConfiguration, managedEndpoint);
             } catch (Exception e) {
@@ -180,8 +185,9 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public boolean isInbound(String webServiceName) {
-        if (webServices.containsKey(webServiceName)) {
-            return webServices.get(webServiceName).isInbound();
+        EndPointFactory endPointFactory = webServices.get(webServiceName);
+        if (endPointFactory != null) {
+            return endPointFactory.isInbound();
         } else {
             throw new IllegalArgumentException("No such web service");
         }
@@ -189,23 +195,25 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public boolean isPublished(EndPointConfiguration endPointConfiguration) {
-        return endpoints.containsKey(endPointConfiguration) && endpoints.get(endPointConfiguration).isPublished();
+        ManagedEndpoint managedEndpoint = endpoints.get(endPointConfiguration);
+        return managedEndpoint != null && managedEndpoint.isPublished();
     }
 
     // called by whiteboard
     public void register(String name, InboundEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(InboundEndPointFactoryImpl.class).init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
     public void register(String name, OutboundEndPointProvider endPointProvider) {
         webServices.put(name, dataModel.getInstance(OutboundEndPointFactoryImpl.class).init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
     public void unregister(String webServiceName) {
-        if (webServices.containsKey(webServiceName)) {
-            webServices.remove(webServiceName);
+        if (webServices.remove(webServiceName) != null) {
             List<EndPointConfiguration> endPointConfigurations = endpoints.keySet()
                     .stream()
                     .filter(e -> e.getWebServiceName().equals(webServiceName))
@@ -223,6 +231,9 @@ public class WebServicesServiceImpl implements WebServicesService {
         if (logDirectory == null) {
             logDirectory = System.getProperty("java.io.tmpdir");
         }
+        if(!logDirectory.endsWith(File.separator)){
+            logDirectory=logDirectory + File.separator;
+        }
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME), dataModel,
                 Installer.class, Collections.emptyMap());
@@ -231,6 +242,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Deactivate
     public void stop(BundleContext bundleContext) {
         endpoints.values().stream().forEach(ManagedEndpoint::stop);
+        endpoints.clear();
     }
 
     private Module getModule(String logDirectory) {

@@ -9,12 +9,13 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 
 /**
+ * This is a response interceptor, however, depending on the direction of the webservice, must be connected as Out or In interceptor in the appropriate stream
  * Created by bvn on 6/24/16.
  */
-public class EndPointAccessOutInterceptor extends EndPointInterceptor {
+public class EndPointAccessResponseInterceptor extends EndPointInterceptor {
 
-    public EndPointAccessOutInterceptor(EndPointConfiguration endPointConfiguration, TransactionService transactionService) {
-        super(endPointConfiguration, Phase.PRE_STREAM, transactionService);
+    public EndPointAccessResponseInterceptor(EndPointConfiguration endPointConfiguration, TransactionService transactionService) {
+        super(endPointConfiguration, endPointConfiguration.isInbound() ? Phase.PRE_STREAM : Phase.RECEIVE, transactionService);
     }
 
     @Override

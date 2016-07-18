@@ -56,7 +56,7 @@ public enum TableSpecs {
             Column group = table.column("groupref")
                     .number()
                     .add();
-            table.column("usrname")
+            table.column("usrname") // intentional spelling: avoid conflict with 'username' as added by addAuditColumns()
                     .varChar()
                     .map(EndPointConfigurationImpl.Fields.USERNAME.fieldName())
                     .add();

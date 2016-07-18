@@ -10,7 +10,8 @@ import org.apache.cxf.interceptor.InterceptorProvider;
 import javax.inject.Inject;
 
 /**
- * Adds basic logging on end point access.
+ * Adds basic logging on end point access. Depending on the web service direction, the interceptors need to be wired
+ * reversed or straight. Interceptors themselves figure out which phase to attach to, depending on web service direction.
  */
 public class AccessLogFeature extends AbstractFeature {
     private EndPointConfiguration endPointConfiguration;
@@ -29,12 +30,19 @@ public class AccessLogFeature extends AbstractFeature {
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
         super.initializeProvider(provider, bus);
-        EndPointAccessInInterceptor endPointAccessInInterceptor = new EndPointAccessInInterceptor(endPointConfiguration, transactionService);
-        EndPointAccessOutInterceptor endPointAccessOutInterceptor = new EndPointAccessOutInterceptor(endPointConfiguration, transactionService);
-        EndPointAccessFaultOutInterceptor endPointAccessFaultOutInterceptor = new EndPointAccessFaultOutInterceptor(endPointConfiguration, transactionService);
-        provider.getInInterceptors().add(endPointAccessInInterceptor);
-        provider.getInFaultInterceptors().add(endPointAccessInInterceptor);
-        provider.getOutInterceptors().add(endPointAccessOutInterceptor);
-        provider.getOutFaultInterceptors().add(endPointAccessFaultOutInterceptor);
+        EndPointAccessRequestInterceptor endPointAccessRequestInterceptor = new EndPointAccessRequestInterceptor(endPointConfiguration, transactionService);
+        EndPointAccessResponseInterceptor endPointAccessResponseInterceptor = new EndPointAccessResponseInterceptor(endPointConfiguration, transactionService);
+        EndPointAccessFaultInterceptor endPointAccessFaultInterceptor = new EndPointAccessFaultInterceptor(endPointConfiguration, transactionService);
+        if (endPointConfiguration.isInbound()) {
+            provider.getInInterceptors().add(endPointAccessRequestInterceptor);
+            provider.getInFaultInterceptors().add(endPointAccessRequestInterceptor);
+            provider.getOutInterceptors().add(endPointAccessResponseInterceptor);
+            provider.getOutFaultInterceptors().add(endPointAccessFaultInterceptor);
+        } else {
+            provider.getInInterceptors().add(endPointAccessResponseInterceptor);
+            provider.getInFaultInterceptors().add(endPointAccessFaultInterceptor);
+            provider.getOutInterceptors().add(endPointAccessRequestInterceptor);
+            provider.getOutFaultInterceptors().add(endPointAccessRequestInterceptor);
+        }
     }
 }

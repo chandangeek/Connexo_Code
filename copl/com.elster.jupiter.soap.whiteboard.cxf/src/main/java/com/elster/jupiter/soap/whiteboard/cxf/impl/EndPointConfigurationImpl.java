@@ -10,6 +10,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Where;
 
 import com.google.common.collect.ImmutableMap;
@@ -20,7 +22,6 @@ import javax.validation.constraints.Size;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
@@ -34,7 +35,7 @@ import java.util.Objects;
 @ValidUrl(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_FILE_NAME + "}")
 public abstract class EndPointConfigurationImpl implements EndPointConfiguration {
     private final Clock clock;
-
+    private final TransactionService transactionService;
     private long id;
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
@@ -42,7 +43,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private String name;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    protected String url;
+    private String url;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String webServiceName;
@@ -76,9 +77,10 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
                     OUTBOUND_WEBSERVICE_DISCRIMINATOR, OutboundEndPointConfigurationImpl.class);
 
     @Inject
-    public EndPointConfigurationImpl(Clock clock, DataModel dataModel) {
+    public EndPointConfigurationImpl(Clock clock, DataModel dataModel, TransactionService transactionService) {
         this.clock = clock;
         this.dataModel = dataModel;
+        this.transactionService = transactionService;
     }
 
     public void delete() {
@@ -211,7 +213,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void setTraceFile(String traceFile) {
-        this.traceFile = traceFile;
+        this.traceFile = traceFile.startsWith(File.separator)?traceFile.substring(1):traceFile;
     }
 
     @Override
@@ -236,19 +238,41 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     @Override
     public void log(LogLevel logLevel, String message) {
         if (this.logLevel.compareTo(logLevel) > -1) {
-            EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
-                    .init(this, message, logLevel, clock.instant());
-            log.save();
+            if (transactionService.isInTransaction()) {
+                doLog(logLevel, message);
+            } else {
+                try (TransactionContext context = transactionService.getContext()) {
+                    doLog(logLevel, message);
+                    context.commit();
+                }
+            }
         }
+    }
+
+    private void doLog(LogLevel logLevel, String message) {
+        EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
+                .init(this, message, logLevel, clock.instant());
+        log.save();
     }
 
     @Override
     public void log(String message, Exception exception) {
         if (this.logLevel.compareTo(logLevel) > -1) {
-            EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
-                    .init(this, message, stackTrace2String(exception), logLevel, clock.instant());
-            log.save();
+            if (transactionService.isInTransaction()) {
+                doLog(message, exception);
+            } else {
+                try (TransactionContext context = transactionService.getContext()) {
+                    doLog(message, exception);
+                    context.commit();
+                }
+            }
         }
+    }
+
+    private void doLog(String message, Exception exception) {
+        EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
+                .init(this, message, stackTrace2String(exception), logLevel, clock.instant());
+        log.save();
     }
 
     private String stackTrace2String(Exception e) {

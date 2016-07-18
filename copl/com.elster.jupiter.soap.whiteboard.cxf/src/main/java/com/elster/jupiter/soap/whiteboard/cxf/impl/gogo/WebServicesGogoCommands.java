@@ -4,6 +4,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -13,8 +14,13 @@ import com.elster.jupiter.util.gogo.MysqlPrint;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -28,7 +34,8 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=createEndpoint",
                 "osgi.command.function=activate",
                 "osgi.command.function=deactivate",
-                "osgi.command.function=log"
+                "osgi.command.function=log",
+                "osgi.command.function=endpoint"
         }, immediate = true)
 public class WebServicesGogoCommands {
 
@@ -143,6 +150,40 @@ public class WebServicesGogoCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such end point"));
             endPointConfiguration.log(LogLevel.valueOf(level), String.join(" ", messageParts));
             context.commit();
+        }
+    }
+
+    public void endpoint() {
+        System.out.println("Print configuration and logging for the endpoint");
+        System.out.println("  Usage: endpoint <end point name>");
+        System.out.println("  e.g.   endpoint Metering");
+    }
+
+    public void endpoint(String... nameParts) {
+        String name = String.join(" ", nameParts);
+        Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService.getEndPointConfiguration(name);
+        if (!endPointConfiguration.isPresent()) {
+            System.err.println("No such end point configuration");
+            return;
+        }
+        System.out.println("Log level      : " + endPointConfiguration.get().getLogLevel());
+        System.out.println("URL            : " + endPointConfiguration.get().getUrl());
+        System.out.println("Web service    : " + endPointConfiguration.get().getWebServiceName());
+        System.out.println("Direction      : " + (endPointConfiguration.get().isInbound() ? "Inbound" : "Outbound"));
+        System.out.println("Traced         : " + (endPointConfiguration.get().isTracing() ? "Tracing" : "No tracing"));
+        System.out.println("Status         : " + (endPointConfiguration.get().isActive() ? "Active" : "Inactive"));
+        System.out.println("Compression    : " + (endPointConfiguration.get().isHttpCompression() ? "GZIP" : "None"));
+        System.out.println("Validation     : " + (endPointConfiguration.get()
+                .isSchemaValidation() ? "Schema validation" : "No validation"));
+        System.out.println("Authentication : " + endPointConfiguration.get().getAuthenticationMethod());
+        DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.FULL)
+                .withLocale(Locale.getDefault())
+                .withZone(ZoneId.systemDefault());
+        for (EndPointLog log : endPointConfiguration.get().getLogs().sorted("timestamp", true).find()) {
+            System.out.println(String.format("%s\t %s", formatter.format(log.getTime()), log.getMessage()));
+            if (log.getStackTrace() != null) {
+                System.out.println("\t" + log.getStackTrace());
+            }
         }
     }
 }

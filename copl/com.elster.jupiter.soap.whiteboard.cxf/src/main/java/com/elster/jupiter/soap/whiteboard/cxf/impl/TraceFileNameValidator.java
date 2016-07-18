@@ -29,7 +29,7 @@ public class TraceFileNameValidator implements ConstraintValidator<ValidTraceFil
                 return false;
             }
             String basedir = File.separatorChar + "xyz" + File.separatorChar; // bogus path for validation purposes, not real security
-            FilePermission sandbox = new FilePermission(basedir + "-", "write");
+            FilePermission sandbox = new FilePermission(basedir + "*", "write");
             FilePermission request = new FilePermission(basedir + File.separatorChar + endPointConfiguration.getTraceFile(), "write");
             if (!sandbox.implies(request)) {
                 constraintValidatorContext
