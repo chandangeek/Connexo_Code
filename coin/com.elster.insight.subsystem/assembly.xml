@@ -11,6 +11,13 @@
 
     <includeBaseDirectory>false</includeBaseDirectory>
 
+    <fileSets>
+        <fileSet>
+            <directory>assembly/partners/flow</directory>
+            <outputDirectory>partners/flow</outputDirectory>
+        </fileSet>
+    </fileSets>
+
     <dependencySets>
         <dependencySet>
             <outputDirectory>bundles</outputDirectory>
