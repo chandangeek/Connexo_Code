@@ -12,7 +12,7 @@ import java.util.Base64;
 public class ProcessDeployer {
 
     private static final String defaultRepoPayload = "{\"name\":\"connexoRepo\",\"description\":\"repository for the new Connexo project\",\"userName\":null,\"password\":null,\"requestType\":\"new\",\"gitURL\":null,\"organizationalUnitName\":\"connexoGroup\"}";
-    private static final String defaultOrgUnitPayload="{\"name\":\"connexoGroup\",\"description\":\"default Connexo organizational unit\",\"owner\":\"rootUsr\",\"repositories\":[\"connexoRepo\"]}";
+    private static final String defaultOrgUnitPayload = "{\"name\":\"connexoGroup\",\"description\":\"default Connexo organizational unit\",\"owner\":\"rootUsr\",\"defaultGroupId\":[\"connexoGroup\"]}";
 
     public static void main(String args[]) {
         if ((args.length < 4) || (args[0].equals("deployProcess") && (args.length < 5))) {
