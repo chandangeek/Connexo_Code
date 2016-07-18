@@ -97,9 +97,10 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
 
     showPreview: function (selectionModel, record) {
         var me = this,
-            preview = me.getPreview();
+            preview = me.getPreview(),
+            validation = record.get('validation');
 
-        if (record.get('validation') === 'NOT_VALIDATED') {
+        if (validation === 'NOT_VALIDATED' || validation === 'OK') {
             preview.loadRecord(record);
         } else {
             preview.setLoading();
