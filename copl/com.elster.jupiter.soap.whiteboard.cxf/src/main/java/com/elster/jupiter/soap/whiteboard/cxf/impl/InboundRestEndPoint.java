@@ -2,6 +2,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.TransactionWrapper;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.transaction.TransactionService;
@@ -19,6 +20,7 @@ import org.osgi.service.http.HttpService;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Application;
@@ -31,22 +33,24 @@ import java.util.Objects;
  * The actually created application is cached to allow tear-down.
  */
 public final class InboundRestEndPoint implements ManagedEndpoint {
-    private InboundRestEndPointProvider endPointProvider;
-    private InboundEndPointConfiguration endPointConfiguration;
+    private final Provider<BasicAuthentication> basicAuthenticationProvider;
     private final String logDirectory;
     private final TransactionService transactionService;
     private final HttpService httpService;
 
+    private InboundRestEndPointProvider endPointProvider;
+    private InboundEndPointConfiguration endPointConfiguration;
+
     private Application application;
-    private HttpContext httpContext;
 
     private String alias;
 
     @Inject
-    public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService, HttpService httpService) {
+    public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService, HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider) {
         this.logDirectory = logDirectory;
         this.transactionService = transactionService;
         this.httpService = httpService;
+        this.basicAuthenticationProvider = basicAuthenticationProvider;
     }
 
     InboundRestEndPoint init(InboundRestEndPointProvider endPointProvider, InboundEndPointConfiguration endPointConfiguration) {
@@ -76,7 +80,9 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
 //            HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container, threadPrincipalService), this);
-            HttpContext httpContext = new InternalHttpContext();
+            HttpContext httpContext = EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())
+                    ? basicAuthenticationProvider.get().init(endPointConfiguration)
+                    : new NoAuthentication();
             httpService.registerServlet(alias, container, null, httpContext);
         } catch (Exception e) {
             endPointConfiguration.log("Error while registering " + alias + ": " + e.getMessage(), e);
@@ -109,7 +115,7 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         return application != null;
     }
 
-    private class InternalHttpContext implements HttpContext {
+    private class NoAuthentication implements HttpContext {
         @Override
         public boolean handleSecurity(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws
                 IOException {
