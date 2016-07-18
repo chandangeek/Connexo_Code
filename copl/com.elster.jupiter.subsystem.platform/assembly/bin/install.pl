@@ -9,11 +9,12 @@ use File::Path qw(make_path);
 use File::Copy;
 use Socket;
 use Sys::Hostname;
+use Archive::Zip;
 
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20160323";
+my $INSTALL_VERSION="v20160704";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -35,6 +36,8 @@ my $INSTALL_FLOW="yes";
 my $INSTALL_WSO2IS="yes";
 my $ACTIVATE_SSO="no";
 my $APACHE_PATH;
+my $UPGRADE="no";
+my $UPGRADE_PATH;
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
@@ -143,6 +146,8 @@ sub read_config {
                 if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )  {$TOMCAT_HTTP_PORT=$val[1];}
                 if ( "$val[0]" eq "SERVICE_VERSION" )   {$SERVICE_VERSION=$val[1];}
                 if ( "$val[0]" eq "INSTALL_CONNEXO" )   {$INSTALL_CONNEXO=$val[1];}
+                if ( "$val[0]" eq "UPGRADE" )           {$UPGRADE=$val[1];}
+                if ( "$val[0]" eq "UPGRADE_PATH" )      {$UPGRADE_PATH=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FACTS" )     {$INSTALL_FACTS=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FLOW" )      {$INSTALL_FLOW=$val[1];}
                 if ( "$val[0]" eq "INSTALL_WSO2IS" )    {$INSTALL_WSO2IS=$val[1];}
@@ -173,9 +178,15 @@ sub read_config {
         check_java8();
         print "Please enter the hostname (leave empty to use the system variable): ";
         chomp($HOST_NAME=<STDIN>);
-        while ("$CONNEXO_ADMIN_PASSWORD" eq "") {
-            print "Please enter the admin password: ";
+        while (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
+            print "Please enter the admin password (different from \"admin\"): ";
             chomp($CONNEXO_ADMIN_PASSWORD=<STDIN>);
+        }
+        print "Are you performing an upgrade of an existing installation: (yes/no) ";
+        chomp($UPGRADE=<STDIN>);
+        if ("$UPGRADE" eq "yes") {
+            print "Please enter the path containing the upgrade zip-file: ";
+            chomp($UPGRADE_PATH=<STDIN>);
         }
 						    
         print "Do you want to install Connexo: (yes/no)";
@@ -189,7 +200,7 @@ sub read_config {
             chomp($dbPassword=<STDIN>);
             print "Please enter the Connexo http port: ";
             chomp($CONNEXO_HTTP_PORT=<STDIN>);
-            print "Do you want to install Connexo as a daemon: (yes/no)";
+            print "Do you want to install Connexo as a daemon: (yes/no) ";
             chomp($CONNEXO_SERVICE=<STDIN>);
         }
         
@@ -232,13 +243,13 @@ sub read_config {
         }
 
         print "\n";
-        print "Do you want to install WSO2IS: (yes/no)";
+        print "Do you want to install WSO2IS: (yes/no) ";
         chomp($INSTALL_WSO2IS=<STDIN>);
         print "Please enter the version of your services (e.g. 10.1) or leave empty: ";
         chomp($SERVICE_VERSION=<STDIN>);        
 
         print "\n";
-        print "Do you want to activate SSO for Facts/Flow: (yes/no)";
+        print "Do you want to activate SSO for Facts/Flow: (yes/no) ";
         chomp($ACTIVATE_SSO=<STDIN>);
         if ("$ACTIVATE_SSO" eq "yes") {
             print "Please enter the path to your Apache HTTP 2.4: ";
@@ -254,8 +265,8 @@ sub read_config {
     if ("$HOST_NAME" eq "") {
         $HOST_NAME=hostname;
     }
-    if ("$CONNEXO_ADMIN_PASSWORD" eq "") {
-        print "Please provide an admin password\n";
+    if (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
+        print "Please provide an admin password (different from \"admin\")\n";
         exit (0);
     }
     $CONNEXO_URL="http://$HOST_NAME:$CONNEXO_HTTP_PORT";
@@ -831,7 +842,172 @@ sub uninstall_all {
 	if (-e "$CONNEXO_DIR/conf/config.properties") { unlink("$CONNEXO_DIR/conf/config.properties"); }
 }
 
-sub show_help() {
+sub find_string_value {
+    my @bundle_arr;
+    open my $fh, $_[0] or die;
+    while (my $line = <$fh>) {
+        if ($line =~ /Bundle-SymbolicName/) {
+            $line =~s/Bundle-SymbolicName: //g;
+            $line =~ s/\r|\n//g;
+            @bundle_arr[0]=$line;
+        }
+        if ($line =~ /Bundle-Version/) {
+            $line =~s/Bundle-Version: //g;
+            $line =~ s/\r|\n//g;
+            @bundle_arr[1]=$line;
+        }
+        if ($line =~ /Git-SHA-1/) {
+            $line =~s/Git-SHA-1: //g;
+            $line =~ s/\r|\n//g;
+            @bundle_arr[2]=$line;
+        }
+    }
+    close($fh);
+    return @bundle_arr;
+}
+
+sub print_screen_file {
+    my $fh = shift;
+    my $TXT = shift;
+    print "$TXT";
+    print $fh "$TXT";
+}
+
+sub perform_upgrade {
+    if ("$UPGRADE_PATH" eq "") {
+        print "Please enter a value for the UPGRADE_PATH (currently empty).\n";
+        exit (0);
+    }
+    if (! -d "$UPGRADE_PATH") {
+        print "The path defined in UPGRADE_PATH does not exist (path=$UPGRADE_PATH)\n";
+        exit (0);
+    }
+    my @ZIPfiles = glob( $UPGRADE_PATH . '/*.zip' );
+    if ($#ZIPfiles < 0) {
+        print "UPGRADE_PATH doesn't contain any upgrade zip-file.\n";
+        exit (0);
+    }
+
+    # stop connexo
+    print "Stopping Connexo service\n";
+    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        system("sc stop Connexo$SERVICE_VERSION");
+    } else {
+        system("/sbin/service Connexo$SERVICE_VERSION stop");
+    }
+
+    print "Renaming bundles to bundles_obsolete\n";
+    rename("$CONNEXO_DIR/bundles","$CONNEXO_DIR/bundles_obsolete");
+    print "Creating new bundles folder\n";
+    make_path("$CONNEXO_DIR/bundles");
+    foreach my $zipfile (@ZIPfiles) {
+        print "Extracting $zipfile\n";
+        my $zip = Archive::Zip->new($zipfile);
+        $zip->extractTree("","$UPGRADE_PATH/temp/");
+        if (! -d "$UPGRADE_PATH/temp/bundles") {
+            print "No bundles folder found in $zipfile.\n";
+        } else {
+            print "Copying upgrade bundles\n";
+            my @JARfiles = glob( $UPGRADE_PATH . '/temp/bundles/*.jar' );
+            foreach my $jarfile (@JARfiles) {
+                copy("$jarfile","$CONNEXO_DIR/bundles");
+            }
+        }
+        rmtree("$UPGRADE_PATH/temp");
+    }
+
+    print "Pass 1\n";
+    chdir "$CONNEXO_DIR/bundles";
+    my @NEW_JARS;
+    my @JARfiles = glob( $CONNEXO_DIR . '/bundles/*.jar' );
+    foreach my $jarfile (@JARfiles) {
+        #check differences with obsolete bundle
+        print "Processing $jarfile...\n";
+        system("\"$JAVA_HOME/bin/jar\" -xf $jarfile META-INF/MANIFEST.MF");
+        my @VALUES=find_string_value("$CONNEXO_DIR/bundles/META-INF/MANIFEST.MF");
+        push(@NEW_JARS,\@VALUES);
+        rmtree("$CONNEXO_DIR/bundles/META-INF");
+    }
+
+    print "\nPass 2\n";
+    chdir "$CONNEXO_DIR/bundles_obsolete";
+    my @OLD_JARS;
+    my @JARfiles = glob( $CONNEXO_DIR . '/bundles_obsolete/*.jar' );
+    foreach my $jarfile (@JARfiles) {
+        #check differences with obsolete bundle
+        print "Processing $jarfile...\n";
+        system("\"$JAVA_HOME/bin/jar\" -xf $jarfile META-INF/MANIFEST.MF");
+        my @VALUES=find_string_value("$CONNEXO_DIR/bundles_obsolete/META-INF/MANIFEST.MF");
+        push(@OLD_JARS,\@VALUES);
+        rmtree("$CONNEXO_DIR/bundles_obsolete/META-INF");
+    }
+    chdir "$CONNEXO_DIR/bin";
+
+    open my $upgrade_log, '>>', $UPGRADE_PATH.'/upgrade.log' or die "$!";
+
+    print_screen_file($upgrade_log,"\nUpgrade performed at ".localtime(time)."\n");
+    print_screen_file($upgrade_log,"\nUpdated bundles:\n");
+    print_screen_file($upgrade_log,"================\n");
+    for my $i (0 .. $#NEW_JARS) {
+        my @result = map { $OLD_JARS[$_][1], $OLD_JARS[$_][2] }
+               grep { $NEW_JARS[$i][0] eq $OLD_JARS[$_][0] }
+                 0 .. $#OLD_JARS;  
+        if (("$NEW_JARS[$i][1]" ne "$result[0]") && ("$result[0]" ne "")) {
+            print_screen_file($upgrade_log,"    $NEW_JARS[$i][0]\n");
+            print_screen_file($upgrade_log,"        NEW version: $NEW_JARS[$i][1] (git: $NEW_JARS[$i][2])\n");
+            print_screen_file($upgrade_log,"        OLD version: $result[0] (git: $result[1])\n");
+        }
+    }
+
+    print_screen_file($upgrade_log,"\nNew bundles:\n");
+    print_screen_file($upgrade_log,"============\n");
+    for my $i (0 .. $#NEW_JARS) {
+        my @result = map { $OLD_JARS[$_][1], $OLD_JARS[$_][2] }
+               grep { $NEW_JARS[$i][0] eq $OLD_JARS[$_][0] }
+                 0 .. $#OLD_JARS;  
+        if ("$result[0]" eq "") {
+            print_screen_file($upgrade_log,"    $NEW_JARS[$i][0]\n");
+            print_screen_file($upgrade_log,"        Version: $NEW_JARS[$i][1] (git: $NEW_JARS[$i][2])\n");
+        }
+    }
+
+    print_screen_file($upgrade_log,"\nRemoved bundles:\n");
+    print_screen_file($upgrade_log,"================\n");
+    for my $i (0 .. $#OLD_JARS) {
+        my @result = map { $NEW_JARS[$_][1], $NEW_JARS[$_][2] }
+               grep { $OLD_JARS[$i][0] eq $NEW_JARS[$_][0] }
+                 0 .. $#NEW_JARS;  
+        if ("$result[0]" eq "") {
+            print_screen_file($upgrade_log,"    $OLD_JARS[$i][0]\n");
+            print_screen_file($upgrade_log,"        Version: $OLD_JARS[$i][1] (git: $OLD_JARS[$i][2])\n");
+        }
+    }
+
+    close($upgrade_log);
+    
+    if ( ! $parameter_file ) {
+        print "\n";
+        print "Are you sure you want to do the upgrade: (yes/no)";
+        chomp(my $CONT_UPG=<STDIN>);
+        if ("$CONT_UPG" eq "no") {
+            unlink("$CONNEXO_DIR/bundles");
+            rename("$CONNEXO_DIR/bundles_obsolete","$CONNEXO_DIR/bundles");
+        }
+    }
+    #rmtree("$CONNEXO_DIR/bundles_obsolete");
+    #print "Removing felix-cache\n";
+    #rmtree("$CONNEXO_DIR/felix-cache");
+
+    # start connexo
+    print "\nStarting Connexo service\n";
+    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        system("sc start Connexo$SERVICE_VERSION");
+    } else {
+        system("/sbin/service Connexo$SERVICE_VERSION start");
+    }
+}
+
+sub show_help {
     print "\n";
     print "    Usage: $0 <option>\n";
     print "\n";
@@ -855,17 +1031,21 @@ if ($help) {
     show_help();
 } elsif ($install) {
 	read_config();
-	checking_ports();
-	install_connexo();
-	install_tomcat();
-	install_wso2();
-	install_facts();
-	install_flow();
-    activate_sso();
-	change_owner();
-	start_connexo();
-	start_tomcat();
-    final_steps();
+    if ("$UPGRADE" eq "yes") {
+        perform_upgrade();
+    } else {
+        checking_ports();
+        install_connexo();
+        install_tomcat();
+        install_wso2();
+        install_facts();
+        install_flow();
+        activate_sso();
+        change_owner();
+        start_connexo();
+        start_tomcat();
+        final_steps();
+    }
 } else {
 	read_uninstall_config();
 	uninstall_all();
