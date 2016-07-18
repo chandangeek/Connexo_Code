@@ -25,7 +25,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     THIS_FIELD_IS_REQUIRED(24, "ThisFieldIsRequired", "This field is required"),
     NO_METROLOGYCONFIG_FOR_USAGEPOINT(25, "NoMetrologyConfigForUsagePoint", "Usage point with MRID {0} doesn't have a link to metrology configuration."),
     METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT(26, "MetrologyPurposeNotLinkedToUsagePoint", "Metrology purpose with id {0} is not found on usage point with MRID {1}."),
-    NO_RELATIVEPERIOD_FOR_ID(27, "NoRelativePeriodForId", "Relative period with id {0} is not found.");
+    NO_RELATIVEPERIOD_FOR_ID(27, "NoRelativePeriodForId", "Relative period with id {0} is not found."),
+    RELATIVEPERIOD_IS_IN_THE_FUTURE(28, "RelativePeriodIsInTheFuture", "Cannot gather validation statistics for relative period with id {0}: it is in the future!");
 
     private final int number;
     private final String key;
