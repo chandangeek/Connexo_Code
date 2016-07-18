@@ -84,6 +84,19 @@ public class Unit implements java.io.Serializable {
      * return the unit with its <CODE>BaseUnit</CODE> defined by the code
      * argument and scale equal to the second argument
      *
+     * @param acronym identifying the unit to return (without scale)
+     *                e.g. Wh, J, m3
+     * @param scale the unit scale
+     * @return the corresponding unit
+     */
+    public static Unit get(String acronym, int scale) {
+        return new Unit(((Unit) commonUnits.get(acronym)).getBaseUnit(), scale);
+    }
+
+    /**
+     * return the unit with its <CODE>BaseUnit</CODE> defined by the code
+     * argument and scale equal to the second argument
+     *
      * @param code  the <CODE>BaseUnit</CODE> code
      * @param scale the unit scale
      * @return the corresponding unit
