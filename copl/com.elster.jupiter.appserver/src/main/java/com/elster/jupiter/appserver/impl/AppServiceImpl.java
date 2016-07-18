@@ -621,7 +621,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
                     break;
                 case ENDPOINT_CHANGED:
                     String endpointName = command.getProperties().getProperty("endpoint");
-                    findAppServer(appServer.getName()).ifPresent(x -> AppServiceImpl.this.reconfigureEndPoint(endpointName));
+                    reconfigureEndPoint(endpointName);
                     break;
 
                 default:

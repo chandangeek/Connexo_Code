@@ -308,9 +308,8 @@ class AppServerImpl implements AppServer {
     @Override
     public List<EndPointConfiguration> supportedEndPoints() {
         List<EndPointConfiguration> endPointConfigurations =
-                dataModel.query(WebServiceForAppServer.class)
-                        .select(where(EndPointForAppServerImpl.Fields.AppServer.fieldName()).isEqualTo(this))
-                        .stream()
+                dataModel.stream(WebServiceForAppServer.class)
+                        .filter(where(EndPointForAppServerImpl.Fields.AppServer.fieldName()).isEqualTo(this))
                         .map(WebServiceForAppServer::getEndPointConfiguration)
                         .collect(toList());
         endPointConfigurationService.findEndPointConfigurations()
