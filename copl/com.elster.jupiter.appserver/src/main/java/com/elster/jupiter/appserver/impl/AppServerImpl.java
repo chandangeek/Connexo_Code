@@ -254,6 +254,7 @@ class AppServerImpl implements AppServer {
             new ArrayList<>(getImportSchedulesOnAppServer()).forEach(updater::removeImportScheduleOnAppServer);
             updater.delete();
         }
+        webServicesService.removeAllEndPoints();
     }
 
     @Override

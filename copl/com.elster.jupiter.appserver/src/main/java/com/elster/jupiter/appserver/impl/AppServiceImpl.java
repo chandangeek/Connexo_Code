@@ -431,10 +431,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
         appServer = null;
         subscriberExecutionSpecs = Collections.emptyList();
         deactivateTasks.clear();
-        Optional<AppServer> appServer = getAppServer();
-        if (appServer.isPresent()) {
-            appServer.get().supportedEndPoints().forEach(webServicesService::removeEndPoint);
-        }
+        webServicesService.removeAllEndPoints();
     }
 
     @Override
