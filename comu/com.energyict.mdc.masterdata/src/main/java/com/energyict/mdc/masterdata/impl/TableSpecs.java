@@ -92,7 +92,7 @@ public enum TableSpecs {
             table.primaryKey("USR_PK_REGTYPEINGROUP").on(registerType , registerGroup).add();
             table.foreignKey("FK_REGTYPEINGROUP2TYPE").
                     on(registerType).
-                    references(MeasurementType.class).
+                    references(MeasurementType.class).map("registerType").
                     add();
             table.foreignKey("FK_REGTYPEINGROUP2GROUP").
                     on(registerGroup).
