@@ -21,6 +21,10 @@ import java.util.stream.Stream;
  * @since 2015-11-20 (10:56)
  */
 public class SimpleTestDevicePersistenceSupport implements PersistenceSupport<BaseDevice, SimpleTestDeviceSecurityProperties> {
+    @Override
+    public String application() {
+        return "Example";
+    }
 
     @Override
     public String componentName() {

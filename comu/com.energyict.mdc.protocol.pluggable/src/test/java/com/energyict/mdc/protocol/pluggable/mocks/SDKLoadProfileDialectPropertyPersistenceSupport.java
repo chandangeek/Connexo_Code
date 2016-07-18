@@ -20,6 +20,10 @@ import java.util.stream.Stream;
  * @since 2015-11-27 (09:37)
  */
 class SDKLoadProfileDialectPropertyPersistenceSupport implements PersistenceSupport<DeviceProtocolDialectPropertyProvider, SDKLoadProfileDialectProperties> {
+    @Override
+    public String application() {
+        return "Example";
+    }
 
     @Override
     public String domainFieldName() {
