@@ -1,7 +1,6 @@
 package com.elster.jupiter.webservices.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
-import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
