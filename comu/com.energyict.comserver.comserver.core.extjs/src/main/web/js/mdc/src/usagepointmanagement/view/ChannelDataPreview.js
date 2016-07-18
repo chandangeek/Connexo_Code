@@ -91,7 +91,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                             xtype: 'reading-qualities-field',
                             itemId: 'validationRules-field',
                             fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
-                            name: 'validationResult'
+                            name: 'validationRules'
                         }
                     ]
                 }
@@ -110,7 +110,6 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
 
         me.record = record;
         Ext.suspendLayouts();
-        me.down('#validationRules-field').setVisible(!Ext.isEmpty(record.get('validationRules')));
         Ext.Array.each(me.query('form'), function (form) {
             form.setTitle(title);
             form.loadRecord(record);
@@ -137,6 +136,10 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                 INFORMATIVE: {
                     icon: '<span class="icon-flag5" style="color:yellow"></span>',
                     text: Uni.I18n.translate('validationStatus.informative', 'MDC', 'Informative')
+                },
+                OK: {
+                    icon: '',
+                    text: Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect')
                 }
             };
 

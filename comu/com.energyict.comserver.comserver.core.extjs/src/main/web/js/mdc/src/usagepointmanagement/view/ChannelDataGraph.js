@@ -103,6 +103,11 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
                 barColor: 'rgba(222,220,73,1)',
                 tooltipColor: 'rgba(222,220,73,0.3)',
                 icon: '<span class="icon-flag5" style="color:yellow"></span>'
+            },
+            OK: {
+                barColor: 'rgba(112,187,81,1)',
+                tooltipColor: 'rgba(255,255,255,0.85)',
+                icon: ''
             }
         };
 
