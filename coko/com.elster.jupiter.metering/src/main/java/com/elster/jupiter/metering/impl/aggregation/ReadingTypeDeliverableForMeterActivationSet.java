@@ -56,7 +56,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     public List<? extends ReadingQualityRecord> getReadingQualities(Instant timestamp) {
         List<ReadingQualityRecord> result = new ArrayList();
-        requirements.forEach(r -> result.addAll(meterActivationSet.getReadingQualitiesFor(r, getTargetRange(timestamp))));
+        requirements.forEach(r -> result.addAll(meterActivationSet.getReadingQualitiesFor(r, getReadingQualitiesRange(timestamp))));
         return result;
     }
 
@@ -100,6 +100,14 @@ class ReadingTypeDeliverableForMeterActivationSet {
             start = sourceIntervalLength.addTo(start, zoneId);
         }
         return builder.build();
+    }
+
+    Range getReadingQualitiesRange(Instant timestamp) {
+        IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
+        ZoneId zoneId = meterActivationSet.getZoneId();
+        Instant endOfInterval = targetIntervalLength.truncate(timestamp, zoneId);
+        endOfInterval = targetIntervalLength.addTo(endOfInterval, zoneId);
+        return Range.openClosed(targetIntervalLength.subtractFrom(endOfInterval, zoneId), endOfInterval);
     }
 
     Range getTargetRange(Instant timestamp) {
