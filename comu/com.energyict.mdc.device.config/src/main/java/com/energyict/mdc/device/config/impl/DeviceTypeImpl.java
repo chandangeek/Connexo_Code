@@ -35,6 +35,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
@@ -223,6 +224,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         if (this.hasActiveConfigurations()) {
             throw CannotDeleteBecauseStillInUseException.deviceTypeIsStillInUse(this.getThesaurus(), this, MessageSeeds.DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS);
         }
+        this.getEventService().postEvent(EventType.DEVICETYPE_VALIDATE_DELETE.topic(), this);
     }
 
     private boolean hasActiveConfigurations() {
