@@ -13,7 +13,7 @@ import javax.xml.ws.Service;
 @Component(name = "com.elster.jupiter.soap.currency.converter.provider",
         service = {OutboundSoapEndPointProvider.class},
         immediate = true,
-        property = {"name=xe"})
+        property = {"name=Currency exchange"})
 public class ConversionServiceProvider implements OutboundSoapEndPointProvider {
 
     @Override
