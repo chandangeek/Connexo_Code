@@ -787,24 +787,19 @@ public class UsagePointResource {
     }
 
     private Optional<TemporalAmount> getValidationOverviewIntervalLength(TemporalAmount intervalLength) {
-        Map.Entry<TemporalAmount, TemporalAmount> targetInterval = validationOverviewLevelsPerIntervalLength.ceilingEntry(intervalLength);
-        return targetInterval != null ? Optional.of(targetInterval.getValue()) : Optional.empty();
+        Map.Entry<TemporalAmount, TemporalAmount> targetInterval = validationOverviewLevelsPerIntervalLength.floorEntry(intervalLength);
+        return Optional.ofNullable(targetInterval).map(Map.Entry::getValue);
     }
 
     private long getIntervalLengthDifference(RelativePeriod relativePeriod, TemporalAmount targetIntervalLength, ZonedDateTime referenceTime) {
         Range<ZonedDateTime> interval = relativePeriod.getOpenClosedZonedInterval(referenceTime);
         ZonedDateTime relativePeriodStart = interval.lowerEndpoint();
-        ZonedDateTime relativePeriodEnd = interval.upperEndpoint();
         if (relativePeriodStart.isAfter(referenceTime)) {
-            // period starts in the future, this is not what we need, so return max interval length
-            return getIntervalLength(Range.openClosed(referenceTime, relativePeriodStart.plus(targetIntervalLength)));
+            // period starts in the future, this is not what we need,
+            // return max interval length to move such relative period to the bottom of the list
+            return Long.MAX_VALUE;
         }
-        long relativePeriodLength;
-        if (relativePeriodEnd.isAfter(referenceTime)) {
-            relativePeriodLength = getIntervalLength(Range.openClosed(relativePeriodStart, referenceTime));
-        } else {
-            relativePeriodLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodEnd));
-        }
+        long relativePeriodLength = getIntervalLength(interval.intersection(Range.openClosed(relativePeriodStart, referenceTime)));
         long targetLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodStart.plus(targetIntervalLength)));
         return Math.abs(targetLength - relativePeriodLength);
     }
