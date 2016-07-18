@@ -286,7 +286,8 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS,
-                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION);
+                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION,
+                    MicroAction.CANCEL_ALL_SERVICE_CALLS);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -311,7 +312,8 @@ public enum TransitionType {
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS,
-                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION);
+                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION,
+                    MicroAction.CANCEL_ALL_SERVICE_CALLS);
         }
         @Override
         public Set<MicroAction> requiredActions() {

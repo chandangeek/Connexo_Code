@@ -125,7 +125,12 @@ public enum MicroAction {
     /**
      * Link the device to the usage point
      */
-    LINK_TO_USAGE_POINT(MicroCategory.INSTALLATION)
+    LINK_TO_USAGE_POINT(MicroCategory.INSTALLATION),
+
+    /**
+     * Cancels all running Service Calls on the device
+     */
+    CANCEL_ALL_SERVICE_CALLS(MicroCategory.MONITORING)
     ;
 
     private MicroCategory category;
