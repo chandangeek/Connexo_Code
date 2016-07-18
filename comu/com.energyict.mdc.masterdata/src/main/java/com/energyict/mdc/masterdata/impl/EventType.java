@@ -53,8 +53,7 @@ public enum EventType {
     REGISTERGROUP_DELETED("registergroup/DELETED"),
     REGISTERGROUP_VALIDATEDELETE("registergroup/VALIDATEDELETE"),
     LOGBOOKTYPE_CREATED("logbooktype/CREATED"),
-    LOGBOOKTYPE_UPDATED("logbooktype/UPDATED"),
-    LOGBOOKTYPE_VALIDATEDELETE("logbooktype/VALIDATEDELETE") {
+    LOGBOOKTYPE_UPDATED("logbooktype/UPDATED") {
         @Override
         protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
             EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
@@ -62,6 +61,7 @@ public enum EventType {
             return eventTypeBuilder;
         }
     },
+    LOGBOOKTYPE_VALIDATEDELETE("logbooktype/VALIDATEDELETE"),
     LOGBOOKTYPE_DELETED("logbooktype/DELETED");
 
     private static final String NAMESPACE = "com/energyict/mdc/masterdata/";

@@ -1,7 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.MeasurementType;
@@ -85,7 +84,7 @@ public class MasterDataGenerator {
         Stream.of(FixedRegisterTypes.values())
                 .forEach(fixedRegisterType -> {
                     try{
-                        if (!registerTypes.stream().filter(registerType -> registerType.getReadingType().getMRID().equals(fixedRegisterType.readingType)).findFirst().isPresent()) {
+                        if (registerTypes.stream().noneMatch(registerType -> registerType.getReadingType().getMRID().equals(fixedRegisterType.readingType))) {
                             meteringService.getReadingType(fixedRegisterType.readingType).ifPresent(existingReadingType -> {
                                 RegisterType measurementType = masterDataService.newRegisterType(existingReadingType, fixedRegisterType.obisCode);
                                 measurementType.save();

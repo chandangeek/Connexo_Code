@@ -212,15 +212,11 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        try {
-            DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "MDC Master data");
-            for (TableSpecs tableSpecs : TableSpecs.values()) {
-                tableSpecs.addTo(dataModel);
-            }
-            this.dataModel = dataModel;
-        } catch (Throwable e) {
-            e.printStackTrace();
+        DataModel dataModel = ormService.newDataModel(COMPONENTNAME, "MDC Master data");
+        for (TableSpecs tableSpecs : TableSpecs.values()) {
+            tableSpecs.addTo(dataModel);
         }
+        this.dataModel = dataModel;
     }
 
     @Reference
@@ -290,7 +286,7 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(MasterDataService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", MasterDataService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     @Override
