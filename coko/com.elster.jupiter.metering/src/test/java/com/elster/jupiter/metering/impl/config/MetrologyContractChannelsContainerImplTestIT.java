@@ -95,8 +95,8 @@ public class MetrologyContractChannelsContainerImplTestIT {
                 .select(where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("usagePoint").isEqualTo(usagePoint)))
                 .get(0);
 
-        assertThat(effectiveMetrologyConfiguration.getEffectiveContract(metrologyContract).isPresent()).isTrue();
-        assertThat(effectiveMetrologyConfiguration.getEffectiveContract(metrologyContract2).isPresent()).isFalse();
+        assertThat(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).isPresent()).isTrue();
+        assertThat(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract2).isPresent()).isFalse();
     }
 
     @Test
@@ -144,12 +144,12 @@ public class MetrologyContractChannelsContainerImplTestIT {
                 .select(where("metrologyConfiguration").isEqualTo(metrologyConfiguration).and(where("usagePoint").isEqualTo(usagePoint)))
                 .get(0);
 
-        ChannelsContainer channelsContainers = effectiveMetrologyConfiguration.getEffectiveContract(metrologyContract).get().getChannelsContainer();
+        ChannelsContainer channelsContainers = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
         assertThat(channelsContainers.getChannels()).hasSize(2);
         assertThat(channelsContainers.getChannels().get(0).getMainReadingType()).isEqualTo(readingType);
         assertThat(channelsContainers.getChannels().get(1).getMainReadingType()).isEqualTo(readingType2);
 
-        channelsContainers = effectiveMetrologyConfiguration.getEffectiveContract(metrologyContract2).get().getChannelsContainer();
+        channelsContainers = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract2).get();
         assertThat(channelsContainers.getChannels()).hasSize(1);
         assertThat(channelsContainers.getChannels().get(0).getMainReadingType()).isEqualTo(readingType3);
     }
@@ -182,7 +182,7 @@ public class MetrologyContractChannelsContainerImplTestIT {
         doReturn(Collections.singletonList(baseReading)).when(calculatedMetrologyContractData).getCalculatedDataFor(readingTypeDeliverable);
         when(dataAggregationService.calculate(usagePoint, metrologyContract, effectiveMetrologyConfiguration.getRange())).thenReturn(calculatedMetrologyContractData);
 
-        Channel channel = effectiveMetrologyConfiguration.getEffectiveContract(metrologyContract).get().getChannelsContainer()
+        Channel channel = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get()
                 .getChannel(readingType).get();
 
         List<BaseReadingRecord> readings = channel.getReadings(effectiveMetrologyConfiguration.getRange());
