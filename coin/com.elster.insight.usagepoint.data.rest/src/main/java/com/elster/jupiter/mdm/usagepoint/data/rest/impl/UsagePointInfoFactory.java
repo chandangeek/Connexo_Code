@@ -6,7 +6,7 @@ import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.MetrologyConfigurationInfoFactory;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfoFactory;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
