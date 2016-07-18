@@ -172,11 +172,12 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionChecksDeactivateAndDecommission(){
-        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).hasSize(4);
+        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).hasSize(5);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALIDATED);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALID);
+        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalChecks()).contains(MicroCheck.NO_ACTIVE_SERVICE_CALLS);
     }
     @Test
     public void testMandatoryPreTransitionActionsDeActivateAndDecommission(){
@@ -191,27 +192,32 @@ public class TransitionTypeTest {
     }
     @Test
     public void testOptionalPreTransitionActionsDeactivateAndDecommission(){
-        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalActions()).hasSize(2);
+        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalActions()).hasSize(3);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalActions()).contains(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS);
         assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalActions()).contains(MicroAction.FORCE_VALIDATION_AND_ESTIMATION);
+        assertThat(TransitionType.DEACTIVATE_AND_DECOMMISSION.optionalActions()).contains(MicroAction.CANCEL_ALL_SERVICE_CALLS);
     }
+
     @Test
     public void testMandatoryPreTransitionChecksDecommission(){
         assertThat(TransitionType.DECOMMISSION.requiredChecks()).isEmpty();
     }
+
     @Test
     public void testOptionalPreTransitionChecksDecommission(){
-        assertThat(TransitionType.DECOMMISSION.optionalChecks()).hasSize(4);
+        assertThat(TransitionType.DECOMMISSION.optionalChecks()).hasSize(5);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALIDATED);
         assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.ALL_DATA_VALID);
+        assertThat(TransitionType.DECOMMISSION.optionalChecks()).contains(MicroCheck.NO_ACTIVE_SERVICE_CALLS);
     }
     @Test
     public void testOptionalPreTransitionActionsDecommission(){
-        assertThat(TransitionType.DECOMMISSION.optionalActions()).hasSize(2);
+        assertThat(TransitionType.DECOMMISSION.optionalActions()).hasSize(3);
         assertThat(TransitionType.DECOMMISSION.optionalActions()).contains(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS);
         assertThat(TransitionType.DECOMMISSION.optionalActions()).contains(MicroAction.FORCE_VALIDATION_AND_ESTIMATION);
+        assertThat(TransitionType.DECOMMISSION.optionalActions()).contains(MicroAction.CANCEL_ALL_SERVICE_CALLS);
     }
     @Test
     public void testMandatoryPreTransitionActionsDecommission(){
