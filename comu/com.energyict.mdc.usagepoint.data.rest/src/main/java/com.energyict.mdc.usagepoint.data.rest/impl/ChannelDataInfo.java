@@ -15,8 +15,10 @@ import java.util.Set;
 public class ChannelDataInfo {
     @JsonProperty("interval")
     public IntervalInfo interval;
+
     @JsonProperty("readingTime")
     public Instant readingTime;
+
     @JsonProperty("value")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal value;
@@ -24,9 +26,12 @@ public class ChannelDataInfo {
     @JsonProperty("dataValidated")
     public Boolean dataValidated;
 
+    @JsonProperty("validationRules")
     Set<ValidationRuleInfo> validationRules;
+
     @XmlJavaTypeAdapter(ValidationStatusAdapter.class)
     ValidationStatus validationResult;
 
+    @JsonProperty("validationAction")
     ValidationAction validationAction;
 }

@@ -138,7 +138,7 @@ public class UsagePointResource {
 
     @GET
     @Transactional
-    @Path("/{mRID}/channels/{channelid}/data/{epochMillis}/validation")
+    @Path("/{mRID}/channels/{channelid}/data/{epochMillis}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public ChannelDataInfo getChannelDataReading(
