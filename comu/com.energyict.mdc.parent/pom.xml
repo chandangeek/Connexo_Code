@@ -393,6 +393,12 @@
                 <version>1.2.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.usagepoint.data.rest</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
 
             <!-- third parties -->
             <!-- Logging -->
@@ -630,6 +636,7 @@
                 <module>../com.energyict.mdc.servicecall.examples</module>
                 <module>../com.energyict.mdc.tasks</module>
                 <module>../com.energyict.mdc.tasks.rest</module>
+                <module>../com.energyict.mdc.usagepoint.data.rest</module>
                 <!-- Can we please keep this list organized alphabetically -->
             </modules>
         </profile>
