@@ -211,8 +211,8 @@ public class MetrologyConfigurationInfoFactory {
         @Override
         public Void visitProperty(CustomPropertyNode property) {
             CustomPropertiesInfo customProperty = new CustomPropertiesInfo();
-            customProperty.name = property.getPropertySpec().getDescription();
-            customProperty.key = property.getPropertySpec().getDisplayName();
+            customProperty.name = property.getPropertySpec().getDisplayName();
+            customProperty.key = property.getPropertySpec().getName();
             customProperty.customPropertySet = new IdWithNameInfo(property.getCustomPropertySet().getId(), property.getCustomPropertySet().getName());
             this.customProperties.add(customProperty);
             return null;
