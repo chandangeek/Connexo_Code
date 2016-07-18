@@ -490,7 +490,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private Range<Instant> getLowerBoundClippedRange(Range<Instant> slaveRange, Range<Instant> requestedRange) {
         Instant lowerEndPoint;
-        Instant upperEndPoint;
+        Instant upperEndPoint = null;
         if (requestedRange.lowerEndpoint().isBefore(slaveRange.lowerEndpoint())) {
             lowerEndPoint = slaveRange.lowerEndpoint();
         } else {
@@ -498,10 +498,14 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
         if (slaveRange.hasUpperBound()) {
             upperEndPoint = slaveRange.upperEndpoint();
-        } else {
+        } else if (requestedRange.hasUpperBound()) {
             upperEndPoint = requestedRange.upperEndpoint();
         }
-        return Range.closedOpen(lowerEndPoint, upperEndPoint);
+        if (upperEndPoint != null) {
+            return Range.closedOpen(lowerEndPoint, upperEndPoint);
+        } else {
+            return Range.atLeast(lowerEndPoint);
+        }
     }
 
     private Function<DataLoggerChannelUsage, Optional<Channel>> getSlaveChannel() {
