@@ -1,6 +1,7 @@
 package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -298,10 +299,9 @@ public class ServiceCallServiceImplIT {
                 .contains(serviceCall);
     }
 
-    static class MyPersistentExtension implements PersistentDomainExtension<ServiceCall> {
+    static class MyPersistentExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
         private Reference<ServiceCall> serviceCall = ValueReference.absent();
-        private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
         private BigDecimal value;
 
         public BigDecimal getValue() {
