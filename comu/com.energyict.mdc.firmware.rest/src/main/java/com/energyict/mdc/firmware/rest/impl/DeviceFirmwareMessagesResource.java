@@ -4,20 +4,20 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -54,7 +54,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -206,7 +205,6 @@ public class DeviceFirmwareMessagesResource {
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
         }
         upgradeMessage.revoke();
-        upgradeMessage.save();
         // if we have the pending message that means we need to reschedule comTaskExecution for firmware upgrade
         rescheduleFirmwareUpgradeTask(device);
         return Response.ok().build();
@@ -229,7 +227,7 @@ public class DeviceFirmwareMessagesResource {
 
         Optional<ScheduledConnectionTask> defaultConnectionTask = device.getScheduledConnectionTasks()
                 .stream()
-                .filter(conTask -> conTask.isDefault())
+                .filter(ConnectionTask::isDefault)
                 .findFirst();
         if (defaultConnectionTask.isPresent() && ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(defaultConnectionTask.get().getConnectionStrategy())) {
             String runActionTitle = thesaurus.getString(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION.getKey(), MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION.getDefaultFormat());
@@ -256,7 +254,7 @@ public class DeviceFirmwareMessagesResource {
                         .withMessageTitle(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE, actionName)
                         .withMessageBody(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY, actionName)
                         .supplier());
-        launchFirmwareCheck(device, ComTaskExecution::scheduleNow);
+        device.runStatusInformationTask(ComTaskExecution::scheduleNow);
         return Response.ok().build();
     }
 
@@ -273,40 +271,12 @@ public class DeviceFirmwareMessagesResource {
                         .withMessageTitle(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE, actionName)
                         .withMessageBody(MessageSeeds.FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY, actionName)
                         .supplier());
-        launchFirmwareCheck(device, ComTaskExecution::runNow);
-        return Response.ok().build();
-    }
-
-    private void launchFirmwareCheck(Device device, Consumer<ComTaskExecution> requestedActionOnExec) {
-        Optional<ComTaskExecution> firmwareCheckExecution = device.getComTaskExecutions()
-                .stream()
-                .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
-                .findFirst();
-        if (!firmwareCheckExecution.isPresent()) {
-            firmwareCheckExecution = createFirmwareCheckExecution(device);
-        }
-        if (!firmwareCheckExecution.isPresent()) {
+        try {
+            device.runStatusInformationTask(ComTaskExecution::runNow);
+        } catch (NoStatusInformationTaskException e) {
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_CHECK_TASK_IS_NOT_ACTIVE);
         }
-        requestedActionOnExec.accept(firmwareCheckExecution.get());
-    }
-
-
-    private Optional<ComTaskExecution> createFirmwareCheckExecution(Device device) {
-        Optional<ComTaskEnablement> firmwareCheckEnablementRef = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device).getComTaskEnablementToCheckTheFirmwareVersion();
-        if (firmwareCheckEnablementRef.isPresent()) {
-            ComTaskEnablement firmwareCheckEnablement = firmwareCheckEnablementRef.get();
-            ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> firmwareCheckExecutionBuilder = device.newAdHocComTaskExecution(firmwareCheckEnablement);
-            if (firmwareCheckEnablement.hasPartialConnectionTask()) {
-                device.getConnectionTasks().stream()
-                        .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == firmwareCheckEnablement.getPartialConnectionTask().get().getId())
-                        .forEach(firmwareCheckExecutionBuilder::connectionTask);
-            }
-            ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = firmwareCheckExecutionBuilder.add();
-            device.save();
-            return Optional.of(manuallyScheduledComTaskExecution);
-        }
-        return Optional.empty();
+        return Response.ok().build();
     }
 
     private boolean isDeviceFirmwareUpgradeAllowed(FirmwareManagementDeviceUtils helper) {

@@ -54,7 +54,7 @@ public enum MessageSeeds implements MessageSeed {
     FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED(1006, "FirmwareUploadHasBeenStartedCannotBeCanceled", "Firmware upload has been started and cannot be canceled"),
     FIRMWARE_UPLOAD_NOT_FOUND(1007, "FirmwareUploadNotFound", "No firmware upload process with id {0} could be found"),
     FIRMWARE_CANNOT_BE_ACTIVATED(1008, "FirmwareCannotBeActivated", "Firmware version cannot be activated"),
-    FIRMWARE_CHECK_TASK_IS_NOT_ACTIVE(1009, "FirmwareCheckTaskIsNotActive", "It is impossible to check firmware version because Check firmware version communication task is not active on device configuration"),
+    FIRMWARE_CHECK_TASK_IS_NOT_ACTIVE(1009, "FirmwareCheckTaskIsNotActive", "The ''Check firmware version'' action can''t be executed because there is no communication task with the ''Status information - Read'' action on the device configuration of this device."),
     COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE(1010, "comTaskNotFound", "Could not find communication task with id {0}"),
     FIRMWARE_ACTIVATION_DATE_IS_BEFORE_UPLOAD(1011, "FirmwareActivationDateIsBeforeUpload", "This date should be after the ''Upload file'' date"),
 
