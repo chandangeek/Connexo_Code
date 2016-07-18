@@ -49,18 +49,11 @@ Ext.define('Cfg.view.validation.AddReadingTypesBulk', {
 
         me.getTopToolbarContainer().add(1,{
             xtype: 'button',
+            ui: 'blank',
             hidden: true,
             itemId: 'list-of-reading-types-info-btn',
             tooltip: Uni.I18n.translate('readingType.tooltip', 'CFG', 'Click for more information'),
-            iconCls: 'uni-icon-info-small',
-            cls: 'uni-btn-transparent',
-            width: 15,
-            style: {
-                display: 'inline-block',
-                textDecoration: 'none !important',
-                position: 'absolute',
-                top: '5px'
-            },
+            text: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
             handler: function () {
                 var widget = Ext.widget('validationSelectedReadingTypes');
                 widget.setTitle(me.counterTextFn(me.hiddenSelection.length));

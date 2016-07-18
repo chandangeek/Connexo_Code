@@ -46,9 +46,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                         },
                         defaults: {
                             validateOnChange: false,
-                            validateOnBlur: false,
-                            labelWidth: 260,
-                            width: 600
+                            validateOnBlur: false
                         },
                         items: [
                         {
@@ -56,6 +54,8 @@ Ext.define('Cfg.view.validation.AddRule', {
                             xtype: 'uni-form-error-message',
                             name: 'form-errors',
                             margin: '0 0 10 0',
+                            labelWidth: 260,
+                            width: 600,
                             hidden: true
                         },
                         {
@@ -100,13 +100,13 @@ Ext.define('Cfg.view.validation.AddRule', {
                             fieldLabel: Uni.I18n.translate('general.readingTypes', 'CFG', 'Reading types'),
                             required: true,
                             layout: 'hbox',
+                            labelWidth: 260,
                             width: 1100,
                             items: [
                                 {
                                     xtype: 'component',
                                     html: Uni.I18n.translate('general.noReadingTypesAvailable','CFG','No reading types have been added'),
                                     itemId: 'noReadingTypesForValidationRuleLabel',
-                                    //hidden: true,
                                     style: {
                                         'font': 'italic 13px/17px Lato',
                                         'color': '#686868',
@@ -119,11 +119,12 @@ Ext.define('Cfg.view.validation.AddRule', {
                                     itemId: 'readingTypesForValidationRuleGridPanel',
                                     store: 'ReadingTypesForRule',
                                     hidden: true,
-                                    //itemId: 'reading-types-grid',
-                                    //store: 'ext-empty-store',
                                     hideHeaders: true,
                                     padding: 0,
                                     scroll: 'vertical',
+                                    viewConfig: {
+                                        disableSelection: true
+                                    },
                                     columns: [
                                         {
                                             xtype: 'reading-type-column',
@@ -136,6 +137,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             items: [
                                                 {
                                                     iconCls: 'uni-icon-delete',
+                                                    tooltip: Uni.I18n.translate('general.remove','CFG','Remove'),
                                                     handler: function (grid, rowIndex) {
                                                         grid.getStore().removeAt(rowIndex);
                                                         if (grid.getStore().count() === 0) {
@@ -162,7 +164,7 @@ Ext.define('Cfg.view.validation.AddRule', {
                             xtype: 'label',
                             cls: 'x-form-invalid-under',
                             itemId: 'readingTypesErrorLabel',
-                            margin: '0 0 0 275'
+                            margin: '0 0 0 275' // labelWidth (260) + 15
                         },
                         {
                             xtype: 'radiogroup',
@@ -194,7 +196,6 @@ Ext.define('Cfg.view.validation.AddRule', {
                             width: '100%',
                             defaults: {
                                 labelWidth: 260,
-                                width: 325,
                                 resetButtonHidden: true
                             }
                         },
