@@ -23,7 +23,6 @@ import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -710,22 +709,31 @@ public class UsagePointResource {
     @Transactional
     @Path("/{mrId}/validationSummary")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
+            Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public PagedInfoList getDataValidationStatistics(@PathParam("mrId") String mrId,
                                                      @QueryParam("purposeId") long purposeId,
                                                      @QueryParam("periodId") long periodId,
                                                      @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrId);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        EffectiveMetrologyContractOnUsagePoint effectiveContract = effectiveMC.getEffectiveContracts().stream()
-                .filter(contract -> contract.getMetrologyContract().getMetrologyPurpose().getId() == purposeId)
+        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(contract -> contract.getMetrologyPurpose().getId() == purposeId)
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, purposeId, mrId));
+        Instant now = clock.instant();
         Range<Instant> interval = timeService.findRelativePeriod(periodId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_RELATIVEPERIOD_FOR_ID, periodId))
-                .getOpenClosedInterval(ZonedDateTime.ofInstant(clock.instant(), clock.getZone()));
+                .getOpenClosedInterval(ZonedDateTime.ofInstant(now, clock.getZone()));
+        Range<Instant> upToNow = Range.atMost(now);
+        if (interval.isConnected(upToNow)) {
+            interval = interval.intersection(upToNow);
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
+        }
 
         List<ChannelDataValidationSummaryInfo> result = usagePointDataService
-                .getValidationSummary(effectiveContract, interval).entrySet().stream()
+                .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
                 .map(channelEntry -> {
                     ReadingTypeDeliverable deliverable = channelEntry.getKey();
                     ChannelDataValidationSummary summary = channelEntry.getValue();
