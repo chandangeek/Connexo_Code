@@ -1,6 +1,5 @@
 package com.elster.jupiter.parties.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyService;
@@ -8,7 +7,6 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -24,7 +22,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,13 +75,9 @@ public class OrganizationsResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public OrganizationInfos getOrganizations(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<Party> list = getPartyRestQuery().select(queryParameters);
-        List<Organization> organizations = new ArrayList<>(list.size());
-        for (Party party : list) {
-            organizations.add((Organization) party);
-        }
+        List<Organization> organizations = getOrganizationRestQuery().select(queryParameters);
         OrganizationInfos infos = new OrganizationInfos(queryParameters.clipToLimit(organizations));
-        infos.total = queryParameters.determineTotal(list.size());
+        infos.total = queryParameters.determineTotal(organizations.size());
         return infos;
     }
 
@@ -98,9 +91,8 @@ public class OrganizationsResource {
         return getOrganization(info.id);
     }
 
-    private RestQuery<Party> getPartyRestQuery() {
-        Query<Party> query = partyService.getPartyQuery();
-        query.setRestriction(Where.where("class").isEqualTo(Organization.TYPE_IDENTIFIER));
-        return restQueryService.wrap(query);
+    private RestQuery<Organization> getOrganizationRestQuery() {
+        return restQueryService.wrap(partyService.getOrganizationQuery());
     }
+
 }

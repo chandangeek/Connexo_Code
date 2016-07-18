@@ -1,7 +1,12 @@
 package com.elster.jupiter.parties.rest.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.parties.Person;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -17,16 +22,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.parties.Person;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Where;
+import java.util.List;
 import java.util.Optional;
 
 @Path("/persons")
@@ -79,13 +75,9 @@ public class PersonsResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PersonInfos getPersons(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<Party> list = getPartyRestQuery().select(queryParameters);
-        List<Person> persons = new ArrayList<>(list.size());
-        for (Party party : list) {
-            persons.add((Person) party);
-        }
+        List<Person> persons = getPersonRestQuery().select(queryParameters);
         PersonInfos infos = new PersonInfos(queryParameters.clipToLimit(persons));
-        infos.total = queryParameters.determineTotal(list.size());
+        infos.total = queryParameters.determineTotal(persons.size());
         return infos;
     }
 
@@ -99,10 +91,8 @@ public class PersonsResource {
         return getPerson(info.id);
     }
 
-    private RestQuery<Party> getPartyRestQuery() {
-        Query<Party> query = partyService.getPartyQuery();
-        query.setRestriction(Where.where("class").isEqualTo(Person.TYPE_IDENTIFIER));
-        return restQueryService.wrap(query);
+    private RestQuery<Person> getPersonRestQuery() {
+        return restQueryService.wrap(partyService.getPersonQuery());
     }
 
 }
