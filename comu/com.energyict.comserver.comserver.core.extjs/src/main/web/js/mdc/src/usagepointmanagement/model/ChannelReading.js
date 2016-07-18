@@ -16,7 +16,7 @@ Ext.define('Mdc.usagepointmanagement.model.ChannelReading', {
                         result = 'OK';
                         break;
                     case 'validationStatus.suspect':
-                        switch (data.validationAction) {
+                        switch (data.validationAction.toLowerCase()) {
                             case 'warnOnly':
                                 result = 'INFORMATIVE';
                                 break;
