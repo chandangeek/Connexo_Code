@@ -78,7 +78,6 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-
 /**
  * Provides an implementation for the {@link FirmwareService} interface.
  *
@@ -393,13 +392,12 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         Optional<ComTask> fwComTask = taskService.findFirmwareComTask();
         if (fwComTask.isPresent()) {
             ComTask firmwareComTask = fwComTask.get();
-            Optional<ComTaskExecution> fwComTaskExecution = device.getComTaskExecutions().stream()
+            return device.getComTaskExecutions().stream()
                     .filter(comTaskExecution -> comTaskExecution.getComTasks().stream()
                             .filter(comTask -> comTask.getId() == firmwareComTask.getId())
                             .findAny()
                             .isPresent())
                     .findAny();
-            return fwComTaskExecution;
         } else {
             return Optional.empty();
         }
@@ -430,10 +428,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         device.getMessagesByState(DeviceMessageStatus.PENDING)
                 .stream()
                 .filter(this::isItAFirmwareRelatedMessage)
-                .forEach(deviceDeviceMessage -> {
-                    deviceDeviceMessage.revoke();
-                    deviceDeviceMessage.save();
-                });
+                .forEach(DeviceMessage::revoke);
     }
 
     @Override
@@ -483,7 +478,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(PropertySpecService.class).toInstance(propertySpecService);
                 }
             });
-            upgradeService.register(InstallIdentifier.identifier(FirmwareService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
+            upgradeService.register(InstallIdentifier.identifier("MultiSense", FirmwareService.COMPONENTNAME), dataModel, Installer.class, Collections.emptyMap());
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;

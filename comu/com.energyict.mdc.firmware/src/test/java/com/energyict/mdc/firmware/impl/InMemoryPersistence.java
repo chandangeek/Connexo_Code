@@ -31,6 +31,8 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -47,6 +49,8 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -104,6 +108,7 @@ public class InMemoryPersistence {
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
+                new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new EventsModule(),
                 new IdsModule(),
@@ -145,7 +150,9 @@ public class InMemoryPersistence {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(OrmService.class);
+            injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
+            initializeCustomPropertySets();
             injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
             injector.getInstance(UserService.class);
@@ -163,6 +170,11 @@ public class InMemoryPersistence {
             this.dataModel = firmwareService.getDataModel();
             ctx.commit();
         }
+    }
+
+    private void initializeCustomPropertySets() {
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
     }
 
     private void initializeMocks(String testName) {
