@@ -33,6 +33,8 @@ public enum MicroActionTranslationKey implements TranslationKey {
     MICRO_ACTION_NAME_FORCE_ENABLE_ESTIMATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.ENABLE_ESTIMATION, "Activate estimation"),
     MICRO_ACTION_NAME_FORCE_DISABLE_ESTIMATION(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.DISABLE_ESTIMATION, "Deactivate estimation"),
     MICRO_ACTION_NAME_SET_MULTIPLIER(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.SET_MULTIPLIER, "Set multiplier"),
+    MICRO_ACTION_NAME_LINK_TO_USAGE_POINT(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.LINK_TO_USAGE_POINT, "Link to usage point"),
+    MICRO_ACTION_NAME_CANCEL_ALL_SERVICE_CALLS(Keys.MICRO_ACTION_NAME_TRANSLATE_KEY + MicroAction.CANCEL_ALL_SERVICE_CALLS, "Cancel all service calls"),
 
     MICRO_ACTION_DESCRIPTION_NAME_SET_LAST_CHECKED(DeviceLifeCycleService.MicroActionPropertyName.LAST_CHECKED.key(), "Set the last checked date, so date can be validated from the transition date."),
     MICRO_ACTION_DESCRIPTION_SET_LAST_READING(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.SET_LAST_READING, "Set the last reading date, so data can be collected starting from the transition date."),
@@ -52,6 +54,8 @@ public enum MicroActionTranslationKey implements TranslationKey {
     MICRO_ACTION_DESCRIPTION_ENABLE_ESTIMATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.ENABLE_ESTIMATION, "Activate the data estimation on this device. This auto change is effective immediately."),
     MICRO_ACTION_DESCRIPTION_DISABLE_ESTIMATION(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.DISABLE_ESTIMATION, "Stop the data estimation on this device."),
     MICRO_ACTION_DESCRIPTION_SET_MULTIPLIER(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.SET_MULTIPLIER, "Set the multiplier on the device. The collected data can be multiplied by this value if it is configured on the respective readingtype."),
+    MICRO_ACTION_DESCRIPTION_LINK_TO_USAGE_POINT(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.LINK_TO_USAGE_POINT, "Link this device to a usage point"),
+    MICRO_ACTION_DESCRIPTION_CANCEL_ALL_SERVICE_CALLS(Keys.MICRO_ACTION_DESCRIPTION_TRANSLATE_KEY + MicroAction.CANCEL_ALL_SERVICE_CALLS, "Triggers a cancel request for all active service calls on the given device."),
     ;
 
     private final String key;

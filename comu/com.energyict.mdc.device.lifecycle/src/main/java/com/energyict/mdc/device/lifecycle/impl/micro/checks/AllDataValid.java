@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
@@ -8,9 +10,8 @@ import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 
-import com.elster.jupiter.nls.Thesaurus;
-
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -34,14 +35,12 @@ public class AllDataValid extends TranslatableServerMicroCheck {
     @Override
     public Optional<DeviceLifeCycleActionViolation> evaluate(Device device, Instant effectiveTimestamp) {
         Optional<? extends MeterActivation> current = device.getCurrentMeterActivation();
-        if (current.isPresent()) {
-            if (validationService.validationEnabled(current.get().getMeter().get())) {
-                return (this.validationService.getEvaluator().isAllDataValid(current.get()) ? Optional.empty() : Optional.of(newViolation()));
-            }else{
-                return Optional.empty();
-            }
+        if (!current.isPresent()
+                || validationService.validationEnabled(current.get().getMeter().get())
+                && validationService.getEvaluator().areSuspectsPresent(Collections.singleton(QualityCodeSystem.MDC), current.get().getChannelsContainer())) {
+            return Optional.of(newViolation());
         }
-        return Optional.of(newViolation());
+        return Optional.empty();
     }
 
     private DeviceLifeCycleActionViolationImpl newViolation() {

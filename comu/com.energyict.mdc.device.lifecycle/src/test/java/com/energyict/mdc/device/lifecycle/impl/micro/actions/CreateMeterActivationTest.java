@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -7,11 +8,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -20,8 +16,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link CreateMeterActivation} component.
@@ -74,6 +80,8 @@ public class CreateMeterActivationTest {
         when(loadProfile.getLastReading()).thenReturn(Optional.of(lastDataTimestamp));
         MeterActivation currentMeterActivation = mock(MeterActivation.class);
         MeterActivation newMeterActivation = mock(MeterActivation.class);
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        when(newMeterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         doReturn(Optional.of(currentMeterActivation)).when(device).getCurrentMeterActivation();
         when(device.activate(lastDataTimestamp)).thenReturn(newMeterActivation);
 

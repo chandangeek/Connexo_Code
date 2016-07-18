@@ -114,5 +114,4 @@ public final class DeviceLifeCyclePropertySupport {
     // Hide constructor for static utility class
     private DeviceLifeCyclePropertySupport() {
     }
-
 }

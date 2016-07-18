@@ -1,14 +1,17 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -16,6 +19,8 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.logging.Logger;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
  * Responds to {@link StateTransitionChangeEvent} and set CIM device lifecycle dates
@@ -56,7 +61,17 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     }
 
     private void handle(StateTransitionChangeEvent event, DefaultState newState) {
-        this.meteringService.findEndDevice(event.getSourceId()).ifPresent(d -> this.handle(event, d, newState));
+        String deviceId = event.getSourceId();
+        try {
+            Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
+            Condition condition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(where("amrId").isEqualTo(deviceId));
+            endDeviceQuery.select(condition)
+                    .stream()
+                    .findFirst()
+                    .ifPresent(d -> this.handle(event, d, newState));
+        } catch (NumberFormatException e) {
+            this.logger.fine(() -> "Unable to parse end device id '" + deviceId + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
+        }
     }
 
     private void handle(StateTransitionChangeEvent event, EndDevice device, DefaultState newState) {

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
@@ -7,19 +8,25 @@ import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.util.Optional;
-
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link StateTransitionChangeEventTopicHandler} component.
@@ -51,6 +58,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
     private EndDevice endDevice;
     @Mock
     private LifecycleDates lifecycleDates;
+    @Mock
+    private Query<EndDevice> endDeviceQuery;
 
     @Before
     public void initializeMocks() {
@@ -58,7 +67,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.event.getOldState()).thenReturn(this.oldState);
         when(this.event.getNewState()).thenReturn(this.newState);
         when(this.event.getSourceId()).thenReturn(END_DEVICE_MRID);
-        when(this.meteringService.findEndDevice(END_DEVICE_MRID)).thenReturn(Optional.of(this.endDevice));
+        when(this.meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
+        when(endDeviceQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(endDevice));
         when(this.endDevice.getLifecycleDates()).thenReturn(this.lifecycleDates);
     }
 
@@ -86,7 +96,6 @@ public class StateTransitionChangeEventTopicHandlerTest {
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice).getLifecycleDates();
         verify(this.lifecycleDates).setInstalledDate(expectedInstalledDate);
         verify(this.endDevice).update();
@@ -99,13 +108,12 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.newState.isCustom()).thenReturn(false);
         when(this.newState.getName()).thenReturn(DefaultState.ACTIVE.getKey());
         when(this.clock.instant()).thenReturn(expectedInstalledDate);
-        when(this.meteringService.findEndDevice(anyString())).thenReturn(Optional.empty());
+        when(endDeviceQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
 
         // Business method
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice, never()).getLifecycleDates();
         verifyNoMoreInteractions(this.lifecycleDates);
         verify(this.endDevice, never()).update();
@@ -124,7 +132,6 @@ public class StateTransitionChangeEventTopicHandlerTest {
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice).getLifecycleDates();
         verify(this.lifecycleDates).setRemovedDate(expectedRemovedDate);
         verify(this.endDevice).update();
@@ -143,7 +150,6 @@ public class StateTransitionChangeEventTopicHandlerTest {
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice).getLifecycleDates();
         verify(this.lifecycleDates, never()).setRemovedDate(expectedRemovedDate);
         verify(this.endDevice, never()).update();
@@ -156,13 +162,12 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.newState.isCustom()).thenReturn(false);
         when(this.newState.getName()).thenReturn(DefaultState.INACTIVE.getKey());
         when(this.clock.instant()).thenReturn(expectedRemovedDate);
-        when(this.meteringService.findEndDevice(anyString())).thenReturn(Optional.empty());
+        when(endDeviceQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
 
         // Business method
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice, never()).getLifecycleDates();
         verifyNoMoreInteractions(this.lifecycleDates);
         verify(this.endDevice, never()).update();
@@ -180,7 +185,6 @@ public class StateTransitionChangeEventTopicHandlerTest {
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice).getLifecycleDates();
         verify(this.lifecycleDates).setRetiredDate(expectedRetiredDate);
         verify(this.endDevice).update();
@@ -193,13 +197,12 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.newState.isCustom()).thenReturn(false);
         when(this.newState.getName()).thenReturn(DefaultState.DECOMMISSIONED.getKey());
         when(this.clock.instant()).thenReturn(expectedRemovedDate);
-        when(this.meteringService.findEndDevice(anyString())).thenReturn(Optional.empty());
+        when(endDeviceQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());
 
         // Business method
         handler.handle(this.localEvent);
 
         // Asserts
-        verify(this.meteringService).findEndDevice(anyString());
         verify(this.endDevice, never()).getLifecycleDates();
         verifyNoMoreInteractions(this.lifecycleDates);
         verify(this.endDevice, never()).update();

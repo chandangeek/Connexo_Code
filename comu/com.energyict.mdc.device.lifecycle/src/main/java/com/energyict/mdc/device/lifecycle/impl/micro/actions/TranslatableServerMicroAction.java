@@ -14,9 +14,9 @@ public abstract class TranslatableServerMicroAction implements ServerMicroAction
         this.thesaurus = thesaurus;
     }
 
-    protected abstract MicroAction getMicroAction();
+    abstract MicroAction getMicroAction();
 
-    protected Thesaurus getThesaurus() {
+    final Thesaurus getThesaurus() {
         return thesaurus;
     }
 
