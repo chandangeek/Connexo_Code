@@ -12,6 +12,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,26 +30,27 @@ import java.util.stream.Collectors;
 public class DataValidationMdcAssociationProvider implements DataValidationAssociationProvider {
 
     private volatile DeviceService deviceService;
+    private volatile Clock clock;
 
-    public DataValidationMdcAssociationProvider(){
+    public DataValidationMdcAssociationProvider() {
 
     }
 
     @Inject
-    public DataValidationMdcAssociationProvider(DeviceService deviceService){
+    public DataValidationMdcAssociationProvider(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 
     @Override
-    public BigDecimal getRegisterSuspects(String mRID) {
+    public BigDecimal getRegisterSuspects(String mRID, Range<Instant> range) {
         Optional<Device> device = deviceService.findByUniqueMrid(mRID);
-        if(device.isPresent()){
+        if (device.isPresent()) {
             long registerSuspects = device.get()
                     .getRegisters()
                     .stream()
                     .map(reg -> (device.get()
                             .forValidation()
-                            .getValidationStatus(reg, Collections.emptyList(), Range.all())
+                            .getValidationStatus(reg, Collections.emptyList(), range)
                             .stream())
                             .filter(s -> (s.getReadingQualities()
                                     .stream()
@@ -62,7 +68,7 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
                     .stream()
                     .map(reg -> (device.get()
                                     .forValidation()
-                                    .getValidationStatus(reg, Collections.emptyList(), Range.all())
+                                    .getValidationStatus(reg, Collections.emptyList(), range)
                                     .stream())
                                     .filter(s -> (s.getReadingQualities()
                                             .stream()
@@ -84,9 +90,9 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
     }
 
     @Override
-    public BigDecimal getChannelsSuspects(String mRID) {
+    public BigDecimal getChannelsSuspects(String mRID, Range<Instant> range) {
         Optional<Device> device = deviceService.findByUniqueMrid(mRID);
-        if(device.isPresent()) {
+        if (device.isPresent()) {
             long channelsSuspects = device.get()
                     .getLoadProfiles()
                     .stream()
@@ -94,7 +100,7 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
                             lp.getChannels().stream()
                                     .flatMap(c -> c.getDevice()
                                             .forValidation()
-                                            .getValidationStatus(c, Collections.emptyList(), Range.all())
+                                            .getValidationStatus(c, Collections.emptyList(), range)
                                             .stream())
                                     .filter(s -> (s.getReadingQualities()
                                             .stream()
@@ -114,7 +120,7 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
 
 
     @Reference
-    public void setDeviceService(DeviceService deviceService){
+    public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
     }
 }
