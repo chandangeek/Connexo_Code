@@ -303,7 +303,7 @@ public class DeviceDataInfoFactory {
         throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
     }
 
-    private void addCommonRegisterInfo(Register register, RegisterInfo registerInfo, TopologyService topologyService) {
+    private void addCommonRegisterInfo(Register<?, ?> register, RegisterInfo registerInfo, TopologyService topologyService) {
         RegisterSpec registerSpec = register.getRegisterSpec();
         Device device = register.getDevice();
         registerInfo.id = registerSpec.getId();
@@ -317,11 +317,13 @@ public class DeviceDataInfoFactory {
         registerInfo.version = device.getVersion();
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
-        Optional<? extends Reading> lastReading = register.getLastReading();
-        lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false, null));
         Optional<Register> slaveRegister = topologyService.getSlaveRegister(register, clock.instant());
-        if (slaveRegister.isPresent()) {
-            registerInfo.dataloggerSlavemRID = slaveRegister.get().getDevice().getmRID();
+        if (!slaveRegister.isPresent()) {
+            register.getLastReading().ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false, null));
+        } else {
+            Register<?, ?> register1 = slaveRegister.get();
+            register1.getLastReading().ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register1, false, null));
+            registerInfo.dataloggerSlavemRID = register1.getDevice().getmRID();
         }
     }
 
