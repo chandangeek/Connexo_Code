@@ -91,6 +91,8 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
                 onDependencyLoad();
             }
         });
+
+        me.getModel('Mdc.usagepointmanagement.model.ChannelReading').getProxy().setUrl(mRID, channelId);
     },
 
     showPreview: function (selectionModel, record) {
