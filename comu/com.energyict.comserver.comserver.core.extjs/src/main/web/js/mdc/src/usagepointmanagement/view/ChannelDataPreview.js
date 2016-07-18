@@ -2,7 +2,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
     extend: 'Ext.tab.Panel',
     alias: 'widget.channel-data-preview',
     requires: [
-        'Mdc.view.field.ReadingQualities'
+        'Cfg.view.field.ReadingQualities'
     ],
 
     router: null,
@@ -91,7 +91,8 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                             xtype: 'reading-qualities-field',
                             itemId: 'validationRules-field',
                             fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
-                            name: 'validationRules'
+                            name: 'validationRules',
+                            router: me.router
                         }
                     ]
                 }
