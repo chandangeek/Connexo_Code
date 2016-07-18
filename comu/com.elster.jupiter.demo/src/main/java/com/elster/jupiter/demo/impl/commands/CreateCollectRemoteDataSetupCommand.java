@@ -1,12 +1,5 @@
 package com.elster.jupiter.demo.impl.commands;
 
-import com.elster.jupiter.demo.impl.builders.device.SetValidateOnStorePostBuilder;
-import com.elster.jupiter.metering.GeoCoordinates;
-import com.elster.jupiter.metering.Location;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.engine.config.ComServer;
-
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
@@ -19,6 +12,7 @@ import com.elster.jupiter.demo.impl.builders.device.ConnectionsDevicePostBuilder
 import com.elster.jupiter.demo.impl.builders.device.SecurityPropertiesDevicePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetUsagePointToDevicePostBuilder;
+import com.elster.jupiter.demo.impl.builders.device.SetValidateOnStorePostBuilder;
 import com.elster.jupiter.demo.impl.templates.ComScheduleTpl;
 import com.elster.jupiter.demo.impl.templates.ComServerTpl;
 import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
@@ -36,14 +30,19 @@ import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.engine.config.ComServer;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -59,6 +58,7 @@ public class CreateCollectRemoteDataSetupCommand {
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider;
     private final Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider;
     private final Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider;
+    private final MeteringGroupsService meteringGroupsService;
 
     private String comServerName;
     private String host;
@@ -97,7 +97,7 @@ public class CreateCollectRemoteDataSetupCommand {
             Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
             Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider,
             Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider,
-            Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider) {
+            Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider, MeteringGroupsService meteringGroupsService) {
         this.meteringService = meteringService;
         this.licenseService = licenseService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
@@ -106,6 +106,7 @@ public class CreateCollectRemoteDataSetupCommand {
         this.setDeviceInActiveLifeCycleStatePostBuilderProvider = setDeviceInActiveLifeCycleStatePostBuilderProvider;
         this.setUsagePointToDevicePostBuilderProvider = setUsagePointToDevicePostBuilderProvider;
         this.setValidateOnStorePostBuilderProvider = setValidateOnStorePostBuilderProvider;
+        this.meteringGroupsService = meteringGroupsService;
     }
 
     public void setComServerName(String comServerName) {
@@ -282,13 +283,29 @@ public class CreateCollectRemoteDataSetupCommand {
     }
 
     private void createDeviceGroups() {
-        EndDeviceGroup group = Builders.from(DeviceGroupTpl.NORTH_REGION).get();
+        EndDeviceGroup group;
+        Optional<EndDeviceGroup> northGroup = meteringGroupsService.findEndDeviceGroupByName(DeviceGroupTpl.NORTH_REGION.getName());
+        if (northGroup.isPresent()) {
+            group = northGroup.get();
+        } else {
+            group = Builders.from(DeviceGroupTpl.NORTH_REGION).get();
+        }
         Builders.from(FavoriteGroupBuilder.class).withGroup(group).get();
 
-        group = Builders.from(DeviceGroupTpl.SOUTH_REGION).get();
+        Optional<EndDeviceGroup> southGroup = meteringGroupsService.findEndDeviceGroupByName(DeviceGroupTpl.SOUTH_REGION.getName());
+        if (southGroup.isPresent()) {
+            group = southGroup.get();
+        } else {
+            group = Builders.from(DeviceGroupTpl.SOUTH_REGION).get();
+        }
         Builders.from(FavoriteGroupBuilder.class).withGroup(group).get();
 
-        group = Builders.from(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES).get();
+        Optional<EndDeviceGroup> allElectricityGroup = meteringGroupsService.findEndDeviceGroupByName(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES.getName());
+        if (allElectricityGroup.isPresent()) {
+            group = allElectricityGroup.get();
+        } else {
+            group = Builders.from(DeviceGroupTpl.ALL_ELECTRICITY_DEVICES).get();
+        }
         Builders.from(FavoriteGroupBuilder.class).withGroup(group).get();
     }
 

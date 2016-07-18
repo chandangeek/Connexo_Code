@@ -2,7 +2,6 @@ package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
-import com.elster.jupiter.demo.impl.builders.DeviceGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.FavoriteGroupBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.ChannelsOnDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
@@ -43,12 +42,12 @@ public class CreateDataLoggerSetupCommand {
     private Integer numberOfSlaves = 10;
 
     @Inject
-    public  CreateDataLoggerSetupCommand(DeviceService deviceService,
-                                     ProtocolPluggableService protocolPluggableService,
-                                     ConnectionTaskService connectionTaskService,
-                                     Provider<DeviceBuilder> deviceBuilderProvider,
-                                     Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
-                                     Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder){
+    public CreateDataLoggerSetupCommand(DeviceService deviceService,
+                                        ProtocolPluggableService protocolPluggableService,
+                                        ConnectionTaskService connectionTaskService,
+                                        Provider<DeviceBuilder> deviceBuilderProvider,
+                                        Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
+                                        Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder) {
 
         this.deviceService = deviceService;
         this.protocolPluggableService = protocolPluggableService;
@@ -66,7 +65,7 @@ public class CreateDataLoggerSetupCommand {
         this.dataLoggerSerial = serial;
     }
 
-    public void setNumberOfSlaves(Integer numberOfSlaves){
+    public void setNumberOfSlaves(Integer numberOfSlaves) {
         this.numberOfSlaves = numberOfSlaves;
     }
 
@@ -79,10 +78,12 @@ public class CreateDataLoggerSetupCommand {
                 connectionMethodsProvider,
                 activeLifeCyclestatePostBuilder
         );
-        if (this.dataLoggerMrid != null)
+        if (this.dataLoggerMrid != null) {
             dataLoggerCommand.setDataLoggerMrid(dataLoggerMrid);
-        if (this.dataLoggerSerial != null)
+        }
+        if (this.dataLoggerSerial != null) {
             dataLoggerCommand.setSerialNumber(dataLoggerSerial);
+        }
 
         dataLoggerCommand.run();
         if (numberOfSlaves > 0) {
@@ -90,22 +91,25 @@ public class CreateDataLoggerSetupCommand {
         }
     }
 
-    private void createDataLoggerSlaves(){
+    private void createDataLoggerSlaves() {
         //1. Create Device Type
         DeviceType deviceType = Builders.from(DeviceTypeTpl.EIMETER_FLEX).get();
         //1. Create Device Configuration and activate
-        Optional<DeviceConfiguration> existingConfiguration  = deviceType.getConfigurations().stream().filter(each -> DeviceConfigurationTpl.DATA_LOGGER_SLAVE.getName().equals(each.getName())).findFirst();
+        Optional<DeviceConfiguration> existingConfiguration = deviceType.getConfigurations()
+                .stream()
+                .filter(each -> DeviceConfigurationTpl.DATA_LOGGER_SLAVE.getName().equals(each.getName()))
+                .findFirst();
         DeviceConfiguration deviceConfiguration;
-        if (existingConfiguration.isPresent()){
+        if (existingConfiguration.isPresent()) {
             deviceConfiguration = existingConfiguration.get();
-        }else {
+        } else {
             deviceConfiguration = Builders.from(DeviceConfigurationTpl.DATA_LOGGER_SLAVE)
                     .withDeviceType(deviceType)
                     .withDirectlyAddressable(false)
                     .withPostBuilder(new ChannelsOnDevConfPostBuilder())
                     .create();
         }
-        if(!deviceConfiguration.isActive()) {
+        if (!deviceConfiguration.isActive()) {
             deviceConfiguration.activate();
         }
         //3. Create Device Group "Data logger slaves"
@@ -118,7 +122,7 @@ public class CreateDataLoggerSetupCommand {
             CreateDataLoggerSlaveCommand slave = new CreateDataLoggerSlaveCommand();
             slave.setActiveLifeCyclestatePostBuilder(this.activeLifeCyclestatePostBuilder);
             slave.setMridPrefix(DeviceTypeTpl.EIMETER_FLEX.getLongName());
-            slave.setSerialNumber(""+i);
+            slave.setSerialNumber("" + i);
             slave.run();
         }
     }

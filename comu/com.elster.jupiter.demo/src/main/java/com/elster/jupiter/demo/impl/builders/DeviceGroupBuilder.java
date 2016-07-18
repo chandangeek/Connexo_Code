@@ -1,6 +1,5 @@
 package com.elster.jupiter.demo.impl.builders;
 
-import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.Log;
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -16,7 +15,6 @@ import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,8 +25,8 @@ import java.util.stream.Collectors;
  */
 public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroupBuilder> {
 
-    public static final String PROPERTY_MRID  = "mRID";
-    public static final String PROPERTY_DEVICE_TYPE  = "deviceType";
+    public static final String PROPERTY_MRID = "mRID";
+    public static final String PROPERTY_DEVICE_TYPE = "deviceType";
 
     private final MeteringGroupsService meteringGroupsService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -46,17 +44,18 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
         this.searchService = searchService;
     }
 
-    public DeviceGroupBuilder withMridPrefix(String mridPrefix){
-        if (mridPrefix == null)
+    public DeviceGroupBuilder withMridPrefix(String mridPrefix) {
+        if (mridPrefix == null) {
             searchablePropertyNames.remove(PROPERTY_MRID);
-        else
+        } else {
             searchablePropertyNames.add(PROPERTY_MRID);
+        }
 
         this.mridPrefix = mridPrefix;
         return this;
     }
 
-    public DeviceGroupBuilder withDeviceTypes(List<String> deviceTypes){
+    public DeviceGroupBuilder withDeviceTypes(List<String> deviceTypes) {
         searchablePropertyNames.add(PROPERTY_DEVICE_TYPE);
         this.deviceTypes = deviceTypes;
         return this;
@@ -86,12 +85,14 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
     }
 
     protected SearchablePropertyValue[] getSearchablePropertyValues() {
-        SearchablePropertyValue[] values = new SearchablePropertyValue[searchablePropertyNames.size()];
-        if (searchablePropertyNames.contains(PROPERTY_MRID))
-            Arrays.fill(values, createSearchablePropertyValue(PROPERTY_MRID, Collections.singletonList(mridPrefix)));
-        if (searchablePropertyNames.contains(PROPERTY_DEVICE_TYPE))
-            Arrays.fill(values, createSearchablePropertyValue(PROPERTY_DEVICE_TYPE, getDeviceTypes().stream().map(HasId::getId).map(Object::toString).collect(Collectors.toList())));
-        return values;
+        List<SearchablePropertyValue> values = new ArrayList<>(searchablePropertyNames.size());
+        if (searchablePropertyNames.contains(PROPERTY_MRID)) {
+            values.add(createSearchablePropertyValue(PROPERTY_MRID, Collections.singletonList(mridPrefix)));
+        }
+        if (searchablePropertyNames.contains(PROPERTY_DEVICE_TYPE)) {
+            values.add(createSearchablePropertyValue(PROPERTY_DEVICE_TYPE, getDeviceTypes().stream().map(HasId::getId).map(Object::toString).collect(Collectors.toList())));
+        }
+        return values.toArray(new SearchablePropertyValue[searchablePropertyNames.size()]);
     }
 
     private SearchablePropertyValue createSearchablePropertyValue(String searchableProperty, List<String> values) {

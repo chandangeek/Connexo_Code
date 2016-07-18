@@ -9,16 +9,16 @@ import java.util.stream.Collectors;
 
 /**
  * {@link Template} holding a set of predefined attributes for creating {@link EndDeviceGroup}s
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 17/09/2015
  * Time: 9:56
  */
 public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilder> {
-    NORTH_REGION("South region", Constants.Device.STANDARD_PREFIX + "*",
+    NORTH_REGION("North region", Constants.Device.STANDARD_PREFIX + "*",
             DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000
     ),
-    SOUTH_REGION("North region", Constants.Device.STANDARD_PREFIX + "*",
+    SOUTH_REGION("South region", Constants.Device.STANDARD_PREFIX + "*",
             DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
     ),
     ALL_ELECTRICITY_DEVICES("All electricity devices", null,
@@ -27,8 +27,7 @@ public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilde
     ),
     A1800_DEVICES("Elster A1800 devices", null, DeviceTypeTpl.Elster_A1800),
     DATA_LOGGERS("Data loggers", null, DeviceTypeTpl.WEBRTU_Z2),
-    DATA_LOGGER_SLAVES("Data logger slaves", null, DeviceTypeTpl.EIMETER_FLEX)
-    ;
+    DATA_LOGGER_SLAVES("Data logger slaves", null, DeviceTypeTpl.EIMETER_FLEX);
 
     private String name;
     private String mridPrefix;
