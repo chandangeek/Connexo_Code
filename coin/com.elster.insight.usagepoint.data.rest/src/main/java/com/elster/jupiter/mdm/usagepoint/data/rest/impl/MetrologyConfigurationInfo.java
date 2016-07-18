@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.impl.MetrologyContractInfo;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -37,6 +38,7 @@ public class MetrologyConfigurationInfo {
     public IdWithNameInfo status;
     public List<MeterRoleInfo> meterRoles;
     public List<PurposeInfo> purposes;
+    public List<MetrologyContractInfo> metrologyContracts;
 
     @JsonIgnore
     public Thesaurus thesaurus;
