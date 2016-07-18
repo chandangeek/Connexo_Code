@@ -222,7 +222,7 @@ public class UsagePointResource {
                 .map(mc -> new MetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
                         .stream()
                         .sorted((a, b) -> a.getCustomPropertySet().getName().compareToIgnoreCase(b.getCustomPropertySet().getName()))
-                        .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
+                        .map(rcps -> customPropertySetInfoFactory.getGeneralAndPropertiesInfo(rcps, mc))
                         .collect(Collectors.toList())))
                 .collect(Collectors.toList());
         return new MetrologyConfigurationInfos(configs);
@@ -303,7 +303,6 @@ public class UsagePointResource {
                         .filter(cps -> cps.id == set.getId())
                         .findFirst()
                         .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOM_PROPERTY_SET, customPropertySetId));
-
                 validateCasValues(set, customPropertySetInfo);
             }
             return Response.accepted().build();
