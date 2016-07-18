@@ -4,7 +4,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
     itemId: 'deviceregisterreportpreviewvalidation',
     requires:[
         'Cfg.privileges.Validation',
-        'Mdc.view.field.ReadingQualities'
+        'Cfg.view.field.ReadingQualities'
     ],
 
     fieldLabel: Uni.I18n.translate('deviceloadprofiles.validation', 'MDC', 'Validation'),

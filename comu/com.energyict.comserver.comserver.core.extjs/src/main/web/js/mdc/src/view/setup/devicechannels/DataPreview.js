@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         'Mdc.view.setup.devicechannels.DataActionMenu',
         'Mdc.view.setup.devicechannels.ValidationPreview',
         'Uni.form.field.EditedDisplay',
-        'Mdc.view.field.ReadingQualities',
+        'Cfg.view.field.ReadingQualities',
         'Uni.util.FormInfoMessage'
     ],
     channelRecord: null,
