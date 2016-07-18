@@ -11,7 +11,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.RegisterType;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -20,10 +19,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Path("/")
@@ -76,7 +72,7 @@ public class ReadingTypeResource {
     }
 
     private Condition getReadingTypeFilterCondition(String dbSearchText) {
-        String regex = "*".concat(dbSearchText.replace(" ", "*").concat("*"));
-        return Where.where("fullAliasName").likeIgnoreCase(regex).and(Where.where("mRID").matches("^0.[0-9]+.0", ""));
+        String regex = "*" + dbSearchText.replace(" ", "*") + "*";
+        return Where.where("fullAliasName").likeIgnoreCase(regex).and(Where.where("mRID").matches("^0\\.\\d+\\.0", ""));
     }
 }
