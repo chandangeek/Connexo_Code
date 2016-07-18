@@ -11,7 +11,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
 
-@Component(name = "com.elster.jupiter.metering.cim.soap", service = {InboundSoapEndPointProvider.class}, immediate = true, property = {"name=cim"})
+@Component(name = "com.elster.jupiter.metering.cim.soap", service = {InboundSoapEndPointProvider.class}, immediate = true, property = {"name=CIM GetMeterReadings"})
 public class GetMeterReadingsEndpointProvider implements InboundSoapEndPointProvider {
 
     private volatile MeteringService meteringService;
