@@ -223,7 +223,7 @@ public class DataAggregationServiceImplCalculateIT {
                 injector.getInstance(ServerMeteringService.class),
                 DataAggregationServiceImplCalculateIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+                () -> injector.getInstance(ReadingTypeDeliverableForMeterActivationFactory.class));
     }
 
     private static void setupReadingTypes() {

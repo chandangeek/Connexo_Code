@@ -56,7 +56,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     // For OSGi only
     @SuppressWarnings("unused")
     public DataAggregationServiceImpl(ServerMeteringService meteringService, CustomPropertySetService customPropertySetService) {
-        this(SqlBuilderFactoryImpl::new, VirtualFactoryImpl::new, ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+        this(SqlBuilderFactoryImpl::new, VirtualFactoryImpl::new, () -> meteringService.getDataModel().getInstance(ReadingTypeDeliverableForMeterActivationFactory.class));
         this.meteringService = meteringService;
         this.customPropertySetService = customPropertySetService;
     }
@@ -95,7 +95,8 @@ public class DataAggregationServiceImpl implements DataAggregationService {
                         this.execute(
                                 this.generateSql(
                                         this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
-                                        deliverablesPerMeterActivation), deliverablesPerMeterActivation));
+                                        deliverablesPerMeterActivation),
+                                deliverablesPerMeterActivation));
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }

@@ -216,7 +216,7 @@ public class DataAggregationServiceImplExpertModeIT {
                 injector.getInstance(ServerMeteringService.class),
                 DataAggregationServiceImplExpertModeIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+                () -> injector.getInstance(ReadingTypeDeliverableForMeterActivationFactory.class));
     }
 
     private static void setupReadingTypes() {

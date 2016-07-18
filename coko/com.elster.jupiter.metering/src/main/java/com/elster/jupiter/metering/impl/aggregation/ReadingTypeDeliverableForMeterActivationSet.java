@@ -5,20 +5,18 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +30,8 @@ import java.util.stream.Collectors;
  */
 class ReadingTypeDeliverableForMeterActivationSet {
 
+    private final ServerMeteringService meteringService;
+
     private final Formula.Mode mode;
     private final ReadingTypeDeliverable deliverable;
     private final MeterActivationSet meterActivationSet;
@@ -41,8 +41,8 @@ class ReadingTypeDeliverableForMeterActivationSet {
     private final VirtualReadingType targetReadingType;
     private List<ReadingTypeRequirement> requirements;
 
-    ReadingTypeDeliverableForMeterActivationSet(Formula.Mode mode, ReadingTypeDeliverable deliverable, MeterActivationSet meterActivationSet, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
-        super();
+    ReadingTypeDeliverableForMeterActivationSet(ServerMeteringService meteringService, Formula.Mode mode, ReadingTypeDeliverable deliverable, MeterActivationSet meterActivationSet, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
+        this.meteringService = meteringService;
         this.mode = mode;
         this.deliverable = deliverable;
         this.meterActivationSet = meterActivationSet;
@@ -50,12 +50,12 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.expressionNode = expressionNode;
         this.expressionReadingType = expressionReadingType;
         this.requirements = this.expressionNode.accept(new RequirementsFromExpressionNode()).stream()
-                                               .map(reqNode -> reqNode.getRequirement()).collect(Collectors.toList());
+                                               .map(VirtualRequirementNode::getRequirement).collect(Collectors.toList());
         this.targetReadingType = VirtualReadingType.from(deliverable.getReadingType());
     }
 
     public List<? extends ReadingQualityRecord> getReadingQualities(Instant timestamp) {
-        List<ReadingQualityRecord> result = new ArrayList();
+        List<ReadingQualityRecord> result = new ArrayList<>();
         requirements.forEach(r -> result.addAll(meterActivationSet.getReadingQualitiesFor(r, getTargetRange(timestamp))));
         return result;
     }
@@ -81,7 +81,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
     }
 
     long getExpectedCount(Instant timestamp) {
-        Range range = getTargetRange(timestamp);
+        Range<Instant> range = getTargetRange(timestamp);
         List<Instant> expectedTimestamps = getExpectedTimestamps(range);
         return expectedTimestamps.size();
     }
@@ -102,7 +102,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         return builder.build();
     }
 
-    Range getTargetRange(Instant timestamp) {
+    private Range<Instant> getTargetRange(Instant timestamp) {
         IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
         ZoneId zoneId = meterActivationSet.getZoneId();
         Instant endOfInterval = targetIntervalLength.truncate(timestamp, zoneId);
@@ -275,7 +275,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
-            Loggers.SQL.debug(() -> "Truncating timeline for deliverable " + this.deliverable.getName() + " in meter activation " + this.meterActivationSet.getRange() + " to ");
+            Loggers.SQL.debug(() -> "Truncating timeline for deliverable " + this.deliverable.getName() + " in meter activation set " + this.meterActivationSet.getRange());
             this.appendTruncatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
             sqlBuilder.append(", ");
             sqlBuilder.append(AggregationFunction.MAX.sqlName());
@@ -298,12 +298,16 @@ class ReadingTypeDeliverableForMeterActivationSet {
         } else {
             intervalLength = this.targetReadingType.getIntervalLength();
         }
-        Loggers.SQL.debug(() -> "Truncating " + sqlName + " to " + intervalLength.toOracleTruncFormatModel());
-        sqlBuilder.append("TRUNC(");
-        sqlBuilder.append(sqlName);
-        sqlBuilder.append(", '");
-        sqlBuilder.append(intervalLength.toOracleTruncFormatModel());
-        sqlBuilder.append("')");
+        this.appendTruncatedTimeline(sqlBuilder, sqlName, intervalLength);
+    }
+
+    private void appendTruncatedTimeline(SqlBuilder sqlBuilder, String sqlName, IntervalLength intervalLength) {
+        TruncatedTimelineSqlBuilder builder =
+                TruncatedTimelineSqlBuilderFactory
+                        .truncate(this.targetReadingType)
+                        .to(intervalLength)
+                        .using(sqlBuilder, this.meteringService);
+        builder.append(sqlName);
     }
 
     private void appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames columnName, SqlBuilder sqlBuilder, String sqlName) {
@@ -316,16 +320,11 @@ class ReadingTypeDeliverableForMeterActivationSet {
         if (this.resultValueNeedsTimeBasedAggregation()) {
             this.appendAggregatedReadingQuality(sqlBuilder);
             sqlBuilder.append(", count(*)");
-            //appendMeterActivationAndDeliverable(sqlBuilder);
         } else {
             this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
             sqlBuilder.append(", 1");
         }
     }
-
-    /*private void appendMeterActivationAndDeliverable(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(", " + this.meterActivation.getId() + ", " + this.deliverable.getId());
-    }*/
 
     private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
         sqlBuilder.append("MAX(");

@@ -26,6 +26,8 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
+import com.elster.jupiter.metering.impl.aggregation.ReadingTypeDeliverableForMeterActivationFactory;
+import com.elster.jupiter.metering.impl.aggregation.ReadingTypeDeliverableForMeterActivationFactoryImpl;
 import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -208,6 +210,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MessageService.class).toInstance(messageService);
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
                 bind(DataAggregationService.class).toInstance(dataAggregationService);
+                bind(ReadingTypeDeliverableForMeterActivationFactory.class).to(ReadingTypeDeliverableForMeterActivationFactoryImpl.class);
             }
         });
     }
@@ -279,17 +282,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
         Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
-        Arrays.stream(YesNoAnswer.values()).map(answer -> new TranslationKey() {
-            @Override
-            public String getKey() {
-                return answer.toString();
-            }
-
-            @Override
-            public String getDefaultFormat() {
-                return answer.toString();
-            }
-        }).forEach(translationKeys::add);
+        Arrays.stream(YesNoAnswer.values()).map(YesNoAnswerTranslationKey::new).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(DefaultReadingTypeTemplate.TemplateTranslation.values()));
@@ -468,5 +461,23 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     String[] getRequiredReadingTypes() {
         return this.requiredReadingTypes;
+    }
+
+    private static class YesNoAnswerTranslationKey implements TranslationKey {
+        private final YesNoAnswer answer;
+
+        YesNoAnswerTranslationKey(YesNoAnswer answer) {
+            this.answer = answer;
+        }
+
+        @Override
+        public String getKey() {
+            return answer.toString();
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return answer.toString();
+        }
     }
 }

@@ -241,7 +241,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                 getMeteringService(),
                 DataAggregationServiceImplCalculateWithCustomPropertiesIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+                () -> injector.getInstance(ReadingTypeDeliverableForMeterActivationFactory.class));
     }
 
     private static void setupReadingTypes() {

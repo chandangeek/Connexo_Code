@@ -215,7 +215,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                 injector.getInstance(ServerMeteringService.class),
                 DataAggregationServiceImplCalculateWithTemperatureConversionIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+                () -> injector.getInstance(ReadingTypeDeliverableForMeterActivationFactory.class));
     }
 
     private static void setupReadingTypes() {

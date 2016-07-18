@@ -219,7 +219,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
                 injector.getInstance(ServerMeteringService.class),
                 DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+                () -> injector.getInstance(ReadingTypeDeliverableForMeterActivationFactory.class));
     }
 
     private static void setupReadingTypes() {

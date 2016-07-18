@@ -72,9 +72,22 @@ class VirtualReadingType implements Comparable<VirtualReadingType> {
                 && isElectricity(commodity);
     }
 
+    public boolean isElectricity() {
+        return isElectricity(this.commodity);
+    }
+
     private static boolean isElectricity(Commodity commodity) {
         return Commodity.ELECTRICITY_PRIMARY_METERED.equals(commodity)
                 || Commodity.ELECTRICITY_SECONDARY_METERED.equals(commodity);
+
+    }
+
+    public boolean isGas() {
+        return isGas(this.commodity);
+    }
+
+    private static boolean isGas(Commodity commodity) {
+        return Commodity.NATURALGAS.equals(commodity);
 
     }
 

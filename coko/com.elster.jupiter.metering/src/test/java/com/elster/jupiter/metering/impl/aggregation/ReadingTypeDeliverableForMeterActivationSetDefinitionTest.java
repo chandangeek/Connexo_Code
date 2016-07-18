@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.Range;
@@ -52,9 +53,12 @@ public class ReadingTypeDeliverableForMeterActivationSetDefinitionTest {
     private MeterActivationSet meterActivationSet;
     @Mock
     private ClauseAwareSqlBuilder clauseAwareSqlBuilder;
-    private SqlBuilder withClauseSqlBuilder;
-    private SqlBuilder selectClauseSqlBuilder;
+    @Mock
+    private ServerMeteringService meteringService;
 
+    private SqlBuilder withClauseSqlBuilder;
+
+    private SqlBuilder selectClauseSqlBuilder;
     private Range<Instant> aggregationPeriod = Range.openClosed(Instant.ofEpochMilli(1456786800000L), Instant.ofEpochMilli(1459461600000L));
     private ServerExpressionNode expressionNode = new NumericalConstantNode(BigDecimal.TEN);
 
@@ -149,6 +153,7 @@ public class ReadingTypeDeliverableForMeterActivationSetDefinitionTest {
 
     private ReadingTypeDeliverableForMeterActivationSet testInstance(Formula.Mode mode, VirtualReadingType virtualReadingType) {
         return new ReadingTypeDeliverableForMeterActivationSet(
+                this.meteringService,
                 mode,
                 this.deliverable,
                 this.meterActivationSet,
