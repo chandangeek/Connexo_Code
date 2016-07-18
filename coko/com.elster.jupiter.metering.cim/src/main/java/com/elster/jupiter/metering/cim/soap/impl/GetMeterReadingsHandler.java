@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.cim.soap.impl;
 
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -122,8 +123,8 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     }
 
     private void addForMeter(MeterReadingsPayloadType meterReadingsPayloadType, Meter meter, Range<Instant> range) {
-        Set<Map.Entry<Range<Instant>,MeterActivation>> entries = getMeterActivationsPerInterval(meter, range).entrySet();
-        for (Map.Entry<Range<Instant>, MeterActivation> entry : entries) {
+        Set<Map.Entry<Range<Instant>, ChannelsContainer>> entries = getMeterActivationsPerInterval(meter, range).entrySet();
+        for (Map.Entry<Range<Instant>, ChannelsContainer> entry : entries) {
             meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue(), entry.getKey());
         }
     }
@@ -168,7 +169,7 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
     private void addForUsagePoint(MeterReadingsPayloadType meterReadingsPayloadType, com.elster.jupiter.metering.UsagePoint usagePoint, Range<Instant> range) {
         Set<Map.Entry<Range<Instant>,MeterActivation>> entries = getMeterActivationsPerInterval(usagePoint, range).entrySet();
         for (Map.Entry<Range<Instant>, MeterActivation> entry : entries) {
-            meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue(), entry.getKey());
+            meterReadingsGenerator.addMeterReadings(meterReadingsPayloadType.getMeterReadings(), entry.getValue().getChannelsContainer(), entry.getKey());
         }
     }
 
@@ -201,24 +202,24 @@ public class GetMeterReadingsHandler implements GetMeterReadingsPort {
         Map<Range<Instant>, MeterActivation> map = new HashMap<>();
         for (MeterActivation meterActivation : usagePoint.getMeterActivations()) {
             if (meterActivation.overlaps(range)) {
-                map.put(intersection(meterActivation, range).get(), meterActivation);
+                map.put(intersection(meterActivation.getChannelsContainer(), range).get(), meterActivation);
             }
         }
         return map;
     }
 
-    private Map<Range<Instant>, MeterActivation> getMeterActivationsPerInterval(Meter meter, Range<Instant> range) {
-        Map<Range<Instant>, MeterActivation> map = new HashMap<>();
-        for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.overlaps(range)) {
-                map.put(intersection(meterActivation, range).get(), meterActivation);
+    private Map<Range<Instant>, ChannelsContainer> getMeterActivationsPerInterval(Meter meter, Range<Instant> range) {
+        Map<Range<Instant>, ChannelsContainer> map = new HashMap<>();
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
+            if (channelsContainer.overlaps(range)) {
+                map.put(intersection(channelsContainer, range).get(), channelsContainer);
             }
         }
         return map;
     }
 
-    private Optional<Range<Instant>> intersection(MeterActivation meterActivation, Range<Instant> range) {
-    	return meterActivation.intersection(range);
+    private Optional<Range<Instant>> intersection(ChannelsContainer channelsContainer, Range<Instant> range) {
+        return channelsContainer.intersection(range);
     }
 
     private List<String> requestedEndDeviceGroups(GetMeterReadingsRequestType request) {
