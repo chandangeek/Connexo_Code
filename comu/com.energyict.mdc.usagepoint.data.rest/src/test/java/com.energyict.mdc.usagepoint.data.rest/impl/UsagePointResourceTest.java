@@ -131,6 +131,33 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.channels[0].deviceChannels[1].channel.id")).isNull();
     }
 
+    @Test
+    public void testGetChannel() {
+        EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
+
+        //Business method
+        String json = target("/usagepoints/testUP/channels/1").request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Integer>get("$.interval.count")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.dataUntil")).isEqualTo(1467710958704L);
+        assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo("11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        assertThat(jsonModel.<List>get("$.deviceChannels")).hasSize(2);
+        assertThat(jsonModel.<Long>get("$.deviceChannels[0].from")).isEqualTo(1410774620100L);
+        assertThat(jsonModel.<Long>get("$.deviceChannels[0].until")).isNull();
+        assertThat(jsonModel.<String>get("$.interval.timeUnit")).isEqualTo("days");
+        assertThat(jsonModel.<String>get("$.deviceChannels[0].mRID")).isEqualTo("testD");
+        assertThat(jsonModel.<String>get("$.deviceChannels[0].channel.name")).isEqualTo("testR");
+        assertThat(jsonModel.<Integer>get("$.deviceChannels[0].channel.id")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.deviceChannels[1].from")).isEqualTo(1410515420000L);
+        assertThat(jsonModel.<Long>get("$.deviceChannels[1].until")).isEqualTo(1410774620100L);
+        assertThat(jsonModel.<String>get("$.deviceChannels[1].mRID")).isEqualTo("testOldDevice");
+        assertThat(jsonModel.<String>get("$.deviceChannels[1].channel.name")).isEqualTo("testR");
+        assertThat(jsonModel.<Integer>get("$.deviceChannels[1].channel.id")).isNull();
+    }
+
     private EffectiveMetrologyConfigurationOnUsagePoint mockEffectiveMetrologyConfiguration() {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
@@ -164,6 +191,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(channel.getLastDateTime()).thenReturn(Instant.ofEpochMilli(1467710958704L));
         when(intervalLength.get(ChronoUnit.DAYS)).thenReturn(1L);
         when(channel.getIntervalLength()).thenReturn(Optional.of(intervalLength));
+        when(channel.getId()).thenReturn(1L);
         when(metrologyConfiguration.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(deliverable.getReadingType()).thenReturn(readingType);
         doReturn(Arrays.asList(oldMeterActivation, meterActivation)).when(usagePoint).getMeterActivations();
