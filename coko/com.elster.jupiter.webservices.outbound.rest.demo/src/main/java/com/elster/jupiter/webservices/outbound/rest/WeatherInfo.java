@@ -9,7 +9,7 @@ public class WeatherInfo {
     public List<Weather> weathers;
     public Main main;
     public Wind wind;
-    public Clounds clouds;
+    public Clouds clouds;
 
     public class Coord {
         public double lon, lat;
@@ -28,7 +28,7 @@ public class WeatherInfo {
         public double speed, deg;
     }
 
-    public class Clounds {
+    public class Clouds {
         public double all;
     }
 }
