@@ -5,8 +5,6 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.streams.DecoratedStream;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -55,12 +53,18 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
     @Override
     public boolean isAllDataValidated(List<Channel> channels) {
         Comparator<Instant> comparator = nullsLast(naturalOrder());
-        return DecoratedStream.decorate(channels.stream())
-                .map(Channel::getChannelsContainer)
-                .distinct(HasId::getId)
-                .map(channelsContainer -> getMapToValidation().get(channelsContainer.getId()))
-                .flatMap(validations -> channels.stream().map(validations::channelValidationsFor).flatMap(ChannelValidationContainer::stream))
-                .noneMatch(channelValidation -> channelValidation.hasActiveRules() && comparator.compare(channelValidation.getLastChecked(), channelValidation.getChannel().getLastDateTime()) < 0);
+        for (Channel channel : channels) {
+            Optional<ChannelValidationContainer> channelValidation = Optional.ofNullable(getMapToValidation().get(channel.getChannelsContainer().getId()))
+                    .map(validationList -> validationList.channelValidationsFor(channel));
+            Optional<Instant> lastChecked = channelValidation.flatMap(ChannelValidationContainer::getLastChecked);
+            if (!channelValidation.isPresent()
+                    || !channelValidation.get().isValidationActive()
+                    || !lastChecked.isPresent()
+                    || comparator.compare(lastChecked.get(), channel.getLastDateTime()) < 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
