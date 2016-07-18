@@ -35,7 +35,6 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.GatewayType;
@@ -53,7 +52,6 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
-import com.energyict.mdc.device.data.impl.tasks.AbstractComTaskExecutionImplTest;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -117,6 +115,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     private ReadingType forwardBulkSecondaryEnergyReadingType;
     private ReadingType forwardDeltaSecondaryEnergyReadingType;
+    private ReadingType reverseDeltaSecondaryMonthlyEnergyReadingType;
     private ReadingType forwardBulkPrimaryEnergyReadingType;
     private ReadingType forwardDeltaPrimaryMonthlyEnergyReadingType;
     private ReadingType reverseBulkSecondaryEnergyReadingType;
@@ -184,6 +183,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                 .measure(MeasurementKind.ENERGY)
                 .in(MetricMultiplier.KILO, ReadingTypeUnit.WATTHOUR).code();
         this.reverseBulkPrimaryEnergyReadingType = inMemoryPersistence.getMeteringService().getReadingType(reverseBulkPrimaryCode).get();
+        this.reverseDeltaSecondaryMonthlyEnergyReadingType = inMemoryPersistence.getMeteringService()
+                .getReadingType(getReverseSecondaryBulkReadingTypeCodeBuilder().accumulate(Accumulation.DELTADELTA).period(MacroPeriod.MONTHLY).code())
+                .get();
         this.reverseEnergyObisCode = inMemoryPersistence.getReadingTypeUtilService().getReadingTypeInformationFor(reverseBulkSecondaryEnergyReadingType).getObisCode();
         this.averageForwardEnergyReadingTypeMRID = ReadingTypeCodeBuilder
                 .of(Commodity.ELECTRICITY_SECONDARY_METERED)
@@ -1406,7 +1408,6 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void createMeterConfigurationForMultipliedRegisterSpecTest() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
-
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultiplierOnRegister", "DeviceWithMultiplierOnRegister");
         device.save();
         device.setMultiplier(BigDecimal.TEN);
@@ -1421,6 +1422,58 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                         value.getCalculated().get().getMRID().equals(forwardBulkPrimaryEnergyReadingType.getMRID());
             }
         });
+    }
+
+    @Test
+    @Transactional
+    public void headEndInterfaceCreatesCorrectKoreChannels() {
+        RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
+        RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("LoadProfileType", loadProfileObisCode, TimeDuration.months(1), Arrays.asList(registerType1, registerType2));
+        loadProfileType.save();
+        ChannelType channelTypeForRegisterType1 = loadProfileType.findChannelType(registerType1).get();
+        ChannelType channelTypeForRegisterType2 = loadProfileType.findChannelType(registerType2).get();
+        deviceType.addLoadProfileType(loadProfileType);
+        DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("ConfigWithMultipliedChannels");
+        LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
+        BigDecimal overflow = BigDecimal.valueOf(9999);
+        final int nbrOfFractionDigits = 3;
+        deviceConfigurationBuilder.newChannelSpec(channelTypeForRegisterType1, loadProfileSpecBuilder)
+                .nbrOfFractionDigits(nbrOfFractionDigits)
+                .overflow(overflow)
+                .useMultiplierWithCalculatedReadingType(forwardDeltaPrimaryMonthlyEnergyReadingType);
+        deviceConfigurationBuilder.newChannelSpec(channelTypeForRegisterType2, loadProfileSpecBuilder)
+                .nbrOfFractionDigits(nbrOfFractionDigits)
+                .overflow(overflow);
+
+        DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
+        deviceConfiguration.activate();
+
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers");
+        device.save();
+        device.setMultiplier(BigDecimal.TEN);
+        Meter meter = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get();
+
+        int channelSize = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().size();
+        assertThat(channelSize)
+                .withFailMessage("You should have 2 channels, but you got " + channelSize + ". This is probably because you created your MeterActivation first before you updated the MeterConfiguration")
+                .isEqualTo(2);
+        assertThat(meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels()).haveExactly(1, new Condition<com.elster.jupiter.metering.Channel>() {
+            @Override
+            public boolean matches(com.elster.jupiter.metering.Channel channel) {
+                return channel.getMainReadingType().getMRID().equals(forwardDeltaPrimaryMonthlyEnergyReadingType.getmRID())
+                        && channel.getBulkQuantityReadingType().isPresent() && channel.getBulkQuantityReadingType().get().getMRID().equals(channelTypeForRegisterType1.getReadingType().getMRID());
+            }
+        });
+        assertThat(meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels()).haveExactly(1, new Condition<com.elster.jupiter.metering.Channel>() {
+            @Override
+            public boolean matches(com.elster.jupiter.metering.Channel channel) {
+                return channel.getMainReadingType().getMRID().equals(reverseDeltaSecondaryMonthlyEnergyReadingType.getmRID())
+                        && channel.getBulkQuantityReadingType().isPresent() && channel.getBulkQuantityReadingType().get().getmRID().equals(channelTypeForRegisterType2.getReadingType().getmRID());
+            }
+        });
+
     }
 
     @Test
