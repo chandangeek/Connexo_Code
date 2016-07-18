@@ -141,7 +141,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
             };
 
         if (showValue) {
-            result = (!Ext.isEmpty(value) ? value + ' ' + me.unit : '')
+            result = (!Ext.isEmpty(value) ? value + ' ' + me.unit + ' ' : '')
                 + '(' + flags[validation].text + ')'
                 + ' ' + flags[validation].icon;
         } else {
