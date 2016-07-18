@@ -238,8 +238,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.UNMEASURED_NON_SDP.name()));
 
-        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
-                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+        ReadingType readingTypeMonthlyAplusWh = meteringService.getReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0")
+                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
                 .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
@@ -292,8 +292,8 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
                 .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
         config.addMeterRole(meterRole);
 
-        ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0"))
-                .stream().findFirst().orElseGet(() -> meteringService.createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "A+"));
+        ReadingType readingType15minAplusWh = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
+                .orElseGet(() -> meteringService.createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0", "A+"));
 
         MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                 .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
