@@ -8,12 +8,14 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.OrganizationBuilder;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
@@ -170,6 +172,16 @@ public class PartyServiceImpl implements PartyService {
     @Override
     public Query<Party> getPartyQuery() {
         return queryService.wrap(dataModel.query(Party.class, PartyInRole.class));
+    }
+
+    @Override
+    public Query<Organization> getOrganizationQuery() {
+        return queryService.wrap(dataModel.query(Organization.class, PartyInRole.class));
+    }
+
+    @Override
+    public Query<Person> getPersonQuery() {
+        return queryService.wrap(dataModel.query(Person.class, PartyInRole.class));
     }
 
     @Override

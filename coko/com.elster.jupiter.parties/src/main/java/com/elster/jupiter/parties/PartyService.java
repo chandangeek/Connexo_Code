@@ -1,7 +1,8 @@
 package com.elster.jupiter.parties;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,8 @@ public interface PartyService {
     Optional<Party> getParty(String mRID);
     List<Party> getParties();
     Query<Party> getPartyQuery();
+    Query<Organization> getOrganizationQuery();
+    Query<Person> getPersonQuery();
     PersonBuilder newPerson(String firstName, String lastName);
 	Optional<Party> getParty(long id);
     Optional<Party> findParty(long id);
