@@ -73,7 +73,7 @@ public class FavoritesServiceImpl implements FavoritesService, MessageSeedProvid
                 bind(DataModel.class).toInstance(dataModel);
             }
         });
-        upgradeService.register(InstallIdentifier.identifier(FavoritesService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", FavoritesService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
     }
 
     static class Installer implements FullInstaller {
