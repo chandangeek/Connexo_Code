@@ -23,7 +23,9 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                                     '<tr>',
                                         '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{name}.png" /></td>',
                                         '<td>{children.length} {title}</td>',
-                '<td style="padding-left: 15px;"><img data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/build/resources/images/shared/icon-info-small.png" /></td>',
+                                        '<td style="padding-left: 15px;">' +
+                                            '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;"' +
+                                               ' data-qtitle="{children.length} {title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}"></span></td>',
                                     '</tr>',
                                 '<tpl else>',
                                     '<tr>',
@@ -37,7 +39,9 @@ Ext.define('Dsh.view.widget.CommunicationServers', {
                                     '<tr id="{comServerId}">',
                                         '<td style="padding-right: 5px;"><img src="/apps/dsh/resources/images/widget/{[parent.name]}.png" /></td>',
                                         '<td><a href="{href}">{title}</a></td>',
-                '<td style="padding-left: 15px;"><img data-qtitle="{title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}" src="/apps/sky/build/resources/images/shared/icon-info-small.png" /></td>',
+                                        '<td style="padding-left: 15px;">' +
+                                            '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;"' +
+                                            ' data-qtitle="{title}" data-qtip="{[Ext.htmlEncode(values.tooltip)]}"></span></td>',
                                     '</tr>',
                                 '</tpl>',
                             '</tpl>',
