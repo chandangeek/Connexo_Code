@@ -95,7 +95,7 @@ public class MetrologyConfigurationResource {
                         .collect(Collectors.toList());
         List<MetrologyConfigurationInfo> metrologyConfigurationsInfos = ListPager.of(allMetrologyConfigurations).from(queryParameters).find()
                 .stream()
-                .map(metrologyConfigurationInfoFactory::asInfo)
+                .map(metrologyConfigurationInfoFactory::asDetailedInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("metrologyconfigurations", metrologyConfigurationsInfos, queryParameters);
     }

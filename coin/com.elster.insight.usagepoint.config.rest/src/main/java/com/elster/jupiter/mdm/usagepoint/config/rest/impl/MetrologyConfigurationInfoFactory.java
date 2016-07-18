@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.NullNode;
@@ -61,16 +62,19 @@ public class MetrologyConfigurationInfoFactory {
         return info;
     }
 
-    public MetrologyConfigurationInfo asDetailedInfo(UsagePointMetrologyConfiguration meterConfiguration) {
-        MetrologyConfigurationInfo info = asInfo(meterConfiguration);
-        info.metrologyContracts = meterConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
-
-        info.customPropertySets = meterConfiguration.getCustomPropertySets()
+    public MetrologyConfigurationInfo asDetailedInfo(UsagePointMetrologyConfiguration metrologyConfiguration) {
+        MetrologyConfigurationInfo info = asInfo(metrologyConfiguration);
+        info.metrologyContracts = metrologyConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
+        info.customPropertySets = metrologyConfiguration.getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(this.customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
                 .collect(Collectors.toList());
         return info;
+    }
+
+    public List<MetrologyContractInfo> getMetrologyContractsInfo(MetrologyConfiguration metrologyConfiguration) {
+        return metrologyConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
     }
 
     private IdWithNameInfo asInfo(MetrologyConfigurationStatus status) {
