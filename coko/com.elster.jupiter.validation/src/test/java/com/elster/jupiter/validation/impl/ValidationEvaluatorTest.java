@@ -5,6 +5,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.validation.ValidationContext;
 
 import com.google.common.collect.Range;
 
@@ -23,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -180,8 +182,41 @@ public class ValidationEvaluatorTest {
         when(channelValidation.getLastChecked()).thenReturn(now.minus(1, ChronoUnit.DAYS));
         when(channelValidation.getChannel()).thenReturn(channel);
         ChannelsContainerValidation channelsContainerValidation = mock(ChannelsContainerValidation.class);
-        when(channelsContainerValidation.getChannelValidations()).thenReturn(Collections.singleton(channelValidation));
+        when(channelsContainerValidation.getChannelValidation(channel)).thenReturn(Optional.of(channelValidation));
+        when(channelsContainerValidation.getLastRun()).thenReturn(now);
         when(validationService.getPersistedChannelsContainerValidations(channelsContainer)).thenReturn(Collections.singletonList(channelsContainerValidation));
+        assertThat(new ValidationEvaluatorImpl(validationService).isAllDataValidated(Collections.singletonList(channel))).isFalse();
+    }
+
+    @Test
+    public void testIsAllDataValidatedTrue() {
+        Instant now = Instant.now();
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        when(channelsContainer.getId()).thenReturn(1L);
+        Channel channel = mock(Channel.class);
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel.getLastDateTime()).thenReturn(now);
+        ChannelValidation channelValidation = mock(ChannelValidation.class);
+        when(channelValidation.hasActiveRules()).thenReturn(true);
+        when(channelValidation.getLastChecked()).thenReturn(now);
+        when(channelValidation.getChannel()).thenReturn(channel);
+        ChannelsContainerValidation channelsContainerValidation = mock(ChannelsContainerValidation.class);
+        when(channelsContainerValidation.getChannelValidation(channel)).thenReturn(Optional.of(channelValidation));
+        when(channelsContainerValidation.getLastRun()).thenReturn(now);
+        when(validationService.getPersistedChannelsContainerValidations(channelsContainer)).thenReturn(Collections.singletonList(channelsContainerValidation));
+        assertThat(new ValidationEvaluatorImpl(validationService).isAllDataValidated(Collections.singletonList(channel))).isTrue();
+    }
+
+    @Test
+    public void testIsAllDataValidatedNoValidation() {
+        Instant now = Instant.now();
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        when(channelsContainer.getId()).thenReturn(1L);
+        Channel channel = mock(Channel.class);
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channel.getLastDateTime()).thenReturn(now);
+        when(validationService.getPersistedChannelsContainerValidations(channelsContainer)).thenReturn(Collections.emptyList());
+        when(validationService.getUpdatedChannelsContainerValidations(any(ValidationContext.class))).thenReturn(Collections.emptyList());
         assertThat(new ValidationEvaluatorImpl(validationService).isAllDataValidated(Collections.singletonList(channel))).isFalse();
     }
 }

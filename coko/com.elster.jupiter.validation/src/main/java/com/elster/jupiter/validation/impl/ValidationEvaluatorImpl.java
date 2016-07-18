@@ -6,16 +6,16 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.streams.DecoratedStream;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,13 +45,31 @@ class ValidationEvaluatorImpl extends AbstractValidationEvaluator {
     @Override
     public boolean isAllDataValidated(List<Channel> channels) {
         Comparator<Instant> comparator = nullsLast(naturalOrder());
-        return DecoratedStream.decorate(channels.stream())
-                .map(Channel::getChannelsContainer)
-                .distinct(HasId::getId)
-                .flatMap(channelsContainer -> validationService.getPersistedChannelsContainerValidations(channelsContainer).stream())
-                .flatMap(channelsContainerValidation -> channelsContainerValidation.getChannelValidations().stream())
-                .filter(channelValidation -> channels.contains(channelValidation.getChannel()))
-                .noneMatch(channelValidation -> channelValidation.hasActiveRules() && comparator.compare(channelValidation.getLastChecked(), channelValidation.getChannel().getLastDateTime()) < 0);
+        Map<Long, List<ChannelsContainerValidation>> channelsContainerValidations = new HashMap<>();
+        for (Channel channel : channels) {
+            ChannelsContainer channelsContainer = channel.getChannelsContainer();
+            List<ChannelsContainerValidation> validations = channelsContainerValidations.get(channelsContainer.getId());
+            if (validations == null || validations.isEmpty()) {
+                validations = validationService.getPersistedChannelsContainerValidations(channelsContainer);
+                if (validations == null || validations.isEmpty()) { // For case when validation never start before
+                    validations = validationService.getUpdatedChannelsContainerValidations(new ValidationContextImpl(channelsContainer));
+                }
+                channelsContainerValidations.put(channelsContainer.getId(), validations);
+            }
+            if (validations == null || validations.isEmpty()) { // If there is no applicable ruleset, then data is not validated.
+                return false;
+            }
+            for (ChannelsContainerValidation validation : validations) {
+                if (validation.getLastRun() == null) { // if validation by that ruleset never run before
+                    return false;
+                }
+                Optional<ChannelValidation> channelValidation = validation.getChannelValidation(channel);
+                if (channelValidation.isPresent() && channelValidation.get().hasActiveRules() && comparator.compare(channelValidation.get().getLastChecked(), channel.getLastDateTime()) < 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
