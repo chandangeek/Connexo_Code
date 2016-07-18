@@ -54,11 +54,13 @@ public class ValidationStatusFactory {
         if (channelsContainer.isPresent()) {
             ValidationEvaluator validationEvaluator = validationService.getEvaluator();
             List<DataValidationStatus> validationStatuses = getDataValidationStatuses(validationEvaluator, channels);
-            info.lastChecked = getLastCheckedForChannels(validationEvaluator, channelsContainer.get(), channels);
-            info.suspectReason = getSuspectReasonInfo(validationStatuses);
-            info.allDataValidated = allDataValidated(validationEvaluator, channels);
             info.validationActive = isValidationActive(effectiveMetrologyConfiguration, metrologyContract);
-            info.hasSuspects = hasSuspects(channels, channelsContainer.get().getRange());
+            if (metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()) {
+                info.lastChecked = getLastCheckedForChannels(validationEvaluator, channelsContainer.get(), channels);
+                info.suspectReason = getSuspectReasonInfo(validationStatuses);
+                info.allDataValidated = allDataValidated(validationEvaluator, channels);
+                info.hasSuspects = hasSuspects(channels, channelsContainer.get().getRange());
+            }
         }
         return info;
     }
