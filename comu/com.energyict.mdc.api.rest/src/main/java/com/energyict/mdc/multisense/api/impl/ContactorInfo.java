@@ -1,5 +1,8 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.JsonInstantAdapter;
+
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
 
 /**
@@ -7,6 +10,7 @@ import java.time.Instant;
  */
 public class ContactorInfo {
     public Status status;
+    @XmlJavaTypeAdapter(JsonInstantAdapter.class)
     public Integer loadLimit;
     public Instant activationDate;
     public Integer loadTolerance;
