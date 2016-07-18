@@ -20,6 +20,10 @@
                 <include>*.txt</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <directory>assembly/partners/flow</directory>
+            <outputDirectory>partners/flow</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <dependencySets>
