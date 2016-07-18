@@ -1,16 +1,25 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
+import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Redefines a {@link ReadingTypeDeliverable} for a {@link MeterActivationSet}.
@@ -30,6 +39,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
     private final ServerExpressionNode expressionNode;
     private final VirtualReadingType expressionReadingType;
     private final VirtualReadingType targetReadingType;
+    private List<ReadingTypeRequirement> requirements;
 
     ReadingTypeDeliverableForMeterActivationSet(Formula.Mode mode, ReadingTypeDeliverable deliverable, MeterActivationSet meterActivationSet, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
         super();
@@ -39,7 +49,15 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.meterActivationSequenceNumber = meterActivationSequenceNumber;
         this.expressionNode = expressionNode;
         this.expressionReadingType = expressionReadingType;
+        this.requirements = this.expressionNode.accept(new RequirementsFromExpressionNode()).stream()
+                                               .map(reqNode -> reqNode.getRequirement()).collect(Collectors.toList());
         this.targetReadingType = VirtualReadingType.from(deliverable.getReadingType());
+    }
+
+    public List<? extends ReadingQualityRecord> getReadingQualities(Instant timestamp) {
+        List<ReadingQualityRecord> result = new ArrayList();
+        requirements.forEach(r -> result.addAll(meterActivationSet.getReadingQualitiesFor(r, getTargetRange(timestamp))));
+        return result;
     }
 
     private long getId() {
@@ -62,7 +80,36 @@ class ReadingTypeDeliverableForMeterActivationSet {
         return this.deliverable;
     }
 
-    ReadingType getReadingType() {
+    long getExpectedCount(Instant timestamp) {
+        Range range = getTargetRange(timestamp);
+        List<Instant> expectedTimestamps = getExpectedTimestamps(range);
+        return expectedTimestamps.size();
+    }
+
+    private List<Instant> getExpectedTimestamps(Range<Instant> range) {
+        IntervalLength sourceIntervalLength = this.expressionReadingType.getIntervalLength();
+        ZoneId zoneId = meterActivationSet.getZoneId();
+        if (!range.hasLowerBound() || !range.hasUpperBound()) {
+            throw new IllegalArgumentException("Range must be finite");
+        }
+        ImmutableList.Builder<Instant> builder = ImmutableList.builder();
+        Instant start = range.lowerEndpoint();
+        start = sourceIntervalLength.addTo(start, zoneId);
+        while (range.contains(start)) {
+            builder.add(start);
+            start = sourceIntervalLength.addTo(start, zoneId);
+        }
+        return builder.build();
+    }
+
+    Range getTargetRange(Instant timestamp) {
+        IntervalLength targetIntervalLength = this.targetReadingType.getIntervalLength();
+        ZoneId zoneId = meterActivationSet.getZoneId();
+        Instant endOfInterval = targetIntervalLength.truncate(timestamp, zoneId);
+        return Range.openClosed(targetIntervalLength.subtractFrom(endOfInterval, zoneId), endOfInterval);
+    }
+
+    ReadingType getReadingType () {
         return this.deliverable.getReadingType();
     }
 
@@ -193,7 +240,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         sqlBuilder.append(", ");
         this.appendTimelineToSelectClause(sqlBuilder);
         sqlBuilder.append(", ");
-        this.appendProcessStatusToSelectClause(sqlBuilder);
+        this.appendReadingQualityToSelectClause(sqlBuilder);
         sqlBuilder.append("\n  FROM ");
         sqlBuilder.append(this.sqlName());
         this.appendGroupByClauseIfApplicable(sqlBuilder);
@@ -265,21 +312,25 @@ class ReadingTypeDeliverableForMeterActivationSet {
         sqlBuilder.append(columnName.sqlName());
     }
 
-    private void appendProcessStatusToSelectClause(SqlBuilder sqlBuilder) {
+    private void appendReadingQualityToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
-            this.appendAggregatedProcessStatus(sqlBuilder);
+            this.appendAggregatedReadingQuality(sqlBuilder);
             sqlBuilder.append(", count(*)");
+            //appendMeterActivationAndDeliverable(sqlBuilder);
         } else {
-            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS, sqlBuilder, this.sqlName());
+            this.appendTimeSeriesColumnName(SqlConstants.TimeSeriesColumnNames.READINGQUALITY, sqlBuilder, this.sqlName());
             sqlBuilder.append(", 1");
         }
     }
 
-    private void appendAggregatedProcessStatus(SqlBuilder sqlBuilder) {
-        AggregationFunction.AGGREGATE_FLAGS
-                .appendTo(
-                        sqlBuilder, Collections.singletonList(
-                                new TextFragment(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName())));
+    /*private void appendMeterActivationAndDeliverable(SqlBuilder sqlBuilder) {
+        sqlBuilder.append(", " + this.meterActivation.getId() + ", " + this.deliverable.getId());
+    }*/
+
+    private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
+        sqlBuilder.append("MAX(");
+        sqlBuilder.append(this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
+        sqlBuilder.append(")");
     }
 
     private void appendGroupByClauseIfApplicable(SqlBuilder sqlBuilder) {
