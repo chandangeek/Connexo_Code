@@ -21,15 +21,14 @@ public interface WebServicesService {
     List<WebService> getWebServices();
 
     /**
-     * The webservice for which the configuration is passed as argument will be created (EndPoint for Inbound, ServiceRegistration for outbound)
-     * This method is not to be used externally, should move to IWebServicesService
+     * The webservice for which the configuration is passed as argument will be created (EndPoint for Soap Inbound, ServiceRegistration for outbound, Application for rest inbound)
      *
      * @param endPointConfiguration
      */
     void publishEndPoint(EndPointConfiguration endPointConfiguration);
 
     /**
-     * The webservice for which the configuration is passed as argument will be torn down and no longer available (EndPoint for Inbound, ServiceRegistration for outbound)
+     * The webservice for which the configuration is passed as argument will be torn down and no longer available
      *
      * @param endPointConfiguration
      */
@@ -59,4 +58,9 @@ public interface WebServicesService {
      * @return Empty is no such web service has been registered
      */
     Optional<WebService> getWebService(String webServiceName);
+
+    /**
+     * All endpoints created for the local appserver will be removed
+     */
+    void removeAllEndPoints();
 }
