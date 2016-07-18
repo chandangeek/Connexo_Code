@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -2148,6 +2149,7 @@ public class FormulaCrudTest {
         when(persistenceSupport.componentName()).thenReturn("TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
         when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.journalTableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUDJRNL");
         when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
         when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
         when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
@@ -2194,6 +2196,7 @@ public class FormulaCrudTest {
         when(persistenceSupport.componentName()).thenReturn("TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
         when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.journalTableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUDJRNL");
         when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
         when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
         when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
@@ -2239,6 +2242,7 @@ public class FormulaCrudTest {
         when(persistenceSupport.componentName()).thenReturn("TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
         when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.journalTableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUDJRNL");
         when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
         when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
         when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
@@ -2282,6 +2286,7 @@ public class FormulaCrudTest {
         when(persistenceSupport.componentName()).thenReturn("TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
         when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.journalTableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUDJRNL");
         when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
         when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
         when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
@@ -2325,6 +2330,7 @@ public class FormulaCrudTest {
         when(persistenceSupport.componentName()).thenReturn("TST");
         when(persistenceSupport.addCustomPropertyPrimaryKeyColumnsTo(any(Table.class))).thenReturn(Collections.emptyList());
         when(persistenceSupport.tableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUD");
+        when(persistenceSupport.journalTableName()).thenReturn("MTR_TST_CPS_FORMULA_CRUDJRNL");
         when(persistenceSupport.domainColumnName()).thenReturn("usagepoint");
         when(persistenceSupport.domainFieldName()).thenReturn("usagePoint");
         when(persistenceSupport.domainForeignKeyName()).thenReturn("MTR_TST_FK_USAGEPOINT");
@@ -2383,14 +2389,10 @@ public class FormulaCrudTest {
         }
     }
 
-    private static class UsagePointCPSWithStringProperty implements PersistentDomainExtension<UsagePoint> {
-        @NotNull
-        @SuppressWarnings("unused")
-        private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = ValueReference.absent();
+    private static class UsagePointCPSWithStringProperty extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
         @NotNull
         @SuppressWarnings("unused")
         private Reference<UsagePoint> usagePoint = ValueReference.absent();
-        private Interval interval;
         @Size(max = 125)
         private String dummy;
 
