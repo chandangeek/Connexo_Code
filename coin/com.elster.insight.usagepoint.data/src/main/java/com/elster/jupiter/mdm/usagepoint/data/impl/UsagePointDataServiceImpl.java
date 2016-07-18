@@ -1,16 +1,23 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
+import com.elster.jupiter.cbo.QualityCodeCategory;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
+import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -19,8 +26,11 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import com.google.common.collect.Sets;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -35,6 +45,9 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,6 +63,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     private volatile Thesaurus thesaurus;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MeteringService meteringService;
+    private volatile ValidationService validationService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
 
     @SuppressWarnings("unused")
@@ -61,12 +75,14 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     public UsagePointDataServiceImpl(Clock clock,
                                      OrmService ormService,
                                      MeteringService meteringService,
+                                     ValidationService validationService,
                                      NlsService nlsService,
                                      CustomPropertySetService customPropertySetService,
                                      UsagePointConfigurationService usagePointConfigurationService) {
         setClock(clock);
         setOrmService(ormService);
         setMeteringService(meteringService);
+        setValidationService(validationService);
         setNlsService(nlsService);
         setCustomPropertySetService(customPropertySetService);
         setUsagePointConfigurationService(usagePointConfigurationService);
@@ -84,6 +100,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UsagePointDataService.class).toInstance(UsagePointDataServiceImpl.this);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(ValidationService.class).toInstance(validationService);
                 bind(UsagePointConfigurationService.class).toInstance(usagePointConfigurationService);
             }
         };
@@ -120,6 +137,11 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     }
 
     @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
+    @Reference
     public void setUsagePointConfigurationService(UsagePointConfigurationService usagePointConfigurationService) {
         this.usagePointConfigurationService = usagePointConfigurationService;
     }
@@ -140,9 +162,69 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
 
     @Override
     public ChannelDataValidationSummary getValidationSummary(Channel channel, Range<Instant> interval) {
-        // FIXME: finish this
-        ChannelDataValidationSummary summary = new ChannelDataValidationSummaryImpl();
+        ReadingQualityType valid = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.DATAVALID);
+        TreeMap<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings =
+                (channel.isRegular() ? channel.toList(interval).stream() : channel.getReadings(interval).stream().map(BaseReading::getTimeStamp))
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        time -> Sets.newHashSet(valid), // this quality is to be checked after readings with all other qualities are gone,
+                                                        // so now should be added per all timestamps
+                        (hashSet1, hashSet2) -> hashSet1, // merge is not needed, everything should be distinct already
+                        TreeMap::new
+                ));
+        Optional<Instant> lastCheckedOptional = validationService.getLastChecked(channel);
+        int uncheckedTimingsCount;
+        ChannelDataValidationSummaryImpl summary = new ChannelDataValidationSummaryImpl();
+        if (lastCheckedOptional.isPresent()) {
+            Instant lastChecked = lastCheckedOptional.get();
+            Map<Instant, Set<ReadingQualityType>> uncheckedTimings = qualityTypesByAllTimings.tailMap(lastChecked, false);
+            uncheckedTimingsCount = uncheckedTimings.size();
+            uncheckedTimings.clear(); // removed from qualityTypesByAllTimings
+            if (!qualityTypesByAllTimings.isEmpty()) { // something remains => something is validated
+                channel.findReadingQualities() // supply the map with all other qualities to consider
+                        .inTimeInterval(Range.atMost(lastChecked).intersection(interval))
+                        .actual()
+                        .ofQualitySystem(QualityCodeSystem.MDM)
+                        .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD))
+                        .orOfAnotherTypeInSameSystems()
+                        .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED))
+                        .stream()
+                        .collect(Collectors.toMap(
+                                ReadingQualityRecord::getReadingTimestamp,
+                                record -> Sets.newHashSet(record.getType()),
+                                (set1, set2) -> {
+                                    set1.addAll(set2);
+                                    return set1;
+                                },
+                                () -> qualityTypesByAllTimings
+                        ));
+                gatherStatistics(qualityTypesByAllTimings, summary);
+            }
+        } else { // completely not validated
+            uncheckedTimingsCount = qualityTypesByAllTimings.size();
+        }
+        accountFlagValue(summary, ChannelDataValidationSummaryFlag.NOT_VALIDATED, uncheckedTimingsCount);
         return summary;
+    }
+
+    private static void gatherStatistics(Map<Instant, Set<ReadingQualityType>> qualityTypesByAllTimings,
+                                         ChannelDataValidationSummaryImpl summary) {
+        Arrays.stream(ChannelDataValidationSummaryFlag.values()).forEach(flag ->
+                accountFlagValue(summary, flag, (int) qualityTypesByAllTimings.entrySet().stream()
+                        .filter(entry -> entry.getValue().stream().anyMatch(flag.getQualityTypePredicate()))
+                        .map(Map.Entry::getKey)
+                        .collect(Collectors.toList())
+                        .stream()
+                        .peek(qualityTypesByAllTimings::remove)
+                        .count()));
+    }
+
+    private static void accountFlagValue(ChannelDataValidationSummaryImpl summary,
+                                         ChannelDataValidationSummaryFlag flag, int value) {
+        if (value > 0) {
+            summary.incrementFlag(flag, value);
+            summary.incrementOverallValue(value);
+        }
     }
 
     @Override

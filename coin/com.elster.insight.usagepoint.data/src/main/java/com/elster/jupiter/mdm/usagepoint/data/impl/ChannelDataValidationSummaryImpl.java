@@ -6,9 +6,6 @@ import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import java.util.EnumMap;
 import java.util.Map;
 
-/**
- * FIXME: rework this
- */
 public class ChannelDataValidationSummaryImpl implements ChannelDataValidationSummary {
 
     private int overallValue;
