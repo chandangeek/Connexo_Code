@@ -7,6 +7,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfoFactory;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyContractInfo;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
