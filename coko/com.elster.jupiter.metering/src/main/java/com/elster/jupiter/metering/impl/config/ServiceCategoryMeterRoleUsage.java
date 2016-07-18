@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 
 public class ServiceCategoryMeterRoleUsage {
 
@@ -29,6 +30,15 @@ public class ServiceCategoryMeterRoleUsage {
     private Reference<ServiceCategory> serviceCategory = ValueReference.absent();
     @IsPresent
     private Reference<MeterRole> meterRole = ValueReference.absent();
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public ServiceCategoryMeterRoleUsage() {

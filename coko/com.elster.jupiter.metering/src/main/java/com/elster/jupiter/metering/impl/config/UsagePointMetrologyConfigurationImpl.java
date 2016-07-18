@@ -37,6 +37,14 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
     }
 
     @Override
+    public void delete() {
+        meterRoles.clear();
+        requirementToRoleUsages.clear();
+        usagePointRequirements.clear();
+        super.delete();
+    }
+
+    @Override
     public void addMeterRole(MeterRole meterRole) {
         if (!getMeterRoles().contains(meterRole)) {
             if (!getServiceCategory().getMeterRoles().contains(meterRole)
@@ -134,6 +142,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
 
     @Override
     public void removeUsagePointRequirement(UsagePointRequirement requirement) {
+        ((UsagePointRequirementImpl) requirement).prepareDelete();
         if (this.usagePointRequirements.remove(requirement)) {
             touch();
         }

@@ -32,6 +32,15 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private boolean active;
     private List<EffectiveMetrologyContractOnUsagePointImpl> effectiveContracts = new ArrayList<>();
 
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
+
     @Inject
     public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
         super();
@@ -102,5 +111,9 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
                 .add("usagePoint", this.usagePoint)
                 .add("configuration", this.metrologyConfiguration)
                 .toString();
+    }
+
+    public void prepareDelete() {
+        effectiveContracts.clear();
     }
 }

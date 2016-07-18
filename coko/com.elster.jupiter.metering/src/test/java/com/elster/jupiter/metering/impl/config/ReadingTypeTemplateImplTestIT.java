@@ -200,7 +200,7 @@ public class ReadingTypeTemplateImplTestIT {
             long oldVersion = template.getVersion();
             updater.done();
             assertThat(template.getVersion()).isEqualTo(oldVersion + 1);
-            inMemoryBootstrapModule.getMeteringService().getDataModel().remove(template);
+            template.delete();
             context.commit();
         }
     }
