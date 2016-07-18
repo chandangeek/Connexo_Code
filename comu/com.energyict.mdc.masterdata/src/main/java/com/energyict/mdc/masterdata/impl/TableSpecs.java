@@ -13,6 +13,7 @@ import com.energyict.mdc.masterdata.RegisterGroup;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Models the database tables that hold the data of the
@@ -84,7 +85,7 @@ public enum TableSpecs {
             Column registerType = table.column("REGISTERTYPEID").number().notNull().add();
             Column registerGroup = table.column("REGISTERGROUPID").number().notNull().add();
             table.addAuditColumns();
-            table.primaryKey("USR_PK_REGTYPEINGROUP").on(registerType , registerGroup).add();
+            table.primaryKey("USR_PK_REGTYPEINGROUP").on(registerType, registerGroup).add();
             table.foreignKey("FK_REGTYPEINGROUP2TYPE").
                     on(registerType).
                     references(MDS_MEASUREMENTTYPE.name()).
@@ -110,8 +111,16 @@ public enum TableSpecs {
             Column channelType = table.column("CHTYPEID").number().notNull().add();
             table.addAuditColumns();
             table.primaryKey("PK_CHTYPEINLOADPROFILETYPE").on(loadProfileType, channelType).add();
-            table.foreignKey("FK_CHTPLPT_LOADPROFILETYPEID").on(loadProfileType).references(MDS_LOADPROFILETYPE.name()).map("loadProfileType").reverseMap(LoadProfileTypeImpl.Fields.REGISTER_TYPES.fieldName()).composition().add();
-            table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MDS_MEASUREMENTTYPE.name()).map("channelType").add();
+            table.foreignKey("FK_CHTPLPT_LOADPROFILETYPEID")
+                    .on(loadProfileType)
+                    .references(MDS_LOADPROFILETYPE.name())
+                    .map("loadProfileType")
+                    .reverseMap(LoadProfileTypeImpl.Fields.REGISTER_TYPES.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MDS_MEASUREMENTTYPE.name()).map("channelType").upTo(version(10, 2))
+                    .add();
+            table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MDS_MEASUREMENTTYPE.name()).map("channelType").onDelete(CASCADE).since(version(10, 2)).add();
         }
     },
 
