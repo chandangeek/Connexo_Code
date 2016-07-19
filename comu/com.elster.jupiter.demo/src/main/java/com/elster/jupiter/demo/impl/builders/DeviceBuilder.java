@@ -1,8 +1,8 @@
 package com.elster.jupiter.demo.impl.builders;
 
 import com.elster.jupiter.demo.impl.Log;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -23,7 +23,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
     private List<ComSchedule> comSchedules;
     private int yearOfCertification;
     private Location location;
-    private GeoCoordinates geoCoordiantes;
+    private SpatialCoordinates spatialCoordinates;
 
     private List<Consumer<Device>> postBuilders;
 
@@ -45,8 +45,8 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         return this;
     }
 
-    public DeviceBuilder withGeoCoordinates(GeoCoordinates geoCoordiantes){
-        this.geoCoordiantes = geoCoordiantes;
+    public DeviceBuilder withSpatialCoordinates(SpatialCoordinates spatialCoordinates){
+        this.spatialCoordinates = spatialCoordinates;
         return this;
     }
 
@@ -87,7 +87,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
             }
         }
         device.setLocation(location);
-        device.setGeoCoordinates(geoCoordiantes);
+        device.setSpatialCoordinates(spatialCoordinates);
         device.save();
         applyPostBuilders(device);
         return device;
