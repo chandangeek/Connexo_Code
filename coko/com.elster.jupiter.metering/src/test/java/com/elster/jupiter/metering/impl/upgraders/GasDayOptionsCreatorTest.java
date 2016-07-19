@@ -43,7 +43,7 @@ public class GasDayOptionsCreatorTest {
 
     @Before
     public void initializeMocks() {
-        when(this.bundleContext.getProperty(GasDayOptionsCreator.GAS_DAY_START_PROPERTY_NAME)).thenReturn("10-01@05AM");
+        when(this.bundleContext.getProperty(GasDayOptionsCreator.GAS_DAY_START_PROPERTY_NAME)).thenReturn("OCT@05AM");
     }
 
     @Test

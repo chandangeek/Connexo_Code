@@ -152,12 +152,16 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         if (dataAggregationMockProvider.get() != null) {
             this.dataAggregationService = dataAggregationMockProvider.get();
         }
-        activate(bundleContext);
+        activate(bundleContext, true);
     }
 
     @Activate
     public final void activate(BundleContext bundleContext) {
-        createServices(bundleContext);
+        this.activate(bundleContext, false);
+    }
+
+    private void activate(BundleContext bundleContext, boolean createDefaultLocationTemplate) {
+        createServices(bundleContext, createDefaultLocationTemplate);
         registerDatabaseTables();
         registerDataModel(bundleContext);
         installDataModel();
@@ -170,10 +174,10 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         }
     }
 
-    private void createServices(BundleContext bundleContext) {
+    private void createServices(BundleContext bundleContext, boolean createDefaultLocationTemplate) {
         this.meteringService = new MeteringServiceImpl(this, getDataModel(), getThesaurus(), getClock(), this.idsService,
                 this.eventService, this.queryService, this.messageService, this.jsonService, this.upgradeService);
-        this.meteringService.defineLocationTemplates(bundleContext); // This call has effect on resulting table spec!
+        this.meteringService.defineLocationTemplates(bundleContext, createDefaultLocationTemplate); // This call has effect on resulting table spec!
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
             this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.customPropertySetService);
         }

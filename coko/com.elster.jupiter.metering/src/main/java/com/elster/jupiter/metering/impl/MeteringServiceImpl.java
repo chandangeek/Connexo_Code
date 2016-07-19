@@ -301,20 +301,23 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     /**
-     * This method has an effect on resulting tableSpec, it must be called before adding TableSpecs
+     * This method has an effect on resulting tableSpec, it must be called before adding TableSpecs.
      *
      * @param bundleContext The BundleContext
+     * @param createDefaultLocationTemplate true if the default location template should be created
      */
-    final void defineLocationTemplates(BundleContext bundleContext) {
+    final void defineLocationTemplates(BundleContext bundleContext, boolean createDefaultLocationTemplate) {
         if (bundleContext != null) {
             supportedApplicationsUrls.put(KnownAmrSystem.MDC, bundleContext.getProperty(MDC_URL));
             supportedApplicationsUrls.put(KnownAmrSystem.ENERGY_AXIS, bundleContext.getProperty(ENERGY_AXIS_URL));
         }
-        if (dataModel != null && bundleContext != null) {
+        if (createDefaultLocationTemplate) {
+            if (locationTemplate == null) {
+                createDefaultLocationTemplate();
+                createLocationTemplateDefaultData();
+            }
+        } else if (dataModel != null) {
             createNewTemplate(bundleContext);
-        } else if (bundleContext == null && locationTemplate == null) {
-            createDefaultLocationTemplate();
-            createLocationTemplateDefaultData();
         }
     }
 

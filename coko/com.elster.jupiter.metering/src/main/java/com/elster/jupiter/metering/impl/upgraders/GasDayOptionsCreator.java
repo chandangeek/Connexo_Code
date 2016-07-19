@@ -16,6 +16,8 @@ import java.time.MonthDay;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Creates the {@link com.elster.jupiter.metering.impl.GasDayOptions}
@@ -26,7 +28,7 @@ import java.util.regex.Pattern;
  */
 public class GasDayOptionsCreator {
     static final String GAS_DAY_START_PROPERTY_NAME = "com.elster.jupiter.gasday.start";
-    private static final Pattern GAS_DAY_START_PROPERTY_PATTERN = Pattern.compile("(\\d\\d)-(\\d\\d)@(\\d\\d)([A|P]M)");
+    private static final Pattern GAS_DAY_START_PROPERTY_PATTERN = Pattern.compile("(" + Month.names("|") + ")@(\\d\\d)([A|P]M)");
     private static final Logger LOGGER = Logger.getLogger(GasDayOptionsCreator.class.getName());
 
     private final ServerMeteringService meteringService;
@@ -60,20 +62,35 @@ public class GasDayOptionsCreator {
 
     private DayMonthTime parseDayMonthTime(Matcher matcher) {
         return DayMonthTime.from(
-                MonthDay.of(this.matchingInt(matcher, 1), this.matchingInt(matcher, 2)),
+                Month.parse(matcher.group(1)),
                 this.parseLocalTimeFrom(matcher));
+    }
+
+    private LocalTime parseLocalTimeFrom(Matcher matcher) {
+        int hour = this.matchingInt(matcher, 2);
+        if ("PM".equals(matcher.group(3))) {
+            hour = hour + 12;
+        }
+        return LocalTime.of(hour, 0);
     }
 
     private int matchingInt(Matcher matcher, int group) {
         return Integer.parseInt(matcher.group(group));
     }
 
-    private LocalTime parseLocalTimeFrom(Matcher matcher) {
-        int hour = this.matchingInt(matcher, 3);
-        if ("PM".equals(matcher.group(4))) {
-            hour = hour + 12;
-        }
-        return LocalTime.of(hour, 0);
-    }
+    private enum Month {
+        JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC;
 
+        private MonthDay toMonthDay() {
+            return MonthDay.of(this.ordinal() + 1, 1);
+        }
+
+        static String names(String separator) {
+            return Stream.of(values()).map(Month::name).collect(Collectors.joining(separator));
+        }
+
+        static MonthDay parse(String value) {
+            return Month.valueOf(value).toMonthDay();
+        }
+    }
 }
