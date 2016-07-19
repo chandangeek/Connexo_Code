@@ -29,6 +29,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -55,6 +56,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,6 +89,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile boolean installed = false;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile SearchService searchService;
     private volatile UpgradeService upgradeService;
 
@@ -110,11 +113,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     // For testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService, SearchService searchService, UpgradeService upgradeService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, UserService userService, SearchService searchService, UpgradeService upgradeService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setTransactionService(transactionService);
+        this.setThreadPrincipalService(threadPrincipalService);
         this.setUserService(userService);
         this.setSearchService(searchService);
         this.setUpgradeService(upgradeService);
@@ -149,6 +153,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
@@ -158,6 +167,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Reference(name = "ZZZ", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @SuppressWarnings("unused")
     public void registerCustomPropertySetSearchEnabler(CustomPropertySetSearchEnabler enabler) {
         List<CustomPropertySetSearchEnabler> enablers = this.searchEnablers.get(enabler.getDomainClass());
         if (enablers == null) {
@@ -167,6 +177,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         enablers.add(enabler);
     }
 
+    @SuppressWarnings("unused")
     public void unregisterCustomPropertySetSearchEnabler(CustomPropertySetSearchEnabler enabler) {
         List<CustomPropertySetSearchEnabler> enablers = this.searchEnablers.get(enabler.getDomainClass());
         if (enablers != null) {
@@ -300,19 +311,28 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     private void addCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         if (this.installed) {
-            if (!transactionService.isInTransaction()) {
-                try (TransactionContext ctx = transactionService.getContext()) {
+            try {
+                this.threadPrincipalService.set(this.getPrincipal());
+                if (!transactionService.isInTransaction()) {
+                    try (TransactionContext ctx = transactionService.getContext()) {
+                        this.registerCustomPropertySet(customPropertySet, systemDefined);
+                        ctx.commit();
+                    } catch (UnderlyingSQLFailedException | CommitException ex) {
+                        ex.printStackTrace();
+                    }
+                } else {
                     this.registerCustomPropertySet(customPropertySet, systemDefined);
-                    ctx.commit();
-                } catch (UnderlyingSQLFailedException | CommitException ex) {
-                    ex.printStackTrace();
                 }
-            } else {
-                this.registerCustomPropertySet(customPropertySet, systemDefined);
+            } finally {
+                this.threadPrincipalService.clear();
             }
         } else {
             this.publishedPropertySets.put(customPropertySet, systemDefined);
         }
+    }
+
+    private Principal getPrincipal() {
+        return () -> "Custom Property Set Service";
     }
 
     private void registerCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
@@ -322,7 +342,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                         .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId());
         if (registeredCustomPropertySet.isPresent()) {
             // Registered in a previous platform session, likely the system was restarted / redeployed
-            DataModel dataModel = this.registerAndInstallDataModel(customPropertySet, false);
+            DataModel dataModel = this.registerAndInstallDataModel(customPropertySet);
             this.activePropertySets.put(
                     customPropertySet.getId(),
                     new ActiveCustomPropertySet(
@@ -332,7 +352,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                             registeredCustomPropertySet.get()));
         } else {
             // First time registration
-            DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet, true);
+            DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet);
             RegisteredCustomPropertySetImpl newRegisteredCustomPropertySet = this.createRegisteredCustomPropertySet(customPropertySet, systemDefined);
             this.activePropertySets.put(
                     customPropertySet.getId(),
@@ -345,16 +365,16 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.searchService.register(new CustomPropertySetSearchDomainExtension(this, this.activePropertySets.get(customPropertySet.getId())));
     }
 
-    private DataModel registerAndInstallOrReuseDataModel(CustomPropertySet customPropertySet, boolean executeDdl) {
+    private DataModel registerAndInstallOrReuseDataModel(CustomPropertySet customPropertySet) {
         return this.ormService
                 .getDataModels()
                 .stream()
                 .filter(dataModel -> dataModel.getName().equals(customPropertySet.getPersistenceSupport().componentName()))
                 .findAny()
-                .orElseGet(() -> this.registerAndInstallDataModel(customPropertySet, executeDdl));
+                .orElseGet(() -> this.registerAndInstallDataModel(customPropertySet));
     }
 
-    private DataModel registerAndInstallDataModel(CustomPropertySet customPropertySet, boolean executeDdl) {
+    private DataModel registerAndInstallDataModel(CustomPropertySet customPropertySet) {
         DataModel dataModel = this.newDataModelFor(customPropertySet);
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
@@ -368,7 +388,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return dataModel;
     }
 
-    static class CustomPropertySetInstaller implements FullInstaller, Upgrader {
+    private static class CustomPropertySetInstaller implements FullInstaller, Upgrader {
 
         private final DataModel dataModel;
 
