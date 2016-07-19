@@ -46,8 +46,7 @@ public abstract class AbstractValidationEvaluator implements ValidationEvaluator
                         .ofQualityIndex(QualityCodeIndex.SUSPECT)
                         .inTimeInterval(channelsContainer.getRange())
                         .actual()
-                        .findFirst()
-                        .isPresent());
+                        .anyMatch());
     }
 
     /**

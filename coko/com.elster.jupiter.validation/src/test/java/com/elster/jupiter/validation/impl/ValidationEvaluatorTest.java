@@ -4,13 +4,11 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
-import com.elster.jupiter.metering.ReadingQualityRecord;
 
 import com.google.common.collect.Range;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.Before;
@@ -31,8 +29,6 @@ public class ValidationEvaluatorTest {
     ChannelsContainer channelsContainer;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     Channel channel1, channel2, channel3;
-    @Mock
-    ReadingQualityRecord record;
 
     private final static Set<QualityCodeSystem> SYSTEMS = Collections.singleton(QualityCodeSystem.OTHER);
 
@@ -50,19 +46,19 @@ public class ValidationEvaluatorTest {
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.empty());
+                .anyMatch()).thenReturn(false);
         when(channel2.findReadingQualities()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.empty());
+                .anyMatch()).thenReturn(false);
         when(channel3.findReadingQualities()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.empty());
+                .anyMatch()).thenReturn(false);
 
         assertThat(new ValidationEvaluatorImpl(validationService).areSuspectsPresent(SYSTEMS, channelsContainer)).isFalse();
     }
@@ -74,19 +70,19 @@ public class ValidationEvaluatorTest {
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.of(record));
+                .anyMatch()).thenReturn(true);
         when(channel2.findReadingQualities()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.of(record));
+                .anyMatch()).thenReturn(true);
         when(channel3.findReadingQualities()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.of(record));
+                .anyMatch()).thenReturn(true);
 
         assertThat(new ValidationEvaluatorImpl(validationService).areSuspectsPresent(SYSTEMS, channelsContainer)).isTrue();
     }
@@ -98,19 +94,19 @@ public class ValidationEvaluatorTest {
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.of(record));
+                .anyMatch()).thenReturn(true);
         when(channel2.findReadingQualities()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.empty());
+                .anyMatch()).thenReturn(false);
         when(channel3.findReadingQualities()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.empty());
+                .anyMatch()).thenReturn(false);
 
         assertThat(new ValidationEvaluatorImpl(validationService).areSuspectsPresent(SYSTEMS, channelsContainer)).isTrue();
     }
@@ -122,19 +118,19 @@ public class ValidationEvaluatorTest {
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.empty());
+                .anyMatch()).thenReturn(false);
         when(channel2.findReadingQualities()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.of(record));
+                .anyMatch()).thenReturn(true);
         when(channel3.findReadingQualities()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.empty());
+                .anyMatch()).thenReturn(false);
 
         assertThat(new ValidationEvaluatorImpl(validationService).areSuspectsPresent(SYSTEMS, channelsContainer)).isTrue();
     }
@@ -146,19 +142,19 @@ public class ValidationEvaluatorTest {
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.empty());
+                .anyMatch()).thenReturn(false);
         when(channel2.findReadingQualities()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.empty());
+                .anyMatch()).thenReturn(false);
         when(channel3.findReadingQualities()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .inTimeInterval(channelsContainer.getRange())
                 .actual()
-                .findFirst()).thenReturn(Optional.of(record));
+                .anyMatch()).thenReturn(true);
 
         assertThat(new ValidationEvaluatorImpl(validationService).areSuspectsPresent(SYSTEMS, channelsContainer)).isTrue();
     }

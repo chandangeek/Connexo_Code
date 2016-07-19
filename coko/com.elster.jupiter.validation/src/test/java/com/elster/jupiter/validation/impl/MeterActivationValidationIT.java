@@ -215,7 +215,7 @@ public class MeterActivationValidationIT {
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.toInstant(), BigDecimal.valueOf(4725, 2)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.plusMinutes(15).toInstant(), BigDecimal.valueOf(4825, 2)));
             meterReading.addIntervalBlock(intervalBlock);
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             validationService.activateValidation(meter);
             validationService.validate(Collections.emptySet(), meterActivation.getChannelsContainer());
             validationService.validate(Collections.emptySet(), currentActivation.getChannelsContainer());

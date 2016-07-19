@@ -8,7 +8,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.validation.ValidationAction;
 import com.elster.jupiter.validation.ValidationResult;
@@ -59,7 +59,7 @@ public class ChannelValidatorTest {
     @Mock
     private IntervalReadingRecord readingRecord;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ReadingQualityWithTypeFilter filter;
+    private ReadingQualityWithTypeFetcher fetcher;
 
     @Before
     public void setUp() {
@@ -69,8 +69,8 @@ public class ChannelValidatorTest {
         doReturn(ValidationAction.FAIL).when(rule).getAction();
         doReturn(ruleSet).when(rule).getRuleSet();
         doReturn(QualityCodeSystem.MDC).when(ruleSet).getQualityCodeSystem();
-        doReturn(filter).when(channel).findReadingQualities();
-        when(filter.inTimeInterval(RANGE).collect()).thenReturn(Collections.singletonList(readingQualityRecord));
+        doReturn(fetcher).when(channel).findReadingQualities();
+        when(fetcher.inTimeInterval(RANGE).collect()).thenReturn(Collections.singletonList(readingQualityRecord));
         doReturn(START_TIME.toInstant()).when(readingQualityRecord).getReadingTimestamp();
         doReturn(false).when(readingQualityRecord).isActual();
         doReturn(true).when(channel).isRegular();

@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
@@ -17,6 +18,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
@@ -64,7 +66,11 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.After;
 import org.junit.Before;
@@ -73,7 +79,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -122,7 +130,6 @@ public class ValidationOnStoreIT {
     private ValidationRule minMaxRule;
     private ValidationRule zeroesRule;
 
-
     private class MockModule extends AbstractModule {
 
         @Override
@@ -170,8 +177,8 @@ public class ValidationOnStoreIT {
         when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX, CONSECUTIVE_ZEROES));
         when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
         when(validatorFactory.createTemplate(eq(CONSECUTIVE_ZEROES))).thenReturn(conseqZero);
-        when(validatorFactory.create(eq(CONSECUTIVE_ZEROES), any(Map.class))).thenReturn(conseqZero);
-        when(validatorFactory.create(eq(MIN_MAX), any(Map.class))).thenReturn(minMax);
+        when(validatorFactory.create(eq(CONSECUTIVE_ZEROES), anyMapOf(String.class, Object.class))).thenReturn(conseqZero);
+        when(validatorFactory.create(eq(MIN_MAX), anyMapOf(String.class, Object.class))).thenReturn(minMax);
         when(minMax.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
         when(minMax.validate(any(IntervalReadingRecord.class))).thenReturn(ValidationResult.SUSPECT);
@@ -180,7 +187,7 @@ public class ValidationOnStoreIT {
         when(max.getName()).thenReturn(MAX);
         when(max.getValueFactory()).thenReturn(valueFactory);
         when(conseqZero.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
-        when(conseqZero.getPropertySpecs()).thenReturn(Arrays.asList(conZero));
+        when(conseqZero.getPropertySpecs()).thenReturn(Collections.singletonList(conZero));
         when(conZero.getName()).thenReturn(MAX_NUMBER_IN_SEQUENCE);
         when(conZero.getValueFactory()).thenReturn(valueFactory);
 
@@ -218,7 +225,7 @@ public class ValidationOnStoreIT {
                 validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                     @Override
                     public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
-                        return Arrays.asList(validationRuleSet);
+                        return Collections.singletonList(validationRuleSet);
                     }
 
                     @Override
@@ -234,7 +241,6 @@ public class ValidationOnStoreIT {
         });
     }
 
-
     @After
     public void tearDown() {
         inMemoryBootstrapModule.deactivate();
@@ -243,19 +249,19 @@ public class ValidationOnStoreIT {
     @Test
     public void testValidationFailsOnMinMax() {
         transactionService.execute(VoidTransaction.of(() -> {
-
             IntervalReadingImpl intervalReading = IntervalReadingImpl.of(ZONED_DATE_TIME.plusHours(1).toInstant(), BigDecimal.valueOf(400), Collections.emptySet());
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(bulkReadingType.getMRID());
             intervalBlock.addIntervalReading(intervalReading);
             meterReading.addIntervalBlock(intervalBlock);
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
         }));
 
-        List<? extends ReadingQualityRecord> readingQualities = meter.getReadingQualities(Range.singleton(ZONED_DATE_TIME.plusHours(1).toInstant()));
+        List<ReadingQualityType> readingQualityTypes = meter.getReadingQualities(Range.singleton(ZONED_DATE_TIME.plusHours(1).toInstant())).stream()
+                .map(ReadingQualityRecord::getType)
+                .collect(Collectors.toList());
 
-
+        assertThat(readingQualityTypes).containsOnly(ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT),
+                ReadingQualityType.defaultCodeForRuleId(QualityCodeSystem.MDC, minMaxRule.getId()));
     }
-
-
 }
