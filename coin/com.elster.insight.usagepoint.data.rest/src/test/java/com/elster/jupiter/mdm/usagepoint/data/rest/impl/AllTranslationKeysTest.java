@@ -1,16 +1,17 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static junit.framework.TestCase.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests that all {@link TranslationKey}s
- * that are defined in this bundle are unique.
+ * that are defined in this bundle are acceptable and unique.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-09-04 (11:35)
@@ -18,21 +19,30 @@ import static junit.framework.TestCase.fail;
 public class AllTranslationKeysTest {
 
     @Test
-    public void testTranslationKeysAreUnique() throws Exception {
-        Map<String, TranslationKey> uniqueKeys = new HashMap<>();
-        for (TranslationKey translationKey : new UsagePointApplication().getKeys()) {
-            if (uniqueKeys.containsKey(translationKey.getKey())) {
-                TranslationKey duplicate = uniqueKeys.get(translationKey.getKey());
-                fail("Translation key:" + this.toString(translationKey) + " is a duplicate for " + this.toString(duplicate));
-            }
-            else {
-                uniqueKeys.put(translationKey.getKey(), translationKey);
-            }
+    public void testTranslationKeys() {
+        Set<String> uniqueKeys = new HashSet<>();
+        for (TranslationKey entry : new UsagePointApplication().getKeys()) {
+            String key = entry.getKey();
+            String translation = "Translation key " + entry.getClass().getName() + '#' + key;
+            assertThat(key).as(translation + " has null key")
+                    .isNotNull()
+                    .as(translation + " has empty key")
+                    .isNotEmpty();
+            assertThat(key.length())
+                    .as(translation + " key should not start or end with a space character")
+                    .isEqualTo(key.trim().length())
+                    .as(translation + " key is longer than max of 256")
+                    .isLessThanOrEqualTo(256);
+            assertThat(uniqueKeys.add(key)).as(translation + " does not have a unique key")
+                    .isEqualTo(true);
+            String defaultFormat = entry.getDefaultFormat();
+            assertThat(defaultFormat).as(translation + " has null default format")
+                    .isNotNull()
+                    .as(translation + " has empty default format")
+                    .isNotEmpty();
+            assertThat(defaultFormat.length())
+                    .as(translation + " default format should not start or end with a space character")
+                    .isEqualTo(defaultFormat.trim().length());
         }
     }
-
-    private String toString(TranslationKey translationKey) {
-        return translationKey.getClass().getName() + "#" + translationKey.getKey();
-    }
-
 }

@@ -5,8 +5,6 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
-import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Location;
@@ -136,6 +134,7 @@ public class UsagePointResource {
     private final UsagePointInfoFactory usagePointInfoFactory;
     private final LocationInfoFactory locationInfoFactory;
     private final ExceptionFactory exceptionFactory;
+    private final ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory;
     private final ResourceHelper resourceHelper;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final UsagePointDataService usagePointDataService;
@@ -151,6 +150,7 @@ public class UsagePointResource {
                               CustomPropertySetInfoFactory customPropertySetInfoFactory,
                               ExceptionFactory exceptionFactory,
                               LocationInfoFactory locationInfoFactory,
+                              ChannelDataValidationSummaryInfoFactory validationSummaryInfoFactory,
                               Thesaurus thesaurus,
                               ResourceHelper resourceHelper,
                               MetrologyConfigurationService metrologyConfigurationService,
@@ -167,6 +167,7 @@ public class UsagePointResource {
         this.customPropertySetService = customPropertySetService;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.locationInfoFactory = locationInfoFactory;
+        this.validationSummaryInfoFactory = validationSummaryInfoFactory;
         this.thesaurus = thesaurus;
         this.customPropertySetInfoFactory = customPropertySetInfoFactory;
         this.exceptionFactory = exceptionFactory;
@@ -463,7 +464,7 @@ public class UsagePointResource {
 
     private void validateGeoCoordinates(RestValidationBuilder validationBuilder, String fieldName, CoordinatesInfo geoCoordinates) {
         String spatialCoordinates = geoCoordinates.spatialCoordinates;
-        if (spatialCoordinates == null || spatialCoordinates.length() == 0 || spatialCoordinates.indexOf(":") == -1) {
+        if (spatialCoordinates == null || spatialCoordinates.length() == 0 || !spatialCoordinates.contains(":")) {
             return;
         }
         String[] parts = spatialCoordinates.split(":");
@@ -734,21 +735,7 @@ public class UsagePointResource {
 
         List<ChannelDataValidationSummaryInfo> result = usagePointDataService
                 .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
-                .map(channelEntry -> {
-                    ReadingTypeDeliverable deliverable = channelEntry.getKey();
-                    ChannelDataValidationSummary summary = channelEntry.getValue();
-                    return new ChannelDataValidationSummaryInfo(deliverable.getId(),
-                            deliverable.getName(),
-                            summary.getSum(),
-                            summary.getValues().entrySet().stream()
-                                    .map(flagEntry -> {
-                                        ChannelDataValidationSummaryFlag flag = flagEntry.getKey();
-                                        return new ChannelDataValidationSummaryFlagInfo(flag.getKey(),
-                                                flag.getDisplayName(thesaurus),
-                                                flagEntry.getValue());
-                                    })
-                                    .collect(Collectors.toList()));
-                })
+                .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
                 .collect(Collectors.toList());
 
         return PagedInfoList.fromCompleteList("outputs", result, queryParameters);
