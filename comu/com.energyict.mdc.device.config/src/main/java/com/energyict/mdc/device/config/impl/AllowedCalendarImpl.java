@@ -44,7 +44,7 @@ class AllowedCalendarImpl implements AllowedCalendar {
     private DataModel dataModel;
 
     @Inject
-    AllowedCalendarImpl (DataModel dataModel) {
+    AllowedCalendarImpl(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 

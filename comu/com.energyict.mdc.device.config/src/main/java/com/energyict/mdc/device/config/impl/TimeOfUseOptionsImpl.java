@@ -79,9 +79,9 @@ class TimeOfUseOptionsImpl implements TimeOfUseOptions {
     public Set<ProtocolSupportedCalendarOptions> getOptions() {
         EnumSet<ProtocolSupportedCalendarOptions> allowedOptions = EnumSet.noneOf(ProtocolSupportedCalendarOptions.class);
         Stream
-            .of(ProtocolSupportedCalendarOptions.values())
-            .filter(each -> (this.toBitMask(each) & this.options) != 0)
-            .forEach(allowedOptions::add);
+                .of(ProtocolSupportedCalendarOptions.values())
+                .filter(each -> (this.toBitMask(each) & this.options) != 0)
+                .forEach(allowedOptions::add);
         return allowedOptions;
     }
 

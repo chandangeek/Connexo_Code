@@ -15,7 +15,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import aQute.bnd.annotation.ProviderType;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.time.Instant;
