@@ -30,7 +30,7 @@ public class EndPointConfigurationInfoFactory {
         if (endPointConfiguration.isInbound()) {
             webService.ifPresent(ws -> info.previewUrl = uriInfo.getBaseUri().getScheme() + "://" + uriInfo.getBaseUri()
                     .getAuthority()
-                    + "/" + ws.getProtocol().name().toLowerCase()
+                    + "/" + ws.getProtocol().path()
                     + endPointConfiguration.getUrl());
         }
         info.active = endPointConfiguration.isActive();
