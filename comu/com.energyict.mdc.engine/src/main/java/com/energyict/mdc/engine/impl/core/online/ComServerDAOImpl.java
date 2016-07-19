@@ -3,6 +3,7 @@ package com.energyict.mdc.engine.impl.core.online;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -61,6 +62,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.energyict.mdc.protocol.api.device.BaseRegister;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -107,6 +109,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     public interface ServiceProvider {
 
         Clock clock();
+
+        Thesaurus thesaurus();
 
         EngineConfigurationService engineConfigurationService();
 
@@ -191,6 +195,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
+
+        @Override
+        public Thesaurus thesaurus() {
+            return serviceProvider.thesaurus();
+        }
 
         @Override
         public TopologyService topologyService() {
@@ -511,8 +520,9 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final String protocolInformation) {
+    public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final Instant sentDate, final String protocolInformation) {
         DeviceMessage deviceMessage = messageIdentifier.getDeviceMessage();
+        deviceMessage.setSentDate(sentDate);
         deviceMessage.setProtocolInformation(protocolInformation);
         deviceMessage.updateDeviceMessageStatus(newDeviceMessageStatus);
     }
@@ -761,13 +771,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private Optional<Device> getOptionalDeviceByIdentifier(DeviceIdentifier deviceIdentifier) {
-        Device device = null;
         try {
-            device = (Device) deviceIdentifier.findDevice();
+            return Optional.of((Device) deviceIdentifier.findDevice());
         } catch (CanNotFindForIdentifier e) {
-            // ignore
+            return Optional.empty();
         }
-        return Optional.ofNullable(device);
     }
 
     @Override
@@ -798,6 +806,24 @@ public class ComServerDAOImpl implements ComServerDAO {
         LoadProfile.LoadProfileUpdater loadProfileUpdater = device.getLoadProfileUpdaterFor(refreshedLoadProfile);
         loadProfileUpdater.setLastReadingIfLater(lastReading);
         loadProfileUpdater.update();
+    }
+
+    @Override
+    public void updateCalendars(CollectedCalendar collectedCalendar) {
+        Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedCalendar.getDeviceIdentifier());
+        optionalDevice.ifPresent(device -> this.updateCalendars(collectedCalendar, device));
+    }
+
+    private void updateCalendars(CollectedCalendar collectedCalendar, Device device) {
+        device.calendars().updateCalendars(collectedCalendar);
+    }
+
+    @Override
+    public void cleanupOutdatedComTaskExecutionTriggers() {
+        this.executeTransaction(() -> {
+            getDeviceDataService().deleteOutdatedComTaskExecutionTriggers();
+            return null;
+        });
     }
 
     @Override

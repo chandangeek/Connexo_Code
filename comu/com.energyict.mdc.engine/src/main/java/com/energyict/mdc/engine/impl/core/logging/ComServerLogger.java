@@ -1,9 +1,9 @@
 package com.energyict.mdc.engine.impl.core.logging;
 
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.logging.Configuration;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.config.ComServer;
 
 import java.sql.SQLException;
 
@@ -41,6 +41,14 @@ public interface ComServerLogger {
      */
     @Configuration(format = "Failure to clean up timedout tasks running on ComServer {0} (see exception below). Will postpone cleanup for 1 day.", logLevel = LogLevel.ERROR)
     public void timeOutCleanupFailure (ComServer comServer, DataAccessException cause);
+
+    /**
+     * Logs that a failure to cleanup outdated {@link com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger}s occurred.
+     *
+     * @param cause The failure
+     */
+    @Configuration(format = "Failure to clean up the outdated communication triggers on ComServer {0} (see exception below). Will postpone cleanup for 1 day.", logLevel = LogLevel.ERROR)
+    public void comTaskExecutionTriggersCleanupFailure(ComServer comServer, DataAccessException cause);
 
     /**
      * Logs that the specified {@link ComServer} has started the shutdown process.

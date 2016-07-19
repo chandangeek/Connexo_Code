@@ -12,6 +12,7 @@ import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 
@@ -40,7 +41,7 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
 
     @Override
     public String getDescriptionTitle() {
-        return "Read out the device status information";
+        return "Read the device status information";
     }
 
     @Override
@@ -57,5 +58,10 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
         CollectedBreakerStatus breakerStatus = deviceProtocol.getBreakerStatus();
         breakerStatus.setDataCollectionConfiguration(comTaskExecution);
         addCollectedDataItem(breakerStatus);
+
+        CollectedCalendar calendar = deviceProtocol.getCollectedCalendar();
+        calendar.setDataCollectionConfiguration(comTaskExecution);
+        addCollectedDataItem(calendar);
     }
+
 }

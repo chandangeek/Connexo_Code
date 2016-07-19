@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -9,6 +10,7 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
+import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
@@ -29,8 +31,8 @@ public class InboundCollectedMessageListCommandImpl extends MessagesCommandImpl 
 
     private final List<ServerCollectedData> collectedData;
 
-    public InboundCollectedMessageListCommandImpl(MessagesTask messagesTask, OfflineDevice device, CommandRoot commandRoot, List<ServerCollectedData> collectedData, ComTaskExecution comTaskExecution) {
-        super(messagesTask, device, commandRoot, comTaskExecution);
+    public InboundCollectedMessageListCommandImpl(MessagesTask messagesTask, OfflineDevice device, CommandRoot commandRoot, List<ServerCollectedData> collectedData, ComTaskExecution comTaskExecution, IssueService issueService, Thesaurus thesaurus) {
+        super(messagesTask, device, commandRoot, comTaskExecution, issueService, thesaurus);
         this.collectedData = collectedData;
     }
 

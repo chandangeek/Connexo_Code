@@ -23,6 +23,7 @@ import com.energyict.mdc.engine.impl.core.ComJob;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -442,7 +443,7 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, String protocolInformation) {
+    public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
         // nothing to update
     }
 
@@ -503,6 +504,15 @@ public class MockComServerDAO implements ComServerDAO {
 
     @Override
     public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+
+    }
+
+    @Override
+    public void updateCalendars(CollectedCalendar collectedCalendar) {
+    }
+
+    @Override
+    public void cleanupOutdatedComTaskExecutionTriggers() {
 
     }
 

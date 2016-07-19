@@ -30,8 +30,8 @@ public class InboundDataProcessMeterDataStoreCommandImpl extends MeterDataStoreC
     protected void doExecute(ComServerDAO comServerDAO) {
         try {
             super.doExecute(comServerDAO);
-        } catch (Throwable throwable) {
-            this.logger.log(Level.SEVERE, throwable.getMessage(), throwable);
+        } catch (Exception e) {
+            this.logger.log(Level.SEVERE, e.getMessage(), e);
             executionContext.getStoreCommand().getChildren().stream().filter(deviceCommand -> deviceCommand instanceof ProvideInboundResponseDeviceCommand)
                     .findFirst().ifPresent(deviceCommand -> ((ProvideInboundResponseDeviceCommand) deviceCommand).dataStorageFailed());
             executionContext.getStoreCommand().getChildren().stream().filter(deviceCommand -> deviceCommand instanceof CreateComSessionDeviceCommand)

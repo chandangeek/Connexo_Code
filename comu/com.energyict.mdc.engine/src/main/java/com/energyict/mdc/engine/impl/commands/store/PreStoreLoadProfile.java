@@ -185,21 +185,22 @@ public class PreStoreLoadProfile {
         }
 
         final protected IntervalReading getMultipliedReading(BigDecimal multiplier, IntervalReading intervalReading) {
-            if (!Checks.is(multiplier).equalValue(BigDecimal.ONE)) {
-                return IntervalReadingImpl.of(intervalReading.getTimeStamp(), intervalReading.getValue().multiply(multiplier), intervalReading.getProfileStatus());
-            } else {
-                return intervalReading;
-            }
+        if (!Checks.is(multiplier).equalValue(BigDecimal.ONE)) {
+            return IntervalReadingImpl.of(intervalReading.getTimeStamp(), intervalReading.getValue().multiply(multiplier), intervalReading.getReadingQualities());
         }
+        else {
+            return intervalReading;
+        }
+    }
 
         final protected IntervalReading getScaledIntervalReading(int scaler, IntervalReading intervalReading) {
-            if (scaler == 0) {
-                return intervalReading;
-            } else {
-                BigDecimal scaledValue = intervalReading.getValue().scaleByPowerOfTen(scaler);
-                return IntervalReadingImpl.of(intervalReading.getTimeStamp(), scaledValue, intervalReading.getProfileStatus());
-            }
+        if (scaler == 0) {
+            return intervalReading;
+        } else {
+            BigDecimal scaledValue = intervalReading.getValue().scaleByPowerOfTen(scaler);
+            return IntervalReadingImpl.of(intervalReading.getTimeStamp(), scaledValue, intervalReading.getReadingQualities());
         }
+    }
 
         final protected int getScaler(Unit fromUnit, Unit toUnit) {
             if (fromUnit.equalBaseUnit(toUnit)) {

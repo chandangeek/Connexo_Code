@@ -5,6 +5,7 @@ import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
@@ -37,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.junit.*;
@@ -329,9 +331,9 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         List<IntervalValue> updatedIntervalList = new ArrayList<>();
         int updatedIntervalChannelOne = 7777;
         int updatedIntervalChannelTwo = 3333;
-        updatedIntervalList.add(new IntervalValue(updatedIntervalChannelOne, 0, 0));
-        updatedIntervalList.add(new IntervalValue(updatedIntervalChannelTwo, 0, 0));
-        updatedCollectedIntervalData.add(new IntervalData(intervalEndTime3, 0, 0, 0, updatedIntervalList));
+        updatedIntervalList.add(new IntervalValue(updatedIntervalChannelOne, 0, new HashSet<>()));
+        updatedIntervalList.add(new IntervalValue(updatedIntervalChannelTwo, 0, new HashSet<>()));
+        updatedCollectedIntervalData.add(new IntervalData(intervalEndTime3, new HashSet<>(), 0, 0, updatedIntervalList));
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(updatedCollectedIntervalData);
 
         meterDataStoreCommand = new MeterDataStoreCommandImpl(null, new NoDeviceCommandServices());

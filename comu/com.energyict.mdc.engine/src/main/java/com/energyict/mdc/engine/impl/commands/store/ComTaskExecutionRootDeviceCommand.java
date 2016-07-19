@@ -35,7 +35,7 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
             executeAll(comServerDAO);
             this.markExecutionFailedWhenProblemsWereLogged(comServerDAO);
         }
-        catch (Throwable t) {
+        catch (Exception t) {
             handleUnexpectedError(t, comServerDAO);
         }
     }
@@ -46,7 +46,7 @@ public class ComTaskExecutionRootDeviceCommand extends CompositeDeviceCommandImp
             executeAllDuringShutdown(comServerDAO);
             this.markExecutionFailedWhenProblemsWereLogged(comServerDAO);
         }
-        catch (Throwable t) {
+        catch (Exception t) {
             handleUnexpectedError(t, comServerDAO);
         }
     }

@@ -20,6 +20,7 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.verification.CounterVerifier;
 import com.energyict.mdc.engine.impl.tools.Counter;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -296,6 +297,14 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void updateCalendars(CollectedCalendar collectedCalendar) {
+    }
+
+    @Override
+    public void cleanupOutdatedComTaskExecutionTriggers() {
+    }
+
+    @Override
     public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
         return this.actual.createComSession(builder, successIndicator);
     }
@@ -379,6 +388,16 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+
+        }
+
+        @Override
+        public void updateCalendars(CollectedCalendar collectedCalendar) {
+
+        }
+
+        @Override
+        public void cleanupOutdatedComTaskExecutionTriggers() {
 
         }
 
@@ -564,7 +583,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, String protocolInformation) {
+        public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
             // nothing to update
         }
 
@@ -671,7 +690,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, String protocolInformation) {
+    public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
         // nothing to update
     }
 

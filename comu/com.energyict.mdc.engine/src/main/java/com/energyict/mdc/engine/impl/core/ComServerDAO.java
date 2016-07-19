@@ -18,6 +18,7 @@ import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDAO;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.protocol.api.device.data.TopologyNeighbour;
@@ -388,9 +389,10 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      *
      * @param messageIdentifier the messageIdentifier
      * @param newDeviceMessageStatus the status to update the message to
+     * @param sentDate the date&time the message was sent to the device - if this message was not yet sent to the device, this could be null
      * @param protocolInformation the protocolInformation to add to the DeviceMessage
      */
-    void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, String protocolInformation);
+    void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation);
 
     /**
      * Tests if the ComTaskExecution that is uniquely identified
@@ -433,6 +435,14 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
     void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions);
 
     void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus);
+
+    void updateCalendars(CollectedCalendar collectedCalendar);
+
+    /**
+     * Request cleanup of all outdated {@link com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger}s<br/>
+     * More specific, all ComTaskExecutionTriggers who have a trigger date more than 1 day in the past will be removed from the database
+     */
+    void cleanupOutdatedComTaskExecutionTriggers();
 
     List<Pair<OfflineLoadProfile,Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod);
 

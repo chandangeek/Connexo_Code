@@ -337,7 +337,7 @@ public abstract class JobExecution implements ScheduledJob {
                 this.executionContext.comTaskExecutionFailureDueToProblemsOfComTasks(this, preparedComTaskExecution.getComTaskExecution());
             }
             return noProblems;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             this.failure(preparedComTaskExecution.getComTaskExecution(), t);
             successIndicator = Failure;
             throw t;
@@ -713,6 +713,11 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
+
+        @Override
+        public Thesaurus thesaurus() {
+            return serviceProvider.thesaurus();
+        }
 
         @Override
         public TopologyService topologyService() {
