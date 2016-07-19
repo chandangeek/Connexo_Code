@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -57,6 +58,11 @@ public class ResourceHelper {
     public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid, long version) {
         UsagePoint up = findUsagePointByMrIdOrThrowException(mrid);
         return lockUsagePointOrThrowException(up.getId(), version, up.getMRID());
+    }
+
+    public EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfigurationByUsagePointOrThrowException(UsagePoint usagePoint) {
+        return usagePoint.getEffectiveMetrologyConfiguration()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getMRID()));
     }
 
     public UsagePointMetrologyConfiguration findAndLockUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
