@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum OpusDeviceMessageAttributes implements TranslationKey {
+enum OpusDeviceMessageAttributes implements TranslationKey {
 
     SetOpusOSNbrAttributeName(DeviceMessageConstants.SetOpusOSNbrAttributeName, "Set Opus OSNbr"),
     SetOpusPasswordAttributeName(DeviceMessageConstants.SetOpusPasswordAttributeName, "Set Opus password"),

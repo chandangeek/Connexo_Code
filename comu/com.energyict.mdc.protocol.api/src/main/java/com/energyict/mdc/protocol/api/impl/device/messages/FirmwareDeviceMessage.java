@@ -19,7 +19,7 @@ import java.util.Optional;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
+enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
 
     UPGRADE_FIRMWARE_WITH_USER_FILE_ACTIVATE_LATER(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_LATER, "Upload firmware and activate later") {
         @Override

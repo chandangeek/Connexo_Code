@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum FirmwareDeviceMessageAttributes implements TranslationKey {
+enum FirmwareDeviceMessageAttributes implements TranslationKey {
 
     firmwareUpdateActivationDateAttributeName(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName, "Upgrade activation date"),
     firmwareUpdateVersionNumberAttributeName(DeviceMessageConstants.firmwareUpdateVersionNumberAttributeName, "Upgrade version"),

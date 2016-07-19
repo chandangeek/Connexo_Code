@@ -16,7 +16,6 @@ public enum ProtocolSupportedCalendarOptions {
     CLEAR_AND_DISABLE_PASSIVE_TARIFF("clearAndDisablePassiveTariff"),
     ACTIVATE_PASSIVE_CALENDAR("activatePassive");
 
-
     private String id;
 
     ProtocolSupportedCalendarOptions(String id) {
@@ -30,4 +29,5 @@ public enum ProtocolSupportedCalendarOptions {
     public static Optional<ProtocolSupportedCalendarOptions> from(String id) {
         return Arrays.stream(values()).filter(option -> option.getId().equals(id)).findFirst();
     }
+
 }

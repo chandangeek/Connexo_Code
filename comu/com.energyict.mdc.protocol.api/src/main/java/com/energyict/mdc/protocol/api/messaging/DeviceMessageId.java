@@ -2,6 +2,9 @@ package com.energyict.mdc.protocol.api.messaging;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 /**
  * Models the unique identifier of a {@link MessageSpec}.
  *
@@ -565,6 +568,16 @@ public enum DeviceMessageId {
             }
         }
         throw new IllegalArgumentException(String.format("No DeviceMessageId found having id %d", dbId));
+    }
+
+    public static Set<DeviceMessageId> fileManagementRelated() {
+        return EnumSet.of(
+                DeviceMessageId.GENERAL_WRITE_FULL_CONFIGURATION,
+                DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_METER_SCHEME,
+                DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_SETTINGS,
+                DeviceMessageId.CONFIGURATION_CHANGE_UPLOAD_SWITCH_POINT_CLOCK_UPDATE_SETTINGS,
+                DeviceMessageId.ADVANCED_TEST_USERFILE_CONFIG,
+                DeviceMessageId.ACTIVITY_CALENDAR_WRITE_CONTRACTS_FROM_XML_USERFILE);
     }
 
 }

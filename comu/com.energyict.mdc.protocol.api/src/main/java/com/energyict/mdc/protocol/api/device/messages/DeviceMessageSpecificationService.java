@@ -1,12 +1,11 @@
 package com.energyict.mdc.protocol.api.device.messages;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
-import javax.swing.text.html.Option;
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -23,20 +22,29 @@ public interface DeviceMessageSpecificationService {
 
     /**
      * Provides a list of DeviceMessageCategories which can be selected by the User.
-     * Some categories are filtered because they are used by other processes (like firmware).
      * To get <i>all</i> the categories, please use {@link #allCategories()}
      *
      * @return a filtered list of categories
      * @since version 1.1
      */
-    public List<DeviceMessageCategory> filteredCategoriesForUserSelection();
+    List<DeviceMessageCategory> filteredCategoriesForUserSelection();
+
+    /**
+     * Provides a list of DeviceMessageCategories that can be added
+     * to the definition of a communication task.
+     * To get <i>all</i> the categories, please use {@link #allCategories()}
+     *
+     * @return a filtered list of categories
+     * @since version 3.0
+     */
+    List<DeviceMessageCategory> filteredCategoriesForComTaskDefinition();
 
     /**
      * Returns the List of <i>all</i> available {@link DeviceMessageCategory}.
      *
      * @return The List
      */
-    public List<DeviceMessageCategory> allCategories();
+    List<DeviceMessageCategory> allCategories();
 
     /**
      * Finds the {@link DeviceMessageCategory} with the specified id.
@@ -45,7 +53,7 @@ public interface DeviceMessageSpecificationService {
      * @return The DeviceMessageCategory
      * @see DeviceMessageCategory#getId()
      */
-    public Optional<DeviceMessageCategory> findCategoryById(int categoryId);
+    Optional<DeviceMessageCategory> findCategoryById(int categoryId);
 
     /**
      * Finds The {@link DeviceMessageSpec} with the specified id.
@@ -55,11 +63,11 @@ public interface DeviceMessageSpecificationService {
      * @see DeviceMessageSpec#getId()
      * @see DeviceMessageId#dbValue()
      */
-    public Optional<DeviceMessageSpec> findMessageSpecById(long messageSpecIdDbValue);
+    Optional<DeviceMessageSpec> findMessageSpecById(long messageSpecIdDbValue);
 
-    public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOptionFor(DeviceMessageId deviceMessageId);
+    Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOptionFor(DeviceMessageId deviceMessageId);
 
     Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOptionsFor(DeviceMessageId deviceMessageId);
 
-    public DeviceMessageCategory getFirmwareCategory();
+    DeviceMessageCategory getFirmwareCategory();
 }

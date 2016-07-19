@@ -17,7 +17,7 @@ import java.util.List;
  * Date: 12/8/14
  * Time: 11:21 AM
  */
-public enum PublicLightingDeviceMessage implements DeviceMessageSpecEnum {
+enum PublicLightingDeviceMessage implements DeviceMessageSpecEnum {
 
     SET_RELAY_OPERATING_MODE(DeviceMessageId.PUBLIC_LIGHTING_SET_RELAY_OPERATING_MODE, "Public lighting set relay operating mode"){
         @Override

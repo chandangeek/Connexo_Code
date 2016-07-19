@@ -20,53 +20,53 @@ import java.util.Optional;
 public interface OfflineLoadProfile extends Offline {
 
     /**
-     * Returns the database ID of this {@link OfflineDevice Rtus'} LoadProfile
+     * Returns the database ID of this {@link OfflineDevice Rtus'} LoadProfile.
      *
      * @return the ID of the LoadProfile
      */
-    public long getLoadProfileId();
+    long getLoadProfileId();
 
     /**
-     * Returns the database ID of the LoadProfileType of this LoadProfile
+     * Returns the database ID of the LoadProfileType of this LoadProfile.
      *
      * @return the ID of the LoadProfileType
      */
-    public long getLoadProfileTypeId();
+    long getLoadProfileTypeId();
 
     /**
      * Returns the ObisCode for the LoadProfileType.
      *
      * @return the ObisCode (referring to a generic collection of channels having the same interval)
      */
-    public ObisCode getObisCode();
+    ObisCode getObisCode();
 
     /**
      * Returns the LoadProfile integration period.
      *
      * @return the integration period.
      */
-    public TimeDuration getInterval();
+    TimeDuration getInterval();
 
     /**
-     * return the end time of the last interval read from the device.
+     * Returns the end time of the last interval read from the device.
      *
      * @return end time of the last interval.
      */
-    public Optional<Instant> getLastReading();
+    Optional<Instant> getLastReading();
 
     /**
      * Returns the ID of the Device for the LoadProfile object.
      *
      * @return the ID of the Device.
      */
-    public long getDeviceId ();
+    long getDeviceId();
 
     /**
-     * Returns the SerialNumber of the Master Device
+     * Returns the SerialNumber of the Master Device.
      *
      * @return the SerialNumber of the Master Device
      */
-    public String getMasterSerialNumber();
+    String getMasterSerialNumber();
 
     /**
      * Returns the receiver's {@link OfflineLoadProfileChannel}.<br/>
@@ -76,21 +76,21 @@ public interface OfflineLoadProfile extends Offline {
      *
      * @return a <CODE>List</CODE> of {@link OfflineLoadProfileChannel} objects
      */
-    public List<OfflineLoadProfileChannel> getChannels();
+    List<OfflineLoadProfileChannel> getChannels();
 
     /**
      * Returns the receiver's {@link OfflineLoadProfileChannel} AND the {@link OfflineLoadProfileChannel} of
-     * all slave devices belonging to load profiles of the same type
+     * all slave devices belonging to load profiles of the same type.
      *
      * @return a <CODE>List</CODE> of {@link OfflineLoadProfileChannel} objects
      */
-    public List<OfflineLoadProfileChannel> getAllChannels();
+    List<OfflineLoadProfileChannel> getAllChannels();
 
-    public String getDeviceMRID();
+    String getDeviceMRID();
 
-    public DeviceIdentifier<? extends BaseDevice> getDeviceIdentifier();
+    DeviceIdentifier<? extends BaseDevice> getDeviceIdentifier();
 
-    public LoadProfileIdentifier getLoadProfileIdentifier();
+    LoadProfileIdentifier getLoadProfileIdentifier();
 
     default boolean isDataLoggerSlaveLoadProfile(){
         return false;

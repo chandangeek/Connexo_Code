@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetMmEvery(DeviceMessageId.MODBUS_CONFIGURATION_SET_MM_EVERY, "Set Mm every") {
         @Override

@@ -40,7 +40,9 @@ public enum MessageSeeds implements MessageSeed {
     PROTOCOL_DEPLOY_NOT_SUPPORTED(124, "issue.protocol.deploynotsupported", "Received deploy information for meter with serial number {0}, but this action is currently not supported (yet) by the platform"),
     PROTOCOL_DEVICE_NOT_FOUND(125, "issue.protocol.devicenotfound", "Received meter data for RTU with serial number {0}, but this RTU was not found uniquely in the database"),
     PROTOCOL_REGISTER_NOT_FOUND(126, "issue.protocol.registernotfound", "Received register data (with OBIS code = {0}) for device with serial number {1}, but this register is not defined on the device"),
-    COULD_NOT_READOUT_FIRMWARE_VERSION(127, "issue.protocol.readingOfFirmwareFailed", "Could not correctly read the firmware version");
+    COULD_NOT_READ_FIRMWARE_VERSION(127, "issue.protocol.readingOfFirmwareFailed", "Could not correctly read the firmware version"),
+    COULD_NOT_READ_CALENDAR_INFO(128, "issue.protocol.readingOfCalendarFailed", "Could not correctly read calendar information"),
+    READ_CALENDAR_INFO_NOT_SUPPORTED(129, "issue.protocol.readingOfCalendarNotSupported", "Read calendar information not supported by meter firmware"),
     ;
 
     private final int number;

@@ -15,7 +15,7 @@ import java.util.List;
  * Date: 2/05/13
  * Time: 9:52
  */
-public enum AdvancedTestMessage implements DeviceMessageSpecEnum {
+enum AdvancedTestMessage implements DeviceMessageSpecEnum {
 
     XML_CONFIG(DeviceMessageId.ADVANCED_TEST_XML_CONFIG, "XML configuration") {
         @Override

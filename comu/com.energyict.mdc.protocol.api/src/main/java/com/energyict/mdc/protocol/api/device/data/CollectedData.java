@@ -12,12 +12,12 @@ public interface CollectedData {
     /**
      * @return the unsupported type
      */
-    public ResultType getResultType();
+    ResultType getResultType();
 
     /**
      * @return additional information about why the data is not complete
      */
-    public List<Issue> getIssues();
+    List<Issue> getIssues();
 
     /**
      * Set all failure information.
@@ -25,7 +25,7 @@ public interface CollectedData {
      * @param resultType indication of what the resultType is
      * @param issue      indication of what the issue is
      */
-    public void setFailureInformation(ResultType resultType, Issue issue);
+    void setFailureInformation(ResultType resultType, Issue issue);
 
     /**
      * Tests if this type of CollectedData is configured
@@ -35,6 +35,6 @@ public interface CollectedData {
      * @return A flag that indicates if the ComTask is configured
      *         to collect this type of CollectedData
      */
-    public boolean isConfiguredIn(DataCollectionConfiguration configuration);
+    boolean isConfiguredIn(DataCollectionConfiguration configuration);
 
 }

@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum EventsDeviceMessageAttributes implements TranslationKey {
+enum EventsDeviceMessageAttributes implements TranslationKey {
 
     SetInputChannelAttributeName(DeviceMessageConstants.SetInputChannelAttributeName, "Set inputChannel"),
     SetConditionAttributeName(DeviceMessageConstants.SetConditionAttributeName, "Set condition"),

@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum DLMSConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetDLMSDeviceID(DeviceMessageId.DLMS_CONFIGURATION_SET_DEVICE_ID, "Set DLMS device ID") {
         @Override

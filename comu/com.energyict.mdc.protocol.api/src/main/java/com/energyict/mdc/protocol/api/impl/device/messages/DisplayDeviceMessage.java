@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 3/04/13
  * Time: 8:38
  */
-public enum DisplayDeviceMessage implements DeviceMessageSpecEnum {
+enum DisplayDeviceMessage implements DeviceMessageSpecEnum {
 
     CONSUMER_MESSAGE_CODE_TO_PORT_P1(DeviceMessageId.DISPLAY_CONSUMER_MESSAGE_CODE_TO_PORT_P1, "Send a code message tot he P1 port") {
         @Override

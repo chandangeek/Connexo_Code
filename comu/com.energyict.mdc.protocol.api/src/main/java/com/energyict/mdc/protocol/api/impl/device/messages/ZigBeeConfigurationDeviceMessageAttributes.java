@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum ZigBeeConfigurationDeviceMessageAttributes implements TranslationKey {
+enum ZigBeeConfigurationDeviceMessageAttributes implements TranslationKey {
 
     ZigBeeConfigurationSASPanIdAttributeName(DeviceMessageConstants.ZigBeeConfigurationSASPanIdAttributeName, "SAS PanId"),
     ZigBeeConfigurationForceRemovalAttributeName(DeviceMessageConstants.ZigBeeConfigurationForceRemovalAttributeName, "Force removal"),
@@ -16,11 +16,11 @@ public enum ZigBeeConfigurationDeviceMessageAttributes implements TranslationKey
     ZigBeeConfigurationActivationDateAttributeName(DeviceMessageConstants.ZigBeeConfigurationActivationDateAttributeName, "Activation date"),
     ZigBeeConfigurationZigBeeAddressAttributeName(DeviceMessageConstants.ZigBeeConfigurationZigBeeAddressAttributeName, "ZigBee IEEE address"),
     ZigBeeConfigurationMirrorAddressAttributeName(DeviceMessageConstants.ZigBeeConfigurationMirrorAddressAttributeName, "Mirror IEEE address"),
-    ZigBeeConfigurationFirmwareUpdateUserFileAttributeName(DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName, "User file"),
+    ZigBeeConfigurationFirmwareUpdateUserFileAttributeName(DeviceMessageConstants.ZigBeeConfigurationFirmwareUpdateUserFileAttributeName, "File"),
     ZigBeeConfigurationSASInsecureJoinAttributeName(DeviceMessageConstants.ZigBeeConfigurationSASInsecureJoinAttributeName, "SAS insecure join"),
     ZigBeeConfigurationSASExtendedPanIdAttributeName(DeviceMessageConstants.ZigBeeConfigurationSASExtendedPanIdAttributeName, "SAS extended PanId"),
     ZigBeeConfigurationSASPanChannelMaskAttributeName(DeviceMessageConstants.ZigBeeConfigurationSASPanChannelMaskAttributeName, "SAS Pan channel mask"),
-    ZigBeeConfigurationHANRestoreUserFileAttributeName(DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName, "HAN restore user file"),
+    ZigBeeConfigurationHANRestoreUserFileAttributeName(DeviceMessageConstants.ZigBeeConfigurationHANRestoreUserFileAttributeName, "HAN restore file"),
     ;
 
     private final String key;

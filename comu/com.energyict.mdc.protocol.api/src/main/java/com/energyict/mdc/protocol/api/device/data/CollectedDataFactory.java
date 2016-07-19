@@ -67,4 +67,7 @@ public interface CollectedDataFactory {
     CollectedFirmwareVersion createFirmwareVersionsCollectedData(DeviceIdentifier deviceIdentifier);
 
     CollectedBreakerStatus createBreakerStatusCollectedData(DeviceIdentifier<?> deviceIdentifier);
+
+    CollectedCalendar createCalendarCollectedData(DeviceIdentifier<?> deviceIdentifier);
+
 }

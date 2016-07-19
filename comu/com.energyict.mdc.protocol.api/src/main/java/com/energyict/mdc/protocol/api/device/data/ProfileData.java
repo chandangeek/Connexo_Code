@@ -1,13 +1,10 @@
 package com.energyict.mdc.protocol.api.device.data;
 
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 /**
  * This class represents the profile data read from a device.
@@ -319,17 +316,29 @@ public class ProfileData implements java.io.Serializable {
         stringBuilder.append("Channels: ").append(iNROfChannels).append("\n");
         stringBuilder.append("Intervals par channel: ").append(iNROfIntervals).append("\n");
         for (t = 0; t < iNROfIntervals; t++) {
-            stringBuilder.append(" Interval ").append(t).append(" endtime = ").append(getIntervalData(t).getEndTime()).append("\n");
+            IntervalData intervalData = getIntervalData(t);
+            stringBuilder.append(" Interval ").append(t).append(" endtime = ").append(intervalData.getEndTime()).append("\n");
             for (i = 0; i < iNROfChannels; i++) {
+
+                StringBuilder readingQualitiesDescription = new StringBuilder();
+                for (ReadingQualityType readingQualityType : intervalData.getReadingQualityTypes()) {
+                    if (readingQualitiesDescription.length() > 0) {
+                        readingQualitiesDescription.append(", ");
+                    }
+                    readingQualitiesDescription.append(readingQualityType.getCode());
+                }
+
                 stringBuilder.append("Channel ")
                         .append(i)
                         .append(" Interval ")
                         .append(t)
                         .append(" = ")
-                        .append(getIntervalData(t).get(i)
+                        .append(intervalData.get(i)
                                 .doubleValue())
                         .append(" ")
-                        .append(getIntervalData(t).getEiStatusTranslation(i))
+                        .append(intervalData.getEiStatusTranslation(i))
+                        .append(" ")
+                        .append(readingQualitiesDescription)
                         .append(" ")
                         .append(getChannel(i).getUnit())
                         .append(" ")

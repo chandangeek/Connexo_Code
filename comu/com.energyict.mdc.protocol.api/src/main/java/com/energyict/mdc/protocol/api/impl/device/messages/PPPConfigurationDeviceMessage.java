@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum PPPConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum PPPConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetISP1Phone(DeviceMessageId.PPP_CONFIGURATION_SET_ISP1_PHONE, "Set ISP1 phone") {
         @Override

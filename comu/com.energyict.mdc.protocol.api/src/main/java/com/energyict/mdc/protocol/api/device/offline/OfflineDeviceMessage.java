@@ -9,7 +9,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,61 +27,61 @@ public interface OfflineDeviceMessage extends Offline {
      *
      * @return The DeviceMessageSpec
      */
-    public DeviceMessageSpec getSpecification ();
+    DeviceMessageSpec getSpecification();
 
-    public MessageIdentifier getIdentifier();
+    MessageIdentifier getIdentifier();
 
     /**
      * @return the ID of the DeviceMessage
      */
-    public DeviceMessageId getDeviceMessageId();
+    DeviceMessageId getDeviceMessageId();
 
     /**
-     * The ID of the Device owning this DeviceMessage
+     * The ID of the Device owning this DeviceMessage.
      *
      * @return the id of the Device
      */
-    public long getDeviceId();
+    long getDeviceId();
 
     /**
-     * The configured date of when this message <i>could</i> be executed
+     * The configured date of when this message <i>could</i> be executed.
      *
      * @return the release date of this message
      */
-    public Instant getReleaseDate();
+    Instant getReleaseDate();
 
     /**
-     * The DeviceProtocol of the device that has this message
+     * The DeviceProtocol of the device that has this message.
      */
-    public DeviceProtocol getDeviceProtocol();
+    DeviceProtocol getDeviceProtocol();
 
     /**
      * An ID which can be used to keep track of this message
      *
      * @return the trackingId
      */
-    public String getTrackingId();
+    String getTrackingId();
 
     /**
      * The protocol info returned from the device protocol.
 
      * @return the protocolInfo
      */
-    public String getProtocolInfo();
+    String getProtocolInfo();
 
     /**
-     * The current {@link DeviceMessageStatus status} of this DeviceMessage
+     * The current {@link DeviceMessageStatus status} of this DeviceMessage.
      *
      * @return the DeviceMessageStatus
      */
-    public DeviceMessageStatus getDeviceMessageStatus();
+    DeviceMessageStatus getDeviceMessageStatus();
 
     /**
-     * The date on which this DeviceMessage was created
+     * The date on which this DeviceMessage was created.
      *
      * @return the creationDate of this message
      */
-    public Instant getCreationDate();
+    Instant getCreationDate();
 
     /**
      * The list of {@link OfflineDeviceMessageAttribute}s which are owned by this DeviceMessage.
@@ -90,15 +89,16 @@ public interface OfflineDeviceMessage extends Offline {
      *
      * @return the list of OfflineDeviceMessageAttribute
      */
-    public List<OfflineDeviceMessageAttribute> getDeviceMessageAttributes();
+    List<OfflineDeviceMessageAttribute> getDeviceMessageAttributes();
 
     /**
      * @return the serialNumber of the device
      */
-    public String getDeviceSerialNumber();
+    String getDeviceSerialNumber();
 
     /**
      * @return the identifier of the device which owns this devicemessage
      */
-    public DeviceIdentifier getDeviceIdentifier();
+    DeviceIdentifier getDeviceIdentifier();
+
 }

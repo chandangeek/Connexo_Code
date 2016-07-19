@@ -14,7 +14,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum ChannelConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetFunction(DeviceMessageId.CHANNEL_CONFIGURATION_SET_FUNCTION, "Set function") {
         @Override

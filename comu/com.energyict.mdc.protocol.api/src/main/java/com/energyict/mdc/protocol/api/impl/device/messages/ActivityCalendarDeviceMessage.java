@@ -5,7 +5,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.DeviceMessageFile;
 import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
@@ -27,24 +26,6 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
             return Optional.of(ProtocolSupportedCalendarOptions.VERIFY_ACTIVE_CALENDAR);
-        }
-    },
-    WRITE_CONTRACTS_FROM_XML_USERFILE(DeviceMessageId.ACTIVITY_CALENDAR_WRITE_CONTRACTS_FROM_XML_USERFILE, "Write contract from XML user file") {
-        @Override
-        protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-            super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
-            propertySpecs.add(
-                    propertySpecService
-                            .referenceSpec(DeviceMessageFile.class)
-                            .named(DeviceMessageAttributes.contractsXmlUserFileAttributeName)
-                            .fromThesaurus(thesaurus)
-                            .markRequired()
-                            .finish());
-        }
-
-        @Override
-        public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.empty();
         }
     },
     ACTIVITY_CALENDER_SEND(DeviceMessageId.ACTIVITY_CALENDER_SEND, "Send activity calendar") {
@@ -229,7 +210,7 @@ public enum ActivityCalendarDeviceMessage implements DeviceMessageSpecEnum {
     CLEAR_AND_DISABLE_PASSIVE_TARIFF(DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF, "Clear and disable passive tariff") {
         @Override
         public Optional<ProtocolSupportedCalendarOptions> getProtocolSupportedCalendarOption() {
-            return Optional.empty();
+            return Optional.of(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF);
         }
     },
     ACTIVATE_PASSIVE_CALENDAR(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE, "Activate passive calendar") {

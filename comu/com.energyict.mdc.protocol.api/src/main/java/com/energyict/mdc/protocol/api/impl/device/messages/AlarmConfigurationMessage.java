@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 3/04/13
  * Time: 8:38
  */
-public enum AlarmConfigurationMessage implements DeviceMessageSpecEnum {
+enum AlarmConfigurationMessage implements DeviceMessageSpecEnum {
 
     RESET_ALL_ALARM_BITS(DeviceMessageId.ALARM_CONFIGURATION_RESET_ALL_ALARM_BITS, "Reset all alarm bits"),
     WRITE_ALARM_FILTER(DeviceMessageId.ALARM_CONFIGURATION_WRITE_ALARM_FILTER, "Write alarm filter") {

@@ -122,8 +122,14 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
     public Optional<Instant> getSentDate();
 
     /**
+     * Sets the date & time when the message was actually transmitted to the device.
+     * @param sentDate the sent-date to set
+     */
+    public void setSentDate(Instant sentDate);
+
+    /**
      * User who created the command
-     * @return User
+     * @return the name of the User who created the command
      */
     public String getUser();
 

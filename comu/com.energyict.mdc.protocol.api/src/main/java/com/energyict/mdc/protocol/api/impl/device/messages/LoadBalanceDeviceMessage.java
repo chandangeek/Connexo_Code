@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
@@ -25,7 +26,7 @@ import java.util.stream.Stream;
  * Date: 3/04/13
  * Time: 9:43
  */
-public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
+enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
 
     WriteControlThresholds(DeviceMessageId.LOAD_BALANCING_WRITE_CONTROL_THRESHOLDS, "Write control thresholds") {
         @Override
@@ -330,6 +331,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.unitAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
         }
     },
     SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS(DeviceMessageId.LOAD_BALANCING_SET_LOAD_LIMIT_THRESHOLD_WITH_TARIFFS, "Set load limit threshold with tariffs") {
@@ -340,6 +348,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                     propertySpecService
                             .bigDecimalSpec()
                             .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.unitAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());
@@ -358,7 +373,7 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(
                     propertySpecService
-                            .stringSpec()
+                            .referenceSpec(ReadingType.class)
                             .named(DeviceMessageAttributes.readingTypeAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
@@ -378,6 +393,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                             .finish());
             propertySpecs.add(
                     propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.unitAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
                             .timeDurationSpec()
                             .named(DeviceMessageAttributes.overThresholdDurationAttributeName)
                             .fromThesaurus(thesaurus)
@@ -392,6 +414,13 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
                     propertySpecService
                             .bigDecimalSpec()
                             .named(DeviceMessageAttributes.normalThresholdAttributeName)
+                            .fromThesaurus(thesaurus)
+                            .markRequired()
+                            .finish());
+            propertySpecs.add(
+                    propertySpecService
+                            .stringSpec()
+                            .named(DeviceMessageAttributes.unitAttributeName)
                             .fromThesaurus(thesaurus)
                             .markRequired()
                             .finish());

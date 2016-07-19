@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
  * Date: 30.04.15
  * Time: 15:35
  */
-public enum MBusSetupDeviceMessageAttributes implements TranslationKey {
+enum MBusSetupDeviceMessageAttributes implements TranslationKey {
 
     openKeyAttributeName(DeviceMessageConstants.openKeyAttributeName, "Open key"),
     transferKeyAttributeName(DeviceMessageConstants.transferKeyAttributeName, "Transfer key"),

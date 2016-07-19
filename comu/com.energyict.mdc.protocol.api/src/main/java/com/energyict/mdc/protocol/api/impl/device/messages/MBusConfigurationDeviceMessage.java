@@ -13,7 +13,7 @@ import java.util.List;
  * Date: 28/02/13
  * Time: 9:10
  */
-public enum MBusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
+enum MBusConfigurationDeviceMessage implements DeviceMessageSpecEnum {
 
     SetMBusEvery(DeviceMessageId.MBUS_CONFIGURATION_SET_EVERY, "Set MBus every") {
         @Override
