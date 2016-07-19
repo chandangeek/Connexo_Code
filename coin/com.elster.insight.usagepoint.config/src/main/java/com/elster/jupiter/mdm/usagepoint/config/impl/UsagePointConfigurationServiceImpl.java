@@ -220,6 +220,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .select(condition)
                 .stream()
                 .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
+                .sorted((ruleSet1, ruleSet2) -> ruleSet1.getName().compareToIgnoreCase(ruleSet2.getName()))
                 .collect(Collectors.toList());
     }
 
