@@ -6,6 +6,7 @@ import com.elster.jupiter.bpm.UserTaskInfo;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
@@ -13,7 +14,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.users.User;
@@ -34,7 +34,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,6 +49,8 @@ public class GoingOnResource {
     private final ResourceHelper resourceHelper;
     private final MeteringService meteringService;
     private final Clock clock;
+    private final Optional<IssueStatus> open;
+    private final Optional<IssueStatus> inProgress;
 
     @Inject
     public GoingOnResource(ResourceHelper resourceHelper, ServiceCallService serviceCallService, BpmService bpmService, IssueService issueService, MeteringService meteringService, Clock clock) {
@@ -59,6 +60,9 @@ public class GoingOnResource {
         this.issueService = issueService;
         this.meteringService = meteringService;
         this.clock = clock;
+        this.open = issueService.findStatus(IssueStatus.OPEN);
+        this.inProgress = issueService.findStatus(IssueStatus.IN_PROGRESS);
+
     }
 
     @GET
@@ -76,12 +80,14 @@ public class GoingOnResource {
         Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
         IssueFilter issueFilter = issueService.newIssueFilter();
         issueFilter.addDevice(meter.get());
+        open.ifPresent(issueFilter::addStatus);
+        inProgress.ifPresent(issueFilter::addStatus);
         List<GoingOnInfo> issues = issueService.findIssues(issueFilter)
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
 
-        List<GoingOnInfo> serviceCalls = serviceCallService.findServiceCalls(device, nonFinalStates())
+        List<GoingOnInfo> serviceCalls = serviceCallService.findServiceCalls(device, serviceCallService.nonFinalStates())
                 .stream()
                 .map(goingOnInfoFactory::toGoingOnInfo)
                 .collect(Collectors.toList());
@@ -102,16 +108,6 @@ public class GoingOnResource {
 
     private String filterFor(Device device) {
         return "?variableid=deviceId&variablevalue=" + device.getmRID();
-    }
-
-    private EnumSet<DefaultState> nonFinalStates() {
-        return EnumSet.of(
-                DefaultState.CREATED,
-                DefaultState.PENDING,
-                DefaultState.SCHEDULED,
-                DefaultState.ONGOING,
-                DefaultState.PAUSED
-        );
     }
 
     private class GoingOnInfoFactory {
