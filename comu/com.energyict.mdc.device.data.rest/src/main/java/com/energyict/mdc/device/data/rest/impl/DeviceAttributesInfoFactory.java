@@ -176,9 +176,6 @@ public class DeviceAttributesInfoFactory {
         if (DeviceAttribute.GEOCOORDINATES.isEditableForState(currentState)) {
             validateGeoCoordinates(validationBuilder, "geoCoordinates", info.geoCoordinates);
         }
-        if (DeviceAttribute.GEOCOORDINATES.isEditableForState(currentState)) {
-            validateLocation(validationBuilder, "editLocation", info.location);
-        }
         if (DeviceAttribute.MULTIPLIER.isEditableForState(currentState) &&  info.multiplier.displayValue.compareTo(BigDecimal.ZERO) <= 0 ){
             validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_MULTIPLIER, "multiplier"));
         }

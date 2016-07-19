@@ -33,9 +33,9 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceTypePurpose;
 import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
+import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -959,7 +959,7 @@ public class DeviceResource {
         ActiveEffectiveCalendar activeCalendar = device.calendars().getActive().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
         AllowedCalendar allowedCalendar = activeCalendar.getAllowedCalendar();
         Calendar calendar = allowedCalendar.getCalendar().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNABLE_TO_FIND_CALENDAR));
-        if(calendar.getId() != calendarId) {
+        if (calendar.getId() != calendarId) {
             throw exceptionFactory.newException(MessageSeeds.CALENDAR_NOT_ACTIVE_ON_DEVICE);
         }
         if (milliseconds <= 0) {
@@ -1021,7 +1021,7 @@ public class DeviceResource {
     public Response clearPassiveCalendar(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
-        if(!allowedOptions.contains(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF)) {
+        if (!allowedOptions.contains(ProtocolSupportedCalendarOptions.CLEAR_AND_DISABLE_PASSIVE_TARIFF)) {
             throw exceptionFactory.newException(MessageSeeds.COMMAND_NOT_ALLOWED_OR_SUPPORTED);
         }
         DeviceMessage<Device> deviceMessage = device.newDeviceMessage(DeviceMessageId.ACTIVITY_CALENDAR_CLEAR_AND_DISABLE_PASSIVE_TARIFF).setReleaseDate(Instant.now(clock)).add();
@@ -1041,7 +1041,7 @@ public class DeviceResource {
     public Response activatePassiveCalendar(@PathParam("mRID") String mRID, @FormParam("activationDate") long activationDate) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
-        if(!allowedOptions.contains(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR)) {
+        if (!allowedOptions.contains(ProtocolSupportedCalendarOptions.ACTIVATE_PASSIVE_CALENDAR)) {
             throw exceptionFactory.newException(MessageSeeds.COMMAND_NOT_ALLOWED_OR_SUPPORTED);
         }
         DeviceMessage<Device> deviceMessage = device.newDeviceMessage(DeviceMessageId.ACTIVATE_CALENDAR_PASSIVE)

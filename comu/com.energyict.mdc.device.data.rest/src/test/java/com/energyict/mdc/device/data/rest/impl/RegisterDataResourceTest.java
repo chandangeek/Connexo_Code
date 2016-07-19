@@ -15,7 +15,6 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
@@ -34,7 +33,6 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
-import javax.ws.rs.HEAD;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;

@@ -36,7 +36,6 @@ import com.energyict.mdc.device.data.TextRegister;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import javax.inject.Inject;
-import javax.ws.rs.HEAD;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;

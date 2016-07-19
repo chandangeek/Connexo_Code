@@ -29,7 +29,6 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
-import javax.ws.rs.HEAD;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;

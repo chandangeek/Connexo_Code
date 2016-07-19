@@ -410,7 +410,7 @@ public class ChannelResource {
             List<LoadProfileReading> channelData = channel.getChannelData(range);
             Optional<ChannelDataInfo> found = channelData.stream()
                     //TODO update
-                    .map(oneLoadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, oneLoadProfileReading, isValidationActive, deviceValidation))
+                    .map(oneLoadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, oneLoadProfileReading, isValidationActive, deviceValidation, null))
                     .findFirst();
             return Response.ok(found.orElse(new ChannelDataInfo())).build();
         }

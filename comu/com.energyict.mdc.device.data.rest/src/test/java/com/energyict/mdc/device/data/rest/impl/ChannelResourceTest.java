@@ -53,7 +53,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
-import javax.ws.rs.HEAD;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
@@ -847,9 +846,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.id")).isEqualTo(((Long)estimationRule.getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.id")).isEqualTo(((Long) estimationRule.getId()).intValue());
         assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.name")).isEqualTo(estimationRule.getName());
-        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(((Long)estimationRule.getRuleSet().getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(((Long) estimationRule.getRuleSet().getId()).intValue());
         assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
         assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.application.name")).isEqualTo("MultiSense");
     }

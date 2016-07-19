@@ -109,7 +109,10 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     @Before
     public void initDependenciesOnPropertySpecService() {
         when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory, thesaurus, propertySpecService)).collect(Collectors.toList()));
-        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory, thesaurus, propertySpecService)).collect(Collectors.toList()));
+        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class)
+                .stream()
+                .map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory, thesaurus, propertySpecService))
+                .collect(Collectors.toList()));
         deviceMessageCategoryDeviceActions = new DeviceMessageCategoryImpl(DeviceMessageCategories.DEVICE_ACTIONS, thesaurus, propertySpecService);
         deviceMessageCategoryActivityCalendar = new DeviceMessageCategoryImpl(DeviceMessageCategories.ACTIVITY_CALENDAR, thesaurus, propertySpecService);
         deviceMessageCategoryClock = new DeviceMessageCategoryImpl(DeviceMessageCategories.CLOCK, thesaurus, propertySpecService);
