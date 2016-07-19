@@ -4,7 +4,11 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.energyict.mdc.common.interval.IntervalStateBits;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * This class represents the profile data read from a device.
