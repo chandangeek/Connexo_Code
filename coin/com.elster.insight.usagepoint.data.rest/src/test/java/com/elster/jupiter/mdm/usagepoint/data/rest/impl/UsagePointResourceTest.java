@@ -9,7 +9,6 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.LocationTemplate;
@@ -22,28 +21,23 @@ import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
-import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPropertySetUsage;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationEvaluator;
 
-import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -92,8 +86,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     private UsagePointBuilder usagePointBuilder;
     @Mock
     private ElectricityDetailBuilder electricityDetailBuilder;
-    @Mock
-    private BaseReadingRecord readingRecord1, readingRecord2;
     @Mock
     private RegisteredCustomPropertySet registeredCustomPropertySet;
     @Mock
@@ -168,13 +160,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(metrologyConfigurationService.findLinkableMetrologyConfigurations((any(UsagePoint.class)))).thenReturn(Arrays.asList(usagePointMetrologyConfiguration));
         when(usagePoint.forCustomProperties().getPropertySet(1L)).thenReturn(usagePointPropertySet);
-
-        Range<Instant> range1 = Ranges.openClosed(Instant.ofEpochMilli(1410774620100L), Instant.ofEpochMilli(1410774620200L));
-        Range<Instant> range2 = Ranges.openClosed(Instant.ofEpochMilli(1410774621100L), Instant.ofEpochMilli(1410774621200L));
-        when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
-        when(readingRecord1.getTimePeriod()).thenReturn(Optional.of(range1));
-        when(readingRecord2.getValue()).thenReturn(BigDecimal.valueOf(206, 0));
-        when(readingRecord2.getTimePeriod()).thenReturn(Optional.of(range2));
         when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(usagePoint.getLocation()).thenReturn(Optional.empty());
@@ -537,20 +522,19 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
 
     @Test
     public void testChannelReadingsOfOutput() {
-        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(2, "2test"));
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(42L, "Test mc"));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().get(0);
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().get(0);
-        CalculatedMetrologyContractData calculatedMetrologyContractData = mock(CalculatedMetrologyContractData.class);
-        when(dataAggregationService.calculate(any(UsagePoint.class), any(MetrologyContract.class), any(Range.class))).thenReturn(calculatedMetrologyContractData);
-        List channelData = Arrays.asList(readingRecord1, readingRecord2);
-        when(calculatedMetrologyContractData.getCalculatedDataFor(readingTypeDeliverable)).thenReturn(channelData);
-        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1468846440000},{\"property\":\"intervalEnd\",\"value\":1500382440000}]");
         String json = target("usagepoints/MRID/purposes/1/outputs/1/data").queryParam("filter", filter).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(1410774620100L);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1410774620200L);
-        assertThat(jsonModel.<String>get("$.data[0].value")).isEqualTo("200");
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(1468875600000L);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1468962000000L);
+        assertThat(jsonModel.<Long>get("$.data[0].readingTime")).isEqualTo(1468962000000L);
+        assertThat(jsonModel.<String>get("$.data[0].value")).isEqualTo("10");
+        assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<String>get("$.data[0].action")).isEqualTo("FAIL");
     }
 }
