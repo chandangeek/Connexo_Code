@@ -17,12 +17,14 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     models: [
         'Imt.purpose.model.Output',
-        'Imt.purpose.model.Reading'
+        'Imt.purpose.model.Reading',
+        'Imt.usagepointmanagement.model.ValidationInfo'
     ],
 
     views: [
         'Imt.purpose.view.Outputs',
-        'Imt.purpose.view.OutputChannelMain'
+        'Imt.purpose.view.OutputChannelMain',
+        'Imt.purpose.view.ValidationStatusForm'
     ],
 
     loadOutputs: function (mRID, purposeId, callback) {
@@ -44,14 +46,20 @@ Ext.define('Imt.purpose.controller.Purpose', {
         mainView.setLoading();
         usagePointsController.loadUsagePoint(mRID, {
             success: function (types, usagePoint, purposes) {
-                var purpose = _.find(purposes, function(p){return p.getId() == purposeId});
-                app.fireEvent('changecontentevent', Ext.widget('purpose-outputs', {
-                    itemId: 'purpose-outputs',
-                    router: router,
-                    usagePoint: usagePoint,
-                    purposes: purposes,
-                    purpose: purpose
-                }));
+                var purpose = _.find(purposes, function (p) {
+                        return p.getId() == purposeId
+                    }),
+                    widget = Ext.widget('purpose-outputs', {
+                        itemId: 'purpose-outputs',
+                        router: router,
+                        usagePoint: usagePoint,
+                        purposes: purposes,
+                        purpose: purpose
+                    });
+                widget.down('#purpose-details-form').loadRecord(purpose);
+                debugger;
+                widget.down('#purpose-details-form #output-validation-status-form').loadRecord(purpose.getValidationInfo());
+                app.fireEvent('changecontentevent', widget);
                 mainView.setLoading(false);
                 me.loadOutputs(mRID, purposeId);
             },
