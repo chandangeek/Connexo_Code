@@ -7,7 +7,6 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -73,7 +72,6 @@ import javax.ws.rs.core.UriInfo;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -640,39 +638,28 @@ public class UsagePointResource {
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
         MetrologyContract metrologyContract = fetchMetrologyContract(usagePoint, purposeId);
+        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables()
+                .stream()
+                .filter(d -> d.getId() == outputId)
+                .findFirst()
+                .get();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            List<Channel> channels = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get().getChannels();
-            List<DataValidationStatus> dataValidationStatusList = fetchDataValidationStatuses(channels, range);
-            outputChannelDataInfoList = channels
+            Channel channel = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get().getChannels()
                     .stream()
-                    .flatMap(channel -> channel.getIntervalReadings(range).stream())
+                    .filter(c -> c.getMainReadingType().equals(readingTypeDeliverable.getReadingType()))
+                    .findFirst()
+                    .get();
+            List<DataValidationStatus> dataValidationStatusList = validationService.getEvaluator()
+                    .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, channel.getIntervalReadings(range), range)
+                    .stream()
+                    .collect(Collectors.toList());
+            outputChannelDataInfoList = channel.getIntervalReadings(range)
+                    .stream()
                     .map(intervalReadingRecord -> outputChannelDataInfoFactory.createChannelDataInfo(intervalReadingRecord, dataValidationStatusList))
                     .collect(Collectors.toList());
         }
         return PagedInfoList.fromCompleteList("data", outputChannelDataInfoList, queryParameters);
-    }
-
-    @GET
-    @Transactional
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @Path("/{mrid}/purposes/{purposeId}/outputs/{outputId}/data/{epochMillis}/validation")
-    @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public OutputChannelDataInfo getOutputChannelDataWithValidation(@PathParam("mrid") String mRid, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
-                                                                    @PathParam("epochMillis") long epochMillis, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        MetrologyContract metrologyContract = fetchMetrologyContract(usagePoint, purposeId);
-        List<Channel> channels = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get().getChannels();
-        Instant to = Instant.ofEpochMilli(epochMillis);
-        List<DataValidationStatus> dataValidationStatusList = fetchDataValidationStatuses(channels, Range.singleton(to));
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, usagePoint.getZoneId());
-        IntervalReadingRecord intervalReadingRecord = channels
-                .stream()
-                .flatMap(channel -> channel.getIntervalReadings(Ranges.openClosed(zonedDateTime.minus(channel.getIntervalLength().get()).toInstant(), to)).stream())
-                .filter(reading -> reading.getTimeStamp().equals(Instant.ofEpochMilli(epochMillis)))
-                .findFirst()
-                .get();
-        return outputChannelDataInfoFactory.createChannelDataInfoWithValidationRules(intervalReadingRecord, dataValidationStatusList);
     }
 
     @GET
@@ -705,14 +692,5 @@ public class UsagePointResource {
                 .filter(mc -> mc.getId() == purposeId)
                 .findFirst()
                 .get();
-    }
-
-    private List<DataValidationStatus> fetchDataValidationStatuses(List<Channel> channels, Range<Instant> range) {
-        return channels
-                .stream()
-                .flatMap(channel -> validationService.getEvaluator()
-                        .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, channel.getIntervalReadings(range), range)
-                        .stream())
-                .collect(Collectors.toList());
     }
 }

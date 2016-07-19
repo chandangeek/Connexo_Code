@@ -25,7 +25,11 @@ public class OutputChannelDataInfoFactory {
         outputChannelDataInfo.value = intervalReadingRecord.getValue();
         outputChannelDataInfo.interval = IntervalInfo.from(intervalReadingRecord.getTimePeriod().get());
         outputChannelDataInfo.readingTime = intervalReadingRecord.getTimeStamp();
-        DataValidationStatus validationStatus = getValidationStatus(intervalReadingRecord, dataValidationStatuses);
+        DataValidationStatus validationStatus = dataValidationStatuses
+                .stream()
+                .filter(dataValidationStatus -> dataValidationStatus.getReadingTimestamp().equals(intervalReadingRecord.getTimeStamp()))
+                .findFirst()
+                .get();
         outputChannelDataInfo.validationResult = ValidationStatus.forResult(validationStatus.getValidationResult());
         outputChannelDataInfo.dataValidated = validationStatus.completelyValidated();
         outputChannelDataInfo.action = decorate(validationStatus.getReadingQualities()
@@ -35,21 +39,7 @@ public class OutputChannelDataInfoFactory {
                 .sorted(Comparator.reverseOrder())
                 .findFirst()
                 .orElse(null);
-        return outputChannelDataInfo;
-    }
-
-    public OutputChannelDataInfo createChannelDataInfoWithValidationRules(IntervalReadingRecord intervalReadingRecord, List<DataValidationStatus> dataValidationStatuses) {
-        OutputChannelDataInfo outputChannelDataInfo = createChannelDataInfo(intervalReadingRecord, dataValidationStatuses);
-        DataValidationStatus validationStatus = getValidationStatus(intervalReadingRecord, dataValidationStatuses);
         outputChannelDataInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(validationStatus);
         return outputChannelDataInfo;
-    }
-
-    private DataValidationStatus getValidationStatus(IntervalReadingRecord intervalReadingRecord, List<DataValidationStatus> dataValidationStatuses) {
-        return dataValidationStatuses
-                .stream()
-                .filter(dataValidationStatus -> dataValidationStatus.getReadingTimestamp().equals(intervalReadingRecord.getTimeStamp()))
-                .findFirst()
-                .get();
     }
 }
