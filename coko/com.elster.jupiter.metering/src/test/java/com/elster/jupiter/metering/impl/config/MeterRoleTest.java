@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.TableSpecs;
@@ -32,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class MeterRoleTest {
 
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @Rule
     public ExpectedConstraintViolationRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -88,7 +89,7 @@ public class MeterRoleTest {
     public void testCreateMeterRole() {
         //Business method
         getMetrologyConfigurationService().newMeterRole(SimpleNlsKey
-                .key(MetrologyConfigurationService.COMPONENT_NAME, Layer.DOMAIN, "meter.role.new")
+                .key(MeteringDataModelService.COMPONENT_NAME, Layer.DOMAIN, "meter.role.new")
                 .defaultMessage("New meter role"));
 
         //Asserts

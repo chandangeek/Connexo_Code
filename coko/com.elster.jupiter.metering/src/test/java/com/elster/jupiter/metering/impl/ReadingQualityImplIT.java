@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -108,7 +109,6 @@ public class ReadingQualityImplIT {
         assertThat(event.containsProperty("readingTimestamp")).isTrue();
         assertThat(event.containsProperty("channelId")).isTrue();
         assertThat(event.containsProperty("readingQualityTypeCode")).isTrue();
-
     }
 
     private ReadingQualityRecord doTest(Instant date) {
@@ -118,12 +118,11 @@ public class ReadingQualityImplIT {
         ReadingType readingType = meteringService.getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         AmrSystem system = meteringService.findAmrSystem(1).get();
         Meter meter = system.newMeter("meter" + date.toEpochMilli()).create();
-        MeterActivation meterActivation = usagePoint.activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService()
-                .findDefaultMeterRole(DefaultMeterRole.DEFAULT), date);
-        Channel channel = meterActivation.createChannel(readingType);
+        MeterActivation meterActivation = usagePoint.activate(meter, inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT), date);
+        Channel channel = meterActivation.getChannelsContainer().createChannel(readingType);
         ReadingStorer regularStorer = meteringService.createNonOverrulingStorer();
         regularStorer.addReading(channel.getCimChannel(readingType).get(), IntervalReadingImpl.of(date, BigDecimal.valueOf(561561, 2)));
-        regularStorer.execute();
+        regularStorer.execute(QualityCodeSystem.MDC);
         BaseReadingRecord reading = channel.getReading(date).get();
         return channel.createReadingQuality(new ReadingQualityType("6.1"), readingType, reading);
     }

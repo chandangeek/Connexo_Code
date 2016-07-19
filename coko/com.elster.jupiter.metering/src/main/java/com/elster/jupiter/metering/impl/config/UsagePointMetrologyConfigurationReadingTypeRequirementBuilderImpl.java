@@ -6,24 +6,17 @@ import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 
-class UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl extends MetrologyConfigurationReadingTypeRequirementBuilderImpl implements UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder {
+class UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl extends MetrologyConfigurationReadingTypeRequirementBuilderImpl {
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private final UsagePointMetrologyConfigurationImpl metrologyConfiguration;
+    private final MeterRole meterRole;
 
-    private MeterRole meterRole;
-
-    UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(ServerMetrologyConfigurationService metrologyConfigurationService, UsagePointMetrologyConfigurationImpl metrologyConfiguration, String name) {
+    UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl(ServerMetrologyConfigurationService metrologyConfigurationService, UsagePointMetrologyConfigurationImpl metrologyConfiguration, String name, MeterRole role) {
         super(metrologyConfigurationService, metrologyConfiguration, name);
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.metrologyConfiguration = metrologyConfiguration;
-    }
-
-    @Override
-    public UsagePointMetrologyConfiguration.MetrologyConfigurationReadingTypeRequirementBuilder withMeterRole(MeterRole meterRole) {
-        this.meterRole = meterRole;
-        return this;
+        this.meterRole = role;
     }
 
     @Override
@@ -43,4 +36,5 @@ class UsagePointMetrologyConfigurationReadingTypeRequirementBuilderImpl extends 
         this.metrologyConfiguration.addReadingTypeRequirementMeterRoleUsage(reference);
         return readingTypeRequirement;
     }
+
 }

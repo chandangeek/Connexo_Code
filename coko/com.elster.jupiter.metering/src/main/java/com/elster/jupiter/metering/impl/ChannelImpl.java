@@ -12,16 +12,17 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ProcessStatus;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -35,8 +36,6 @@ import com.elster.jupiter.orm.DoesNotExistException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -66,7 +65,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
-import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Currying.use;
 import static com.elster.jupiter.util.streams.Predicates.on;
 import static com.elster.jupiter.util.streams.Predicates.self;
@@ -87,9 +85,8 @@ public final class ChannelImpl implements ChannelContract {
     @SuppressWarnings("unused")
     private String userName;
 
-
     // associations
-    private Reference<MeterActivation> meterActivation = ValueReference.absent();
+    private Reference<ChannelsContainer> channelsContainer = ValueReference.absent();
     private Reference<TimeSeries> timeSeries = ValueReference.absent();
     private Reference<IReadingType> mainReadingType = ValueReference.absent();
     private DerivationRule mainDerivationRule;
@@ -113,12 +110,12 @@ public final class ChannelImpl implements ChannelContract {
         this.eventService = eventService;
     }
 
-    ChannelImpl init(MeterActivation meterActivation, List<IReadingType> readingTypes) {
-        return init(meterActivation, readingTypes, this::determineRule);
+    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes) {
+        return init(channelsContainer, readingTypes, this::determineRule);
     }
 
-    ChannelImpl init(MeterActivation meterActivation, List<IReadingType> readingTypes, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
-        this.meterActivation.set(meterActivation);
+    public ChannelImpl init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, BiFunction<IReadingType, IReadingType, DerivationRule> ruleDetermination) {
+        this.channelsContainer.set(channelsContainer);
         this.mainReadingType.set(readingTypes.get(0));
         for (int index = 0; index < readingTypes.size(); index++) {
             DerivationRule rule = DerivationRule.MEASURED;
@@ -136,7 +133,7 @@ public final class ChannelImpl implements ChannelContract {
                 this.readingTypeInChannels.add(readingTypeInChannel);
             }
         }
-        this.timeSeries.set(createTimeSeries(meterActivation.getZoneId()));
+        this.timeSeries.set(createTimeSeries(channelsContainer.getZoneId()));
         return this;
     }
 
@@ -176,7 +173,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     private List<? extends MultiplierUsage> getMeterMultipliers(Instant instant) {
-        return getMeterActivation()
+        return getChannelsContainer()
                 .getMeter()
                 .flatMap(use(Meter::getConfiguration).with(instant))
                 .map(MeterConfiguration::getReadingTypeConfigs)
@@ -184,7 +181,7 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     private List<? extends MultiplierUsage> getUsagePointMultipliers(Instant instant) {
-        return getMeterActivation()
+        return getChannelsContainer()
                 .getUsagePoint()
                 .flatMap(use(UsagePoint::getConfiguration).with(instant))
                 .map(UsagePointConfiguration::getReadingTypeConfigs)
@@ -203,8 +200,8 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public IMeterActivation getMeterActivation() {
-        return (IMeterActivation) meterActivation.get();
+    public ChannelsContainer getChannelsContainer() {
+        return channelsContainer.get();
     }
 
     public TimeSeries getTimeSeries() {
@@ -299,7 +296,7 @@ public final class ChannelImpl implements ChannelContract {
 
         return readingRecord.getReadingTypes()
                 .stream()
-                .map(readingType -> recordSpecDefinition.toArray(readingRecord.filter(readingType), readingTypes.indexOf(readingType), readingRecord.getProcesStatus()))
+                .map(readingType -> recordSpecDefinition.toArray(readingRecord.filter(readingType), readingTypes.indexOf(readingType), readingRecord.getProcessStatus()))
                 .reduce(null, this::merge);
     }
 
@@ -367,23 +364,23 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     private boolean usagePointHasMultiplier(Predicate<MultiplierUsage> matchesReadingTypes) {
-        return getMeterActivation().getUsagePoint()
-                    .flatMap(use(UsagePoint::getConfiguration).with(getMeterActivation().getStart()))
-                    .map(UsagePointConfiguration::getReadingTypeConfigs)
-                    .orElseGet(Collections::emptyList)
-                    .stream()
-                    .filter(on(UsagePointReadingTypeConfiguration::getCalculated).test(Optional::isPresent))
-                    .anyMatch(matchesReadingTypes);
+        return getChannelsContainer().getUsagePoint()
+                .flatMap(use(UsagePoint::getConfiguration).with(getChannelsContainer().getStart()))
+                .map(UsagePointConfiguration::getReadingTypeConfigs)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .filter(on(UsagePointReadingTypeConfiguration::getCalculated).test(Optional::isPresent))
+                .anyMatch(matchesReadingTypes);
     }
 
     private boolean meterHasMultiplier(Predicate<MultiplierUsage> matchesReadingTypes) {
-        return getMeterActivation().getMeter()
-                    .flatMap(use(Meter::getConfiguration).with(getMeterActivation().getStart()))
-                    .map(MeterConfiguration::getReadingTypeConfigs)
-                    .orElseGet(Collections::emptyList)
-                    .stream()
-                    .filter(on(MeterReadingTypeConfiguration::getCalculated).test(Optional::isPresent))
-                    .anyMatch(matchesReadingTypes);
+        return getChannelsContainer().getMeter()
+                .flatMap(use(Meter::getConfiguration).with(getChannelsContainer().getStart()))
+                .map(MeterConfiguration::getReadingTypeConfigs)
+                .orElseGet(Collections::emptyList)
+                .stream()
+                .filter(on(MeterReadingTypeConfiguration::getCalculated).test(Optional::isPresent))
+                .anyMatch(matchesReadingTypes);
     }
 
     Optional<IReadingType> getDerivedReadingType(IReadingType readingType) {
@@ -423,7 +420,6 @@ public final class ChannelImpl implements ChannelContract {
         )
                 .flatMap(Function.identity())
                 .collect(ExtraCollectors.toImmutableList());
-
     }
 
     @Override
@@ -449,14 +445,8 @@ public final class ChannelImpl implements ChannelContract {
                 .collect(ExtraCollectors.toImmutableList());
     }
 
-
     public Optional<BaseReadingRecord> getReading(Instant when) {
-        java.util.Optional<TimeSeriesEntry> entryHolder = getTimeSeries().getEntry(when);
-        if (entryHolder.isPresent()) {
-            return Optional.of(createReading(entryHolder.get(), isRegular()));
-        } else {
-            return Optional.empty();
-        }
+        return getTimeSeries().getEntry(when).map(entryHolder -> createReading(entryHolder, isRegular()));
     }
 
     @Override
@@ -578,59 +568,8 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public List<ReadingQualityRecord> findReadingQuality(Range<Instant> range) {
-        Condition condition = inRange(range).and(ofThisChannel());
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition, Order.ascending("readingTimestamp"));
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> range) {
-        Condition condition = inRange(range).and(ofThisChannel()).and(isActual());
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition, Order.ascending("readingTimestamp"));
-    }
-
-    private Condition isActual() {
-        return where("actual").isEqualTo(true);
-    }
-
-    private Condition inRange(Range<Instant> range) {
-        return where("readingTimestamp").in(range);
-    }
-
-    private Condition ofThisChannel() {
-        return where("channel").isEqualTo(this);
-    }
-
-    private Condition ofType(ReadingQualityType type) {
-        return where("typeCode").isEqualTo(type.getCode());
-    }
-
-    @Override
-    public Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp) {
-        Condition condition = ofThisChannel().and(withTimestamp(timestamp)).and(ofType(type));
-        return dataModel.mapper(ReadingQualityRecord.class).select(condition).stream().findFirst();
-    }
-
-    private Condition withTimestamp(Instant timestamp) {
-        return where("readingTimestamp").isEqualTo(timestamp);
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> range) {
-        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(range)).and(ofType(type));
-        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, Order.ascending("readingTimestamp"));
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval) {
-        Condition ofTypeAndInInterval = ofThisChannel().and(inRange(interval)).and(ofType(type)).and(isActual());
-        return dataModel.mapper(ReadingQualityRecord.class).select(ofTypeAndInInterval, Order.ascending("readingTimestamp"));
-    }
-
-    @Override
-    public List<ReadingQualityRecord> findReadingQuality(Instant timestamp) {
-        Condition atTimestamp = ofThisChannel().and(withTimestamp(timestamp));
-        return dataModel.mapper(ReadingQualityRecord.class).select(atTimestamp, Order.ascending("readingTimestamp"));
+    public ReadingQualityFetcher findReadingQualities() {
+        return new ReadingQualityFetcherImpl(dataModel, this);
     }
 
     @Override
@@ -684,46 +623,44 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public void editReadings(List<? extends BaseReading> readings) {
-        getCimChannel(getMainReadingType()).get().editReadings(readings);
+    public void editReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
+        getCimChannel(getMainReadingType()).ifPresent(cimChannel ->
+                cimChannel.editReadings(system, readings));
     }
 
     @Override
-    public void confirmReadings(List<? extends BaseReading> readings) {
-        getCimChannel(getMainReadingType()).get().confirmReadings(readings);
-        if (getBulkQuantityReadingType().isPresent() && getCimChannel(getBulkQuantityReadingType().get()).isPresent()) {
-            getCimChannel(getBulkQuantityReadingType().get()).get().confirmReadings(readings);
-        }
-        Set<Instant> readingTimes = readings.stream().map(reading -> reading.getTimeStamp()).collect(Collectors.toSet());
+    public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
+        getCimChannel(getMainReadingType()).ifPresent(cimChannel ->
+                cimChannel.confirmReadings(system, readings));
+        getBulkQuantityReadingType().ifPresent(bulkReadingType ->
+                getCimChannel(bulkReadingType).ifPresent(bulkChannel ->
+                        bulkChannel.confirmReadings(system, readings)));
     }
 
     @Override
-    public void removeReadings(List<? extends BaseReadingRecord> readings) { // TODO make this for a specific readingType
-        if (readings.isEmpty()) {
-            return;
+    public void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings) { // TODO make this for a specific readingType
+        if (!readings.isEmpty()) {
+            Set<Instant> readingTimes = readings.stream().map(BaseReading::getTimeStamp).collect(Collectors.toSet());
+            readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
+            findReadingQualities().inTimeInterval(Range.encloseAll(readingTimes)).stream()
+                    .filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
+                    .forEach(ReadingQualityRecord::delete);
+            ReadingQualityType rejected = ReadingQualityType.of(system, QualityCodeIndex.REJECTED);
+            readingTimes.forEach(readingTime -> {
+                createReadingQuality(rejected, mainReadingType.get(), readingTime);
+                getBulkQuantityReadingType().ifPresent(bulkReadingType -> createReadingQuality(rejected, bulkReadingType, readingTime));
+            });
+            eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this, readingTimes));
         }
-        Set<Instant> readingTimes = readings.stream().map(BaseReading::getTimeStamp).collect(Collectors.toSet());
-        List<ReadingQualityRecord> qualityRecords = findReadingQuality(Range.encloseAll(readingTimes));
-        readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
-        qualityRecords.stream()
-                .filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
-                .forEach(qualityRecord -> qualityRecord.delete());
-        ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED);
-        readingTimes.forEach(readingTime -> {
-            createReadingQuality(rejected, mainReadingType.get(), readingTime);
-            getBulkQuantityReadingType().ifPresent(bulkReadingType -> createReadingQuality(rejected, bulkReadingType, readingTime));
-        });
-        eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this, readingTimes));
     }
 
     void deleteReadings(List<? extends BaseReadingRecord> readings) {
-        if (readings.isEmpty()) {
-            return;
+        if (!readings.isEmpty()) {
+            Set<Instant> readingTimes = readings.stream()
+                    .map(BaseReading::getTimeStamp)
+                    .collect(Collectors.toSet());
+            readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
         }
-        Set<Instant> readingTimes = readings.stream()
-                .map(BaseReading::getTimeStamp)
-                .collect(Collectors.toSet());
-        readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
     }
 
     @Override
@@ -732,19 +669,16 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     void copyReadings(List<BaseReadingRecord> readings) {
-        if (readings.isEmpty()) {
-            return;
+        if (!readings.isEmpty()) {
+            TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
+
+            readings.stream()
+                    .map(BaseReadingRecordImpl.class::cast)
+                    .map(baseReadingRecord -> Pair.of(baseReadingRecord.getTimeStamp(), baseReadingRecord.getEntry().getValues()))
+                    .forEach(pair -> storer.add(getTimeSeries(), pair.getFirst(), pair.getLast()));
+
+            storer.execute();
         }
-
-        TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
-
-        readings.stream()
-                .map(BaseReadingRecordImpl.class::cast)
-                .map(baseReadingRecord -> Pair.of(baseReadingRecord.getTimeStamp(), baseReadingRecord.getEntry().getValues()))
-                .forEach(pair -> storer.add(getTimeSeries(), pair.getFirst(), pair.getLast()));
-
-        storer.execute();
-
     }
 
     public static class ReadingsDeletedEventImpl implements Channel.ReadingsDeletedEvent {
@@ -777,8 +711,5 @@ public final class ChannelImpl implements ChannelContract {
         public long getEndMillis() {
             return readingTimes.stream().max(Comparator.naturalOrder()).get().toEpochMilli();
         }
-
     }
-
-
 }

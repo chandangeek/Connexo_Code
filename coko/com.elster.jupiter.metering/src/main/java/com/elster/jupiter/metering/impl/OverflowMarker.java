@@ -13,8 +13,8 @@ public enum OverflowMarker implements OverflowListener {
     INSTANT;
 
     @Override
-    public void overflowOccurred(CimChannel cimChannel, Instant timestamp, BigDecimal value, BigDecimal overflowValue) {
-        ReadingQualityType backflowQuality = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
+    public void overflowOccurred(QualityCodeSystem system, CimChannel cimChannel, Instant timestamp, BigDecimal value, BigDecimal overflowValue) {
+        ReadingQualityType backflowQuality = ReadingQualityType.of(system, QualityCodeIndex.OVERFLOWCONDITIONDETECTED);
         cimChannel.createReadingQuality(backflowQuality, timestamp);
     }
 }

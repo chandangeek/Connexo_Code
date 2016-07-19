@@ -1,17 +1,21 @@
 package com.elster.jupiter.metering.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.ids.TimeSeriesEntry;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 
-import com.elster.jupiter.ids.TimeSeriesEntry;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 public class IntervalReadingImplTest extends AbstractBaseReadingImplTest {
-
-    private static final ProfileStatus PROFILE_STATUS = ProfileStatus.of(ProfileStatus.Flag.POWERUP,ProfileStatus.Flag.POWERDOWN);
 
     @Override
     BaseReadingRecordImpl createInstanceToTest(ChannelImpl channel, TimeSeriesEntry entry) {
@@ -22,9 +26,23 @@ public class IntervalReadingImplTest extends AbstractBaseReadingImplTest {
     public void testGetIntervalReadingImpl() {
         ChannelImpl channel = getChannel();
         TimeSeriesEntry entry = mock(TimeSeriesEntry.class);
-        when(entry.getLong(1)).thenReturn(PROFILE_STATUS.getBits());
-        IntervalReadingRecordImpl intervalReading = new IntervalReadingRecordImpl(channel, entry);
-        assertThat(intervalReading.getProfileStatus()).isEqualTo(PROFILE_STATUS);
+        IntervalReadingRecordImpl intervalReading = spy(new IntervalReadingRecordImpl(channel, entry));
+
+        ReadingQualityRecord readingQualityRecord1 = mockReadingQuality(ProtocolReadingQualities.POWERUP.getCimCode());
+        ReadingQualityRecord readingQualityRecord2 = mockReadingQuality(ProtocolReadingQualities.POWERDOWN.getCimCode());
+        doReturn(Arrays.asList(readingQualityRecord1, readingQualityRecord2)).when(intervalReading).getReadingQualities();
+
+        assertEquals(2, intervalReading.getReadingQualities().size());
+        assertEquals(true, intervalReading.hasReadingQuality(ProtocolReadingQualities.POWERUP.getReadingQualityType()));
+        assertEquals(true, intervalReading.hasReadingQuality(ProtocolReadingQualities.POWERDOWN.getReadingQualityType()));
     }
 
+    private ReadingQualityRecord mockReadingQuality(String code) {
+        ReadingQualityRecord readingQuality = mock(ReadingQualityRecord.class);
+        ReadingQualityType readingQualityType = new ReadingQualityType(code);
+        when(readingQuality.getType()).thenReturn(readingQualityType);
+        when(readingQuality.isActual()).thenReturn(true);
+        when(readingQuality.getTypeCode()).thenReturn(code);
+        return readingQuality;
+    }
 }

@@ -1,9 +1,5 @@
 package com.elster.jupiter.metering;
 
-import java.time.temporal.TemporalAmount;
-import java.util.Currency;
-import java.util.Optional;
-
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -16,6 +12,10 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+
+import java.time.temporal.TemporalAmount;
+import java.util.Currency;
+import java.util.Optional;
 
 public interface ReadingType extends IdentifiedObject {
 	MacroPeriod getMacroPeriod();
@@ -63,4 +63,6 @@ public interface ReadingType extends IdentifiedObject {
      * @since v1.1
      */
     String getFullAliasName();
+
+	String getmRID();
 }

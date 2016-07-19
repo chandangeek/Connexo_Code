@@ -16,7 +16,6 @@ import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttribute;
 import com.elster.jupiter.metering.config.ReadingTypeTemplateAttributeName;
 import com.elster.jupiter.metering.impl.MeteringInMemoryBootstrapModule;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.conditions.Condition;
 
@@ -34,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ReadingTypeTemplateImplTestIT {
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     @BeforeClass
     public static void beforeClass() {
@@ -179,7 +178,7 @@ public class ReadingTypeTemplateImplTestIT {
                 .done();
         int persistedAttributes = getPersistedAttributes().size();
         template.startUpdate().setAttribute(ReadingTypeTemplateAttributeName.TIME, null).done();
-        assertThat(getPersistedAttributes()).hasSize(persistedAttributes-1);
+        assertThat(getPersistedAttributes()).hasSize(persistedAttributes - 1);
     }
 
     @Test

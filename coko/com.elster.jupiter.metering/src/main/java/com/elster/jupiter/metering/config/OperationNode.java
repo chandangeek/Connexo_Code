@@ -1,10 +1,13 @@
 package com.elster.jupiter.metering.config;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.Optional;
 
 /**
  * Created by igh on 17/03/2016.
  */
+@ProviderType
 public interface OperationNode extends ExpressionNode {
 
     Operator getOperator();

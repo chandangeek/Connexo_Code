@@ -4,10 +4,12 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
+import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
 
 @SelfValid
@@ -16,7 +18,7 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
     public enum Fields {
         METER_ROLE("meterRole"),
         METROLOGY_CONFIGURATION("metrologyConfiguration"),
-        READING_TYPE_REQUIREMENT("readingTypeRequirement"),;
+        READING_TYPE_REQUIREMENT("readingTypeRequirement");
 
         private final String javaFieldName;
 
@@ -36,6 +38,12 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
     private Reference<MeterRole> meterRole = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeRequirement> readingTypeRequirement = ValueReference.absent();
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public ReadingTypeRequirementMeterRoleUsage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
 
     public ReadingTypeRequirementMeterRoleUsage init(MeterRole meterRole, ReadingTypeRequirement readingTypeRequirement) {
         this.meterRole.set(meterRole);
@@ -61,15 +69,21 @@ public class ReadingTypeRequirementMeterRoleUsage implements SelfObjectValidator
     }
 
     private boolean validateThatMeterRoleIsAssignedToMetrologyConfiguration(ConstraintValidatorContext context) {
-        if (!((UsagePointMetrologyConfiguration) getReadingTypeRequirement().getMetrologyConfiguration()).getMeterRoles()
-                .stream()
-                .anyMatch(getMeterRole()::equals)) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = (UsagePointMetrologyConfiguration) getReadingTypeRequirement().getMetrologyConfiguration();
+        if (!containsMyMeterRole(metrologyConfiguration)) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.CAN_NOT_ADD_REQUIREMENT_WITH_THAT_ROLE + "}")
+            String formattedTemplate = this.thesaurus.getFormat(MessageSeeds.ROLE_IS_NOT_ALLOWED_ON_CONFIGURATION).format(this.getMeterRole().getDisplayName(), metrologyConfiguration.getName());
+            context
+                    .buildConstraintViolationWithTemplate(formattedTemplate)
                     .addPropertyNode(Fields.METER_ROLE.fieldName())
                     .addConstraintViolation();
             return false;
         }
         return true;
     }
+
+    private boolean containsMyMeterRole(UsagePointMetrologyConfiguration metrologyConfiguration) {
+        return metrologyConfiguration.getMeterRoles().stream().anyMatch(getMeterRole()::equals);
+    }
+
 }

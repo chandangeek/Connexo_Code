@@ -42,21 +42,21 @@ public interface VirtualFactory {
 
     /**
      * Notifies this VirtualNodeFactory that the processing of
-     * the next {@link MeterActivation} has started.
+     * the next {@link MeterActivationSet} has started.
      *
-     * @param meterActivation The next MeterActivation
+     * @param meterActivationSet The next MeterActivationSet
      * @param requestedPeriod The complete period that was requested
      */
-    void nextMeterActivation(MeterActivation meterActivation, Range<Instant> requestedPeriod);
+    void nextMeterActivationSet(MeterActivationSet meterActivationSet, Range<Instant> requestedPeriod);
 
     /**
-     * Returns the sequence number of the current {@link MeterActivation}.
-     * Note that there is no MeterActivation by default
-     * so you will need to call {@link #nextMeterActivation(MeterActivation, Range)}
+     * Returns the sequence number of the current {@link MeterActivationSet}.
+     * Note that there is no MeterActivationSet by default
+     * so you will need to call {@link #nextMeterActivationSet(MeterActivationSet, Range)}
      * at least once otherwise this method will return 0 (zero).
      *
-     * @return The sequence number of the current MeterActivation
+     * @return The sequence number of the current MeterActivationSet
      */
-    int meterActivationSequenceNumber();
+    int sequenceNumber();
 
 }

@@ -25,8 +25,7 @@ class CheckEnforceReadingTypeImpl implements CheckEnforceReadingType {
     public Boolean forAll(List<ServerExpressionNode> expressions) {
         if (this.readingType.isUnsupported()) {
             return Boolean.FALSE;
-        }
-        else {
+        } else {
             return expressions.stream().allMatch(expression -> expression.accept(this));
         }
     }
@@ -48,6 +47,11 @@ class CheckEnforceReadingTypeImpl implements CheckEnforceReadingType {
 
     @Override
     public Boolean visitConstant(StringConstantNode constant) {
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean visitProperty(CustomPropertyNode property) {
         return Boolean.TRUE;
     }
 

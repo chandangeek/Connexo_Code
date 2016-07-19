@@ -28,14 +28,14 @@ import java.time.Instant;
 import java.util.List;
 
 
-public abstract class AbstractSearchableUsagePointProperty implements SearchableUsagePointProperty, Visitor, ValueBinder  {
+abstract class AbstractSearchableUsagePointProperty implements SearchableUsagePointProperty, Visitor, ValueBinder {
 
     private SqlBuilder underConstruction = new SqlBuilder();
     private String columnName;
     private Instant now;
     private final Thesaurus thesaurus;
 
-    protected AbstractSearchableUsagePointProperty(Thesaurus thesaurus) {
+    AbstractSearchableUsagePointProperty(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
@@ -85,7 +85,7 @@ public abstract class AbstractSearchableUsagePointProperty implements Searchable
         this.visitAll(or.getConditions(), " OR ");
     }
 
-    private void visitAll(List<Condition> conditions , String separator) {
+    private void visitAll(List<Condition> conditions, String separator) {
         String sep = "";
         this.underConstruction.openBracket();
         for (Condition each : conditions) {
@@ -173,11 +173,12 @@ public abstract class AbstractSearchableUsagePointProperty implements Searchable
             getSpecification().getValueFactory().bind(statement, bindPosition, value);
         }
     }
-    private abstract static class ProxyAwareSqlFragment{
+
+    private abstract static class ProxyAwareSqlFragment {
 
         private final ValueBinder valueBinder;
 
-        protected ProxyAwareSqlFragment(ValueBinder valueBinder) {
+        ProxyAwareSqlFragment(ValueBinder valueBinder) {
             this.valueBinder = valueBinder;
         }
 
