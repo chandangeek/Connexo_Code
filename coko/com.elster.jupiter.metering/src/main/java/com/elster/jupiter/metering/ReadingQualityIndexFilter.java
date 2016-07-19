@@ -19,14 +19,14 @@ public interface ReadingQualityIndexFilter {
      * because call of each one overrides previously defined criterion.
      * None of these methods called means any index in any {@link QualityCodeCategory} matching.
      * Once any of these methods is called it's allowed to define an alternative set of
-     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFilter#orOfAnotherType()}
-     * or {@link ReadingQualityWithTypeFilter#orOfAnotherTypeInSameSystems()}
+     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFetcher#orOfAnotherType()}
+     * or {@link ReadingQualityWithTypeFetcher#orOfAnotherTypeInSameSystems()}.
      *
      * @param index {@link QualityCodeIndex} to stick to when filtering by {@link ReadingQualityType}
      * during the search.
-     * @return the self to proceed with search criteria definition or collect the results.
+     * @return The self to proceed with search criteria definition or collect the results.
      */
-    ReadingQualityWithTypeFilter ofQualityIndex(QualityCodeIndex index);
+    ReadingQualityWithTypeFetcher ofQualityIndex(QualityCodeIndex index);
 
     /**
      * Defines {@link QualityCodeCategory} and index to stick to when filtering by {@link ReadingQualityType}
@@ -37,16 +37,16 @@ public interface ReadingQualityIndexFilter {
      * because call of each one overrides previously defined criterion.
      * None of these methods called means any index in any {@link QualityCodeCategory} matching.
      * Once any of these methods is called it's allowed to define an alternative set of
-     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFilter#orOfAnotherType()}
-     * or {@link ReadingQualityWithTypeFilter#orOfAnotherTypeInSameSystems()}
+     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFetcher#orOfAnotherType()}
+     * or {@link ReadingQualityWithTypeFetcher#orOfAnotherTypeInSameSystems()}.
      *
      * @param category {@link QualityCodeCategory} to stick to when filtering by {@link ReadingQualityType}
      * during the search.
-     * @param index index in <code>category</code> to stick to when filtering by {@link ReadingQualityType}
+     * @param index Index in {@code category} to stick to when filtering by {@link ReadingQualityType}
      * during the search.
-     * @return the self to proceed with search criteria definition or collect the results.
+     * @return The self to proceed with search criteria definition or collect the results.
      */
-    ReadingQualityWithTypeFilter ofQualityIndex(QualityCodeCategory category, int index);
+    ReadingQualityWithTypeFetcher ofQualityIndex(QualityCodeCategory category, int index);
 
     /**
      * Defines {@link QualityCodeIndex QualityCodeIndices} to stick to when filtering by {@link ReadingQualityType}
@@ -57,14 +57,14 @@ public interface ReadingQualityIndexFilter {
      * because call of each one overrides previously defined criterion.
      * None of these methods called means any index in any {@link QualityCodeCategory} matching.
      * Once any of these methods is called it's allowed to define an alternative set of
-     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFilter#orOfAnotherType()}
-     * or {@link ReadingQualityWithTypeFilter#orOfAnotherTypeInSameSystems()}
+     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFetcher#orOfAnotherType()}
+     * or {@link ReadingQualityWithTypeFetcher#orOfAnotherTypeInSameSystems()}.
      *
      * @param indices {@link QualityCodeIndex QualityCodeIndices} to stick to when filtering by {@link ReadingQualityType}
      * during the search.
-     * @return the self to proceed with search criteria definition or collect the results.
+     * @return The self to proceed with search criteria definition or collect the results.
      */
-    ReadingQualityWithTypeFilter ofQualityIndices(Set<QualityCodeIndex> indices);
+    ReadingQualityWithTypeFetcher ofQualityIndices(Set<QualityCodeIndex> indices);
 
     /**
      * Defines {@link QualityCodeCategory} and indices to stick to when filtering by {@link ReadingQualityType}
@@ -75,16 +75,16 @@ public interface ReadingQualityIndexFilter {
      * because call of each one overrides previously defined criterion.
      * None of these methods called means any index in any {@link QualityCodeCategory} matching.
      * Once any of these methods is called it's allowed to define an alternative set of
-     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFilter#orOfAnotherType()}
-     * or {@link ReadingQualityWithTypeFilter#orOfAnotherTypeInSameSystems()}
+     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFetcher#orOfAnotherType()}
+     * or {@link ReadingQualityWithTypeFetcher#orOfAnotherTypeInSameSystems()}.
      *
      * @param category {@link QualityCodeCategory} to stick to when filtering by {@link ReadingQualityType}
      * during the search.
-     * @param indices indices in <code>category</code> to stick to when filtering by {@link ReadingQualityType}
+     * @param indices Indices in {@code category} to stick to when filtering by {@link ReadingQualityType}
      * during the search.
-     * @return the self to proceed with search criteria definition or collect the results.
+     * @return The self to proceed with search criteria definition or collect the results.
      */
-    ReadingQualityWithTypeFilter ofQualityIndices(QualityCodeCategory category, Set<Integer> indices);
+    ReadingQualityWithTypeFetcher ofQualityIndices(QualityCodeCategory category, Set<Integer> indices);
 
     /**
      * Defines {@link QualityCodeCategory} to stick to when filtering by {@link ReadingQualityType}
@@ -95,14 +95,14 @@ public interface ReadingQualityIndexFilter {
      * because call of each one overrides previously defined criterion.
      * None of these methods called means any index in any {@link QualityCodeCategory} matching.
      * Once any of these methods is called it's allowed to define an alternative set of
-     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFilter#orOfAnotherType()}
-     * or {@link ReadingQualityWithTypeFilter#orOfAnotherTypeInSameSystems()}
+     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFetcher#orOfAnotherType()}
+     * or {@link ReadingQualityWithTypeFetcher#orOfAnotherTypeInSameSystems()}.
      *
      * @param category {@link QualityCodeCategory} to stick to when filtering by {@link ReadingQualityType}
      * during the search.
-     * @return the self to proceed with search criteria definition or collect the results.
+     * @return The self to proceed with search criteria definition or collect the results.
      */
-    ReadingQualityWithTypeFilter ofAnyQualityIndexInCategory(QualityCodeCategory category);
+    ReadingQualityWithTypeFetcher ofAnyQualityIndexInCategory(QualityCodeCategory category);
 
     /**
      * Defines {@link QualityCodeCategory QualityCodeCategories} to stick to when filtering by {@link ReadingQualityType}
@@ -113,12 +113,12 @@ public interface ReadingQualityIndexFilter {
      * because call of each one overrides previously defined criterion.
      * None of these methods called means any index in any {@link QualityCodeCategory} matching.
      * Once any of these methods is called it's allowed to define an alternative set of
-     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFilter#orOfAnotherType()}
-     * or {@link ReadingQualityWithTypeFilter#orOfAnotherTypeInSameSystems()}
+     * {@link ReadingQualityType} related search criteria by calling {@link ReadingQualityWithTypeFetcher#orOfAnotherType()}
+     * or {@link ReadingQualityWithTypeFetcher#orOfAnotherTypeInSameSystems()}.
      *
      * @param categories {@link QualityCodeCategory QualityCodeCategories} to stick to when filtering by {@link ReadingQualityType}
      * during the search.
-     * @return the self to proceed with search criteria definition or collect the results.
+     * @return The self to proceed with search criteria definition or collect the results.
      */
-    ReadingQualityWithTypeFilter ofAnyQualityIndexInCategories(Set<QualityCodeCategory> categories);
+    ReadingQualityWithTypeFetcher ofAnyQualityIndexInCategories(Set<QualityCodeCategory> categories);
 }

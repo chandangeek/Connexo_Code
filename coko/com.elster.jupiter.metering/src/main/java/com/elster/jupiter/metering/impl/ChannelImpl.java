@@ -22,7 +22,7 @@ import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierUsage;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingQualityFilter;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -568,8 +568,8 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public ReadingQualityFilter findReadingQualities() {
-        return new ReadingQualityFilterImpl(dataModel, this);
+    public ReadingQualityFetcher findReadingQualities() {
+        return new ReadingQualityFetcherImpl(dataModel, this);
     }
 
     @Override
@@ -623,28 +623,29 @@ public final class ChannelImpl implements ChannelContract {
     }
 
     @Override
-    public void editReadings(List<? extends BaseReading> readings) {
-        getCimChannel(getMainReadingType()).get().editReadings(readings);
+    public void editReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
+        getCimChannel(getMainReadingType()).ifPresent(cimChannel ->
+                cimChannel.editReadings(system, readings));
     }
 
     @Override
-    public void confirmReadings(List<? extends BaseReading> readings) {
-        getCimChannel(getMainReadingType()).get().confirmReadings(readings);
-        if (getBulkQuantityReadingType().isPresent() && getCimChannel(getBulkQuantityReadingType().get()).isPresent()) {
-            getCimChannel(getBulkQuantityReadingType().get()).get().confirmReadings(readings);
-        }
+    public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
+        getCimChannel(getMainReadingType()).ifPresent(cimChannel ->
+                cimChannel.confirmReadings(system, readings));
+        getBulkQuantityReadingType().ifPresent(bulkReadingType ->
+                getCimChannel(bulkReadingType).ifPresent(bulkChannel ->
+                        bulkChannel.confirmReadings(system, readings)));
     }
 
     @Override
-    public void removeReadings(List<? extends BaseReadingRecord> readings) { // TODO make this for a specific readingType
+    public void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings) { // TODO make this for a specific readingType
         if (!readings.isEmpty()) {
             Set<Instant> readingTimes = readings.stream().map(BaseReading::getTimeStamp).collect(Collectors.toSet());
             readingTimes.forEach(instant -> timeSeries.get().removeEntry(instant));
-            findReadingQualities().inTimeInterval(Range.encloseAll(readingTimes)).collect().stream()
+            findReadingQualities().inTimeInterval(Range.encloseAll(readingTimes)).stream()
                     .filter(quality -> readingTimes.contains(quality.getReadingTimestamp()))
                     .forEach(ReadingQualityRecord::delete);
-            // TODO: refactor with custom QualityCodeSystem(s) in scope of data editing refactoring (CXO-1449)
-            ReadingQualityType rejected = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED);
+            ReadingQualityType rejected = ReadingQualityType.of(system, QualityCodeIndex.REJECTED);
             readingTimes.forEach(readingTime -> {
                 createReadingQuality(rejected, mainReadingType.get(), readingTime);
                 getBulkQuantityReadingType().ifPresent(bulkReadingType -> createReadingQuality(rejected, bulkReadingType, readingTime));

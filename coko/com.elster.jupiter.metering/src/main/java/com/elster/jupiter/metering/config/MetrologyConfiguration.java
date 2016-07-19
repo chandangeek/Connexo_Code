@@ -66,6 +66,8 @@ public interface MetrologyConfiguration extends HasId, HasName {
 
     void delete();
 
+    List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements();
+
     @ProviderType
     interface MetrologyConfigurationReadingTypeRequirementBuilder {
 

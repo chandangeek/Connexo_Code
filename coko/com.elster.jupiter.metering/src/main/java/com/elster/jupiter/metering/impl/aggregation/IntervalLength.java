@@ -20,6 +20,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -665,6 +666,10 @@ public enum IntervalLength {
 
     public BigDecimal getVolumeFlowConversionFactor() {
         throw new UnsupportedOperationException("Volume to flow conversion is not (yet) supported for " + this.name());
+    }
+
+    public long getSeconds() {
+        return this.temporalAmount.get(ChronoUnit.SECONDS);
     }
 
     public Stream<Instant> toTimeSeries(Range<Instant> period, ZoneId zoneId) {
