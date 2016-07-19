@@ -25,7 +25,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
-import com.elster.jupiter.metering.ReadingQualityWithTypeFilter;
+import com.elster.jupiter.metering.ReadingQualityWithTypeFetcher;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
@@ -114,7 +114,7 @@ public class EqualDistributionTest {
     @Mock
     private CimChannel deltaCimChannel, bulkCimChannel, advanceCimChannel;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    private ReadingQualityWithTypeFilter deltaFilter, advanceFilter, bulkFilter;
+    private ReadingQualityWithTypeFetcher deltaFetcher, advanceFetcher, bulkFetcher;
     @Mock
     private MeterActivation meterActivation;
     @Mock
@@ -213,31 +213,31 @@ public class EqualDistributionTest {
         doReturn(ADVANCE_BEFORE.toInstant()).when(advanceReadingRecord1).getTimeStamp();
         doReturn(ADVANCE_AFTER.toInstant()).when(advanceReadingRecord2).getTimeStamp();
         doReturn(BigDecimal.valueOf(18957, 3)).when(advanceReadingRecord2).getValue();
-        doReturn(deltaFilter).when(deltaCimChannel).findReadingQualities();
-        doReturn(advanceFilter).when(advanceCimChannel).findReadingQualities();
-        doReturn(bulkFilter).when(bulkCimChannel).findReadingQualities();
-        when(deltaFilter
+        doReturn(deltaFetcher).when(deltaCimChannel).findReadingQualities();
+        doReturn(advanceFetcher).when(advanceCimChannel).findReadingQualities();
+        doReturn(bulkFetcher).when(bulkCimChannel).findReadingQualities();
+        when(deltaFetcher
                 .inTimeInterval(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()))
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                .collect()).thenReturn(asList(suspect1, suspect2, suspect3));
-        Stream.of(ADVANCE_BEFORE.toInstant(), ADVANCE_AFTER.toInstant()).forEach(instant -> when(advanceFilter
+                .stream()).thenReturn(Stream.of(suspect1, suspect2, suspect3));
+        Stream.of(ADVANCE_BEFORE.toInstant(), ADVANCE_AFTER.toInstant()).forEach(instant -> when(advanceFetcher
                 .atTimestamp(instant)
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.OVERFLOWCONDITIONDETECTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                .findFirst()).thenReturn(Optional.empty()));
-        Stream.of(BEFORE.toInstant(), ESTIMATABLE3.toInstant()).forEach(instant -> when(bulkFilter
+                .noneMatch()).thenReturn(true));
+        Stream.of(BEFORE.toInstant(), ESTIMATABLE3.toInstant()).forEach(instant -> when(bulkFetcher
                 .atTimestamp(instant)
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.OVERFLOWCONDITIONDETECTED)
-                .findFirst()).thenReturn(Optional.empty()));
+                .noneMatch()).thenReturn(true));
         doReturn(true).when(suspect1).isSuspect();
         doReturn(true).when(suspect2).isSuspect();
         doReturn(true).when(suspect3).isSuspect();
@@ -337,14 +337,14 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenASecondGapOccursBetweenAdvanceReadings() {
-        when(deltaFilter
+        when(deltaFetcher
                 .inTimeInterval(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()))
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                .collect()).thenReturn(asList(suspect1, suspect2, suspect3, suspect4));
+                .stream()).thenReturn(Stream.of(suspect1, suspect2, suspect3, suspect4));
         doReturn(AFTER_PLUS_2.toInstant()).when(suspect4).getReadingTimestamp();
         doReturn(true).when(suspect4).isSuspect();
 
@@ -365,14 +365,14 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenPriorAdvanceReadingIsSuspectOrEstimatedOrHasOverflowQuality() {
-        when(advanceFilter
+        when(advanceFetcher
                 .atTimestamp(ADVANCE_BEFORE.toInstant())
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.OVERFLOWCONDITIONDETECTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                .findFirst()).thenReturn(Optional.of(suspect4));
+                .noneMatch()).thenReturn(false);
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
@@ -391,14 +391,14 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenLaterAdvanceReadingIsSuspectOrEstimatedOrHasOverflowQuality() {
-        when(advanceFilter
+        when(advanceFetcher
                 .atTimestamp(ADVANCE_AFTER.toInstant())
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.OVERFLOWCONDITIONDETECTED))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                .findFirst()).thenReturn(Optional.of(suspect4));
+                .noneMatch()).thenReturn(false);
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(MAX_NUMBER_OF_CONSECUTIVE_SUSPECTS, 10L);
@@ -417,14 +417,14 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenConsumptionReadingIsEstimation() {
-        when(deltaFilter
+        when(deltaFetcher
                 .inTimeInterval(Range.closed(BEFORE_MINUS_3.toInstant(), AFTER_PLUS_3.toInstant()))
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.SUSPECT)
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategory(QualityCodeCategory.ESTIMATED)
-                .collect()).thenReturn(asList(suspect1, suspect2, suspect3, suspect4));
+                .stream()).thenReturn(Stream.of(suspect1, suspect2, suspect3, suspect4));
         doReturn(true).when(suspect4).hasEstimatedCategory();
         doReturn(AFTER_PLUS_2.toInstant()).when(suspect4).getReadingTimestamp();
 
@@ -483,12 +483,12 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenBeforeBulkReadingHasOverflowReadingQuality() {
-        when(bulkFilter
+        when(bulkFetcher
                 .atTimestamp(BEFORE.toInstant())
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.OVERFLOWCONDITIONDETECTED)
-                .findFirst()).thenReturn(Optional.of(suspect4));
+                .noneMatch()).thenReturn(false);
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
@@ -507,12 +507,12 @@ public class EqualDistributionTest {
 
     @Test
     public void testEqualDistributionDoesNotEstimateWhenLastBulkReadingHasOverflowReadingQuality() {
-        when(bulkFilter
+        when(bulkFetcher
                 .atTimestamp(ESTIMATABLE3.toInstant())
                 .actual()
                 .ofQualitySystems(SYSTEMS)
                 .ofQualityIndex(QualityCodeIndex.OVERFLOWCONDITIONDETECTED)
-                .findFirst()).thenReturn(Optional.of(suspect4));
+                .noneMatch()).thenReturn(false);
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(ADVANCE_READINGS_SETTINGS, BulkAdvanceReadingsSettings.INSTANCE);
