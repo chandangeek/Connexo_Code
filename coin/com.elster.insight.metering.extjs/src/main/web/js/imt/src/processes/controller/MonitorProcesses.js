@@ -2,7 +2,8 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
     extend: 'Ext.app.Controller',
     requires: [
         'Bpm.startprocess.controller.StartProcess',
-        'Bpm.monitorprocesses.controller.MonitorProcesses'
+        'Bpm.monitorprocesses.controller.MonitorProcesses',
+        'Uni.property.controller.Registry'
     ],
     controllers: [
         'Bpm.startprocess.controller.StartProcess',
@@ -12,7 +13,8 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
     ],
     views: [
         'Imt.processes.view.UsagePointProcessesMainView',
-        'Imt.processes.view.UsagePointStartProcess'
+        'Imt.processes.view.UsagePointStartProcess',
+        'Imt.processes.view.MetrologyConfigurationOutputs'
     ],
     refs: [
         {ref: 'overviewLink', selector: '#usage-point-overview-link'}
@@ -39,7 +41,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                         variableId: 'usagePointId',
                         name: 'usagePoint',
                         value:  usagePoint.get('id'),
-                        route: Dbp.privileges.DeviceProcesses.canAssignOrExecute()? 'workspace/tasks/performTask': null
+                        route: Dbp.privileges.DeviceProcesses.canAssignOrExecute() ? 'workspace/tasks/performTask' : null
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
@@ -63,6 +65,7 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
             success: function (types, usagePoint) {
                 var widget;
 
+                Uni.property.controller.Registry.addProperty('METROLOGYCONFIGOUTPUT', 'Imt.processes.view.MetrologyConfigurationOutputs');
                 me.getApplication().fireEvent('usagePointLoaded', usagePoint);
                 viewport.setLoading(false);
                 widget = Ext.widget('usage-point-processes-start', {
@@ -90,7 +93,8 @@ Ext.define('Imt.processes.controller.MonitorProcesses', {
                             }
                         ],
                         successLink: router.getRoute('usagepoints/view/processes').buildUrl({usagePointId: mRID}),
-                        cancelLink: router.getRoute('usagepoints/view').buildUrl({usagePointId: mRID})
+                        cancelLink: router.getRoute('usagepoints/view').buildUrl({usagePointId: mRID}),
+                        context: usagePoint.get('metrologyConfiguration')
                     }
                 });
                 me.getApplication().fireEvent('changecontentevent', widget);
