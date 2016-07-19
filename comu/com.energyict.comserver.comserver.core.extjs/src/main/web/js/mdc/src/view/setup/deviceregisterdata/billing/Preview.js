@@ -7,104 +7,84 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Preview', {
     itemId: 'deviceregisterreportpreview',
     title: '',
 
-    items: {
-        xtype: 'form',
-        defaults: {
-            xtype: 'container',
-            layout: 'form'
-        },
-        items: [
+    getGeneralItems: function() {
+        return [
+            {
+                fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
+                name: 'timeStamp',
+                renderer: me.renderDateTimeLong
+            },
+            {
+                fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
+                name: 'reportedDateTime',
+                renderer: me.renderDateTimeLong
+            },
+            {
+                fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
+                labelWidth: 200,
+                name: 'interval',
+                renderer: function (value) {
+                    if (!Ext.isEmpty(value)) {
+                        var startDate = new Date(value.start),
+                            endDate = new Date(value.end);
+                        return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(startDate), Uni.DateTime.formatTimeLong(startDate)])
+                            + ' - '
+                            + Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(endDate), Uni.DateTime.formatTimeLong(endDate)])
+                    }
+                }
+            },
             {
                 xtype: 'fieldcontainer',
-                itemId: 'mdc-register-data-preview-fields-container',
-                labelAlign: 'top',
-                layout: 'vbox',
-                defaults: {
-                    xtype: 'displayfield',
-                    labelWidth: 200,
-                    width: 1000
+                fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
+                layout: {
+                    type: 'hbox'
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
-                        name: 'timeStamp',
-                        renderer: function (value) {
-                            if (!Ext.isEmpty(value)) {
-                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(new Date(value)),Uni.DateTime.formatTimeLong(new Date(value))]);
-                            }
-                        }
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('device.registerData.readingTime', 'MDC', 'Reading time'),
-                        name: 'reportedDateTime',
-                        renderer: function (value) {
-                            if (!Ext.isEmpty(value)) {
-                                return Uni.DateTime.formatDateLong(value)
-                                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                                    + Uni.DateTime.formatTimeLong(value);
-                            }
-                        }
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('device.registerData.interval', 'MDC', 'Interval'),
-                        labelWidth: 200,
-                        name: 'interval',
-                        renderer: function (value) {
-                            if (!Ext.isEmpty(value)) {
-                                var startDate = new Date(value.start),
-                                    endDate = new Date(value.end);
-                                return Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(startDate),Uni.DateTime.formatTimeLong(startDate)])
-                                    + ' - '
-                                    + Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [ Uni.DateTime.formatDateLong(endDate),Uni.DateTime.formatTimeLong(endDate)])
-                            }
-                        }
-                    },
-                    {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('device.registerData.value', 'MDC', 'Value'),
-                        layout: {
-                            type: 'hbox'
-                        },
-                        items: [
-                            {
-                                xtype: 'displayfield',
-                                margin: '0 10 0 0',
-                                name: 'value',
-                                renderer: function (value) {
-                                    var form = this.up('form'),
-                                        record = form.getRecord();
-                                    if (record && value) {
-                                        return value + ' ' + record.get('unitOfMeasure');
-                                    } else {
-                                        return null
-                                    }
-
-                                }
-                            },
-                            {
-                                xtype: 'edited-displayfield',
-                                name: 'modificationState'
-                            }
-                        ]
-                    },
-                    {
-                        fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value'),
-                        name: 'deltaValue',
+                        xtype: 'displayfield',
+                        margin: '0 10 0 0',
+                        name: 'value',
                         renderer: function (value) {
                             var form = this.up('form'),
                                 record = form.getRecord();
                             if (record && value) {
-                                return Ext.String.htmlEncode(value) + ' ' + record.get('unitOfMeasure');
+                                return value + ' ' + record.get('unitOfMeasure');
                             } else {
                                 return null
                             }
+
                         }
+                    },
+                    {
+                        xtype: 'edited-displayfield',
+                        name: 'modificationState'
                     }
                 ]
             },
             {
-                xtype: 'deviceregisterreportpreview-validation'
+                fieldLabel: Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value'),
+                name: 'deltaValue',
+                renderer: function (value) {
+                    var form = this.up('form'),
+                        record = form.getRecord();
+                    if (record && value) {
+                        return Ext.String.htmlEncode(value) + ' ' + record.get('unitOfMeasure');
+                    } else {
+                        return null
+                    }
+                }
             }
-        ]
+        ];
+    },
+
+    getValidationItems: function() {
+        return [
+            {
+                xtype: 'deviceregisterreportpreview-validation',
+                router: this.router,
+                fieldLabel: ''
+            }
+        ];
     }
+
 });

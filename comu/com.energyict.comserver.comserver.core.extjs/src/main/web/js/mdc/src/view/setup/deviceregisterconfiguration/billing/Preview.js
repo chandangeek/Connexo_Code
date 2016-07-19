@@ -69,7 +69,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                                 name: 'value'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.interval', 'MDC', 'Interval'),
+                                fieldLabel: Uni.I18n.translate('general.interval', 'MDC', 'Interval'),
                                 name: 'interval',
                                 format: 'M j, Y \\a\\t G:i',
                                 renderer: function (value) {
