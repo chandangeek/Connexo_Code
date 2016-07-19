@@ -6,7 +6,7 @@ Ext.define('Cfg.view.field.ReadingQualities', {
     usedInInsight: false,
 
     renderer : function(value, field) {
-        var validationRules = value.validationRules ? value.validationRules : value;
+        var validationRules = Ext.isArray(value) ? value : value.validationRules;
         field.show();
         if (value.isConfirmed) {
             return this.getConfirmed(value.confirmedInApps);
