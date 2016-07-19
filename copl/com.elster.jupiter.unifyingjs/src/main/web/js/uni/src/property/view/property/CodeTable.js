@@ -39,7 +39,7 @@ Ext.define('Uni.property.view.property.CodeTable', {
     },
 
     setValue: function (value) {
-        if(Ext.isEmpty(value) || Ext.isEmpty(value.name)) {
+        if (Ext.isEmpty(value) || Ext.isEmpty(value.name)) {
             value = '-'
         } else {
             value = value.name

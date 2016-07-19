@@ -58,7 +58,7 @@ Ext.define('Uni.view.form.ComboBoxWithEmptyComponent', {
                         fieldStyle: {
                             color: '#EB5642'
                         },
-                        validate: function() {
+                        validate: function () {
                             return me.config.allowBlank;
                         }
 

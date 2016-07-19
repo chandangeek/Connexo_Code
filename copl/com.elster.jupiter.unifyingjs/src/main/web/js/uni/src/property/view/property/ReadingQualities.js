@@ -10,9 +10,9 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
     indexStore: undefined,
     indexModels: undefined,
 
-    initComponent: function(){
+    initComponent: function () {
         this.readingQualityStore = Ext.create('Ext.data.ArrayStore', {
-            fields: [ 'cimCode', 'displayName', 'tooltip' ],
+            fields: ['cimCode', 'displayName', 'tooltip'],
             sorters: [
                 {
                     property: 'displayName',
@@ -24,7 +24,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         this.callParent(arguments);
     },
 
-    initializeStoreInformation: function() {
+    initializeStoreInformation: function () {
         var me = this,
             systemCode,
             categoryCode,
@@ -43,11 +43,11 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         }
         if (Ext.isEmpty(me.categoryStore)) {
             me.categoryStore = Ext.create('Ext.data.ArrayStore', {
-                fields: [ 'id', 'name' ]
+                fields: ['id', 'name']
             });
         }
 
-        Ext.Array.forEach(me.getProperty().getPredefinedPropertyValues().get('possibleValues'), function(possibleValueItem){
+        Ext.Array.forEach(me.getProperty().getPredefinedPropertyValues().get('possibleValues'), function (possibleValueItem) {
             var cimCodeParts = possibleValueItem.cimCode.split('.');
             systemCode = cimCodeParts[0];
             categoryCode = cimCodeParts[1];
@@ -73,7 +73,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         });
 
         // Sort the system models (The '*' first, the rest alphabetically)
-        systemModels.sort(function(model1, model2){
+        systemModels.sort(function (model1, model2) {
             if (model1.id === '*') {
                 return -1;
             }
@@ -85,14 +85,14 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         me.systemStore.add(systemModels);
 
         // Sort the category models alphabetically
-        categoryModels.sort(function(model1, model2){
+        categoryModels.sort(function (model1, model2) {
             return model1.name.localeCompare(model2.name);
         });
         me.categoryStore.add(categoryModels);
 
         // Sort (each of) the index models (The '*' first, the rest alphabetically)
-        Object.keys(me.indexModels).forEach(function(key) {
-            this[key].sort(function(model1, model2){
+        Object.keys(me.indexModels).forEach(function (key) {
+            this[key].sort(function (model1, model2) {
                 if (model1.id === '*') {
                     return -1;
                 }
@@ -114,7 +114,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                 items: [
                     {
                         xtype: 'component',
-                        html: Uni.I18n.translate('general.noReadingQualitiesAdded','UNI','No reading qualities have been added'),
+                        html: Uni.I18n.translate('general.noReadingQualitiesAdded', 'UNI', 'No reading qualities have been added'),
                         itemId: 'uni-noReadingQualitiesLabel',
                         style: {
                             'font': 'italic 13px/17px Lato',
@@ -137,8 +137,8 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                             {
                                 dataIndex: 'displayName',
                                 flex: 1,
-                                renderer: function(value, metaData, record) {
-                                    return '<span style="display:inline-block; float: left; margin-right:7px;" >' + record.get('displayName') + '</span>'+
+                                renderer: function (value, metaData, record) {
+                                    return '<span style="display:inline-block; float: left; margin-right:7px;" >' + record.get('displayName') + '</span>' +
                                         '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.htmlEncode(record.get('tooltip')) + '"></span>';
                                 }
                             },
@@ -148,7 +148,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                                 items: [
                                     {
                                         iconCls: 'uni-icon-delete',
-                                        tooltip: Uni.I18n.translate('general.remove','UNI','Remove'),
+                                        tooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
                                         handler: function (grid, rowIndex) {
                                             grid.getStore().removeAt(rowIndex);
                                             if (grid.getStore().count() === 0) {
@@ -206,22 +206,22 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                 var result = '';
                 Ext.isArray(data) && Ext.Array.each(data, function (item) {
                     result +=
-                        '<span style="display:inline-block; float: left; margin-right:7px;" >' + me.getDisplayName(item) + '</span>'+
+                        '<span style="display:inline-block; float: left; margin-right:7px;" >' + me.getDisplayName(item) + '</span>' +
                         '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.htmlEncode(me.getTooltip(item)) + '"></span><br>';
                 });
-                return result.length>0 ? result : '-';
+                return result.length > 0 ? result : '-';
             }
         }
     },
 
-    addReadingQuality: function(cimCode) {
+    addReadingQuality: function (cimCode) {
         var me = this;
         me.readingQualityStore.add({cimCode: cimCode, displayName: me.getDisplayName(cimCode), tooltip: me.getTooltip(cimCode)});
         me.down('#uni-noReadingQualitiesLabel').hide();
         me.getField().show();
     },
 
-    getDisplayName: function(cimCode) {
+    getDisplayName: function (cimCode) {
         var me = this,
             displayName = '',
             parts = cimCode.split('.'),
@@ -236,7 +236,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         return displayName;
     },
 
-    getTooltip: function(cimCode) {
+    getTooltip: function (cimCode) {
         var me = this,
             parts = cimCode.split('.'),
             systemCode = parts[0],
@@ -263,7 +263,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         return tooltip;
     },
 
-    isCimCodeInvalid: function(cimCode) {
+    isCimCodeInvalid: function (cimCode) {
         var me = this,
             parts = cimCode.split('.'),
             result = 0; // = valid
@@ -293,15 +293,15 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         return result;
     },
 
-    getSystemStore: function() {
+    getSystemStore: function () {
         return this.systemStore;
     },
 
-    getCategoryStore: function() {
+    getCategoryStore: function () {
         return this.categoryStore;
     },
 
-    getIndexStore: function(categoryCode) {
+    getIndexStore: function (categoryCode) {
         var me = this;
 
         if (!Object.prototype.hasOwnProperty.call(me.indexModels, categoryCode)) {
@@ -309,7 +309,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         }
         if (Ext.isEmpty(me.indexStore)) {
             me.indexStore = Ext.create('Ext.data.ArrayStore', {
-                fields: [ 'id', 'name' ]
+                fields: ['id', 'name']
             });
         } else {
             me.indexStore.removeAll();
@@ -318,7 +318,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
         return me.indexStore;
     },
 
-    updateGrid: function() {
+    updateGrid: function () {
         var me = this,
             grid = me.getField(),
             emptyLabel = me.down('#uni-noReadingQualitiesLabel');
@@ -343,8 +343,8 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
             return [];
         } else {
             var result = [];
-            Ext.Array.forEach(grid.getStore().getRange(), function(storeRecord){
-                result.push( storeRecord.get('cimCode') );
+            Ext.Array.forEach(grid.getStore().getRange(), function (storeRecord) {
+                result.push(storeRecord.get('cimCode'));
             });
             return result;
         }
@@ -358,7 +358,7 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                 me.getField().hide();
             } else if (Ext.isArray(value)) {
                 var modelItemsToAdd = [];
-                Ext.Array.forEach(value, function(arrayItem){
+                Ext.Array.forEach(value, function (arrayItem) {
                     modelItemsToAdd.push(
                         {
                             cimCode: arrayItem,
