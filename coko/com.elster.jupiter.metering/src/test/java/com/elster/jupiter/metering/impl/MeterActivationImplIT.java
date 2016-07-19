@@ -225,7 +225,7 @@ public class MeterActivationImplIT {
         intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.plusMinutes(15)
                 .toInstant(), BigDecimal.valueOf(4825, 2)));
         meterReading.addIntervalBlock(intervalBlock);
-        meter.store(meterReading);
+        meter.store(QualityCodeSystem.MDC, meterReading);
 
         currentActivation.advanceStartDate(newCutOff.toInstant());
 
@@ -319,7 +319,7 @@ public class MeterActivationImplIT {
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.toInstant(), BigDecimal.valueOf(4725, 2)));
             intervalBlock.addIntervalReading(IntervalReadingImpl.of(originalCutOff.plusMinutes(15).toInstant(), BigDecimal.valueOf(4825, 2)));
             meterReading.addIntervalBlock(intervalBlock);
-            meter.store(meterReading);
+            meter.store(QualityCodeSystem.MDC, meterReading);
             meterActivation.getChannelsContainer()
                     .getChannels()
                     .get(0)

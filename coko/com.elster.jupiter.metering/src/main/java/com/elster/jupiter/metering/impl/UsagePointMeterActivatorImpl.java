@@ -11,9 +11,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.SelfObjectValidator;
 import com.elster.jupiter.metering.impl.config.SelfValid;
@@ -160,7 +158,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = this.usagePoint.getEffectiveMetrologyConfiguration(this.activationTime);
         if (effectiveMetrologyConfiguration.isPresent()) {
             UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.get().getMetrologyConfiguration();
-            List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = getMandatoryReadingTypeRequirements(metrologyConfiguration);
+            List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = metrologyConfiguration.getMandatoryReadingTypeRequirements();
             for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
                 if (mappingEntry.getValue() == null) {
                     continue;
@@ -202,16 +200,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             }
         }
         return result;
-    }
-
-    private List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration) {
-        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
-        metrologyConfiguration.getContracts()
-                .stream()
-                .filter(MetrologyContract::isMandatory)
-                .flatMap(contract -> contract.getDeliverables().stream())
-                .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(requirementChecker));
-        return requirementChecker.getReadingTypeRequirements();
     }
 
     private List<ReadingTypeRequirement> getUnmatchedMeterReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingTypeRequirement> mandatoryReadingTypeRequirements, Map.Entry<MeterRole, Meter> mappingEntry) {
