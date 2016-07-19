@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.IReadingType;
 
@@ -25,6 +26,6 @@ public interface CalculatedReadingRecordFactory {
      * @param resultSet The ResultSet
      * @return The List of CalculatedReadingRecord organized by ReadingType
      */
-    Map<ReadingType, List<CalculatedReadingRecord>> consume(ResultSet resultSet);
+    Map<ReadingType, List<CalculatedReadingRecord>> consume(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation);
 
 }
