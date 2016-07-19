@@ -537,7 +537,7 @@ public class BpmResource {
         // When enabling backend validators, this section can be removed
         List<Errors> err = new ArrayList<>();
         for (PropertyInfo property : info.properties) {
-            if (property.getPropertyValueInfo().value == null) {
+            if (property.getPropertyValueInfo().value == null && property.required) {
                 err.add(new Errors("properties." + property.key, MessageSeeds.FIELD_CAN_NOT_BE_EMPTY.getDefaultFormat()));
             }
         }
