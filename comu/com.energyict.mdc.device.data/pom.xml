@@ -155,7 +155,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
@@ -175,6 +178,10 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.tasks</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -259,7 +266,8 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall</artifactId>
+            <artifactId>appserver</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

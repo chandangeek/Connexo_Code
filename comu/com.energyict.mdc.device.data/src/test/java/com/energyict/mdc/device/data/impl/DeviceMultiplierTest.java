@@ -14,15 +14,19 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -94,6 +98,8 @@ public class DeviceMultiplierTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
     private ValidationService validationService;
     @Mock
     private ServerConnectionTaskService connectionTaskService;
@@ -135,6 +141,12 @@ public class DeviceMultiplierTest {
     private CustomPropertySetService customPropertySetService;
     @Mock
     private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private UserPreferencesService userPreferencesService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private DeviceLifeCycle deviceLifeCycle;
     @Mock
@@ -214,9 +226,10 @@ public class DeviceMultiplierTest {
     }
 
     private Device createMockedDevice(Instant startOfMeterActivation) {
-        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService, securityPropertyService,
+        DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, metrologyConfigurationService, validationService, securityPropertyService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
-                firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService);
+                firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService);
+        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", "Mrid", startOfMeterActivation);
         device.save();
         return device;

@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.oracle.impl.OracleBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -33,6 +35,8 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -52,6 +56,8 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
@@ -187,6 +193,8 @@ public class OracleIntegrationPersistence {
                 new IdsModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
+                new ServiceCallModule(),
+                new CustomPropertySetsModule(),
                 new SearchModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
@@ -221,6 +229,9 @@ public class OracleIntegrationPersistence {
             injector.getInstance(NlsService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            injector.getInstance(ServiceCallService.class);
+            injector.getInstance(CustomPropertySetService.class);
+            initializeCustomPropertySets(injector);
             injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
             this.taskService = injector.getInstance(TaskService.class);
@@ -246,6 +257,11 @@ public class OracleIntegrationPersistence {
             injector.getInstance(SearchService.class).register(deviceSearchDomain);
             ctx.commit();
         }
+    }
+
+    private void initializeCustomPropertySets(Injector injector) {
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
     }
 
     private void initializeMocks(String testName) {

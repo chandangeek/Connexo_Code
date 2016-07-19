@@ -25,8 +25,10 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringDataModelService;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -43,6 +45,8 @@ import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -68,6 +72,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
@@ -155,6 +162,7 @@ public class InMemoryIntegrationPersistence {
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
+    private MetrologyConfigurationService metrologyConfigurationService;
     private DataModel dataModel;
     private ProtocolPluggableService protocolPluggableService;
     private MdcReadingTypeUtilService readingTypeUtilService;
@@ -181,6 +189,7 @@ public class InMemoryIntegrationPersistence {
     private DataCollectionKpiService dataCollectionKpiService;
     private FiniteStateMachineService finiteStateMachineService;
     private CalendarService calendarService;
+    private ServiceCallService serviceCallService;
     private Injector injector;
 
     public InMemoryIntegrationPersistence() {
@@ -213,6 +222,7 @@ public class InMemoryIntegrationPersistence {
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
+                new ServiceCallModule(),
                 new CustomPropertySetsModule(),
                 new EventsModule(),
                 new PubSubModule(),
@@ -269,12 +279,12 @@ public class InMemoryIntegrationPersistence {
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
             injector.getInstance(OrmService.class);
-            injector.getInstance(CustomPropertySetService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
+            this.metrologyConfigurationService = injector.getInstance(MetrologyConfigurationService.class);
             this.meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
@@ -283,7 +293,9 @@ public class InMemoryIntegrationPersistence {
             this.estimationService = injector.getInstance(EstimationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
+            this.serviceCallService = injector.getInstance(ServiceCallService.class);
             this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
+            initializeCustomPropertySets();
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
@@ -307,16 +319,25 @@ public class InMemoryIntegrationPersistence {
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.calendarService = injector.getInstance(CalendarService.class);
-            injector.getInstance(CustomPropertySetService.class);
+            initHeadEndInterface();
             initializePrivileges();
             ctx.commit();
         }
     }
 
+    private void initHeadEndInterface() {
+        injector.getInstance(MeteringDataModelService.class).addHeadEndInterface(injector.getInstance(MultiSenseHeadEndInterfaceImpl.class));
+    }
+
+    private void initializeCustomPropertySets() {
+        customPropertySetService.addCustomPropertySet(new CommandCustomPropertySet());
+        customPropertySetService.addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+    }
+
     private void initializePrivileges() {
         new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources().stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class)).getModuleResources().stream()
+        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), serviceCallService, customPropertySetService).getModuleResources().stream()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 
@@ -326,6 +347,7 @@ public class InMemoryIntegrationPersistence {
         this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
         when(this.principal.hasPrivilege(any(), anyString())).thenReturn(true);
+        when(this.principal.getLocale()).thenReturn(Optional.empty());
         Privilege ePrivilege1 = mockPrivilege(EditPrivilege.LEVEL_1);
         Privilege vPrivilege1 = mockPrivilege(ViewPrivilege.LEVEL_1);
         Set<Privilege> privileges = new HashSet<>();
@@ -365,6 +387,10 @@ public class InMemoryIntegrationPersistence {
 
     public MeteringService getMeteringService() {
         return meteringService;
+    }
+
+    public MetrologyConfigurationService getMetrologyConfigurationService() {
+        return metrologyConfigurationService;
     }
 
     public MasterDataService getMasterDataService() {
@@ -489,6 +515,10 @@ public class InMemoryIntegrationPersistence {
 
     public CalendarService calendarService() {
         return calendarService;
+    }
+
+    public ServiceCallService getServiceCallService() {
+        return serviceCallService;
     }
 
     public int update(SqlBuilder sqlBuilder) throws SQLException {

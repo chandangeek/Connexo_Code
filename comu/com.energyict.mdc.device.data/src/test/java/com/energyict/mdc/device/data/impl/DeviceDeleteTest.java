@@ -19,14 +19,18 @@ import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -41,6 +45,7 @@ import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
@@ -90,6 +95,8 @@ public class DeviceDeleteTest {
     private Clock clock;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private ValidationService validationService;
     @Mock
@@ -162,6 +169,12 @@ public class DeviceDeleteTest {
     private DeviceType deviceType;
     @Mock
     private DeviceConfiguration deviceConfiguration;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private UserPreferencesService userPreferencesService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
     @Mock
     private DeviceLifeCycle deviceLifeCycle;
     @Mock
@@ -329,10 +342,8 @@ public class DeviceDeleteTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
                 connectionInitiationProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider,
-                meteringGroupsService, customPropertySetService, readingTypeUtilService);
+                meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService);
         device.initialize(this.deviceConfiguration, "For testing purposes", "mRID", Instant.now());
-        device.save();
         return device;
     }
-
 }

@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.tasks;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.Device;
@@ -12,6 +11,8 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
 import java.util.List;
@@ -373,4 +374,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     boolean isLastExecutionFailed();
 
     long getVersion();
+
+    List<ComTaskExecutionTrigger> getComTaskExecutionTriggers();
+
+    void addNewComTaskExecutionTrigger(Instant triggerTimeStamp);
 }

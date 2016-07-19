@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
@@ -25,13 +26,15 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import org.assertj.core.api.Condition;
-import org.junit.Test;
 
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
+
+import org.assertj.core.api.Condition;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -978,4 +981,122 @@ public class ComTaskExecutionImplTest extends AbstractComTaskExecutionImplTest {
         assertThat(notLockedComTaskExecution.getExecutingComPort()).isNull();
     }
 
+    @Test
+    @Transactional
+    public void addNewComTaskExecutionTriggerTest() {
+        Instant triggerTimeStamp_1 = createFixedTimeStamp(2016, 6, 1, 20, 0, 0, 0);
+        Instant triggerTimeStamp_2 = createFixedTimeStamp(2016, 6, 1, 8, 0, 0, 0);
+
+        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.days(1));
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
+        ManuallyScheduledComTaskExecutionImpl comTaskExecution = (ManuallyScheduledComTaskExecutionImpl) comTaskExecutionBuilder.add();
+        device.save();
+
+        // Business method
+        comTaskExecution.addNewComTaskExecutionTrigger(triggerTimeStamp_1);
+        comTaskExecution.addNewComTaskExecutionTrigger(triggerTimeStamp_2);
+
+        // Asserts
+        assertThat(comTaskExecution.getComTaskExecutionTriggers().size()).isEqualTo(2);
+        assertThat(comTaskExecution.getComTaskExecutionTriggers().stream().map(ComTaskExecutionTrigger::getComTaskExecution).distinct().collect(Collectors.toList())).contains(comTaskExecution);
+        assertThat(comTaskExecution.getComTaskExecutionTriggers()
+                .stream()
+                .map(ComTaskExecutionTrigger::getTriggerTimeStamp)
+                .collect(Collectors.toList())).contains(triggerTimeStamp_1, triggerTimeStamp_2);
+    }
+
+    @Test
+    @Transactional
+    public void addDuplicateComTaskExecutionTriggerTest() {
+        Instant triggerTimeStamp = createFixedTimeStamp(2016, 6, 1, 20, 0, 0, 0);
+
+        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.days(1));
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
+        ManuallyScheduledComTaskExecutionImpl comTaskExecution = (ManuallyScheduledComTaskExecutionImpl) comTaskExecutionBuilder.add();
+        device.save();
+
+        // Business method
+        comTaskExecution.addNewComTaskExecutionTrigger(triggerTimeStamp);
+        comTaskExecution.addNewComTaskExecutionTrigger(triggerTimeStamp);
+
+        // Asserts
+        assertThat(comTaskExecution.getComTaskExecutionTriggers().size()).isEqualTo(1);
+        assertThat(comTaskExecution.getComTaskExecutionTriggers().get(0).getComTaskExecution()).isEqualTo(comTaskExecution);
+        assertThat(comTaskExecution.getComTaskExecutionTriggers().get(0).getTriggerTimeStamp()).isEqualTo(triggerTimeStamp);
+    }
+
+    @Test
+    @Transactional
+    public void recalculateNextAndPlannedExecutionTimestampWithEarlierTriggerTest() {
+        freezeClock(2016, 6, 1, 10, 5, 0, 0);
+        Instant earlierTriggerTimeStamp = createFixedTimeStamp(2016, 6, 1, 20, 0, 0, 0);
+        Instant laterTriggerTimeStamp = createFixedTimeStamp(2016, 6, 10, 0, 0, 0, 0);
+        Instant nextExecutionAccordingToSchedule = createFixedTimeStamp(2016, 6, 2, 0, 0, 0, 0);
+
+        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.days(1));
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
+        ManuallyScheduledComTaskExecutionImpl comTaskExecution = (ManuallyScheduledComTaskExecutionImpl) comTaskExecutionBuilder.add();
+        device.save();
+
+        // Business method & asserts
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(nextExecutionAccordingToSchedule);
+        comTaskExecution.addNewComTaskExecutionTrigger(earlierTriggerTimeStamp);
+        comTaskExecution.addNewComTaskExecutionTrigger(laterTriggerTimeStamp);
+        comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
+
+        // Asserts
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(earlierTriggerTimeStamp);
+    }
+
+    @Test
+    @Transactional
+    public void recalculateNextAndPlannedExecutionTimestampWithTriggerNoNextExecutionSpecsTest() {
+        freezeClock(2016, 6, 1, 10, 5, 0, 0);
+        Instant earlierTriggerTimeStamp = createFixedTimeStamp(2016, 6, 1, 20, 0, 0, 0);
+        Instant laterTriggerTimeStamp = createFixedTimeStamp(2016, 6, 10, 0, 0, 0, 0);
+
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, null);
+        ManuallyScheduledComTaskExecutionImpl comTaskExecution = (ManuallyScheduledComTaskExecutionImpl) comTaskExecutionBuilder.add();
+        device.save();
+
+        // Business method & asserts
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(null);
+        comTaskExecution.addNewComTaskExecutionTrigger(earlierTriggerTimeStamp);
+        comTaskExecution.addNewComTaskExecutionTrigger(laterTriggerTimeStamp);
+        comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
+
+        // Asserts
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(earlierTriggerTimeStamp);
+    }
+
+    @Test
+    @Transactional
+    public void recalculateNextAndPlannedExecutionTimestampWithoutEarlierTriggerTest() {
+        freezeClock(2016, 6, 1, 10, 5, 0, 0);
+        Instant triggerTimeStamp = createFixedTimeStamp(2016, 6, 5, 0, 0, 0, 0);
+        Instant nextExecutionAccordingToSchedule = createFixedTimeStamp(2016, 6, 2, 0, 0, 0, 0);
+
+        TemporalExpression temporalExpression = new TemporalExpression(TimeDuration.days(1));
+        ComTaskEnablement comTaskEnablement = enableComTask(true);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "WithoutViolations", "WithoutViolations");
+        ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, temporalExpression);
+        ManuallyScheduledComTaskExecutionImpl comTaskExecution = (ManuallyScheduledComTaskExecutionImpl) comTaskExecutionBuilder.add();
+        device.save();
+
+        // Business method & asserts
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(nextExecutionAccordingToSchedule);
+        comTaskExecution.addNewComTaskExecutionTrigger(triggerTimeStamp);
+        comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
+
+        // Asserts
+        assertThat(comTaskExecution.getNextExecutionTimestamp()).isEqualTo(nextExecutionAccordingToSchedule);
+    }
 }

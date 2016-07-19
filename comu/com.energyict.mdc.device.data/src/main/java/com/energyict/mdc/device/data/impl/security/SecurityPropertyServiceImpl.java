@@ -163,12 +163,12 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
 
     private boolean isMissingOrIncomplete(Device device, SecurityPropertySet securityPropertySet) {
         Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> customPropertySet = getDeviceProtocolCustomPropertySet(device);
-        return !customPropertySet.isPresent() || !this.customPropertySetService.hasValueForPropertySpecs(
+        return !securityPropertySet.getPropertySpecs().isEmpty() && (!customPropertySet.isPresent() || !this.customPropertySetService.hasValueForPropertySpecs(
                 customPropertySet.get(),
                 device, this.clock.instant(),
                 getAllRequiredProperties(securityPropertySet),
                 securityPropertySet
-        );
+        ));
     }
 
     @Override

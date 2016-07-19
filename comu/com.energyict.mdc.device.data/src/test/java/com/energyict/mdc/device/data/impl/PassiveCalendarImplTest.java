@@ -4,21 +4,25 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.PassiveCalendar;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.MonthDay;
 import java.time.Year;
-import java.util.Collections;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class PassiveEffectiveCalendarImplTest extends PersistenceIntegrationTest {
+public class PassiveCalendarImplTest extends PersistenceIntegrationTest {
+
+    private static final String CALENDAR_NAME = "Calendar";
 
     private Device createSimpleDeviceWithOneCalendar() {
         Device device = inMemoryPersistence.getDeviceService()
@@ -26,11 +30,11 @@ public class PassiveEffectiveCalendarImplTest extends PersistenceIntegrationTest
         Calendar calendar = createCalendar();
         DeviceType deviceType = device.getDeviceConfiguration().getDeviceType();
         deviceType.addCalendar(calendar);
-        PassiveEffectiveCalendarImpl passiveEffectiveCalendar = new PassiveEffectiveCalendarImpl();
-        passiveEffectiveCalendar.setAllowedCalendar(deviceType.getAllowedCalendars().get(0));
-        passiveEffectiveCalendar.setDevice(device);
-        passiveEffectiveCalendar.setActivationDate(Instant.now());
-        device.setPassiveCalendars(Collections.singletonList(passiveEffectiveCalendar));
+        CollectedCalendarInformation collectedCalendarInformation = mock(CollectedCalendarInformation.class);
+        when(collectedCalendarInformation.isEmpty()).thenReturn(false);
+        when(collectedCalendarInformation.getActiveCalendar()).thenReturn(Optional.empty());
+        when(collectedCalendarInformation.getPassiveCalendar()).thenReturn(Optional.of(CALENDAR_NAME));
+        device.calendars().updateCalendars(collectedCalendarInformation);
         return device;
     }
 
@@ -38,14 +42,14 @@ public class PassiveEffectiveCalendarImplTest extends PersistenceIntegrationTest
     @Transactional
     public void testDeviceEffectiveCalendar() {
         Device device = createSimpleDeviceWithOneCalendar();
-        assertThat(device.getPassiveCalendars()).hasSize(1);
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.getPassiveCalendars().get(0);
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().getCalendar().get().getName()).isEqualTo("Calendar");
+        assertThat(device.calendars().getPassive()).isPresent();
+        PassiveCalendar passiveCalendar = device.calendars().getPassive().get();
+        assertThat(passiveCalendar.getAllowedCalendar().getCalendar().get().getName()).isEqualTo("Calendar");
     }
 
     private Calendar createCalendar() {
         return inMemoryPersistence.
-                getCalendarService().newCalendar("Calendar", TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
+                getCalendarService().newCalendar(CALENDAR_NAME, TimeZone.getTimeZone("Europe/Brussels"), Year.of(2010))
                 .endYear(Year.of(2020))
                 .description("Description remains to be completed :-)")
                 .mRID("Calendar")
@@ -89,4 +93,5 @@ public class PassiveEffectiveCalendarImplTest extends PersistenceIntegrationTest
                 .add()
                 .add();
     }
+
 }

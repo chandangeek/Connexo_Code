@@ -69,6 +69,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -412,5 +413,25 @@ public class DeviceServiceImpl implements ServerDeviceService {
         return domainObjects.stream()
                 .filter(device -> enabledMeters.stream().anyMatch(meter -> meter.getMRID().equals(device.getmRID())))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteOutdatedComTaskExecutionTriggers() {
+        try (Connection connection = this.deviceDataModelService.dataModel().getConnection(false);
+             PreparedStatement statement = deleteOutdatedComTaskExecutionTriggersSqlBuilder().prepare(connection)) {
+            statement.executeQuery();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private SqlBuilder deleteOutdatedComTaskExecutionTriggersSqlBuilder() {
+        Instant outdatedTimeStamp = this.deviceDataModelService.clock().instant().minus(1, ChronoUnit.DAYS);
+
+        SqlBuilder sqlBuilder = new SqlBuilder("delete from ");
+        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC_TRIGGERS.name());
+        sqlBuilder.append(" where TIMESTAMP < ");
+        sqlBuilder.addLong(outdatedTimeStamp.getEpochSecond());
+        return sqlBuilder;
     }
 }
