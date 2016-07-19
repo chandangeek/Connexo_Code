@@ -133,9 +133,11 @@ public interface DeviceType extends HasId, HasName {
 
     List<AllowedCalendar> getAllowedCalendars();
 
-    void addCalendar(Calendar calendar);
+    AllowedCalendar addCalendar(Calendar calendar);
 
-    void removeCalendar(long allowedCalendarId);
+    AllowedCalendar addGhostCalendar(String name);
+
+    void removeCalendar(AllowedCalendar calendar);
 
     List<LoadProfileType> getLoadProfileTypes();
 

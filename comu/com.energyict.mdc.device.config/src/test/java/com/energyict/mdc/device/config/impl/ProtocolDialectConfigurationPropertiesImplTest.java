@@ -80,6 +80,7 @@ import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
+import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -405,6 +406,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 propertySpec = mock(PropertySpec.class);
                 when(propertySpec.getName()).thenReturn(MY_PROPERTY);
                 persistenceSupport = mock(PersistenceSupport.class);
+                when(persistenceSupport.application()).thenReturn("Example");
+                when(persistenceSupport.componentName()).thenReturn("DDD");
                 when(persistenceSupport.tableName()).thenReturn("TST_MYPROPS");
                 when(persistenceSupport.domainColumnName()).thenReturn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.databaseName());
                 when(persistenceSupport.domainFieldName()).thenReturn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.javaName());
@@ -621,6 +624,11 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         @Override
         public CollectedBreakerStatus getBreakerStatus() {
+            return null;
+        }
+
+        @Override
+        public CollectedCalendar getCollectedCalendar() {
             return null;
         }
     }

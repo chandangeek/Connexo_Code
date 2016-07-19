@@ -27,12 +27,12 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-05-13 (10:40)
  */
-public class DeviceMessageSpecImpl implements DeviceMessageSpec {
+class DeviceMessageSpecImpl implements DeviceMessageSpec {
     private final DeviceType deviceType;
     private final DeviceMessageSpec source;
     private final PropertySpecService propertySpecService;
 
-    public DeviceMessageSpecImpl(DeviceType deviceType, DeviceMessageSpec source, PropertySpecService propertySpecService) {
+    DeviceMessageSpecImpl(DeviceType deviceType, DeviceMessageSpec source, PropertySpecService propertySpecService) {
         this.deviceType = deviceType;
         this.source = source;
         this.propertySpecService = propertySpecService;
@@ -97,7 +97,8 @@ public class DeviceMessageSpecImpl implements DeviceMessageSpec {
     }
 
     private boolean relatesToDeviceMessageFile(ValueFactory valueFactory) {
-        return valueFactory.isReference() && valueFactory.getValueType().equals(DeviceMessageFile.class);
+        return valueFactory.isReference()
+            && com.energyict.mdc.protocol.api.DeviceMessageFile.class.isAssignableFrom(valueFactory.getValueType());
     }
 
 }

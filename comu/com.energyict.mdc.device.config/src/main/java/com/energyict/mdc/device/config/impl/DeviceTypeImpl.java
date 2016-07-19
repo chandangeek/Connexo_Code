@@ -106,7 +106,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private int deviceUsageTypeId;
     private DeviceUsageType deviceUsageType;
     @Valid
-    private List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
+    private List<ServerDeviceConfiguration> deviceConfigurations = new ArrayList<>();
     private List<DeviceTypeLogBookTypeUsage> logBookTypeUsages = new ArrayList<>();
     private List<DeviceTypeLoadProfileTypeUsage> loadProfileTypeUsages = new ArrayList<>();
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
@@ -181,10 +181,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.loadProfileTypeUsages.clear();
         this.logBookTypeUsages.clear();
         this.deviceMessageFiles.clear();
-        Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
+        Iterator<ServerDeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
         while (iterator.hasNext()) {
-            ServerDeviceConfiguration deviceConfiguration = (ServerDeviceConfiguration) iterator.next();
+            ServerDeviceConfiguration deviceConfiguration = iterator.next();
             deviceConfiguration.notifyDelete();
             deviceConfiguration.prepareDelete();
             iterator.remove();
@@ -494,18 +494,25 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public void addCalendar(Calendar calendar) {
-        AllowedCalendar allowedCalendar = getDataModel().getInstance(AllowedCalendarImpl.class)
-                .initialize(calendar, this);
-        this.allowedCalendars.add(allowedCalendar);
+    public AllowedCalendar addCalendar(Calendar calendar) {
+        return this.addCalendar(this.getDataModel().getInstance(AllowedCalendarImpl.class).initialize(calendar, this));
     }
 
     @Override
-    public void removeCalendar(long allowedCalendarId) {
-        Optional<AllowedCalendar> allowedCalendar = allowedCalendars.stream()
-                .filter(cal -> cal.getId() == allowedCalendarId)
-                .findFirst();
-        allowedCalendar.ifPresent(calendar -> allowedCalendars.remove(calendar));
+    public AllowedCalendar addGhostCalendar(String name) {
+        return this.addCalendar(this.getDataModel().getInstance(AllowedCalendarImpl.class).initialize(name, this));
+    }
+
+    private AllowedCalendar addCalendar(AllowedCalendar calendar) {
+        this.allowedCalendars.add(calendar);
+        this.touch();
+        return calendar;
+    }
+
+    @Override
+    public void removeCalendar(AllowedCalendar allowedCalendar) {
+        this.allowedCalendars.remove(allowedCalendar);
+        this.touch();
     }
 
     @Override
@@ -558,9 +565,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public Optional<RegisteredCustomPropertySet> getLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType) {
         return this.loadProfileTypeUsages.stream().filter(f -> f.sameLoadProfileType(loadProfileType))
+                .map(DeviceTypeLoadProfileTypeUsage::getRegisteredCustomPropertySet)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .filter(registeredCustomPropertySet -> customPropertySetService.findActiveCustomPropertySets().contains(registeredCustomPropertySet))
-                .findAny()
-                .flatMap(DeviceTypeLoadProfileTypeUsage::getRegisteredCustomPropertySet);
+                .findAny();
     }
 
     @Override
@@ -657,9 +666,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     public Optional<RegisteredCustomPropertySet> getRegisterTypeTypeCustomPropertySet(RegisterType registerType) {
         return this.registerTypeUsages.stream().filter(f -> f.sameRegisterType(registerType))
+                .map(DeviceTypeRegisterTypeUsage::getRegisteredCustomPropertySet)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .filter(registeredCustomPropertySet -> customPropertySetService.findActiveCustomPropertySets().contains(registeredCustomPropertySet))
-                .findAny()
-                .flatMap(DeviceTypeRegisterTypeUsage::getRegisteredCustomPropertySet);
+                .findAny();
     }
 
     @Override
@@ -751,15 +762,15 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         return ImmutableList.copyOf(this.deviceConfigurations);
     }
 
-    private void addConfiguration(DeviceConfiguration deviceConfiguration) {
+    private void addConfiguration(ServerDeviceConfiguration deviceConfiguration) {
         this.deviceConfigurations.add(deviceConfiguration);
     }
 
     @Override
     public void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete) {
-        Iterator<DeviceConfiguration> iterator = this.deviceConfigurations.iterator();
+        Iterator<ServerDeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         while (iterator.hasNext()) {
-            ServerDeviceConfiguration configuration = (ServerDeviceConfiguration) iterator.next();
+            ServerDeviceConfiguration configuration = iterator.next();
             if (configuration.getId() == deviceConfigurationToDelete.getId()) {
                 configuration.notifyDelete();
                 configuration.prepareDelete();
@@ -794,9 +805,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     public void disableFileManagement() {
         if (this.fileManagementEnabled) {
             this.fileManagementEnabled = false;
-            this.deviceMessageFiles.clear();
+            this.fileManagementDisabled();
             this.update();
         }
+    }
+
+    private void fileManagementDisabled() {
+        this.deviceMessageFiles.clear();
+        this.deviceConfigurations.forEach(ServerDeviceConfiguration::fileManagementDisabled);
     }
 
     @Override

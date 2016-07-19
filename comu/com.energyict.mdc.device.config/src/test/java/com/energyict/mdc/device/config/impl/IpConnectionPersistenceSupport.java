@@ -19,6 +19,10 @@ import java.util.Optional;
  * @since 2015-11-05 (13:24)
  */
 public class IpConnectionPersistenceSupport implements PersistenceSupport<ConnectionProvider, IpConnectionPropertyValues> {
+    @Override
+    public String application() {
+        return "Example";
+    }
 
     @Override
     public String componentName() {

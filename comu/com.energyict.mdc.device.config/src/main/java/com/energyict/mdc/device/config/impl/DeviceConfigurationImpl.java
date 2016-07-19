@@ -1287,6 +1287,16 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void fileManagementDisabled() {
+        Set<DeviceMessageId> fileManagementRelated = DeviceMessageId.fileManagementRelated();
+        this.deviceMessageEnablements.removeAll(
+                this.deviceMessageEnablements
+                        .stream()
+                        .filter(enablement -> fileManagementRelated.contains(enablement.getDeviceMessageId()))
+                        .collect(Collectors.toList()));
+    }
+
     private DeviceMessageSpec replaceDeviceMessageFileValueFactories(DeviceMessageSpec spec) {
         return new DeviceMessageSpecImpl(this.getDeviceType(), spec, this.propertySpecService);
     }
@@ -1546,9 +1556,6 @@ public class DeviceConfigurationImpl extends PersistentNamedObject<DeviceConfigu
         @Override
         public DeviceMessageEnablement build() {
             DeviceConfigurationImpl.this.addDeviceMessageEnablement(underConstruction);
-            if (DeviceConfigurationImpl.this.getId() > 0) {
-                getDataModel().touch(DeviceConfigurationImpl.this);
-            }
             return underConstruction;
         }
     }
