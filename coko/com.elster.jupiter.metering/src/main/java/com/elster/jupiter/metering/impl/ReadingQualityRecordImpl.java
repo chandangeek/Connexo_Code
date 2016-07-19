@@ -208,7 +208,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
         comment = source.getComment();
     }
 
-    private class LocalEventSource {
+    public class LocalEventSource {
         private final ReadingQualityRecordImpl readingQuality;
 
         LocalEventSource(ReadingQualityRecordImpl readingQuality) {
