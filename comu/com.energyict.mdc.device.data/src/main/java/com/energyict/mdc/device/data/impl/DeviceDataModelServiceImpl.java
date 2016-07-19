@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -25,6 +26,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -39,6 +41,7 @@ import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTranslationKeys;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
@@ -136,6 +139,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile TransactionService transactionService;
     private volatile JsonService jsonService;
     private volatile UpgradeService upgradeService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ServiceCallService serviceCallService;
 
     private ServerConnectionTaskService connectionTaskService;
@@ -169,7 +173,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
             QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService,
             TransactionService transactionService, JsonService jsonService, com.energyict.mdc.issues.IssueService mdcIssueService, MdcReadingTypeUtilService mdcReadingTypeUtilService,
-            UpgradeService upgradeService, ServiceCallService serviceCallService) {
+            UpgradeService upgradeService, MetrologyConfigurationService metrologyConfigurationService, ServiceCallService serviceCallService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -201,6 +205,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setMdcIssueService(mdcIssueService);
         setMdcReadingTypeUtilService(mdcReadingTypeUtilService);
         setUpgradeService(upgradeService);
+        setMetrologyConfigurationService(metrologyConfigurationService);
         setServiceCallService(serviceCallService);
         activate(bundleContext);
     }
@@ -474,6 +479,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.readingTypeUtilService = readingTypeUtilService;
     }
 
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -523,6 +533,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(JsonService.class).toInstance(jsonService);
                 bind(com.energyict.mdc.issues.IssueService.class).toInstance(mdcIssueService);
+                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
+                bind(UserPreferencesService.class).toInstance(userService.getUserPreferencesService());
             }
         };
     }
@@ -647,6 +659,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         keys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
         keys.addAll(Arrays.asList(TaskStatusTranslationKeys.values()));
         keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
+        keys.addAll(Arrays.asList(CustomPropertySetsTranslationKeys.values()));
         return keys;
     }
 

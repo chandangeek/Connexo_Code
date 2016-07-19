@@ -45,7 +45,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
     }
 
     private void triggerStatusInformationTask(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
-        serviceCall.log(LogLevel.INFO, "Scheduling 'Status information' task in order to verify the breaker status");
+        serviceCall.log(LogLevel.INFO, "Scheduling 'Status information' task to verify the breaker status");
         Device device = (Device) serviceCall.getTargetObject().get();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
         serviceCall.update(domainExtension);
