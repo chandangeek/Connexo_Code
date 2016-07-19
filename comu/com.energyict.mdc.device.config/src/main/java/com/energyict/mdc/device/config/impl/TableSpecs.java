@@ -373,7 +373,7 @@ public enum TableSpecs {
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
             table.column("DEVICEPROTOCOLDIALECT").varChar().notNull().map("protocolDialectName").add();
             Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
-            table.setJournalTableName("DTC_DIALECT_CONFIG_PROPSJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_DIALECTCONFIGPROPSJRNL").since(version(10, 2));
             table.addAuditColumns();
             table
                 .foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG")
@@ -395,7 +395,7 @@ public enum TableSpecs {
             table.map(ProtocolDialectConfigurationPropertyImpl.class);
             Column id = table.column("ID").number().notNull().add();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
-            table.setJournalTableName("DTC_DIALECTCONFIGPROPSATTRJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_DIALCTCONFPROPSATTRJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.column("VALUE").varChar(4000).notNull().map("value").add();
             table
@@ -418,7 +418,7 @@ public enum TableSpecs {
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("VALUE").varChar().notNull().map("value").add();
-            table.setJournalTableName("DTC_PRTCLCONFIGPROPSATTRJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_PRTCLCONFPROPSATTRJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.foreignKey("FK_DTC_PROTCONFPROPSATTR_CONF")
                     .on(deviceConfiguration)
@@ -451,7 +451,7 @@ public enum TableSpecs {
             table.column("RESCHEDULERETRYDELAY").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.count").add();
             Column comportpool = table.column("COMPORTPOOL").number().add();
             table.column("RESCHEDULERETRYDELAYCODE").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.timeUnitCode").add();
-            table.setJournalTableName("DTC_PARTIALCONNECTIONTASKJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_PARTIALCONNTASKJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.primaryKey("PK_DTC_PARTIALCONNTASK").on(id).add();
             table.foreignKey("FK_DTC_PARTIALCT_PLUGGABLE")
@@ -493,7 +493,7 @@ public enum TableSpecs {
             Column partialconnectiontask = table.column("PARTIALCONNECTIONTASK").number().notNull().add();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             table.column("VALUE").varChar().notNull().map("value").add();
-            table.setJournalTableName("DTC_PARTIAL_CONNTASK_PROPSJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_PARTIALCONNTASKPROPSJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.foreignKey("FK_DTC_PARTIALCTPROPS_TASK")
                     .on(partialconnectiontask)
@@ -534,7 +534,7 @@ public enum TableSpecs {
             table.map(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class);
             Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
             Column deviceMessageEnablement = table.column("DEVICEMESSAGEENABLEMENT").number().notNull().add();
-            table.setJournalTableName("DTC_MSGABLEMENTUSERACTIONJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_MSGENBLMNTUSRACTIONJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.foreignKey("FK_DTC_MESENUSRACTION")
                     .on(deviceMessageEnablement)
@@ -581,7 +581,7 @@ public enum TableSpecs {
             table.map(SecurityPropertySetImpl.UserActionRecord.class);
             Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
             Column securitypropertyset = table.column("SECURITYPROPERTYSET").number().notNull().add();
-            table.setJournalTableName("DTC_SEC_PROP_SET_USRACTIONJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_SECPROPSETUSRACTIONJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.foreignKey("FK_DTC_SECPROPSETUSRACT_SPS")
                     .on(securitypropertyset)
@@ -664,7 +664,7 @@ public enum TableSpecs {
                             .conversion(NUMBER2LONG)
                             .map("deviceConfigurationId")
                             .add();
-            table.setJournalTableName("DTC_DEVCFGVALRULESETUSAGEJRNL");
+            table.setJournalTableName("DTC_DEVCFGVALRULESETUSEJRNL");
             table.addAuditColumns();
 
             table.primaryKey("DTC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, deviceConfigurationIdColumn).add();
@@ -878,7 +878,7 @@ public enum TableSpecs {
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column calendar = table.column("CALENDAR").number().add();
             table.column("NAME").varChar().map(AllowedCalendarImpl.Fields.NAME.fieldName()).add();
-            table.setJournalTableName("DTC_DEVICETYPE_CAL_USAGEJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_DEVICETYPECALUSAGEJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.primaryKey("PK_DTC_CALUSAGE").on(id).add();
             table.foreignKey("FK_DTC_CALDEVICETYPE")
@@ -902,7 +902,7 @@ public enum TableSpecs {
             table.map(TimeOfUseOptionsImpl.class);
             Column deviceTypeColumn = table.column("DEVICETYPE").number().notNull().add();
             table.column("OPTIONS").number().map(TimeOfUseOptionsImpl.Fields.OPTION_BITS.fieldName()).conversion(NUMBER2LONG).notNull().add();
-            table.setJournalTableName("DTC_TOU_MANAGEMENTOPTIONSJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_TOU_MNGMNTOPTIONSJRNL").since(version(10, 2));
             table.addAuditColumns( );
             table.primaryKey("DTC_PK_TIMEOFUSEOPTIONS").on(deviceTypeColumn).add();
             table.foreignKey("DTC_TOUOPTIONS_FK_DEVICETYPE")
