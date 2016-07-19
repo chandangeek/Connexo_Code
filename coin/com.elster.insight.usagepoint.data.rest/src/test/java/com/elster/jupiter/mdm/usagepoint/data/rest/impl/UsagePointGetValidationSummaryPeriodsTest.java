@@ -46,10 +46,10 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
     private static final String YESTERDAY = "Yesterday";
     private static final String YEAR_AGO = "1 year ago";
 
+    private ZonedDateTime referenceTime = ZonedDateTime.of(2016, 7, 15, 12, 0, 0, 0, ZoneId.of("Europe/Brussels"));
+
     @Mock
     private UsagePoint usagePoint;
-
-    private ZonedDateTime referenceTime = ZonedDateTime.of(2016, 7, 15, 12, 0, 0, 0, ZoneId.of("Europe/Brussels"));
 
     @Before
     public void before() {
@@ -75,11 +75,11 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         return periods;
     }
 
-    private RelativePeriod mockRelativePeriod(long id, String name, ZonedDateTime startEndTime, ZonedDateTime endDateTime) {
+    private RelativePeriod mockRelativePeriod(long id, String name, ZonedDateTime startDateTime, ZonedDateTime endDateTime) {
         RelativePeriod relativePeriod = mock(RelativePeriod.class);
         when(relativePeriod.getId()).thenReturn(id);
         when(relativePeriod.getName()).thenReturn(name);
-        when(relativePeriod.getOpenClosedZonedInterval(referenceTime)).thenReturn(Range.openClosed(startEndTime, endDateTime));
+        when(relativePeriod.getOpenClosedZonedInterval(referenceTime)).thenReturn(Range.openClosed(startDateTime, endDateTime));
         return relativePeriod;
     }
 
@@ -87,8 +87,10 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
     public void testNoSuchUsagePoint() {
         when(meteringService.findUsagePoint("xxx")).thenReturn(Optional.empty());
 
+        // Business method
         Response response = target("usagepoints/xxx/validationSummaryPeriods").queryParam("purposeId", 1000).request().get();
 
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -96,8 +98,10 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
     public void testNoSuchPurpose() {
         mockUsagePointMetrologyConfiguration();
 
+        // Business method
         Response response = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 1000).request().get();
 
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -105,8 +109,10 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
     public void testQueryParameterPurposeIdMissing() {
         mockUsagePointMetrologyConfiguration();
 
+        // Business method
         Response response = target("usagepoints/MRID/validationSummaryPeriods").request().get();
 
+        // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -116,22 +122,16 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         List<MetrologyContract> metrologyContracts = Arrays.asList(mockMetrologyContract(1), mockMetrologyContract(2));
         when(metrologyConfiguration.getContracts()).thenReturn(metrologyContracts);
 
+        // Business method
         String json = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
 
+        // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(7);
         assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(7, 4, 2, 3, 1, 6, 5);
         assertThat(jsonModel.<List<String>>get("$.relativePeriods[*].name")).containsExactly(
                 YEAR_AGO, THIS_YEAR, PREVIOUS_MONTH, THIS_MONTH, LAST_7_DAYS, YESTERDAY, TODAY
         );
-    }
-
-    private UsagePointMetrologyConfiguration mockUsagePointMetrologyConfiguration() {
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
-        UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
-        when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
-        return metrologyConfiguration;
     }
 
     @Test
@@ -144,8 +144,10 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         );
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
+        // Business method
         String json = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
 
+        // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(7);
         assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(6, 5, 1, 3, 2, 4, 7);
@@ -165,8 +167,10 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         );
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
+        // Business method
         String json = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
 
+        // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(7);
         assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(3, 1, 6, 5, 2, 4, 7);
@@ -186,8 +190,10 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         );
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
+        // Business method
         String json = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
 
+        // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(7);
         assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(7, 4, 2, 3, 1, 6, 5);
@@ -207,14 +213,24 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         );
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
+        // Business method
         String json = target("usagepoints/MRID/validationSummaryPeriods").queryParam("purposeId", 2).request().get(String.class);
 
+        // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(7);
         assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(7, 4, 2, 3, 1, 6, 5);
         assertThat(jsonModel.<List<String>>get("$.relativePeriods[*].name")).containsExactly(
                 YEAR_AGO, THIS_YEAR, PREVIOUS_MONTH, THIS_MONTH, LAST_7_DAYS, YESTERDAY, TODAY
         );
+    }
+
+    private UsagePointMetrologyConfiguration mockUsagePointMetrologyConfiguration() {
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
+        UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+        when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        return metrologyConfiguration;
     }
 
     private MetrologyContract mockMetrologyContract(long purposeId) {
