@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.Finder;
@@ -349,15 +350,15 @@ public class IssueDataValidationServiceTest {
         ReadingType readingType3Min = meteringService.createReadingType("0.0.14.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 3-minute");
         ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
         MeterActivation meterActivation = newMeter.activate(now);
-        Channel channelRT1 = meterActivation.createChannel(readingType1Min);
-        Channel channelRT2 = meterActivation.createChannel(readingType3Min);
-        Channel registerChannel = meterActivation.createChannel(registerReadingType);
+        Channel channelRT1 = meterActivation.getChannelsContainer().createChannel(readingType1Min);
+        Channel channelRT2 = meterActivation.getChannelsContainer().createChannel(readingType3Min);
+        Channel registerChannel = meterActivation.getChannelsContainer().createChannel(registerReadingType);
 
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now));
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(10, ChronoUnit.MINUTES)));
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(30, ChronoUnit.MINUTES)));
-        newMeter.store(meterReading);
+        newMeter.store(QualityCodeSystem.MDC, meterReading);
 
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
@@ -409,7 +410,7 @@ public class IssueDataValidationServiceTest {
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
         Meter newMeter = amrSystem.newMeter("Meter").create();
         ReadingType readingType = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
-        Channel channel = newMeter.activate(now).createChannel(readingType);
+        Channel channel = newMeter.activate(now).getChannelsContainer().createChannel(readingType);
 
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
@@ -473,7 +474,7 @@ public class IssueDataValidationServiceTest {
         Meter newMeter = amrSystem.newMeter("Meter").create();
         ReadingType registerReadingType = meteringService.createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake register RT");
         MeterActivation meterActivation = newMeter.activate(now);
-        Channel registerChannel = meterActivation.createChannel(registerReadingType);
+        Channel registerChannel = meterActivation.getChannelsContainer().createChannel(registerReadingType);
 
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now));
@@ -481,7 +482,7 @@ public class IssueDataValidationServiceTest {
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(30, ChronoUnit.MINUTES)));
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(50, ChronoUnit.MINUTES)));
         meterReading.addReading(ReadingImpl.of(registerReadingType.getMRID(), BigDecimal.valueOf(1), now.plus(55, ChronoUnit.MINUTES)));
-        newMeter.store(meterReading);//[now, now+10min, now+30min, now+50min, now+55min]
+        newMeter.store(QualityCodeSystem.MDC, meterReading);//[now, now+10min, now+30min, now+50min, now+55min]
 
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());
@@ -580,8 +581,8 @@ public class IssueDataValidationServiceTest {
         ReadingType readingType1Min = meteringService.createReadingType("0.0.3.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 1-minute");
         ReadingType readingType3Min = meteringService.createReadingType("0.0.14.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Fake RT with timeperiod 3-minute");
         MeterActivation meterActivation = newMeter.activate(Instant.now());
-        Channel channelRT1 = meterActivation.createChannel(readingType1Min);
-        Channel channelRT2 = meterActivation.createChannel(readingType3Min);
+        Channel channelRT1 = meterActivation.getChannelsContainer().createChannel(readingType1Min);
+        Channel channelRT2 = meterActivation.getChannelsContainer().createChannel(readingType3Min);
 
         IssueEvent event = mock(IssueEvent.class);
         when(event.findExistingIssue()).thenReturn(Optional.empty());

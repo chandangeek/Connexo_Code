@@ -266,7 +266,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         block.addIntervalReading(IntervalReadingImpl.of(fixedTime, BigDecimal.valueOf(50L)));
         block.addIntervalReading(IntervalReadingImpl.of(fixedTime.plus(1, ChronoUnit.MINUTES), BigDecimal.valueOf(50L)));
         reading.addIntervalBlock(block);
-        meter.store(reading);
+        meter.store(QualityCodeSystem.MDC, reading);
 
         Message message;
         //create issue
