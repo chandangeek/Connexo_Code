@@ -18,6 +18,7 @@ public enum EventType {
     METER_CREATED("meter/CREATED", true),
     METER_UPDATED("meter/UPDATED", true),
     METER_DELETED("meter/DELETED", true),
+    METER_ACTIVATED("meter/ACTIVATED", true),
     READINGS_CREATED("reading/CREATED") {
         @Override
         public void install(EventService eventService) {

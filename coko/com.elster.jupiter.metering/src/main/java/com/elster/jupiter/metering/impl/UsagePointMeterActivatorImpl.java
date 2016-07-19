@@ -1,8 +1,10 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
+import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -35,15 +37,17 @@ import java.util.stream.Collectors;
 public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, SelfObjectValidator {
 
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
+    private final EventService eventService;
 
     private Instant activationTime;
     private Map<MeterRole, Meter> meterRoleMapping;
     private UsagePointImpl usagePoint;
 
     @Inject
-    public UsagePointMeterActivatorImpl(ServerMetrologyConfigurationService metrologyConfigurationService) {
+    public UsagePointMeterActivatorImpl(ServerMetrologyConfigurationService metrologyConfigurationService, EventService eventService) {
         this.meterRoleMapping = new LinkedHashMap<>();
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.eventService = eventService;
     }
 
     UsagePointMeterActivatorImpl init(UsagePointImpl usagePoint) {
@@ -58,6 +62,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             throw new IllegalArgumentException("Meter and meter role can not be null");
         }
         this.meterRoleMapping.put(meterRole, meter);
+        eventService.postEvent(EventType.METER_ACTIVATED.topic(), this.usagePoint);
         return this;
     }
 
