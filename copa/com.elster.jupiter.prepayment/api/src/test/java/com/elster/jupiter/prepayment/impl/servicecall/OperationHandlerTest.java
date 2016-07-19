@@ -103,7 +103,7 @@ public class OperationHandlerTest {
 
     @Test
     public void testChildServiceCallCancelledWhileParentWasAlreadyCancelled() throws Exception {
-        when(serviceCall.getState()).thenReturn(DefaultState.CANCELLED);
+        when(serviceCall.canTransitionTo(DefaultState.CANCELLED)).thenReturn(false);
 
         // Business method
         operationHandler.onChildStateChange(serviceCall, childServiceCall_1, DefaultState.ONGOING, DefaultState.CANCELLED);

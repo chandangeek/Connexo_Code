@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.prepayment.impl.BreakerStatus;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
@@ -18,6 +19,7 @@ import javax.validation.constraints.Size;
 public class ContactorOperationDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
+        BREAKER_STATUS("status", "status"),
         CALLBACK("callback", "callback"),
         PROVIDED_RESPONSE("providedResponse", "response");
 
@@ -41,7 +43,9 @@ public class ContactorOperationDomainExtension implements PersistentDomainExtens
     private Reference<ServiceCall> serviceCall = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String status;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callback;
     private boolean providedResponse;
 
@@ -51,6 +55,22 @@ public class ContactorOperationDomainExtension implements PersistentDomainExtens
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
         return registeredCustomPropertySet.get();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public BreakerStatus getBreakerStatus() {
+        return BreakerStatus.valueOf(status);
+    }
+
+    public void setBreakerStatus(BreakerStatus breakerStatus) {
+        this.status = breakerStatus.name();
     }
 
     public String getCallback() {
@@ -72,12 +92,14 @@ public class ContactorOperationDomainExtension implements PersistentDomainExtens
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
+        this.setStatus((String) propertyValues.getProperty(FieldNames.BREAKER_STATUS.javaName()));
         this.setCallback((String) propertyValues.getProperty(FieldNames.CALLBACK.javaName()));
         this.setProvidedResponse((Boolean) propertyValues.getProperty(FieldNames.PROVIDED_RESPONSE.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
+        propertySetValues.setProperty(FieldNames.BREAKER_STATUS.javaName(), this.getBreakerStatus().name());
         propertySetValues.setProperty(FieldNames.CALLBACK.javaName(), this.getCallback());
         propertySetValues.setProperty(FieldNames.PROVIDED_RESPONSE.javaName(), this.providedResponse());
     }

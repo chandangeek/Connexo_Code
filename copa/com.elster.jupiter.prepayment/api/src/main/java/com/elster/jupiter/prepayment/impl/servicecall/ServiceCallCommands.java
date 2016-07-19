@@ -63,6 +63,7 @@ public class ServiceCallCommands {
         ServiceCallType serviceCallType = getServiceCallType(contactorInfo);
 
         ContactorOperationDomainExtension contactorOperationDomainExtension = new ContactorOperationDomainExtension();
+        contactorOperationDomainExtension.setBreakerStatus(contactorInfo.status);
         contactorOperationDomainExtension.setCallback(contactorInfo.callback);
         ServiceCallBuilder serviceCallBuilder = serviceCallType.newServiceCall().origin("Redknee").extendedWith(contactorOperationDomainExtension);
         if (usagePoint.isPresent()) {

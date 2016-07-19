@@ -5,6 +5,8 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.ConnectionState;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.metering.ami.CompletionMessageInfo.CompletionMessageStatus;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -44,6 +46,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -57,12 +60,14 @@ import static org.mockito.Mockito.when;
 public class CompletionOptionsHandlerTest {
 
     private static final long SERVICE_CALL_ID = 1L;
-    private static final String CALL_BACK = "http://wwww.callbackUri.com";
+    private static final String CALL_BACK = "http://wwww.myCallbackUri.com";
     private static final boolean PROVIDED_RESPONSE = false;
 
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
 
+    @Mock
+    UsagePoint usagePoint;
     @Mock
     private ServiceCall serviceCall;
     @Mock
@@ -117,6 +122,7 @@ public class CompletionOptionsHandlerTest {
 
         when(contactorOperationDomainExtension.providedResponse()).thenReturn(PROVIDED_RESPONSE);
         when(contactorOperationDomainExtension.getCallback()).thenReturn(CALL_BACK);
+        when(contactorOperationDomainExtension.getBreakerStatus()).thenReturn(BreakerStatus.connected);
         when(serviceCall.getExtensionFor(any(ContactorOperationCustomPropertySet.class))).thenReturn(Optional.of(contactorOperationDomainExtension));
 
         completionMessageInfo = new CompletionMessageInfo(Long.toString(SERVICE_CALL_ID));
@@ -228,5 +234,43 @@ public class CompletionOptionsHandlerTest {
         verify(contactorOperationDomainExtension).setProvidedResponse(true);
         verify(serviceCall).update(domainExtensionArgumentCaptor.capture());
         assertEquals(contactorOperationDomainExtension, domainExtensionArgumentCaptor.getValue());
+    }
+
+    @Test
+    public void testProvideResponseAndUpdateUsagePointConnectionState() throws Exception {
+        when(serviceCall.getState()).thenReturn(DefaultState.SUCCESSFUL);
+        doReturn(Optional.of(usagePoint)).when(serviceCall).getTargetObject();
+
+        completionMessageInfo = new CompletionMessageInfo(Long.toString(SERVICE_CALL_ID));
+        completionMessageInfo.setCompletionMessageStatus(CompletionMessageStatus.SUCCESS);
+        jsonService = mock(JsonService.class);
+        when(jsonService.serialize(any())).then(i -> i.getArgumentAt(0, CompletionMessageInfo.class).toString());
+        when(jsonService.deserialize(any(byte[].class), any(Class.class))).thenReturn(completionMessageInfo);
+
+        CompletionOptionsHandler actualHandler = new CompletionOptionsHandler(jsonService, serviceCallService, thesaurus);
+        completionOptionsHandler = Mockito.spy(actualHandler);
+
+        when(client.target(anyString())).thenReturn(webTarget);
+        when(webTarget.request()).thenReturn(webTargetBuilder);
+        when(completionOptionsHandler.newJerseyClient()).thenReturn(client);
+
+        // Business method
+        completionOptionsHandler.process(message);
+
+        // Asserts
+        ArgumentCaptor<Entity> argumentCaptor = ArgumentCaptor.forClass(Entity.class);
+        verify(webTargetBuilder).post(argumentCaptor.capture());
+
+        assertTrue(argumentCaptor.getValue().getEntity() instanceof ResponseInfo);
+        ResponseInfo responseInfo = (ResponseInfo) argumentCaptor.getValue().getEntity();
+        assertEquals(CompletionMessageStatus.SUCCESS, responseInfo.status);
+        assertEquals(null, responseInfo.reason);
+
+        ArgumentCaptor<ContactorOperationDomainExtension> domainExtensionArgumentCaptor = ArgumentCaptor.forClass(ContactorOperationDomainExtension.class);
+        verify(contactorOperationDomainExtension).setProvidedResponse(true);
+        verify(serviceCall).update(domainExtensionArgumentCaptor.capture());
+        assertEquals(contactorOperationDomainExtension, domainExtensionArgumentCaptor.getValue());
+
+        verify(usagePoint).setConnectionState(ConnectionState.CONNECTED);
     }
 }

@@ -114,6 +114,12 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
+                        .named(ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS.javaName(), TranslationSeeds.BREAKER_STATUS)
+                        .describedAs(TranslationSeeds.BREAKER_STATUS)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName(), TranslationSeeds.CALL_BACK_URL)
                         .describedAs(TranslationSeeds.CALL_BACK_URL)
                         .fromThesaurus(thesaurus)
@@ -168,6 +174,11 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+            table
+                    .column(ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS.databaseName())
+                    .varChar()
+                    .map(ContactorOperationDomainExtension.FieldNames.BREAKER_STATUS.javaName())
+                    .add();
             table
                     .column(ContactorOperationDomainExtension.FieldNames.CALLBACK.databaseName())
                     .varChar()

@@ -2,6 +2,8 @@ package com.elster.jupiter.prepayment.impl;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.metering.ConnectionState;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.prepayment.impl.servicecall.ContactorOperationCustomPropertySet;
@@ -64,7 +66,35 @@ public class CompletionOptionsHandler implements MessageHandler {
                 domainExtension.setProvidedResponse(true);
                 serviceCall.update(domainExtension);
                 serviceCall.log(LogLevel.INFO, MessageFormat.format("Provided response to Redknee: {0}", responseInfo.toString()));
+
+                if (completionMessageInfo.getCompletionMessageStatus().equals(CompletionMessageInfo.CompletionMessageStatus.SUCCESS)) {
+                    // Only if the full operation was successful, update the status of the UsagePoint
+                    updateStatusOfUsagePoint(serviceCall);
+                }
             } // Else, a response has already been send out
+        }
+    }
+
+    private void updateStatusOfUsagePoint(ServiceCall serviceCall) {
+        UsagePoint usagePoint = (UsagePoint) serviceCall.getTargetObject().get();
+        ContactorOperationDomainExtension contactorOperationDomainExtension = serviceCall.getExtensionFor(new ContactorOperationCustomPropertySet()).get();
+        switch (contactorOperationDomainExtension.getBreakerStatus()) {
+            case connected:
+                usagePoint.setConnectionState(ConnectionState.CONNECTED);
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Updated the usage point connection state to {0}", ConnectionState.CONNECTED.getName()));
+                break;
+            case disconnected:
+                usagePoint.setConnectionState(ConnectionState.PHYSICALLY_DISCONNECTED);
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Updated the usage point connection state to {0}", ConnectionState.PHYSICALLY_DISCONNECTED.getName()));
+                break;
+            case armed:
+                usagePoint.setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED);
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Updated the usage point connection state to {0}", ConnectionState.LOGICALLY_DISCONNECTED.getName()));
+                break;
+            default:
+                // Indicating the breaker state was not updated (~ only load limit operation handled)
+                // In this case the UsagePoint connection status should off course not be touched
+                break;
         }
     }
 
