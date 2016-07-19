@@ -17,6 +17,8 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
@@ -261,6 +263,11 @@ public class AggregatedChannelImpl implements ChannelContract {
     @Override
     public Instant getPreviousDateTime(Instant instant) {
         return persistedChannel.getPreviousDateTime(instant);
+    }
+
+    @Override
+    public MeterReading deleteReadings(Range<Instant> period) {
+        return MeterReadingImpl.newInstance();
     }
 
     // ChannelContract methods ================================================

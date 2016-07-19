@@ -20,6 +20,7 @@ public interface ReadingStorer {
 
     /**
      * Stores the readings.
+     *
      * @param system {@link QualityCodeSystem} that handles storage.
      */
     void execute(QualityCodeSystem system);

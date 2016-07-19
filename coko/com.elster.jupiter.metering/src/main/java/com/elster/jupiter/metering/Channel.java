@@ -72,6 +72,7 @@ public interface Channel {
 
     /**
      * Sets a given list of {@link BaseReading BaseReadings} as addition/editing result.
+     *
      * @param system {@link QualityCodeSystem} that handles editing.
      * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
      */
@@ -79,6 +80,7 @@ public interface Channel {
 
     /**
      * Sets a given list of {@link BaseReading BaseReadings} as confirmation result.
+     *
      * @param system {@link QualityCodeSystem} that handles confirmation.
      * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
      */
@@ -86,6 +88,7 @@ public interface Channel {
 
     /**
      * Removes a given list of {@link BaseReadingRecord BaseReadingRecords}.
+     *
      * @param system {@link QualityCodeSystem} that handles removal.
      * @param readings A list of {@link BaseReadingRecord BaseReadingRecords} to remove from channel.
      */

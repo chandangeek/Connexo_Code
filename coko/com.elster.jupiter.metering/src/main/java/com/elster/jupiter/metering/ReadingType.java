@@ -19,50 +19,70 @@ import java.util.Optional;
 
 public interface ReadingType extends IdentifiedObject {
 	MacroPeriod getMacroPeriod();
+
 	Aggregate getAggregate();
+
 	TimeAttribute getMeasuringPeriod();
+
 	Accumulation getAccumulation();
+
 	FlowDirection getFlowDirection();
+
 	Commodity getCommodity();
+
 	MeasurementKind getMeasurementKind();
+
 	RationalNumber getInterharmonic();
+
 	RationalNumber getArgument();
+
 	int getTou();
+
 	int getCpp();
+
 	int getConsumptionTier();
+
 	Phase getPhases();
+
 	MetricMultiplier getMultiplier();
+
 	ReadingTypeUnit getUnit();
+
 	Currency getCurrency();
+
 	Optional<TemporalAmount> getIntervalLength();
 
-    Optional<ReadingType> getBulkReadingType();
+	Optional<ReadingType> getBulkReadingType();
 
-    boolean isBulkQuantityReadingType(ReadingType readingType);
+	boolean isBulkQuantityReadingType(ReadingType readingType);
+
 	Optional<ReadingType> getCalculatedReadingType();
+
 	boolean isRegular();
+
 	default boolean isCumulative() {
 		return getAccumulation().isCumulative();
 	}
-	
-    long getVersion();
 
-    void setDescription(String description);
-    void setAliasName(String alias);
+	long getVersion();
 
-    boolean isActive();
-    void activate();
-    void deactivate();
+	void setDescription(String description);
 
-    void update();
+	void setAliasName(String alias);
 
-    /**
-     * Using the {@link #getAliasName()} and some of the attributes of a ReadingType a more detailed aliasName is constructed.
-     *
-     * @return the full alias name
-     * @since v1.1
-     */
-    String getFullAliasName();
+	boolean isActive();
 
-	String getmRID();
+	void activate();
+
+	void deactivate();
+
+	void update();
+
+	/**
+	 * Using the {@link #getAliasName()} and some of the attributes of a ReadingType a more detailed aliasName is constructed.
+	 *
+	 * @return the full alias name
+	 * @since v1.1
+	 */
+	String getFullAliasName();
 }

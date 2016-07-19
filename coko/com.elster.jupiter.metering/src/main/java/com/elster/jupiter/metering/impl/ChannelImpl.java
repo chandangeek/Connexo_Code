@@ -43,8 +43,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.streams.ExtraCollectors;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -681,7 +679,7 @@ public final class ChannelImpl implements ChannelContract {
     public MeterReading deleteReadings(Range<Instant> instant) {
         List<BaseReadingRecord> readings = getReadings(Ranges.copy(instant).withOpenLowerBound());
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-        Map<Instant, List<ReadingQualityRecord>> qualities = findActualReadingQuality(instant).stream()
+        Map<Instant, List<ReadingQualityRecord>> qualities = findReadingQualities().inTimeInterval(instant).stream()
                 .collect(Collectors.groupingBy(ReadingQualityRecord::getReadingTimestamp));
         Set<Instant> readingTimes = readings.stream().map(BaseReadingRecord::getTimeStamp).collect(Collectors.toSet());
         if (!readingTimes.isEmpty()) {
@@ -694,7 +692,7 @@ public final class ChannelImpl implements ChannelContract {
                     IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) baseReadingRecord;
                     intervalBlocks.entrySet().stream().forEach(intervalBlock -> {
                         IntervalReadingRecord filtered = intervalReadingRecord.filter(intervalBlock.getKey());
-                        IntervalReadingImpl intervalReading = IntervalReadingImpl.of(filtered.getTimeStamp(), filtered.getValue(), filtered.getProfileStatus());
+                        IntervalReadingImpl intervalReading = IntervalReadingImpl.of(filtered.getTimeStamp(), filtered.getValue(), filtered.getReadingQualities());
                         filtered.getTimePeriod().ifPresent(intervalReading::setTimePeriod);
                         addQualityToBaseReading(qualities, intervalBlock.getKey(), intervalReading);
                         intervalBlock.getValue().addIntervalReading(intervalReading);
