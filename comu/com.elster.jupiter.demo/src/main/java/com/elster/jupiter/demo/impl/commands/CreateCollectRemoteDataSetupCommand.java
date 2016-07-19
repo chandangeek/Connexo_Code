@@ -1,12 +1,5 @@
 package com.elster.jupiter.demo.impl.commands;
 
-import com.elster.jupiter.demo.impl.builders.device.SetValidateOnStorePostBuilder;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Location;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.engine.config.ComServer;
-
 import com.elster.jupiter.demo.impl.Builders;
 import com.elster.jupiter.demo.impl.Constants;
 import com.elster.jupiter.demo.impl.UnableToCreate;
@@ -37,17 +30,17 @@ import com.elster.jupiter.demo.impl.templates.RegisterGroupTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.metering.GeoCoordinates;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.engine.config.ComServer;
-import com.elster.jupiter.util.geo.SpatialCoordinates;
-import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

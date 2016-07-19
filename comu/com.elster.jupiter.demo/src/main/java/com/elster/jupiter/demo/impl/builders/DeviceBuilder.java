@@ -45,7 +45,7 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
         return this;
     }
 
-    public DeviceBuilder withSpatialCoordinates(SpatialCoordinates spatialCoordinates){
+    public DeviceBuilder withSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
         this.spatialCoordinates = spatialCoordinates;
         return this;
     }
