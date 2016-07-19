@@ -121,7 +121,7 @@ public class PropertyUtils {
             }
         }
         // Check for List values
-        if (propertySpec.getValueFactory().getClass().equals(ListValueFactory.class) && value instanceof List) {
+        if (propertySpec.getValueFactory() instanceof ListValueFactory && value instanceof List) {
             List<Object> valueList = (List<Object>) value;
             ListValueFactory listValueFactory = (ListValueFactory) propertySpec.getValueFactory();
             return listValueFactory.fromValues(valueList);
