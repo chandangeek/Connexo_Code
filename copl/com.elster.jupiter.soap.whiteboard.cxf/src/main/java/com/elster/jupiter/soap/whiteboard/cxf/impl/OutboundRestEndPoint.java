@@ -1,9 +1,11 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 
 import org.glassfish.jersey.client.ClientProperties;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.joda.time.DateTimeConstants;
 import org.osgi.framework.BundleContext;
@@ -56,6 +58,10 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
                 register(new JacksonFeature()).
                 property(ClientProperties.CONNECT_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 5).
                 property(ClientProperties.READ_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 2);
+        if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
+            client.register(HttpAuthenticationFeature.basic(endPointConfiguration.getUsername(), endPointConfiguration.getPassword()
+                    .getBytes()));
+        }
         WebTarget target = client.target(endPointConfiguration.getUrl());
 
         S service = endPointProvider.get(target);
