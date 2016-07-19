@@ -395,18 +395,18 @@ public enum TableSpecs {
             table.map(ProtocolDialectConfigurationPropertyImpl.class);
             Column id = table.column("ID").number().notNull().add();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
-            table.setJournalTableName("DTC_DIALECTCONFIGPROPSATTRJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_DIALCTCONFPROPSATTRJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.column("VALUE").varChar(4000).notNull().map("value").add();
             table
-                .foreignKey("FK_DTC_CONFPROPSATTR_PROPS")
+                .foreignKey("DTC_DIALECTCONFIGPROPSATTRJRNL")
                 .on(id)
                 .references(DTC_DIALECTCONFIGPROPERTIES.name())
                 .map("properties")
                 .composition()
                 .reverseMap("propertyList")
                 .add();
-            table.primaryKey("PK_DTC_DIALECTCONFIGPROPSATTR").on(id, name).add();
+            table.primaryKey("PK_DTC_DIALCTCFGPROPSATTR").on(id, name).add();
         }
     },
 
@@ -427,7 +427,7 @@ public enum TableSpecs {
                     .composition()
                     .reverseMap("protocolProperties")
                     .add();
-            table.primaryKey("PK_DTC_PROTOCOLCONFPROPSATTR").on(deviceConfiguration, name).add();
+            table.primaryKey("PK_DTC_PRTCLCONFPROPSATTR").on(deviceConfiguration, name).add();
         }
     },
 
@@ -502,7 +502,7 @@ public enum TableSpecs {
                     .reverseMap("properties")
                     .composition()
                     .add();
-            table.primaryKey("PK_DTC_PARTIALCONTASKPROPS").on(partialconnectiontask, name).add();
+            table.primaryKey("PK_DTC_PARTIALCONTSKPROPS").on(partialconnectiontask, name).add();
         }
     },
 
@@ -534,7 +534,7 @@ public enum TableSpecs {
             table.map(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class);
             Column useraction = table.column("USERACTION").number().conversion(NUMBER2ENUM).notNull().map("userAction").add();
             Column deviceMessageEnablement = table.column("DEVICEMESSAGEENABLEMENT").number().notNull().add();
-            table.setJournalTableName("DTC_MSGABLEMENTUSERACTIONJRNL").since(version(10, 2));
+            table.setJournalTableName("DTC_MSGENBLMNTUSRACTIONJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.foreignKey("FK_DTC_MESENUSRACTION")
                     .on(deviceMessageEnablement)
@@ -543,7 +543,7 @@ public enum TableSpecs {
                     .composition()
                     .map("deviceMessageEnablement")
                     .add();
-            table.primaryKey("PK_DTC_MESENABLEUSERACTION").on(useraction, deviceMessageEnablement).add();
+            table.primaryKey("PK_DTC_MSGENABLEUSRACTION").on(useraction, deviceMessageEnablement).add();
         }
     },
 
@@ -569,7 +569,7 @@ public enum TableSpecs {
                     .reverseMap(DeviceConfigurationImpl.Fields.SECURITY_PROPERTY_SETS.fieldName())
                     .composition()
                     .add();
-            table.primaryKey("PK_DTC_SECURITYPROPERTYSET").on(id).add();
+            table.primaryKey("PK_DTC_SECURITYPROPSET").on(id).add();
             table.unique("UK_DTC_SECPROPSET_NAME").on(deviceConfiguration, name).add();
         }
     },
@@ -590,7 +590,7 @@ public enum TableSpecs {
                     .composition()
                     .map("set")
                     .add();
-            table.primaryKey("PK_DTC_SECPROPSETUSERACTION").on(useraction, securitypropertyset).add();
+            table.primaryKey("PK_DTC_SECPROPSETUSRACTN").on(useraction, securitypropertyset).add();
         }
     },
 
