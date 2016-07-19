@@ -59,6 +59,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import javax.validation.ValidatorFactory;
@@ -97,6 +98,9 @@ public class EstimationTaskImplIT {
     private TaskService taskService;
     private ThreadPrincipalService threadPrincipalService;
 
+    @Mock
+    private HttpService httpService;
+
     private class MockModule extends AbstractModule {
 
         @Override
@@ -104,6 +108,7 @@ public class EstimationTaskImplIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
+            bind(HttpService.class).toInstance(httpService);
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
