@@ -102,7 +102,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
 
     private void addKoreChannelIfNecessary(MeterActivation activation, ReadingType readingType) {
         if (!activation.getReadingTypes().contains(readingType)) {
-            activation.createChannel(readingType);
+            activation.getChannelsContainer().createChannel(readingType);
         }
     }
 

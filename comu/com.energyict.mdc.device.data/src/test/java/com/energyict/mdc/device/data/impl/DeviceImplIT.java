@@ -2518,8 +2518,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(device.getComTaskExecutions()).hasSize(1);
         assertThat(device.getComTaskExecutions().get(0).getProtocolTasks()).hasSize(2);
         boolean containsClockTask = false;
-        for(ProtocolTask protocolTask: device.getComTaskExecutions().get(0).getProtocolTasks()) {
-            if(protocolTask instanceof ClockTask) {
+        for (ProtocolTask protocolTask : device.getComTaskExecutions().get(0).getProtocolTasks()) {
+            if (protocolTask instanceof ClockTask) {
                 containsClockTask = true;
             }
         }

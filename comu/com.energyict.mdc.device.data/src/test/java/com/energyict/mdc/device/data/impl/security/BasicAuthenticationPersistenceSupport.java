@@ -5,8 +5,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
-
 import com.energyict.mdc.protocol.api.security.SecurityPropertySpecProvider;
+
 import com.google.inject.Module;
 
 import java.util.Collections;

@@ -6,7 +6,6 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
-import com.elster.jupiter.metering.EndDeviceControlTypeMapping;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
@@ -41,7 +40,6 @@ import com.energyict.mdc.tasks.MessagesTask;
 
 import java.net.URL;
 import java.time.Clock;
-import java.util.Collections;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,8 +47,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 import java.util.Set;
 
 import org.junit.Before;
@@ -60,7 +56,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;

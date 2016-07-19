@@ -7,8 +7,12 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Channel;
 
 import com.google.common.collect.Range;
@@ -16,8 +20,6 @@ import org.joda.time.DateTime;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -29,19 +31,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.validation.ValidationEvaluator;
-import com.elster.jupiter.validation.ValidationRule;
-import com.elster.jupiter.validation.ValidationRuleSet;
-import com.elster.jupiter.validation.ValidationService;
-
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Channel;
-import com.google.common.collect.Range;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

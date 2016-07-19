@@ -37,12 +37,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
-import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -69,11 +64,8 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.AllowedCalendar;
-import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
@@ -110,13 +102,10 @@ import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnr
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.MeterActivationTimestampNotAfterLastActivationException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
-import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
@@ -192,7 +181,6 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
@@ -470,8 +458,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             dataModel.update(this);
 
             //TODO check if this should be in the syncsWithKore
-            this.location.ifPresent(meter::setLocation);
-            this.spatialCoordinates.ifPresent(meter::setSpatialCoordinates);
+            this.location.ifPresent(location -> this.meter.get().setLocation(location));
+            this.spatialCoordinates.ifPresent(coordinates -> this.meter.get().setSpatialCoordinates(coordinates));
 
 
             //All actions to take to sync with Kore once a Device is created
@@ -521,15 +509,24 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public Optional<GeoCoordinates> getGeoCoordinates() {
-        Optional<GeoCoordinates> updatedValue = getUpdatedCoordinates();
+    public Optional<SpatialCoordinates> getSpatialCoordinates() {
+        Optional<SpatialCoordinates> updatedValue = getUpdatedSpatialCoordinates();
         if (updatedValue.isPresent()) {
             return updatedValue;
         }
-        if (meter.isPresent()) {
-            return meter.get().getGeoCoordinates();
+        return getMeter().getOptional().map(EndDevice::getSpatialCoordinates).orElse(Optional.empty());
+    }
+
+    @Override
+    public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
+        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
+        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate();
+        if (!currentKoreUpdater.isPresent()) {
+            syncsWithKore.add(koreUpdater);
+        } else {
+            koreUpdater = currentKoreUpdater.get();
         }
-        return Optional.empty();
+        koreUpdater.setSpatialCoordinates(spatialCoordinates);
     }
 
     private Optional<Location> getUpdatedLocation() {
@@ -543,12 +540,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return Optional.empty();
     }
 
-    private Optional<GeoCoordinates> getUpdatedCoordinates() {
+    private Optional<SpatialCoordinates> getUpdatedSpatialCoordinates() {
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             SyncDeviceWithKoreForSimpleUpdate simpleKoreUpdater = currentKoreUpdater.get();
-            if (simpleKoreUpdater.geoCoordinates.isPresent()) {
-                return simpleKoreUpdater.geoCoordinates;
+            if (simpleKoreUpdater.location.isPresent()) {
+                return simpleKoreUpdater.spatialCoordinates;
             }
         }
         return Optional.empty();
@@ -562,18 +559,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             return Optional.of((SyncDeviceWithKoreForSimpleUpdate) currentKoreUpdater.get());
         }
         return Optional.empty();
-    }
-
-    @Override
-    public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
-        Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
-        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate();
-        if (!currentKoreUpdater.isPresent()) {
-            syncsWithKore.add(koreUpdater);
-        } else {
-            koreUpdater = currentKoreUpdater.get();
-        }
-        koreUpdater.setGeoCoordinates(geoCoordinates);
     }
 
     private void saveDirtyConnectionProperties() {
@@ -986,6 +971,31 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile) {
+        return new LoadProfileUpdaterForDevice((LoadProfileImpl) loadProfile);
+    }
+
+    class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
+
+        protected LogBookUpdaterForDevice(LogBookImpl logBook) {
+            super(logBook);
+        }
+    }
+
+    class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
+
+        protected LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
+            super(loadProfile);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            dataModel.touch(DeviceImpl.this);
+        }
+    }
+
+    @Override
     public void validateDeviceCanChangeConfig(DeviceConfiguration destinationDeviceConfiguration) {
         if (this.getDeviceConfiguration().getId() == destinationDeviceConfiguration.getId()) {
             throw DeviceConfigurationChangeException.cannotChangeToSameConfig(thesaurus, this);
@@ -1173,6 +1183,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         //Don't persist yet, need to be validated (done in the save step of this device)
     }
 
+    @Override
+    public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
+        return null;
+    }
+
+    @Override
+    public Optional<ProtocolDialectProperties> getProtocolDialectProperties(String dialectName) {
+        return null;
+    }
+
     private void addDeviceProperty(Optional<PropertySpec> propertySpec, String propertyValue) {
         if (propertyValue != null) {
             DeviceProtocolPropertyImpl deviceProtocolProperty = this.dataModel.getInstance(DeviceProtocolPropertyImpl.class).initialize(this, propertySpec, propertyValue);
@@ -1239,24 +1259,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public void store(MeterReading meterReading) {
-        this.meter.get().store(meterReading);
-    }
-
-    @Override
     public Optional<UsagePoint> getUsagePoint() {
         return koreHelper.getUsagePoint();
     }
 
     @Override
     public void setUsagePoint(UsagePoint usagePoint) {
-        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(null, usagePoint);
+        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(clock.instant(), usagePoint);
         //All actions to take to sync with Kore once a Device is created
         syncsWithKore.add(usagePointChange);
-    }
-
-    private Optional<UsagePoint> getUsagePointFromMeterActivation(Meter meter) {
-        return meter.getCurrentMeterActivation().flatMap(MeterActivation::getUsagePoint);
     }
 
     private Supplier<RuntimeException> mdcAMRSystemDoesNotExist() {
@@ -1602,8 +1613,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void store(MeterReading meterReading) {
-        Meter meter = findOrCreateKoreMeter(getMdcAmrSystem());
-        meter.store(QualityCodeSystem.MDC, meterReading);
+        this.meter.getOptional().ifPresent(meter -> meter.store(QualityCodeSystem.MDC, meterReading));
     }
 
     private Optional<ReadingRecord> getLastReadingsFor(Register register, Meter meter) {
@@ -1653,6 +1663,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public MeterActivation activate(Instant start, UsagePoint usagePoint) {
+        return null;
+    }
+
+    @Override
     public void deactivateNow() {
         this.deactivate(this.clock.instant());
     }
@@ -1665,19 +1680,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public Optional<MeterActivation> getCurrentMeterActivation() {
         return this.koreHelper.getCurrentMeterActivation();
-    }
-
-    @Override
-    public void deactivateNow() {
-        this.deactivate(this.clock.instant());
-    }
-
-    @Override
-    public Optional<MeterActivation> getCurrentMeterActivation() {
-        if (!this.currentMeterActivation.isPresent()) {
-            this.currentMeterActivation = this.getOptionalMeterAspect(m -> m.getCurrentMeterActivation().map(Function.<MeterActivation>identity()));
-        }
-        return this.currentMeterActivation;
     }
 
     private <AT> Optional<AT> getOptionalMeterAspect(Function<Meter, Optional<AT>> aspectFunction) {
@@ -1826,19 +1828,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    @Override
-    public boolean hasData() {
-        return this.getOptionalMeterAspect(this::hasData).get();
-    }
-
-    @Override
-    public void setUsagePoint(UsagePoint usagePoint) {
-
-        //TODO use a syncsWithKoreDeviceForThis
-        this.activate(clock.instant(), usagePoint);
-    }
-
-    private DataMapper<DeviceImpl> getDataMapper() {
+    public DataMapper<DeviceImpl> getDataMapper() {
         return this.dataModel.mapper(DeviceImpl.class);
     }
 
@@ -2230,21 +2220,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<DeviceLifeCycleChangeEvent> getDeviceLifeCycleChangeEvents() {
-        // Merge the StateTimeline with the list of change events from my DeviceType.
-        Deque<StateTimeSlice> stateTimeSlices = new LinkedList<>(this.getStateTimeline().getSlices());
-        Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents = new LinkedList<>(this.getDeviceTypeLifeCycleChangeEvents());
-        List<DeviceLifeCycleChangeEvent> changeEvents = new ArrayList<>();
-        boolean notReady;
-        do {
-            DeviceLifeCycleChangeEvent newEvent = this.newEventForMostRecent(stateTimeSlices, deviceTypeChangeEvents);
-            changeEvents.add(newEvent);
-            notReady = !stateTimeSlices.isEmpty() || !deviceTypeChangeEvents.isEmpty();
-        } while (notReady);
-        return changeEvents;
-    }
-
-    @Override
     public Optional<State> getState(Instant instant) {
         if (this.id > 0) {
             if (this.meter.isPresent()) {
@@ -2256,10 +2231,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             return Optional.of(this.getDeviceType().getDeviceLifeCycle().getFiniteStateMachine().getInitialState());
         }
-    }
-
-    public void setPassiveCalendars(List<PassiveEffectiveCalendar> passiveCalendars) {
-        this.passiveCalendars = passiveCalendars;
     }
 
     @Override
@@ -2423,57 +2394,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         abstract boolean appliesTo(RegisterSpec registerSpec);
 
         abstract RegisterImpl newRegister(DeviceImpl device, RegisterSpec registerSpec);
-    }
-
-    private DeviceLifeCycleChangeEvent newEventForMostRecent(Deque<StateTimeSlice> stateTimeSlices, Deque<com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent> deviceTypeChangeEvents) {
-        if (stateTimeSlices.isEmpty()) {
-            return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
-        } else if (deviceTypeChangeEvents.isEmpty()) {
-            return DeviceLifeCycleChangeEventImpl.from(stateTimeSlices.removeFirst());
-        } else {
-            // Compare both timestamps and create event from the most recent one
-            StateTimeSlice stateTimeSlice = stateTimeSlices.peekFirst();
-            com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent = deviceTypeChangeEvents
-                    .peekFirst();
-            if (stateTimeSlice.getPeriod().lowerEndpoint().equals(deviceLifeCycleChangeEvent.getTimestamp())) {
-                // Give precedence to the device life cycle change but also consume the state change so the latter is ignored
-                stateTimeSlices.removeFirst();
-                return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
-            } else if (stateTimeSlice.getPeriod().lowerEndpoint().isBefore(deviceLifeCycleChangeEvent.getTimestamp())) {
-                return DeviceLifeCycleChangeEventImpl.from(stateTimeSlices.removeFirst());
-            } else {
-                return DeviceLifeCycleChangeEventImpl.from(deviceTypeChangeEvents.removeFirst());
-            }
-        }
-    }
-
-    @Override
-    public Optional<ReadingTypeObisCodeUsage> getReadingTypeObisCodeUsage(ReadingType readingType) {
-        if (readingType == null) {
-            return Optional.empty();
-        }
-        for (ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage : readingTypeObisCodeUsages) {
-            if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
-                return Optional.of(readingTypeObisCodeUsage);
-            }
-        }
-        return Optional.empty();
-    }
-
-    private void addReadingTypeObisCodeUsage(ReadingType readingType, ObisCode obisCode) {
-        ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = dataModel.getInstance(ReadingTypeObisCodeUsageImpl.class);
-        readingTypeObisCodeUsage.initialize(this, readingType, obisCode);
-        readingTypeObisCodeUsages.add(readingTypeObisCodeUsage);
-    }
-
-    private void removeReadingTypeObisCodeUsage(ReadingType readingType) {
-        for (java.util.Iterator<ReadingTypeObisCodeUsageImpl> iterator = readingTypeObisCodeUsages.iterator(); iterator.hasNext(); ) {
-            ReadingTypeObisCodeUsageImpl readingTypeObisCodeUsage = iterator.next();
-            if (readingTypeObisCodeUsage.getReadingType().getMRID().equals(readingType.getMRID())) {
-                iterator.remove();
-                break;
-            }
-        }
     }
 
     private class InternalDeviceMessageBuilder implements DeviceMessageBuilder {
@@ -3160,7 +3080,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKoreMeter {
 
         private Optional<Location> location = Optional.empty();
-        private Optional<GeoCoordinates> geoCoordinates = Optional.empty();
+        private Optional<SpatialCoordinates> spatialCoordinates = Optional.empty();
 
         public SyncDeviceWithKoreForSimpleUpdate() {
             super(DeviceImpl.this.meteringService, DeviceImpl.this.readingTypeUtilService, DeviceImpl.this.clock.instant());
@@ -3170,8 +3090,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             this.location = Optional.ofNullable(location);
         }
 
-        public void setGeoCoordinates(GeoCoordinates geoCoordinates) {
-            this.geoCoordinates = Optional.ofNullable(geoCoordinates);
+        public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
+            this.spatialCoordinates = Optional.ofNullable(spatialCoordinates);
         }
 
         @Override
@@ -3179,8 +3099,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             if (this.location.isPresent()) {
                 device.getMeter().get().setLocation(location.get());
             }
-            if (this.geoCoordinates.isPresent()) {
-                device.getMeter().get().setGeoCoordinates(geoCoordinates.get());
+            if (this.spatialCoordinates.isPresent()) {
+                device.getMeter().get().setSpatialCoordinates(spatialCoordinates.get());
             }
             device.getMeter().getOptional().get().update();
         }

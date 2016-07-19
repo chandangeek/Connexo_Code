@@ -138,10 +138,10 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
 
     private boolean notPassiveYet(String calendarName) {
         return !this.device.getPassiveCalendar()
-                    .map(PassiveCalendar::getAllowedCalendar)
-                    .map(AllowedCalendar::getName)
-                    .map(allowedCalendarName -> allowedCalendarName.equals(calendarName))
-                    .orElse(false);
+                .map(PassiveCalendar::getAllowedCalendar)
+                .map(AllowedCalendar::getName)
+                .map(allowedCalendarName -> allowedCalendarName.equals(calendarName))
+                .orElse(false);
     }
 
     private void setPassiveCalendar(AllowedCalendar passiveCalendar, Instant now) {
