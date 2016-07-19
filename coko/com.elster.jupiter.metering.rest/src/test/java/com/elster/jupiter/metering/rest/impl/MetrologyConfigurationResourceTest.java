@@ -87,7 +87,7 @@ public class MetrologyConfigurationResourceTest extends MeteringApplicationJerse
         ReadingTypeDeliverable readingTypeDeliverable = mock(ReadingTypeDeliverable.class);
         when(deliverableBuilder.build(deliverableBuilder.requirement(fullySpecifiedReadingTypeRequirement))).thenReturn(readingTypeDeliverable);
         MetrologyContract metrologyContract = mock(MetrologyContract.class);
-        when(metrologyConfiguration.addMetrologyContract(metrologyPurpose)).thenReturn(metrologyContract);
+        when(metrologyConfiguration.addMandatoryMetrologyContract(metrologyPurpose)).thenReturn(metrologyContract);
         when(metrologyContract.addDeliverable(readingTypeDeliverable)).thenReturn(metrologyContract);
         when(metrologyConfigurationService.findAndLockMetrologyConfiguration(info.id, info.version)).thenReturn(Optional.of(metrologyConfiguration));
         ResourceHelper resourceHelper = mock(ResourceHelper.class);

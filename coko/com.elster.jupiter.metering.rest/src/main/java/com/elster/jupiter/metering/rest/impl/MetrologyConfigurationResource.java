@@ -190,7 +190,7 @@ public class MetrologyConfigurationResource {
                             .withReadingType(readingType);
             ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
             ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
-            MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(purpose);
+            MetrologyContract metrologyContract = metrologyConfiguration.addMandatoryMetrologyContract(purpose);
             metrologyContract.addDeliverable(deliverable);
         });
     }
