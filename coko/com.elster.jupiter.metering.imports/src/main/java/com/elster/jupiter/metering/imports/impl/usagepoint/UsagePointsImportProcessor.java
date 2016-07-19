@@ -59,7 +59,7 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
 
             UsagePoint usagePoint = getUsagePoint(data, logger);
 
-            addCustomPropertySetValues(usagePoint, data, logger);
+            addCustomPropertySetValues(usagePoint, data);
 
             if (usagePoint.getDetail(context.getClock().instant()).isPresent()) {
                 updateDetails(usagePoint, data, logger).create();
