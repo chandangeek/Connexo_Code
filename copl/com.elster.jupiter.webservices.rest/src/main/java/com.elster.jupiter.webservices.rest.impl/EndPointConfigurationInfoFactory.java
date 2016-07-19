@@ -64,7 +64,7 @@ public class EndPointConfigurationInfoFactory {
             info.direction = new IdWithLocalizedValueInfo<>(WebServiceDirection.INBOUND, WebServiceDirection.INBOUND.getDisplayName(thesaurus));
             webService.ifPresent(ws -> info.previewUrl = uriInfo.getBaseUri().getScheme() + "://" + uriInfo.getBaseUri()
                     .getAuthority()
-                    + "/" + ws.getProtocol().name().toLowerCase()
+                    + "/" + ws.getProtocol().path()
                     + endPointConfiguration.getUrl());
             ((InboundEndPointConfiguration) endPointConfiguration).getGroup()
                     .ifPresent(g -> info.group = new LongIdWithNameInfo(g.getId(), g.getName()));
