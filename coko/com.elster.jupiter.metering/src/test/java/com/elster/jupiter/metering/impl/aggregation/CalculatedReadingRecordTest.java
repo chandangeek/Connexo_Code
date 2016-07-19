@@ -24,6 +24,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -61,6 +63,9 @@ public class CalculatedReadingRecordTest {
     private IReadingType monthlyNetConsumption;
     @Mock
     private ResultSet resultSet;
+
+    @Mock
+    private Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation;
 
     @Before
     public void initializeMocks() {
@@ -101,7 +106,7 @@ public class CalculatedReadingRecordTest {
         when(usagePoint.getMeterActivations(any(Instant.class))).thenReturn(Collections.singletonList(meterActivation));
 
         //Business method
-        testInstance.init(this.resultSet);
+        testInstance.init(this.resultSet, deliverablesPerMeterActivation);
         testInstance.setReadingType(fifteenMinutesNetConsumption);
         testInstance.setUsagePoint(usagePoint);
 
@@ -126,7 +131,7 @@ public class CalculatedReadingRecordTest {
         doThrow(SQLException.class).when(this.resultSet).getLong(anyInt());
 
         //Business method
-        testInstance.init(this.resultSet);
+        testInstance.init(this.resultSet,deliverablesPerMeterActivation);
 
         // Asserts: see expected exception rule
     }
@@ -142,7 +147,7 @@ public class CalculatedReadingRecordTest {
         when(this.resultSet.getLong(4)).thenReturn(jan1st2016.getTime());
         when(this.resultSet.getLong(5)).thenReturn(0L);
         when(this.resultSet.getLong(6)).thenReturn(1L);
-        testInstance.init(this.resultSet);
+        testInstance.init(this.resultSet,deliverablesPerMeterActivation);
 
         //Business method
         testInstance.setReadingType(this.monthlyNetConsumption);
@@ -198,14 +203,13 @@ public class CalculatedReadingRecordTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         Instant old = Instant.ofEpochSecond(86400L);
-        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 3L, 101L, old);   // One day
+        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 4L, 101L, old);   // One day
         r1.setReadingType(readingType);
         r1.setUsagePoint(usagePoint);
         Instant moreRecent = Instant.ofEpochSecond(172800L);
-        CalculatedReadingRecord r2 = this.newTestInstance(readingTypeMRID, 3L, 30L, 99L, moreRecent);    // Two days
+        CalculatedReadingRecord r2 = this.newTestInstance(readingTypeMRID, 3L, 3L, 99L, moreRecent);    // Two days
         r2.setReadingType(readingType);
         r2.setUsagePoint(usagePoint);
-        ProcessStatus expectedProcessStatus = new ProcessStatus(3L).or(new ProcessStatus(30L));
 
         // Business method
         CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, moreRecent);
@@ -214,7 +218,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getReadingType()).isEqualTo(readingType);
         assertThat(merged.getValue()).isEqualTo(BigDecimal.valueOf(100L));
         assertThat(merged.getTimeStamp()).isEqualTo(moreRecent);
-        assertThat(merged.getProcessStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(merged.getProcessStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));
         assertThat(merged.getCount()).isEqualTo(200L);
     }
 
@@ -228,14 +232,13 @@ public class CalculatedReadingRecordTest {
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.KILO);
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         Instant recent = Instant.ofEpochSecond(172800L);
-        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 3L, 101L, recent);   // Two days
+        CalculatedReadingRecord r1 = this.newTestInstance(readingTypeMRID, 97L, 4L, 101L, recent);   // Two days (reading quality 4 = suspect)
         r1.setReadingType(readingType);
         r1.setUsagePoint(usagePoint);
         Instant old = Instant.ofEpochSecond(86400L);
-        CalculatedReadingRecord r2 = this.newTestInstance(readingTypeMRID, 3L, 30L, 99L, old);    // One day
+        CalculatedReadingRecord r2 = this.newTestInstance(readingTypeMRID, 3L, 1L, 99L, old);    // One day (reading quality 3 = missing)
         r2.setReadingType(readingType);
         r2.setUsagePoint(usagePoint);
-        ProcessStatus expectedProcessStatus = new ProcessStatus(3L).or(new ProcessStatus(30L));
 
         // Business method
         CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, recent);
@@ -244,7 +247,7 @@ public class CalculatedReadingRecordTest {
         assertThat(merged.getReadingType()).isEqualTo(readingType);
         assertThat(merged.getValue()).isEqualTo(BigDecimal.valueOf(100L));
         assertThat(merged.getTimeStamp()).isEqualTo(recent);
-        assertThat(merged.getProcessStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(merged.getProcessStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));  // 4 (suspect) = max(4, 3)
         assertThat(merged.getCount()).isEqualTo(200L);
     }
 
@@ -284,16 +287,16 @@ public class CalculatedReadingRecordTest {
         return this.newTestInstance(readingTypeMRID, 0, 0, 0, Instant.now());
     }
 
-    private CalculatedReadingRecord newTestInstance(String readingTypeMRID, long value, long processStatus, long count, Instant now) throws SQLException {
+    private CalculatedReadingRecord newTestInstance(String readingTypeMRID, long value, long readingQuality, long count, Instant now) throws SQLException {
         ResultSet resultSet = mock(ResultSet.class);
         when(resultSet.next()).thenReturn(true, false);
         when(resultSet.getString(1)).thenReturn(readingTypeMRID);
         when(resultSet.getBigDecimal(2)).thenReturn(BigDecimal.valueOf(value));
         when(resultSet.getTimestamp(3)).thenReturn(Timestamp.from(now));
         when(resultSet.getLong(4)).thenReturn(now.toEpochMilli());
-        when(resultSet.getLong(5)).thenReturn(processStatus);
+        when(resultSet.getLong(5)).thenReturn(readingQuality);
         when(resultSet.getLong(6)).thenReturn(count);
-        return new CalculatedReadingRecord().init(resultSet);
+        return new CalculatedReadingRecord().init(resultSet, deliverablesPerMeterActivation);
     }
 
 }

@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -34,6 +35,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -401,4 +403,17 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
         return !other.isPresent() || other.get().getId() == getId();
     }
 
+    @Override
+    public List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements() {
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+        this.getContracts()
+                .stream()
+                .filter(MetrologyContract::isMandatory)
+                .map(MetrologyContract::getDeliverables)
+                .flatMap(Collection::stream)
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+        return requirementsCollector.getReadingTypeRequirements();
+    }
 }

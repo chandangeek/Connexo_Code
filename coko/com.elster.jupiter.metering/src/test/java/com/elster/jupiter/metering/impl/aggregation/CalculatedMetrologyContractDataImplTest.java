@@ -71,6 +71,9 @@ public class CalculatedMetrologyContractDataImplTest {
     @Mock
     private ReadingTypeDeliverable deliverable;
 
+    @Mock
+    private Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation;
+
     @Before
     public void initializeMocks() {
         ZoneId zoneId = this.testZoneId();
@@ -272,7 +275,7 @@ public class CalculatedMetrologyContractDataImplTest {
         when(resultSet.getLong(4)).thenReturn(now.toEpochMilli());
         when(resultSet.getLong(5)).thenReturn(0L);
         when(resultSet.getLong(6)).thenReturn(30L);
-        return new CalculatedReadingRecord().init(resultSet);
+        return new CalculatedReadingRecord().init(resultSet, deliverablesPerMeterActivation);
     }
 
     private Instant instant(int year, Month month, int dayOfMonth) {
