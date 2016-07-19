@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -144,7 +145,7 @@ public class ReadingTypeCacheIssueTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             Instant instant = LocalDate.of(2014, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
             Reading reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1000), instant);
-            meter.store(MeterReadingImpl.of(reading));
+            meter.store(QualityCodeSystem.MDC, MeterReadingImpl.of(reading));
             //rollback
         }
         assertThat(meteringService.getReadingType(readingTypeCode).isPresent()).isFalse();
@@ -152,7 +153,7 @@ public class ReadingTypeCacheIssueTest {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             Instant instant = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
             Reading reading = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(1000), instant);
-            meter.store(MeterReadingImpl.of(reading));
+            meter.store(QualityCodeSystem.MDC, MeterReadingImpl.of(reading));
             ctx.commit();
         }
         assertThat(meteringService.getReadingType(readingTypeCode).isPresent()).isTrue();
