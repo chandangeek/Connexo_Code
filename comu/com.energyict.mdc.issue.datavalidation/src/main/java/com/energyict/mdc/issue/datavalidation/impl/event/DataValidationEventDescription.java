@@ -17,7 +17,7 @@ public enum DataValidationEventDescription {
             // TODO: refactor to choose proper quality code system when issue management becomes available for MDM
             return super.matches(map)
                     && ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT).getCode()
-                            .equals(map.get("readingQualityTypeCode"));
+                    .equals(map.get("readingQualityTypeCode"));
         }
     }
     ;
