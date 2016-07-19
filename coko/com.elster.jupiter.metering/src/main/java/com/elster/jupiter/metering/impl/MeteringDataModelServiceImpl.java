@@ -26,8 +26,6 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
-import com.elster.jupiter.metering.impl.aggregation.ReadingTypeDeliverableForMeterActivationFactory;
-import com.elster.jupiter.metering.impl.aggregation.ReadingTypeDeliverableForMeterActivationFactoryImpl;
 import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
@@ -123,8 +121,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     }
 
     @Inject // Tests only!
-    public MeteringDataModelServiceImpl(@Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes,
-                                        @Named("dataAggregationMock") Provider<DataAggregationService> dataAggregationMockProvider, IdsService idsService, QueryService queryService,
+    public MeteringDataModelServiceImpl(@Named("createReadingTypes") boolean createAllReadingTypes,
+                                        @Named("requiredReadingTypes") String requiredReadingTypes,
+                                        @Named("dataAggregationMock") Provider<DataAggregationService> dataAggregationMockProvider,
+                                        BundleContext bundleContext,
+                                        IdsService idsService, QueryService queryService,
                                         PartyService partyService, Clock clock, UserService userService, EventService eventService, NlsService nlsService,
                                         MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService,
                                         CustomPropertySetService customPropertySetService, SearchService searchService, PropertySpecService propertySpecService,
@@ -151,7 +152,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         if (dataAggregationMockProvider.get() != null) {
             this.dataAggregationService = dataAggregationMockProvider.get();
         }
-        activate(null);
+        activate(bundleContext);
     }
 
     @Activate
@@ -210,7 +211,6 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MessageService.class).toInstance(messageService);
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
                 bind(DataAggregationService.class).toInstance(dataAggregationService);
-                bind(ReadingTypeDeliverableForMeterActivationFactory.class).to(ReadingTypeDeliverableForMeterActivationFactoryImpl.class);
             }
         });
     }

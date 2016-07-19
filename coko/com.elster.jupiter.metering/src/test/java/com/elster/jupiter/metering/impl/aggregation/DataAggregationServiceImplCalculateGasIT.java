@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2016 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
@@ -66,6 +70,7 @@ import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -89,19 +94,27 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Integration tests for the {@link DataAggregationServiceImpl#calculate(UsagePoint, MetrologyContract, Range)} method.
+ * Integration tests for the {@link DataAggregationServiceImpl#calculate(UsagePoint, MetrologyContract, Range)} method
+ * for reading types that relate to gas.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2016-06-08 (16:50)
+ * @since 2016-07-18 (14:52)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class DataAggregationServiceImplCalculateWithRegisterIT {
+public class DataAggregationServiceImplCalculateGasIT {
 
-    private static final String NET_CONSUMPTION_INDEX_MRID = "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String FIFTEEN_MINS_BULK_GAS_VOLUME_M3_MRID = "0.0.2.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0";
+    private static final String FIFTEEN_MINS_BULK_GAS_VOLUME_KMH_MRID = "0.0.2.1.1.7.58.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MONTHLY_BULK_GAS_VOLUME_M3_MRID = "13.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0";
+    private static final String MONTHLY_BULK_GAS_VOLUME_KWH_MRID = "13.0.0.1.1.7.58.0.0.0.0.0.0.0.0.3.72.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
-    private static ReadingType netConsumptionIndex;
-    private static ServiceCategory ELECTRICITY;
+    private static BundleContext bundleContext;
+    private static ReadingType fifteenMinutesBulkGasCubicMeter;
+    private static ReadingType fifteenMinutesBulkGas_kWh;
+    private static ReadingType monthlyBulkGasCubicMeter;
+    private static ReadingType monthlyBulkGas_kWh;
+    private static ServiceCategory GAS;
     private static MetrologyPurpose METROLOGY_PURPOSE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static Instant feb1st2016 = Instant.ofEpochMilli(1454281200000L);
@@ -115,13 +128,12 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     private UsagePoint usagePoint;
     private UsagePointMetrologyConfiguration configuration;
     private long consumptionRequirementId;
-    private long netConsumptionDeliverableId;
-    private SqlBuilder consumptionWithClauseBuilder;
-    private SqlBuilder netConsumptionWithClauseBuilder;
+    private long consumptionDeliverableId;
+    private SqlBuilder consumptionRequirementWithClauseBuilder;
+    private SqlBuilder consumptionDeliverableWithClauseBuilder;
     private SqlBuilder selectClauseBuilder;
     private SqlBuilder completeSqlBuilder;
     private Meter meter;
-    private MeterActivation meterActivation;
 
     @Mock
     private Thesaurus thesaurus;
@@ -129,7 +141,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
-            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).to(LicenseServiceImpl.class).in(Scopes.SINGLETON);
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
@@ -140,10 +152,17 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
 
     @BeforeClass
     public static void setUp() {
+        setupBundleContext();
         setupServices();
         setupReadingTypes();
         setupMetrologyPurpose();
-        ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        GAS = getMeteringService().getServiceCategory(ServiceKind.GAS).get();
+    }
+
+    protected static void setupBundleContext() {
+        bundleContext = mock(BundleContext.class);
+        when(bundleContext.getProperty("com.elster.jupiter.location.template")).thenReturn("#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale");
+        when(bundleContext.getProperty("com.elster.jupiter.location.template.mandatoryfields")).thenReturn("#adma,#loc,#styp,#snam,#snum");
     }
 
     private static void setupServices() {
@@ -154,7 +173,12 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
                     inMemoryBootstrapModule,
                     new InMemoryMessagingModule(),
                     new IdsModule(),
-                    new MeteringModule(NET_CONSUMPTION_INDEX_MRID),
+                    new MeteringModule(
+                            FIFTEEN_MINS_BULK_GAS_VOLUME_M3_MRID,
+                            FIFTEEN_MINS_BULK_GAS_VOLUME_KMH_MRID,
+                            MONTHLY_BULK_GAS_VOLUME_M3_MRID,
+                            MONTHLY_BULK_GAS_VOLUME_KWH_MRID
+                    ),
                     new BasicPropertiesModule(),
                     new TimeModule(),
                     new UserModule(),
@@ -201,16 +225,19 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     private static DataAggregationService getDataAggregationService() {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
-                injector.getInstance(CustomPropertySetService.class),
+                mock(CustomPropertySetService.class),
                 meteringService,
-                DataAggregationServiceImplCalculateWithRegisterIT::getSqlBuilderFactory,
+                DataAggregationServiceImplCalculateGasIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 
     private static void setupReadingTypes() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            netConsumptionIndex = getMeteringService().getReadingType(NET_CONSUMPTION_INDEX_MRID).get();
+            fifteenMinutesBulkGasCubicMeter = getMeteringService().getReadingType(FIFTEEN_MINS_BULK_GAS_VOLUME_M3_MRID).get();
+            fifteenMinutesBulkGas_kWh = getMeteringService().getReadingType(FIFTEEN_MINS_BULK_GAS_VOLUME_KMH_MRID).get();
+            monthlyBulkGasCubicMeter = getMeteringService().getReadingType(MONTHLY_BULK_GAS_VOLUME_M3_MRID).get();
+            monthlyBulkGas_kWh = getMeteringService().getReadingType(MONTHLY_BULK_GAS_VOLUME_KWH_MRID).get();
             ctx.commit();
         }
     }
@@ -218,16 +245,16 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
     private static void setupMetrologyPurpose() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             NlsKey name = mock(NlsKey.class);
-            when(name.getKey()).thenReturn(DataAggregationServiceImplCalculateWithRegisterIT.class.getSimpleName());
-            when(name.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateWithRegisterIT.class.getSimpleName());
+            when(name.getKey()).thenReturn(DataAggregationServiceImplCalculateGasIT.class.getSimpleName());
+            when(name.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateGasIT.class.getSimpleName());
             when(name.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(name.getLayer()).thenReturn(Layer.DOMAIN);
             NlsKey description = mock(NlsKey.class);
-            when(description.getKey()).thenReturn(DataAggregationServiceImplCalculateWithRegisterIT.class.getSimpleName() + ".description");
-            when(description.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateWithRegisterIT.class.getSimpleName());
+            when(description.getKey()).thenReturn(DataAggregationServiceImplCalculateGasIT.class.getSimpleName() + ".description");
+            when(description.getDefaultMessage()).thenReturn(DataAggregationServiceImplCalculateGasIT.class.getSimpleName());
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
-            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(description, description);
+            METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
             ctx.commit();
         }
     }
@@ -239,16 +266,16 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
 
     @Before
     public void initializeMocks() {
-        this.consumptionWithClauseBuilder = new SqlBuilder();
-        this.netConsumptionWithClauseBuilder = new SqlBuilder();
+        this.consumptionRequirementWithClauseBuilder = new SqlBuilder();
+        this.consumptionDeliverableWithClauseBuilder = new SqlBuilder();
         this.selectClauseBuilder = new SqlBuilder();
         this.completeSqlBuilder = new SqlBuilder();
     }
 
     private void initializeSqlBuilders() {
         when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
-        when(clauseAwareSqlBuilder.with(matches("rid" + consumptionRequirementId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.consumptionWithClauseBuilder);
-        when(clauseAwareSqlBuilder.with(matches("rod" + netConsumptionDeliverableId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.netConsumptionWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rid" + consumptionRequirementId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.consumptionRequirementWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rod" + consumptionDeliverableId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.consumptionDeliverableWithClauseBuilder);
         when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
         when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
     }
@@ -263,39 +290,45 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
      * Tests the simplest case:
      * Metrology configuration
      * requirements:
-     * A- ::= Wh bulk quantity register (0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0)
+     * C ::= any m3 (aka consumption)
      * deliverables:
-     * netConsumptionIndex (Wh) ::= A-
+     * Conso (15m kWh) ::= C * 10.4167 (constant determined as 1 m3 gas represents 37.5MJoule, 1 Joule equals 0.0000002777...kWh)
      * Device:
      * meter activations:
      * Jan 1st 2016 -> forever
-     * A- -> Wh bulk quantity register
-     * In other words, expose the register as a value on the contract.
+     * C -> 15 min kWh
+     * In other words, simple multiplication of constant and 1 requirements that is provided
+     * by exactly one matching channel with a single meter activation
+     * without truncation that requires gas day start options.
      */
     @Test
     @Transactional
-    public void simplestNetConsumption() {
+    public void simple15Mins() {
+        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         DataAggregationService service = this.testInstance();
-        this.setupMeter("simplestNetConsumption");
-        this.setupUsagePoint("simplestNetConsumption");
-        this.activateMeterWithBulkWattRegister();
+        this.setupMeter("simple15Mins");
+        this.setupUsagePoint("simple15Mins");
+        this.activateMeterWithAll15MinChannels(defaultMeterRole);
 
         // Setup MetrologyConfiguration
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
-        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumption", ELECTRICITY).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simple15Mins", GAS).create();
         this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", defaultMeterRole).withReadingType(netConsumptionIndex);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("C", defaultMeterRole).withReadingType(fifteenMinutesBulkGasCubicMeter);
         this.consumptionRequirementId = consumption.getId();
-        System.out.println("simplestNetConsumption::CONSUMPTION_REQUIREMENT_ID = " + this.consumptionRequirementId);
+        System.out.println("simple15Mins::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("netConsumptionIndex", netConsumptionIndex, Formula.Mode.AUTO);
-        ReadingTypeDeliverable netConsumption = builder.build(builder.requirement(consumption));
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesBulkGas_kWh, Formula.Mode.AUTO);
+        ReadingTypeDeliverable netConsumption =
+                builder.build(
+                        builder.multiply(
+                                builder.constant(BigDecimal.valueOf(10.4167d)),
+                                builder.requirement(consumption)));
 
-        this.netConsumptionDeliverableId = netConsumption.getId();
-        System.out.println("simplestNetConsumption::NET_CONSUMPTION_DELIVERABLE_ID = " + this.netConsumptionDeliverableId);
+        this.consumptionDeliverableId = netConsumption.getId();
+        System.out.println("simple15Mins::NET_CONSUMPTION_DELIVERABLE_ID = " + this.consumptionDeliverableId);
 
         // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
         this.initializeSqlBuilders();
@@ -314,27 +347,27 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rid" + this.consumptionRequirementId + ".*" + this.netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
-            assertThat(this.consumptionWithClauseBuilder.getText()).isNotEmpty();
+                        matches("rid" + consumptionRequirementId + ".*" + consumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            assertThat(consumptionRequirementWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                            matches("rod" + this.netConsumptionDeliverableId + ".*1"),
-                            any(Optional.class),
-                            anyVararg());
-            // Assert that the requirement is used as source for the timeline
-            assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT -1, rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.timestamp,.*");
-            // Assert that the requirements' value is used in the select clause
-            assertThat(this.netConsumptionWithClauseBuilder.getText())
-                    .matches("SELECT.*rid" + this.consumptionRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value.*");
+                        matches("rod" + consumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            // Assert that the consumption requirement is used as source for the timeline
+            assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
+                    .matches("SELECT -1, rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.timestamp,.*");
+            // Assert that the consumption requirements' values is multiplied with the constant in the select clause
+            assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
+                    .matches("SELECT.*\\(10.4167 * rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.value).*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
-            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(NET_CONSUMPTION_INDEX_MRID) + "'.*");
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(FIFTEEN_MINS_BULK_GAS_VOLUME_KMH_MRID) + "'.*");
             // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
-            assertThat(overallSelectWithoutNewlines).matches(".*rod" + netConsumptionDeliverableId + "_1\\.value, rod" + netConsumptionDeliverableId + "_1\\.localdate, rod" + netConsumptionDeliverableId + "_1\\.timestamp.*");
+            assertThat(overallSelectWithoutNewlines).matches(".*rod" + consumptionDeliverableId + "_1\\.value, rod" + consumptionDeliverableId + "_1\\.localdate, rod" + consumptionDeliverableId + "_1\\.timestamp.*");
         }
     }
 
@@ -353,12 +386,12 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
 
     private void setupUsagePoint(String mRID) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2016).withName(DataAggregationServiceImplCalculateWithRegisterIT.class.getSimpleName()).create();
+        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2016).withName(DataAggregationServiceImplCalculateGasIT.class.getSimpleName()).create();
     }
 
-    private void activateMeterWithBulkWattRegister() {
-        this.meterActivation = this.usagePoint.activate(this.meter, jan1st2016);
-        this.meterActivation.getChannelsContainer().createChannel(netConsumptionIndex);
+    private void activateMeterWithAll15MinChannels(MeterRole meterRole) {
+        MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, jan1st2016);
+        meterActivation.getChannelsContainer().createChannel(fifteenMinutesBulkGasCubicMeter);
     }
 
     private String mRID2GrepPattern(String mRID) {

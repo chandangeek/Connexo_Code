@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.impl.ServerMeteringService;
 
 import com.google.common.collect.Range;
 
-import javax.inject.Inject;
 import java.time.Instant;
 
 /**
@@ -15,18 +14,16 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-04-22 (15:08)
  */
-public class ReadingTypeDeliverableForMeterActivationFactoryImpl implements ReadingTypeDeliverableForMeterActivationFactory {
+class ReadingTypeDeliverableForMeterActivationFactoryImpl implements ReadingTypeDeliverableForMeterActivationFactory {
 
     private final ServerMeteringService meteringService;
 
-    @Inject
-    public ReadingTypeDeliverableForMeterActivationFactoryImpl(ServerMeteringService meteringService) {
+    ReadingTypeDeliverableForMeterActivationFactoryImpl(ServerMeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
     @Override
     public ReadingTypeDeliverableForMeterActivationSet from(Formula.Mode mode, ReadingTypeDeliverable deliverable, MeterActivationSet meterActivationSet, Range<Instant> requestedPeriod, int meterActivationSequenceNumber, ServerExpressionNode expressionNode, VirtualReadingType expressionReadingType) {
-
         return new ReadingTypeDeliverableForMeterActivationSet(this.meteringService, mode, deliverable, meterActivationSet, meterActivationSequenceNumber, expressionNode, expressionReadingType);
     }
 

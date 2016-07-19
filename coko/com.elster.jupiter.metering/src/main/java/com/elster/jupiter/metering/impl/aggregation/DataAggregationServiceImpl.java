@@ -56,7 +56,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     // For OSGi only
     @SuppressWarnings("unused")
     public DataAggregationServiceImpl(ServerMeteringService meteringService, CustomPropertySetService customPropertySetService) {
-        this(SqlBuilderFactoryImpl::new, VirtualFactoryImpl::new, () -> meteringService.getDataModel().getInstance(ReadingTypeDeliverableForMeterActivationFactory.class));
+        this(SqlBuilderFactoryImpl::new, VirtualFactoryImpl::new, () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
         this.meteringService = meteringService;
         this.customPropertySetService = customPropertySetService;
     }
