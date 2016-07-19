@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.OverlapCalculatorBuilder;
@@ -15,6 +16,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.TypedProperties;
@@ -1074,6 +1076,17 @@ public class ResourceHelper {
             }
         }
         return info -> list.build().stream().allMatch(p -> p.test(info));
+    }
+
+    public IdWithNameInfo getApplicationInfo(QualityCodeSystem system) {
+        switch (system) {
+            case MDC:
+                return new IdWithNameInfo(system.name(), "MultiSense");
+            case MDM:
+                return new IdWithNameInfo(system.name(), "Insight");
+            default:
+                return new IdWithNameInfo(system.name(), system.name());
+        }
     }
 
     public List<DeviceTopologyInfo> getDataLoggerSlaves(Device device) {

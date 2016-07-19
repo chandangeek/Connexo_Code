@@ -327,6 +327,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         application.setIssueDataValidationService(issueDataValidationService);
         application.setMeteringGroupsService(inMemoryPersistence.getMeteringGroupsService());
         application.setMeteringService(inMemoryPersistence.getMeteringService());
+        application.setLocationService(inMemoryPersistence.getLocationService());
         application.setSchedulingService(inMemoryPersistence.getSchedulingService());
         application.setValidationService(inMemoryPersistence.getValidationService());
         application.setEstimationService(inMemoryPersistence.getEstimationService());

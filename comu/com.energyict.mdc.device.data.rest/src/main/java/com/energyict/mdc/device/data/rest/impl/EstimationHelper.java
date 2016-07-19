@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.Estimatable;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
@@ -49,7 +50,7 @@ public class EstimationHelper {
         this.thesaurus = thesaurus;
     }
 
-    public Estimator getEstimator(EstimateChannelDataInfo estimateChannelDataInfo) {
+    Estimator getEstimator(EstimateChannelDataInfo estimateChannelDataInfo) {
         Map<String, Object> propertyMap = new HashMap<>();
         if (estimateChannelDataInfo.estimatorImpl == null) {
             throw exceptionFactory.newException(MessageSeeds.ESTIMATOR_REQUIRED);
@@ -80,15 +81,15 @@ public class EstimationHelper {
         return baseEstimator;
     }
 
-    public EstimationResult previewEstimate(Device device, ReadingType readingType, Range<Instant> range, Estimator estimator) {
+    EstimationResult previewEstimate(QualityCodeSystem system, Device device, ReadingType readingType, Range<Instant> range, Estimator estimator) {
         MeterActivation meterActivation = device.getMeterActivationsMostRecentFirst().stream()
                 .filter(ma -> ma.getInterval().toOpenClosedRange().contains(range.upperEndpoint()))
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METER_ACTIVATION_NOT_FOUND));
-        return estimationService.previewEstimate(meterActivation, range, readingType, estimator);
+        return estimationService.previewEstimate(system, meterActivation, range, readingType, estimator);
     }
 
-    public List<ChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results) {
+    List<ChannelDataInfo> getChannelDataInfoFromEstimationReports(Channel channel, List<Range<Instant>> ranges, List<EstimationResult> results) {
         List<Instant> failedTimestamps = new ArrayList<>();
         List<ChannelDataInfo> channelDataInfos = new ArrayList<>();
         DeviceValidation deviceValidation = channel.getDevice().forValidation();

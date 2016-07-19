@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -106,10 +107,18 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
         Optional<Location> location = device.getLocation();
-        Optional<GeoCoordinates> geoCoordinates = device.getGeoCoordinates();
-        String formattedLocation = location.map(Location::toString).orElse("");
+        Optional<SpatialCoordinates> geoCoordinates = device.getSpatialCoordinates();
+        String formattedLocation = "";
+        if (location.isPresent()) {
+            List<List<String>> formattedLocationMembers = location.get().format();
+            formattedLocationMembers.stream().skip(1).forEach(list ->
+                    list.stream().filter(Objects::nonNull).findFirst().ifPresent(member -> list.set(list.indexOf(member), "\\r\\n" + member)));
+            formattedLocation = formattedLocationMembers.stream()
+                    .flatMap(List::stream).filter(Objects::nonNull)
+                    .collect(Collectors.joining(", "));
+        }
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, new IssueRetriever(issueService), thesaurus,
-                dataLoggerSlaveDeviceInfoFactory, formattedLocation, geoCoordinates.map(coord -> coord.getCoordinates().toString()).orElse(null), clock);
+                dataLoggerSlaveDeviceInfoFactory, formattedLocation, geoCoordinates.map(coord -> coord.toString()).orElse(null), clock);
     }
 
     @Override
