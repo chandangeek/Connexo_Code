@@ -62,16 +62,34 @@ public class ProfileBuilder {
             loadProfileRecordItem1 = protocol.getRegisterFactory().findRegister(PM5561RegisterFactory.LOAD_PROFILE_RECORD_ITEM1);
         }
         int index = firstRecord.intValue();
+        ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + index);
+        profileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS, protocol.getTimeZone());
+        if(from.before(profileBlock.getOldestProfileRecordDate())) {
+            profileDataBlocks.add(profileBlock);
+        }else{
+            long diffInMillies = from.getTime() - profileBlock.getOldestProfileRecordDate().getTime();
+            if(diffInMillies > 360000) {
+                index += diffInMillies / 360000;
+            }
+        }
         while (index < lastRecord.intValue()) {
-            ReadGeneralReferenceRequest readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + index);
+            readGeneralReferenceRequest = loadProfileRecordItem1.getReadGeneralReferenceRequest(referenceNo.intValue() + index);
             profileBlock = new ProfileBlock(readGeneralReferenceRequest.getValues(), REGULAR_NUMBER_OF_CHANNELS, protocol.getTimeZone());
             if(from.before(profileBlock.getOldestProfileRecordDate())) {
                 profileDataBlocks.add(profileBlock);
+            }else{
+                long diffInMillies = from.getTime() - profileBlock.getOldestProfileRecordDate().getTime();
+                if(diffInMillies > 360000) {
+                    index += diffInMillies /360000;
+                }
             }
             index++;
         }
-
-        return mergeProfileDataBlocks(profileDataBlocks, from, to);
+        if(profileDataBlocks.size() > 0) {
+            return mergeProfileDataBlocks(profileDataBlocks, from, to);
+        }else{
+            return new ProfileData();
+        }
     }
 
     private ProfileData mergeProfileDataBlocks(List<ProfileBlock> profileDataBlocks, Date from, Date to) {

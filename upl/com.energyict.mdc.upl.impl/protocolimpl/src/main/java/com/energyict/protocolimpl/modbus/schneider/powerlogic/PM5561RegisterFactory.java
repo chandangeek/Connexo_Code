@@ -14,6 +14,7 @@ import java.math.BigInteger;
 
 public class PM5561RegisterFactory extends AbstractRegisterFactory{
     protected static final String CurrentDateTime = "CurrentDateTime";
+    protected static final String ChangeDateTime = "ChangeDateTime";
     public final static String profileInterval	= "profileInterval";
     public final static String channelInfos	= "channelInfos";
     public static final String SERIAL_NUMBER = "SerialNo";
@@ -111,8 +112,9 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
 //        getRegisters().add(new HoldingRegister(0xC68C, 1, ObisCode.fromString("1.0.1.5.0.255"), Unit.get(BaseUnit.WATT), "Last average (P+) (not affected by CT and VT)").setParser(UnsignedValueCheckNotAvailableParser));
 
         //CurrentDateTime
-        getRegisters().add(new HoldingRegister(0x72C, 6, CurrentDateTime));
-        getRegisters().add(new HoldingRegister(0x138A, 1, CommandParameter1));
+        getRegisters().add(new HoldingRegister(0x72D, 6, CurrentDateTime));
+        getRegisters().add(new InputRegister(0x1388, 9, ChangeDateTime));
+        getRegisters().add(new HoldingRegister(0x138B, 1, CommandParameter1));
 
         //Load Profiles
         getRegisters().add(new HoldingRegister(0x856, 1, ObisCode.fromString("0.1.128.0.0.255"), "Energy Channel").setParser(UnsignedValueParser));

@@ -150,8 +150,7 @@ public class DateTime {
      */
     private static DateTime createDateTime(TimeZone timeZone) {
         Calendar cal = Calendar.getInstance(timeZone);
-        cal.set(year, month - 1, day, hour, minutes);
-        cal.set(Calendar.MILLISECOND, 0);
+        cal.set(year, month-1, day, hour, minutes);
         return new DateTime(cal);
     }
 
