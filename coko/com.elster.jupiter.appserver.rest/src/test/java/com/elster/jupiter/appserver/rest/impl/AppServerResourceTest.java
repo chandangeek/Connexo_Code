@@ -17,19 +17,19 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpression;
 
 import com.jayway.jsonpath.JsonModel;
-import javassist.tools.web.Webserver;
 
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-import java.io.InputStream;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -394,6 +394,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(appserver.supportedEndPoints()).thenReturn(Collections.singletonList(epc));
         when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
         WebService webService = mock(WebService.class);
+        when(webService.getProtocol()).thenReturn(WebServiceProtocol.REST);
         when(webServicesService.getWebService(any())).thenReturn(Optional.of(webService));
         Response response = target("/appserver/cxo/unusedendpoints").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
