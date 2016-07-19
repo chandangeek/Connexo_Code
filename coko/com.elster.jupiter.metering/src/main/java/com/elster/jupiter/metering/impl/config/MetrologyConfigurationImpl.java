@@ -19,7 +19,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -405,7 +405,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements() {
-        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
         this.getContracts()
                 .stream()
                 .filter(MetrologyContract::isMandatory)
@@ -413,7 +413,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
                 .flatMap(Collection::stream)
                 .map(ReadingTypeDeliverable::getFormula)
                 .map(Formula::getExpressionNode)
-                .forEach(expressionNode -> expressionNode.accept(requirementChecker));
-        return requirementChecker.getReadingTypeRequirements();
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+        return requirementsCollector.getReadingTypeRequirements();
     }
 }

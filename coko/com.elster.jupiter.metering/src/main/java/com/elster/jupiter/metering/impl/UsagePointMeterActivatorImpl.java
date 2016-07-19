@@ -12,7 +12,6 @@ import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.SelfObjectValidator;
 import com.elster.jupiter.metering.impl.config.SelfValid;
@@ -203,9 +202,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         return result;
     }
 
-        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
-                .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(requirementsCollector));
-        return requirementsCollector.getReadingTypeRequirements();
     private List<ReadingTypeRequirement> getUnmatchedMeterReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingTypeRequirement> mandatoryReadingTypeRequirements, Map.Entry<MeterRole, Meter> mappingEntry) {
         List<ReadingType> readingTypesOnMeter = new ArrayList<>();
         mappingEntry.getValue().getHeadEndInterface()
