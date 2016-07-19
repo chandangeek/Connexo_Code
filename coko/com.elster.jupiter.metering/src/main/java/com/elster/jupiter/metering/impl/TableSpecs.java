@@ -112,7 +112,7 @@ public enum TableSpecs {
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.column("ACTIVE").type("char(1)").conversion(CHAR2BOOLEAN).map("active").notNull().since(version(10, 2)).installValue("'Y'").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_SERVICECATEGORY").on(idColumn).add();
+            table.primaryKey("PK_MTR_SERVICECATEGORY").on(idColumn).add();
         }
     },
     MTR_SERVICELOCATION {
@@ -201,7 +201,7 @@ public enum TableSpecs {
             table.column("NEEDSINSPECTION").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("needsInspection").add();
             table.column("SITEACCESSPROBLEM").varChar(NAME_LENGTH).map("siteAccessProblem").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_SERVICELOCATION").on(idColumn).add();
+            table.primaryKey("PK_MTR_SERVICELOCATION").on(idColumn).add();
             table.unique("MTR_U_SERVICELOCATION").on(mRIDColumn).add();
         }
     },
@@ -220,7 +220,7 @@ public enum TableSpecs {
                     .add();
             table.column("MANDATORYFIELDS").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("mandatoryFields").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_LOCATIONTEMPLATE").on(idColumn).add();
+            table.primaryKey("PK_MTR_LOCATIONTEMPLATE").on(idColumn).add();
             table.unique("MTR_U_LOCATIONTEMPLATE").on(templateColumn).add();
         }
     },
@@ -232,7 +232,7 @@ public enum TableSpecs {
             table.since(version(10, 2));
             table.map(LocationImpl.class);
             Column idColumn = table.addAutoIdColumn();
-            table.primaryKey("MTR_PK_LOCATION").on(idColumn).add();
+            table.primaryKey("PK_MTR_LOCATION").on(idColumn).add();
         }
     },
 
@@ -256,7 +256,7 @@ public enum TableSpecs {
             Column idColumn = table.column("ID").number().notNull().conversion(NUMBER2INT).map("id").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_AMRSYSTEM").on(idColumn).add();
+            table.primaryKey("PK_MTR_AMRSYSTEM").on(idColumn).add();
             table.unique("MTR_U_AMRSYSTEM").on(nameColumn).add();
         }
     },
@@ -297,22 +297,22 @@ public enum TableSpecs {
                     .add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_USAGEPOINT").on(idColumn).add();
+            table.primaryKey("PK_MTR_USAGEPOINT").on(idColumn).add();
             table.unique("MTR_U_USAGEPOINT").on(mRIDColumn).add();
-            table.foreignKey("MTR_FK_USAGEPOINTSERVICECAT")
+            table.foreignKey("FK_MTR_USAGEPOINTSERVICECAT")
                     .on(serviceKindColumn)
                     .references(ServiceCategory.class)
                     .onDelete(RESTRICT)
                     .map("serviceCategory")
                     .add();
-            table.foreignKey("MTR_FK_USAGEPOINTSERVICELOC")
+            table.foreignKey("FK_MTR_USAGEPOINTSERVICELOC")
                     .on(serviceLocationIdColumn)
                     .references(ServiceLocation.class)
                     .onDelete(RESTRICT)
                     .map("serviceLocation")
                     .reverseMap("usagePoints")
                     .add();
-            table.foreignKey("MTR_FK_USAGEPOINTLOCATION")
+            table.foreignKey("FK_MTR_USAGEPOINTLOCATION")
                     .on(locationIdColumn)
                     .references(Location.class)
                     .onDelete(RESTRICT)
@@ -335,7 +335,7 @@ public enum TableSpecs {
             table.column("ACTIVE").type("char(1)").conversion(CHAR2BOOLEAN).map("active").add();
             Column equidistantColumn = table.column("EQUIDISTANT").bool().map("equidistant").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_READINGTYPE").on(mRidColumn).add();
+            table.primaryKey("PK_MTR_READINGTYPE").on(mRidColumn).add();
             table.index("MTR_READINGTYPE_EQUIDISTANT").on(equidistantColumn).add();
         }
     },
@@ -379,21 +379,21 @@ public enum TableSpecs {
             Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_METER").on(idColumn).add();
+            table.primaryKey("PK_MTR_METER").on(idColumn).add();
             table.unique("MTR_U_METER").on(mRIDColumn, obsoleteTime).add();
             table.unique("MTR_U_METERAMR").on(amrSystemIdColumn, amrIdColumn).add();
-            table.foreignKey("MTR_FK_METERAMRSYSTEM")
+            table.foreignKey("FK_MTR_METERAMRSYSTEM")
                     .references(MTR_AMRSYSTEM.name())
                     .onDelete(RESTRICT)
                     .map("amrSystem")
                     .on(amrSystemIdColumn)
                     .add();
-            table.foreignKey("MTR_FK_ENDDEVICE_FSM")
+            table.foreignKey("FK_MTR_ENDDEVICE_FSM")
                     .on(stateMachine)
                     .references(FiniteStateMachine.class)
                     .map("stateMachine")
                     .add();
-            table.foreignKey("MTR_FK_ENDDEVICELOCATION")
+            table.foreignKey("FK_MTR_ENDDEVICELOCATION")
                     .on(locationIdColumn)
                     .references(Location.class)
                     .onDelete(RESTRICT)
@@ -442,7 +442,7 @@ public enum TableSpecs {
                     .add();
 
             table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
-            table.primaryKey("MTR_PK_METERROLE").on(nameColumn).add();
+            table.primaryKey("PK_MTR_METERROLE").on(nameColumn).add();
         }
     },
     MTR_METERACTIVATION {
@@ -465,8 +465,8 @@ public enum TableSpecs {
                     .add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_METERACTIVATION").on(idColumn).add();
-            table.foreignKey("MTR_FK_METERACTUSAGEPOINT")
+            table.primaryKey("PK_MTR_METERACTIVATION").on(idColumn).add();
+            table.foreignKey("FK_MTR_METERACTUSAGEPOINT")
                     .references(UsagePoint.class)
                     .onDelete(RESTRICT)
                     .map("usagePoint")
@@ -475,7 +475,7 @@ public enum TableSpecs {
                     .reverseMapCurrent("currentMeterActivation")
                     .on(usagePointIdColumn)
                     .add();
-            table.foreignKey("MTR_FK_METERACTMETER")
+            table.foreignKey("FK_MTR_METERACTMETER")
                     .references(EndDevice.class)
                     .onDelete(RESTRICT)
                     .map("meter")
@@ -484,7 +484,7 @@ public enum TableSpecs {
                     .reverseMapCurrent("currentMeterActivation")
                     .on(meterIdColumn)
                     .add();
-            table.foreignKey("MTR_FK_METER_ACT_2_ROLE")
+            table.foreignKey("FK_MTR_METER_ACT_2_ROLE")
                     .references(MeterRole.class)
                     .onDelete(RESTRICT)
                     .map("meterRole")
@@ -507,23 +507,23 @@ public enum TableSpecs {
             Column roleMRIDColumn = table.column("ROLEMRID").varChar(NAME_LENGTH).notNull().add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_UPACCOUNTABILITY")
+            table.primaryKey("PK_MTR_UPACCOUNTABILITY")
                     .on(usagePointIdColumn, partyIdColumn, roleMRIDColumn, intervalColumns.get(0))
                     .add();
-            table.foreignKey("MTR_FK_UPACCOUNTUP")
+            table.foreignKey("FK_MTR_UPACCOUNTUP")
                     .on(usagePointIdColumn)
                     .references(MTR_USAGEPOINT.name())
                     .onDelete(RESTRICT).map("usagePoint")
                     .reverseMap("accountabilities")
                     .composition()
                     .add();
-            table.foreignKey("MTR_FK_UPACCOUNTPARTY")
+            table.foreignKey("FK_MTR_UPACCOUNTPARTY")
                     .on(partyIdColumn)
                     .references(Party.class)
                     .onDelete(RESTRICT)
                     .map("party")
                     .add();
-            table.foreignKey("MTR_FK_UPACCOUNTPARTYROLE")
+            table.foreignKey("FK_MTR_UPACCOUNTPARTYROLE")
                     .on(roleMRIDColumn)
                     .references(PartyRole.class)
                     .onDelete(RESTRICT)
@@ -541,7 +541,7 @@ public enum TableSpecs {
             table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_ENDDEVICEEVENTTYPE").on(mRidColumn).add();
+            table.primaryKey("PK_MTR_ENDDEVICEEVENTTYPE").on(mRidColumn).add();
         }
     },
     MTR_ENDDEVICEEVENTRECORD {
@@ -574,17 +574,17 @@ public enum TableSpecs {
             table.column("LOGBOOKPOSITION").number().map("logBookPosition").conversion(NUMBER2INT).add();
             table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_ENDDEVICEEVENTRECORD")
+            table.primaryKey("PK_MTR_ENDDEVICEEVENTRECORD")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
                     .add();
             table.partitionOn(createdDateTimeColumn);
-            table.foreignKey("MTR_FK_EVENT_ENDDEVICE")
+            table.foreignKey("FK_MTR_EVENT_ENDDEVICE")
                     .on(endDeviceColumn)
                     .references(EndDevice.class)
                     .onDelete(DeleteRule.CASCADE)
                     .map("endDevice")
                     .add();
-            table.foreignKey("MTR_FK_EVENT_EVENTTYPE")
+            table.foreignKey("FK_MTR_EVENT_EVENTTYPE")
                     .on(eventTypeColumn)
                     .references(EndDeviceEventType.class)
                     .onDelete(DeleteRule.RESTRICT)
@@ -616,10 +616,10 @@ public enum TableSpecs {
                     .add();
             Column keyColumn = table.column("KEY").varChar(NAME_LENGTH).notNull().map("key").add();
             table.column("DETAIL_VALUE").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("value").add();
-            table.primaryKey("MTR_PK_ENDDEVICEEVENTDETAIL")
+            table.primaryKey("PK_MTR_ENDDEVICEEVENTDETAIL")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, keyColumn)
                     .add();
-            table.foreignKey("MTR_FK_ENDDEVICEEVENT_DETAIL")
+            table.foreignKey("FK_MTR_ENDDEVICEEVENT_DETAIL")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
                     .references(EndDeviceEventRecord.class)
                     .onDelete(DeleteRule.CASCADE)
@@ -671,8 +671,8 @@ public enum TableSpecs {
             table.column("CLAMPED").varChar(7).conversion(CHAR2ENUM).map("clamped").since(version(10, 2)).add();
 
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_USAGEPOINTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
-            table.foreignKey("MTR_FK_USAGEPOINTDETAILUP")
+            table.primaryKey("PK_MTR_USAGEPOINTDETAIL").on(usagePointIdColumn, intervalColumns.get(0)).add();
+            table.foreignKey("FK_MTR_USAGEPOINTDETAILUP")
                     .on(usagePointIdColumn)
                     .references(UsagePoint.class)
                     .onDelete(RESTRICT)
@@ -728,13 +728,13 @@ public enum TableSpecs {
                     .add();
             Column serviceCategoryColumn = table.column(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.name()).number().notNull().conversion(NUMBER2ENUMPLUSONE).add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_METROLOGYCONFIGURATION").on(id).add();
-            table.foreignKey("MTR_FK_METROLOGYCONFIG2SERVCAT")
+            table.primaryKey("PK_MTR_METROLOGYCONFIG").on(id).add();
+            table.foreignKey("FK_MTR_METROLOGYCONFIG2SERVCAT")
                     .references(MTR_SERVICECATEGORY.name())
                     .on(serviceCategoryColumn)
                     .map(MetrologyConfigurationImpl.Fields.SERVICECATEGORY.fieldName())
                     .add();
-            table.unique("MTR_UK_METROLOGYCONFIGURATION").on(name).add();
+            table.unique("UK_MTR_METROLOGYCONFIGURATION").on(name).add();
         }
     },
     MTR_M_CONFIG_CPS_USAGES {
@@ -786,15 +786,15 @@ public enum TableSpecs {
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_UPMTRCONFIG").on(usagePoint, intervalColumns.get(0)).add();
-            table.foreignKey("MTR_FK_UPMTRCONFIG_UP")
+            table.primaryKey("PK_MTR_UPMTRCONFIG").on(usagePoint, intervalColumns.get(0)).add();
+            table.foreignKey("FK_MTR_UPMTRCONFIG_UP")
                     .on(usagePoint)
                     .references(UsagePoint.class)
                     .map("usagePoint")
                     .reverseMap("metrologyConfiguration")
                     .composition()
                     .add();
-            table.foreignKey("MTR_FK_UPMTRCONFIG_MC")
+            table.foreignKey("FK_MTR_UPMTRCONFIG_MC")
                     .on(metrologyConfiguration)
                     .references(UsagePointMetrologyConfiguration.class)
                     .map("metrologyConfiguration")
@@ -809,8 +809,8 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             Column nameIsKey = table.column("NAMEISKEY").bool().notNull().map("nameIsKey").add();
-            table.primaryKey("MTR_PK_MULTIPLIERTYPE").on(id).add();
-            table.unique("MTR_UK_MULTTYPE_NAME").on(name, nameIsKey).add();
+            table.primaryKey("PK_MTR_MULTIPLIERTYPE").on(id).add();
+            table.unique("UK_MTR_MULTTYPE_NAME").on(name, nameIsKey).add();
         }
     },
     MTR_MULTIPLIERVALUE {
@@ -825,15 +825,15 @@ public enum TableSpecs {
             table.column("VALUE").number().map("value").notNull().add();
 
             table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
-            table.primaryKey("MTR_PK_MULTIPLIERVALUE").on(meterActivationIdColumn, typeColumn).add();
-            table.foreignKey("MTR_FK_MULTIPLIERVALUE_MA")
+            table.primaryKey("PK_MTR_MULTIPLIERVALUE").on(meterActivationIdColumn, typeColumn).add();
+            table.foreignKey("FK_MTR_MULTIPLIERVALUE_MA")
                     .on(meterActivationIdColumn)
                     .references(MeterActivation.class)
                     .map("meterActivation")
                     .composition()
                     .reverseMap("multipliers")
                     .add();
-            table.foreignKey("MTR_FK_MULTIPLIERVALUE_TP")
+            table.foreignKey("FK_MTR_MULTIPLIERVALUE_TP")
                     .on(typeColumn)
                     .references(MultiplierType.class)
                     .map("type")
@@ -852,8 +852,8 @@ public enum TableSpecs {
             table.addIntervalColumns("interval");
             table.addAuditColumns();
 
-            table.primaryKey("MTR_PK_METER_CONFIG").on(idColumn).add();
-            table.foreignKey("MTR_FK_METER_CONFIG")
+            table.primaryKey("PK_MTR_METER_CONFIG").on(idColumn).add();
+            table.foreignKey("FK_MTR_METER_CONFIG")
                     .references(EndDevice.class)
                     .composition()
                     .onDelete(RESTRICT)
@@ -879,25 +879,25 @@ public enum TableSpecs {
             table.column("OVERFLOW").number().map("overflowValue").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INTWRAPPER).map("numberOfFractionDigits").add();
 
-            table.primaryKey("MTR_PK_RT_METER_CONFIG").on(meterConfig, measured).add();
-            table.foreignKey("MTR_FK_RTMC_METER_CONFIG")
+            table.primaryKey("PK_MTR_RT_METER_CONFIG").on(meterConfig, measured).add();
+            table.foreignKey("FK_MTR_RTMC_METER_CONFIG")
                     .references(MeterConfiguration.class)
                     .on(meterConfig)
                     .composition()
                     .map("meterConfiguration")
                     .reverseMap("readingTypeConfigs")
                     .add();
-            table.foreignKey("MTR_FK_RTMC_MEASUREDRT")
+            table.foreignKey("FK_MTR_RTMC_MEASUREDRT")
                     .references(ReadingType.class)
                     .on(measured)
                     .map("measured")
                     .add();
-            table.foreignKey("MTR_FK_RTMC_CALCULATEDRT")
+            table.foreignKey("FK_MTR_RTMC_CALCULATEDRT")
                     .references(ReadingType.class)
                     .on(calculated)
                     .map("calculated")
                     .add();
-            table.foreignKey("MTR_FK_RTMC_MULTTP")
+            table.foreignKey("FK_MTR_RTMC_MULTTP")
                     .references(MultiplierType.class)
                     .on(multiplierType)
                     .map("multiplierType")
@@ -916,8 +916,8 @@ public enum TableSpecs {
             table.addIntervalColumns("interval");
             table.addAuditColumns();
 
-            table.primaryKey("MTR_PK_UP_CONFIG").on(idColumn).add();
-            table.foreignKey("MTR_FK_UP_CONFIG")
+            table.primaryKey("PK_MTR_UP_CONFIG").on(idColumn).add();
+            table.foreignKey("FK_MTR_UP_CONFIG")
                     .references(UsagePoint.class)
                     .composition()
                     .onDelete(RESTRICT)
@@ -943,25 +943,25 @@ public enum TableSpecs {
             Column multiplierType = table.column("MULTIPLIERTYPE").number().add();
             table.addAuditColumns();
 
-            table.primaryKey("MTR_PK_RT_UP_CONFIG").on(usagePointConfig, measured).add();
-            table.foreignKey("MTR_FK_RTUPC_UP_CONFIG")
+            table.primaryKey("PK_MTR_RT_UP_CONFIG").on(usagePointConfig, measured).add();
+            table.foreignKey("FK_MTR_RTUPC_UP_CONFIG")
                     .references(UsagePointConfiguration.class)
                     .on(usagePointConfig)
                     .composition()
                     .map("usagePointConfiguration")
                     .reverseMap("readingTypeConfigs")
                     .add();
-            table.foreignKey("MTR_FK_RTUPC_MEASUREDRT")
+            table.foreignKey("FK_MTR_RTUPC_MEASUREDRT")
                     .references(ReadingType.class)
                     .on(measured)
                     .map("measured")
                     .add();
-            table.foreignKey("MTR_FK_RTUPC_CALCULATEDRT")
+            table.foreignKey("FK_MTR_RTUPC_CALCULATEDRT")
                     .references(ReadingType.class)
                     .on(calculated)
                     .map("calculated")
                     .add();
-            table.foreignKey("MTR_FK_RTUPC_MULTTP")
+            table.foreignKey("FK_MTR_RTUPC_MULTTP")
                     .references(MultiplierType.class)
                     .on(multiplierType)
                     .map("multiplierType")
@@ -1043,7 +1043,7 @@ public enum TableSpecs {
 
             table.addAuditColumns();
 
-            table.primaryKey("MTR_PK_FORMULA_NODE").on(idColumn).add();
+            table.primaryKey("PK_MTR_FORMULA_NODE").on(idColumn).add();
             table.foreignKey("MTR_FORMULANODE_CPS")
                     .references(RegisteredCustomPropertySet.class)
                     .on(customPropertySet)
@@ -1069,7 +1069,7 @@ public enum TableSpecs {
             table.column("FORMULA_MODE").number().conversion(ColumnConversion.NUMBER2ENUM).map("mode").add();
             Column expressionNodeColumn = table.column("EXPRESSION_NODE_ID").number().conversion(NUMBER2LONG).add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_FORMULA").on(idColumn).add();
+            table.primaryKey("PK_MTR_FORMULA").on(idColumn).add();
             table.foreignKey("MTR_VALIDNODE").references(MTR_FORMULA_NODE.name()).on(expressionNodeColumn)
                     .map("expressionNode").add();
         }
@@ -1086,15 +1086,15 @@ public enum TableSpecs {
             Column meterRole = table.column(ServiceCategoryMeterRoleUsage.Fields.METERROLE.name()).varChar(NAME_LENGTH).notNull().add();
 
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_SERVCATMETERROLE_USAGE").on(serviceCategory, meterRole).add();
-            table.foreignKey("MTR_FK_SERVCATMETERROLE2CAT")
+            table.primaryKey("PK_MTR_SERVCATMTRROLEUSE").on(serviceCategory, meterRole).add();
+            table.foreignKey("FK_MTR_SERVCATMETERROLE2CAT")
                     .references(MTR_SERVICECATEGORY.name())
                     .on(serviceCategory)
                     .map(ServiceCategoryMeterRoleUsage.Fields.SERVICECATEGORY.fieldName())
                     .reverseMap(ServiceCategoryImpl.Fields.METERROLEUSAGE.fieldName())
                     .composition()
                     .add();
-            table.foreignKey("MTR_FK_SERVCATMETERROLE2ROLE")
+            table.foreignKey("FK_MTR_SERVCATMETERROLE2ROLE")
                     .references(MeterRole.class)
                     .on(meterRole)
                     .map(ServiceCategoryMeterRoleUsage.Fields.METERROLE.fieldName())
@@ -1119,7 +1119,7 @@ public enum TableSpecs {
                     .add();
 
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_CONF_ROLE_USAGE").on(metrologyConfigColumn, meterRoleColumn).add();
+            table.primaryKey("PK_MTR_CONF_ROLE_USAGE").on(metrologyConfigColumn, meterRoleColumn).add();
             table.foreignKey("FK_USAGE_MCMR_TO_CONFIG")
                     .references(UsagePointMetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
@@ -1155,7 +1155,7 @@ public enum TableSpecs {
                     .add();
             table.addAuditColumns();
 
-            table.primaryKey("MTR_RT_TEMPLATE_PK").on(idColumn).add();
+            table.primaryKey("PK_MTR_RT_TEMPLATE").on(idColumn).add();
         }
     },
     MTR_RT_TEMPLATE_ATTR {
@@ -1185,8 +1185,8 @@ public enum TableSpecs {
                     .add();
 
             table.addAuditColumns();
-            table.primaryKey("MTR_RT_TEMPLATE_ATTR_PK").on(idColumn).add();
-            table.unique("MTR_RT_TEMPLATE_ATTR_UQ").on(templateColumn, nameColumn).add();
+            table.primaryKey("PK_MTR_RT_TEMPLATE_ATTR").on(idColumn).add();
+            table.unique("UK_MTR_RT_TEMPLATE_ATTR").on(templateColumn, nameColumn).add();
             table.foreignKey("FK_TEMPLATE_ATTR_TO_TEMPLATE")
                     .references(ReadingTypeTemplate.class)
                     .on(templateColumn)
@@ -1217,7 +1217,7 @@ public enum TableSpecs {
                     .add();
 
             table.addAuditColumns();
-            table.primaryKey("MTR_RT_TPL_ATTR_VALUE_PK").on(attrColumn, valueColumn).add();
+            table.primaryKey("PK_MTR_RT_TPL_ATTR_VALUE").on(attrColumn, valueColumn).add();
             table.foreignKey("FK_RT_TPL_ATTR_VALUE_TO_ATTR")
                     .references(ReadingTypeTemplateAttribute.class)
                     .on(attrColumn)
@@ -1257,8 +1257,8 @@ public enum TableSpecs {
                     .add();
             table.addAuditColumns();
 
-            table.primaryKey("MTR_RT_REQUIREMENT_PK").on(idColumn).add();
-            table.unique("MTR_RT_REQUIREMENT_NAME_UQ").on(nameColumn, metrologyConfigColumn).add();
+            table.primaryKey("PK_MTR_RT_REQUIREMENT").on(idColumn).add();
+            table.unique("UK_MTR_RT_REQUIREMENT_NAME").on(nameColumn, metrologyConfigColumn).add();
             table.foreignKey("FK_RT_REQUIREMENT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
@@ -1305,7 +1305,7 @@ public enum TableSpecs {
                     .add();
 
             table.addAuditColumns();
-            table.primaryKey("MTR_RT_REQ_ATTR_VALUE_PK").on(requirementColumn, nameColumn).add();
+            table.primaryKey("PK_MTR_RT_REQ_ATTR_VALUE").on(requirementColumn, nameColumn).add();
             table.foreignKey("FK_RT_REQ_ATTR_VALUE_TO_RT_REQ")
                     .references(ReadingTypeRequirement.class)
                     .on(requirementColumn)
@@ -1338,7 +1338,7 @@ public enum TableSpecs {
                     .add(); // we need this column for a reverse reference map
 
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_REQUIREMENT_2_ROLE").on(meterRoleColumn, requirementColumn).add();
+            table.primaryKey("PK_MTR_REQUIREMENT_2_ROLE").on(meterRoleColumn, requirementColumn).add();
             table.foreignKey("FK_REQ2ROLE_TO_CONFIG")
                     .references(UsagePointMetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
@@ -1388,8 +1388,8 @@ public enum TableSpecs {
                     .add();
 
             table.addAuditColumns();
-            table.primaryKey("MTR_METROLOGY_PURPOSE_PK").on(idColumn).add();
-            table.unique("MTR_METROLOGY_PURPOSE_NAME_UQ").on(nameColumn).add();
+            table.primaryKey("PK_MTR_METROLOGY_PURPOSE").on(idColumn).add();
+            table.unique("UK_MTR_METROLOGY_PURPOSE_NAME").on(nameColumn).add();
         }
     },
     MTR_METROLOGY_CONTRACT {
@@ -1417,8 +1417,8 @@ public enum TableSpecs {
                     .add();
 
             table.addAuditColumns();
-            table.primaryKey("MTR_METROLOGY_CONTRACT_PK").on(idColumn).add();
-            table.unique("MTR_METROLOGY_CONTRACT_UQ").on(metrologyConfigColumn, metrologyPurposeColumn).add();
+            table.primaryKey("PK_MTR_METROLOGY_CONTRACT").on(idColumn).add();
+            table.unique("UK_MTR_METROLOGY_CONTRACT").on(metrologyConfigColumn, metrologyPurposeColumn).add();
             table.foreignKey("MTR_CONTRACT_TO_M_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
@@ -1463,8 +1463,8 @@ public enum TableSpecs {
                     .add();
             table.addAuditColumns();
 
-            table.primaryKey("MTR_DELIVERABLE_PK").on(idColumn).add();
-            table.unique("MTR_DELIVERABLE_NAME_UQ").on(nameColumn, metrologyConfigColumn).add();
+            table.primaryKey("PK_MTR_DELIVERABLE").on(idColumn).add();
+            table.unique("UK_MTR_DELIVERABLE_NAME").on(nameColumn, metrologyConfigColumn).add();
             table.foreignKey("MTR_DELIVERABLE_TO_CONFIG")
                     .references(MetrologyConfiguration.class)
                     .on(metrologyConfigColumn)
@@ -1502,7 +1502,7 @@ public enum TableSpecs {
                     .add();
             table.addAuditColumns();
 
-            table.primaryKey("MTR_PK_CONTRACT_DELIVERABLE").on(metrologyContractColumn, deliverableColumn).add();
+            table.primaryKey("PK_MTR_CONTRCT_DELIVRBLE").on(metrologyContractColumn, deliverableColumn).add();
             table.foreignKey("FK_CONTR_DELIVER_TO_CONTR")
                     .references(MetrologyContract.class)
                     .on(metrologyContractColumn)
@@ -1542,7 +1542,7 @@ public enum TableSpecs {
                     .add();
 
             table.addAuditColumns();
-            table.primaryKey("MTR_UP_REQUIREMENT_PK").on(metrologyConfigurationColumn, searchablePropertyColumn).add();
+            table.primaryKey("PK_MTR_UP_REQUIREMENT").on(metrologyConfigurationColumn, searchablePropertyColumn).add();
             table.foreignKey("MTR_UP_REQUIREMENT_2_CONFIG")
                     .on(metrologyConfigurationColumn)
                     .references(UsagePointMetrologyConfiguration.class)
@@ -1580,7 +1580,7 @@ public enum TableSpecs {
                     .add();
 
             table.addAuditColumns();
-            table.primaryKey("MTR_UP_REQUIREMENT_VALUE_PK").on(metrologyConfigurationColumn, searchablePropertyColumn, positionColumn).add();
+            table.primaryKey("PK_MTR_UP_REQUIREMENT_VAL").on(metrologyConfigurationColumn, searchablePropertyColumn, positionColumn).add();
             table.foreignKey("MTR_UP_REQ_VALUE_2_REQ")
                     .on(metrologyConfigurationColumn, searchablePropertyColumn)
                     .references(UsagePointRequirement.class)
@@ -1603,7 +1603,7 @@ public enum TableSpecs {
             Column effectiveConfColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name()).number().add();
             Column metrologyContractColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.name()).number().add();
 
-            table.primaryKey("MTR_EFFECTIVE_CONTRACT_PK").on(idColumn).add();
+            table.primaryKey("PK_MTR_EFFECTIVE_CONTRACT").on(idColumn).add();
             table.foreignKey("MTR_EF_CONTRACT_2_EF_CONF")
                     .on(effectiveConfColumn, intervalColumns.get(0))
                     .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
@@ -1636,8 +1636,8 @@ public enum TableSpecs {
 
             table.addAuditColumns();
 
-            table.primaryKey("MTR_CONTRACT_CHANNEL_PK").on(idColumn).add();
-            table.unique("MTR_CH_CONTAINER_MA_UQ").on(meterActivationColumn).add();
+            table.primaryKey("PK_MTR_CONTRACT_CHANNEL").on(idColumn).add();
+            table.unique("UK_MTR_CH_CONTAINER_MA").on(meterActivationColumn).add();
             table.foreignKey("MTR_CH_CONTAINER_2_MA")
                     .on(meterActivationColumn)
                     .references(MeterActivation.class)
@@ -1669,15 +1669,15 @@ public enum TableSpecs {
             Column bulkQuantityReadingTypeMRIDColumn = table.column("BULKQUANTITYREADINGTYPEMRID").varChar(NAME_LENGTH).add();
             table.column("BULKDERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("bulkDerivationRule").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_CHANNEL").on(idColumn).add();
-            table.foreignKey("MTR_FK_CHANNELACTIVATION")
+            table.primaryKey("PK_MTR_CHANNEL").on(idColumn).add();
+            table.foreignKey("FK_MTR_CHANNELACTIVATION")
                     .references(MeterActivation.class)
                     .on(meterActivationIdColumn)
                     .onDelete(RESTRICT)
                     .upTo(version(10, 2))
                     .map("meterActivation;")
                     .add();
-            table.foreignKey("MTR_FK_CHANNEL_CONTAINER")
+            table.foreignKey("FK_MTR_CHANNEL_CONTAINER")
                     .references(ChannelsContainer.class)
                     .onDelete(RESTRICT)
                     .map("channelsContainer")
@@ -1686,19 +1686,19 @@ public enum TableSpecs {
                     .composition()
                     .since(version(10, 2))
                     .add();
-            table.foreignKey("MTR_FK_CHANNELMAINTYPE")
+            table.foreignKey("FK_MTR_CHANNELMAINTYPE")
                     .references(ReadingType.class)
                     .onDelete(RESTRICT)
                     .map("mainReadingType")
                     .on(mainReadingTypeMRIDColumn)
                     .add();
-            table.foreignKey("MTR_FK_CHANNELBULQUANTITYTYPE")
+            table.foreignKey("FK_MTR_CHANNELBULQUANTITYTYPE")
                     .references(ReadingType.class)
                     .onDelete(RESTRICT)
                     .map("bulkQuantityReadingType")
                     .on(bulkQuantityReadingTypeMRIDColumn)
                     .add();
-            table.foreignKey("MTR_FK_CHANNELTIMESERIES")
+            table.foreignKey("FK_MTR_CHANNELTIMESERIES")
                     .on(timeSeriesIdColumn)
                     .references(TimeSeries.class)
                     .onDelete(RESTRICT)
@@ -1715,8 +1715,8 @@ public enum TableSpecs {
             Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
             Column readingTypeMRidColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().add();
             table.column("DERIVATIONRULE").number().conversion(ColumnConversion.NUMBER2ENUM).map("derivationRule").notNull().add();
-            table.primaryKey("MTR_PK_READINGTYPEINCHANNEL").on(channelIdColumn, positionColumn).add();
-            table.foreignKey("MTR_FK_READINGTYPEINCHANNEL1")
+            table.primaryKey("PK_MTR_READINGTYPEINCHANNEL").on(channelIdColumn, positionColumn).add();
+            table.foreignKey("FK_MTR_READINGTYPEINCHANNEL1")
                     .on(channelIdColumn)
                     .references(Channel.class)
                     .composition()
@@ -1725,7 +1725,7 @@ public enum TableSpecs {
                     .reverseMap("readingTypeInChannels")
                     .reverseMapOrder("position")
                     .add();
-            table.foreignKey("MTR_FK_READINGTYPEINCHANNEL2")
+            table.foreignKey("FK_MTR_READINGTYPEINCHANNEL2")
                     .on(readingTypeMRidColumn)
                     .references(ReadingType.class)
                     .onDelete(RESTRICT)
@@ -1747,14 +1747,14 @@ public enum TableSpecs {
             Column actual = table.column("ACTUAL").bool().notNull().map("actual").add();
             table.addAuditColumns();
             table.column("COMMENTS").varChar(4000).map("comment").add();
-            table.primaryKey("MTR_PK_READINGQUALITY").on(idColumn).add();
-            table.foreignKey("MTR_FK_RQ_CHANNEL")
+            table.primaryKey("PK_MTR_READINGQUALITY").on(idColumn).add();
+            table.foreignKey("FK_MTR_RQ_CHANNEL")
                     .references(Channel.class)
                     .onDelete(DeleteRule.RESTRICT)
                     .map("channel")
                     .on(channelColumn)
                     .add();
-            table.foreignKey("MTR_FK_RQ_READINGTYPE")
+            table.foreignKey("FK_MTR_RQ_READINGTYPE")
                     .references(ReadingType.class)
                     .onDelete(DeleteRule.RESTRICT)
                     .map("readingType")
@@ -1800,7 +1800,7 @@ public enum TableSpecs {
             table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
             table.addAuditColumns();
-            table.primaryKey("MTR_PK_ENDDEVICECONTROLTYPE").on(mRidColumn).add();
+            table.primaryKey("PK_MTR_ENDDEVICECONTROLTYPE").on(mRidColumn).add();
         }
     };
 
@@ -1853,8 +1853,8 @@ public enum TableSpecs {
 
             }
             table.column("DEFAULTLOCATION").bool().map("defaultLocation").add();
-            table.primaryKey("MTR_PK_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
-            table.foreignKey("MTR_FK_LOCATION_MEMBER").on(locationIdColumn)
+            table.primaryKey("PK_MTR_LOCATION_MEMBER").on(locationIdColumn, localeColumn).add();
+            table.foreignKey("FK_MTR_LOCATION_MEMBER").on(locationIdColumn)
                     .references(MTR_LOCATION.name())
                     .onDelete(RESTRICT)
                     .map("location")
