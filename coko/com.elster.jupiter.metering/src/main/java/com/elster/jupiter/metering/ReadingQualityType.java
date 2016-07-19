@@ -11,11 +11,6 @@ import java.util.Optional;
 
 public final class ReadingQualityType {
 
-    public static final String MDM_VALIDATED_OK_CODE = "2.0.1";
-
-    public static final String MDM_AGGREGATED_NOT_DERIVED_CODE = "3.11.0";
-    public static final String MDM_AGGREGATED_DERIVED_CODE = "3.11.1";
-
     private final String code;
 
     public ReadingQualityType(String code) {
@@ -23,11 +18,11 @@ public final class ReadingQualityType {
     }
 
     public static ReadingQualityType of(QualityCodeSystem system , QualityCodeIndex codeIndex) {
-    	return new ReadingQualityType(Joiner.on(".").join(system.ordinal(), codeIndex.category().ordinal(), codeIndex.index()));
+        return of(system, codeIndex.category(), codeIndex.index());
     }
     
     public static ReadingQualityType of(QualityCodeSystem system , QualityCodeCategory category, int index) {
-    	return new ReadingQualityType(Joiner.on(".").join(system.ordinal(), category.ordinal(), index));
+        return new ReadingQualityType(Joiner.on('.').join(system.ordinal(), category.ordinal(), index));
     }
 
     public String getCode() {
@@ -35,15 +30,15 @@ public final class ReadingQualityType {
     }
     
     private Optional<Integer> getCode(int index) {
-    	String[] parts = code.split("\\.");
-    	if (parts.length < index) {
-    		return Optional.empty();
-    	}
-    	try {
-    		return Optional.of(Integer.parseInt(parts[index-1]));
-    	} catch (NumberFormatException ex) {
-    		return Optional.empty();
-    	}
+        String[] parts = code.split("\\.");
+        if (parts.length >= index) {
+            try {
+                return Optional.of(Integer.parseInt(parts[index - 1]));
+            } catch (NumberFormatException ex) {
+                //return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 
     public int getSystemCode() {
@@ -51,7 +46,7 @@ public final class ReadingQualityType {
     }
     
     public Optional<QualityCodeSystem> system() {
-    	return QualityCodeSystem.get(getSystemCode());
+        return QualityCodeSystem.get(getSystemCode());
     }
 
     public int getCategoryCode() {
@@ -59,7 +54,7 @@ public final class ReadingQualityType {
     }
     
     public Optional<QualityCodeCategory> category() {
-    	return QualityCodeCategory.get(getCategoryCode());
+        return QualityCodeCategory.get(getCategoryCode());
     }
 
     public int getIndexCode() {
@@ -67,11 +62,7 @@ public final class ReadingQualityType {
     }
     
     public Optional<QualityCodeIndex> qualityIndex() {
-    	return category().flatMap(category -> category.qualityCodeIndex(getIndexCode()));
-    }
-
-    public static ReadingQualityType defaultCodeForRuleId(long id) {
-        return defaultCodeForRuleId(QualityCodeSystem.MDC, id);
+        return category().flatMap(category -> category.qualityCodeIndex(getIndexCode()));
     }
 
     public static ReadingQualityType defaultCodeForRuleId(QualityCodeSystem system, long id) {
@@ -88,7 +79,6 @@ public final class ReadingQualityType {
         }
 
         return code.equals(((ReadingQualityType) o).code);
-
     }
 
     @Override
@@ -98,7 +88,7 @@ public final class ReadingQualityType {
     
     @Override
     public String toString() {
-    	return "Quality Reading Type " + code;
+        return "Quality Reading Type " + code;
     }
 
     public boolean hasEstimatedCategory() {

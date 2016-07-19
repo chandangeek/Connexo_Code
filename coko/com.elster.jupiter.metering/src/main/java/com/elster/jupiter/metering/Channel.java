@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 
@@ -15,9 +16,10 @@ import java.util.Set;
 
 @ProviderType
 public interface Channel {
+
     long getId();
 
-    MeterActivation getMeterActivation();
+    ChannelsContainer getChannelsContainer();
 
     Optional<TemporalAmount> getIntervalLength();
 
@@ -33,7 +35,7 @@ public interface Channel {
 
     ReadingType getMainReadingType();
 
-    Optional<ReadingType> getBulkQuantityReadingType();
+    Optional<? extends ReadingType> getBulkQuantityReadingType();
 
     long getVersion();
 
@@ -49,17 +51,14 @@ public interface Channel {
 
     ReadingQualityRecord createReadingQuality(ReadingQualityType type, ReadingType readingType, Instant timestamp);
 
-    Optional<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Instant timestamp);
 
-    List<ReadingQualityRecord> findReadingQuality(ReadingQualityType type, Range<Instant> interval);
-
-    List<ReadingQualityRecord> findActualReadingQuality(ReadingQualityType type, Range<Instant> interval);
-
-    List<ReadingQualityRecord> findReadingQuality(Instant timestamp);
-
-    List<ReadingQualityRecord> findReadingQuality(Range<Instant> interval);
-
-    List<ReadingQualityRecord> findActualReadingQuality(Range<Instant> interval);
+    /**
+     * Initializes a new search of {@link ReadingQualityRecord ReadingQualityRecords}
+     *
+     * @return the {@link ReadingQualityFetcher} that will help to define the desired criteria
+     * for search of {@link ReadingQualityRecord ReadingQualityRecords}
+     */
+    ReadingQualityFetcher findReadingQualities();
 
     boolean isRegular();
 
@@ -71,11 +70,26 @@ public interface Channel {
 
     boolean hasData();
 
-    void editReadings(List<? extends BaseReading> readings);
+    /**
+     * Sets a given list of {@link BaseReading BaseReadings} as addition/editing result.
+     * @param system {@link QualityCodeSystem} that handles editing.
+     * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
+     */
+    void editReadings(QualityCodeSystem system, List<? extends BaseReading> readings);
 
-    void confirmReadings(List<? extends BaseReading> readings);
+    /**
+     * Sets a given list of {@link BaseReading BaseReadings} as confirmation result.
+     * @param system {@link QualityCodeSystem} that handles confirmation.
+     * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
+     */
+    void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings);
 
-    void removeReadings(List<? extends BaseReadingRecord> readings);
+    /**
+     * Removes a given list of {@link BaseReadingRecord BaseReadingRecords}.
+     * @param system {@link QualityCodeSystem} that handles removal.
+     * @param readings A list of {@link BaseReadingRecord BaseReadingRecords} to remove from channel.
+     */
+    void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings);
 
     Instant getFirstDateTime();
 
@@ -116,6 +130,4 @@ public interface Channel {
             return Range.encloseAll(getReadingTimeStamps());
         }
     }
-
-
 }

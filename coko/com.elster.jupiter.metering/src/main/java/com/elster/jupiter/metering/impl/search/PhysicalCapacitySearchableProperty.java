@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class PhysicalCapacitySearchableProperty implements SearchableUsagePointProperty {
+class PhysicalCapacitySearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -32,7 +32,7 @@ public class PhysicalCapacitySearchableProperty implements SearchableUsagePointP
     private String uniqueName;
 
     @Inject
-    public PhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    PhysicalCapacitySearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -41,7 +41,7 @@ public class PhysicalCapacitySearchableProperty implements SearchableUsagePointP
         this.domain = domain;
         this.group = group;
         this.clock = clock;
-        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
+        this.uniqueName = FIELD_NAME + "." + group.getId();
         return this;
     }
 
@@ -66,7 +66,7 @@ public class PhysicalCapacitySearchableProperty implements SearchableUsagePointP
                 .specForValuesOf(new QuantityValueFactory())
                 .named(uniqueName, PropertyTranslationKeys.USAGEPOINT_PHYSICAL_CAPACITY)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 0, "m3/h"))
+                .addValues(Quantity.create(BigDecimal.ZERO, 0, "m3/h"))
                 .finish();
     }
 

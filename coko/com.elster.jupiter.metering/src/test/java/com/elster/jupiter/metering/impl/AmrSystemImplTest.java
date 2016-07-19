@@ -44,7 +44,7 @@ public class AmrSystemImplTest extends EqualsContractTest {
     @Mock
     private Thesaurus thesaurus;
     @Mock
-    private Provider<IMeterActivation> meterActivationFactory;
+    private Provider<MeterActivationImpl> meterActivationFactory;
     @Mock
     private Provider<EndDeviceEventRecordImpl> deviceEventFactory;
     @Mock

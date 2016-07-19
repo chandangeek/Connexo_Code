@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -135,7 +136,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
         }
 
         protected Optional<CurrentState> currentStateFor(Channel.ReadingsDeletedEvent eventSource, FiniteStateMachine finiteStateMachine, MeteringService meteringService) {
-            return this.currentStateFor(eventSource.getChannel().getMeterActivation().getMeter(), finiteStateMachine);
+            return this.currentStateFor(eventSource.getChannel().getChannelsContainer().getMeter(), finiteStateMachine);
         }
 
         static Extractor from(com.elster.jupiter.events.EventType eventType) {

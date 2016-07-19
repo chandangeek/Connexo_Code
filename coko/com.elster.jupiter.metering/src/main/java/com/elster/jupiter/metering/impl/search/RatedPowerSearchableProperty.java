@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class RatedPowerSearchableProperty implements SearchableUsagePointProperty {
+class RatedPowerSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -31,7 +31,7 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
     private static final String FIELD_NAME = "detail.ratedPower";
 
     @Inject
-    public RatedPowerSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    RatedPowerSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -42,6 +42,7 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
         this.clock = clock;
         return this;
     }
+
     @Override
     public SearchDomain getDomain() {
         return domain;
@@ -86,16 +87,17 @@ public class RatedPowerSearchableProperty implements SearchableUsagePointPropert
                 .specForValuesOf(new QuantityValueFactory())
                 .named(FIELD_NAME, PropertyTranslationKeys.USAGEPOINT_RATEDPOWER)
                 .fromThesaurus(this.thesaurus)
-                .addValues(Quantity.create(new BigDecimal(0), 0, "W"),
-                        Quantity.create(new BigDecimal(0), 3, "W"),
-                        Quantity.create(new BigDecimal(0), 6, "W"),
-                        Quantity.create(new BigDecimal(0), 9, "W"),
-                        Quantity.create(new BigDecimal(0), 12, "W"),
-                        Quantity.create(new BigDecimal(0), 0, "VA"),
-                        Quantity.create(new BigDecimal(0), 3, "VA"),
-                        Quantity.create(new BigDecimal(0), 6, "VA"),
-                        Quantity.create(new BigDecimal(0), 9, "VA"),
-                        Quantity.create(new BigDecimal(0), 12, "VA"))
+                .addValues(
+                        Quantity.create(BigDecimal.ZERO, 0, "W"),
+                        Quantity.create(BigDecimal.ZERO, 3, "W"),
+                        Quantity.create(BigDecimal.ZERO, 6, "W"),
+                        Quantity.create(BigDecimal.ZERO, 9, "W"),
+                        Quantity.create(BigDecimal.ZERO, 12, "W"),
+                        Quantity.create(BigDecimal.ZERO, 0, "VA"),
+                        Quantity.create(BigDecimal.ZERO, 3, "VA"),
+                        Quantity.create(BigDecimal.ZERO, 6, "VA"),
+                        Quantity.create(BigDecimal.ZERO, 9, "VA"),
+                        Quantity.create(BigDecimal.ZERO, 12, "VA"))
                 .finish();
     }
 

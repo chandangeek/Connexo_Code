@@ -13,6 +13,7 @@ import com.elster.jupiter.metering.UsagePointCustomPropertySetValuesManageExcept
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.cps.CustomPropertySetAttributes;
 import com.elster.jupiter.metering.impl.cps.UsagePointTestCustomPropertySet;
 import com.elster.jupiter.users.Privilege;
@@ -40,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UsagePointCustomPropertySetExtensionImplTestIT {
-    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = new MeteringInMemoryBootstrapModule();
+    private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
     private static UsagePointTestCustomPropertySet customPropertySet;
     private static String USAGE_POINT_MRID = "usagePoint";
     private static String METROLOGY_CONFIGURATION_MRID = "metrologyConfiguration";
@@ -72,14 +73,16 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
         inMemoryBootstrapModule.getThreadPrincipalService().set(() -> "Test");
     }
 
-    private MetrologyConfiguration createMetrologyConfiguration() {
+    private UsagePointMetrologyConfiguration createMetrologyConfiguration() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService()
-                .newMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID, getServiceCategory()).create();
+                .newUsagePointMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID, getServiceCategory()).create();
     }
 
-    private MetrologyConfiguration getMetrologyConfiguration() {
+    private UsagePointMetrologyConfiguration getMetrologyConfiguration() {
         return inMemoryBootstrapModule.getMetrologyConfigurationService()
                 .findMetrologyConfiguration(METROLOGY_CONFIGURATION_MRID)
+                .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+                .map(UsagePointMetrologyConfiguration.class::cast)
                 .orElseThrow(() -> new IllegalStateException("MetrologyConfiguration doesn't exist."));
     }
 

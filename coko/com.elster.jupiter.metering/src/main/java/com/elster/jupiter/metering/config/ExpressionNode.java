@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.util.units.Dimension;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -22,29 +24,37 @@ import java.util.List;
  * </code></pre>
  * Or the following abstract grammer:
  * <pre><code>
- * ExpressionNode                 ::= ConstantNodeImpl | ReadingTypeRequirementNodeImpl | ReadingTypeDeliverableNodeImpl | VariableNode | OperationNodeImpl | FunctionCallNodeImpl
- * ConstantNodeImpl               ::= LeafNode(BigDecimal)
- * ReadingTypeRequirementNodeImpl ::= LeafNode(ReadingTypeRequirement)
- * ReadingTypeDeliverableNodeImpl ::= LeafNode(ReadingTypeDeliverable)
- * VariableNode                   ::= LeafNode(CustomPropertySet, PropertySpec)
- * IdentifierNode                 ::= LeafNode(Function)
- * OperationNodeImpl              ::= InternalNode(Operator)
- * Operator                       ::= + | - | * | /
- * Function                       ::= AVG | MIN | MAX | SUM
- * FunctionCallNodeImpl           ::= InternalNode(IdentifierNode, ArgumentListNode)
+ * ExpressionNode             ::= ConstantNode | ReadingTypeRequirementNode | ReadingTypeDeliverableNode | VariableNode | OperationNode | FunctionCallNode
+ * ConstantNode               ::= LeafNode(BigDecimal)
+ * ReadingTypeRequirementNode ::= LeafNode(ReadingTypeRequirement)
+ * ReadingTypeDeliverableNode ::= LeafNode(ReadingTypeDeliverable)
+ * CustomPropertyNode         ::= LeafNode(CustomPropertySet, PropertySpec)
+ * IdentifierNode             ::= LeafNode(Function)
+ * OperationNode              ::= InternalNode(Operator)
+ * Operator                   ::= + | - | * | /
+ * Function                   ::= AVG | MIN | MAX | SUM
+ * FunctionCallNode           ::= InternalNode(IdentifierNode, ArgumentListNode)
  * </code></pre>
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (15:08)
  */
+@ProviderType
 public interface ExpressionNode {
 
     interface Visitor<T> {
         T visitConstant(ConstantNode constant);
+
         T visitRequirement(ReadingTypeRequirementNode requirement);
+
         T visitDeliverable(ReadingTypeDeliverableNode deliverable);
+
+        T visitProperty(CustomPropertyNode property);
+
         T visitOperation(OperationNode operationNode);
+
         T visitFunctionCall(FunctionCallNode functionCall);
+
         T visitNull(NullNode nullNode);
     }
 

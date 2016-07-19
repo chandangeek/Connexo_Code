@@ -4,23 +4,23 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 
 /**
- * Provides the {@link ReadingTypeDeliverableForMeterActivation}
- * for a {@link ReadingTypeDeliverable} in the context of a {@link MeterActivation}.
+ * Provides the {@link ReadingTypeDeliverableForMeterActivationSet}
+ * for a {@link ReadingTypeDeliverable} in the context of a {@link MeterActivationSet}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-10 (12:24)
  */
-interface ReadingTypeDeliverableForMeterActivationProvider {
+interface ReadingTypeDeliverableForMeterActivationSetProvider {
 
     /**
-     * Returns the {@link ReadingTypeDeliverableForMeterActivation} that is known to this provider
+     * Returns the {@link ReadingTypeDeliverableForMeterActivationSet} that is known to this provider
      * and that redefines the specified {@link ReadingTypeDeliverable} in the context
      * of the specified {@link MeterActivation}.
      *
      * @param deliverable The ReadingTypeDeliverable
-     * @param meterActivation The MeterActivation
+     * @param meterActivationSet The MeterActivationSet
      * @return The ReadingTypeDeliverableForMeterActivation
      */
-    ReadingTypeDeliverableForMeterActivation from(ReadingTypeDeliverable deliverable, MeterActivation meterActivation);
+    ReadingTypeDeliverableForMeterActivationSet from(ReadingTypeDeliverable deliverable, MeterActivationSet meterActivationSet);
 
 }

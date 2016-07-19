@@ -6,13 +6,18 @@ import com.elster.jupiter.util.units.Quantity;
 
 import java.time.Instant;
 
-public interface CommandFactory{
+public interface CommandFactory {
 
-    EndDeviceCommand createCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, Instant activationDate, Quantity limit);
-    EndDeviceCommand createArmCommand(EndDevice endDevice, boolean armForOpen, Instant activationDate);
-    EndDeviceCommand createConnectCommand(EndDevice endDevice, Instant activationDate);
-    EndDeviceCommand createDisconnectCommand(EndDevice endDevice, Instant activationDate);
-    EndDeviceCommand createEnableLoadLimitCommand(EndDevice endDevice, Quantity limit);
-    EndDeviceCommand createDisableLoadLimitCommand(EndDevice endDevice);
+    EndDeviceCommand createCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType) throws UnsupportedCommandException;
+
+    EndDeviceCommand createArmCommand(EndDevice endDevice, boolean armForOpen, Instant activationDate) throws UnsupportedCommandException;
+
+    EndDeviceCommand createConnectCommand(EndDevice endDevice, Instant activationDate) throws UnsupportedCommandException;
+
+    EndDeviceCommand createDisconnectCommand(EndDevice endDevice, Instant activationDate) throws UnsupportedCommandException;
+
+    EndDeviceCommand createEnableLoadLimitCommand(EndDevice endDevice, Quantity quantity) throws UnsupportedCommandException;
+
+    EndDeviceCommand createDisableLoadLimitCommand(EndDevice endDevice) throws UnsupportedCommandException;
 
 }

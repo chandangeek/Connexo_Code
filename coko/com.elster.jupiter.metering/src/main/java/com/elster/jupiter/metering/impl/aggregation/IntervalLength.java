@@ -7,6 +7,9 @@ import com.elster.jupiter.metering.config.AggregationLevel;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.google.common.collect.BoundType;
+import com.google.common.collect.Range;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
@@ -21,6 +24,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Models the length of an interval as specified by the
@@ -467,7 +471,7 @@ public enum IntervalLength {
 
         @Override
         Instant truncate(Instant instant, ZoneId zone) {
-            return  instant.atZone(zone).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1).toInstant();
+            return instant.atZone(zone).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1).toInstant();
         }
 
         @Override
@@ -614,6 +618,7 @@ public enum IntervalLength {
      * <pre><code>
      *     intervalLength.truncate(timestamp).plus(intervalLength.toTemporalAmount()) &ge; instant
      * </code></pre>
+     *
      * @param instant The Instant wich remain unaffected by this call
      * @param zone The ZoneId
      * @return The copy of the Instant truncated to this IntervalLength
@@ -662,6 +667,25 @@ public enum IntervalLength {
         throw new UnsupportedOperationException("Volume to flow conversion is not (yet) supported for " + this.name());
     }
 
+    public Stream<Instant> toTimeSeries(Range<Instant> period, ZoneId zoneId) {
+        if (!period.hasLowerBound()) {
+            throw new IllegalArgumentException("Cannot generate timeseries when start is not known");
+        }
+        if (!period.hasUpperBound()) {
+            throw new IllegalArgumentException("Cannot generate timeseries when end is not known");
+        }
+        Stream.Builder<Instant> builder = Stream.<Instant>builder();
+        Instant current = period.lowerEndpoint();
+        if (period.lowerBoundType().equals(BoundType.OPEN)) {
+            current = this.addTo(current, zoneId);
+        }
+        while (period.contains(current)) {
+            builder.add(current);
+            current = this.addTo(current, zoneId);
+        }
+        return builder.build();
+    }
+
     public static IntervalLength from(PartiallySpecifiedReadingTypeRequirement readingType) {
         MacroPeriod macroPeriod = readingType.getMacroPeriod();
         TimeAttribute measuringPeriod = readingType.getMeasuringPeriod();
@@ -687,7 +711,9 @@ public enum IntervalLength {
             }
             case BILLINGPERIOD: // Intentional fall-through
             case SEASONAL: // Intentional fall-through
-            case SPECIFIEDPERIOD: // Intentional fall-through
+            case SPECIFIEDPERIOD: {
+                return IntervalLength.NOT_SUPPORTED;
+            }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported macro period: " + macroPeriod.name());
             }
@@ -740,7 +766,7 @@ public enum IntervalLength {
     private static IntervalLength fromMeasurementPeriod(TimeAttribute measurementPeriod) {
         switch (measurementPeriod) {
             case NOTAPPLICABLE: {
-                throw new IllegalArgumentException("ReadingType must either specify MacroPeriod or MeasurementPeriod");
+                return IntervalLength.NOT_SUPPORTED;
             }
             case MINUTE1: {
                 return MINUTE1;

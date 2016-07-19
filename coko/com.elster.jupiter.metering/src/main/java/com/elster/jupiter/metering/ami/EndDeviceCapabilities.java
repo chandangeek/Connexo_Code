@@ -17,11 +17,10 @@ public final class EndDeviceCapabilities {
     }
 
     public List<ReadingType> getConfiguredReadingTypes() {
-       return readingTypes;
+        return readingTypes;
     }
 
     public List<EndDeviceControlType> getSupportedControlTypes() {
         return controlTypes;
     }
-
 }

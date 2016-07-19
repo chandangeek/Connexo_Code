@@ -12,7 +12,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rvk)
  * @since 2016-02-19
  */
-public enum Operator {
+enum Operator {
     PLUS {
         @Override
         public void appendSqlOperatorTo(SqlBuilder sqlBuilder) {
@@ -226,7 +226,9 @@ public enum Operator {
         sqlBuilder.add(operand1);
         this.appendSqlOperatorTo(sqlBuilder);
         sqlBuilder.add(operand2);
-    };
+    }
+
+    ;
 
     protected abstract void appendSqlOperatorTo(SqlBuilder sqlBuilder);
 

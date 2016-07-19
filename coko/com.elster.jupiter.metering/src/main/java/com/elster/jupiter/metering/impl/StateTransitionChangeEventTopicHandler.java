@@ -6,6 +6,7 @@ import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Condition;
 
@@ -67,23 +68,17 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         StateTransitionChangeEvent event = (StateTransitionChangeEvent) localEvent.getSource();
-        String mRID = event.getSourceId();
+        String deviceId = event.getSourceId();
         try {
-//              need for correct 'Remove' state transition
             Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
-            Condition condition = where("mRID").isEqualTo(mRID);
+            Condition condition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(where("amrId").isEqualTo(deviceId));
             endDeviceQuery.select(condition)
                     .stream()
                     .findFirst()
                     .ifPresent(d -> this.handle(event, (ServerEndDevice) d));
-//            todo: Remove it. The old version, device state did not transite to "Removed" state in Insight
-//            this.meteringService
-//                    .findEndDevice(mRID)
-//                    .map(ServerEndDevice.class::cast)
-//                    .ifPresent(d -> this.handle(event, d));
         }
         catch (NumberFormatException e) {
-            this.logger.fine(() -> "Unable to parse end device id '" + mRID + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
+            this.logger.fine(() -> "Unable to parse end device id '" + deviceId + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
         }
     }
 

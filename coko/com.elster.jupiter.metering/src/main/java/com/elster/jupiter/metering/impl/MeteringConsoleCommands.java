@@ -1,9 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.GeoCoordinates;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
 import com.elster.jupiter.metering.Meter;
@@ -36,6 +38,8 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -94,16 +98,44 @@ import java.util.stream.Stream;
         "osgi.command.function=addDeviceGeoCoordinates",
         "osgi.command.function=addUsagePointLocation",
         "osgi.command.function=addUsagePointGeoCoordinates",
-        "osgi.command.function=activateMetrologyConfig"
-
+        "osgi.command.function=activateMetrologyConfig",
+        "osgi.command.function=addCustomPropertySet"
 }, immediate = true)
+@SuppressWarnings("unused")
 public class MeteringConsoleCommands {
 
     private volatile ServerMeteringService meteringService;
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile CustomPropertySetService customPropertySetService;
     private volatile ServerMetrologyConfigurationService metrologyConfigurationService;
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setMetrologyConfigurationService(ServerMetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
+    public void setMeteringService(ServerMeteringService meteringService) {
+        this.meteringService = meteringService;
+        this.dataModel = meteringService.getDataModel();
+    }
 
     public void printDdl() {
         try {
@@ -143,7 +175,7 @@ public class MeteringConsoleCommands {
     }
 
     private String toString(MeterActivation meterActivation) {
-        String channels = meterActivation.getChannels().stream()
+        String channels = meterActivation.getChannelsContainer().getChannels().stream()
                 .map(channel -> channel.getId() + " " + channel.getMainReadingType().getMRID())
                 .collect(java.util.stream.Collectors.joining("\n\t"));
         return meterActivation.getRange().toString() + "\n\t" + channels;
@@ -181,6 +213,11 @@ public class MeteringConsoleCommands {
         }
     }
 
+    public void activateMeter() {
+        System.out.println("Usage activateMeter <mRID> <epoch millis> [<meter role> <usage point mRID]");
+        System.out.println("       where meter role is one of: " + Stream.of(DefaultMeterRole.values()).map(DefaultMeterRole::name).collect(Collectors.joining(", ")));
+    }
+
     public void activateMeter(String mrId, long epochMilli) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
@@ -189,6 +226,29 @@ public class MeteringConsoleCommands {
             meter.activate(activationDate);
             meter.update();
             context.commit();
+        } finally {
+            threadPrincipalService.clear();
+        }
+    }
+
+    public void activateMeter(String mrId, long epochMilli, String defaultMeterRoleName, String usagePointMRID) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(defaultMeterRoleName);
+            MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
+            Optional<Meter> meter = meteringService.findMeter(mrId);
+            if (meter.isPresent()) {
+                Optional<UsagePoint> usagePoint = this.meteringService.findUsagePoint(usagePointMRID);
+                if (usagePoint.isPresent()) {
+                    Instant activationDate = Instant.ofEpochMilli(epochMilli);
+                    meter.get().activate(usagePoint.get(), meterRole, activationDate);
+                    context.commit();
+                } else {
+                    throw new RuntimeException("Usagepoint with mRID " + usagePointMRID + " does not exist");
+                }
+            } else {
+                throw new RuntimeException("Meter with mRID " + mrId + " does not exist");
+            }
         } finally {
             threadPrincipalService.clear();
         }
@@ -278,7 +338,7 @@ public class MeteringConsoleCommands {
 
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                 meterReading.addAllEndDeviceEvents(deviceEvents);
-                meteringService.findMeter(mrId).get().store(meterReading);
+                meteringService.findMeter(mrId).get().store(QualityCodeSystem.MDC, meterReading);
 
                 context.commit();
             } catch (FileNotFoundException e) {
@@ -344,8 +404,9 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             EndDevice endDevice = meteringService.findEndDevice(mRID)
                     .orElseThrow(() -> new RuntimeException("No device with mRID " + mRID + "!"));
-            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude + ":" + elevation);
-            endDevice.setGeoCoordinates(geoCoordinates);
+
+            SpatialCoordinates spatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(latitude + ":" + longitude + ":" + elevation);
+            endDevice.setSpatialCoordinates(spatialCoordinates);
             endDevice.update();
             context.commit();
         }
@@ -361,8 +422,8 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(mRID)
                     .orElseThrow(() -> new RuntimeException("No usage point with mRID " + mRID + "!"));
-            GeoCoordinates geoCoordinates = meteringService.createGeoCoordinates(latitude + ":" + longitude + ":" + elevation);
-            usagePoint.setGeoCoordinates(geoCoordinates);
+            SpatialCoordinates spatialCoordinates = new SpatialCoordinatesFactory().fromStringValue(latitude + ":" + longitude + ":" + elevation);
+            usagePoint.setSpatialCoordinates(spatialCoordinates);
             usagePoint.update();
             context.commit();
         }
@@ -395,8 +456,8 @@ public class MeteringConsoleCommands {
         } else {
             IntStream.range(0, args.length)
                     .forEach(i -> location.put(templateElements.get(i), args[i]));
-            LocationBuilder builder = meteringService.newLocationBuilder();
-            Optional<LocationMemberBuilder> memberBuilder = builder.getMember(location.get("locale"));
+            LocationBuilder builder = new LocationBuilderImpl(dataModel);
+            Optional<LocationMemberBuilder> memberBuilder = builder.getMemberBuilder(location.get("locale"));
             if (memberBuilder.isPresent()) {
                 setLocationAttributes(memberBuilder.get(), location);
 
@@ -478,7 +539,7 @@ public class MeteringConsoleCommands {
                     DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(meterRoleName);
                     MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
                     UsagePointMetrologyConfiguration upMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfiguration;
-                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingType(readingType).getId();
+                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name, meterRole).withReadingType(readingType).getId();
                     System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole
@@ -513,7 +574,7 @@ public class MeteringConsoleCommands {
                     DefaultMeterRole defaultMeterRole = DefaultMeterRole.valueOf(meterRoleName);
                     MeterRole meterRole = this.metrologyConfigurationService.findDefaultMeterRole(defaultMeterRole);
                     UsagePointMetrologyConfiguration upMetrologyConfiguration = (UsagePointMetrologyConfiguration) metrologyConfiguration;
-                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name).withMeterRole(meterRole).withReadingTypeTemplate(template).getId();
+                    long id = upMetrologyConfiguration.newReadingTypeRequirement(name, meterRole).withReadingTypeTemplate(template).getId();
                     System.out.println("Requirment created with id: " + id);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Unknown default meter role: " + meterRoleName + ". Use one of: " + Stream.of(DefaultMeterRole
@@ -576,7 +637,7 @@ public class MeteringConsoleCommands {
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
 
-            ServerExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, metrologyConfiguration, mode).parse(formulaString);
+            ServerExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, metrologyConfiguration, mode).parse(formulaString);
 
             long id = ((ReadingTypeDeliverableBuilderImpl) metrologyConfiguration.newReadingTypeDeliverable(name, readingType, mode)).build(node).getId();
             System.out.println("Deliverable created: " + id);
@@ -595,7 +656,8 @@ public class MeteringConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO)
+                    .parse(formulaString);
 
             deliverable.setName(name);
             deliverable.setReadingType(readingType);
@@ -638,7 +700,8 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO).parse(formulaString);
+            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO)
+                    .parse(formulaString);
 
             deliverable.getFormula().updateExpression(node);
             deliverable.update();
@@ -710,65 +773,42 @@ public class MeteringConsoleCommands {
         }
     }
 
-    @Reference
-    public void setMeteringService(ServerMeteringService meteringService) {
-        this.meteringService = meteringService;
-        this.dataModel = meteringService.getDataModel();
-    }
-
-    @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    @Reference
-    public void setMetrologyConfigurationService(ServerMetrologyConfigurationService metrologyConfigurationService) {
-        this.metrologyConfigurationService = metrologyConfigurationService;
-    }
-
-    @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
     private String explained(ReadingType readingType) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Macro period             : ")
-                .append(readingType.getMacroPeriod().getDescription())
-                .append('\n');
-        builder.append("Aggregate                : ").append(readingType.getAggregate().getDescription()).append('\n');
-        builder.append("Measuring period         : ")
-                .append(readingType.getMeasuringPeriod().getDescription())
-                .append('\n');
-        builder.append("Accumulation             : ")
-                .append(readingType.getAccumulation().getDescription())
-                .append('\n');
-        builder.append("Flow direction           : ")
-                .append(readingType.getFlowDirection().getDescription())
-                .append('\n');
-        builder.append("Commodity                : ").append(readingType.getCommodity().getDescription()).append('\n');
-        builder.append("Macro period             : ")
-                .append(readingType.getMacroPeriod().getDescription())
-                .append('\n');
-        builder.append("Measurement kind         : ")
-                .append(readingType.getMeasurementKind().getDescription())
-                .append('\n');
-        builder.append("IH numerator             : ")
-                .append(readingType.getInterharmonic().getNumerator())
-                .append('\n');
-        builder.append("IH denominator           : ")
-                .append(readingType.getInterharmonic().getDenominator())
-                .append('\n');
-        builder.append("Argument numerator       : ").append(readingType.getArgument().getNumerator()).append('\n');
-        builder.append("Argument denominator     : ").append(readingType.getArgument().getDenominator()).append('\n');
-        builder.append("Time of use              : ").append(readingType.getTou()).append('\n');
-        builder.append("CPP                      : ").append(readingType.getCpp()).append('\n');
-        builder.append("Consumption tier         : ").append(readingType.getConsumptionTier()).append('\n');
-        builder.append("Phases                   : ").append(readingType.getPhases().getDescription()).append('\n');
-        builder.append("Multiplier               : ").append(readingType.getMultiplier()).append('\n');
-        builder.append("Unit                     : ").append(readingType.getUnit()).append('\n');
-        builder.append("Currency                 : ").append(readingType.getCurrency().toString()).append('\n');
-        return builder.toString();
+        return "Macro period             : " +
+                readingType.getMacroPeriod().getDescription() +
+                '\n' +
+                "Aggregate                : " + readingType.getAggregate().getDescription() + '\n' +
+                "Measuring period         : " +
+                readingType.getMeasuringPeriod().getDescription() +
+                '\n' +
+                "Accumulation             : " +
+                readingType.getAccumulation().getDescription() +
+                '\n' +
+                "Flow direction           : " +
+                readingType.getFlowDirection().getDescription() +
+                '\n' +
+                "Commodity                : " + readingType.getCommodity().getDescription() + '\n' +
+                "Macro period             : " +
+                readingType.getMacroPeriod().getDescription() +
+                '\n' +
+                "Measurement kind         : " +
+                readingType.getMeasurementKind().getDescription() +
+                '\n' +
+                "IH numerator             : " +
+                readingType.getInterharmonic().getNumerator() +
+                '\n' +
+                "IH denominator           : " +
+                readingType.getInterharmonic().getDenominator() +
+                '\n' +
+                "Argument numerator       : " + readingType.getArgument().getNumerator() + '\n' +
+                "Argument denominator     : " + readingType.getArgument().getDenominator() + '\n' +
+                "Time of use              : " + readingType.getTou() + '\n' +
+                "CPP                      : " + readingType.getCpp() + '\n' +
+                "Consumption tier         : " + readingType.getConsumptionTier() + '\n' +
+                "Phases                   : " + readingType.getPhases().getDescription() + '\n' +
+                "Multiplier               : " + readingType.getMultiplier() + '\n' +
+                "Unit                     : " + readingType.getUnit() + '\n' +
+                "Currency                 : " + readingType.getCurrency().toString() + '\n';
     }
 
     public void activateMetrologyConfig(String name) {
@@ -780,4 +820,25 @@ public class MeteringConsoleCommands {
             context.commit();
         }
     }
+
+    public void addCustomPropertySet() {
+        System.out.println("Usage: addCustomPropertySet <metrology configuration id> <custom property set id>");
+    }
+
+    @SuppressWarnings("unchecked")
+    public void addCustomPropertySet(long metrologyConfigurationId, String customPropertySetId) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            RegisteredCustomPropertySet customPropertySet = this.customPropertySetService
+                    .findActiveCustomPropertySet(customPropertySetId)
+                    .orElseThrow(() -> new IllegalArgumentException("Unable to find custom property set with id " + customPropertySetId));
+            MetrologyConfiguration metrologyConfiguration =
+                    this.metrologyConfigurationService
+                            .findMetrologyConfiguration(metrologyConfigurationId)
+                            .orElseThrow(() -> new IllegalArgumentException("Unable to find metrology configuration with id " + metrologyConfigurationId));
+            metrologyConfiguration.addCustomPropertySet(customPropertySet);
+            context.commit();
+        }
+    }
+
 }

@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class CollarSearchableProperty implements SearchableUsagePointProperty {
+class CollarSearchableProperty implements SearchableUsagePointProperty {
 
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
@@ -31,9 +31,8 @@ public class CollarSearchableProperty implements SearchableUsagePointProperty {
     private static final String FIELD_NAME = "detail.collar";
     private String uniqueName;
 
-
     @Inject
-    public CollarSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    CollarSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -41,7 +40,7 @@ public class CollarSearchableProperty implements SearchableUsagePointProperty {
     CollarSearchableProperty init(SearchDomain searchDomain, ServiceKindAwareSearchablePropertyGroup group, Clock clock) {
         this.domain = searchDomain;
         this.group = group;
-        this.uniqueName = FIELD_NAME.concat(".").concat(group.getId());
+        this.uniqueName = FIELD_NAME + "." + group.getId();
         this.clock = clock;
         return this;
     }

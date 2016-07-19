@@ -1,7 +1,9 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
@@ -9,7 +11,6 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
@@ -68,8 +69,8 @@ public class MeterReadingStorer {
         this.deviceEventFactory = deviceEventFactory;
     }
 
-    void store() {
-    	getReadingTypes();
+    void store(QualityCodeSystem system) {
+        getReadingTypes();
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         if (meterActivations.isEmpty()) {
             createDefaultMeterActivation();
@@ -79,16 +80,15 @@ public class MeterReadingStorer {
         removeOldReadingQualities();
         storeReadingQualities();
         storeEvents(facade.getMeterReading().getEvents());
-        readingStorer.execute();
+        readingStorer.execute(system);
         facade.getRange()
                 .ifPresent(range -> eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), range.lowerEndpoint().toEpochMilli(), range.upperEndpoint()
                         .toEpochMilli())));
     }
 
     private void getReadingTypes() {
-    	facade.readingTypeCodes().forEach(this::findOrCreateReadingType);
+        facade.readingTypeCodes().forEach(this::findOrCreateReadingType);
     }
-
 
     private void removeOldReadingQualities() {
         Optional<Range<Instant>> range = facade.getRange();
@@ -105,7 +105,6 @@ public class MeterReadingStorer {
                     .forEach(ReadingQualityRecordImpl::notifyDeleted);
         }
     }
-
 
     private boolean isRelevant(ReadingQualityRecord readingQuality) {
         Map<Instant, BaseReading> readingMap = channelReadings.get(readingQuality.getChannel());
@@ -206,15 +205,15 @@ public class MeterReadingStorer {
     }
 
     private void store(Reading reading) {
-        for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.getInterval().toClosedRange().contains(reading.getTimeStamp())) {
-                store(reading, meterActivation);
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
+            if (channelsContainer.getInterval().toClosedRange().contains(reading.getTimeStamp())) {
+                store(reading, channelsContainer);
             }
         }
     }
 
-    private void store(Reading reading, MeterActivation meterActivation) {
-        Channel channel = findOrCreateChannel(reading, meterActivation);
+    private void store(Reading reading, ChannelsContainer channelsContainer) {
+        Channel channel = findOrCreateChannel(reading, channelsContainer);
         if (channel != null) {
             ReadingType readingType = channel.getReadingTypes().stream()
                     .filter(type -> type.getMRID().equals(reading.getReadingTypeCode()))
@@ -239,10 +238,10 @@ public class MeterReadingStorer {
     }
 
     private void store(IntervalReading reading, String readingTypeCode) {
-    	ReadingType readingType = Objects.requireNonNull(readingTypes.get(readingTypeCode));
-    	if (!readingType.isRegular()) {
-    		throw new IllegalArgumentException(readingTypeCode + " is not valid for interval readings ");
-    	}
+        ReadingType readingType = Objects.requireNonNull(readingTypes.get(readingTypeCode));
+        if (!readingType.isRegular()) {
+            throw new IllegalArgumentException(readingTypeCode + " is not valid for interval readings ");
+        }
         Channel channel = findOrCreateChannel(reading, readingType);
         if (channel != null) {
             readingStorer.addReading(channel.getCimChannel(readingType).get(), reading);
@@ -251,7 +250,7 @@ public class MeterReadingStorer {
     }
 
     private void findOrCreateReadingType(String code) {
-    	readingTypes.put(code, doFindOrCreateReadingType(code));
+        readingTypes.put(code, doFindOrCreateReadingType(code));
     }
 
     private ReadingType doFindOrCreateReadingType(String code) {
@@ -259,33 +258,33 @@ public class MeterReadingStorer {
         if (readingTypeHolder.isPresent()) {
             return readingTypeHolder.get();
         } else {
-        	try {
-        		ReadingType readingType = meteringService.createReadingType(code, "");
-        		MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
-        		return readingType;
-        	} catch (UnderlyingSQLFailedException e) {
-        		// maybe some other thread beat us in the race, if not rethrow exception
-        		return dataModel.mapper(ReadingType.class).getOptional(code).orElseThrow(() -> e);
-        	}
+            try {
+                ReadingType readingType = meteringService.createReadingType(code, "");
+                MessageSeeds.READINGTYPE_ADDED.log(logger, thesaurus, code, meter.getMRID());
+                return readingType;
+            } catch (UnderlyingSQLFailedException e) {
+                // maybe some other thread beat us in the race, if not rethrow exception
+                return dataModel.mapper(ReadingType.class).getOptional(code).orElseThrow(() -> e);
+            }
         }
     }
 
-    private Channel findOrCreateChannel(Reading reading, MeterActivation meterActivation) {
+    private Channel findOrCreateChannel(Reading reading, ChannelsContainer channelsContainer) {
         ReadingType readingType = Objects.requireNonNull(readingTypes.get(reading.getReadingTypeCode()));
-        for (Channel each : meterActivation.getChannels()) {
+        for (Channel each : channelsContainer.getChannels()) {
             if (each.getReadingTypes().contains(readingType)) {
                 return each;
             }
         }
-        return meterActivation.createChannel(readingType);
+        return channelsContainer.createChannel(readingType);
     }
 
     private Channel findOrCreateChannel(IntervalReading reading, ReadingType readingType) {
         Channel channel = getChannel(reading, readingType);
         if (channel == null) {
-            for (MeterActivation meterActivation : meter.getMeterActivations()) {
-                if (meterActivation.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
-                    return meterActivation.createChannel(readingType);
+            for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
+                if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
+                    return channelsContainer.createChannel(readingType);
                 }
             }
             MessageSeeds.NOMETERACTIVATION.log(logger, thesaurus, meter.getMRID(), reading.getTimeStamp());
@@ -296,9 +295,9 @@ public class MeterReadingStorer {
     }
 
     private Channel getChannel(IntervalReading reading, ReadingType readingType) {
-        for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            if (meterActivation.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
-                for (Channel channel : meterActivation.getChannels()) {
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
+            if (channelsContainer.getInterval().toOpenClosedRange().contains(reading.getTimeStamp())) {
+                for (Channel channel : channelsContainer.getChannels()) {
                     if (channel.getReadingTypes().contains(readingType)) {
                         return channel;
                     }
@@ -317,7 +316,7 @@ public class MeterReadingStorer {
         dataModel.mapper(ReadingQualityRecord.class).persist(
                 channelReadings.entrySet().stream()
                         .flatMap(entry -> buildReadingQualities(entry.getKey(), entry.getValue().values()))
-                        .collect(Collectors.<ReadingQualityRecord>toList()));
+                        .collect(Collectors.toList()));
     }
 
     private Stream<ReadingQualityRecord> buildReadingQualities(Channel channel, Collection<BaseReading> readings) {
@@ -329,7 +328,9 @@ public class MeterReadingStorer {
     }
 
     private ReadingQualityRecord buildReadingQualityRecord(Channel channel, BaseReading reading, ReadingQuality readingQuality) {
-        CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType()).get();
+        CimChannel cimChannel = channel.getCimChannel(channel.getMainReadingType())
+                // should never happen normally
+                .orElseThrow(() -> new IllegalArgumentException("Channel " + channel.getId() + " has its main reading type but doesn't return a CimChannel for it"));
         if (reading instanceof Reading) {
             Optional<ReadingType> found = meteringService.getReadingType(((Reading) reading).getReadingTypeCode());
             if (found.isPresent()) {
@@ -339,9 +340,8 @@ public class MeterReadingStorer {
                 }
             }
         }
-        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, new ReadingQualityType(readingQuality.getTypeCode()), cimChannel, reading.getTimeStamp());
+        ReadingQualityRecordImpl newReadingQuality = ReadingQualityRecordImpl.from(dataModel, readingQuality.getType(), cimChannel, reading.getTimeStamp());
         newReadingQuality.setComment(readingQuality.getComment());
         return newReadingQuality;
     }
 }
-

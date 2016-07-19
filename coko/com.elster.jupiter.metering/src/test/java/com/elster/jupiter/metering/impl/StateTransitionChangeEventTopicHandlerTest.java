@@ -7,6 +7,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.conditions.Condition;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -42,8 +43,6 @@ public class StateTransitionChangeEventTopicHandlerTest {
     @Mock
     private MeteringService meteringService;
     @Mock
-    private Query endDeviceQuery;
-    @Mock
     private LocalEvent localEvent;
     @Mock
     private StateTransitionChangeEvent event;
@@ -53,6 +52,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
     private ServerEndDevice endDevice;
     @Mock
     private Clock clock;
+    @Mock
+    private Query<EndDevice> endDeviceQuery;
 
     @Before
     public void initializeMocks() {
@@ -61,10 +62,10 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.event.getNewState()).thenReturn(this.state);
         when(this.meteringService.findEndDevice(MISSING_END_DEVICE_MRID)).thenReturn(Optional.<EndDevice>empty());
         when(this.meteringService.findEndDevice(END_DEVICE_MRID)).thenReturn(Optional.of(this.endDevice));
-        when(this.meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
-        when(this.endDeviceQuery.select(any())).thenReturn(Collections.singletonList(endDevice));
         when(this.endDevice.getId()).thenReturn(END_DEVICE_ID);
         when(this.endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
+        when(this.meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
+        when(endDeviceQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(endDevice));
     }
 
     @Test
@@ -73,12 +74,12 @@ public class StateTransitionChangeEventTopicHandlerTest {
         this.getTestInstance().handle(this.localEvent);
 
         // Asserts
-        verify(this.endDeviceQuery).select(any());
+        verify(this.endDeviceQuery).select(any(Condition.class));
     }
 
     @Test
     public void handlerDelegatesToTheEndDeviceWithEffectiveTimestampFromEvent() {
-        when(this.event.getSourceId()).thenReturn(END_DEVICE_MRID);
+        when(this.event.getSourceId()).thenReturn(String.valueOf(END_DEVICE_ID));
         Instant effective = Instant.ofEpochSecond(1000L);
         when(this.event.getEffectiveTimestamp()).thenReturn(effective);
 
@@ -95,7 +96,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
     public void handlerDelegatesToTheEndDeviceWithEffectiveTimestampFromClock() {
         Instant effective = Instant.ofEpochSecond(2000L);
         when(this.clock.instant()).thenReturn(effective);
-        when(this.event.getSourceId()).thenReturn(END_DEVICE_MRID);
+        when(this.event.getSourceId()).thenReturn(String.valueOf(END_DEVICE_ID));
 
         // Business method
         this.getTestInstance().handle(this.localEvent);

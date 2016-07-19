@@ -80,7 +80,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     @Reference
-    public final void setServerMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+    public void setServerMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = (ServerMetrologyConfigurationService) metrologyConfigurationService;
     }
 
@@ -138,7 +138,7 @@ public class UsagePointSearchDomain implements SearchDomain {
      */
     protected List<SearchableProperty> getServiceCategoryDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
         List<SearchableProperty> properties = new ArrayList<>();
-        DataModel injector = this.meteringService.getDataModel();
+        DataModel injector = this.metrologyConfigurationService.getDataModel();
         ElectricityAttributesSearchablePropertyGroup electricityGroup = injector.getInstance(ElectricityAttributesSearchablePropertyGroup.class);
         GasAttributesSearchablePropertyGroup gasGroup = injector.getInstance(GasAttributesSearchablePropertyGroup.class);
         WaterAttributesSearchablePropertyGroup waterGroup = injector.getInstance(WaterAttributesSearchablePropertyGroup.class);
@@ -256,7 +256,7 @@ public class UsagePointSearchDomain implements SearchDomain {
         // 2) check properties which affect available domain properties
         List<SearchablePropertyConstriction> constrictions = fixedProperties.stream()
                 .filter(SearchableProperty::affectsAvailableDomainProperties)
-                .map(mapper::apply)
+                .map(mapper)
                 .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue
                         .getValueBean().values != null)
                 .map(SearchablePropertyValue::asConstriction)
@@ -264,7 +264,7 @@ public class UsagePointSearchDomain implements SearchDomain {
         // 3) update list of available properties and convert these properties into properties values
         Map<String, SearchablePropertyValue> valuesMap = (constrictions.isEmpty() ? fixedProperties : addDynamicProperties(fixedProperties, constrictions))
                 .stream()
-                .map(mapper::apply)
+                .map(mapper)
                 .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue
                         .getValueBean().values != null)
                 .collect(Collectors.toMap(propertyValue -> propertyValue.getProperty()
@@ -295,8 +295,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     private List<SearchableProperty> getMultisenseProperties() {
-        return Arrays.asList(new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService
-                        .getThesaurus()),
+        return Arrays.asList(new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new MetrologyConfigurationSearchableProperty(this, this.propertySpecService, this.metrologyConfigurationService, this.clock),
                 new InstallationTimeSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
