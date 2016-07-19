@@ -224,8 +224,9 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         Instant now = clock.instant();
 
         if (usagePointInfo.metrologyConfiguration != null && usagePointInfo.metrologyConfiguration.id != null) {
-            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(usagePointInfo.metrologyConfiguration.id)
-                    .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
+            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = usagePoint
+                    .getEffectiveMetrologyConfiguration(Instant.ofEpochMilli(usagePointInfo.metrologyConfiguration.id))
+                    .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                     .map(UsagePointMetrologyConfiguration.class::cast);
             if (!metrologyConfiguration.isPresent()) {
                 throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION);

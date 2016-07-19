@@ -72,6 +72,7 @@ public class EndDeviceInfoFactory extends SelectableFieldFactory<EndDeviceInfo, 
         map.put("link", ((endDeviceInfo, endDevice, uriInfo) ->
                 endDeviceInfo.link = link(endDevice, Relation.REF_SELF, uriInfo)));
         map.put("mRID", (endDeviceInfo, endDevice, uriInfo) -> endDeviceInfo.mRID = endDevice.getMRID());
+        map.put("name", (endDeviceInfo, endDevice, uriInfo) -> endDeviceInfo.name = endDevice.getName());
         map.put("serialNumber", (endDeviceInfo, endDevice, uriInfo) -> endDeviceInfo.serialNumber = endDevice.getSerialNumber());
         map.put("lifecycleState", (endDeviceInfo, endDevice, uriInfo) -> endDeviceInfo.lifecycleState
                 = endDevice.getState(clock.get().instant()).map(State::getName).orElse(null));

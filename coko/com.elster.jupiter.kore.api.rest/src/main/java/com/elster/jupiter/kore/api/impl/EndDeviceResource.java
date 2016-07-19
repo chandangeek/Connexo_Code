@@ -97,7 +97,7 @@ public class EndDeviceResource {
         for (ReadingType readingType : meter.getReadingTypes(range)) {
             if (readingType.isRegular()) {
                 MeterReadingsIntervalBlockInfo intervalBlockInfo = new MeterReadingsIntervalBlockInfo();
-                intervalBlockInfo.readingType = readingType.getmRID();
+                intervalBlockInfo.readingType = readingType.getMRID();
                 intervalBlockInfo.intervalReadings = meter.getReadings(range, readingType)
                         .stream()
                         .map(reading -> MeterReadingInfo.asInfo(null, reading.getTimeStamp(), reading.getValue()))
@@ -106,7 +106,7 @@ public class EndDeviceResource {
             } else {
                 readings.readings.addAll(meter.getReadings(range, readingType)
                         .stream()
-                        .map(reading -> MeterReadingInfo.asInfo(readingType.getmRID(), reading.getTimeStamp(), reading.getValue()))
+                        .map(reading -> MeterReadingInfo.asInfo(readingType.getMRID(), reading.getTimeStamp(), reading.getValue()))
                         .collect(Collectors.toList()));
             }
         }

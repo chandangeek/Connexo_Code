@@ -190,6 +190,7 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
                 .toInstant(ZoneOffset.UTC));
         when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
         when(usagePoint.getServicePriority()).thenReturn("service priority");
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
         when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
         when(usagePoint.getConnectionState()).thenReturn(ConnectionState.CONNECTED);
