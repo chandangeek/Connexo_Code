@@ -236,7 +236,7 @@ Ext.define('Uni.form.field.Coordinates', {
                 elevField.setValue('');
             }
         }
-        defaultButton.setDisabled(me.displayValue.usagePointGeoCoordinatesId == undefined);
+        defaultButton.setDisabled(me.displayValue.usagePointSpatialCoordinates == undefined);
     },
 
     setValue: function (value) {
@@ -271,8 +271,8 @@ Ext.define('Uni.form.field.Coordinates', {
         if (values.length > 1) {
             elevTextField.setValue(values[2]);
         }
-        defaultButton.setDisabled((value.usagePointGeoCoordinatesId == undefined) ||
-            ((value.usagePointGeoCoordinatesId != undefined) && value.isInherited));
+        defaultButton.setDisabled((value.usagePointSpatialCoordinates == undefined) ||
+            ((value.usagePointSpatialCoordinates != undefined) && value.isInherited));
     },
 
     getValue: function () {
@@ -286,8 +286,8 @@ Ext.define('Uni.form.field.Coordinates', {
             spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :
                 Ext.String.format('{0}:{1}:{2}', latTextField.getValue(), longTextField.getValue(), elevTextField.getValue()),
             coordinatesDisplay: null,
-            isInherited: (me.displayValue && me.displayValue.usagePointGeoCoordinatesId == undefined) ? false : defaultButton.disabled,
-            usagePointGeoCoordinatesId: me.displayValue ? me.displayValue.usagePointGeoCoordinatesId : 0
+            isInherited: (me.displayValue && me.displayValue.usagePointSpatialCoordinates == undefined) ? false : defaultButton.disabled,
+            usagePointSpatialCoordinates: me.displayValue ? me.displayValue.usagePointSpatialCoordinates : 0
         } :
         {
             spatialCoordinates: (latTextField.getValue() == null && longTextField.getValue() == null && elevTextField.getValue() == null) ? null :

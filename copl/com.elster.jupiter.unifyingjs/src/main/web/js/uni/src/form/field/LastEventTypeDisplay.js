@@ -71,7 +71,7 @@ Ext.define('Uni.form.field.LastEventTypeDisplay', {
         });
 
         tooltip += '</table>';
-        return '<span style="display: inline-block; float: left; margin: 0px 10px 0px 0px" >' + result + '</span>'+
-            '<span style="display: inline-block; width: 16px; height: 16px; float: left;" class="uni-icon-info-small" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
+        return '<span style="display: inline-block; float:left; margin-right:7px;" >' + result + '</span>'+
+            '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.htmlEncode(tooltip) + '"></span>';
     }
 });

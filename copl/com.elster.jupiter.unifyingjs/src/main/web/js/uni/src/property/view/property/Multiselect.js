@@ -27,20 +27,11 @@ Ext.define('Uni.property.view.property.Multiselect', {
                         validateOnChange: false,
                             listeners: {
                             change: function (field, newValue) {
-                                var count = newValue.length;
-
-                                if (me.itemId == 'intervalFlags') {
-                                    field.nextSibling('#multiselectSelectedItemsInfo').update(
-                                        Uni.I18n.translatePlural('multiselect.intervalflags.selected', count, 'UNI',
-                                            'No interval flags selected', '{0} interval flag selected', '{0} interval flags selected')
-                                    );
-                                } else {
-                                    field.nextSibling('#multiselectSelectedItemsInfo').update(
-                                        Uni.I18n.translatePlural('multiselect.selected', count, 'UNI',
-                                            'No items selected', '{0} item selected', '{0} items selected')
-                                    );
-                                }
-                                                            },
+                                field.nextSibling('#multiselectSelectedItemsInfo').update(
+                                    Uni.I18n.translatePlural('multiselect.selected', newValue.length, 'UNI',
+                                        'No items selected', '{0} item selected', '{0} items selected')
+                                );
+                            },
                             fieldvaliditychange: function (field, isValid) {
                                 field.nextSibling('#multiselectError').setVisible(!isValid);
                             }
@@ -49,13 +40,7 @@ Ext.define('Uni.property.view.property.Multiselect', {
                     {
                         xtype: 'component',
                         itemId: 'multiselectSelectedItemsInfo',
-                        html: (me.itemId == 'intervalFlags')
-                            ? Ext.String.format(Ext.String.format(
-                                Uni.I18n.translatePlural('multiselect.intervalflags.selected', 0, 'UNI',
-                                    'No interval flags selected', '{0} interval flag selected', '{0} interval flags selected'),
-                                0)
-                            )
-                            : Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', 0, 'UNI',
+                        html: Ext.String.format(Uni.I18n.translatePlural('multiselect.selected', 0, 'UNI',
                                 'No items selected', '{0} item selected', '{0} items selected'), 0)
                     },
                     {
@@ -98,10 +83,8 @@ Ext.define('Uni.property.view.property.Multiselect', {
     },
 
     setValue: function (value) {
-        var field = this.getField();
-
         if (this.isEdit) {
-            Ext.isArray(value) ? field.setValue(value) : field.reset();
+            Ext.isArray(value) ? this.getField().setValue(value) : this.getField().reset();
         } else {
             this.getDisplayField().setValue(Ext.isArray(value) ? value : []);
         }
