@@ -56,8 +56,6 @@ public class CompletionOptionsHandler implements MessageHandler {
                 responseInfo.status = completionMessageInfo.getCompletionMessageStatus();
                 responseInfo.reason = completionMessageInfo.getFailureReason();
 
-                System.out.println(">>>>>> " + completionMessageInfo.getFailureReason());
-
                 newJerseyClient().
                         target(callbackUri).
                         request().
