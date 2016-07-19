@@ -91,6 +91,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import java.nio.file.FileSystem;
@@ -335,6 +336,7 @@ public class InMemoryIntegrationPersistence {
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 

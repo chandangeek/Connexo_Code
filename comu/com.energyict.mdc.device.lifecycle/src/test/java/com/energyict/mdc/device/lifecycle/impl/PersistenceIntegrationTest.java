@@ -42,7 +42,6 @@ public abstract class PersistenceIntegrationTest {
 
     private static final String DEVICE_TYPE_NAME = PersistenceIntegrationTest.class.getName() + "Type";
     private static final String DEVICE_CONFIGURATION_NAME = PersistenceIntegrationTest.class.getName() + "Config";
-
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
 
