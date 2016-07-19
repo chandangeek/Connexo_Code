@@ -641,13 +641,13 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     com.elster.jupiter.metering.Channel getMeteringChannel(final com.energyict.mdc.device.data.Channel channel) {
-        return channel.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x) -> x.getReadingTypes().contains(channel.getReadingType()))
+        return channel.getDevice().getCurrentMeterActivation().get().getChannelsContainer().getChannels().stream().filter((x) -> x.getReadingTypes().contains(channel.getReadingType()))
                 .findFirst()
                 .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, channel.getReadingType()));
     }
 
     com.elster.jupiter.metering.Channel getMeteringChannel(final Register register) {
-        return register.getDevice().getCurrentMeterActivation().get().getChannels().stream().filter((x) -> x.getReadingTypes().contains(register.getReadingType()))
+        return register.getDevice().getCurrentMeterActivation().get().getChannelsContainer().getChannels().stream().filter((x) -> x.getReadingTypes().contains(register.getReadingType()))
                 .findFirst()
                 .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, register.getReadingType()));
     }

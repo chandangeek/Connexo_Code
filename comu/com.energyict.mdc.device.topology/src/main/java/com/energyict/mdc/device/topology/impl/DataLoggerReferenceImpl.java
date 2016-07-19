@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.nls.Thesaurus;
@@ -100,8 +99,20 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         Channel slaveChannel = channelUsage.getSlaveChannel();
 
         if (dataloggerChannel.hasData()) {
-            ReadingType dataLoggerCollectedReadingType = dataloggerChannel.getBulkQuantityReadingType().orElse(dataloggerChannel.getMainReadingType());
-            ReadingType slaveCollectedReadingType = slaveChannel.getBulkQuantityReadingType().orElse(slaveChannel.getMainReadingType());
+            ReadingType dataLoggerCollectedReadingType;
+            ReadingType slaveCollectedReadingType;
+            Optional<? extends ReadingType> bulkQuantityReadingType = dataloggerChannel.getBulkQuantityReadingType();
+            if (bulkQuantityReadingType.isPresent()) {
+                dataLoggerCollectedReadingType = bulkQuantityReadingType.get();
+            } else {
+                dataLoggerCollectedReadingType = dataloggerChannel.getMainReadingType();
+            }
+            Optional<? extends ReadingType> slaveBulkQuantityReadingType = slaveChannel.getBulkQuantityReadingType();
+            if (slaveBulkQuantityReadingType.isPresent()) {
+                slaveCollectedReadingType = slaveBulkQuantityReadingType.get();
+            } else {
+                slaveCollectedReadingType = slaveChannel.getMainReadingType();
+            }
             FilteredMeterReading meterReading = new FilteredMeterReading(dataloggerChannel.deleteReadings(getInterval().toOpenClosedRange()),
                     block -> block.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
                     reading -> reading.getReadingTypeCode().equals(dataLoggerCollectedReadingType.getMRID()),
@@ -126,11 +137,31 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
 
     private void transferChannelDataToDataLogger(DataLoggerChannelUsage channelUsage, Instant start) {
         // Make sure we are using the current Meter Activation channels instances
-        Channel slaveChannel = getOrigin().getCurrentMeterActivation().get().getChannels().stream().filter((each) -> each.getId() == channelUsage.getSlaveChannel().getId()).findFirst().get();
+        Channel slaveChannel = getOrigin().getCurrentMeterActivation()
+                .get()
+                .getChannelsContainer()
+                .getChannels()
+                .stream()
+                .filter((each) -> each.getId() == channelUsage.getSlaveChannel().getId())
+                .findFirst()
+                .get();
         Channel dataloggerChannel = channelUsage.getDataLoggerChannel();
         if (slaveChannel.hasData()) {
-            ReadingType dataLoggerCollectedReadingType = dataloggerChannel.getBulkQuantityReadingType().orElse(dataloggerChannel.getMainReadingType());
-            ReadingType slaveCollectedReadingType = slaveChannel.getBulkQuantityReadingType().orElse(slaveChannel.getMainReadingType());
+            ReadingType dataLoggerCollectedReadingType;
+            ReadingType slaveCollectedReadingType;
+
+            Optional<? extends ReadingType> bulkQuantityReadingType = dataloggerChannel.getBulkQuantityReadingType();
+            if (bulkQuantityReadingType.isPresent()) {
+                dataLoggerCollectedReadingType = bulkQuantityReadingType.get();
+            } else {
+                dataLoggerCollectedReadingType = dataloggerChannel.getMainReadingType();
+            }
+            Optional<? extends ReadingType> slaveBulkQuantityReadingType = slaveChannel.getBulkQuantityReadingType();
+            if (slaveBulkQuantityReadingType.isPresent()) {
+                slaveCollectedReadingType = slaveBulkQuantityReadingType.get();
+            } else {
+                slaveCollectedReadingType = slaveChannel.getMainReadingType();
+            }
             FilteredMeterReading meterReading = new FilteredMeterReading(slaveChannel.deleteReadings(Range.atLeast(start)),
                     block -> block.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
                     reading -> reading.getReadingTypeCode().equals(slaveCollectedReadingType.getMRID()),
@@ -160,13 +191,13 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
             readingTypeReplacement.entrySet().forEach(entry -> readingTypeMap.put(entry.getKey().getMRID(), entry.getValue().getMRID()));
         }
 
-        public boolean isEmpty(){
+        public boolean isEmpty() {
             return getReadings().isEmpty() &&
-                   getEvents().isEmpty() &&
-                   noIntervals();
+                    getEvents().isEmpty() &&
+                    noIntervals();
         }
 
-        private boolean noIntervals(){
+        private boolean noIntervals() {
             return !getIntervalBlocks().stream().filter(not(block -> block.getIntervals().isEmpty())).findAny().isPresent();
         }
 
@@ -225,11 +256,6 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         public FilteredIntervalReading(IntervalReading decorated, Predicate<ReadingQuality> readingQualityFilter) {
             this.decorated = decorated;
             this.readingQualityFilter = readingQualityFilter;
-        }
-
-        @Override
-        public ProfileStatus getProfileStatus() {
-            return decorated.getProfileStatus();
         }
 
         @Override
