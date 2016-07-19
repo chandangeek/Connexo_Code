@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.TransactionWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
@@ -91,7 +92,7 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     }
 
     private String getAlias() {
-        return "/rest" + endPointConfiguration.getUrl();
+        return "/" + WebServiceProtocol.REST.path() + endPointConfiguration.getUrl();
     }
 
     @Override
