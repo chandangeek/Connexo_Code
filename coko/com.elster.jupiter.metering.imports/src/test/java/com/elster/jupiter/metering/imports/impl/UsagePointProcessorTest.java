@@ -233,8 +233,7 @@ public class UsagePointProcessorTest {
         when(locationTemplate.getTemplateMembers()).thenReturn(Arrays.asList(templateFieldCountryCode, templateFieldCountryName, templateFieldAdministrativeArea,
                 templateFieldSubLocality, templateFieldLocality, templateFieldStreetType, templateFieldStreetName, templateFieldStreetNumber, templateFieldEstablishmentType, templateFieldLocale,
                 templateFieldEstablishmentName, templateFieldEstablishmentNumber, templateFieldAddressDetail, templateFieldZipCode));
-        when(meteringService.newLocationBuilder()).thenReturn(locationBuilder);
-        when(locationBuilder.getMember(anyString())).thenReturn(Optional.empty());
+        when(locationBuilder.getMemberBuilder(anyString())).thenReturn(Optional.empty());
         when(locationBuilder.member()).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryCode(anyString())).thenReturn(locationMemberBuilder);
         when(locationMemberBuilder.setCountryName(anyString())).thenReturn(locationMemberBuilder);
@@ -265,6 +264,7 @@ public class UsagePointProcessorTest {
         when(serviceCategoryTwo.getKind()).thenReturn(ServiceKind.ELECTRICITY);
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
         when(usagePointBuilder.validate()).thenReturn(usagePoint);
+        when(usagePointBuilder.newLocationBuilder()).thenReturn(locationBuilder);
         when(serviceCategoryTwo.getId()).thenReturn(34L);
         when(thesaurus.getFormat((Matchers.any(MessageSeeds.class)))).thenReturn(nlsMessageFormat);
         when(licenseService.getLicensedApplicationKeys()).thenReturn(Arrays.asList("INS"));

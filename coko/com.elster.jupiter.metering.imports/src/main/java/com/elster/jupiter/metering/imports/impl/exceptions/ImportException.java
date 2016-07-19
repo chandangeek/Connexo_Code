@@ -9,7 +9,7 @@ public abstract class ImportException extends RuntimeException {
     private Object[] args;
     private MessageSeed message;
 
-    public ImportException(MessageSeed message, Object... args) {
+    ImportException(MessageSeed message, Object... args) {
         this.message = message;
         this.args = args;
     }
