@@ -570,7 +570,7 @@ public class ResourceHelper {
 
     public long findTimeOfUseOptionsId(DeviceType deviceType) {
         Optional<TimeOfUseOptions> timeOfUseOptions = deviceConfigurationService.findTimeOfUseOptions(deviceType);
-        if(timeOfUseOptions.isPresent()) {
+        if (timeOfUseOptions.isPresent()) {
             return timeOfUseOptions.get().getVersion();
         } else {
             return 0;
