@@ -13,7 +13,6 @@ import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
-import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 
 /**
  * Models the database tables that hold the data of the
@@ -113,7 +112,7 @@ public enum TableSpecs {
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column channelType = table.column("CHTYPEID").number().notNull().add();
             table.addAuditColumns();
-            table.primaryKey("PK_CHTYPEINLOADPROFILETYPE").on(loadProfileType, channelType).add();
+            table.primaryKey("PK_CHNTYPEINLOADPRFLTYPE").on(loadProfileType, channelType).add();
             table.foreignKey("FK_CHTPLPT_LOADPROFILETYPEID").on(loadProfileType).references(LoadProfileType.class).map("loadProfileType").reverseMap(LoadProfileTypeImpl.Fields.REGISTER_TYPES.fieldName()).composition().add();
             table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MeasurementType.class).map("channelType").add();
         }
