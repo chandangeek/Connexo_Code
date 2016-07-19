@@ -22,6 +22,7 @@ import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.impl.MessageSeeds;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
+import com.elster.jupiter.validation.kpi.DataValidationKpiChild;
 import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
 
 import javax.inject.Inject;
@@ -30,6 +31,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -40,7 +42,7 @@ import java.util.stream.Stream;
 public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAware {
 
     public enum Fields {
-        DATA_VALIDATION_KPI("dataValidationKpi"),
+        CHILDREN_KPIS("childrenKpis"),
         DATA_VALIDATION_KPI_TASK("dataValidationKpiTask"),
         END_DEVICE_GROUP("deviceGroup");
 
@@ -82,13 +84,13 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     private Instant createTime;
     private Instant modTime;
 
-    private Reference<Kpi> dataValidationKpi = ValueReference.absent();
+    private List<DataValidationKpiChild> childrenKpis = new ArrayList<>();
     private Reference<RecurrentTask> dataValidationKpiTask = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
     @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private transient TemporalAmount frequency;
-    private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateRecurrentTask(dataValidationKpi, dataValidationKpiTask, KpiType.VALIDATION);
+    private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateRecurrentTask(childrenKpis, dataValidationKpiTask, KpiType.VALIDATION);
 
 
     @Inject
@@ -119,15 +121,19 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         Save.UPDATE.save(this.dataModel, this);
     }
 
-    void dataValidationKpiBuilder(KpiBuilder builder, long deviceId){
+    void dataValidationKpiBuilder(KpiBuilder builder, EndDeviceGroup endDeviceGroup){
         builder.interval(this.frequency);
-        Stream.of(DataValidationKpiMembers.values())
+        endDeviceGroup.getMembers(Instant.now())
+                .stream()
+                .forEach(device ->
+                        Stream.of(DataValidationKpiMembers.values())
                 .map(DataValidationKpiMembers::fieldName)
-                .forEach(member -> builder.member()
-                        .named(member+deviceId)
-                        .add());
-
-        dataValidationKpi.set(builder.create());
+                .forEach(member -> {
+                    builder.member()
+                            .named(member+device.getId())
+                            .add();
+                    childrenKpis.add( DataValidationKpiChildImpl.from(dataModel,this, builder.create()));
+                }));
 
     }
 
@@ -137,7 +143,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     @Override
     public void postLoad() {
-        this.recurrentTaskSaveStrategy = new UpdateRecurrentTask(this.dataValidationKpi, this.dataValidationKpiTask, KpiType.VALIDATION);
+        this.recurrentTaskSaveStrategy = new UpdateRecurrentTask(this.childrenKpis, this.dataValidationKpiTask, KpiType.VALIDATION);
         Stream.of(this.dataValidationKpiCalculationIntervalLength())
                 .flatMap(Functions.asStream())
                 .findFirst()
@@ -151,8 +157,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     @Override
     public Optional<TemporalAmount> dataValidationKpiCalculationIntervalLength() {
-        if (this.dataValidationKpi.isPresent()){
-            return Optional.of(this.dataValidationKpi.get().getIntervalLength());
+        if (this.childrenKpis!= null && !this.childrenKpis.isEmpty()){
+            return Optional.of(this.childrenKpis.get(0).getChildKpi().getIntervalLength());
         }else{
             return Optional.empty();
         }
@@ -186,7 +192,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     public void delete() {
         this.dataModel.remove(this);
         this.dataValidationKpiTask.getOptional().ifPresent(RecurrentTask::delete);
-        this.dataValidationKpi.getOptional().ifPresent(Kpi::remove);
+        //TODO check if device does not belong to other existing KPIs
+        this.childrenKpis.stream().forEach(DataValidationKpiChild::remove);
     }
 
     @Override
@@ -207,8 +214,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     @Override
-    public Kpi getDataValidationKpi(){
-        return this.dataValidationKpi.get();
+    public List<DataValidationKpiChild> getDataValidationKpiChildren(){
+        return Collections.unmodifiableList(childrenKpis);
     }
 
     @Override
@@ -217,12 +224,10 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     private void deleteDataValidationKpi() {
-        Optional<Kpi> kpi = dataValidationKpi.getOptional();
-        kpi.ifPresent(x->dataValidationKpi.setNull());
         Optional<RecurrentTask> recurrentTask = dataValidationKpiTask.getOptional();
         recurrentTask.ifPresent(x->dataValidationKpiTask.setNull());
         this.save();
-        kpi.ifPresent (Kpi::remove);
+        childrenKpis.stream().forEach(DataValidationKpiChild::remove);
         recurrentTask.ifPresent(RecurrentTask::delete);
     }
 
@@ -232,13 +237,13 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     private class CreateRecurrentTask implements RecurrentTaskSaveStrategy {
-        private final Reference<Kpi> kpi;
+        private final List<DataValidationKpiChild> childrenKpis;
         private final Reference<RecurrentTask> recurrentTask;
         private final KpiType kpiType;
 
-        protected CreateRecurrentTask(Reference<Kpi> kpi, Reference<RecurrentTask> recurrentTask, KpiType kpiType) {
+        protected CreateRecurrentTask(List<DataValidationKpiChild> childrenKpis, Reference<RecurrentTask> recurrentTask, KpiType kpiType) {
             super();
-            this.kpi = kpi;
+            this.childrenKpis = childrenKpis;
             this.recurrentTask = recurrentTask;
             this.kpiType = kpiType;
         }
@@ -246,12 +251,12 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         @Override
         public void save() {
             //
-            if (this.kpi.isPresent()) {
+            if (this.childrenKpis !=null && !this.childrenKpis.isEmpty()) {
                 DestinationSpec destination = messageService.getDestinationSpec(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
                 RecurrentTask recurrentTask = taskService.newBuilder()
                         .setApplication("MultiSense")
                         .setName(taskName())
-                        .setScheduleExpression(this.toScheduleExpression(this.kpi.get()))
+                        .setScheduleExpression(this.toScheduleExpression(childrenKpis.get(0).getChildKpi()))
                         .setDestination(destination)
                         .setPayLoad(scheduledExcutionPayload())
                         .scheduleImmediately(true)
@@ -290,8 +295,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     private class UpdateRecurrentTask extends CreateRecurrentTask {
-        protected UpdateRecurrentTask(Reference<Kpi> kpi, Reference<RecurrentTask> recurrentTask, KpiType kpiType) {
-            super(kpi, recurrentTask, kpiType);
+        protected UpdateRecurrentTask(List<DataValidationKpiChild> childrenKpis, Reference<RecurrentTask> recurrentTask, KpiType kpiType) {
+            super(childrenKpis, recurrentTask, kpiType);
         }
 
         @Override

@@ -83,10 +83,7 @@ public class DataValidationKpiServiceImpl implements DataValidationKpiService{
             @Override
             DataValidationKpiBuilderState build(DataValidationKpiImpl underConstruction, KpiBuilder dataValidationKpiBuilder) {
                 if (dataValidationKpiBuilder != null) {
-                    underConstruction.getDeviceGroup().getMembers(Instant.now())
-                            .stream()
-                            .forEach(device -> underConstruction.dataValidationKpiBuilder(dataValidationKpiBuilder, device
-                                    .getId()));
+                  underConstruction.dataValidationKpiBuilder(dataValidationKpiBuilder, underConstruction.getDeviceGroup());
                 }
                 underConstruction.save();
                 return COMPLETE;

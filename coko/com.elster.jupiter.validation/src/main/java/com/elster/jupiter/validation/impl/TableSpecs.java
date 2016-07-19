@@ -21,14 +21,17 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.impl.kpi.DataValidationKpiChildImpl;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
+import com.elster.jupiter.validation.kpi.DataValidationKpiChild;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -243,7 +246,8 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
-            Column dataValidationKpi = table.column("DATAVALIDATIONKPI").number().add();
+            //Column dataValidationKpi = table.column("DATAVALIDATIONKPI").number().add();
+            //Column dataValidationKpi = table.column("DATAVALIDATIONKPI").type("CLOB").conversion(CLOB2STRING).map("summary").add();
             Column dataValidationKpiTask = table.column("DATAVALIDATIONKPI_TASK").number().add();
 
             table.primaryKey("PK_DDC_DATA_VALIDATION_KPI").on(id).add();
@@ -252,16 +256,43 @@ public enum TableSpecs {
                     references(EndDeviceGroup.class).
                     map(DataValidationKpiImpl.Fields.END_DEVICE_GROUP.fieldName()).
                     add();
-            table.foreignKey("FK_DDC_VAL_KPI").
+           /* table.foreignKey("FK_DDC_VAL_KPI").
                     on(dataValidationKpi).
                     references(Kpi.class).
                     map(DataValidationKpiImpl.Fields.DATA_VALIDATION_KPI.fieldName()).
                     add();
+           */
             table.foreignKey("FK_DDC_VAL_KPI_TASK").
                     on(dataValidationKpiTask).
                     references(RecurrentTask.class).
                     map(DataValidationKpiImpl.Fields.DATA_VALIDATION_KPI_TASK.fieldName()).
                     add();
+        }
+    },
+
+    VAL_DATAVALIDATIONKPICHILDREN{
+        @Override
+        void addTo(DataModel dataModel){
+            Table<DataValidationKpiChild> table = dataModel.addTable(name(), DataValidationKpiChild.class);
+            table.map(DataValidationKpiChildImpl.class);
+            Column dataValidationKpiColumn = table.column("DATAVALIDATIONKPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column childKpiColumn = table.column("CHILDKPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+
+            table.primaryKey("VAl_PK_DATAVALKPICHILDREN").on(dataValidationKpiColumn, childKpiColumn).add();
+            //table.foreignKey("VAL_FK_DATAVALIDATIONKPICHILDREN_KPI").on(dataValidationKpiColumn).references(VAL_DATA_VALIDATION_KPI.name()).composition().map("dataValidationKpi").add();
+            table.foreignKey("VAL_FK_DATAVALKPICHILDRENKPI")
+                    .references(VAL_DATA_VALIDATION_KPI.name())
+                    .on(dataValidationKpiColumn)
+                    .onDelete(CASCADE)
+                    .map(DataValidationKpiChildImpl.Fields.DATAVALIDATIONKPI.fieldName())
+                    .reverseMap(DataValidationKpiImpl.Fields.CHILDREN_KPIS.fieldName())
+                    .composition().add();
+            table.foreignKey("VAL_FK_VALKPICHILDRENKPICHILD")
+                    .references(Kpi.class)
+                    .on(childKpiColumn)
+                    .onDelete(CASCADE)
+                    .map(DataValidationKpiChildImpl.Fields.CHILDKPI.fieldName())
+                    .composition().add();
         }
     };
     abstract void addTo(DataModel component);

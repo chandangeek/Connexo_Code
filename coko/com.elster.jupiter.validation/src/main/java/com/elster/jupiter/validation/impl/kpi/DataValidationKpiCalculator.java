@@ -46,7 +46,7 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
             Map<String, BigDecimal> registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpi.getDeviceGroup(), range);
             Map<String, BigDecimal> channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpi.getDeviceGroup(), range);
             Map<String, BigDecimal> totalSuspects = aggregateSuspects(registerSuspects, channelsSuspects);
-            dataValidationKpi.getDataValidationKpi().getMembers().stream()
+            dataValidationKpi.getDataValidationKpiChildren().stream().forEach(kpi -> kpi.getChildKpi().getMembers().stream()
                     .forEach(member -> {
                         if (registerSuspects.get(member.getName()) != null && (registerSuspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
                             member.score(localTimeStamp, registerSuspects.get(member.getName()));
@@ -57,9 +57,9 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                         if (totalSuspects.get(member.getName()) != null && (totalSuspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
                             member.score(localTimeStamp, totalSuspects.get(member.getName()));
                         }
-                    });
+                    }));
             range = Range.closedOpen(localTimeStamp.minus(Period.ofDays(1)), localTimeStamp);
-            logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!" + i);
+            logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!" + " date " + localTimeStamp + " count " + i);
 
         }
     }
