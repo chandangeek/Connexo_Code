@@ -8,6 +8,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -17,6 +18,8 @@ import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.AllowedCalendar;
@@ -92,6 +95,7 @@ public class DeviceTypeResource {
     private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
     private final CalendarInfoFactory calendarInfoFactory;
     private final CalendarService calendarService;
     private final ExceptionFactory exceptionFactory;
@@ -106,7 +110,7 @@ public class DeviceTypeResource {
             ProtocolPluggableService protocolPluggableService,
             Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider,
             Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider,
-            CalendarInfoFactory calendarInfoFactory,
+            ConcurrentModificationExceptionFactory conflictFactory, CalendarInfoFactory calendarInfoFactory,
             CalendarService calendarService,
             ExceptionFactory exceptionFactory,
             Thesaurus thesaurus) {
@@ -117,6 +121,7 @@ public class DeviceTypeResource {
         this.loadProfileTypeResourceProvider = loadProfileTypeResourceProvider;
         this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
         this.deviceConflictMappingResourceProvider = deviceConflictMappingResourceProvider;
+        this.conflictFactory = conflictFactory;
         this.calendarInfoFactory = calendarInfoFactory;
         this.calendarService = calendarService;
         this.exceptionFactory = exceptionFactory;
@@ -211,7 +216,6 @@ public class DeviceTypeResource {
                 .orElse(null);
     }
 
-
     private ChangeDeviceLifeCycleInfo getChangeDeviceLifeCycleFailInfo(IncompatibleDeviceLifeCycleChangeException lifeCycleChangeError, DeviceLifeCycle currentDeviceLifeCycle, DeviceLifeCycle targetDeviceLifeCycle) {
         ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
         info.success = false;
@@ -281,10 +285,10 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
-        boolean isLinked = filter.getBoolean("linked");
+        boolean isNotLinked = !filter.getBoolean("linked");
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<RegisteredCustomPropertySet> registeredCustomPropertySets;
-        if (!isLinked) {
+        if (isNotLinked) {
             registeredCustomPropertySets = resourceHelper.findAllCustomPropertySetsByDomain(Device.class)
                     .stream()
                     .filter(f -> !deviceType.getCustomPropertySets()
@@ -517,12 +521,9 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public List<RegisterTypeOnDeviceTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-
         linkRegisterTypeToDeviceType(deviceType, rmId);
-
-        deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-
-        return asInfoList(deviceType, deviceType.getRegisterTypes());
+        DeviceType reloaded = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        return asInfoList(reloaded, reloaded.getRegisterTypes());
     }
 
     @DELETE
@@ -607,8 +608,19 @@ public class DeviceTypeResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response removeCalendar(@PathParam("id") long id, @PathParam("calendarId") long calendarId, AllowedCalendarInfo allowedCalendarInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        deviceType.removeCalendar(allowedCalendarInfo.id);
-        return Response.ok().build();
+        Optional<AllowedCalendar> allowedCalendar =
+                deviceType
+                        .getAllowedCalendars()
+                        .stream()
+                        .filter(Predicates.not(AllowedCalendar::isGhost))
+                        .filter(each -> each.getId() == allowedCalendarInfo.id)
+                        .findFirst();
+        if (allowedCalendar.isPresent()) {
+            deviceType.removeCalendar(allowedCalendar.get());
+            return Response.ok().build();
+        } else {
+            throw new WebApplicationException("Calendar with id " + allowedCalendarInfo.id + " not found on device type with id " + id, Response.Status.NOT_FOUND);
+        }
     }
 
 
@@ -689,12 +701,17 @@ public class DeviceTypeResource {
     public Response changeTimeOfUseOptions(@PathParam("id") long id, @PathParam("dummyid") long dummyID, TimeOfUseOptionsInfo info) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         Optional<TimeOfUseOptions> timeOfUseOptions = resourceHelper.findAndLockTimeOfUseOptionsByIdAndVersion(deviceType, info.version);
+        if (!timeOfUseOptions.isPresent() && resourceHelper.findTimeOfUseOptionsId(deviceType) != 0) {
+            throw conflictFactory.contextDependentConflictOn(deviceType.getName())
+                    .withActualVersion(() -> resourceHelper.findTimeOfUseOptionsId(deviceType))
+                    .build();
+        }
+
         if (info.isAllowed && info.allowedOptions != null){
             Set<ProtocolSupportedCalendarOptions> supportedCalendarOptions = deviceConfigurationService.getSupportedTimeOfUseOptionsFor(deviceType, false);
             Set<ProtocolSupportedCalendarOptions> newAllowedOptions = info.allowedOptions.stream()
                     .map(allowedOption -> ProtocolSupportedCalendarOptions.from((String) allowedOption.id))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
+                    .flatMap(Functions.asStream())
                     .filter(supportedCalendarOptions::contains)
                     .collect(Collectors.toSet());
             TimeOfUseOptions options = timeOfUseOptions.orElseGet(() -> deviceConfigurationService.newTimeOfUseOptions(deviceType));
@@ -705,7 +722,6 @@ public class DeviceTypeResource {
         }
         return Response.ok(getTimeOfUseOptions(deviceType)).build();
     }
-
 
     private TimeOfUseOptionsInfo getTimeOfUseOptions(DeviceType deviceType) {
         TimeOfUseOptionsInfo timeOfUseOptionsInfo = new TimeOfUseOptionsInfo();
@@ -732,7 +748,6 @@ public class DeviceTypeResource {
     private CalendarInfo transformToWeekCalendar(Calendar calendar, LocalDate localDate) {
         return calendarInfoFactory.detailedWeekFromCalendar(calendar, localDate);
     }
-
 
     private void updateRegisterTypeAssociations(DeviceType deviceType, List<RegisterTypeInfo> newRegisterTypeInfos) {
         Set<Long> newRegisterTypeIds = asIdz(newRegisterTypeInfos);
@@ -819,8 +834,7 @@ public class DeviceTypeResource {
         if (allowedCalendar.isGhost()) {
             return new AllowedCalendarInfo(allowedCalendar);
         } else {
-            return new AllowedCalendarInfo(allowedCalendar, calendarInfoFactory.summaryFromCalendar(allowedCalendar.getCalendar()
-                    .get()));
+            return new AllowedCalendarInfo(allowedCalendar, calendarInfoFactory.summaryFromCalendar(allowedCalendar.getCalendar().get()));
         }
     }
 

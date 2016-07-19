@@ -69,7 +69,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         DeviceMessageCategory displayCategory = mock(DeviceMessageCategory.class);
         DeviceMessageSpec displayMessage = mock(DeviceMessageSpec.class);
 
-        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(Arrays.asList(clockCategory, displayCategory));
+        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(Arrays.asList(clockCategory, displayCategory));
         when(clockCategory.getName()).thenReturn("Clock");
         when(displayCategory.getName()).thenReturn("Display");
         when(clockCategory.getMessageSpecifications()).thenReturn(Arrays.asList(clockSetTimeMessage, clockSetDSTMessage));
