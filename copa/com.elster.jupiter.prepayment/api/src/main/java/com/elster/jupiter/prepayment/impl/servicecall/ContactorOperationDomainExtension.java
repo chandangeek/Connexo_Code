@@ -18,7 +18,8 @@ import javax.validation.constraints.Size;
 public class ContactorOperationDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
-        CALLBACK("callback", "callback");
+        CALLBACK("callback", "callback"),
+        PROVIDED_RESPONSE("providedResponse", "response");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -42,6 +43,7 @@ public class ContactorOperationDomainExtension implements PersistentDomainExtens
 
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callback;
+    private boolean providedResponse;
 
     public ContactorOperationDomainExtension() {
         super();
@@ -59,15 +61,25 @@ public class ContactorOperationDomainExtension implements PersistentDomainExtens
         this.callback = callback;
     }
 
+    public boolean providedResponse() {
+        return providedResponse;
+    }
+
+    public void setProvidedResponse(boolean providedResponse) {
+        this.providedResponse = providedResponse;
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setCallback((String) propertyValues.getProperty(FieldNames.CALLBACK.javaName()));
+        this.setProvidedResponse((Boolean) propertyValues.getProperty(FieldNames.PROVIDED_RESPONSE.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.CALLBACK.javaName(), this.getCallback());
+        propertySetValues.setProperty(FieldNames.PROVIDED_RESPONSE.javaName(), this.providedResponse());
     }
 
     @Override

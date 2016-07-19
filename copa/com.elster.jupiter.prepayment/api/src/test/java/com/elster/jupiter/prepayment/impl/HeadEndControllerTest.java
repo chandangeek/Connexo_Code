@@ -2,9 +2,12 @@ package com.elster.jupiter.prepayment.impl;
 
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.CommandFactory;
+import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.LocalizedException;
@@ -50,6 +53,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 /**
  * @author sva
@@ -72,6 +76,8 @@ public class HeadEndControllerTest {
 
     private static final String END_DEVICE_MRID = "endDeviceMRID";
     private static final String END_DEVICE_CONTROL_TYPE = "RCDSwitch ArmForClosure";
+    private static final Long SERVICE_CALL_ID = 1L;
+
     @Rule
     public TestRule expectedRule = new ExpectedExceptionRule();
 
@@ -95,6 +101,12 @@ public class HeadEndControllerTest {
     EndDeviceCommand endDeviceCommand;
     @Mock
     EndDeviceControlType endDeviceControlType;
+    @Mock
+    MessageService messageService;
+    @Mock
+    DestinationSpec destinationSpec;
+    @Mock
+    CompletionOptions completionOptions;
 
     ExceptionFactory exceptionFactory;
     private HeadEndController headEndController;
@@ -104,7 +116,7 @@ public class HeadEndControllerTest {
     public void setUp() throws Exception {
         setUpThesaurus();
         exceptionFactory = new ExceptionFactory(thesaurus);
-        headEndController = new HeadEndController(exceptionFactory);
+        headEndController = new HeadEndController(messageService, exceptionFactory);
 
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
@@ -112,6 +124,10 @@ public class HeadEndControllerTest {
 
         when(endDeviceCommand.getEndDeviceControlType()).thenReturn(endDeviceControlType);
         when(endDeviceControlType.getName()).thenReturn(END_DEVICE_CONTROL_TYPE);
+
+        when(messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)).thenReturn(Optional.of(destinationSpec));
+        when(headEndInterface.sendCommand(any(EndDeviceCommand.class), any(Instant.class), any(ServiceCall.class))).thenReturn(completionOptions);
+        when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
 
         this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
     }
@@ -177,6 +193,7 @@ public class HeadEndControllerTest {
         // Asserts
         verify(commandFactory).createConnectCommand(endDevice, contactorInfo.activationDate);
         verify(headEndInterface).sendCommand(endDeviceCommand, contactorInfo.activationDate, serviceCall);
+        verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
 
     @Test
@@ -200,6 +217,7 @@ public class HeadEndControllerTest {
         // Asserts
         verify(commandFactory).createDisconnectCommand(endDevice, contactorInfo.activationDate);
         verify(headEndInterface).sendCommand(endDeviceCommand, contactorInfo.activationDate, serviceCall);
+        verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
 
     @Test
@@ -223,6 +241,7 @@ public class HeadEndControllerTest {
         // Asserts
         verify(commandFactory).createArmCommand(endDevice, false, contactorInfo.activationDate);
         verify(headEndInterface).sendCommand(endDeviceCommand, contactorInfo.activationDate, serviceCall);
+        verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
 
     @Test
@@ -240,6 +259,7 @@ public class HeadEndControllerTest {
         verify(commandFactory).createDisableLoadLimitCommand(endDevice);
         verify(endDeviceCommand, never()).setPropertyValue(any(), any());
         verify(headEndInterface).sendCommand(eq(endDeviceCommand), any(Instant.class), eq(serviceCall));
+        verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
 
     @Test
@@ -279,6 +299,7 @@ public class HeadEndControllerTest {
         verify(commandFactory).createEnableLoadLimitCommand(endDevice, quantity);
         verify(endDeviceCommand, never()).setPropertyValue(eq(loadTolerancePropertySpec), any());
         verify(headEndInterface).sendCommand(eq(endDeviceCommand), any(Instant.class), eq(serviceCall));
+        verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
 
     @Test
@@ -319,6 +340,7 @@ public class HeadEndControllerTest {
         verify(commandFactory).createEnableLoadLimitCommand(endDevice, quantity);
         verify(endDeviceCommand).setPropertyValue(loadTolerancePropertySpec, TimeDuration.seconds(contactorInfo.loadTolerance));
         verify(headEndInterface).sendCommand(eq(endDeviceCommand), any(Instant.class), eq(serviceCall));
+        verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
 
     @Test
@@ -375,6 +397,7 @@ public class HeadEndControllerTest {
         verify(loadLimitEndDeviceCommand).setPropertyValue(loadTolerancePropertySpec, TimeDuration.seconds(contactorInfo.loadTolerance));
         verify(headEndInterface).sendCommand(breakerEndDeviceCommand, contactorInfo.activationDate, serviceCall);
         verify(headEndInterface).sendCommand(eq(loadLimitEndDeviceCommand), any(Instant.class), eq(serviceCall));
+        verify(completionOptions, times(2)).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
 
     @Test
@@ -388,6 +411,18 @@ public class HeadEndControllerTest {
 
         when(commandFactory.createEnableLoadLimitCommand(endDevice, quantity)).thenReturn(endDeviceCommand);
         when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(Collections.emptyList());
+
+        // Business method
+        headEndController.performContactorOperations(endDevice, serviceCall, contactorInfo);
+    }
+
+    @Test
+    @Expected(value = LocalizedException.class, message = "Could not find destination spec with name " + CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)
+    public void testDestinationSpecNotFound() throws Exception {
+        ContactorInfo contactorInfo = new ContactorInfo();
+        contactorInfo.status = BreakerStatus.armed;
+
+        when(messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)).thenReturn(Optional.empty());
 
         // Business method
         headEndController.performContactorOperations(endDevice, serviceCall, contactorInfo);

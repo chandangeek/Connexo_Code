@@ -2,6 +2,8 @@ package com.elster.jupiter.prepayment.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.prepayment.impl.servicecall.ContactorOperationCustomPropertySet;
 import com.elster.jupiter.prepayment.impl.servicecall.OperationHandler;
@@ -22,11 +24,15 @@ import java.util.logging.Logger;
  */
 public class Installer implements FullInstaller {
 
+    private static final int DESTINATION_SPEC_RETRY_DELAY = 60;
+
+    private final MessageService messageService;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
 
     @Inject
-    public Installer(ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+    public Installer(MessageService messageService, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+        this.messageService = messageService;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
     }
@@ -36,6 +42,11 @@ public class Installer implements FullInstaller {
         doTry(
                 "Create service call types",
                 this::createServiceCallTypes,
+                logger
+        );
+        doTry(
+                "Create destination spec",
+                this::createDestinationSpecs,
                 logger
         );
     }
@@ -57,6 +68,16 @@ public class Installer implements FullInstaller {
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(customPropertySet)
                     .create();
+        }
+    }
+
+    private void createDestinationSpecs() {
+        Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION);
+        if (!destinationSpecOptional.isPresent()) {
+            DestinationSpec destinationSpec = messageService.getQueueTableSpec("MSG_RAWTOPICTABLE").get()
+                    .createDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION, DESTINATION_SPEC_RETRY_DELAY);
+            destinationSpec.activate();
+            destinationSpec.subscribe(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_TASK_SUBSCRIBER);
         }
     }
 }

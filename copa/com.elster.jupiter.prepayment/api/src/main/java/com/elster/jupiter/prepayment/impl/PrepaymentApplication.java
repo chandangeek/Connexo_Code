@@ -23,6 +23,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -64,6 +65,7 @@ public class PrepaymentApplication extends Application implements TranslationKey
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile UpgradeService upgradeService;
+    private volatile JsonService jsonService;
     private volatile Clock clock;
 
     @Override
@@ -143,11 +145,17 @@ public class PrepaymentApplication extends Application implements TranslationKey
         // PATCH; required for proper startup; do not delete
     }
 
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
     @Activate
     public void activate(BundleContext bundleContext) {
         this.dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
+                bind(MessageService.class).toInstance(messageService);
                 bind(ServiceCallService.class).toInstance(serviceCallService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
@@ -198,6 +206,7 @@ public class PrepaymentApplication extends Application implements TranslationKey
             bind(serviceCallService).to(ServiceCallService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(messageService).to(MessageService.class);
+            bind(jsonService).to(JsonService.class);
             bind(clock).to(Clock.class);
             bind(DataModel.class).to(DataModel.class);
 

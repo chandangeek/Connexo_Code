@@ -23,6 +23,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -110,13 +111,20 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(
+        return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
                         .named(ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName(), TranslationSeeds.CALL_BACK_URL)
                         .describedAs(TranslationSeeds.CALL_BACK_URL)
                         .fromThesaurus(thesaurus)
-                        .finish());
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(ContactorOperationDomainExtension.FieldNames.PROVIDED_RESPONSE.javaName(), TranslationSeeds.PROVIDED_RESPONSE)
+                        .describedAs(TranslationSeeds.PROVIDED_RESPONSE)
+                        .fromThesaurus(thesaurus)
+                        .finish()
+        );
     }
 
     private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, ContactorOperationDomainExtension> {
@@ -164,6 +172,12 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
                     .column(ContactorOperationDomainExtension.FieldNames.CALLBACK.databaseName())
                     .varChar()
                     .map(ContactorOperationDomainExtension.FieldNames.CALLBACK.javaName())
+                    .notNull()
+                    .add();
+            table
+                    .column(ContactorOperationDomainExtension.FieldNames.PROVIDED_RESPONSE.databaseName())
+                    .bool()
+                    .map(ContactorOperationDomainExtension.FieldNames.PROVIDED_RESPONSE.javaName())
                     .notNull()
                     .add();
         }

@@ -1,14 +1,24 @@
 package com.elster.jupiter.prepayment.impl.servicecall;
 
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.ami.CompletionMessageInfo;
+import com.elster.jupiter.prepayment.impl.CompletionOptionsMessageHandlerFactory;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.util.json.JsonService;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import java.text.MessageFormat;
+import java.util.Optional;
+
+import static com.elster.jupiter.metering.ami.CompletionMessageInfo.CompletionMessageStatus;
+import static com.elster.jupiter.metering.ami.CompletionMessageInfo.FailureReason;
 
 /**
  * Implementation of {@link ServiceCallHandler} interface for Redknee prepayment solution
@@ -24,14 +34,29 @@ public class OperationHandler implements ServiceCallHandler {
 
     public static final String HANDLER_NAME = "RedkneeOperationHandler";
 
-    private static final boolean SUCCESS = true;
-    private static final boolean FAILURE = true;
+    public volatile JsonService jsonService;
+    public volatile MessageService messageService;
 
     public OperationHandler() {
     }
 
+    public OperationHandler(JsonService jsonService, MessageService messageService) {
+        setJsonService(jsonService);
+        setMessageService(messageService);
+    }
+
     @Activate
     public void activate() {
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @Override
@@ -51,26 +76,19 @@ public class OperationHandler implements ServiceCallHandler {
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
-            case CANCELLED:
-                cancelServiceCallIncludingItsChildren(serviceCall);
-                break;
             case SUCCESSFUL:
-                callBackRedknee(SUCCESS);
+                sendMessageToDestinationSpec(serviceCall, CompletionMessageStatus.SUCCESS);
                 break;
+            case CANCELLED:
+                sendMessageToDestinationSpec(serviceCall, CompletionMessageStatus.CANCELLED, FailureReason.SERVICE_CALL_HAS_BEEN_CANCELLED);
+                break;
+            case FAILED:
+            case REJECTED:
+                // Fallback path, expecting a message with proper failure reason is already send out the destination spec
+                sendMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.UNEXPECTED_EXCEPTION);
             default:
                 break;
         }
-    }
-
-    private void cancelServiceCallIncludingItsChildren(ServiceCall serviceCall) {
-        serviceCall.findChildren().stream().forEach(child -> {
-            if (child.canTransitionTo(DefaultState.CANCELLED)) {
-                serviceCall.log(LogLevel.INFO, MessageFormat.format("Cancelling child service call with id ", child.getId()));
-                child.requestTransition(DefaultState.CANCELLED);
-            } else {
-                serviceCall.log(LogLevel.INFO, MessageFormat.format("Could not cancel child service call with id ", child.getId()));
-            }
-        });
     }
 
     @Override
@@ -86,11 +104,12 @@ public class OperationHandler implements ServiceCallHandler {
             case FAILED:
                 parent.log(LogLevel.SEVERE, MessageFormat.format("Child service call {0} (type={1}) failed", serviceCall.getId(), serviceCall.getType().getName()));
                 requestTransitionTo(parent, DefaultState.FAILED);
-                callBackRedknee(FAILURE);
                 break;
             case CANCELLED:
                 parent.log(LogLevel.SEVERE, MessageFormat.format("Child service call {0} (type={1}) has been cancelled", serviceCall.getId(), serviceCall.getType().getName()));
-                requestTransitionTo(parent, DefaultState.CANCELLED);
+                if (parent.canTransitionTo(DefaultState.CANCELLED)) {
+                    requestTransitionTo(parent, DefaultState.CANCELLED);
+                }
                 break;
             default:
                 break;
@@ -98,7 +117,7 @@ public class OperationHandler implements ServiceCallHandler {
     }
 
     private void requestTransitionTo(ServiceCall serviceCall, DefaultState state) {
-        if (serviceCall.getState().equals(DefaultState.WAITING)) {
+        if (serviceCall.getState().equals(DefaultState.WAITING) && !state.equals(DefaultState.CANCELLED)) { // As we can transit directly to CANCELLED state
             serviceCall.requestTransition(DefaultState.ONGOING);
         }
         if (serviceCall.canTransitionTo(state)) {
@@ -107,7 +126,23 @@ public class OperationHandler implements ServiceCallHandler {
 
     }
 
-    private void callBackRedknee(boolean successIndicator) {
-        // TODO
+    private void sendMessageToDestinationSpec(ServiceCall serviceCall, CompletionMessageStatus status) {
+        sendMessageToDestinationSpec(serviceCall, status, null);
+    }
+
+    private void sendMessageToDestinationSpec(ServiceCall serviceCall, CompletionMessageStatus status, FailureReason reason) {
+        CompletionMessageInfo completionMessageInfo = new CompletionMessageInfo(Long.toString(serviceCall.getId()))
+                .setCompletionMessageStatus(status)
+                .setFailureReason(reason);
+        doSendMessageToDestinationSpec(serviceCall, CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION, completionMessageInfo);
+    }
+
+    private void doSendMessageToDestinationSpec(ServiceCall serviceCall, String destinationSpecName, CompletionMessageInfo completionMessageInfo) {
+        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(destinationSpecName);
+        if (destinationSpec.isPresent()) {
+            destinationSpec.get().message(jsonService.serialize(completionMessageInfo)).send();
+        } else {
+            serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Failed to send message to destination spec: could not find active destination spec with name ", destinationSpecName));
+        }
     }
 }

@@ -1,6 +1,9 @@
 package com.elster.jupiter.prepayment.impl;
 
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.properties.PropertySpec;
@@ -26,10 +29,12 @@ public class HeadEndController {
     private static final String OVER_THRESHOLD_DURATION_ATTRIBUTE_NAME = "LoadBalanceDeviceMessage.parameters.overthresholdduration";
     private static final boolean ARM_FOR_CLOSURE = false;
 
+    private final MessageService messageService;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
-    public HeadEndController(ExceptionFactory exceptionFactory) {
+    public HeadEndController(MessageService messageService, ExceptionFactory exceptionFactory) {
+        this.messageService = messageService;
         this.exceptionFactory = exceptionFactory;
     }
 
@@ -57,8 +62,8 @@ public class HeadEndController {
                 default:
                     throw exceptionFactory.newException(MessageSeeds.UNKNOWN_STATUS);
             }
-            headEndInterface.sendCommand(deviceCommand, contactorInfo.activationDate, serviceCall); // No need to do something with the CompletionOptions returned by the #sendCommand method
-            // The parent service call is already notified of child process by AbstractContactorOperationServiceCallHandler#onChildStateChange
+            CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, contactorInfo.activationDate, serviceCall);
+            completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
         }
     }
 
@@ -76,7 +81,8 @@ public class HeadEndController {
                     deviceCommand.setPropertyValue(getCommandArgumentSpec(deviceCommand, OVER_THRESHOLD_DURATION_ATTRIBUTE_NAME), TimeDuration.seconds(contactorInfo.loadTolerance));
                 }
             }
-            headEndInterface.sendCommand(deviceCommand, Instant.now(), serviceCall);
+            CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, Instant.now(), serviceCall);
+            completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
         }
     }
 
@@ -97,5 +103,10 @@ public class HeadEndController {
 
     private HeadEndInterface getHeadEndInterface(EndDevice endDevice) {
         return endDevice.getHeadEndInterface().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_HEAD_END_INTERFACE, endDevice.getMRID()));
+    }
+
+    private DestinationSpec getCompletionOptionsDestinationSpec() {
+        return messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COULD_NOT_FIND_DESTINATION_SPEC, CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION));
     }
 }
