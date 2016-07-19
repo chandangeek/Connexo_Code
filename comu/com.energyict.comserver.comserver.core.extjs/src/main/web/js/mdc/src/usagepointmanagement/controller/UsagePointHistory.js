@@ -38,7 +38,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
         var me = this,
             app = me.getApplication(),
             router = me.getController('Uni.controller.history.Router'),
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];            
+            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
         if (!tab) {
             router.getRoute('usagepoints/usagepoint/history').forward({tab: 'devices'});
@@ -49,7 +49,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                     app.fireEvent('usagePointLoaded', record);
                     var widget = Ext.widget('usage-point-history', {
                         itemId: 'usage-point-history',
-                        router: router, 
+                        router: router,
                         mRID: record.get('mRID'),
                         activeTab: tab,
                         controller: me
@@ -59,7 +59,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                 callback: function () {
                     pageMainContent.setLoading(false);
                 }
-            });            
+            });
         }
     },
 
@@ -99,11 +99,11 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
 
     showDevicePreview: function (selectionModel, record) {
         var me = this;
-        
+
         Ext.suspendLayouts();
         me.getDevicesPage().down('usage-point-history-devices-preview').setTitle(record.get('mRID'));
         me.getDevicesPage().down('#usage-point-history-devices-preview-form').loadRecord(record);
-        Ext.resumeLayouts(true);        
+        Ext.resumeLayouts(true);
     }
 });
 

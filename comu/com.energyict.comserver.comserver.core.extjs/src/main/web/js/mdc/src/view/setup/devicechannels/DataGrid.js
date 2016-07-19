@@ -51,14 +51,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
                         text = value
                             ? Uni.I18n.translate(
-                                'general.dateAtTime', 'MDC', '{0} at {1}',
-                                [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)] )
+                            'general.dateAtTime', 'MDC', '{0} at {1}',
+                            [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)])
                             : '-',
                         tooltipContent = '',
                         icon = '';
 
                     if (readingQualitiesPresent) {
-                        Ext.Array.forEach(record.get('readingQualities'), function(readingQualityName) {
+                        Ext.Array.forEach(record.get('readingQualities'), function (readingQualityName) {
                             // Strange behaviour detected:
                             // When scrolling the grid completely down a reading quality *object* is added to the first grid item
                             // Therefor we add this extra condition:

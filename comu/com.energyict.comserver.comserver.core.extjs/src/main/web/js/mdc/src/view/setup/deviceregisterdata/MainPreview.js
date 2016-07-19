@@ -8,7 +8,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
     ],
     frame: false,
 
-    getGeneralItems: function() {
+    getGeneralItems: function () {
         return [];
     },
     mentionDataLoggerSlave: false,
@@ -27,11 +27,11 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         }
     ],
 
-    getValidationItems: function() {
+    getValidationItems: function () {
         return [];
     },
 
-    renderDateTimeLong: function(value) {
+    renderDateTimeLong: function (value) {
         if (Ext.isEmpty(value)) {
             return '-';
         }
@@ -160,7 +160,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         me.callParent(arguments);
     },
 
-    updateContent: function(registerRecord) {
+    updateContent: function (registerRecord) {
         var me = this,
             measurementDate = new Date(registerRecord.get('timeStamp')),
             title = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
@@ -168,7 +168,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
                 false),
             calculatedValueField = me.down('#mdc-calculated-value-field'),
             deltaValueField = me.down('displayfield[name=deltaValue]'),
-            multiplierField = me.down('#mdc-register-preview-'+registerRecord.get('type')+'-multiplier'),
+            multiplierField = me.down('#mdc-register-preview-' + registerRecord.get('type') + '-multiplier'),
             hasCalculatedValue = !Ext.isEmpty(registerRecord.get('calculatedValue')),
             hasDeltaValue = !Ext.isEmpty(registerRecord.get('deltaValue'));
 
@@ -199,7 +199,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         me.setLoading(false);
     },
 
-    setDataQualities: function(dataQualities) {
+    setDataQualities: function (dataQualities) {
         var me = this,
             deviceQualityField = me.down('#mdc-device-quality'),
             multiSenseQualityField = me.down('#mdc-multiSense-quality'),
@@ -214,7 +214,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
     },
 
-    setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
+    setDataQualityFields: function (deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
         var me = this,
             showDeviceQuality = false,
             showMultiSenseQuality = false,
@@ -227,7 +227,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         insightQualityField.setValue('');
         thirdPartyQualityField.setValue('');
 
-        Ext.Array.forEach(dataQualities, function(readingQuality) {
+        Ext.Array.forEach(dataQualities, function (readingQuality) {
             if (readingQuality.cimCode.startsWith('1.')) {
                 showDeviceQuality |= true;
                 field = deviceQualityField;
@@ -237,7 +237,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
             } else if (readingQuality.cimCode.startsWith('3.')) {
                 showInsightQuality |= true;
                 field = insightQualityField;
-            } else if (readingQuality.cimCode.startsWith('4.')||readingQuality.cimCode.startsWith('5.')) {
+            } else if (readingQuality.cimCode.startsWith('4.') || readingQuality.cimCode.startsWith('5.')) {
                 show3rdPartyQuality |= true;
                 field = thirdPartyQualityField;
             }
@@ -257,7 +257,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
         show3rdPartyQuality ? thirdPartyQualityField.show() : thirdPartyQualityField.hide();
     },
 
-    getTooltip: function(systemName, categoryName, indexName) {
+    getTooltip: function (systemName, categoryName, indexName) {
         var me = this,
             tooltip = '<table><tr><td>';
 

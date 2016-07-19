@@ -1758,7 +1758,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: Uni.I18n.translate('tou.sendTimeOfUseCalendar', 'MDC', 'Send time of use calendar'),
                                     route: 'send',
                                     controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
-                                    privileges:  Mdc.privileges.DeviceCommands.executeCommands,
+                                    privileges: Mdc.privileges.DeviceCommands.executeCommands,
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsSend,
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     action: 'showSendCalendarView'

@@ -13,7 +13,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistoryDevicesGrid',
                 header: Uni.I18n.translate('general.active', 'MDC', 'Active'),
                 dataIndex: 'active',
                 width: 80,
-                renderer: function(value) {
+                renderer: function (value) {
                     if (!!value) {
                         return '<i class="icon icon-checkmark-circle" data-qtip="' + Uni.I18n.translate('general.active', 'MDC', 'Active') + '"></i>';
                     } else {
@@ -22,8 +22,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistoryDevicesGrid',
                 }
             },
             {
-                header: Uni.I18n.translate('general.period', 'MDC', 'Period'),                
-                renderer: function(value, meta, record) {
+                header: Uni.I18n.translate('general.period', 'MDC', 'Period'),
+                renderer: function (value, meta, record) {
                     var from = record.get('start'),
                         to = record.get('end');
 
@@ -40,7 +40,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistoryDevicesGrid',
             {
                 header: Uni.I18n.translate('general.device', 'MDC', 'Device'),
                 dataIndex: 'mRID',
-                renderer: function(value) {
+                renderer: function (value) {
                     var url = me.router.getRoute('devices/device').buildUrl({
                         mRID: value
                     });

@@ -167,7 +167,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         }
     },
 
-    setDataQuality: function(dataQualities) {
+    setDataQuality: function (dataQualities) {
         var me = this,
             deviceQualityField = me.down('#mdc-device-quality'),
             multiSenseQualityField = me.down('#mdc-multiSense-quality'),
@@ -182,7 +182,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
     },
 
-    setDataQualityForChannel: function(channelId, dataQualities) {
+    setDataQualityForChannel: function (channelId, dataQualities) {
         var me = this,
             channelQualityContainer = me.down('#channelQualityContainer' + channelId);
 
@@ -201,7 +201,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
     },
 
-    setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
+    setDataQualityFields: function (deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
         var me = this,
             showDeviceQuality = false,
             showMultiSenseQuality = false,
@@ -214,7 +214,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         insightQualityField.setValue('');
         thirdPartyQualityField.setValue('');
 
-        Ext.Array.forEach(dataQualities, function(readingQuality) {
+        Ext.Array.forEach(dataQualities, function (readingQuality) {
             if (readingQuality.cimCode.startsWith('1.')) {
                 showDeviceQuality |= true;
                 field = deviceQualityField;
@@ -224,7 +224,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             } else if (readingQuality.cimCode.startsWith('3.')) {
                 showInsightQuality |= true;
                 field = insightQualityField;
-            } else if (readingQuality.cimCode.startsWith('4.')||readingQuality.cimCode.startsWith('5.')) {
+            } else if (readingQuality.cimCode.startsWith('4.') || readingQuality.cimCode.startsWith('5.')) {
                 show3rdPartyQuality |= true;
                 field = thirdPartyQualityField;
             }
@@ -244,7 +244,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         show3rdPartyQuality ? thirdPartyQualityField.show() : thirdPartyQualityField.hide();
     },
 
-    getTooltip: function(systemName, categoryName, indexName) {
+    getTooltip: function (systemName, categoryName, indexName) {
         var me = this,
             tooltip = '<table><tr><td>';
 
@@ -310,7 +310,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
                 name: 'readingTime',
                 renderer: function (value, field) {
-                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';
+                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';
                 }
             },
             {
