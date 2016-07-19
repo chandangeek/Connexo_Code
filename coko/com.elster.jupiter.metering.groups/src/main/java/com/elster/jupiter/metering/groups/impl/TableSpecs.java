@@ -58,7 +58,7 @@ public enum TableSpecs {
             table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 2));
             table.addUserNameColumn("USERNAME", "userName").since(version(10, 2));
             table
-                .primaryKey("MTG_PK_ENUM_UP_GROUP_ENTRY")
+                .primaryKey("MTG_PK_ENUM_UP_IN_GROUP")
                 .on(groupColumn, usagePointColumn, intervalColumns.get(0))
                 .add();
             table
@@ -132,7 +132,7 @@ public enum TableSpecs {
             table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 2));
             table.addUserNameColumn("USERNAME", "userName").since(version(10, 2));
             table.setJournalTableName("MTG_ENUM_ED_IN_GROUPJRNL").since(version(10, 2));
-            table.primaryKey("MTG_PK_ENUM_ED_GROUP_ENTRY").on(groupColumn, endDeviceColumn, intervalColumns.get(0)).add();
+            table.primaryKey("MTG_PK_ENUM_ED_IN_GROUP").on(groupColumn, endDeviceColumn, intervalColumns.get(0)).add();
             table
                 .foreignKey("MTG_FK_EDGE_EDG")
                 .references(MTG_ED_GROUP.name())
@@ -158,7 +158,7 @@ public enum TableSpecs {
             table.column("OPERATOR").number().notNull().conversion(NUMBER2ENUM).map(QueryEndDeviceGroupCondition.Fields.OPERATOR.fieldName()).add();
             table.setJournalTableName("MTG_QUERY_EDG_CONDITIONJRNL").since(version(10, 2));
             table.addAuditColumns().forEach(column -> column.since(version(20, 2)));
-            table.primaryKey("MTG_PK_QUERY_EDG_CONDITION").on(groupColumn, searchablePropertyColumn).add();
+            table.primaryKey("MTG_PK_QUERY_EDG_CONDTION").on(groupColumn, searchablePropertyColumn).add();
             table.foreignKey("MTG_FK_QUERY_EDG_COND2GROUP")
                     .on(groupColumn)
                     .references(MTG_ED_GROUP.name())
@@ -178,7 +178,7 @@ public enum TableSpecs {
             table.column("VALUE").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().map(QueryEndDeviceGroupConditionValue.Fields.VALUE.fieldName()).add();
             table.setJournalTableName("MTG_QUERY_EDG_COND_VALUEJRNL").since(version(10, 2));
             table.addAuditColumns().forEach(column -> column.since(version(20, 2)));
-            table.primaryKey("MTG_PK_QUERY_EDG_COND_VALUE").on(groupColumn, searchablePropertyColumn, positionColumn).add();
+            table.primaryKey("MTG_PK_QUERY_EDGCONDVALUE").on(groupColumn, searchablePropertyColumn, positionColumn).add();
             table.foreignKey("MTG_FK_QUERY_EDG_VALUE2COND")
                     .on(groupColumn, searchablePropertyColumn)
                     .references(MTG_QUERY_EDG_CONDITION.name())
