@@ -61,7 +61,7 @@ public enum TableSpecs {
                 table.setJournalTableName("SCH_COMTASKINCOMSCHEDULEJRNL").since(version(10, 2));
                 table.addAuditColumns();
 
-                table.primaryKey("PK_SCH_COMTASKINCOMSCHEDULE").on(comTaskId, comScheduleId).add();
+                table.primaryKey("PK_SCH_COMTASKINCOMSCHDLE").on(comTaskId, comScheduleId).add();
                 table.foreignKey("FK_SCH_COMTASKINCS_COMSCHEDULE")
                         .on(comScheduleId).references(SCH_COMSCHEDULE.name())
                         .map(ComTaskInComScheduleImpl.Fields.COM_SCHEDULE_REFERENCE.fieldName())
