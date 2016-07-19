@@ -120,7 +120,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier(TopologyService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
     }
 
     private Module getModule() {

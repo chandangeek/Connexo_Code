@@ -94,8 +94,7 @@ public class TopologyTimelineImpl implements TopologyTimeline {
                 .collect(Collectors.toList());
         if (slicesThatContainTheDevice.isEmpty()) {
             return Optional.empty();
-        }
-        else {
+        } else {
             return Optional.of(slicesThatContainTheDevice.get(slicesThatContainTheDevice.size() - 1).getPeriod().lowerEndpoint());
         }
     }
@@ -103,9 +102,7 @@ public class TopologyTimelineImpl implements TopologyTimeline {
     private boolean contains(TopologyTimeslice timeslice, Device device) {
         return timeslice.getDevices()
                 .stream()
-                .filter(d -> d.getId() == device.getId())
-                .findFirst()
-                .isPresent();
+                .anyMatch(d -> d.getId() == device.getId());
     }
 
 }
