@@ -200,7 +200,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
 
     private void createMeterReadingSubscriber() {
         messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get()
-                .subscribe("MeterReadingHandler", whereCorrelationId().like("com/elster/jupiter/metering/%eading/CREATED"));
+                .subscribe("MeterReadingHandler", whereCorrelationId().isEqualTo("com/elster/jupiter/metering/meterreading/CREATED"));
     }
 
     private void createMasterData() {
