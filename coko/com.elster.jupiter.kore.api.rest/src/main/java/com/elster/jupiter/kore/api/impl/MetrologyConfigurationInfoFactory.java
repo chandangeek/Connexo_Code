@@ -1,6 +1,8 @@
 package com.elster.jupiter.kore.api.impl;
 
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
@@ -14,6 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -61,6 +64,11 @@ public class MetrologyConfigurationInfoFactory extends SelectableFieldFactory<Me
         map.put("userName", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.userName = metrology.getUserName());
         map.put("createTime", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.createTime = metrology.getCreateTime());
         map.put("modTime", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.modTime = metrology.getModTime());
+        map.put("meterRoles", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.meterRoles
+                = ((UsagePointMetrologyConfiguration) metrology).getMeterRoles()
+                .stream()
+                .map(MeterRole::getKey)
+                .collect(Collectors.toList()));
         return map;
     }
 }

@@ -2,23 +2,20 @@ package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.security.Privileges;
 import com.elster.jupiter.kore.api.impl.servicecall.CommandRunStatusInfo;
-import com.elster.jupiter.kore.api.impl.servicecall.CommandStatus;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
-import com.elster.jupiter.metering.ami.CompletionMessageInfo;
-import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.hypermedia.FieldSelection;
 import com.elster.jupiter.rest.util.hypermedia.PagedInfoList;
-import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.util.json.JsonService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -37,11 +34,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -271,5 +265,37 @@ public class UsagePointResource {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
 
         return usagePointCommandInfo.command.process(usagePoint,usagePointCommandInfo,usagePointCommandHelper);
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{usagePointId}/activate")
+//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    public Response activateUsagePoint(@PathParam("usagePointId") long usagePointId,
+                                       UsagePointInfo usagePointInfo,
+                                       @Context UriInfo uriInfo) {
+
+        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_USAGE_POINT));
+
+        UsagePointMetrologyConfiguration metrologyConfiguration = usagePoint.getMetrologyConfiguration()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
+
+        metrologyConfiguration.getMeterRoles().stream()
+                .filter(meterRole -> usagePoint.getMeterActivations().stream()
+                        .anyMatch(meterActivation -> meterActivation.getMeterRole().equals(meterRole)))
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE));
+
+        usagePoint.setConnectionState(ConnectionState.CONNECTED);
+        usagePoint.update();
+
+        URI uri = uriInfo.getBaseUriBuilder()
+                .path(UsagePointResource.class)
+                .path(UsagePointResource.class, "getUsagePoint")
+                .build(usagePoint.getId());
+
+        return Response.ok(uri).build();
     }
 }

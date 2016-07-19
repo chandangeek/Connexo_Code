@@ -12,9 +12,16 @@ public class CommandRunStatusInfo {
     public CommandRunStatusInfo() {
     }
 
-    public CommandRunStatusInfo(long id, CommandStatus status, CommandRunStatusInfo ... childrenCommands) {
+    public CommandRunStatusInfo(long id, CommandStatus status, CommandRunStatusInfo... childrenCommands) {
         this.id = id;
         this.status = status;
         this.childrenCommands = Arrays.asList(childrenCommands);
+    }
+
+    public CommandRunStatusInfo(long id, CommandStatus status, String system) {
+        this.id = id;
+        this.status = status;
+        this.system = system;
+
     }
 }

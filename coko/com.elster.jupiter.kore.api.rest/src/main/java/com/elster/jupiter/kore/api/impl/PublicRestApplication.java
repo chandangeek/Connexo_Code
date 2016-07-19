@@ -14,18 +14,23 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.hypermedia.RestExceptionMapper;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.upgrade.InstallIdentifier;
+import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.AbstractModule;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.validator.HibernateValidator;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -59,6 +64,23 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ServiceCallService serviceCallService;
     private volatile MessageService messageService;
+    private volatile UpgradeService upgradeService;
+
+    @Activate
+    public void activate() {
+        DataModel dataModel = upgradeService.newNonOrmDataModel();
+
+        dataModel.register(new AbstractModule() {
+            @Override
+            protected void configure() {
+                bind(ServiceCallService.class).toInstance(serviceCallService);
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                bind(MessageService.class).toInstance(messageService);
+            }
+        });
+
+        upgradeService.register(InstallIdentifier.identifier("Insight", "PRA"), dataModel, Installer.class, Collections.emptyMap());
+    }
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -67,6 +89,8 @@ public class PublicRestApplication extends Application implements TranslationKey
                 UsagePointCustomPropertySetResource.class,
                 MeterActivationResource.class,
                 MetrologyConfigurationResource.class,
+                EndDeviceResource.class,
+                EffectiveMetrologyConfigurationResource.class,
                 RestExceptionMapper.class
         );
     }
@@ -141,6 +165,11 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setUpgradeService(UpgradeService upgradeService) {
+        this.upgradeService = upgradeService;
+    }
+
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
@@ -195,6 +224,10 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(WaterDetailInfoFactory.class).to(WaterDetailInfoFactory.class);
             bind(WaterDetailResource.class).to(WaterDetailResource.class);
             bind(UsagePointCommandHelper.class).to(UsagePointCommandHelper.class);
+            bind(EndDeviceInfoFactory.class).to(EndDeviceInfoFactory.class);
+            bind(EndDeviceResource.class).to(EndDeviceResource.class);
+            bind(EffectiveMetrologyConfigurationInfoFactory.class).to(EffectiveMetrologyConfigurationInfoFactory.class);
+            bind(EffectiveMetrologyConfigurationResource.class).to(EffectiveMetrologyConfigurationResource.class);
         }
     }
 

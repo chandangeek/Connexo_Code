@@ -11,8 +11,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -27,8 +25,8 @@ import java.util.Base64;
         property = "name=UsagePointCommandHandler")
 public class UsagePointCommandHandler  implements ServiceCallHandler {
 
-    private static final String BPM_USER = "com.elster.jupiter.bpm.user";
-    private static final String BPM_PASSWORD = "com.elster.jupiter.bpm.password";
+    public static final String USAGE_POINT_COMMAND_HANDLER_NAME = "UsagePointCommandHandler";
+    public static final String USAGE_POINT_COMMAND_HANDLER_VERSION = "v1.0";
 
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MeteringService meteringService;
@@ -62,27 +60,25 @@ public class UsagePointCommandHandler  implements ServiceCallHandler {
                 getPartiallySuccessResponce(serviceCall);
                 break;
             case FAILED:
+            case CANCELLED:
                 getFailureResponce(serviceCall);
                 break;
         }
     }
 
     public void sendSuccessResponce(ServiceCall serviceCall){
-        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class)
-                .orElseThrow(() -> new IllegalStateException(MessageSeeds.NO_SUCH_DOMAIN_EXTENSION.getDefaultFormat()));
-        sendResponse(extension.getCallbackSuccessURL(), extension.getCallbackHttpMethod());
+        serviceCall.getExtension(UsagePointCommandDomainExtension.class)
+                .ifPresent(extension -> sendResponse(extension.getCallbackSuccessURL(), extension.getCallbackHttpMethod()));
     }
 
     public void getPartiallySuccessResponce(ServiceCall serviceCall){
-        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class)
-                .orElseThrow(() -> new IllegalStateException(MessageSeeds.NO_SUCH_DOMAIN_EXTENSION.getDefaultFormat()));
-        sendResponse(extension.getCallbackPartialSuccessURL(), extension.getCallbackHttpMethod());
+        serviceCall.getExtension(UsagePointCommandDomainExtension.class)
+                .ifPresent(extension -> sendResponse(extension.getCallbackPartialSuccessURL(), extension.getCallbackHttpMethod()));
     }
 
     public void getFailureResponce(ServiceCall serviceCall){
-        UsagePointCommandDomainExtension extension = serviceCall.getExtension(UsagePointCommandDomainExtension.class)
-                .orElseThrow(() -> new IllegalStateException(MessageSeeds.NO_SUCH_DOMAIN_EXTENSION.getDefaultFormat()));
-        sendResponse(extension.getCallbackFailureURL(), extension.getCallbackHttpMethod());
+        serviceCall.getExtension(UsagePointCommandDomainExtension.class)
+                .ifPresent(extension -> sendResponse(extension.getCallbackFailureURL(), extension.getCallbackHttpMethod()));
     }
 
 

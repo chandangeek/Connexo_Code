@@ -38,6 +38,7 @@ public class UsagePointCommandMessageHandler implements MessageHandler {
             failedCommands = failedCommands.add(BigDecimal.ONE);
             extension.setActualNumberOfFailedCommands(failedCommands);
         }
+        serviceCall.update(extension);
 
         if (extension.getExpectedNumberOfCommands().compareTo(successfulCommands.add(failedCommands)) <= 0) {
             if (successfulCommands.compareTo(expectedCommands) >= 0) {

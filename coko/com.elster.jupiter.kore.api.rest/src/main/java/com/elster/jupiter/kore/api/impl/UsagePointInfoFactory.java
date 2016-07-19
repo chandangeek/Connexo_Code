@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.LocationMember;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -38,19 +39,19 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
     private final Clock clock;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
-    private final Provider<MetrologyConfigurationInfoFactory> metrologyConfigurationInfoFactory;
+    private final Provider<EffectiveMetrologyConfigurationInfoFactory> effectiveMetrologyConfigurationInfoFactory;
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final Provider<MeterActivationInfoFactory> meterActivationInfoFactory;
 
     @Inject
     public UsagePointInfoFactory(Clock clock, MeteringService meteringService, ExceptionFactory exceptionFactory,
-                                 Provider<MetrologyConfigurationInfoFactory> metrologyConfigurationInfoFactory,
+                                 Provider<EffectiveMetrologyConfigurationInfoFactory> effectiveMetrologyConfigurationInfoFactory,
                                  MetrologyConfigurationService metrologyConfigurationService,
                                  Provider<MeterActivationInfoFactory> meterActivationInfoFactory) {
         this.clock = clock;
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
-        this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
+        this.effectiveMetrologyConfigurationInfoFactory = effectiveMetrologyConfigurationInfoFactory;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.meterActivationInfoFactory = meterActivationInfoFactory;
     }
@@ -122,8 +123,9 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 .getServiceDeliveryRemark());
 
         map.put("metrologyConfiguration", (usagePointInfo, usagePoint, uriInfo) -> {
-            Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = usagePoint.getMetrologyConfiguration();
-            metrologyConfiguration.ifPresent(mc -> usagePointInfo.metrologyConfiguration = metrologyConfigurationInfoFactory
+            Optional<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration(clock
+                    .instant());
+            metrologyConfiguration.ifPresent(mc -> usagePointInfo.metrologyConfiguration = effectiveMetrologyConfigurationInfoFactory
                     .get()
                     .asLink(mc, Relation.REF_RELATION, uriInfo));
         });

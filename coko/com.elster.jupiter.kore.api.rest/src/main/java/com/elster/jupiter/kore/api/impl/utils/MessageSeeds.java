@@ -9,7 +9,7 @@ public enum MessageSeeds implements MessageSeed {
 
     IMPOSSIBLE_TO_SET_MASTER_DEVICE(1, "ImpossibleToSetMasterDevice", "Device {0} is directly addressable. It is not possible to set master device"),
     NO_SUCH_DEVICE_LIFE_CYCLE_ACTION(2, "NoSuchDeviceLifeCycleAction", "No device life cycle action with id = {0}"),
-    THIS_FIELD_IS_REQUIRED(3, "ThisFieldIsRequired", "This field is required"),
+    THIS_FIELD_IS_REQUIRED(3, Keys.THIS_FIELD_IS_REQUIRED, "This field is required"),
     CAN_NOT_HANDLE_ACTION(4, "CanNotHandleAction", "The requested device life cycle action action can not be handled"),
     NOT_FOUND(5, "NotFound", "The resource could not be found"),
     NO_SUCH_PARTIAL_CONNECTION_TASK(6, "NoSuchPartialConnectionTask", "The device configuration does not contain a connection method with that id"),
@@ -74,7 +74,11 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_CONNECTION_STATE(65, "NoSuchConnectionState", "No such connection state"),
     NO_SUCH_DOMAIN_EXTENSION(66, "NoSuchDomainExtension", "Unable to get domain extension for service call"),
     NO_SUCH_ENDPOINT(67, "NoSuchEndpoint", "Unable to get domain extension for service call"),
-    HTTP_CONNECTION_FAILED(68, "HttpConnectionFailed", "Unable to send http response");
+    HTTP_CONNECTION_FAILED(68, "HttpConnectionFailed", "Unable to send http response"),
+    NO_SUCH_END_DEVICE(69, "NoSuchEndDevice", "No such end device on the usage point"),
+    FIELD_TOO_LONG(70, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
+    NO_SUCH_SERVICE_CALL_TYPE(71, "NoSuchServiceCallType", "No such service calltype with id {0}"),
+    NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE(72, "NoSuchMeterActivation", "No such meter activation for meter role"),;
 
     private final int number;
     private final String key;
@@ -111,4 +115,8 @@ public enum MessageSeeds implements MessageSeed {
         return Level.SEVERE;
     }
 
+    public static class Keys {
+        public static final String THIS_FIELD_IS_REQUIRED = "ThisFieldIsRequired";
+        public static final String FIELD_TOO_LONG = "invalidFieldLength";
+    }
 }

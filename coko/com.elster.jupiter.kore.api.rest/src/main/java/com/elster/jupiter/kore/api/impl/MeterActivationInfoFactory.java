@@ -1,6 +1,7 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 import com.elster.jupiter.rest.util.hypermedia.PropertyCopier;
@@ -23,10 +24,12 @@ import static java.util.stream.Collectors.toList;
 public class MeterActivationInfoFactory extends SelectableFieldFactory<MeterActivationInfo, MeterActivation> {
 
     private final Provider<UsagePointInfoFactory> usagePointInfoFactory;
+    private final Provider<EndDeviceInfoFactory> endDeviceInfoFactory;
 
     @Inject
-    public MeterActivationInfoFactory(Provider<UsagePointInfoFactory> usagePointInfoFactory) {
+    public MeterActivationInfoFactory(Provider<UsagePointInfoFactory> usagePointInfoFactory, Provider<EndDeviceInfoFactory> endDeviceInfoFactory) {
         this.usagePointInfoFactory = usagePointInfoFactory;
+        this.endDeviceInfoFactory = endDeviceInfoFactory;
     }
 
     public LinkInfo asLink(MeterActivation meterActivation, Relation relation, UriInfo uriInfo) {
@@ -77,6 +80,11 @@ public class MeterActivationInfoFactory extends SelectableFieldFactory<MeterActi
                 .from(meterActivation.getInterval().toOpenRange()));
         map.put("meter", (meterActivationInfo, meterActivation, uriInfo) -> meterActivation.getMeter()
                 .ifPresent(m -> meterActivationInfo.meter = m.getId()));
+        map.put("endDevice", (meterActivationInfo, meterActivation, uriInfo) -> meterActivation.getMeter()
+                .ifPresent(m -> meterActivationInfo.endDevice = endDeviceInfoFactory.get()
+                        .asLink(m, Relation.REF_SELF, uriInfo)));
+        map.put("meterRole", (meterActivationInfo, meterActivation, uriInfo) -> meterActivationInfo.meterRole = meterActivation
+                .getMeterRole().map(MeterRole::getKey).orElse(null));
         return map;
     }
 }
