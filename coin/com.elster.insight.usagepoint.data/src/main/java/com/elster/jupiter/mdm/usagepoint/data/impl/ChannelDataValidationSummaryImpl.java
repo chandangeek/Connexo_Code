@@ -3,6 +3,7 @@ package com.elster.jupiter.mdm.usagepoint.data.impl;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -12,11 +13,7 @@ public class ChannelDataValidationSummaryImpl implements ChannelDataValidationSu
     private Map<ChannelDataValidationSummaryFlag, Integer> statistics = new EnumMap<>(ChannelDataValidationSummaryFlag.class);
 
     void incrementFlag(ChannelDataValidationSummaryFlag flag, int increment) {
-        Integer previous = statistics.get(flag);
-        if (previous == null) {
-            previous = 0;
-        }
-        statistics.put(flag, previous + increment);
+        statistics.compute(flag, (key, value) -> value == null ? increment : value + increment);
     }
 
     void incrementOverallValue(int increment) {
@@ -30,6 +27,6 @@ public class ChannelDataValidationSummaryImpl implements ChannelDataValidationSu
 
     @Override
     public Map<ChannelDataValidationSummaryFlag, Integer> getValues() {
-        return statistics;
+        return Collections.unmodifiableMap(statistics);
     }
 }

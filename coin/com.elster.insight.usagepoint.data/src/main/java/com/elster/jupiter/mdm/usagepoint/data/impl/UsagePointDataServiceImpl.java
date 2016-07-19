@@ -23,6 +23,8 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -41,7 +43,9 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +60,7 @@ import java.util.stream.Collectors;
         service = {UsagePointDataService.class, MessageSeedProvider.class},
         property = {"name=" + UsagePointDataService.COMPONENT_NAME},
         immediate = true)
-public class UsagePointDataServiceImpl implements UsagePointDataService, MessageSeedProvider {
+public class UsagePointDataServiceImpl implements UsagePointDataService, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile Clock clock;
     private volatile DataModel dataModel;
@@ -147,8 +151,20 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
     }
 
     @Override
+    public String getComponentName() {
+        return UsagePointDataService.COMPONENT_NAME;
+    }
+
+    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        Collections.addAll(keys, ChannelDataValidationSummaryFlag.values());
+        return keys;
     }
 
     @Override
@@ -213,6 +229,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 accountFlagValue(summary, flag, (int) qualityTypesByAllTimings.entrySet().stream()
                         .filter(entry -> entry.getValue().stream().anyMatch(flag.getQualityTypePredicate()))
                         .map(Map.Entry::getKey)
+                        // need to collect instants in a new collection so that to remove them from current one
                         .collect(Collectors.toList())
                         .stream()
                         .peek(qualityTypesByAllTimings::remove)

@@ -15,7 +15,7 @@ public enum ChannelDataValidationSummaryFlag implements TranslationKey {
     ESTIMATED("statisticsEstimated", "Estimated", ReadingQualityType::hasEstimatedCategory),
     EDITED("statisticsEdited", "Edited", ReadingQualityType::hasEditCategory),
     VALID("statisticsValid", "Valid", type -> type.qualityIndex().orElse(null) == QualityCodeIndex.DATAVALID),
-    NOT_VALIDATED("statisticsNotValidated", "Not validated", (type) -> true);
+    NOT_VALIDATED("statisticsNotValidated", "Not validated", type -> true);
 
     private String key, translation;
     private Predicate<ReadingQualityType> qualityTypePredicate;
