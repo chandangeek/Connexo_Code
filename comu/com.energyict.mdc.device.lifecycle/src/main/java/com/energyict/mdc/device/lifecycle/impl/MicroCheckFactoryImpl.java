@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
@@ -28,6 +29,7 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
     private volatile TopologyService topologyService;
     private volatile ValidationService validationService;
     private volatile MeteringService meteringService;
+    private volatile ServiceCallService serviceCallService;
 
     // For OSGi purposes
     public MicroCheckFactoryImpl() {
@@ -62,6 +64,11 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -108,6 +115,9 @@ public class MicroCheckFactoryImpl implements ServerMicroCheckFactory {
             }
             case AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE: {
                 return new ActiveConnectionAvailable(this.thesaurus);
+            }
+            case NO_ACTIVE_SERVICE_CALLS: {
+                return new NoActiveServiceCalls(thesaurus, serviceCallService);
             }
             default: {
                 throw new IllegalArgumentException("Unknown or unsupported MicroCheck: " + check);

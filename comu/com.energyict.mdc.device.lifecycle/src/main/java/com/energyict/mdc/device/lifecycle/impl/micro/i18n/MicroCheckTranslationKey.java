@@ -25,6 +25,7 @@ public enum MicroCheckTranslationKey implements TranslationKey {
     MICRO_CHECK_NAME_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + "MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE", "Mandatory communication attributes available"),
     MICRO_CHECK_NAME_AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "At least one active connection available"),
     MICRO_CHECK_NAME_ALL_DATA_VALIDATED(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.ALL_DATA_VALIDATED, "All data validated"),
+    MICRO_CHECK_NAME_NO_ACTIVE_SERVICE_CALLS(Keys.MICRO_CHECK_NAME_TRANSLATE_KEY + MicroCheck.NO_ACTIVE_SERVICE_CALLS, "No active service calls"),
 
     MICRO_CHECK_DESCRIPTION_DEFAULT_CONNECTION_AVAILABLE(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.DEFAULT_CONNECTION_AVAILABLE, "Check if a default connection is available on the device."),
     MICRO_CHECK_DESCRIPTION_AT_LEAST_ONE_MANUALLY_SCHEDULED_COMMUNICATION_TASK_AVAILABLE(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE, "Check if at least one communication task has been scheduled."),
@@ -37,6 +38,7 @@ public enum MicroCheckTranslationKey implements TranslationKey {
     MICRO_CHECK_DESCRIPTION_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + "MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE", "Check if the mandatory communication attributes are available on the device: protocol dialect attributes, security setting attributes, connection attributes, general attributes."),
     MICRO_CHECK_DESCRIPTION_AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "Check if at least one connection is available on the device with the status: \"Active\"."),
     MICRO_CHECK_DESCRIPTION_ALL_DATA_VALIDATED(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.ALL_DATA_VALIDATED, "Check if all the collected data is validated."),
+    MICRO_CHECK_DESCRIPTION_NO_ACTIVE_SERVICE_CALLS(Keys.MICRO_CHECK_DESCRIPTION_TRANSLATE_KEY + MicroCheck.NO_ACTIVE_SERVICE_CALLS, "Check that no service calls are active for the device."),
     ;
 
     private final String key;
