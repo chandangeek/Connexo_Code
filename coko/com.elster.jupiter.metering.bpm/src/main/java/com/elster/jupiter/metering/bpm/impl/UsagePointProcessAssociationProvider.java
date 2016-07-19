@@ -102,7 +102,7 @@ public class UsagePointProcessAssociationProvider implements ProcessAssociationP
                 .named(TranslationKeys.METROLOGY_CONFIGURATION_PROPERTY.getKey(), TranslationKeys.METROLOGY_CONFIGURATION_PROPERTY)
                 .fromThesaurus(this.thesaurus)
                 .addValues(possibleValues)
-                .markRequired()
+//                .markRequired()
                 .markMultiValued(",")
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish();
