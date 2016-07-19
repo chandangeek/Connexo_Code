@@ -5,7 +5,8 @@ Ext.define('Imt.purpose.view.OutputReadings', {
     requires: [
         'Uni.grid.FilterPanelTop',
         'Imt.purpose.view.ReadingsGraph',
-        'Imt.purpose.view.ReadingsList'
+        'Imt.purpose.view.ReadingsList',
+        'Imt.purpose.view.ReadingPreview'
     ],
 
     initComponent: function () {
@@ -48,12 +49,13 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             },
             {
                 xtype: 'readings-graph',
+                router: me.router,
                 output: me.output,
                 interval: me.interval,
                 hidden: !isComplete
             },
             {
-                xtype: 'emptygridcontainer',
+                xtype: 'preview-container',
                 hidden: !isComplete,
                 grid: {
                     xtype: 'readings-list',
@@ -68,6 +70,13 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                         Uni.I18n.translate('readings.list.reason1', 'IMT', 'No data has been collected yet'),
                         Uni.I18n.translate('readings.list.reason2', 'IMT', 'Filter is too narrow')
                     ]
+                },
+                previewComponent: {
+                    xtype: 'reading-preview',
+                    itemId: 'reading-preview',
+                    output: me.output,
+                    router: me.router,
+                    hidden: true
                 }
             }
         ];

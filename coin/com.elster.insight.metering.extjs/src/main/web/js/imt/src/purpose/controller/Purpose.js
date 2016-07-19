@@ -25,6 +25,26 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.view.OutputChannelMain'
     ],
 
+    refs: [
+        {
+            ref: 'readingPreviewPanel',
+            selector: 'output-channel-main reading-preview'
+        }
+    ],
+
+    init: function () {
+        this.control({
+            'output-channel-main readings-list': {
+                select: function (selectionModel, record) {
+                    this.getReadingPreviewPanel().updateForm(record);
+                }
+            },
+            'output-channel-main #readings-graph': {
+                resize: this.onGraphResize
+            }
+        });
+    },
+
     loadOutputs: function (mRID, purposeId, callback) {
         var me = this,
             outputsStore = me.getStore('Imt.purpose.store.Outputs');
@@ -159,5 +179,11 @@ Ext.define('Imt.purpose.controller.Purpose', {
         };
 
         readingsStore.load();
+    },
+
+    onGraphResize: function (graphView, width, height) {
+        if (graphView.chart) {
+            graphView.chart.setSize(width, height, false);
+        }
     }
 });
