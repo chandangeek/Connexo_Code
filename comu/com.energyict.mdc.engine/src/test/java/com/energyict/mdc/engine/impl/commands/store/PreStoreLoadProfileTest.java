@@ -42,9 +42,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -1048,19 +1048,27 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
 
     private List<IntervalData> createMockedIntervalDataThatOverflowsOnThirdValueAfterUpScaling() {
         List<IntervalData> intervalDatas = new ArrayList<>();
-        intervalDatas.add(new IntervalData(intervalEndTime1, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE - 1).divide(BigDecimal.valueOf(1000)), 10)));
-        intervalDatas.add(new IntervalData(intervalEndTime2, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE).divide(BigDecimal.valueOf(1000)), 132)));
-        intervalDatas.add(new IntervalData(intervalEndTime3, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 1).divide(BigDecimal.valueOf(1000)), 165)));
-        intervalDatas.add(new IntervalData(intervalEndTime4, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 2).divide(BigDecimal.valueOf(1000)), 865)));
+        intervalDatas.add(new IntervalData(intervalEndTime1, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE - 1)
+                .divide(BigDecimal.valueOf(1000)), 10)));
+        intervalDatas.add(new IntervalData(intervalEndTime2, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)
+                .divide(BigDecimal.valueOf(1000)), 132)));
+        intervalDatas.add(new IntervalData(intervalEndTime3, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 1)
+                .divide(BigDecimal.valueOf(1000)), 165)));
+        intervalDatas.add(new IntervalData(intervalEndTime4, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 2)
+                .divide(BigDecimal.valueOf(1000)), 865)));
         return intervalDatas;
     }
 
     private List<IntervalData> createMockedIntervalDataThatOverflowsOnThirdValueAfterDownScaling() {
         List<IntervalData> intervalDatas = new ArrayList<>();
-        intervalDatas.add(new IntervalData(intervalEndTime1, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE - 1).multiply(BigDecimal.valueOf(1000)), 10)));
-        intervalDatas.add(new IntervalData(intervalEndTime2, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE).multiply(BigDecimal.valueOf(1000)), 132)));
-        intervalDatas.add(new IntervalData(intervalEndTime3, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 1).multiply(BigDecimal.valueOf(1000)), 165)));
-        intervalDatas.add(new IntervalData(intervalEndTime4, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 2).multiply(BigDecimal.valueOf(1000)), 865)));
+        intervalDatas.add(new IntervalData(intervalEndTime1, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE - 1)
+                .multiply(BigDecimal.valueOf(1000)), 10)));
+        intervalDatas.add(new IntervalData(intervalEndTime2, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE)
+                .multiply(BigDecimal.valueOf(1000)), 132)));
+        intervalDatas.add(new IntervalData(intervalEndTime3, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 1)
+                .multiply(BigDecimal.valueOf(1000)), 165)));
+        intervalDatas.add(new IntervalData(intervalEndTime4, new HashSet<>(), 0, 0, getIntervalValuesFor(BigDecimal.valueOf(DeviceCreator.CHANNEL_OVERFLOW_VALUE + 2)
+                .multiply(BigDecimal.valueOf(1000)), 865)));
         return intervalDatas;
     }
 

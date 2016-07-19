@@ -186,7 +186,8 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private void addCommandFor(ComTaskExecution comTaskExecution, ProtocolTask protocolTask, CommandRoot root, List<ServerCollectedData> data) {
         ComCommand command;
         if (ComCommandTypes.MESSAGES_COMMAND.appliesTo(protocolTask)) {
-            command = new InboundCollectedMessageListCommandImpl(((MessagesTask) protocolTask), this.offlineDevice, root, data, comTaskExecution, this.serviceProvider.issueService(), this.serviceProvider.thesaurus());
+            command = new InboundCollectedMessageListCommandImpl(((MessagesTask) protocolTask), this.offlineDevice, root, data, comTaskExecution, this.serviceProvider.issueService(), this.serviceProvider
+                    .thesaurus());
         } else if (ComCommandTypes.LOGBOOKS_COMMAND.appliesTo(protocolTask)) {
             command = new InboundCollectedLogBookCommandImpl((LogBooksTask) protocolTask, this.offlineDevice, root, comTaskExecution, data, this.serviceProvider.deviceService());
         } else if (ComCommandTypes.LOAD_PROFILE_COMMAND.appliesTo(protocolTask)) {

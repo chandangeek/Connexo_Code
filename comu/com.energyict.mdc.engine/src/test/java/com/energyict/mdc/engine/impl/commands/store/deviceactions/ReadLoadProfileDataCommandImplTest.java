@@ -25,10 +25,15 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentif
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+
 import org.junit.Test;
 import org.mockito.Matchers;
-
-import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

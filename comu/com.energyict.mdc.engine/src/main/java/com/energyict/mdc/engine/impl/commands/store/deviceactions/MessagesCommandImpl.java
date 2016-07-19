@@ -107,7 +107,7 @@ public class MessagesCommandImpl extends SimpleComCommand implements MessagesCom
         this.appendMessagesInfo(sb, this.pendingMessages, "There are no pending messages", "pendingMessages");
     }
 
-    private void appendPendingInvalidMessages (DescriptionBuilder sb) {
+    private void appendPendingInvalidMessages(DescriptionBuilder sb) {
         this.appendMessagesInfo(sb, this.pendingInvalidMessages, "There are no invalid pending messages", "pendingInvalidMessages");
     }
 

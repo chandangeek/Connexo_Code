@@ -34,8 +34,8 @@ class PendingMessagesValidator {
         if (this.hasCalendarAttribute(message)) {
             Set<Calendar> allowedCalendars = this.allowedCalendars(this.device);
             return this.calendarAttributeValues(message)
-                            .stream()
-                            .allMatch(allowedCalendars::contains);
+                    .stream()
+                    .allMatch(allowedCalendars::contains);
         } else {
             return true;
         }
@@ -86,7 +86,7 @@ class PendingMessagesValidator {
 
     private boolean isCalendarRelated(DeviceMessageAttribute attribute) {
         return attribute.getSpecification().isReference()
-            && Calendar.class.isAssignableFrom(attribute.getSpecification().getValueFactory().getValueType());
+                && Calendar.class.isAssignableFrom(attribute.getSpecification().getValueFactory().getValueType());
     }
 
 }

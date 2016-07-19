@@ -181,8 +181,8 @@ public class OfflineDeviceImpl implements OfflineDevice {
                                     this.serviceProvider.thesaurus()
                                             .getFormat(MessageSeeds.CALENDAR_NO_LONGER_ALLOWED)
                                             .format(
-                                                validator.failingCalendarNames(deviceMessage),
-                                                this.device.getDeviceType().getName()));
+                                                    validator.failingCalendarNames(deviceMessage),
+                                                    this.device.getDeviceType().getName()));
                             reallyPending.add(deviceMessage);
                         } else {
                             invalidSinceCreation.add(deviceMessage);
@@ -420,17 +420,17 @@ public class OfflineDeviceImpl implements OfflineDevice {
 
     private List<OfflineDeviceMessage> createOfflineMessageList(final List<DeviceMessage<Device>> deviceMessages) {
         return deviceMessages
-                    .stream()
-                    .filter(deviceMessage -> deviceMessage.getDevice().getDeviceProtocolPluggableClass().isPresent())
-                    .map(this::toOfflineDeviceMessage)
-                    .collect(Collectors.toList());
+                .stream()
+                .filter(deviceMessage -> deviceMessage.getDevice().getDeviceProtocolPluggableClass().isPresent())
+                .map(this::toOfflineDeviceMessage)
+                .collect(Collectors.toList());
     }
 
     private OfflineDeviceMessageImpl toOfflineDeviceMessage(DeviceMessage<Device> deviceMessage) {
         return new OfflineDeviceMessageImpl(
-                        deviceMessage,
-                        deviceMessage.getDevice().getDeviceProtocolPluggableClass().get().getDeviceProtocol(),
-                        serviceProvider.identificationService());
+                deviceMessage,
+                deviceMessage.getDevice().getDeviceProtocolPluggableClass().get().getDeviceProtocol(),
+                serviceProvider.identificationService());
     }
 
     private void setId(final long id) {
