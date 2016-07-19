@@ -68,7 +68,7 @@ class VirtualReadingTypeRequirement {
         return "rid" + this.requirement.getId() + "_" + this.deliverable.getId() + "_" + this.meterActivationSequenceNumber;
     }
 
-    String tempSqlName () {
+    private String tempSqlName() {
         return "temp" + this.requirement.getId() + "_" + this.deliverable.getId() + "_" + this.meterActivationSequenceNumber;
     }
 
@@ -148,8 +148,8 @@ class VirtualReadingTypeRequirement {
 
     @SuppressWarnings("unchecked")
     private void appendDefinitionWithoutAggregation(SqlBuilder sqlBuilder) {
-        TimeSeries timeSeries = this.getPreferredChannel().getTimeSeries();
-        boolean hasLocalDate = this.hasLocalDateField(timeSeries);
+        ChannelContract preferredChannel = this.getPreferredChannel();
+        boolean hasLocalDate = this.hasLocalDateField(preferredChannel);
         sqlBuilder.append("SELECT ");
 
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
@@ -161,11 +161,11 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
 
         sqlBuilder.append(", (SELECT nvl(max(case when type like '%.5.258' then 4 when type like '%.5.259' then 3 else 1 end), 0) FROM mtr_readingquality where readingtype = '");
-        sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
+        sqlBuilder.append(preferredChannel.getMainReadingType().getMRID());
         sqlBuilder.append("' and readingtimestamp = ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
         sqlBuilder.append(" and channelid = ");
-        sqlBuilder.append("" + this.getPreferredChannel().getId());
+        sqlBuilder.append("" + preferredChannel.getId());
         sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
         sqlBuilder.append(", ");
@@ -178,6 +178,7 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(" FROM(");
 
         if (hasLocalDate) {
+            TimeSeries timeSeries = preferredChannel.getTimeSeries();
             sqlBuilder.add(
                     timeSeries
                             .getRawValuesSql(
@@ -191,10 +192,8 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(tempSqlName());
     }
 
-    private boolean hasLocalDateField(TimeSeries timeSeries) {
-        ChannelContract preferredChannel = this.getPreferredChannel();
-        return preferredChannel.getMainReadingType().isRegular();
-        //return timeSeries.getRecordSpec().getFieldSpecs().stream().anyMatch(each -> "LOCALDATE".equals(each.getName()));
+    private boolean hasLocalDateField(ChannelContract channel) {
+        return channel.getMainReadingType().isRegular();
     }
 
     @SuppressWarnings("unchecked")

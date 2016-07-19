@@ -83,7 +83,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
     private VirtualReadingType preferredReadingTypeFor(VirtualReadingType targetReadingType) {
         /* Preferred interval is the smallest matching reading type
          * that is compatible with the target interval. */
-        Optional<VirtualReadingType> preferredReadingType = new MatchingChannelSelector(this.requirement, this.meterActivationSet).getPreferredReadingType(targetReadingType);
+        Optional<VirtualReadingType> preferredReadingType = new MatchingChannelSelector(this.requirement, this.meterActivationSet, this.mode).getPreferredReadingType(targetReadingType);
         if (preferredReadingType.isPresent()) {
             Loggers.ANALYSIS.debug(() ->
                     MessageFormat.format(
@@ -138,7 +138,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
      * @return A flag that indicates if the readingType is backed by one of the channels
      */
     boolean supports(VirtualReadingType readingType) {
-        return new MatchingChannelSelector(this.requirement, this.meterActivationSet).isReadingTypeSupported(readingType);
+        return new MatchingChannelSelector(this.requirement, this.meterActivationSet, this.mode).isReadingTypeSupported(readingType);
     }
 
     /**
@@ -151,7 +151,7 @@ class VirtualRequirementNode implements ServerExpressionNode {
      * @return A flag that indicates if the readingType is backed by one of the channels
      */
     boolean supportsInUnitConversion(VirtualReadingType readingType) {
-        return new MatchingChannelSelector(this.requirement, this.meterActivationSet).isReadingTypeSupportedInUnitConversion(readingType);
+        return new MatchingChannelSelector(this.requirement, this.meterActivationSet, this.mode).isReadingTypeSupportedInUnitConversion(readingType);
     }
 
     VirtualReadingType getSourceReadingType() {

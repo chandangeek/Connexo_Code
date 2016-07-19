@@ -61,6 +61,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.time.DayMonthTime;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -72,6 +73,9 @@ import org.osgi.service.event.EventAdmin;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalTime;
+import java.time.Month;
+import java.time.MonthDay;
 import java.util.Optional;
 
 import org.junit.After;
@@ -157,9 +161,10 @@ public class DataAggregationServiceImplCalculateGasIT {
         setupReadingTypes();
         setupMetrologyPurpose();
         GAS = getMeteringService().getServiceCategory(ServiceKind.GAS).get();
+        setupGasDayOptions();
     }
 
-    protected static void setupBundleContext() {
+    private static void setupBundleContext() {
         bundleContext = mock(BundleContext.class);
         when(bundleContext.getProperty("com.elster.jupiter.location.template")).thenReturn("#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale");
         when(bundleContext.getProperty("com.elster.jupiter.location.template.mandatoryfields")).thenReturn("#adma,#loc,#styp,#snam,#snum");
@@ -210,8 +215,8 @@ public class DataAggregationServiceImplCalculateGasIT {
         injector.getInstance(OrmService.class).invalidateCache("NLS", "NLS_KEY");
     }
 
-    private static MeteringService getMeteringService() {
-        return injector.getInstance(MeteringService.class);
+    private static ServerMeteringService getMeteringService() {
+        return injector.getInstance(ServerMeteringService.class);
     }
 
     private static ServerMetrologyConfigurationService getMetrologyConfigurationService() {
@@ -255,6 +260,13 @@ public class DataAggregationServiceImplCalculateGasIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
+            ctx.commit();
+        }
+    }
+
+    private static void setupGasDayOptions() {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            getMeteringService().createGasDayOptions(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(17, 0)));
             ctx.commit();
         }
     }
@@ -308,7 +320,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         DataAggregationService service = this.testInstance();
         this.setupMeter("simple15Mins");
         this.setupUsagePoint("simple15Mins");
-        this.activateMeterWithAll15MinChannels(defaultMeterRole);
+        this.activateMeterWith15min_m3_Channel(defaultMeterRole);
 
         // Setup MetrologyConfiguration
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simple15Mins", GAS).create();
@@ -320,7 +332,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         System.out.println("simple15Mins::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesBulkGas_kWh, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesBulkGas_kWh, Formula.Mode.EXPERT);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.multiply(
@@ -361,13 +373,93 @@ public class DataAggregationServiceImplCalculateGasIT {
                     .matches("SELECT -1, rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.timestamp,.*");
             // Assert that the consumption requirements' values is multiplied with the constant in the select clause
             assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
-                    .matches("SELECT.*\\(10.4167 * rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.value).*");
+                    .matches("SELECT.*\\(\\s*\\?\\s*\\* rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.value\\).*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
             assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(FIFTEEN_MINS_BULK_GAS_VOLUME_KMH_MRID) + "'.*");
             // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
             assertThat(overallSelectWithoutNewlines).matches(".*rod" + consumptionDeliverableId + "_1\\.value, rod" + consumptionDeliverableId + "_1\\.localdate, rod" + consumptionDeliverableId + "_1\\.timestamp.*");
+        }
+    }
+
+    /**
+     * Aggregate 15 min values to monthly level.
+     * Metrology configuration
+     * requirements:
+     * C ::= any kWh (aka consumption)
+     * deliverables:
+     * Conso (monthly kWh) ::= C
+     * Device:
+     * meter activations:
+     * Jan 1st 2016 -> forever
+     * C -> 15 min kWh
+     * In other words, simple multiplication of constant and 1 requirements that is provided
+     * by exactly one matching channel with a single meter activation.
+     */
+    @Test
+    @Transactional
+    public void monthlyValuesFrom15minValues() {
+        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
+        DataAggregationService service = this.testInstance();
+        this.setupMeter("monthlyValuesFrom15minValues");
+        this.setupUsagePoint("monthlyValuesFrom15minValues");
+        this.activateMeterWith15min_kWh_Channel(defaultMeterRole);
+
+        // Setup MetrologyConfiguration
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyValuesFrom15minValues", GAS).create();
+        this.configuration.addMeterRole(defaultMeterRole);
+
+        // Setup configuration requirements
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("C", defaultMeterRole).withReadingType(fifteenMinutesBulkGas_kWh);
+        this.consumptionRequirementId = consumption.getId();
+        System.out.println("monthlyValuesFrom15minValues::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
+
+        // Setup configuration deliverables
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyBulkGas_kWh, Formula.Mode.AUTO);
+        ReadingTypeDeliverable netConsumption = builder.build(builder.requirement(consumption));
+
+        this.consumptionDeliverableId = netConsumption.getId();
+        System.out.println("monthlyValuesFrom15minValues::NET_CONSUMPTION_DELIVERABLE_ID = " + this.consumptionDeliverableId);
+
+        // Now that all requirements and deliverables have been created, we can mock the SqlBuilders
+        this.initializeSqlBuilders();
+
+        // Apply MetrologyConfiguration to UsagePoint
+        this.usagePoint.apply(this.configuration, jan1st2016);
+
+        this.contract = this.configuration.addMetrologyContract(METROLOGY_PURPOSE);
+        this.contract.addDeliverable(netConsumption);
+
+        // Business method
+        try {
+            service.calculate(this.usagePoint, this.contract, year2016());
+        } catch (UnderlyingSQLFailedException e) {
+            // Expected because the statement contains WITH clauses
+            // Asserts:
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rid" + consumptionRequirementId + ".*" + consumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            assertThat(consumptionRequirementWithClauseBuilder.getText()).isNotEmpty();
+            verify(clauseAwareSqlBuilder)
+                    .with(
+                        matches("rod" + consumptionDeliverableId + ".*1"),
+                        any(Optional.class),
+                        anyVararg());
+            // Assert that the consumption requirement is used as source for the timeline
+            assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
+                    .matches("SELECT -1, rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.timestamp,.*");
+            verify(clauseAwareSqlBuilder).select();
+            String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
+            // Assert that the overall select statement selects the target reading type
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(MONTHLY_BULK_GAS_VOLUME_KWH_MRID) + "'.*");
+            // Assert that the overall select statement truncates to monthly level and takes the gas day start options into account.
+            assertThat(overallSelectWithoutNewlines).matches(".*\\(TRUNC\\(rod" + consumptionDeliverableId + "_1.localdate - INTERVAL '17' HOUR, 'MONTH'\\) \\+ INTERVAL '17' HOUR\\).*");
+            assertThat(overallSelectWithoutNewlines).matches(".*GROUP BY \\(TRUNC\\(rod" + consumptionDeliverableId + "_1.localdate - INTERVAL '17' HOUR, 'MONTH'\\) \\+ INTERVAL '17' HOUR\\).*");
+            // Assert that the overall select statement sums the values and the timestamp from the with clause for the deliverable
+            assertThat(overallSelectWithoutNewlines).matches(".*SUM\\(rod" + consumptionDeliverableId + "_1\\.value\\).*");
         }
     }
 
@@ -389,9 +481,14 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.usagePoint = electricity.newUsagePoint(mRID, jan1st2016).withName(DataAggregationServiceImplCalculateGasIT.class.getSimpleName()).create();
     }
 
-    private void activateMeterWithAll15MinChannels(MeterRole meterRole) {
+    private void activateMeterWith15min_m3_Channel(MeterRole meterRole) {
         MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, jan1st2016);
         meterActivation.getChannelsContainer().createChannel(fifteenMinutesBulkGasCubicMeter);
+    }
+
+    private void activateMeterWith15min_kWh_Channel(MeterRole meterRole) {
+        MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, jan1st2016);
+        meterActivation.getChannelsContainer().createChannel(fifteenMinutesBulkGas_kWh);
     }
 
     private String mRID2GrepPattern(String mRID) {
