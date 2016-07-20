@@ -71,11 +71,13 @@ public enum TransitionType {
         }
         @Override
         public Set<MicroAction> optionalActions() {
-            return EnumSet.of(MicroAction.START_COMMUNICATION,
+            return EnumSet.of(
+                    MicroAction.START_COMMUNICATION,
                     MicroAction.START_RECURRING_COMMUNICATION,
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.SET_MULTIPLIER,
-                    MicroAction.ENABLE_VALIDATION);
+                    MicroAction.ENABLE_VALIDATION,
+                    MicroAction.LINK_TO_USAGE_POINT);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -114,7 +116,8 @@ public enum TransitionType {
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.DISABLE_COMMUNICATION,
                     MicroAction.SET_MULTIPLIER,
-                    MicroAction.ENABLE_VALIDATION);
+                    MicroAction.ENABLE_VALIDATION,
+                    MicroAction.LINK_TO_USAGE_POINT);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -151,7 +154,8 @@ public enum TransitionType {
                     MicroAction.START_RECURRING_COMMUNICATION,
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.SET_MULTIPLIER,
-                    MicroAction.ENABLE_VALIDATION);
+                    MicroAction.ENABLE_VALIDATION,
+                    MicroAction.LINK_TO_USAGE_POINT);
         }
 
         @Override
@@ -191,7 +195,8 @@ public enum TransitionType {
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.DISABLE_COMMUNICATION,
                     MicroAction.SET_MULTIPLIER,
-                    MicroAction.ENABLE_VALIDATION);
+                    MicroAction.ENABLE_VALIDATION,
+                    MicroAction.LINK_TO_USAGE_POINT);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -229,12 +234,14 @@ public enum TransitionType {
                     MicroAction.START_RECURRING_COMMUNICATION,
                     MicroAction.ENABLE_ESTIMATION,
                     MicroAction.SET_MULTIPLIER,
-                    MicroAction.ENABLE_VALIDATION);
+                    MicroAction.ENABLE_VALIDATION,
+                    MicroAction.LINK_TO_USAGE_POINT);
         }
 
         @Override
         public Set<MicroAction> requiredActions() {
-            return EnumSet.of(MicroAction.SET_LAST_READING,
+            return EnumSet.of(
+                    MicroAction.SET_LAST_READING,
                     MicroAction.CREATE_METER_ACTIVATION,
                     MicroAction.ACTIVATE_CONNECTION_TASKS_IN_USE);
         }
@@ -274,12 +281,14 @@ public enum TransitionType {
                     MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
                     MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
                     MicroCheck.ALL_DATA_VALIDATED,
-                    MicroCheck.ALL_DATA_VALID);
+                    MicroCheck.ALL_DATA_VALID,
+                    MicroCheck.NO_ACTIVE_SERVICE_CALLS);
         }
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS,
-                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION);
+                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION,
+                    MicroAction.CANCEL_ALL_SERVICE_CALLS);
         }
         @Override
         public Set<MicroAction> requiredActions() {
@@ -299,12 +308,14 @@ public enum TransitionType {
             return EnumSet.of(MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED,
                     MicroCheck.ALL_LOAD_PROFILE_DATA_COLLECTED,
                     MicroCheck.ALL_DATA_VALIDATED,
-                    MicroCheck.ALL_DATA_VALID);
+                    MicroCheck.ALL_DATA_VALID,
+                    MicroCheck.NO_ACTIVE_SERVICE_CALLS);
         }
         @Override
         public Set<MicroAction> optionalActions() {
             return EnumSet.of(MicroAction.REMOVE_DEVICE_FROM_STATIC_GROUPS,
-                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION);
+                    MicroAction.FORCE_VALIDATION_AND_ESTIMATION,
+                    MicroAction.CANCEL_ALL_SERVICE_CALLS);
         }
         @Override
         public Set<MicroAction> requiredActions() {
