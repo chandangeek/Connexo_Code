@@ -33,7 +33,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelsGrid', {
                 renderer: function (value) {
                     return value
                         ? Uni.DateTime.formatDateTimeShort(new Date(value))
-                        : '';
+                        : '-';
                 }
             }
         ];

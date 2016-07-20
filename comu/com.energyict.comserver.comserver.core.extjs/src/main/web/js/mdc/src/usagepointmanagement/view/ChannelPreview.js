@@ -65,7 +65,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                                     : deviceChannel.mRID,
                                 channel = canViewDevices && deviceChannel.channel.id
                                     ? '<a href="'
-                                + me.router.getRoute('devices/device/channels/channel').buildUrl({
+                                + me.router.getRoute('devices/device/channels/channeldata').buildUrl({
                                     mRID: deviceChannel.mRID,
                                     channelId: deviceChannel.channel.id
                                 })
@@ -90,7 +90,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                         });
                     }
 
-                    return result;
+                    return result || '-';
                 }
             }
         ];
