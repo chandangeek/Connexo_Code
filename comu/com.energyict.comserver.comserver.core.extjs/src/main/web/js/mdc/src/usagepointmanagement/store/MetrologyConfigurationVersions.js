@@ -5,6 +5,9 @@ Ext.define('Mdc.usagepointmanagement.store.MetrologyConfigurationVersions', {
         type: 'rest',
         urlTpl: '/api/mtr/usagepoints/{mRID}/history/metrologyconfigurations',
         timeout: 240000,
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
         reader: {
             type: 'json',
             root: 'metrologyConfigurationVersions'
