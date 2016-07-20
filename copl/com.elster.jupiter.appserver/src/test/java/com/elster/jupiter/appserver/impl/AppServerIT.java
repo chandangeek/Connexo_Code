@@ -49,6 +49,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -85,6 +86,8 @@ public class AppServerIT {
     private FileImporterFactory fileImporterFactory;
     @Mock
     private Group group;
+    @Mock
+    private HttpService httpService;
 
     private WebServicesService webServicesService;
 
@@ -104,6 +107,7 @@ public class AppServerIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(httpService);
         }
     }
 
