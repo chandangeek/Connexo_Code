@@ -37,6 +37,7 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
     private OutboundEndPointConfiguration endPointConfiguration;
     private final AtomicReference<ServiceRegistration<S>> serviceRegistration = new AtomicReference<>();
     private Client client;
+    private TracingFeature tracingFeature;
 
     @Inject
     public OutboundRestEndPoint(BundleContext bundleContext, @Named("LogDirectory") String logDirectory) {
@@ -63,6 +64,14 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
             client.register(HttpAuthenticationFeature.basic(endPointConfiguration.getUsername(), endPointConfiguration.getPassword()
                     .getBytes()));
         }
+        if (endPointConfiguration.isTracing()) {
+            try {
+                tracingFeature = new TracingFeature().init(logDirectory, endPointConfiguration.getTraceFile());
+                client.register(tracingFeature);
+            } catch (Exception e) {
+                endPointConfiguration.log("Failed to enable tracing", e);
+            }
+        }
         WebTarget target = client.target(endPointConfiguration.getUrl());
 
         S service = endPointProvider.get(target);
@@ -81,6 +90,9 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
             serviceRegistration.getAndSet(null).unregister();
             client.close();
             client = null;
+            if (tracingFeature != null) {
+                tracingFeature.close();
+            }
         } else {
             throw new IllegalStateException("Service already stopped");
         }

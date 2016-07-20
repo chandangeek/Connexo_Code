@@ -47,6 +47,7 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
 
     private String alias;
     private final Provider<AccessLogFeature> restAccessLogFeatureProvider;
+    private TracingFeature tracingFeature;
 
     @Inject
     public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService, HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider, Provider<AccessLogFeature> restAccessLogFeatureProvider) {
@@ -81,6 +82,15 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         if (application instanceof BinderProvider) {
             secureConfig.register(((BinderProvider) application).getBinder());
         }
+        if (endPointConfiguration.isTracing()) {
+            try {
+                tracingFeature = new TracingFeature().init(logDirectory, endPointConfiguration.getTraceFile());
+                secureConfig.register(tracingFeature);
+            } catch (Exception e) {
+                endPointConfiguration.log("Failed to enable tracing", e);
+            }
+        }
+
         EncodingFilter.enableFor(secureConfig, GZipEncoder.class); // TODO deflate also
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
@@ -102,9 +112,12 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     @Override
     public void stop() {
         if (this.isPublished()) {
+            application = null;
             httpService.unregister(alias);
             alias = null;
-            application = null;
+            if (tracingFeature != null) {
+                tracingFeature.close();
+            }
         } else {
             throw new IllegalStateException("Service already stopped");
         }
