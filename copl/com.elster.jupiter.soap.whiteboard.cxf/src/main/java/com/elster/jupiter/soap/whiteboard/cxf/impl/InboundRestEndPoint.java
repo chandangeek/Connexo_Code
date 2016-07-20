@@ -45,13 +45,15 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     private Application application;
 
     private String alias;
+    private final Provider<RestAccessLogFeature> restAccessLogFeatureProvider;
 
     @Inject
-    public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService, HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider) {
+    public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService, HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider, Provider<RestAccessLogFeature> restAccessLogFeatureProvider) {
         this.logDirectory = logDirectory;
         this.transactionService = transactionService;
         this.httpService = httpService;
         this.basicAuthenticationProvider = basicAuthenticationProvider;
+        this.restAccessLogFeatureProvider = restAccessLogFeatureProvider;
     }
 
     InboundRestEndPoint init(InboundRestEndPointProvider endPointProvider, InboundEndPointConfiguration endPointConfiguration) {
@@ -70,6 +72,7 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         ResourceConfig secureConfig = ResourceConfig.forApplication(Objects.requireNonNull(application));
         secureConfig.register(ObjectMapperProvider.class);
         secureConfig.register(JacksonFeature.class);
+        secureConfig.register(restAccessLogFeatureProvider.get().init(endPointConfiguration));
         secureConfig.register(RolesAllowedDynamicFeature.class);
         secureConfig.register(JsonMappingExceptionMapper.class);
         secureConfig.register(new TransactionWrapper(transactionService));
