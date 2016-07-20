@@ -18,7 +18,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
     models: [
         'Imt.purpose.model.Output',
         'Imt.purpose.model.Reading',
-        'Imt.usagepointmanagement.model.ValidationInfo'
+        'Imt.usagepointmanagement.model.ValidationInfo',
+        'Imt.usagepointmanagement.model.SuspectReason'
     ],
 
     views: [
