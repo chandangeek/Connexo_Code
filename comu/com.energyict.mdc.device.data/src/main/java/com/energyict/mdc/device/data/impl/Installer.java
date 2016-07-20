@@ -20,8 +20,10 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.impl.ami.eventhandler.MeterReadingEventHandlerFactory;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
@@ -142,7 +144,9 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             Arrays.asList(
                     Pair.of(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
                     Pair.of(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED")),
-                    Pair.of(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")))
+                    Pair.of(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
+                    Pair.of(MeterReadingEventHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/elster/jupiter/metering/meterreading/CREATED"))
+            )
                     .stream()
                     .
                             filter(subscriber -> !jupiterEvents.getSubscribers()
@@ -173,7 +177,6 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         this.createMessageHandler(defaultQueueTableSpec, SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION, SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION, ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER);
         this.createMessageHandler(defaultQueueTableSpec, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_DESTINATION, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER);
-        createMeterReadingSubscriber();
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String messagingName) {
@@ -198,11 +201,6 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         }
     }
 
-    private void createMeterReadingSubscriber() {
-        messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get()
-                .subscribe("MeterReadingHandler", whereCorrelationId().isEqualTo("com/elster/jupiter/metering/meterreading/CREATED"));
-    }
-
     private void createMasterData() {
         // No master data so far
     }
@@ -221,20 +219,10 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void createOnDemandReadServiceCallType() {
-        RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
-                .stream()
-                .filter(cps -> cps.getCustomPropertySet()
-                        .getId()
-                        .equals(OnDemandReadServiceCallDomainExtension.class.getName()))
-                .findFirst()
+        RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(OnDemandReadServiceCallDomainExtension.class.getName())
                 .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", OnDemandReadServiceCallCustomPropertySet.class
                         .getSimpleName())));
-        RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
-                .stream()
-                .filter(cps -> cps.getCustomPropertySet()
-                        .getName()
-                        .equals(CompletionOptionsCustomPropertySet.class.getSimpleName()))
-                .findFirst()
+        RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(CompletionOptionsServiceCallDomainExtension.class.getName())
                 .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", CompletionOptionsCustomPropertySet.class
                         .getSimpleName())));
 

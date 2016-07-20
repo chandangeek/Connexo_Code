@@ -39,6 +39,7 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.impl.ami.eventhandler.MeterReadingEventHandlerFactory;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTranslationKeys;
@@ -653,7 +654,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 new SimpleTranslationKey(SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME),
                 new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME),
                 new SimpleTranslationKey(ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER, ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_SUBSCRIBER_DISPLAY_NAME),
-                new SimpleTranslationKey(ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER_DISPLAY_NAME)));
+                new SimpleTranslationKey(ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER, ComTaskEnablementChangeMessageHandler.COMTASK_ENABLEMENT_QUEUE_SUBSCRIBER_DISPLAY_NAME),
+                new SimpleTranslationKey(MeterReadingEventHandlerFactory.SUBSCRIBER_NAME, MeterReadingEventHandlerFactory.SUBSCRIBER_DISPLAYNAME)));
         keys.addAll(Arrays.asList(Privileges.values()));
         keys.addAll(Arrays.asList(ConnectionTaskSuccessIndicatorTranslationKeys.values()));
         keys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));

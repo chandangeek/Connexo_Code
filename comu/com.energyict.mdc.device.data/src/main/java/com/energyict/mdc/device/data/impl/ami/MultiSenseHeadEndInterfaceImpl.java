@@ -254,46 +254,37 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private Set<ReadingType> getSupportedReadingTypes(Collection<ComTaskExecution> comTaskExecutions, Collection<ReadingType> readingTypes) {
         Set<ReadingType> readingTypesWithExecutions = new HashSet<>();
 
-        for (ReadingType readingType : readingTypes) {
-            if (readingType.isRegular()) {
-                comTaskExecutions.stream()
-                        .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
-                                .stream()
-                                .anyMatch(protocolTask -> protocolTask instanceof LoadProfilesTask))
-                        .forEach((e) -> {
-                            readingTypesWithExecutions.add(readingType);
-                        });
-            } else {
-                comTaskExecutions.stream()
-                        .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
-                                .stream()
-                                .anyMatch(protocolTask -> protocolTask instanceof RegistersTask))
-                        .forEach((e) -> {
-                            readingTypesWithExecutions.add(readingType);
-                        });
-            }
+        if(readingTypes.stream().anyMatch(ReadingType::isRegular) && comTaskExecutions.stream()
+                .anyMatch(comTaskExecution -> comTaskExecution.getProtocolTasks()
+                        .stream()
+                        .anyMatch(protocolTask -> protocolTask instanceof LoadProfilesTask))){
+            readingTypes.stream().filter(ReadingType::isRegular).forEach(readingTypesWithExecutions::add);
         }
-
+        if (readingTypes.stream().anyMatch(readingType -> !readingType.isRegular()) && comTaskExecutions.stream()
+                .anyMatch(comTaskExecution -> comTaskExecution.getProtocolTasks()
+                        .stream()
+                        .anyMatch(protocolTask -> protocolTask instanceof RegistersTask))){
+            readingTypes.stream().filter(readingType -> !readingType.isRegular()).forEach(readingTypesWithExecutions::add);
+        }
         return readingTypesWithExecutions;
     }
 
     private Set<ComTaskExecution> getComTaskExecutionsForReadingTypes(Collection<ComTaskExecution> comTaskExecutions, Collection<ReadingType> readingTypes) {
         Set<ComTaskExecution> fileredComTaskExecutions = new HashSet<>();
 
-        for (ReadingType readingType : readingTypes) {
-            if (readingType.isRegular()) {
-                comTaskExecutions.stream()
-                        .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
-                                .stream()
-                                .anyMatch(protocolTask -> protocolTask instanceof LoadProfilesTask))
-                        .forEach(fileredComTaskExecutions::add);
-            } else {
-                comTaskExecutions.stream()
-                        .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
-                                .stream()
-                                .anyMatch(protocolTask -> protocolTask instanceof RegistersTask))
-                        .forEach(fileredComTaskExecutions::add);
-            }
+        if(readingTypes.stream().anyMatch(ReadingType::isRegular)){
+            comTaskExecutions.stream()
+                    .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
+                            .stream()
+                            .anyMatch(protocolTask -> protocolTask instanceof LoadProfilesTask))
+                    .forEach(fileredComTaskExecutions::add);
+        }
+        if (readingTypes.stream().anyMatch(readingType -> !readingType.isRegular())){
+            comTaskExecutions.stream()
+                    .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
+                            .stream()
+                            .anyMatch(protocolTask -> protocolTask instanceof LoadProfilesTask))
+                    .forEach(fileredComTaskExecutions::add);
         }
         return fileredComTaskExecutions;
     }
