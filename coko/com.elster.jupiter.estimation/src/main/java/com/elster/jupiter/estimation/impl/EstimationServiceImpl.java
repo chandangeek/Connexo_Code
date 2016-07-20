@@ -253,7 +253,7 @@ public class EstimationServiceImpl implements IEstimationService, TranslationKey
     @Override
     public EstimationReport estimate(QualityCodeSystem system, MeterActivation meterActivation, Range<Instant> period, Logger logger) {
         EstimationReportImpl report = previewEstimate(system, meterActivation, period, logger);
-        estimationEngine.applyEstimations(report);
+        estimationEngine.applyEstimations(system, report);
         logEstimationReport(meterActivation, period, logger, report);
         postEvents(report);
         return report;
