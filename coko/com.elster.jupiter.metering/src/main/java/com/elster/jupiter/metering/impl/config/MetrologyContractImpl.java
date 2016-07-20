@@ -214,6 +214,11 @@ public class MetrologyContractImpl implements MetrologyContract {
         public String getName() {
             return this.thesaurus.getFormat(this.statusKey.getTranslation()).format();
         }
+
+        @Override
+        public boolean isComplete() {
+            return MetrologyContractStatusKey.COMPLETE.equals(this.statusKey);
+        }
     }
 
     enum MetrologyContractStatusKey {
