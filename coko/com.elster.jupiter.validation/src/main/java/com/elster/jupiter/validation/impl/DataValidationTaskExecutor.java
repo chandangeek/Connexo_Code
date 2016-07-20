@@ -159,7 +159,8 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     }
 
     private void validateUsagePointOutputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
-        effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer -> {
+        effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)
+                .ifPresent(channelsContainer -> {
             try (TransactionContext transactionContext = transactionService.getContext()) {
                 validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer).setMetrologyContract(metrologyContract));
                 transactionContext.commit();
