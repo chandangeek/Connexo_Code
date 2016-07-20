@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -27,6 +28,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
@@ -38,6 +40,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -47,13 +50,14 @@ import java.util.Set;
         service = {Application.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/udr", "app=INS", "name=" + UsagePointApplication.COMPONENT_NAME})
-public class UsagePointApplication extends Application implements TranslationKeyProvider {
+public class UsagePointApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
     public static final String APP_KEY = "INS";
     public static final String COMPONENT_NAME = "UDR";
 
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
+    private volatile TimeService timeService;
     private volatile MeteringService meteringService;
     private volatile LocationService locationService;
     private volatile RestQueryService restQueryService;
@@ -98,7 +102,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus("VAL", Layer.REST));
+                .join(nlsService.getThesaurus("VAL", Layer.REST))
+                .join(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Override
@@ -112,6 +117,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> keys = new ArrayList<>();
         Collections.addAll(keys, DefaultTranslationKey.values());
@@ -119,6 +129,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         Collections.addAll(keys, LocationTranslationKeys.values());
         Collections.addAll(keys, UsagePointModelTranslationKeys.values());
         return keys;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Reference
@@ -228,6 +243,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(timeService).to(TimeService.class);
             bind(meteringService).to(MeteringService.class);
             bind(locationService).to(LocationService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
@@ -258,6 +274,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(OutputRegisterDataInfoFactory.class).to(OutputRegisterDataInfoFactory.class);
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(GoingOnResource.class).to(GoingOnResource.class);
+            bind(ChannelDataValidationSummaryInfoFactory.class).to(ChannelDataValidationSummaryInfoFactory.class);
             bind(OutputInfoFactory.class).to(OutputInfoFactory.class);
             bind(PurposeInfoFactory.class).to(PurposeInfoFactory.class);
             bind(ValidationStatusFactory.class).to(ValidationStatusFactory.class);

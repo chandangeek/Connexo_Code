@@ -69,6 +69,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     MeteringService meteringService;
     @Mock
+    TimeService timeService;
+    @Mock
     LocationService locationService;
     @Mock
     RestQueryService restQueryService;
@@ -120,6 +122,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMeteringService(meteringService);
+        application.setTimeService(timeService);
         application.setLocationService(locationService);
         application.setRestQueryService(restQueryService);
         application.setClockService(clock);

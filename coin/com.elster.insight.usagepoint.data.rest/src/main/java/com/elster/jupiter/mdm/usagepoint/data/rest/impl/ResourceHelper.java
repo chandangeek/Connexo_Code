@@ -37,22 +37,22 @@ public class ResourceHelper {
 
     public MeterRole findMeterRoleOrThrowException(String key) {
         return metrologyConfigurationService.findMeterRole(key)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METER_ROLE_FOR_KEY, key));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_ROLE_FOR_KEY, key));
     }
 
     public Meter findMeterOrThrowException(String mrid) {
         return meteringService.findMeter(mrid)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_DEVICE_FOR_MRID, mrid));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_MRID, mrid));
     }
 
     public UsagePoint findUsagePointByMrIdOrThrowException(String mrid) {
         return meteringService.findUsagePoint(mrid)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
     }
 
     public UsagePoint findUsagePointByIdOrThrowException(long id) {
         return meteringService.findUsagePoint(id)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_ID, id));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_FOR_ID, id));
     }
 
     public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid, long version) {
@@ -69,7 +69,7 @@ public class ResourceHelper {
         return metrologyConfigurationService.findAndLockMetrologyConfiguration(id, version)
                 .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
                 .map(UsagePointMetrologyConfiguration.class::cast)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
     }
 
     public UsagePointMetrologyConfiguration findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
@@ -78,7 +78,7 @@ public class ResourceHelper {
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
                 .map(this::isActiveMetrologyConfigurationOrThrowException)
                 .map(UsagePointMetrologyConfiguration.class::cast)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
     }
 
     private MetrologyConfiguration isActiveMetrologyConfigurationOrThrowException(MetrologyConfiguration metrologyConfiguration) {
