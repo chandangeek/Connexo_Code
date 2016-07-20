@@ -224,7 +224,7 @@ public class ChannelDeleteAfterIT {
         assertThat(block.getIntervals()).hasSize(2);
         assertThat(block.getIntervals().get(0).getTimeStamp()).isEqualTo(channel_time2);
         assertThat(block.getIntervals().get(0).getValue()).isEqualTo(BigDecimal.valueOf(2));
-        assertThat(block.getIntervals().get(0).getReadingQualities()).hasSize(0);
+        assertThat(block.getIntervals().get(0).getReadingQualities()).hasSize(1);
         assertThat(block.getIntervals().get(0).getTimePeriod()).isEqualTo(Optional.empty());
 
         assertThat(block.getIntervals().get(1).getTimeStamp()).isEqualTo(channel_time3);
@@ -236,7 +236,7 @@ public class ChannelDeleteAfterIT {
         assertThat(block.getIntervals()).hasSize(2);
         assertThat(block.getIntervals().get(0).getTimeStamp()).isEqualTo(channel_time2);
         assertThat(block.getIntervals().get(0).getValue()).isEqualTo(BigDecimal.ONE);
-        assertThat(block.getIntervals().get(0).getReadingQualities()).hasSize(1);
+        assertThat(block.getIntervals().get(0).getReadingQualities()).hasSize(2);
         assertThat(block.getIntervals().get(0).getReadingQualities()).has(new Condition<>((Predicate<List<? extends ReadingQuality>>) readingQualities -> readingQualities.stream()
                 .anyMatch(rq -> DEVICE_READING_QUALITY_CODE.equals(rq.getTypeCode())), "reading qualities do not contain " + DEVICE_READING_QUALITY_CODE));
         assertThat(block.getIntervals().get(0).getTimePeriod()).isEqualTo(Optional.empty());
@@ -269,7 +269,7 @@ public class ChannelDeleteAfterIT {
         assertThat(block.getIntervals()).hasSize(2);
         assertThat(block.getIntervals().get(0).getTimeStamp()).isEqualTo(channel_time2);
         assertThat(block.getIntervals().get(0).getValue()).isEqualTo(BigDecimal.valueOf(2));
-        assertThat(block.getIntervals().get(0).getReadingQualities()).hasSize(0);
+        assertThat(block.getIntervals().get(0).getReadingQualities()).hasSize(1);
         assertThat(block.getIntervals().get(0).getTimePeriod()).isEqualTo(Optional.empty());
 
         assertThat(block.getIntervals().get(1).getTimeStamp()).isEqualTo(channel_time3);
@@ -281,7 +281,7 @@ public class ChannelDeleteAfterIT {
         assertThat(block.getIntervals()).hasSize(2);
         assertThat(block.getIntervals().get(0).getTimeStamp()).isEqualTo(channel_time2);
         assertThat(block.getIntervals().get(0).getValue()).isEqualTo(BigDecimal.TEN);
-        assertThat(block.getIntervals().get(0).getReadingQualities()).hasSize(1);
+        assertThat(block.getIntervals().get(0).getReadingQualities()).hasSize(2);
         assertThat(block.getIntervals().get(0).getReadingQualities()).has(new Condition<>((Predicate<List<? extends ReadingQuality>>) readingQualities -> readingQualities.stream()
                 .anyMatch(rq -> DEVICE_READING_QUALITY_CODE.equals(rq.getTypeCode())), "reading qualities do not contain " + DEVICE_READING_QUALITY_CODE));
         assertThat(block.getIntervals().get(0).getTimePeriod()).isEqualTo(Optional.empty());
