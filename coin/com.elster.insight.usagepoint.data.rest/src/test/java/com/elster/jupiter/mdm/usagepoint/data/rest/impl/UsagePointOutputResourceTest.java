@@ -1,12 +1,18 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.validation.ValidationContextImpl;
 
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -15,25 +21,30 @@ import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJerseyTest {
     @Mock
     private UsagePoint usagePoint;
+    @Mock
+    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMC;
+    @Mock
+    private ChannelsContainer channelsContainer;
 
     @Before
     public void before() {
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
+        when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
     }
 
     @Test
     public void testGetUsagePointPurposes() {
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
-        when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.empty());
+        long lastChecked = 1468875600000L;
+        when(validationService.getLastChecked(channelsContainer)).thenReturn(Optional.of(Instant.ofEpochMilli(lastChecked)));
 
         // Business method
         String json = target("/usagepoints/MRID/purposes").request().get(String.class);
@@ -42,17 +53,16 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<Number>get("$.purposes[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.purposes[0].version")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.purposes[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
         assertThat(jsonModel.<Boolean>get("$.purposes[0].required")).isEqualTo(true);
         assertThat(jsonModel.<Boolean>get("$.purposes[0].active")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.purposes[0].status.id")).isEqualTo("incomplete");
+        assertThat(jsonModel.<Number>get("$.purposes[0].lastChecked")).isEqualTo(lastChecked);
     }
 
     @Test
     public void testGetOutputsOfUsagePointPurpose() {
-        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(mockMetrologyConfigurationWithContract(1, "1test"));
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-
         // Business method
         String json = target("/usagepoints/MRID/purposes/1/outputs").request().get(String.class);
 
@@ -77,9 +87,6 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
 
     @Test
     public void testGetOutputById() {
-        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(mockMetrologyConfigurationWithContract(1, "1test"));
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-
         // Business method
         String json = target("/usagepoints/MRID/purposes/1/outputs/1").request().get(String.class);
 
@@ -92,5 +99,41 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<String>get("$.interval.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         assertThat(jsonModel.<String>get("$.formula.description")).isEqualTo("Formula Description");
+    }
+
+    @Test
+    public void testValidatePurposeOnRequest() {
+        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts().get(0);
+        PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
+        when(metrologyConfigurationService.findAndLockMetrologyContract(purposeInfo.id, purposeInfo.version)).thenReturn(Optional.of(metrologyContract));
+
+        // Business method
+        Response response = target("usagepoints/MRID/purposes/1/validate").request().put(Entity.json(purposeInfo));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        verify(validationService).validate(any(ValidationContextImpl.class), any(Instant.class));
+    }
+
+    @Test
+    public void testValidatePurposeOnRequestConcurrencyCheck() {
+        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts().get(0);
+        PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
+        when(metrologyConfigurationService.findAndLockMetrologyContract(purposeInfo.id, purposeInfo.version)).thenReturn(Optional.empty());
+        when(metrologyConfigurationService.findMetrologyContract(metrologyContract.getId())).thenReturn(Optional.of(metrologyContract));
+
+        // Business method
+        Response response = target("usagepoints/MRID/purposes/1/validate").request().put(Entity.json(purposeInfo));
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    private PurposeInfo createPurposeInfo(MetrologyContract metrologyContract) {
+        PurposeInfo purposeInfo = new PurposeInfo();
+        purposeInfo.id = metrologyContract.getId();
+        purposeInfo.version = metrologyContract.getVersion();
+        purposeInfo.lastChecked = 1467185935140L;
+        return purposeInfo;
     }
 }

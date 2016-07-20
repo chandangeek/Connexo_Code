@@ -197,6 +197,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     private MetrologyContract mockMetrologyContract(long id, DefaultMetrologyPurpose metrologyPurpose, UsagePointMetrologyConfiguration metrologyConfiguration) {
         MetrologyContract contract = mock(MetrologyContract.class);
         when(contract.getId()).thenReturn(id);
+        when(contract.getVersion()).thenReturn(1L);
         when(contract.isMandatory()).thenReturn(true);
         MetrologyPurpose purpose = mockMetrologyPurpose(metrologyPurpose);
         when(contract.getMetrologyPurpose()).thenReturn(purpose);
