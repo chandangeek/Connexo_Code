@@ -6,7 +6,6 @@ import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationExce
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterAlreadyActive;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -16,6 +15,8 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.impl.config.SelfObjectValidator;
 import com.elster.jupiter.metering.impl.config.SelfValid;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
+
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidatorContext;
@@ -110,8 +111,7 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
             if (!uniqueMetersCollector.add(mappingEntry.getValue())) {
                 result = false;
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT + "}")
-                        .addPropertyNode(mappingEntry.getKey().getKey())
-                        .addConstraintViolation();
+                        .addPropertyNode(mappingEntry.getKey().getKey()).addConstraintViolation();
             }
         }
         return result;
@@ -124,31 +124,17 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 continue;
             }
             List<MeterActivation> activations = mappingEntry.getValue().getMeterActivations().stream()
-                    .filter(ma -> ma.isEffectiveAt(this.activationTime))
-                    .filter(ma -> !ma.getUsagePoint().isPresent() || !ma.getUsagePoint().get().equals(this.usagePoint))
+                    .filter(ma -> !ma.getStart().equals(ma.getEnd()))
+                    .filter(ma -> ma.isEffectiveAt(this.activationTime) || ma.getRange().lowerEndpoint().isAfter(this.activationTime))
+                    .filter(ma -> ma.getUsagePoint().isPresent() && !ma.getUsagePoint().get().equals(this.usagePoint))
                     .collect(Collectors.toList());
-
             for (MeterActivation activation : activations) {
                 result = false;
-                String errorMessage;
-                if (activation.getUsagePoint().isPresent() && activation.getMeterRole().isPresent()) {
-                    errorMessage = this.metrologyConfigurationService.getThesaurus()
-                            .getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
-                            .format(mappingEntry.getValue().getMRID(), activation.getUsagePoint()
-                                    .get()
-                                    .getMRID(), activation.getMeterRole().get().getDisplayName());
-                } else {
-                    errorMessage = this.metrologyConfigurationService.getThesaurus()
-                            .getFormat(MessageSeeds.METER_ALREADY_ACTIVE)
-                            .format(mappingEntry.getValue()
-                                    .getMRID(), MeterAlreadyActive.formatted(this.activationTime, this.metrologyConfigurationService
-                                    .getThesaurus()));
-                }
-                context.buildConstraintViolationWithTemplate(errorMessage)
-                        .addPropertyNode(mappingEntry.getKey().getKey())
-                        .addConstraintViolation();
+                String errorMessage = this.metrologyConfigurationService.getThesaurus()
+                        .getFormat(MessageSeeds.METER_ALREADY_LINKED_TO_USAGEPOINT)
+                        .format(mappingEntry.getValue().getMRID(), activation.getUsagePoint().get().getMRID(), activation.getMeterRole().get().getDisplayName());
+                context.buildConstraintViolationWithTemplate(errorMessage).addPropertyNode(mappingEntry.getKey().getKey()).addConstraintViolation();
             }
-
         }
         return result;
     }
@@ -172,7 +158,6 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                             .stream()
                             .map(ReadingTypeRequirement::getDescription)
                             .collect(Collectors.joining(", ")));
-
                     context.buildConstraintViolationWithTemplate(errorMessage)
                             .addPropertyNode(mappingEntry.getKey().getKey())
                             .addConstraintViolation();
@@ -182,27 +167,9 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
         return result;
     }
 
-
-    private boolean validateByCustomValidators(ConstraintValidatorContext context) {
-        boolean result = true;
-        for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
-            if (mappingEntry.getValue() == null) {
-                continue;
-            }
-            try {
-                this.metrologyConfigurationService.validateUsagePointMeterActivation(mappingEntry.getKey(), mappingEntry
-                        .getValue(), this.usagePoint);
-            } catch (CustomUsagePointMeterActivationValidationException ex) {
-                result = false;
-                context.buildConstraintViolationWithTemplate(ex.getLocalizedMessage())
-                        .addPropertyNode(mappingEntry.getKey().getKey())
-                        .addConstraintViolation();
-            }
-        }
-        return result;
-    }
-
-    private List<ReadingTypeRequirement> getUnmatchedMeterReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingTypeRequirement> mandatoryReadingTypeRequirements, Map.Entry<MeterRole, Meter> mappingEntry) {
+    private List<ReadingTypeRequirement> getUnmatchedMeterReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration,
+                                                                                  List<ReadingTypeRequirement> mandatoryReadingTypeRequirements,
+                                                                                  Map.Entry<MeterRole, Meter> mappingEntry) {
         List<ReadingType> readingTypesOnMeter = new ArrayList<>();
         mappingEntry.getValue().getHeadEndInterface()
                 .map(headEndInterface -> headEndInterface.getCapabilities(mappingEntry.getValue()))
@@ -214,24 +181,68 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 .collect(Collectors.toList());
     }
 
+    private boolean validateByCustomValidators(ConstraintValidatorContext context) {
+        boolean result = true;
+        for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
+            if (mappingEntry.getValue() == null) {
+                continue;
+            }
+            try {
+                this.metrologyConfigurationService.validateUsagePointMeterActivation(mappingEntry.getKey(), mappingEntry.getValue(), this.usagePoint);
+            } catch (CustomUsagePointMeterActivationValidationException ex) {
+                result = false;
+                context.buildConstraintViolationWithTemplate(ex.getLocalizedMessage())
+                        .addPropertyNode(mappingEntry.getKey().getKey())
+                        .addConstraintViolation();
+            }
+        }
+        return result;
+    }
+
     private void manageActivations() {
         // Close all meter activations for that role which are active at activation time
         this.usagePoint.getMeterActivations()
                 .stream()
                 .filter(ma -> ma.isEffectiveAt(this.activationTime))
-                .filter(ma -> ma.getMeterRole().isPresent() && this.meterRoleMapping.containsKey(ma.getMeterRole()
-                        .get()))
-                .forEach(ma -> ma.endAt(ma.getStart()));
+                .filter(ma -> ma.getMeter().isPresent() && ma.getMeterRole().isPresent() && this.meterRoleMapping.containsKey(ma.getMeterRole().get()))
+                .forEach(ma -> ((MeterActivationImpl) ma).detachUsagePoint());
         for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
-            if (mappingEntry.getValue() != null) {
+            MeterImpl meter = (MeterImpl) mappingEntry.getValue();
+            if (meter != null) {
+                /* reload meter activations, but without a new one (we need to reload because it is possible that we just detached an usage point a few lines before for that meter) */
+                meter.refreshMeterActivations();
                 MeterActivationImpl meterActivation = this.metrologyConfigurationService.getDataModel()
                         .getInstance(MeterActivationImpl.class)
-                        .init(mappingEntry.getValue(), mappingEntry.getKey(), this.usagePoint, this.activationTime);
+                        .init(meter, mappingEntry.getKey(), this.usagePoint, this.activationTime);
                 meterActivation.save();
+                copyDataAndCloseObsoleteActivations(meter, meterActivation);
             }
         }
         this.usagePoint.touch();
         this.usagePoint.refreshMeterActivations();
+    }
+
+    private void copyDataAndCloseObsoleteActivations(Meter meter, MeterActivationImpl meterActivation) {
+        meter.getMeterActivations().stream()
+                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
+                .filter(ma -> ma.isEffectiveAt(this.activationTime) || ma.getRange().lowerEndpoint().isAfter(this.activationTime))
+                .forEach(oldMeterActivation -> {
+                    if (oldMeterActivation.getUsagePoint().isPresent() || oldMeterActivation.getMeterRole().isPresent()) {
+                        throw new IllegalStateException("We missed meter activation with defined meter role or usage point.");
+                    }
+                    MeterActivationImpl oldMeterActivationImpl = (MeterActivationImpl) oldMeterActivation;
+                    Range<Instant> rangeForCopy = oldMeterActivation.getRange();
+                    if (oldMeterActivationImpl.isEffectiveAt(this.activationTime)) {
+                        rangeForCopy = rangeForCopy.intersection(Range.atLeast(this.activationTime));
+                        oldMeterActivationImpl.doEndAt(this.activationTime);
+                    } else {
+                        oldMeterActivationImpl.doEndAt(oldMeterActivationImpl.getStart());
+                    }
+                    meterActivation.moveAllChannelsData(oldMeterActivation, rangeForCopy);
+                    oldMeterActivationImpl.getMultipliers().entrySet()
+                            .stream()
+                            .forEach(entry -> meterActivation.setMultiplier(entry.getKey(), entry.getValue()));
+                });
     }
 
     @Override

@@ -332,12 +332,14 @@ public final class MeterActivationImpl implements IMeterActivation {
     }
 
     private void resolveConflict(IMeterActivation toResolve, Instant cutOff) {
-
         Instant end = toResolve.getEnd();
         toResolve.doEndAt(cutOff);
         // copy all data since cutoff to this MeterActivation
+        moveAllChannelsData(toResolve, end != null ? Range.openClosed(cutOff, end) : Range.greaterThan(cutOff));
+    }
 
-        Map<Set<ReadingType>, ChannelImpl> sourceChannels = toResolve.getChannelsContainer().getChannels().stream()
+    void moveAllChannelsData(MeterActivation source, Range<Instant> range) {
+        Map<Set<ReadingType>, ChannelImpl> sourceChannels = source.getChannelsContainer().getChannels().stream()
                 .map(ChannelImpl.class::cast)
                 .collect(Collectors.toMap(channel -> ImmutableSet.copyOf(channel.getReadingTypes()), Function.<ChannelImpl>identity()));
         Map<Set<ReadingType>, ChannelImpl> targetChannels = getChannelsContainer().getChannels().stream()
@@ -345,11 +347,10 @@ public final class MeterActivationImpl implements IMeterActivation {
                 .collect(Collectors.toMap(channel -> ImmutableSet.copyOf(channel.getReadingTypes()), Function.<ChannelImpl>identity()));
 
         sourceChannels.entrySet().stream()
-                .forEach(entry -> copyData(entry.getValue(), targetChannels.get(entry.getKey()), Range.openClosed(cutOff, end)));
-
+                .forEach(entry -> moveSingleChannelData(entry.getValue(), targetChannels.get(entry.getKey()), range));
     }
 
-    private void copyData(ChannelImpl sourceChannel, ChannelImpl targetChannel, Range<Instant> range) {
+    private void moveSingleChannelData(ChannelImpl sourceChannel, ChannelImpl targetChannel, Range<Instant> range) {
         if (targetChannel == null) {
             throw new IllegalArgumentException("Channel mismatch");
         }
@@ -369,6 +370,11 @@ public final class MeterActivationImpl implements IMeterActivation {
         sourceChannel.deleteReadings(readings);
     }
 
+    void detachUsagePoint() {
+        this.usagePoint.setNull();
+        this.meterRole.setNull();
+        save();
+    }
     private boolean hasDifferentMeter(MeterActivation other) {
         return getMeter()
                 .map(meter -> other.getMeter()
