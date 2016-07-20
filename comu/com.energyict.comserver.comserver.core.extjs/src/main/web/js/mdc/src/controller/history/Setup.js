@@ -2246,6 +2246,13 @@ Ext.define('Mdc.controller.history.Setup', {
                                 action: 'showUsagePointStartProcess',
                                 callback: me.checkInsightRedirect
                             },
+                            history: {
+                                title: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                                route: 'history/:tab:',
+                                controller: 'Mdc.usagepointmanagement.controller.UsagePointHistory',
+                                action: 'showUsagePointHistory',
+                                privileges: Mdc.privileges.UsagePoint.canView()
+                            },
                             channels: {
                                 title: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
                                 privileges: Mdc.privileges.UsagePoint.canView(),
