@@ -126,25 +126,28 @@ public class UsagePointOutputResource {
     @Path("/{purposeId}/outputs/{outputId}/channelData")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList getChannelDataOfOutput(@PathParam("mRID") String mRid, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
+    public PagedInfoList getChannelDataOfOutput(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
                                                 @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(contract -> contract.getId() == purposeId)
+                .findAny()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, purposeId, mRID));
+        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream()
+                .filter(deliverable -> deliverable.getId() == outputId)
+                .findAny()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, mRID, outputId));
+        if (!readingTypeDeliverable.getReadingType().isRegular()) {
+            throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
+        }
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        MetrologyContract metrologyContract = fetchMetrologyContract(usagePoint, purposeId);
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables()
-                .stream()
-                .filter(d -> d.getId() == outputId)
-                .findFirst()
-                .get();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            Channel channel = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get().getChannel(readingTypeDeliverable.getReadingType()).get();
+            Channel channel = effectiveMC.getChannelsContainer(metrologyContract).get().getChannel(readingTypeDeliverable.getReadingType()).get();
             List<DataValidationStatus> dataValidationStatusList = validationService.getEvaluator()
-                    .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, channel.getIntervalReadings(range), range)
-                    .stream()
-                    .collect(Collectors.toList());
-            outputChannelDataInfoList = channel.getIntervalReadings(range)
-                    .stream()
+                    .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, channel.getIntervalReadings(range), range);
+            outputChannelDataInfoList = channel.getIntervalReadings(range).stream()
                     .sorted(Comparator.comparing(IntervalReadingRecord::getTimeStamp).reversed())
                     .map(intervalReadingRecord -> outputChannelDataInfoFactory.createChannelDataInfo(intervalReadingRecord, dataValidationStatusList))
                     .collect(Collectors.toList());
@@ -196,11 +199,5 @@ public class UsagePointOutputResource {
                 .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(Collections.singleton(QualityCodeSystem.MDM), channelsContainer)
                         .setMetrologyContract(metrologyContract), Instant.ofEpochMilli(purposeInfo.lastChecked)));
         return Response.status(Response.Status.NO_CONTENT).build();
-    }
-
-    private MetrologyContract fetchMetrologyContract(UsagePoint usagePoint, long purposeId) {
-        return usagePoint.getMetrologyConfiguration().get().getContracts().stream()
-                .filter(mc -> mc.getId() == purposeId)
-                .findFirst().get();
     }
 }

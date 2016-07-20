@@ -20,6 +20,8 @@ import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Collections;
@@ -27,6 +29,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -41,14 +44,65 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Mock
     private UsagePoint usagePoint;
 
-    @Test
-    public void testChannelReadingsOfOutput() throws Exception {
+    @Before
+    public void before() {
+        when(meteringService.findUsagePoint(any())).thenReturn(Optional.empty());
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
-
-        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(42L, "Test mc");
+        UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
+        when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+    }
+
+    private String buildFilter() throws UnsupportedEncodingException {
+        return ExtjsFilter.filter()
+                .property("intervalStart", 1468846440000L)
+                .property("intervalEnd", 1500382440000L)
+                .create();
+    }
+
+    @Test
+    public void testGetChannelDataNoSuchUsagePoint() throws Exception {
+        // Business method
+        Response response = target("/usagepoints/xxx/purposes/1/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetChannelDataNoMetrologyConfigurationOnUsagePoint() throws Exception {
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+
+        // Business method
+        Response response = target("/usagepoints/MRID/purposes/1/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetChannelDataNoSuchContract() throws Exception {
+        // Business method
+        Response response = target("/usagepoints/MRID/purposes/90030004443343/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetChannelDataOnIrregularReadingTypeDeliverable() throws Exception {
+        // Business method
+        Response response = target("/usagepoints/MRID/purposes/1/outputs/2/channelData").queryParam("filter", buildFilter()).request().get();
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetChannelData() throws Exception {
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().get();
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         when(effectiveMetrologyConfiguration.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
         Channel channel = mock(Channel.class);
