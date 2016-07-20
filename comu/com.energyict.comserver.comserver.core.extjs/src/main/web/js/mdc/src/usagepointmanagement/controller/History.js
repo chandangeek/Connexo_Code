@@ -96,7 +96,8 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
             preview = page.down('metrology-configuration-history-preview');
 
         Ext.suspendLayouts();
-        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
+
+        preview.setTitle(Ext.String.htmlEncode(record.get('period')));
 
         if (actionMenu) {
             actionMenu.setMenuItems(record);
