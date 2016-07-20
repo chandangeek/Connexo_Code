@@ -99,7 +99,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
     @Transactional
     public void successfulStoreOfSingleRegisterTest() {
         Device device = this.deviceCreator.name("successfulStoreOfSingleRegisterTest").mRDI("successfulStoreOfSingleRegisterTest").registerType(registerType)
-                .create(Instant.ofEpochMilli(justBeforeRegisterReadEventTime1.getTime()));
+                .create(justBeforeRegisterReadEventTime1);
         long deviceId = device.getId();
 
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierById(deviceId, getInjector().getInstance(DeviceService.class));
@@ -151,7 +151,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
                 .registerType(registerType)
                 .dataLoggerEnabled(true)
-                .create(justBeforeRegisterReadEventTime1.toInstant());
+                .create(justBeforeRegisterReadEventTime1);
 
         long deviceId = dataLogger.getId();
 
@@ -196,8 +196,8 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         List<? extends BaseReadingRecord> readings =
                 currentMeterActivation.getReadings(
                         Ranges.closedOpen(
-                                justBeforeRegisterReadEventTime1.toInstant(),
-                                registerEventTime2.toInstant()),
+                                justBeforeRegisterReadEventTime1,
+                                registerEventTime2),
                         registerReadingType);
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0).getQuantity(firstReadingTypeOfChannel).getValue()).isEqualTo(new BigDecimal(123));
@@ -218,7 +218,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 .deviceConfigName(DeviceCreator.DATA_LOGGER_DEVICE_CONFIGURATION_NAME)
                 .registerType(registerType)
                 .dataLoggerEnabled(true)
-                .create(justBeforeRegisterReadEventTime1.toInstant());
+                .create(justBeforeRegisterReadEventTime1);
 
         long dataLoggerId = dataLogger.getId();
 
@@ -234,7 +234,7 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
                 .name("slave")
                 .mRDI("simplePreStoreWithDataInFutureTest")
                 .registerType(registerType)
-                .create(justBeforeRegisterReadEventTime1.toInstant());
+                .create(justBeforeRegisterReadEventTime1);
         long slaveId = dataLogger.getId();
         DeviceIdentifier slaveIdentifier = new DeviceIdentifierById(slaveId, getInjector().getInstance(DeviceService.class));
         when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(slave)).thenReturn(slaveIdentifier);
@@ -276,8 +276,8 @@ public class CollectedRegisterListStoreDeviceCommandTest extends AbstractCollect
         List<? extends BaseReadingRecord> readings =
                 currentMeterActivation.getReadings(
                         Ranges.closedOpen(
-                                justBeforeRegisterReadEventTime1.toInstant(),
-                                registerEventTime2.toInstant()),
+                                justBeforeRegisterReadEventTime1,
+                                registerEventTime2),
                         registerReadingType);
         assertThat(readings).hasSize(1);
         assertThat(readings.get(0).getQuantity(firstReadingTypeOfChannel).getValue()).isEqualTo(new BigDecimal(123));

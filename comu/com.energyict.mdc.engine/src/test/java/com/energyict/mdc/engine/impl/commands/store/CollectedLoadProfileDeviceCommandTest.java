@@ -203,7 +203,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
-        List<Channel> channels = device.getCurrentMeterActivation().get().getChannels();
+        List<Channel> channels = device.getCurrentMeterActivation().get().getChannelsContainer().getChannels();
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
         assertThat(intervalReadingsChannel1).hasSize(4);
@@ -248,7 +248,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
-        List<Channel> channels = device.getCurrentMeterActivation().get().getChannels();
+        List<Channel> channels = device.getCurrentMeterActivation().get().getChannelsContainer().getChannels();
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
         assertThat(intervalReadingsChannel1).hasSize(4);
@@ -294,7 +294,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
-        List<Channel> channels = device.getCurrentMeterActivation().get().getChannels();
+        List<Channel> channels = device.getCurrentMeterActivation().get().getChannelsContainer().getChannels();
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
         assertThat(intervalReadingsChannel1).hasSize(4);
@@ -346,7 +346,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
-        List<Channel> channels = device.getCurrentMeterActivation().get().getChannels();
+        List<Channel> channels = device.getCurrentMeterActivation().get().getChannelsContainer().getChannels();
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
         assertThat(intervalReadingsChannel1).hasSize(4);
@@ -422,7 +422,7 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
-        List<Channel> channels = dataLogger.getCurrentMeterActivation().get().getChannels();
+        List<Channel> channels = dataLogger.getCurrentMeterActivation().get().getChannelsContainer().getChannels();
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
         assertThat(intervalReadingsChannel1).hasSize(4);
@@ -498,13 +498,13 @@ public class CollectedLoadProfileDeviceCommandTest extends PreStoreLoadProfileTe
         meterDataStoreCommand.execute(comServerDAO);
 
         // Asserts
-        List<Channel> dataLoggerChannels = dataLogger.getCurrentMeterActivation().get().getChannels();
+        List<Channel> dataLoggerChannels = dataLogger.getCurrentMeterActivation().get().getChannelsContainer().getChannels();
         assertThat(dataLoggerChannels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsDataLoggerChannel1 = dataLoggerChannels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
         assertThat(intervalReadingsDataLoggerChannel1).hasSize(0);
 
         // Data is stored on the slave
-        List<Channel> channels = slave.getCurrentMeterActivation().get().getChannels();
+        List<Channel> channels = slave.getCurrentMeterActivation().get().getChannelsContainer().getChannels();
         assertThat(channels.size()).isEqualTo(2);
         List<IntervalReadingRecord> intervalReadingsChannel1 = channels.get(0).getIntervalReadings(new Interval(fromClock, verificationTimeStamp).toOpenClosedRange());
         assertThat(intervalReadingsChannel1).hasSize(4);
