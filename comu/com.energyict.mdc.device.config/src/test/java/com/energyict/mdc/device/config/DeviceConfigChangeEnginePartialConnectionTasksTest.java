@@ -1,17 +1,21 @@
 package com.energyict.mdc.device.config;
 
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+
 import org.fest.assertions.core.Condition;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -33,6 +37,48 @@ public class DeviceConfigChangeEnginePartialConnectionTasksTest {
     public void deviceTypeHasNoConfigsTest() {
         DeviceType deviceType = mockDeviceType();
         assertThat(DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType)).isEmpty();
+    }
+
+    @Test
+    public void dataLoggerSlaveTest() {
+        DeviceType deviceType = mockDeviceType();
+        when(deviceType.isDataloggerSlave()).thenReturn(true);
+
+        DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
+        verify(deviceType, never()).getConfigurations();
+    }
+
+    @Test
+    public void dataLoggerEnabledConfigsAreNotTakenIntoAccountTest() {
+        DeviceType deviceType = mockDeviceType();
+        ConnectionTypePluggableClass connectionTypePluggableClass = mockConnectionTypePluggableClass(1000L);
+        String connectionTaskName = "ct1";
+        DeviceConfiguration deviceConfiguration1 = mockActiveDeviceConfiguration();
+        when(deviceConfiguration1.isDataloggerEnabled()).thenReturn(true);
+        DeviceConfiguration deviceConfiguration2 = mockActiveDeviceConfiguration();
+        when(deviceConfiguration2.isDataloggerEnabled()).thenReturn(true);
+        DeviceConfiguration deviceConfiguration3 = mockActiveDeviceConfiguration();
+        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(connectionTaskName, connectionTypePluggableClass);
+        when(deviceConfiguration3.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask1));
+        DeviceConfiguration deviceConfiguration4 = mockActiveDeviceConfiguration();
+        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(connectionTaskName, connectionTypePluggableClass);
+        when(deviceConfiguration4.getPartialConnectionTasks()).thenReturn(Collections.singletonList(partialConnectionTask2));
+        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration1, deviceConfiguration2, deviceConfiguration3, deviceConfiguration4));
+
+        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
+        assertThat(deviceConfigChangeActions).hasSize(2);
+        assertThat(deviceConfigChangeActions).haveAtMost(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return deviceConfigChangeAction.getOrigin().equals(deviceConfiguration3) && deviceConfigChangeAction.getDestination().equals(deviceConfiguration4);
+            }
+        });
+        assertThat(deviceConfigChangeActions).haveAtMost(1, new Condition<DeviceConfigChangeAction>() {
+            @Override
+            public boolean matches(DeviceConfigChangeAction deviceConfigChangeAction) {
+                return deviceConfigChangeAction.getOrigin().equals(deviceConfiguration4) && deviceConfigChangeAction.getDestination().equals(deviceConfiguration3);
+            }
+        });
     }
 
     @Test
