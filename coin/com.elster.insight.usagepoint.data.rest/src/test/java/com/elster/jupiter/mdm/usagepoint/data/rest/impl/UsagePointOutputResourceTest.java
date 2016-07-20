@@ -2,7 +2,6 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -38,27 +37,10 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
         when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
+        when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
-    }
-
-    @Test
-    public void testGetUsagePointPurposes() {
-        long lastChecked = 1468875600000L;
-        when(validationService.getLastChecked(channelsContainer)).thenReturn(Optional.of(Instant.ofEpochMilli(lastChecked)));
-
-        // Business method
-        String json = target("/usagepoints/MRID/purposes").request().get(String.class);
-
-        // Asserts
-        JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.purposes[0].id")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.purposes[0].version")).isEqualTo(1);
-        assertThat(jsonModel.<String>get("$.purposes[0].name")).isEqualTo(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
-        assertThat(jsonModel.<Boolean>get("$.purposes[0].required")).isEqualTo(true);
-        assertThat(jsonModel.<Boolean>get("$.purposes[0].active")).isEqualTo(true);
-        assertThat(jsonModel.<String>get("$.purposes[0].status.id")).isEqualTo("incomplete");
-        assertThat(jsonModel.<Number>get("$.purposes[0].lastChecked")).isEqualTo(lastChecked);
+        when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
+        when(channelsContainer.getChannel(any())).thenReturn(Optional.empty());
     }
 
     @Test
@@ -72,7 +54,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         // channel output
         assertThat(jsonModel.<Number>get("$.outputs[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.outputs[0].outputType")).isEqualTo("channel");
-        assertThat(jsonModel.<String>get("$.outputs[0].name")).isEqualTo("regular RT");
+        assertThat(jsonModel.<String>get("$.outputs[0].name")).isEqualTo("1 regular RT");
         assertThat(jsonModel.<Number>get("$.outputs[0].interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.outputs[0].interval.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
@@ -80,7 +62,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         // register output
         assertThat(jsonModel.<Number>get("$.outputs[1].id")).isEqualTo(2);
         assertThat(jsonModel.<String>get("$.outputs[1].outputType")).isEqualTo("register");
-        assertThat(jsonModel.<String>get("$.outputs[1].name")).isEqualTo("irregular RT");
+        assertThat(jsonModel.<String>get("$.outputs[1].name")).isEqualTo("2 irregular RT");
         assertThat(jsonModel.<String>get("$.outputs[1].readingType.mRID")).isEqualTo("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         assertThat(jsonModel.<String>get("$.outputs[1].formula.description")).isEqualTo("Formula Description");
     }
@@ -94,7 +76,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.outputType")).isEqualTo("channel");
-        assertThat(jsonModel.<String>get("$.name")).isEqualTo("regular RT");
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo("1 regular RT");
         assertThat(jsonModel.<Number>get("$.interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.interval.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
@@ -111,7 +93,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         Response response = target("usagepoints/MRID/purposes/1/validate").request().put(Entity.json(purposeInfo));
 
         // Asserts
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(validationService).validate(any(ValidationContextImpl.class), any(Instant.class));
     }
 
@@ -133,7 +115,8 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         PurposeInfo purposeInfo = new PurposeInfo();
         purposeInfo.id = metrologyContract.getId();
         purposeInfo.version = metrologyContract.getVersion();
-        purposeInfo.lastChecked = 1467185935140L;
+        purposeInfo.validationInfo = new UsagePointValidationStatusInfo();
+        purposeInfo.validationInfo.lastChecked = Instant.ofEpochMilli(1467185935140L);
         return purposeInfo;
     }
 }

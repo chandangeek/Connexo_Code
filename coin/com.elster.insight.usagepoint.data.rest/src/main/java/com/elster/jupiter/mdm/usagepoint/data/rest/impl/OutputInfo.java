@@ -29,6 +29,8 @@ public abstract class OutputInfo {
 
         public String flowUnit;
 
+        public UsagePointValidationStatusInfo validationInfo;
+
     }
 
     public static class RegisterOutputInfo extends OutputInfo {

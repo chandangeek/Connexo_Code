@@ -53,6 +53,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
     }
 
     private String buildFilter() throws UnsupportedEncodingException {

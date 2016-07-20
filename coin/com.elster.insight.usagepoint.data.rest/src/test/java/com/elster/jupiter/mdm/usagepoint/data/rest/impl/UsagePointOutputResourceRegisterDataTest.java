@@ -50,6 +50,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
         when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
 
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord1.getTimeStamp()).thenReturn(readingTimeStamp1);

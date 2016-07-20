@@ -39,6 +39,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.annotation.Priority;
@@ -96,6 +97,9 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
     @Mock
+    TimeService timeService;
+
+    @Mock
     IssueService issueService;
     @Mock
     BpmService bpmService;
@@ -132,6 +136,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setServiceCallInfoFactory(serviceCallInfoFactory);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
         application.setThreadPrincipalService(threadPrincipalService);
+        application.setTimeService(timeService);
         return application;
     }
 
@@ -177,11 +182,11 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
 
         ReadingType regularReadingType = this.mockReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(regularReadingType.isRegular()).thenReturn(true);
-        ReadingTypeDeliverable channelDeliverable = mockReadingTypeDeliverable(1L, "regular RT", metrologyConfiguration, regularReadingType);
+        ReadingTypeDeliverable channelDeliverable = mockReadingTypeDeliverable(1L, "1 regular RT", metrologyConfiguration, regularReadingType);
 
         ReadingType irregularReadingType = this.mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(irregularReadingType.isRegular()).thenReturn(false);
-        ReadingTypeDeliverable registerTypeDeliverable = mockReadingTypeDeliverable(2L, "irregular RT", metrologyConfiguration, irregularReadingType);
+        ReadingTypeDeliverable registerTypeDeliverable = mockReadingTypeDeliverable(2L, "2 irregular RT", metrologyConfiguration, irregularReadingType);
 
         when(contract.getDeliverables()).thenReturn(Arrays.asList(channelDeliverable, registerTypeDeliverable));
         return metrologyConfiguration;
@@ -218,6 +223,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
 
     private MetrologyContract.Status mockMetrologyContractStatus() {
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
+        when(status.isComplete()).thenReturn(false);
         when(status.getKey()).thenReturn("INCOMPLETE");
         when(status.getName()).thenReturn("incomplete");
         return status;

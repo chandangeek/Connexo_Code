@@ -30,16 +30,15 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class UsagePointOutputResource {
@@ -51,31 +50,35 @@ public class UsagePointOutputResource {
     private final OutputInfoFactory outputInfoFactory;
     private final OutputChannelDataInfoFactory outputChannelDataInfoFactory;
     private final OutputRegisterDataInfoFactory outputRegisterDataInfoFactory;
+    private final PurposeInfoFactory purposeInfoFactory;
 
     @Inject
     public UsagePointOutputResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
                                     ValidationService validationService,
                                     OutputInfoFactory outputInfoFactory,
                                     OutputChannelDataInfoFactory outputChannelDataInfoFactory,
-                                    OutputRegisterDataInfoFactory outputRegisterDataInfoFactory) {
+                                    OutputRegisterDataInfoFactory outputRegisterDataInfoFactory,
+                                    PurposeInfoFactory purposeInfoFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.validationService = validationService;
         this.outputInfoFactory = outputInfoFactory;
         this.outputChannelDataInfoFactory = outputChannelDataInfoFactory;
         this.outputRegisterDataInfoFactory = outputRegisterDataInfoFactory;
+        this.purposeInfoFactory = purposeInfoFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList getUsagePointPurposes(@PathParam("mRID") String mRID, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
-        List<PurposeInfo> purposeInfoList;
+    public PagedInfoList getUsagePointPurposes(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
-        if (usagePoint.getMetrologyConfiguration().isPresent()) {
-            List<MetrologyContract> metrologyContractList = usagePoint.getMetrologyConfiguration().get().getContracts();
-            purposeInfoList = metrologyContractList.stream()
-                    .map(metrologyContract -> PurposeInfo.asInfo(metrologyContract, usagePoint, validationService))
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration();
+        List<PurposeInfo> purposeInfoList;
+        if (effectiveMetrologyConfiguration.isPresent()) {
+            purposeInfoList = effectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream()
+                    .map(metrologyContract -> purposeInfoFactory.asInfo(effectiveMetrologyConfiguration.get(), metrologyContract))
                     .collect(Collectors.toList());
         } else {
             purposeInfoList = Collections.emptyList();
@@ -87,17 +90,14 @@ public class UsagePointOutputResource {
     @Path("/{purposeId}/outputs")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId,
-                                                       @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("mRID") String mRID, @PathParam("purposeId") long contractId,@BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
-        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
-                .stream()
-                .filter(mc -> mc.getId() == purposeId)
-                .findFirst()
-                .get();
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
         List<OutputInfo> outputInfoList = metrologyContract.getDeliverables()
                 .stream()
-                .map(outputInfoFactory::asInfo)
+                .map(deliverable -> outputInfoFactory.asInfo(deliverable, effectiveMC, metrologyContract))
+                .sorted(Comparator.comparing(info -> info.name))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("outputs", outputInfoList, queryParameters);
     }
@@ -105,21 +105,17 @@ public class UsagePointOutputResource {
     @GET
     @Path("/{purposeId}/outputs/{outputId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public OutputInfo getOutputsOfPurpose(@PathParam("mRID") String mRid, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
-                                          @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRid);
-        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts()
-                .stream()
-                .filter(mc -> mc.getId() == purposeId)
-                .findFirst()
-                .get();
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables()
-                .stream()
-                .filter(d -> d.getId() == outputId)
-                .findFirst()
-                .get();
-        return outputInfoFactory.asInfo(readingTypeDeliverable);
+    public OutputInfo getOutputsOfPurpose(@PathParam("mRID") String mRID, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
+        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream()
+                .filter(deliverable -> deliverable.getId() == outputId)
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, mRID, outputId));
+        return outputInfoFactory.asFullInfo(readingTypeDeliverable, effectiveMC, metrologyContract);
     }
 
     @GET
@@ -127,18 +123,15 @@ public class UsagePointOutputResource {
     @Path("/{purposeId}/outputs/{outputId}/channelData")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList getChannelDataOfOutput(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
-                                                @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getChannelDataOfOutput(@PathParam("mRID") String mRID, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+                                                @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts().stream()
-                .filter(contract -> contract.getId() == purposeId)
-                .findAny()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, purposeId, mRID));
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getId() == outputId)
                 .findAny()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, mRID, outputId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, mRID, outputId));
         if (!readingTypeDeliverable.getReadingType().isRegular()) {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
@@ -161,18 +154,15 @@ public class UsagePointOutputResource {
     @Path("/{purposeId}/outputs/{outputId}/registerData")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList getRegisterDataOfOutput(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, @PathParam("outputId") long outputId,
-                                                 @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getRegisterDataOfOutput(@PathParam("mRID") String mRID, @PathParam("purposeId") long contractId, @PathParam("outputId") long outputId,
+                                                 @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts().stream()
-                .filter(contract -> contract.getId() == purposeId)
-                .findAny()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, purposeId, mRID));
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
         ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getId() == outputId)
                 .findAny()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, mRID, outputId));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, mRID, outputId));
         if (readingTypeDeliverable.getReadingType().isRegular()) {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_REGULAR, outputId);
         }
@@ -197,9 +187,10 @@ public class UsagePointOutputResource {
     public Response validateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
         MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(purposeInfo);
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
-        usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract)
-                .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(Collections.singleton(QualityCodeSystem.MDM), channelsContainer)
-                        .setMetrologyContract(metrologyContract), Instant.ofEpochMilli(purposeInfo.lastChecked)));
-        return Response.status(Response.Status.NO_CONTENT).build();
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        effectiveMC.getChannelsContainer(metrologyContract)
+                .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer)
+                        .setMetrologyContract(metrologyContract), purposeInfo.validationInfo.lastChecked));
+        return Response.status(Response.Status.OK).build();
     }
 }
