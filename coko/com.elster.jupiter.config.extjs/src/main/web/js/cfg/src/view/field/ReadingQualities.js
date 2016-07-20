@@ -119,7 +119,7 @@ Ext.define('Cfg.view.field.ReadingQualities', {
                 } else {
                     str += rule.name;
                 }
-                str += prop + '&nbsp;' + (me.usedInInsight ? application : '' ) + '</span><br>';
+                str += prop + '&nbsp;' + application + '</span><br>';
             }
         });
 
