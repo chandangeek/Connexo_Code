@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -28,9 +27,9 @@ public enum MessageSeeds implements MessageSeed {
     METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT(26, "MetrologyPurposeNotLinkedToUsagePoint", "Metrology purpose with id {0} is not found on usage point with MRID {1}."),
     NO_SUCH_OUTPUT_FOR_USAGEPOINT(27, "NoSuchOutputForUsagePoint", "Usage point with MRID {0} doesn't have an output with id {1}"),
     THIS_OUTPUT_IS_IRREGULAR(28, "ThisOutputIsIrregular", "Usage point output with id {0} is irregular and can''t provide interval data."),
-    THIS_OUTPUT_IS_REGULAR(29, "ThisOutputIsRegular", "Usage point output with id {0} is regular and provides only interval data."),;
+    THIS_OUTPUT_IS_REGULAR(29, "ThisOutputIsRegular", "Usage point output with id {0} is regular and provides only interval data."),
     NO_RELATIVEPERIOD_FOR_ID(30, "NoRelativePeriodForId", "Relative period with id {0} is not found."),
-    RELATIVEPERIOD_IS_IN_THE_FUTURE(31, "RelativePeriodIsInTheFuture", "Cannot gather validation statistics for relative period with id {0}: it is in the future.");
+    RELATIVEPERIOD_IS_IN_THE_FUTURE(31, "RelativePeriodIsInTheFuture", "Cannot gather validation statistics for relative period with id {0}: it is in the future."),;
 
     private final int number;
     private final String key;

@@ -6,7 +6,6 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
-import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -17,12 +16,11 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.UsagePointPropertySet;
-import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
-import com.elster.jupiter.metering.aggregation.DataAggregationService;
-import com.elster.jupiter.metering.aggregation.MetrologyContractDoesNotApplyToUsagePointException;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
@@ -49,7 +47,6 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Checks;
-import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.TemporalAmountComparator;
@@ -84,7 +81,6 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
@@ -615,20 +611,17 @@ public class UsagePointResource {
 
     @GET
     @Transactional
-    @Path("/{mrId}/validationSummary")
+    @Path("/{mRID}/validationSummary")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public PagedInfoList getDataValidationStatistics(@PathParam("mrId") String mrId,
-                                                     @QueryParam("purposeId") long purposeId,
+    public PagedInfoList getDataValidationStatistics(@PathParam("mRID") String mRID,
+                                                     @QueryParam("purposeId") long contractId,
                                                      @QueryParam("periodId") long periodId,
                                                      @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrId);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts().stream()
-                .filter(contract -> contract.getMetrologyPurpose().getId() == purposeId)
-                .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, purposeId, mrId));
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
         Instant now = clock.instant();
         Range<Instant> interval = timeService.findRelativePeriod(periodId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_RELATIVEPERIOD_FOR_ID, periodId))
@@ -649,19 +642,16 @@ public class UsagePointResource {
     }
 
     @GET
-    @Path("/{mrId}/validationSummaryPeriods")
+    @Path("/{mRID}/validationSummaryPeriods")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public PagedInfoList getDataValidationStatisticsRelativePeriods(@PathParam("mrId") String mrId,
-                                                                    @QueryParam("purposeId") long purposeId,
+    public PagedInfoList getDataValidationStatisticsRelativePeriods(@PathParam("mRID") String mRID,
+                                                                    @QueryParam("purposeId") long contractId,
                                                                     @BeanParam JsonQueryParameters queryParameters) {
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrId);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = effectiveMC.getMetrologyConfiguration().getContracts().stream()
-                .filter(contract -> contract.getMetrologyPurpose().getId() == purposeId)
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, purposeId, mrId));
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
         TemporalAmount max = metrologyContract.getDeliverables().stream()
                 .map(ReadingTypeDeliverable::getReadingType)
                 .filter(ReadingType::isRegular)

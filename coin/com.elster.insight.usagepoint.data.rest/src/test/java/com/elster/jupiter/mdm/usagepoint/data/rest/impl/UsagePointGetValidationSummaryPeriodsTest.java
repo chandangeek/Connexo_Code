@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
-import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.time.RelativePeriod;
@@ -230,14 +229,13 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
         return metrologyConfiguration;
     }
 
-    private MetrologyContract mockMetrologyContract(long purposeId) {
+    private MetrologyContract mockMetrologyContract(long id) {
         MetrologyContract metrologyContract = mock(MetrologyContract.class);
-        MetrologyPurpose metrologyPurpose = mock(MetrologyPurpose.class);
-        when(metrologyContract.getMetrologyPurpose()).thenReturn(metrologyPurpose);
-        when(metrologyPurpose.getId()).thenReturn(purposeId);
+        when(metrologyContract.getId()).thenReturn(id);
         return metrologyContract;
     }
 

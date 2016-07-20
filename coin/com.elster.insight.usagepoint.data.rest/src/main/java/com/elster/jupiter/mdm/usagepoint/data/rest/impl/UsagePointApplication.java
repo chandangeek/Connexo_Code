@@ -57,7 +57,6 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile TransactionService transactionService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
-    private volatile TimeService timeService;
     private volatile MeteringService meteringService;
     private volatile LocationService locationService;
     private volatile RestQueryService restQueryService;
@@ -129,11 +128,6 @@ public class UsagePointApplication extends Application implements TranslationKey
         Collections.addAll(keys, LocationTranslationKeys.values());
         Collections.addAll(keys, UsagePointModelTranslationKeys.values());
         return keys;
-    }
-
-    @Reference
-    public void setTimeService(TimeService timeService) {
-        this.timeService = timeService;
     }
 
     @Reference

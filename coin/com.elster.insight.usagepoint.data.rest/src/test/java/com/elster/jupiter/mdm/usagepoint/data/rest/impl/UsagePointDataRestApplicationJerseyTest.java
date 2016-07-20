@@ -99,9 +99,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
     @Mock
-    TimeService timeService;
-
-    @Mock
     IssueService issueService;
     @Mock
     BpmService bpmService;
