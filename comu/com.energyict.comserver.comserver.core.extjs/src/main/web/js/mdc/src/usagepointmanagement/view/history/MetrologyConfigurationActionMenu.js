@@ -14,13 +14,13 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
                 itemId: 'action-menu-item-mc-edit',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.edit', 'MDC', 'Edit'),
-                tooltip: Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Last version only can be modified')
+                tooltip: Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Future version only can be modified')
             },
             {
                 itemId: 'action-menu-item-mc-remove',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.remove', 'MDC', 'Remove'),
-                tooltip: Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Last version only can be removed')
+                tooltip: Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Future versions only can be removed')
             }
         ];
         me.callParent(arguments);

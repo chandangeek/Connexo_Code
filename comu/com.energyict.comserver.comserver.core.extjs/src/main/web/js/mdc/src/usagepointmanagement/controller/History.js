@@ -28,7 +28,7 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
             'add-metrology-configuration-version #usage-point-add-edit-button': {
                 click: this.addMetrologyConfigurationVersion
             },
-            '#metrology-configuration-versions-action-menu-id': {
+            '#metrology-configuration-versions-action-menu-id #action-menu-item-mc-remove': {
                 click: this.deleteMetrologyConfigurationVersion
             }
         });
