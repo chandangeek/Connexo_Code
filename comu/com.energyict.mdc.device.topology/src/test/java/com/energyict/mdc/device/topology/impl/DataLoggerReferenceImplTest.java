@@ -4,7 +4,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -34,7 +34,9 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -275,7 +277,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         do {
             readingTime = readingTime.plus(15, ChronoUnit.MINUTES);
             // ProfileStatus set to Test so to easily filter them
-            profile.add(IntervalReadingImpl.of(readingTime, value, ProfileStatus.of(ProfileStatus.Flag.TEST)));
+            profile.add(IntervalReadingImpl.of(readingTime, value, new HashSet<>(Collections.singletonList(ProtocolReadingQualities.TEST.getReadingQualityType()))));
         }
         while (readingTime.isBefore(end));
         return profile;
@@ -427,26 +429,37 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         HashMap<Register, Register> registerMapping = new HashMap<>();
 
         inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
+//        profile.add(IntervalReadingImpl.of(readingTime, value, new HashSet<>(Collections.singletonList(ProtocolReadingQualities.TEST.getReadingQualityType()))));
 
         assertThat(slave.hasData()).isTrue();
         List<LoadProfileReading> intervals1 = slave.getChannels()
                 .get(0)
                 .getChannelData(Range.open(start, firstOfJuli))
                 .stream()
-                .filter((loadProfileReading -> loadProfileReading.getFlags().contains(ProfileStatus.Flag.TEST)))
+                .filter(loadProfileReading -> loadProfileReading.getReadingQualities().values().stream()
+                        .filter(readingQualityRecords -> readingQualityRecords.stream()
+                                .filter(readingQualityRecord -> readingQualityRecord.getType().equals(ProtocolReadingQualities.TEST.getReadingQualityType()))
+                                .findAny()
+                                .isPresent()).findAny().isPresent())
                 .collect(Collectors.toList());
         List<LoadProfileReading> intervals2 = slave.getChannels()
                 .get(0)
                 .getChannelData(Range.open(start, firstOfJuli))
                 .stream()
-                .filter((loadProfileReading -> loadProfileReading.getFlags().contains(ProfileStatus.Flag.TEST)))
-                .collect(Collectors.toList());
+                .filter(loadProfileReading -> loadProfileReading.getReadingQualities().values().stream()
+                        .filter(readingQualityRecords -> readingQualityRecords.stream()
+                                .filter(readingQualityRecord -> readingQualityRecord.getType().equals(ProtocolReadingQualities.TEST.getReadingQualityType()))
+                                .findAny()
+                                .isPresent()).findAny().isPresent()).collect(Collectors.toList());
         List<LoadProfileReading> intervals3 = slave.getChannels()
                 .get(0)
                 .getChannelData(Range.open(start, firstOfJuli))
                 .stream()
-                .filter((loadProfileReading -> loadProfileReading.getFlags().contains(ProfileStatus.Flag.TEST)))
-                .collect(Collectors.toList());
+                .filter(loadProfileReading -> loadProfileReading.getReadingQualities().values().stream()
+                        .filter(readingQualityRecords -> readingQualityRecords.stream()
+                                .filter(readingQualityRecord -> readingQualityRecord.getType().equals(ProtocolReadingQualities.TEST.getReadingQualityType()))
+                                .findAny()
+                                .isPresent()).findAny().isPresent()).collect(Collectors.toList());
 
         assertThat(intervals1).hasSize(2976); //month may: 31*24*4
         assertThat(intervals2).hasSize(2976); //month may: 31*24*4
@@ -564,10 +577,10 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         List<MeterActivation> meterActivations = slaves.get(0).getMeterActivationsMostRecentFirst();
         assertThat(meterActivations).hasSize(2); // A new MeterActivation was started
-        assertThat(meterActivations.get(0).getChannels()).hasSize(3); // The new MeterActivation has channels
-        assertThat(meterActivations.get(0).getChannels().get(0).hasData()).isFalse();
-        assertThat(meterActivations.get(0).getChannels().get(1).hasData()).isFalse();
-        assertThat(meterActivations.get(0).getChannels().get(2).hasData()).isFalse();
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels()).hasSize(3); // The new MeterActivation has channels
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(0).hasData()).isFalse();
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(1).hasData()).isFalse();
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(2).hasData()).isFalse();
 
     }
 
@@ -616,13 +629,13 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(meterActivations).hasSize(2); // A new MeterActivation was started
         assertThat(meterActivations.get(0).isEffectiveAt(endLink)).isTrue();
         assertThat(meterActivations.get(1).getRange().upperEndpoint()).isEqualTo(endLink);
-        assertThat(meterActivations.get(0).getChannels()).hasSize(3); // The new MeterActivation has channels
-        assertThat(meterActivations.get(0).getChannels().get(0).hasData()).isFalse();  // No data on new MeterActivation
-        assertThat(meterActivations.get(0).getChannels().get(1).hasData()).isFalse();
-        assertThat(meterActivations.get(0).getChannels().get(2).hasData()).isFalse();
-        assertThat(meterActivations.get(1).getChannels().get(0).hasData()).isTrue();  // Still data on previous MeterActivation
-        assertThat(meterActivations.get(1).getChannels().get(1).hasData()).isTrue();
-        assertThat(meterActivations.get(1).getChannels().get(2).hasData()).isTrue();
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels()).hasSize(3); // The new MeterActivation has channels
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(0).hasData()).isFalse();  // No data on new MeterActivation
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(1).hasData()).isFalse();
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(2).hasData()).isFalse();
+        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(0).hasData()).isTrue();  // Still data on previous MeterActivation
+        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(1).hasData()).isTrue();
+        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(2).hasData()).isTrue();
     }
 
     @Test
@@ -675,17 +688,17 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(meterActivations).hasSize(2); // A new MeterActivation was started
         assertThat(meterActivations.get(0).isEffectiveAt(endLink)).isTrue();
         assertThat(meterActivations.get(1).getRange().upperEndpoint()).isEqualTo(endLink);
-        assertThat(meterActivations.get(0).getChannels()).hasSize(3); // The new MeterActivation has channels
-        assertThat(meterActivations.get(0).getChannels().get(0).hasData()).isFalse();  // No data on new MeterActivation
-        assertThat(meterActivations.get(0).getChannels().get(1).hasData()).isFalse();
-        assertThat(meterActivations.get(0).getChannels().get(2).hasData()).isFalse();
-        assertThat(meterActivations.get(1).getChannels().get(0).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR1.stream()
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels()).hasSize(3); // The new MeterActivation has channels
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(0).hasData()).isFalse();  // No data on new MeterActivation
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(1).hasData()).isFalse();
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(2).hasData()).isFalse();
+        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(0).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR1.stream()
                 .filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp()))
                 .count()).intValue());  // Still data on previous MeterActivation
-        assertThat(meterActivations.get(1).getChannels().get(1).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR2.stream()
+        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(1).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR2.stream()
                 .filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
-        assertThat(meterActivations.get(1).getChannels().get(2).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR3.stream()
+        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(2).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR3.stream()
                 .filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
 
