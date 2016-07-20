@@ -78,7 +78,7 @@ public class DataValidationKpiChildImpl implements DataValidationKpiChild {
     @Override
     public void remove() {
         childKpi.get().remove();
-        dataModel.mapper(DataValidationKpiChild.class).remove(this);
+        //this.dataModel.remove(this);
     }
 
     private void update() {

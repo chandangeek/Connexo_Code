@@ -194,6 +194,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         this.dataValidationKpiTask.getOptional().ifPresent(RecurrentTask::delete);
         //TODO check if device does not belong to other existing KPIs
         this.childrenKpis.stream().forEach(DataValidationKpiChild::remove);
+
     }
 
     @Override
