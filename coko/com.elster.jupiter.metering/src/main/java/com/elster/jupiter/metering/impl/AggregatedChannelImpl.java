@@ -1,12 +1,13 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ProcessStatus;
-import com.elster.jupiter.metering.ReadingQualityFilter;
+import com.elster.jupiter.metering.ReadingQualityFetcher;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
@@ -183,7 +184,7 @@ public class AggregatedChannelImpl implements ChannelContract {
     }
 
     @Override
-    public ReadingQualityFilter findReadingQualities() {
+    public ReadingQualityFetcher findReadingQualities() {
         return persistedChannel.findReadingQualities();
     }
 
@@ -205,21 +206,21 @@ public class AggregatedChannelImpl implements ChannelContract {
     }
 
     @Override
-    public void editReadings(List<? extends BaseReading> readings) {
+    public void editReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         // TODO store/edit readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.editReadings(readings);
+        // persistedChannel.editReadings(system, readings);
     }
 
     @Override
-    public void confirmReadings(List<? extends BaseReading> readings) {
+    public void confirmReadings(QualityCodeSystem system, List<? extends BaseReading> readings) {
         // TODO store/edit readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.confirmReadings(readings);
+        // persistedChannel.confirmReadings(system, readings);
     }
 
     @Override
-    public void removeReadings(List<? extends BaseReadingRecord> readings) {
+    public void removeReadings(QualityCodeSystem system, List<? extends BaseReadingRecord> readings) {
         // TODO remove readings, be aware that readings can have different types (calculated by data aggregation and already edited/estimated)
-        // persistedChannel.removeReadings(readings);
+        // persistedChannel.removeReadings(system, readings);
     }
 
     @Override
