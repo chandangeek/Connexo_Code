@@ -1958,9 +1958,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(clock.instant()).thenReturn(NOW);
         Device dataLogger = mockDeviceForTopologyTest("dataLogger");
 
-        when(meteringService.findDeviceLocation(dataLogger.getmRID())).thenReturn(Optional.empty());
-        when(meteringService.findDeviceGeoCoordinates(dataLogger.getmRID())).thenReturn(Optional.empty());
-
         Channel dataLoggerChannel = prepareMockedChannel(mock(Channel.class));
         when(dataLoggerChannel.getDevice()).thenReturn(dataLogger);
         when(dataLoggerChannel.getId()).thenReturn(2L);
@@ -1985,8 +1982,6 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dataLogger.getRegisters()).thenReturn(Collections.singletonList(dataLoggerRegister));
 
         Device slave1 = mockDeviceForTopologyTest("slave1");
-        when(meteringService.findDeviceLocation(slave1.getmRID())).thenReturn(Optional.empty());
-        when(meteringService.findDeviceGeoCoordinates(slave1.getmRID())).thenReturn(Optional.empty());
         when(slave1.getmRID()).thenReturn("firstSlave");
 
         Channel slaveChannel1 = prepareMockedChannel(mock(Channel.class));
@@ -2309,13 +2304,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dates.getRetiredDate()).thenReturn(Optional.of(now.minus(2, ChronoUnit.DAYS)));
         when(device.getLifecycleDates()).thenReturn(dates);
         when(device.getLocation()).thenReturn(Optional.empty());
-        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
         when(dates.setReceivedDate(any(Instant.class))).thenReturn(dates);
 
         when(deviceService.findByUniqueMrid(name)).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(name), anyLong())).thenReturn(Optional.of(device));
-        when(meteringService.findDeviceLocation(name)).thenReturn(Optional.empty());
-        when(meteringService.findDeviceGeoCoordinates(name)).thenReturn(Optional.empty());
         if (gateway != null) {
             when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(gateway));
         } else {
@@ -2803,7 +2795,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
         when(device.getLocation()).thenReturn(Optional.empty());
-        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
+        when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         String mrid = "mrid";
         when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();
@@ -2843,7 +2835,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
         when(device.getLocation()).thenReturn(Optional.empty());
-        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
+        when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         String mrid = "mrid";
         when(deviceService.newDevice(deviceConfiguration, mrid, mrid, shipmentDate)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();

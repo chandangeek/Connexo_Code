@@ -257,8 +257,6 @@ public class DeviceInfoFactoryTest {
         when(topologyService.availabilityDate(any(Channel.class))).thenReturn(Optional.empty());
         when(topologyService.availabilityDate(any(Register.class))).thenReturn(Optional.empty());
 
-        when(meteringService.findDeviceLocation(any(String.class))).thenReturn(Optional.empty());
-        when(meteringService.findDeviceGeoCoordinates(any(String.class))).thenReturn(Optional.empty());
 
         when(channelSpec.getNbrOfFractionDigits()).thenReturn(2);
         when(channelSpec.isUseMultiplier()).thenReturn(false);
@@ -319,7 +317,7 @@ public class DeviceInfoFactoryTest {
         when(dateLoggerDeviceConfiguration.canActAsGateway()).thenReturn(false);
         when(dateLoggerDeviceConfiguration.getVersion()).thenReturn(DATALOGGER_DEVICE_CONFIGURATION_VERSION);
 
-        when(usagePoint.getCurrentMeterActivation()).thenReturn(Optional.of(meterActivation));
+        when(usagePoint.getCurrentMeterActivations()).thenReturn(Arrays.asList(meterActivation));
         when(usagePoint.getMRID()).thenReturn(USAGEPOINT_MRID);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
 
@@ -415,7 +413,7 @@ public class DeviceInfoFactoryTest {
         when(dataLogger.forEstimation()).thenReturn(deviceEstimation);
         when(dataLogger.getChannels()).thenReturn(Arrays.asList(dataLoggerChn1, dataLoggerChn2, dataLoggerChn3, dataLoggerChn4, dataLoggerChn5, dataLoggerChn6));
         when(dataLogger.getLocation()).thenReturn(Optional.empty());
-        when(dataLogger.getGeoCoordinates()).thenReturn(Optional.empty());
+        when(dataLogger.getSpatialCoordinates()).thenReturn(Optional.empty());
 
         CIMLifecycleDates lifecycleDates = mock(CIMLifecycleDates.class);
         when(lifecycleDates.getReceivedDate()).thenReturn(Optional.of(LocalDateTime.of(2015, 7, 13, 12, 0).toInstant(ZoneOffset.UTC)));
