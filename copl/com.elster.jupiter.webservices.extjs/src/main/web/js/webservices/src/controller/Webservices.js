@@ -25,7 +25,8 @@ Ext.define('Wss.controller.Webservices', {
     refs: [
         {ref: 'preview', selector: 'webservices-preview'},
         {ref: 'addForm', selector: '#addForm'},
-        {ref: 'landingPageForm', selector: 'webservice-landing-page webservices-preview-form form'}
+        {ref: 'landingPageForm', selector: 'webservice-landing-page webservices-preview-form form'},
+        {ref: 'paging', selector: 'webservices-grid pagingtoolbartop'}
     ],
 
     init: function () {
@@ -241,6 +242,7 @@ Ext.define('Wss.controller.Webservices', {
                         record.destroy({
                             success: function () {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('webservices.remove.success.msg', 'WSS', 'Webservice endpoint removed'));
+                                me.getPaging().resetPaging();
                                 store.load();
                             }
                         });
