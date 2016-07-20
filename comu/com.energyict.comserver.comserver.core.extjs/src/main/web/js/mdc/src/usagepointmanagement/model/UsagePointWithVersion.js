@@ -11,7 +11,7 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePointWithVersion', {
         {name: 'version', type: 'number', useNull: true},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
         {name: 'metrologyConfigurationVersion', type: 'auto'},
-        {name: 'meterActivation', type: 'auto', defaultValue: null, useNull: true},
+        {name: 'meterActivations', type: 'auto', defaultValue: null, useNull: true},
         {
             name: 'versionId',
             type: 'number',

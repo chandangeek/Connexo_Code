@@ -51,10 +51,14 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                         }
                     },
                     {
-                        name: 'meterActivation',
+                        name: 'meterActivations',
                         itemId: 'fld-up-device',
                         fieldLabel: Uni.I18n.translate('general.device', 'MDC', 'Device'),
-                        renderer: function (value) {
+                        renderer: function (activations) {
+                            var value = '';
+                            if ((activations instanceof Array) && !Ext.isEmpty(activations)) {
+                                value = activations[0];
+                            }
                             var result = '',
                                 record = me.getRecord(),
                                 canViewDevice,

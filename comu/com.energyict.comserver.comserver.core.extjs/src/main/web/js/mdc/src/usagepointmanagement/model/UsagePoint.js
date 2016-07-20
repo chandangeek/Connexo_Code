@@ -1,6 +1,6 @@
 Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
     extend: 'Uni.model.Version',
-    requires: [],
+    requires: ['Mdc.usagepointmanagement.model.MeterActivations'],
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'mRID', type: 'string'},
@@ -9,7 +9,7 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
         {name: 'version', type: 'number', useNull: true},
         {name: 'installationTime', type: 'int', defaultValue: null, useNull: true},
         {name: 'metrologyConfigurationVersion', type: 'auto', defaultValue: null, useNull: true},
-        {name: 'meterActivation', type: 'auto', defaultValue: null, useNull: true}
+        {name: 'meterActivations', type: 'auto', defaultValue: null, useNull: true}
     ],
     proxy: {
         type: 'rest',

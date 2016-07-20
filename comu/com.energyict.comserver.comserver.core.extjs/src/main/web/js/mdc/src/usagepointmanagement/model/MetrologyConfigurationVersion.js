@@ -17,7 +17,7 @@ Ext.define('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion', {
                     result += Uni.I18n.translate('general.history.from', 'MDC', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(record.start))], false);
 
                     if(record.end){
-                        result += Uni.I18n.translate('general.history.untill', 'MDC', ' untill {0}', [Uni.DateTime.formatDateTimeShort(new Date(record.end))], false);
+                        result += Uni.I18n.translate('general.history.untill', 'MDC', ' until {0}', [Uni.DateTime.formatDateTimeShort(new Date(record.end))], false);
                     }
                 }
                 return result;
