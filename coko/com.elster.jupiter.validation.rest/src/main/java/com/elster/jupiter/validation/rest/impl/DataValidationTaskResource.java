@@ -139,7 +139,7 @@ public class DataValidationTaskResource {
                                              @PathParam("dataValidationTaskId") long dataValidationTaskId,
                                              DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
-        transactionService.execute(VoidTransaction.of(() -> findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName)).delete()));
+        findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName)).delete();
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
