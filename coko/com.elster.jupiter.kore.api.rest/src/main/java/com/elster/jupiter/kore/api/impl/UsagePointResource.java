@@ -272,6 +272,7 @@ public class UsagePointResource {
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{usagePointId}/activate")
 //    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
     public Response activateUsagePoint(@PathParam("usagePointId") long usagePointId,
                                        UsagePointInfo usagePointInfo,
                                        @Context UriInfo uriInfo) {
@@ -284,7 +285,7 @@ public class UsagePointResource {
 
         metrologyConfiguration.getMeterRoles().stream()
                 .filter(meterRole -> usagePoint.getMeterActivations().stream()
-                        .anyMatch(meterActivation -> meterActivation.getMeterRole().equals(meterRole)))
+                        .anyMatch(meterActivation -> meterActivation.getMeterRole().filter(mr -> mr.equals(meterRole)).isPresent()))
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE));
 

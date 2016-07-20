@@ -57,8 +57,8 @@ public enum UsagePointCommand {
         ServiceCall serviceCall = usagePointCommandHelper.createServiceCall(usagePoint, commandInfo);
         List<CompletionOptions> completionOptionsList = usagePointCommand.process(serviceCall, usagePoint, commandInfo, usagePointCommandHelper);
 
-        if(completionOptionsList.size()<expectedCommands){
-
+        if(completionOptionsList.isEmpty() || completionOptionsList.size()<expectedCommands){
+            serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.FAILED);
 
             List<CommandRunStatusInfo> childrenCommands = usagePoint.getMeterActivations(Instant.ofEpochMilli(commandInfo.effectiveTimestamp))
@@ -71,10 +71,11 @@ public enum UsagePointCommand {
                             .orElse(null)))
                     .collect(Collectors.toList());
 
-            return new CommandRunStatusInfo(usagePoint.getId(), CommandStatus.FAILED, childrenCommands.toArray(new CommandRunStatusInfo[childrenCommands
+            CommandRunStatusInfo commandStatus =  new CommandRunStatusInfo(usagePoint.getId(),
+                    CommandStatus.FAILED, childrenCommands.toArray(new CommandRunStatusInfo[childrenCommands
                     .size()]));
-
-
+            commandStatus.system = childrenCommands.stream().map(commandRunStatusInfo -> Optional.ofNullable(commandRunStatusInfo.system)).filter(Optional::isPresent).map(Optional::get).findFirst().orElse("MDC");
+            return commandStatus;
         } else {
 
             List<CommandRunStatusInfo> childrenCommands = usagePoint.getMeterActivations(Instant.ofEpochMilli(commandInfo.effectiveTimestamp))
