@@ -14,7 +14,6 @@ import org.osgi.framework.ServiceRegistration;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Provider;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
@@ -38,14 +37,11 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
     private OutboundEndPointConfiguration endPointConfiguration;
     private final AtomicReference<ServiceRegistration<S>> serviceRegistration = new AtomicReference<>();
     private Client client;
-    private final Provider<AccessLogFeature> accessLogFeatureProvider;
 
     @Inject
-    public OutboundRestEndPoint(BundleContext bundleContext, @Named("LogDirectory") String logDirectory,
-                                Provider<AccessLogFeature> accessLogFeatureProvider) {
+    public OutboundRestEndPoint(BundleContext bundleContext, @Named("LogDirectory") String logDirectory) {
         this.bundleContext = bundleContext;
         this.logDirectory = logDirectory;
-        this.accessLogFeatureProvider = accessLogFeatureProvider;
     }
 
     OutboundRestEndPoint init(OutboundRestEndPointProvider<S> endPointProvider, OutboundEndPointConfiguration endPointConfiguration) {
@@ -61,7 +57,6 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
         }
         client = ClientBuilder.newClient().
                 register(new JacksonFeature()).
-                register(accessLogFeatureProvider.get().init(endPointConfiguration)).
                 property(ClientProperties.CONNECT_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 5).
                 property(ClientProperties.READ_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 2);
         if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
