@@ -14,12 +14,12 @@ import org.osgi.framework.ServiceRegistration;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import java.util.Hashtable;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Logger;
 
 /**
  * This endpoint manager knows how to set up and tear down an outbound REST endpoint. To allow access to the remote server,
@@ -28,21 +28,21 @@ import java.util.logging.Logger;
  * The actually registered service is cached to allow tear-down.
  */
 public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
-    private static final Logger logger = Logger.getLogger(OutboundRestEndPoint.class.getSimpleName());
+    private final Provider<AccessLogFeature> accessLogFeatureProvider;
+    private final AtomicReference<ServiceRegistration<S>> serviceRegistration = new AtomicReference<>();
 
     private final BundleContext bundleContext;
     private final String logDirectory;
-
     private OutboundRestEndPointProvider<S> endPointProvider;
     private OutboundEndPointConfiguration endPointConfiguration;
-    private final AtomicReference<ServiceRegistration<S>> serviceRegistration = new AtomicReference<>();
     private Client client;
     private TracingFeature tracingFeature;
 
     @Inject
-    public OutboundRestEndPoint(BundleContext bundleContext, @Named("LogDirectory") String logDirectory) {
+    public OutboundRestEndPoint(BundleContext bundleContext, @Named("LogDirectory") String logDirectory, Provider<AccessLogFeature> accessLogFeatureProvider) {
         this.bundleContext = bundleContext;
         this.logDirectory = logDirectory;
+        this.accessLogFeatureProvider = accessLogFeatureProvider;
     }
 
     OutboundRestEndPoint init(OutboundRestEndPointProvider<S> endPointProvider, OutboundEndPointConfiguration endPointConfiguration) {
@@ -58,7 +58,7 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
         }
         client = ClientBuilder.newClient().
                 register(new JacksonFeature()).
-                register(new AccessLogFilter().init(endPointConfiguration)).
+                register(accessLogFeatureProvider.get().init(endPointConfiguration)).
                 property(ClientProperties.CONNECT_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 5).
                 property(ClientProperties.READ_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 2);
         if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
