@@ -183,7 +183,6 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                             callback: function () {
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 widget.loadRecordToForm(record);
-                                console.log(record);
                                 me.versionRecord = record;
                                 pageMainContent.setLoading(false);
                             }

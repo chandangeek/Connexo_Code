@@ -14,14 +14,12 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
                 itemId: 'action-menu-item-mc-edit',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.edit', 'MDC', 'Edit'),
-                tooltip: Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Future version only can be modified'),
                 action: 'edit'
             },
             {
                 itemId: 'action-menu-item-mc-remove',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.remove', 'MDC', 'Remove'),
-                tooltip: Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Future version only can be removed'),
                 action: 'remove'
             }
         ];
@@ -31,8 +29,24 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
     setMenuItems: function (record) {
         var me = this;
         if (record) {
-            me.down('#action-menu-item-mc-edit').setDisabled(!record.get('editable'));
-            me.down('#action-menu-item-mc-remove').setDisabled(!record.get('editable') || record.get('current'));
+            var edititem = me.down('#action-menu-item-mc-edit'),
+                removeItem = me.down('#action-menu-item-mc-remove');
+            if (!record.get('editable')) {
+                edititem.disable();
+                edititem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Future version only can be modified'));
+                if (record.get('current')) {
+                    removeItem.enable();
+                    removeItem.setTooltip(null);
+                } else {
+                    removeItem.disable();
+                    removeItem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Future version only can be removed'));
+                }
+            } else {
+                edititem.enable();
+                edititem.setTooltip(null);
+                removeItem.enable();
+                removeItem.setTooltip(null);
+            }
         }
     }
 });
