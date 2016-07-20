@@ -13,7 +13,7 @@ import javax.ws.rs.client.WebTarget;
 @Component(name = "com.elster.jupiter.webservices.rest.outbound.service.demo.provider",
         service = {OutboundRestEndPointProvider.class},
         immediate = true,
-        property = {"name=weather"})
+        property = {"name=Open weather maps"})
 public class WeatherEndpointProvider implements OutboundRestEndPointProvider {
     @Override
     public WeatherService get(WebTarget target) {
