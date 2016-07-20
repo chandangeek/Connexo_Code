@@ -1,6 +1,5 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
-import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.TransactionWrapper;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
@@ -79,17 +78,8 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         secureConfig.register(JsonMappingExceptionMapper.class);
         secureConfig.register(new TransactionWrapper(transactionService));
 //        secureConfig.register(urlRewriteFilter);
-        if (application instanceof BinderProvider) {
-            secureConfig.register(((BinderProvider) application).getBinder());
-        }
-        if (endPointConfiguration.isTracing()) {
-            try {
-                tracingFeature = new TracingFeature().init(logDirectory, endPointConfiguration.getTraceFile());
-                secureConfig.register(tracingFeature);
-            } catch (Exception e) {
-                endPointConfiguration.log("Failed to enable tracing", e);
-            }
-        }
+        tracingFeature = new TracingFeature().init(logDirectory, endPointConfiguration);
+        secureConfig.register(tracingFeature);
 
         EncodingFilter.enableFor(secureConfig, GZipEncoder.class); // TODO deflate also
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {

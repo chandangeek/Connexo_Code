@@ -1,6 +1,8 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
 
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+
 import org.glassfish.jersey.filter.LoggingFilter;
 
 import javax.ws.rs.core.Feature;
@@ -15,26 +17,32 @@ import java.util.logging.SimpleFormatter;
  * Both incoming and outgoing traffic will be logged to a file on the local system.
  */
 public class TracingFeature implements Feature {
-    private String fqFileName;
     private FileHandler fileHandler;
+    private String logDirectory;
+    private EndPointConfiguration endPointConfiguration;
 
-    public TracingFeature init(String logDirectory, String traceFile) {
-        fqFileName = logDirectory + traceFile;
+    public TracingFeature init(String logDirectory, EndPointConfiguration endPointConfiguration) {
+        this.logDirectory = logDirectory;
+        this.endPointConfiguration = endPointConfiguration;
         return this;
     }
 
     @Override
     public boolean configure(FeatureContext featureContext) {
+        if (!endPointConfiguration.isTracing()) {
+            return false;
+        }
         try {
             Logger logger = Logger.getLogger(TracingFeature.class.getSimpleName());
-            fileHandler = new FileHandler(fqFileName, true);
+            fileHandler = new FileHandler(logDirectory + endPointConfiguration.getTraceFile(), true);
             fileHandler.setFormatter(new SimpleFormatter());
             logger.addHandler(fileHandler);
             logger.setUseParentHandlers(false);
             featureContext.register(new LoggingFilter(logger, true));
             return true;
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            endPointConfiguration.log("Failed to enable tracing", e);
+            return false;
         }
     }
 

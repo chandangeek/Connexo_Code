@@ -65,14 +65,8 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
             client.register(HttpAuthenticationFeature.basic(endPointConfiguration.getUsername(), endPointConfiguration.getPassword()
                     .getBytes()));
         }
-        if (endPointConfiguration.isTracing()) {
-            try {
-                tracingFeature = new TracingFeature().init(logDirectory, endPointConfiguration.getTraceFile());
-                client.register(tracingFeature);
-            } catch (Exception e) {
-                endPointConfiguration.log("Failed to enable tracing", e);
-            }
-        }
+        tracingFeature = new TracingFeature().init(logDirectory, endPointConfiguration);
+        client.register(tracingFeature);
         WebTarget target = client.target(endPointConfiguration.getUrl());
 
         S service = endPointProvider.get(target);
