@@ -98,6 +98,13 @@ public class WebservicesCommands {
         EndPointConfiguration endPointConfiguration = builder.create();
         endPointConfigurationService.activate(endPointConfiguration);
         appserver.supportEndPoint(endPointConfiguration);
+        endPointConfiguration.log(LogLevel.INFO, "Request received");
+        endPointConfiguration.log(LogLevel.INFO, "Request completed successfully");
+        endPointConfiguration.log(LogLevel.INFO, "Request received");
+        endPointConfiguration.log(LogLevel.INFO, "Request received");
+        endPointConfiguration.log(LogLevel.INFO, "Request completed successfully");
+        endPointConfiguration.log(LogLevel.SEVERE, "Request unsuccessful");
+
     }
 
     private void createCurrencyEndpoint() {
