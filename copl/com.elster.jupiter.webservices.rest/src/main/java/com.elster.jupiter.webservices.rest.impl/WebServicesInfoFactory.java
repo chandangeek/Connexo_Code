@@ -22,7 +22,7 @@ public class WebServicesInfoFactory {
         info.name = webService.getName();
         WebServiceDirection webServiceDirection = webService.isInbound() ? WebServiceDirection.INBOUND : WebServiceDirection.OUTBOUND;
         info.direction = new IdWithLocalizedValueInfo<>(webServiceDirection, webServiceDirection.getDisplayName(thesaurus));
-        info.type = WebServiceProtocol.SOAP;
+        info.type = webService.getProtocol();
         return info;
     }
 }

@@ -1,6 +1,7 @@
 package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -42,6 +43,7 @@ public class WebServicesResourceTest extends WebServicesApplicationTest {
         WebService mock = mock(WebService.class);
         when(mock.getName()).thenReturn(name);
         when(mock.isInbound()).thenReturn(inbound);
+        when(mock.getProtocol()).thenReturn(WebServiceProtocol.SOAP);
         return mock;
     }
 }
