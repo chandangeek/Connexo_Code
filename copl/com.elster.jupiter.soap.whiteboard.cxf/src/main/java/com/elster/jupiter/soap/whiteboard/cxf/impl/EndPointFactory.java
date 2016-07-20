@@ -2,6 +2,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 
 /**
  * Created by bvn on 5/11/16.
@@ -20,4 +21,6 @@ public interface EndPointFactory<T extends EndPointProvider> {
     ManagedEndpoint createEndpoint(EndPointConfiguration endPointConfiguration);
 
     boolean isInbound();
+
+    WebServiceProtocol getProtocol();
 }

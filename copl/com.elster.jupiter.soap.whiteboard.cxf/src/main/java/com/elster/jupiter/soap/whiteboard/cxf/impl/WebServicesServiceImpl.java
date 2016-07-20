@@ -8,11 +8,14 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
-import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -27,6 +30,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.http.HttpService;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -57,6 +61,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile TransactionService transactionService;
+    private volatile HttpService httpService;
 
     // OSGi
     public WebServicesServiceImpl() {
@@ -65,7 +70,8 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Inject // For test purposes only
     public WebServicesServiceImpl(SoapProviderSupportFactory soapProviderSupportFactory, OrmService ormService,
                                   UpgradeService upgradeService, BundleContext bundleContext, EventService eventService,
-                                  UserService userService, NlsService nlsService, TransactionService transactionService) {
+                                  UserService userService, NlsService nlsService, TransactionService transactionService,
+                                  HttpService httpService) {
         setSoapProviderSupportFactory(soapProviderSupportFactory);
         setOrmService(ormService);
         setUpgradeService(upgradeService);
@@ -73,6 +79,7 @@ public class WebServicesServiceImpl implements WebServicesService {
         setNlsService(nlsService);
         setUserService(userService);
         setTransactionService(transactionService);
+        setHttpService(httpService);
         start(bundleContext);
     }
 
@@ -84,6 +91,11 @@ public class WebServicesServiceImpl implements WebServicesService {
     @Reference
     public void setSoapProviderSupportFactory(SoapProviderSupportFactory soapProviderSupportFactory) {
         this.soapProviderSupportFactory = soapProviderSupportFactory;
+    }
+
+    @Reference
+    public void setHttpService(HttpService httpService) {
+        this.httpService = httpService;
     }
 
     @Reference
@@ -128,6 +140,11 @@ public class WebServicesServiceImpl implements WebServicesService {
                 public boolean isInbound() {
                     return endPointFactory.isInbound();
                 }
+
+                @Override
+                public WebServiceProtocol getProtocol() {
+                    return webServices.get(webServiceName).getProtocol();
+                }
             });
         } else {
             return Optional.empty();
@@ -160,6 +177,11 @@ public class WebServicesServiceImpl implements WebServicesService {
             @Override
             public boolean isInbound() {
                 return e.getValue().isInbound();
+            }
+
+            @Override
+            public WebServiceProtocol getProtocol() {
+                return e.getValue().getProtocol();
             }
         }).collect(toList());
     }
@@ -215,14 +237,28 @@ public class WebServicesServiceImpl implements WebServicesService {
     }
 
     // called by whiteboard
-    public void register(String name, InboundEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(InboundEndPointFactoryImpl.class).init(name, endPointProvider));
+    public void register(String name, InboundSoapEndPointProvider endPointProvider) {
+        webServices.put(name, dataModel.getInstance(InboundSoapEndPointFactoryImpl.class).init(name, endPointProvider));
         eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
     // called by whiteboard
-    public void register(String name, OutboundEndPointProvider endPointProvider) {
-        webServices.put(name, dataModel.getInstance(OutboundEndPointFactoryImpl.class).init(name, endPointProvider));
+    public void register(String name, InboundRestEndPointProvider endPointProvider) {
+        webServices.put(name, dataModel.getInstance(InboundRestEndPointFactoryImpl.class).init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
+    }
+
+    // called by whiteboard
+    public void register(String name, OutboundSoapEndPointProvider endPointProvider) {
+        webServices.put(name, dataModel.getInstance(OutboundSoapEndPointFactoryImpl.class)
+                .init(name, endPointProvider));
+        eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
+    }
+
+    // called by whiteboard
+    public void register(String name, OutboundRestEndPointProvider endPointProvider) {
+        webServices.put(name, dataModel.getInstance(OutboundRestEndPointFactoryImpl.class)
+                .init(name, endPointProvider));
         eventService.postEvent(EventType.WEBSERVICE_REGISTERED.topic(), name);
     }
 
@@ -272,6 +308,7 @@ public class WebServicesServiceImpl implements WebServicesService {
                 bind(UserService.class).toInstance(userService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
+                bind(HttpService.class).toInstance(httpService);
             }
         };
     }

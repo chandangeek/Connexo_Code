@@ -29,6 +29,7 @@ import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.http.HttpService;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
@@ -51,18 +52,22 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     private volatile EventService eventService;
     private volatile UserService userService;
     private volatile TransactionService transactionService;
+    private volatile HttpService httpService;
 
     // OSGi
     public EndPointConfigurationServiceImpl() {
     }
 
     @Inject // Test purposes only
-    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService, UserService userService, TransactionService transactionService) {
+    public EndPointConfigurationServiceImpl(EventService eventService, NlsService nlsService, OrmService ormService,
+                                            UserService userService, TransactionService transactionService,
+                                            HttpService httpService) {
         setEventService(eventService);
         setNlsService(nlsService);
         setOrmService(ormService);
         setUserService(userService);
         setTransactionService(transactionService);
+        setHttpService(httpService);
         activate();
     }
 
@@ -103,6 +108,11 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
     }
 
     @Reference
+    public void setHttpService(HttpService httpService) {
+        this.httpService = httpService;
+    }
+
+    @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
@@ -128,6 +138,7 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
                 bind(EndPointConfigurationService.class).toInstance(EndPointConfigurationServiceImpl.this);
                 bind(UserService.class).toInstance(userService);
                 bind(TransactionService.class).toInstance(transactionService);
+                bind(HttpService.class).toInstance(httpService);
             }
         };
     }

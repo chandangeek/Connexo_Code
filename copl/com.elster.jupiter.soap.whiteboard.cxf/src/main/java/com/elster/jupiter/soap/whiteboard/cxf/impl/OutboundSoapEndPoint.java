@@ -2,7 +2,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
@@ -30,32 +30,35 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by bvn on 5/10/16.
+ * This endpoint manager knows how to set up and tear down an outbound SOAP endpoint. To allow access to the remote server,
+ * an OSGI-service is registered, making the outbound service available as OSGi service (java interface)
+ * Features are added as configured on the endpoint configuration.
+ * The actually registered service is cached to allow tear-down.
  */
-public final class OutboundEndPoint implements ManagedEndpoint {
-    private static final Logger logger = Logger.getLogger(OutboundEndPoint.class.getSimpleName());
+public final class OutboundSoapEndPoint implements ManagedEndpoint {
+    private static final Logger logger = Logger.getLogger(OutboundSoapEndPoint.class.getSimpleName());
 
     private final BundleContext bundleContext;
     private final SoapProviderSupportFactory soapProviderSupportFactory;
     private final Provider<AccessLogFeature> accessLogFeatureProvider;
     private final String logDirectory;
 
-    private OutboundEndPointProvider endPointProvider;
+    private OutboundSoapEndPointProvider endPointProvider;
     private OutboundEndPointConfiguration endPointConfiguration;
     private ServiceRegistration<?> serviceRegistration;
     private TracingFeature tracingFeature;
 
     @Inject
-    public OutboundEndPoint(BundleContext bundleContext, SoapProviderSupportFactory soapProviderSupportFactory,
-                            Provider<AccessLogFeature> accessLogFeatureProvider,
-                            @Named("LogDirectory") String logDirectory) {
+    public OutboundSoapEndPoint(BundleContext bundleContext, SoapProviderSupportFactory soapProviderSupportFactory,
+                                Provider<AccessLogFeature> accessLogFeatureProvider,
+                                @Named("LogDirectory") String logDirectory) {
         this.bundleContext = bundleContext;
         this.soapProviderSupportFactory = soapProviderSupportFactory;
         this.accessLogFeatureProvider = accessLogFeatureProvider;
         this.logDirectory = logDirectory;
     }
 
-    OutboundEndPoint init(OutboundEndPointProvider endPointProvider, OutboundEndPointConfiguration endPointConfiguration) {
+    OutboundSoapEndPoint init(OutboundSoapEndPointProvider endPointProvider, OutboundEndPointConfiguration endPointConfiguration) {
         this.endPointProvider = endPointProvider;
         this.endPointConfiguration = endPointConfiguration;
         return this;

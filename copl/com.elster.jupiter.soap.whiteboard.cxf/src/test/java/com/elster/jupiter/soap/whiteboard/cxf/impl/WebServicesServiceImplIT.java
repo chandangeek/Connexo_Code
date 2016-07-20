@@ -36,6 +36,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import javax.validation.ConstraintViolationException;
@@ -80,6 +81,8 @@ public class WebServicesServiceImplIT {
     private MessageInterpolator messageInterpolator;
     @Mock
     private DataVaultService dataVaultService;
+    @Mock
+    private HttpService httpService;
 
     private Clock clock;
     @Mock
@@ -97,6 +100,7 @@ public class WebServicesServiceImplIT {
             bind(MessageInterpolator.class).toInstance(messageInterpolator);
             bind(DataVaultService.class).toInstance(dataVaultService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(httpService);
         }
     }
 

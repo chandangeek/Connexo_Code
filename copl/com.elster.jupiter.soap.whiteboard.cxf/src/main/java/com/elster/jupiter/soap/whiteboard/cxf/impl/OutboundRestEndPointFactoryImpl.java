@@ -2,7 +2,8 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
-import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -10,12 +11,12 @@ import javax.inject.Provider;
 /**
  * Created by bvn on 5/11/16.
  */
-public class OutboundEndPointFactoryImpl extends EndPointFactoryImpl<OutboundEndPointProvider> {
+public class OutboundRestEndPointFactoryImpl extends EndPointFactoryImpl<OutboundRestEndPointProvider> {
 
-    private final Provider<OutboundEndPoint> outboundEndPointProvider;
+    private final Provider<OutboundRestEndPoint> outboundEndPointProvider;
 
     @Inject
-    public OutboundEndPointFactoryImpl(Provider<OutboundEndPoint> outboundEndPointProvider) {
+    public OutboundRestEndPointFactoryImpl(Provider<OutboundRestEndPoint> outboundEndPointProvider) {
         this.outboundEndPointProvider = outboundEndPointProvider;
     }
 
@@ -29,4 +30,10 @@ public class OutboundEndPointFactoryImpl extends EndPointFactoryImpl<OutboundEnd
     public boolean isInbound() {
         return false;
     }
+
+    @Override
+    public WebServiceProtocol getProtocol() {
+        return WebServiceProtocol.REST;
+    }
+
 }

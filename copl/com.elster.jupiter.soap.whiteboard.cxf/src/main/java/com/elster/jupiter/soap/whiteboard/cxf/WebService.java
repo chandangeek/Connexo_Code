@@ -7,4 +7,6 @@ public interface WebService {
     public String getName();
 
     public boolean isInbound();
+
+    public WebServiceProtocol getProtocol();
 }

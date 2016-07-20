@@ -27,13 +27,15 @@ public class TracingFeature extends LoggingFeature {
 
     /**
      * Cleans up files handles
-     * We need to close the interceptors to release file locks on windooz (CXO-2268)
+     * We need to close the interceptors to release file locks (CXO-2268)
      */
     public void close() {
-        closePrintWriters(provider.getInInterceptors());
-        closePrintWriters(provider.getInFaultInterceptors());
-        closePrintWriters(provider.getOutInterceptors());
-        closePrintWriters(provider.getOutFaultInterceptors());
+        if (provider != null) {
+            closePrintWriters(provider.getInInterceptors());
+            closePrintWriters(provider.getInFaultInterceptors());
+            closePrintWriters(provider.getOutInterceptors());
+            closePrintWriters(provider.getOutFaultInterceptors());
+        }
     }
 
     private void closePrintWriters(Collection<Interceptor<?>> collection) {
