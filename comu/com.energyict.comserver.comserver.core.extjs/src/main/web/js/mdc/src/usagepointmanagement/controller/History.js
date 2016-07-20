@@ -195,7 +195,6 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
     },
 
     deleteMetrologyConfigurationVersion: function (menu, menuItem) {
-
         if (menu.usagePoint && menu.record) {
             var me = this,
                 url = menu.record.getProxy().urlTpl,
@@ -207,8 +206,8 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                         method: 'DELETE',
                         jsonData: Ext.encode(menu.usagePoint.getData()),
                         success: function () {
-                            versionsStore.load();
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePoint.remove.mcversion.acknowledge', 'MDC', 'Metrology configuration version removed'));
+                            me.showMetrologyConfigurationHistory(menu.usagePoint.get('mRID'))
                         }
                     });
                 };
@@ -216,7 +215,12 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                 title: Uni.I18n.translate('usagePoint.remove.mcversion.confirmation.title', 'MDC', ' Remove \'{0}\' from the usage point', [menu.record.get('name')]),
                 msg: Uni.I18n.translate('usagePoint.remove.mcversion.confirmation.msg', 'MDC',
                     'You will not be able to view and use data from reading types specified on this metrology configuration'),
-                fn: doRemove
+                fn: function (action) {
+                    if (action == "confirm") {
+                        doRemove()
+                    }
+                    ;
+                }
             });
         }
     },
@@ -232,15 +236,11 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                 ? me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion')
                 : Ext.create('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
             metrologyConfig = configCombo.findRecordByValue(configCombo.getValue());
-        //TODO: make PUT method for edit
-        // console.log(versionRecord);
-        // usagePointWithVersionModel.phantom = false;
         versionForm.down('#form-errors').hide();
         versionForm.getForm().clearInvalid();
         versionForm.updateRecord(versionRecord);
         if (metrologyConfig) {
             versionRecord.set('metrologyConfiguration', metrologyConfig.getData());
-            // me.usagePoint.set('metrologyConfigurationVersion', versionRecord.getData());
             usagePointWithVersionModel.set(me.usagePoint.getRecordData());
             usagePointWithVersionModel.set('metrologyConfigurationVersion', versionRecord.getData());
             usagePointWithVersionModel.getProxy().setUrl(me.usagePoint.get('mRID'));
@@ -261,26 +261,6 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                     }
                 }
             });
-            // Ext.Ajax.request({
-            //     url: Ext.String.format("/api/mtr/usagepoints/{0}/metrologyconfigurationversion",me.usagePoint.get('mRID')),
-            //     method: 'POST',
-            //     jsonData: me.usagePoint.getRecordData(),
-            //     success: function () {
-            //         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.version.added', 'MDC', "Metrology configuration version added"));
-            //         router.getRoute('usagepoints/usagepoint/history').forward();
-            //     },
-            //     failure: function (response, request) {
-            //         if (response.status == 400) {
-            //             if (!Ext.isEmpty(response.responseText)) {
-            //                 var json = Ext.decode(response.responseText, true);
-            //                 if (json && json.errors) {
-            //                     versionForm.down('#form-errors').show();
-            //                     versionForm.getForm().markInvalid(json.errors);
-            //                 }
-            //             }
-            //         }
-            //     }
-            // })
         } else {
             versionForm.down('#form-errors').show();
             versionForm.down('#mc-combo').markInvalid(Uni.I18n.translate('readingtypesmanagment.bulk.thisfieldisrequired', 'MDC', 'This field is required'));

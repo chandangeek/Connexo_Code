@@ -36,16 +36,16 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
                 edititem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Future version only can be modified'));
                 if (record.get('current')) {
                     removeItem.enable();
-                    removeItem.setTooltip(null);
+                    removeItem.setTooltip(false);
                 } else {
                     removeItem.disable();
                     removeItem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Future version only can be removed'));
                 }
             } else {
                 edititem.enable();
-                edititem.setTooltip(null);
+                edititem.setTooltip(false);
                 removeItem.enable();
-                removeItem.setTooltip(null);
+                removeItem.setTooltip(false);
             }
         }
     }
