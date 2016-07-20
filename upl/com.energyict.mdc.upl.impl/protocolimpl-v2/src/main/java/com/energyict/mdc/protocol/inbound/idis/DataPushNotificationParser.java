@@ -104,7 +104,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
         parseRegisters(structure);
     }
 
-    private void parseRegisters(Structure structure) {
+    protected void parseRegisters(Structure structure) {
         while (structure.hasMoreElements()) {
             AbstractDataType logicalName = structure.getNextDataType();
             if (!(logicalName instanceof OctetString)){
@@ -170,7 +170,7 @@ public class DataPushNotificationParser extends EventPushNotificationParser {
         getCollectedRegisters().addCollectedRegister(deviceRegister);
     }
 
-    private Date parseDateTime(OctetString octetString) {
+    protected Date parseDateTime(OctetString octetString) {
         try {
             return new AXDRDateTime(octetString.getBEREncodedByteArray(), 0, getDeviceTimeZone()).getValue().getTime(); // Make sure to pass device TimeZone, as deviation info is unspecified
         } catch (ProtocolException e) {

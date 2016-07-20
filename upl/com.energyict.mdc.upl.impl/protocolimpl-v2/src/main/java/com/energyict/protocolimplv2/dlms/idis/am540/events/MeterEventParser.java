@@ -252,7 +252,7 @@ public class MeterEventParser {
             }
         }
 
-        if (ProtocolTools.isBitSet(meterEventCode, 28)) {
+        if (ProtocolTools.isBitSet(meterEventCode, 29)) {
             if (alarmRegister == 1){
                 meterEvents.add(new MeterEvent(date, MeterEvent.BATTERY_VOLTAGE_LOW, 113, "Battery low on M-bus ch2"));
             } else if (alarmRegister == 2) {

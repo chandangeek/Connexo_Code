@@ -319,6 +319,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     MIGRATION_DUMMY_PROTOCOL(279, "com.energyict.protocolimpl.migration.DummyProtocol"),
 
+    T210D(280, "com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.T210D"),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),

@@ -62,10 +62,10 @@ public class EventPushNotificationParser {
     private final ComChannel comChannel;
     private final InboundDAO inboundDAO;
     private final InboundComPort inboundComPort;
-    private final ObisCode logbookObisCode;
-    private CollectedLogBook collectedLogBook;
+    protected final ObisCode logbookObisCode;
+    protected CollectedLogBook collectedLogBook;
     private DeviceProtocolSecurityPropertySet securityPropertySet;
-    private DeviceIdentifier deviceIdentifier;
+    protected DeviceIdentifier deviceIdentifier;
 
     public EventPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         this.comChannel = comChannel;
@@ -104,7 +104,7 @@ public class EventPushNotificationParser {
         return deviceIdentifier;
     }
 
-    private void parseEncryptedFrame(ByteBuffer inboundFrame) {
+    protected void parseEncryptedFrame(ByteBuffer inboundFrame) {
         int systemTitleLength = inboundFrame.get() & 0xFF;
         byte[] systemTitle = new byte[systemTitleLength];
         inboundFrame.get(systemTitle);
@@ -149,7 +149,7 @@ public class EventPushNotificationParser {
         return new DeviceIdentifierLikeSerialNumber("%" + serialNumber + "%");
     }
 
-    private SecurityContext getSecurityContext() {
+    protected SecurityContext getSecurityContext() {
         DlmsProperties securityProperties = getNewInstanceOfProperties();
         securityProperties.setSecurityPropertySet(getSecurityPropertySet());
         securityProperties.addProperties(getSecurityPropertySet().getSecurityProperties());
@@ -347,7 +347,7 @@ public class EventPushNotificationParser {
         collectedLogBook.setCollectedMeterEvents(meterProtocolEvents);
     }
 
-    private void createCollectedLogBook(List<MeterEvent> meterEvents) {
+    protected void createCollectedLogBook(List<MeterEvent> meterEvents) {
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
         for(MeterEvent meterEvent: meterEvents){
             meterProtocolEvents.add(MeterEvent.mapMeterEventToMeterProtocolEvent(meterEvent));
