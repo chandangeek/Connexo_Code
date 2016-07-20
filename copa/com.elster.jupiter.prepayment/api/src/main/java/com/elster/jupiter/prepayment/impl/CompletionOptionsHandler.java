@@ -78,23 +78,25 @@ public class CompletionOptionsHandler implements MessageHandler {
     private void updateStatusOfUsagePoint(ServiceCall serviceCall) {
         UsagePoint usagePoint = (UsagePoint) serviceCall.getTargetObject().get();
         ContactorOperationDomainExtension contactorOperationDomainExtension = serviceCall.getExtensionFor(new ContactorOperationCustomPropertySet()).get();
-        switch (contactorOperationDomainExtension.getBreakerStatus()) {
-            case connected:
-                usagePoint.setConnectionState(ConnectionState.CONNECTED);
-                serviceCall.log(LogLevel.INFO, MessageFormat.format("Updated the usage point connection state to {0}", ConnectionState.CONNECTED.getName()));
-                break;
-            case disconnected:
-                usagePoint.setConnectionState(ConnectionState.PHYSICALLY_DISCONNECTED);
-                serviceCall.log(LogLevel.INFO, MessageFormat.format("Updated the usage point connection state to {0}", ConnectionState.PHYSICALLY_DISCONNECTED.getName()));
-                break;
-            case armed:
-                usagePoint.setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED);
-                serviceCall.log(LogLevel.INFO, MessageFormat.format("Updated the usage point connection state to {0}", ConnectionState.LOGICALLY_DISCONNECTED.getName()));
-                break;
-            default:
-                // Indicating the breaker state was not updated (~ only load limit operation handled)
-                // In this case the UsagePoint connection status should off course not be touched
-                break;
+        if (contactorOperationDomainExtension.getBreakerStatus() != null) {
+            switch (contactorOperationDomainExtension.getBreakerStatus()) {
+                case connected:
+                    usagePoint.setConnectionState(ConnectionState.CONNECTED);
+                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Updated the usage point connection state to {0}", ConnectionState.CONNECTED.getName()));
+                    break;
+                case disconnected:
+                    usagePoint.setConnectionState(ConnectionState.PHYSICALLY_DISCONNECTED);
+                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Updated the usage point connection state to {0}", ConnectionState.PHYSICALLY_DISCONNECTED.getName()));
+                    break;
+                case armed:
+                    usagePoint.setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED);
+                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Updated the usage point connection state to {0}", ConnectionState.LOGICALLY_DISCONNECTED.getName()));
+                    break;
+                default:
+                    // Indicating the breaker state was not updated (~ only load limit operation handled)
+                    // In this case the UsagePoint connection status should off course not be touched
+                    break;
+            }
         }
     }
 

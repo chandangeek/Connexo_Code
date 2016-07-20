@@ -66,11 +66,15 @@ public class ContactorOperationDomainExtension implements PersistentDomainExtens
     }
 
     public BreakerStatus getBreakerStatus() {
-        return BreakerStatus.valueOf(status);
+        return status != null ? BreakerStatus.valueOf(status) : null;
     }
 
     public void setBreakerStatus(BreakerStatus breakerStatus) {
-        this.status = breakerStatus.name();
+        if (breakerStatus == null) {
+            this.status = null;
+        } else {
+            this.status = breakerStatus.name();
+        }
     }
 
     public String getCallback() {
@@ -99,7 +103,7 @@ public class ContactorOperationDomainExtension implements PersistentDomainExtens
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.BREAKER_STATUS.javaName(), this.getBreakerStatus().name());
+        propertySetValues.setProperty(FieldNames.BREAKER_STATUS.javaName(), this.getStatus());
         propertySetValues.setProperty(FieldNames.CALLBACK.javaName(), this.getCallback());
         propertySetValues.setProperty(FieldNames.PROVIDED_RESPONSE.javaName(), this.providedResponse());
     }
