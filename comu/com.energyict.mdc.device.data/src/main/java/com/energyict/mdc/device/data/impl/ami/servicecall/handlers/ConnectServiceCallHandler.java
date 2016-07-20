@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 
 import org.osgi.service.component.annotations.Component;
@@ -33,15 +34,21 @@ public class ConnectServiceCallHandler extends AbstractContactorOperationService
     }
 
     // Constructor only to be used in JUnit tests
-    public ConnectServiceCallHandler(MessageService messageService, DeviceService deviceService, Thesaurus thesaurus) {
+    public ConnectServiceCallHandler(MessageService messageService, DeviceService deviceService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack) {
         super.setMessageService(messageService);
         super.setDeviceService(deviceService);
         super.setThesaurus(thesaurus);
+        super.setCompletionOptionsCallBack(completionOptionsCallBack);
     }
 
     @Reference
     public void setMessageService(MessageService messageService) {
         super.setMessageService(messageService);
+    }
+
+    @Reference
+    protected void setCompletionOptionsCallBack(CompletionOptionsCallBack completionOptionsCallBack) {
+        super.setCompletionOptionsCallBack(completionOptionsCallBack);
     }
 
     @Reference

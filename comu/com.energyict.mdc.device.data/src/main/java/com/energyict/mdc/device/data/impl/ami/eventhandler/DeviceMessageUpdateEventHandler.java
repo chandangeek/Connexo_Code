@@ -7,6 +7,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
@@ -20,6 +21,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.text.MessageFormat;
 import java.util.Optional;
+
+import static com.elster.jupiter.metering.ami.CompletionMessageInfo.CompletionMessageStatus;
+import static com.elster.jupiter.metering.ami.CompletionMessageInfo.FailureReason;
 
 /**
  * Handles update events that are being sent when a {@link DeviceMessage} has been updated.
@@ -45,19 +49,26 @@ public class DeviceMessageUpdateEventHandler implements TopicHandler {
     static final String OLD_OBIS_CODE_PROPERTY_NAME = "oldDeviceMessageStatus";
 
     private volatile ServiceCallService serviceCallService;
+    private volatile CompletionOptionsCallBack completionOptionsCallBack;
 
     public DeviceMessageUpdateEventHandler() {
         super();
     }
 
-    public DeviceMessageUpdateEventHandler(ServiceCallService serviceCallService) {
+    public DeviceMessageUpdateEventHandler(ServiceCallService serviceCallService, CompletionOptionsCallBack completionOptionsCallBack) {
         this();
         this.serviceCallService = serviceCallService;
+        this.completionOptionsCallBack = completionOptionsCallBack;
     }
 
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setCompletionOptionsCallBack(CompletionOptionsCallBack completionOptionsCallBack) {
+        this.completionOptionsCallBack = completionOptionsCallBack;
     }
 
     @Override
@@ -72,16 +83,16 @@ public class DeviceMessageUpdateEventHandler implements TopicHandler {
         if (trackingInfoContainsServiceCall(deviceMessage) && ((serviceCall = getServiceCallIfRelatedToHeadEndInterface(deviceMessage)) != null) && validateDeviceMessageStatusChanged(deviceMessage, event)) {
             switch (deviceMessage.getStatus()) {
                 case CONFIRMED:
-                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Device command {0} has been confirmed", deviceMessage.getId()));
+                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Device command with ID {0} has been confirmed", deviceMessage.getId()));
                     deviceMessageConfirmed(deviceMessage, serviceCall);
                     break;
                 case FAILED:
-                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Execution of device command {0} failed", deviceMessage.getId()));
+                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Execution of device command with ID {0} failed", deviceMessage.getId()));
                     deviceMessageFailed(deviceMessage, serviceCall);
                     break;
                 case REVOKED:
-                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Device command {0} has been revoked", deviceMessage.getId()));
-                    deviceMessageFailed(deviceMessage, serviceCall);
+                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Device command with ID {0} has been revoked", deviceMessage.getId()));
+                    deviceMessageRevoked(deviceMessage, serviceCall);
                     break;
                 case WAITING:
                     // Intentional fall-through
@@ -109,11 +120,20 @@ public class DeviceMessageUpdateEventHandler implements TopicHandler {
 
     private void deviceMessageFailed(DeviceMessage deviceMessage, ServiceCall serviceCall) {
         logProtocolInfoOfDeviceMessage(deviceMessage, serviceCall);
+        completionOptionsCallBack.sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.ONE_OR_MORE_DEVICE_COMMANDS_FAILED);
         if (serviceCall.canTransitionTo(DefaultState.ONGOING)) {
             serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
         // else the ServiceCall is probably already in Failed state
+    }
+
+    private void deviceMessageRevoked(DeviceMessage deviceMessage, ServiceCall serviceCall) {
+        if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+            completionOptionsCallBack.sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.CANCELLED, FailureReason.ONE_OR_MORE_DEVICE_COMMANDS_HAVE_BEEN_REVOKED);
+            serviceCall.requestTransition(DefaultState.CANCELLED);
+        }
+        // else the ServiceCall is probably already in an end state
     }
 
     private void logProtocolInfoOfDeviceMessage(DeviceMessage deviceMessage, ServiceCall serviceCall) {

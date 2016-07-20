@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -31,13 +32,18 @@ public class EnableLoadLimitServiceCallHandler extends AbstractOperationServiceC
     }
 
     // Constructor only to be used in JUnit tests
-    public EnableLoadLimitServiceCallHandler(MessageService messageService, Thesaurus thesaurus) {
-        super(messageService, thesaurus);
+    public EnableLoadLimitServiceCallHandler(MessageService messageService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack) {
+        super(messageService, thesaurus, completionOptionsCallBack);
     }
 
     @Reference
     public void setMessageService(MessageService messageService) {
         super.setMessageService(messageService);
+    }
+
+    @Reference
+    protected void setCompletionOptionsCallBack(CompletionOptionsCallBack completionOptionsCallBack) {
+        super.setCompletionOptionsCallBack(completionOptionsCallBack);
     }
 
     @Reference
