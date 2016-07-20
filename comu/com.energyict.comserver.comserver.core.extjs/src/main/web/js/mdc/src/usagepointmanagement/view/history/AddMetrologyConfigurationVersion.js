@@ -33,12 +33,25 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
                                 hidden: true
                             },
                             {
+                                xtype: 'displayfield',
+                                itemId: 'no-mc-available-msg',
+                                fieldLabel: Uni.I18n.translate('usagePointManagement.metrologyConfiguration', 'MDC', 'Metrology configuration'),
+                                required: true,
+                                hidden: true,
+                                htmlEncode: false,
+                                style: 'font-style: italic',
+                                value: '<span style="color: #686868; font-style: italic">'
+                                + Uni.I18n.translate('usagePointManagement.metrologyConfiguration.noMcAvailable', 'IMT', 'No active metrology configurations with appropriate service category')
+                                + '</span>'
+                            },
+                            {
                                 xtype: 'combobox',
                                 itemId: 'mc-combo',
                                 name: 'metrologyConfiguration',
                                 displayField: 'name',
                                 valueField: 'id',
                                 store: 'Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations',
+                                queryMode: 'local',
                                 required: true,
                                 width: 600,
                                 fieldLabel: Uni.I18n.translate('usagePointManagement.metrologyConfiguration', 'MDC', 'Metrology configuration')

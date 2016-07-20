@@ -122,7 +122,20 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
             success: function (record) {
                 me.usagePoint = record;
                 availableConfigs.getProxy().setUrl(record.get('mRID'));
-                me.getApplication().fireEvent('changecontentevent', widget);
+                availableConfigs.load(
+                    {
+                        scope: me,
+                        callback: function (records) {
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                            if (records.length == 0) {
+                                widget.down('#add-version-form #no-mc-available-msg').show();
+                                widget.down('#add-version-form #mc-combo').hide();
+                                widget.down('#add-version-form #usage-point-add-edit-button').hide()
+                            }
+                        }
+                    }
+                )
+
             },
             callback: function () {
                 pageMainContent.setLoading(false);
