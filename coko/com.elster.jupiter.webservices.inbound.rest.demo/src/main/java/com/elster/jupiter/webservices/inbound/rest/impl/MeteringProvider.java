@@ -8,7 +8,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 
-@Component(name = "com.elster.jupiter.metering.rest.provider", service = {InboundRestEndPointProvider.class}, immediate = true, property = {"name=meters"})
+@Component(name = "com.elster.jupiter.metering.rest.provider", service = {InboundRestEndPointProvider.class}, immediate = true, property = {"name=GetMeters"})
 public class MeteringProvider implements InboundRestEndPointProvider {
 
     private volatile MeteringService meteringService;
