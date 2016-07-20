@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Ranges;
@@ -183,8 +184,9 @@ public class UsagePointOutputResource {
                     .sorted(Comparator.comparing(ReadingRecord::getTimeStamp).reversed())
                     .map(outputRegisterDataInfoFactory::createRegisterDataInfo)
                     .collect(Collectors.toList());
+            outputRegisterData = ListPager.of(outputRegisterData).from(queryParameters).find();
         }
-        return PagedInfoList.fromCompleteList("registerData", outputRegisterData, queryParameters);
+        return PagedInfoList.fromPagedList("registerData", outputRegisterData, queryParameters);
     }
 
     @PUT
