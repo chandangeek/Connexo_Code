@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -103,7 +104,7 @@ public final class OutboundSoapEndPoint implements ManagedEndpoint {
                     dict);
         } catch (MalformedURLException e) {
             endPointConfiguration.log("Failed to publish endpoint", e);
-            logger.severe("Failed to publish endpoint: " + e.getMessage());
+            logger.log(Level.SEVERE, "Failed to publish endpoint: " + e.getMessage(), e);
         }
     }
 

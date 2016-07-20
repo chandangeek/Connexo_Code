@@ -10,6 +10,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
@@ -152,6 +153,20 @@ public class WebServicesServiceImpl implements WebServicesService {
         } else {
             return Optional.empty();
         }
+    }
+
+    @Override
+    public void removeAllEndPoints() {
+        endpoints.entrySet().stream().forEach(entry -> {
+            EndPointConfiguration endPointConfiguration = entry.getKey();
+            ManagedEndpoint managedEndpoint = entry.getValue();
+            String msg = "Stopping WebService " + endPointConfiguration.getWebServiceName() + " with config " + endPointConfiguration
+                    .getName();
+            logger.info(msg);
+            endPointConfiguration.log(LogLevel.FINE, msg);
+            managedEndpoint.stop();
+        });
+        endpoints.clear();
     }
 
     @Override

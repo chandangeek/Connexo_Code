@@ -14,7 +14,7 @@ import com.elster.jupiter.util.gogo.MysqlPrint;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.time.ZoneId;
+import java.time.Clock;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Arrays;
@@ -40,10 +40,16 @@ import static java.util.stream.Collectors.toList;
 public class WebServicesGogoCommands {
 
     public static final MysqlPrint MYSQL_PRINT = new MysqlPrint();
-    private WebServicesService webServicesService;
-    private EndPointConfigurationService endPointConfigurationService;
-    private ThreadPrincipalService threadPrincipalService;
-    private TransactionService transactionService;
+    private volatile WebServicesService webServicesService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile TransactionService transactionService;
+    private volatile Clock clock;
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 
     @Reference
     public void setTransactionService(TransactionService transactionService) {
@@ -178,7 +184,7 @@ public class WebServicesGogoCommands {
         System.out.println("Authentication : " + endPointConfiguration.get().getAuthenticationMethod());
         DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.FULL)
                 .withLocale(Locale.getDefault())
-                .withZone(ZoneId.systemDefault());
+                .withZone(clock.getZone());
         for (EndPointLog log : endPointConfiguration.get().getLogs().sorted("timestamp", true).find()) {
             System.out.println(String.format("%s\t %s", formatter.format(log.getTime()), log.getMessage()));
             if (log.getStackTrace() != null) {
