@@ -393,7 +393,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(metrologyConfiguration.getMeterRoles()).thenReturn(Arrays.asList(meterRole1, meterRole2));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
 
-        HeadEndInterface headEndInterface =mock(HeadEndInterface.class);
+        HeadEndInterface headEndInterface = mock(HeadEndInterface.class);
         Meter meter = mock(Meter.class);
         when(meter.getId()).thenReturn(1L);
         when(meter.getMRID()).thenReturn("meter1");

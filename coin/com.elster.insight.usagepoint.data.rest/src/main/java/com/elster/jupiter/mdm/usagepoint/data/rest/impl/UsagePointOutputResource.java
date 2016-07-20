@@ -2,6 +2,8 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -34,6 +36,7 @@ import javax.ws.rs.core.SecurityContext;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -135,17 +138,14 @@ public class UsagePointOutputResource {
                 .get();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            Channel channel = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get().getChannels()
-                    .stream()
-                    .filter(c -> c.getMainReadingType().equals(readingTypeDeliverable.getReadingType()))
-                    .findFirst()
-                    .get();
+            Channel channel = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get().getChannel(readingTypeDeliverable.getReadingType()).get();
             List<DataValidationStatus> dataValidationStatusList = validationService.getEvaluator()
                     .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, channel.getIntervalReadings(range), range)
                     .stream()
                     .collect(Collectors.toList());
             outputChannelDataInfoList = channel.getIntervalReadings(range)
                     .stream()
+                    .sorted(Comparator.comparing(IntervalReadingRecord::getTimeStamp).reversed())
                     .map(intervalReadingRecord -> outputChannelDataInfoFactory.createChannelDataInfo(intervalReadingRecord, dataValidationStatusList))
                     .collect(Collectors.toList());
         }
@@ -177,8 +177,8 @@ public class UsagePointOutputResource {
             Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
             Channel channel = effectiveMC.getChannelsContainer(metrologyContract).get().getChannel(readingTypeDeliverable.getReadingType()).get();
             outputRegisterData = channel.getRegisterReadings(range).stream()
+                    .sorted(Comparator.comparing(ReadingRecord::getTimeStamp).reversed())
                     .map(outputRegisterDataInfoFactory::createRegisterDataInfo)
-                    .sorted((o1, o2) -> o2.timeStamp.compareTo(o1.timeStamp)) // reverse
                     .collect(Collectors.toList());
         }
         return PagedInfoList.fromCompleteList("registerData", outputRegisterData, queryParameters);

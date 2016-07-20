@@ -13,6 +13,7 @@ import java.util.List;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 public class OutputChannelDataInfoFactory {
+
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
 
     @Inject
