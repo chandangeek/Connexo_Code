@@ -6,7 +6,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
     shadow: false,
     router: null,
 
-    initComponent: function() {
+    initComponent: function () {
         var me = this;
 
         me.items = [
@@ -14,21 +14,23 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
                 itemId: 'action-menu-item-mc-edit',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.edit', 'MDC', 'Edit'),
-                tooltip: Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Future version only can be modified')
+                tooltip: Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Future version only can be modified'),
+                action: 'edit'
             },
             {
                 itemId: 'action-menu-item-mc-remove',
                 privileges: Mdc.privileges.UsagePoint.canAdmin(),
                 text: Uni.I18n.translate('usagepoint.actionMenu.remove', 'MDC', 'Remove'),
-                tooltip: Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Future versions only can be removed')
+                tooltip: Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Future version only can be removed'),
+                action: 'remove'
             }
         ];
         me.callParent(arguments);
     },
 
-    setMenuItems: function(record){
+    setMenuItems: function (record) {
         var me = this;
-        if(record){
+        if (record) {
             me.down('#action-menu-item-mc-edit').setDisabled(!record.get('editable'));
             me.down('#action-menu-item-mc-remove').setDisabled(!record.get('editable') || record.get('current'));
         }

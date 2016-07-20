@@ -28,10 +28,26 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
             'add-metrology-configuration-version #usage-point-add-edit-button': {
                 click: this.addMetrologyConfigurationVersion
             },
-            '#metrology-configuration-versions-action-menu-id #action-menu-item-mc-remove': {
-                click: this.deleteMetrologyConfigurationVersion
+            '#metrology-configuration-versions-action-menu-id': {
+                click: this.selectAction
             }
         });
+    },
+
+    selectAction: function (menu, item) {
+        switch (item.action) {
+            case 'remove':
+                this.deleteMetrologyConfigurationVersion(menu, item);
+                break;
+            case 'edit':
+                this.editMetrologyConfigurationVersion(menu, item)
+        }
+    },
+
+    editMetrologyConfigurationVersion: function (menu, item) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+        router.getRoute('usagepoints/usagepoint/history/editmetrologyconfigurationversion').forward({mRID: menu.usagePoint.get('mRID'), id: menu.record.get('id')});
     },
 
     showMetrologyConfigurationHistory: function (id) {
@@ -180,6 +196,7 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
     },
 
     deleteMetrologyConfigurationVersion: function (menu, menuItem) {
+
         if (menu.usagePoint && menu.record) {
             var me = this,
                 url = menu.record.getProxy().urlTpl,
