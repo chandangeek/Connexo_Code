@@ -100,7 +100,7 @@ interface Command{
     static void updateCallback(List<CompletionOptions> completionOptionsList, ServiceCall serviceCall, DestinationSpec destinationSpec){
         for (CompletionOptions options : completionOptionsList) {
             if (options != null) {
-                options.whenFinishedSend("{\"id\":"+serviceCall.getId()+" , \"success\":true}", destinationSpec);
+                options.whenFinishedSendCompletionMessageWith(String.valueOf(serviceCall.getId()), destinationSpec);
             }
         }
     }
