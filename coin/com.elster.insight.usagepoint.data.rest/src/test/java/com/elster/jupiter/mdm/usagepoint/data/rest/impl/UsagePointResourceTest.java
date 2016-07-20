@@ -31,6 +31,7 @@ import com.elster.jupiter.metering.impl.config.MetrologyConfigurationCustomPrope
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.YesNoAnswer;
 import com.elster.jupiter.util.units.Quantity;
+import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
 
 import com.jayway.jsonpath.JsonModel;
@@ -142,6 +143,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         when(usagePoint.getServiceLocationString()).thenReturn("serviceLocation");
         when(usagePoint.getConnectionState()).thenReturn(ConnectionState.UNDER_CONSTRUCTION);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
 
         when(meteringService.findUsagePoint("test")).thenReturn(Optional.of(usagePoint));
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
@@ -524,7 +526,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testChannelReadingsOfOutput() {
         Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(42L, "Test mc"));
         when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1468846440000},{\"property\":\"intervalEnd\",\"value\":1500382440000}]");
         String json = target("usagepoints/MRID/purposes/1/outputs/1/data").queryParam("filter", filter).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
@@ -536,5 +537,39 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo("validationStatus.suspect");
         assertThat(jsonModel.<String>get("$.data[0].action")).isEqualTo("FAIL");
+    }
+
+    @Test
+    public void testValidatePurposeOnRequest() {
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(43L, "Test mc 2"));
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().get(0);
+        PurposeInfo purposeInfo = getPurposeInfo(metrologyContract);
+        when(metrologyConfigurationService.findAndLockMetrologyContract(purposeInfo.id, purposeInfo.version)).thenReturn(Optional.of(metrologyContract));
+        Entity<PurposeInfo> json = Entity.json(purposeInfo);
+        Response response = target("usagepoints/MRID/purposes/1/validate").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
+        verify(validationService).validate(any(ValidationContextImpl.class), any(Instant.class));
+    }
+
+    @Test
+    public void testValidatePurposeOnRequestConcurrencyCheck() {
+        Optional<UsagePointMetrologyConfiguration> usagePointMetrologyConfiguration = Optional.of(this.mockMetrologyConfiguration(44L, "Test mc 3"));
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        MetrologyContract metrologyContract = usagePointMetrologyConfiguration.get().getContracts().get(0);
+        PurposeInfo purposeInfo = getPurposeInfo(metrologyContract);
+        when(metrologyConfigurationService.findAndLockMetrologyContract(purposeInfo.id, purposeInfo.version)).thenReturn(Optional.empty());
+        when(metrologyConfigurationService.findMetrologyContract(metrologyContract.getId())).thenReturn(Optional.of(metrologyContract));
+        Entity<PurposeInfo> json = Entity.json(purposeInfo);
+        Response response = target("usagepoints/MRID/purposes/1/validate").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    private PurposeInfo getPurposeInfo(MetrologyContract metrologyContract) {
+        PurposeInfo purposeInfo = new PurposeInfo();
+        purposeInfo.id = metrologyContract.getId();
+        purposeInfo.version = metrologyContract.getVersion();
+        purposeInfo.lastChecked = 1467185935140L;
+        return purposeInfo;
     }
 }

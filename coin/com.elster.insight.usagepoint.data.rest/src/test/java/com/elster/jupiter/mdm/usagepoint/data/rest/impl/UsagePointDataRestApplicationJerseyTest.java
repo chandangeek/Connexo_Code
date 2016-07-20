@@ -236,6 +236,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(metrologyContract.isMandatory()).thenReturn(true);
         when(metrologyContract.getId()).thenReturn(1L);
+        when(metrologyContract.getVersion()).thenReturn(1L);
 
         when(channel.getMainReadingType()).thenReturn(readingType);
         when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel));
@@ -258,6 +259,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         List<IntervalReadingRecord> intervalReadings = Collections.singletonList(intervalReadingRecord);
         when(channel.getIntervalReadings(any(Range.class))).thenReturn(intervalReadings);
         when(validationService.getEvaluator()).thenReturn(evaluator);
+        when(validationService.getLastChecked(channelsContainer)).thenReturn(Optional.of(Instant.ofEpochMilli(1468875600000L)));
         when(validationStatus.getReadingTimestamp()).thenReturn(Instant.ofEpochMilli((1468962000000L)));
         when(validationStatus.completelyValidated()).thenReturn(true);
         when(validationStatus.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
