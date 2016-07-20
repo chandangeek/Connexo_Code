@@ -58,6 +58,7 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
         }
         client = ClientBuilder.newClient().
                 register(new JacksonFeature()).
+                register(new AccessLogFilter().init(endPointConfiguration)).
                 property(ClientProperties.CONNECT_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 5).
                 property(ClientProperties.READ_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 2);
         if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
@@ -81,7 +82,6 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
                 endPointProvider.getService(),
                 service,
                 dict));
-
     }
 
     @Override
