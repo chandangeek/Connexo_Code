@@ -50,6 +50,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -814,20 +815,26 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             String userNameFormatted = domain == null ? userName : domain + "/" + userName;
             userLogin.log(Level.INFO, message + "[" + userNameFormatted + "] ", ipAddr);
             this.findUserIgnoreStatus(userName).ifPresent(user -> {
+                this.threadPrincipalService.set(getPrincipal());
                 try (TransactionContext context = transactionService.getContext()) {
                     user.setLastSuccessfulLogin(clock.instant());
                     user.update();
                     context.commit();
+                } finally {
+                    this.threadPrincipalService.clear();
                 }
             });
         } else {
             String userNameFormatted = domain == null ? userName : domain + "/" + userName;
             userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] ", ipAddr);
             this.findUserIgnoreStatus(userName).ifPresent(user -> {
+                this.threadPrincipalService.set(getPrincipal());
                 try (TransactionContext context = transactionService.getContext()) {
                     user.setLastUnSuccessfulLogin(clock.instant());
                     user.update();
                     context.commit();
+                } finally {
+                    this.threadPrincipalService.clear();
                 }
             });
         }
@@ -842,4 +849,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return Optional.empty();
     }
 
+    private Principal getPrincipal() {
+        return () -> "Authentication process";
+    }
 }
