@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
@@ -10,7 +11,6 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.MeterReading;
-import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -115,22 +115,22 @@ public class ChannelDeleteAfterIT {
             mr.addReading(reading);
 
             IntervalBlockImpl block = IntervalBlockImpl.of(BULK_REGULAR);
-            block.addIntervalReading(IntervalReadingImpl.of(ZONED_DATE_TIME.toInstant(), BigDecimal.ONE, ProfileStatus.of()));
-            IntervalReadingImpl of = IntervalReadingImpl.of(channel_time2, BigDecimal.valueOf(2), ProfileStatus.of());
+            block.addIntervalReading(IntervalReadingImpl.of(ZONED_DATE_TIME.toInstant(), BigDecimal.ONE));
+            IntervalReadingImpl of = IntervalReadingImpl.of(channel_time2, BigDecimal.valueOf(2));
             of.addQuality(DEVICE_READING_QUALITY_CODE, DEVICE_READING_QUALITY_COMMENT);
             block.addIntervalReading(of);
-            block.addIntervalReading(IntervalReadingImpl.of(channel_time3, BigDecimal.valueOf(3), ProfileStatus.of()));
+            block.addIntervalReading(IntervalReadingImpl.of(channel_time3, BigDecimal.valueOf(3)));
             mr.addIntervalBlock(block);
 
             block = IntervalBlockImpl.of(PULSE_COUNT_REGULAR);
-            block.addIntervalReading(IntervalReadingImpl.of(ZONED_DATE_TIME.toInstant(), BigDecimal.ONE, ProfileStatus.of()));
-            of = IntervalReadingImpl.of(channel_time2, BigDecimal.valueOf(2), ProfileStatus.of());
+            block.addIntervalReading(IntervalReadingImpl.of(ZONED_DATE_TIME.toInstant(), BigDecimal.ONE));
+            of = IntervalReadingImpl.of(channel_time2, BigDecimal.valueOf(2));
             of.addQuality(DEVICE_READING_QUALITY_CODE, DEVICE_READING_QUALITY_COMMENT);
             block.addIntervalReading(of);
-            block.addIntervalReading(IntervalReadingImpl.of(channel_time3, BigDecimal.valueOf(3), ProfileStatus.of()));
+            block.addIntervalReading(IntervalReadingImpl.of(channel_time3, BigDecimal.valueOf(3)));
             mr.addIntervalBlock(block);
 
-            meter.store(mr);
+            meter.store(QualityCodeSystem.MDC, mr);
         });
     }
 
@@ -144,7 +144,12 @@ public class ChannelDeleteAfterIT {
         Meter meter = inMemoryBootstrapModule.getMeteringService().findMeter(METER_MRID).get();
 
         MeterActivation meterActivation = meter.getMeterActivation(ZONED_DATE_TIME.toInstant()).get();
-        return meterActivation.getChannels().stream().map(ChannelImpl.class::cast).filter(channel -> channel.getReadingTypes().stream().anyMatch(rt -> readingType.equals(rt.getMRID()))).findFirst();
+        return meterActivation.getChannelsContainer()
+                .getChannels()
+                .stream()
+                .map(ChannelImpl.class::cast)
+                .filter(channel -> channel.getReadingTypes().stream().anyMatch(rt -> readingType.equals(rt.getMRID())))
+                .findFirst();
     }
 
     @Test
@@ -171,7 +176,7 @@ public class ChannelDeleteAfterIT {
 
         assertThat(channelUnderTest.getRegisterReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))).hasSize(1);
         assertThat(channelUnderTest.getRegisterReadings(Range.atLeast(ZONED_DATE_TIME.toInstant())).get(0).getTimeStamp()).isEqualTo(time1);
-        assertThat(channelUnderTest.findReadingQuality(Range.atLeast(ZONED_DATE_TIME.toInstant()))).isEmpty();
+        assertThat(channelUnderTest.findReadingQualities().inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant())).collect()).isEmpty();
     }
 
     @Test
@@ -198,7 +203,7 @@ public class ChannelDeleteAfterIT {
 
         assertThat(channelUnderTest.getRegisterReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))).hasSize(1);
         assertThat(channelUnderTest.getRegisterReadings(Range.atLeast(ZONED_DATE_TIME.toInstant())).get(0).getTimeStamp()).isEqualTo(time1);
-        assertThat(channelUnderTest.findReadingQuality(Range.atLeast(ZONED_DATE_TIME.toInstant()))).isEmpty();
+        assertThat(channelUnderTest.findReadingQualities().inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant())).collect()).isEmpty();
     }
 
     @Test
@@ -243,7 +248,7 @@ public class ChannelDeleteAfterIT {
 
         assertThat(channelUnderTest.getIntervalReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))).hasSize(1);
         assertThat(channelUnderTest.getIntervalReadings(Range.atLeast(ZONED_DATE_TIME.toInstant())).get(0).getTimeStamp()).isEqualTo(time1);
-        assertThat(channelUnderTest.findReadingQuality(Range.atLeast(ZONED_DATE_TIME.toInstant()))).isEmpty();
+        assertThat(channelUnderTest.findReadingQualities().inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant())).collect()).isEmpty();
     }
 
     @Test
@@ -288,7 +293,7 @@ public class ChannelDeleteAfterIT {
 
         assertThat(channelUnderTest.getIntervalReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))).hasSize(1);
         assertThat(channelUnderTest.getIntervalReadings(Range.atLeast(ZONED_DATE_TIME.toInstant())).get(0).getTimeStamp()).isEqualTo(time1);
-        assertThat(channelUnderTest.findReadingQuality(Range.atLeast(ZONED_DATE_TIME.toInstant()))).isEmpty();
+        assertThat(channelUnderTest.findReadingQualities().inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant())).collect()).isEmpty();
     }
 
 
