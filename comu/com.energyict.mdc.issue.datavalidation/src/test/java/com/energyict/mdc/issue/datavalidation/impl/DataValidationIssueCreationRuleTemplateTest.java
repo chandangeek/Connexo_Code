@@ -135,7 +135,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
                 .code();
         readingType = inMemoryPersistence.getService(MeteringService.class).createReadingType(readingTypeCode, "RT");
         meter = createMeter(deviceConfiguration, "Device #1", fixedTime);
-        channel = meter.getCurrentMeterActivation().get().createChannel(readingType);
+        channel = meter.getCurrentMeterActivation().get().getChannelsContainer().createChannel(readingType);
 
         createRuleForDeviceConfiguration("Rule #1", deviceConfiguration);
         assertThat(issueCreationService.reReadRules()).as("Drools compilation of the rule: there are errors").isTrue();
@@ -196,7 +196,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     public void testFilterByDeviceConfiguration() {
         DeviceConfiguration altDeviceConfiguration = createDeviceConfiguration(deviceType, "Alternative");
         Meter meter = createMeter(altDeviceConfiguration, "Device #2", fixedTime);
-        Channel channel = meter.getCurrentMeterActivation().get().createChannel(readingType);
+        Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().createChannel(readingType);
 
         Instant now = Instant.now();
         Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
