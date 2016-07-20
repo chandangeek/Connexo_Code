@@ -38,17 +38,14 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
     private OutboundEndPointConfiguration endPointConfiguration;
     private final AtomicReference<ServiceRegistration<S>> serviceRegistration = new AtomicReference<>();
     private Client client;
-    private final Provider<AccessLogFeature> restAccessLogFeatureProvider;
-    private final Provider<AccessLogger> accessLoggerProvider;
+    private final Provider<AccessLogFeature> accessLogFeatureProvider;
 
     @Inject
     public OutboundRestEndPoint(BundleContext bundleContext, @Named("LogDirectory") String logDirectory,
-                                Provider<AccessLogFeature> restAccessLogFeatureProvider,
-                                Provider<AccessLogger> accessLoggerProvider) {
+                                Provider<AccessLogFeature> accessLogFeatureProvider) {
         this.bundleContext = bundleContext;
         this.logDirectory = logDirectory;
-        this.restAccessLogFeatureProvider = restAccessLogFeatureProvider;
-        this.accessLoggerProvider = accessLoggerProvider;
+        this.accessLogFeatureProvider = accessLogFeatureProvider;
     }
 
     OutboundRestEndPoint init(OutboundRestEndPointProvider<S> endPointProvider, OutboundEndPointConfiguration endPointConfiguration) {
@@ -64,7 +61,7 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
         }
         client = ClientBuilder.newClient().
                 register(new JacksonFeature()).
-                register(accessLoggerProvider.get().init(endPointConfiguration)).
+                register(accessLogFeatureProvider.get().init(endPointConfiguration)).
                 property(ClientProperties.CONNECT_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 5).
                 property(ClientProperties.READ_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 2);
         if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
