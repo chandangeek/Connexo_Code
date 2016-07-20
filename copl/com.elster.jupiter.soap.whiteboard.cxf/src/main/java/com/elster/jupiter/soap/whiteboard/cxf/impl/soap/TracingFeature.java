@@ -1,4 +1,4 @@
-package com.elster.jupiter.soap.whiteboard.cxf.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.feature.LoggingFeature;

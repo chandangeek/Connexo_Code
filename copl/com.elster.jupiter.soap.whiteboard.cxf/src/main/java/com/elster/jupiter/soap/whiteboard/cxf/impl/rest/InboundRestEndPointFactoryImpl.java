@@ -1,9 +1,11 @@
-package com.elster.jupiter.soap.whiteboard.cxf.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.EndPointFactoryImpl;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 
 import javax.inject.Inject;
 import javax.inject.Provider;

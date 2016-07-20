@@ -1,4 +1,4 @@
-package com.elster.jupiter.soap.whiteboard.cxf.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
@@ -11,12 +11,12 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 /**
  * Abstract class intercepting calls on (Apache CXF) endpoints and facilitating logging on the (Connexo) end point configuration
  */
-public abstract class EndPointInterceptor extends AbstractPhaseInterceptor<Message> {
+public abstract class AbstractEndPointInterceptor extends AbstractPhaseInterceptor<Message> {
 
     private final EndPointConfiguration endPointConfiguration;
     private final TransactionService transactionService;
 
-    public EndPointInterceptor(EndPointConfiguration endPointConfiguration, String phase, TransactionService transactionService) {
+    public AbstractEndPointInterceptor(EndPointConfiguration endPointConfiguration, String phase, TransactionService transactionService) {
         super(phase);
         this.endPointConfiguration = endPointConfiguration;
         this.transactionService = transactionService;

@@ -1,4 +1,4 @@
-package com.elster.jupiter.soap.whiteboard.cxf.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.TransactionWrapper;
@@ -6,6 +6,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
@@ -45,10 +46,10 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     private Application application;
 
     private String alias;
-    private final Provider<RestAccessLogFeature> restAccessLogFeatureProvider;
+    private final Provider<AccessLogFeature> restAccessLogFeatureProvider;
 
     @Inject
-    public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService, HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider, Provider<RestAccessLogFeature> restAccessLogFeatureProvider) {
+    public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService, HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider, Provider<AccessLogFeature> restAccessLogFeatureProvider) {
         this.logDirectory = logDirectory;
         this.transactionService = transactionService;
         this.httpService = httpService;

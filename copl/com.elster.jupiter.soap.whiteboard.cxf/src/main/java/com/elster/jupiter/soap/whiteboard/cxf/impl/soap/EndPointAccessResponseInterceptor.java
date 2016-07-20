@@ -1,4 +1,4 @@
-package com.elster.jupiter.soap.whiteboard.cxf.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
@@ -12,7 +12,7 @@ import org.apache.cxf.phase.Phase;
  * This is a response interceptor, however, depending on the direction of the webservice, must be connected as Out or In interceptor in the appropriate stream
  * Created by bvn on 6/24/16.
  */
-public class EndPointAccessResponseInterceptor extends EndPointInterceptor {
+public class EndPointAccessResponseInterceptor extends AbstractEndPointInterceptor {
 
     public EndPointAccessResponseInterceptor(EndPointConfiguration endPointConfiguration, TransactionService transactionService) {
         super(endPointConfiguration, endPointConfiguration.isInbound() ? Phase.PRE_STREAM : Phase.RECEIVE, transactionService);

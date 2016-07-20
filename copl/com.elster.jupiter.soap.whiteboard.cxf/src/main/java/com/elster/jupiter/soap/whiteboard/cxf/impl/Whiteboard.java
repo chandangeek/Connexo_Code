@@ -5,6 +5,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.rest.ServletWrapper;
 
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.osgi.service.component.annotations.Component;
@@ -24,8 +25,8 @@ public class Whiteboard {
 
 	@Reference
     public void setHttpService(HttpService httpService) {
-    	HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet()); 
-    	try {
+		HttpServlet servlet = new ServletWrapper(new CXFNonSpringServlet());
+		try {
     		httpService.registerServlet("/soap",servlet,null,null);
     	} catch (NamespaceException | ServletException ex) {
     		throw new RuntimeException(ex);

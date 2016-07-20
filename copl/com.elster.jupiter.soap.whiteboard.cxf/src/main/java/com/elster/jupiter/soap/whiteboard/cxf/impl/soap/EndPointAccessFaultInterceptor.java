@@ -1,4 +1,4 @@
-package com.elster.jupiter.soap.whiteboard.cxf.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.transaction.TransactionService;
@@ -12,7 +12,7 @@ import org.apache.cxf.phase.Phase;
  * Out or In interceptor in the appropriate stream
  * Created by bvn on 6/24/16.
  */
-public class EndPointAccessFaultInterceptor extends EndPointInterceptor {
+public class EndPointAccessFaultInterceptor extends AbstractEndPointInterceptor {
 
     public EndPointAccessFaultInterceptor(EndPointConfiguration endPointConfiguration, TransactionService transactionService) {
         super(endPointConfiguration, endPointConfiguration.isInbound() ? Phase.RECEIVE : Phase.PRE_STREAM, transactionService);

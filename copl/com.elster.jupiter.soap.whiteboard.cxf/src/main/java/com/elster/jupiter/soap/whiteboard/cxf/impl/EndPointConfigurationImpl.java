@@ -183,7 +183,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void setUrl(String url) {
-        this.url = url;
+        this.url = url != null ? url.trim() : null;
     }
 
     @Override
@@ -257,21 +257,19 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public void log(String message, Exception exception) {
-        if (this.logLevel.compareTo(logLevel) > -1) {
-            if (transactionService.isInTransaction()) {
+        if (transactionService.isInTransaction()) {
+            doLog(message, exception);
+        } else {
+            try (TransactionContext context = transactionService.getContext()) {
                 doLog(message, exception);
-            } else {
-                try (TransactionContext context = transactionService.getContext()) {
-                    doLog(message, exception);
-                    context.commit();
-                }
+                context.commit();
             }
         }
     }
 
     private void doLog(String message, Exception exception) {
         EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
-                .init(this, message, stackTrace2String(exception), logLevel, clock.instant());
+                .init(this, message, stackTrace2String(exception), LogLevel.SEVERE, clock.instant());
         log.save();
     }
 

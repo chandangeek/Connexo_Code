@@ -1,4 +1,4 @@
-package com.elster.jupiter.soap.whiteboard.cxf.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
@@ -12,8 +12,8 @@ import java.io.IOException;
 public class ServletWrapper extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final CXFNonSpringServlet servlet;
-	
-	ServletWrapper(CXFNonSpringServlet servlet) {
+
+	public ServletWrapper(CXFNonSpringServlet servlet) {
 		this.servlet = servlet;
 	}
 	

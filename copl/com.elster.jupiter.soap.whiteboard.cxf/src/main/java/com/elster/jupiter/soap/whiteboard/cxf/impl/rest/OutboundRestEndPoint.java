@@ -1,8 +1,9 @@
-package com.elster.jupiter.soap.whiteboard.cxf.impl;
+package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -37,14 +38,17 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
     private OutboundEndPointConfiguration endPointConfiguration;
     private final AtomicReference<ServiceRegistration<S>> serviceRegistration = new AtomicReference<>();
     private Client client;
-    private final Provider<RestAccessLogFeature> restAccessLogFeatureProvider;
+    private final Provider<AccessLogFeature> restAccessLogFeatureProvider;
+    private final Provider<AccessLogger> accessLoggerProvider;
 
     @Inject
     public OutboundRestEndPoint(BundleContext bundleContext, @Named("LogDirectory") String logDirectory,
-                                Provider<RestAccessLogFeature> restAccessLogFeatureProvider) {
+                                Provider<AccessLogFeature> restAccessLogFeatureProvider,
+                                Provider<AccessLogger> accessLoggerProvider) {
         this.bundleContext = bundleContext;
         this.logDirectory = logDirectory;
         this.restAccessLogFeatureProvider = restAccessLogFeatureProvider;
+        this.accessLoggerProvider = accessLoggerProvider;
     }
 
     OutboundRestEndPoint init(OutboundRestEndPointProvider<S> endPointProvider, OutboundEndPointConfiguration endPointConfiguration) {
@@ -60,7 +64,7 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
         }
         client = ClientBuilder.newClient().
                 register(new JacksonFeature()).
-                register(restAccessLogFeatureProvider.get().init(endPointConfiguration)).
+                register(accessLoggerProvider.get().init(endPointConfiguration)).
                 property(ClientProperties.CONNECT_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 5).
                 property(ClientProperties.READ_TIMEOUT, DateTimeConstants.MILLIS_PER_SECOND * 2);
         if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
