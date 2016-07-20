@@ -66,6 +66,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
@@ -233,6 +234,10 @@ public class DeviceMultiplierTest {
         device.initialize(deviceConfiguration, "Name", "Mrid", startOfMeterActivation);
         device.save();
         return device;
+    }
+
+    private void setId(Object entity, long id) {
+        field("id").ofType(Long.TYPE).in(entity).set(id);
     }
 
     @Test

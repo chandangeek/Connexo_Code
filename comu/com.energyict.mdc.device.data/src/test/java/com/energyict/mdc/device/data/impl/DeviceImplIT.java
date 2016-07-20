@@ -1483,7 +1483,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers");
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers", inMemoryPersistence.getClock().instant());
         device.save();
         device.setMultiplier(BigDecimal.TEN);
         Meter meter = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get();
@@ -2273,7 +2273,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void activateDeviceOnUsagePoint() {
-        Device device = this.createSimpleDevice();
+        Device device = this.createSimpleDeviceWithName("activateDeviceOnUsagePoint");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(97L);
 
@@ -2290,7 +2290,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void reactivateDeviceOnUsagePoint() {
-        Device device = this.createSimpleDevice();
+        Device device = this.createSimpleDeviceWithName("reactivateDeviceOnUsagePoint");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(97L);
         Instant expectedStartWithUsagePoint = Instant.ofEpochMilli(98L);
@@ -2311,7 +2311,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     @Expected(MeterActivationTimestampNotAfterLastActivationException.class)
     public void reactivateDeviceOnUsagePointBeforeLastActivation() {
-        Device device = this.createSimpleDevice();
+        Device device = this.createSimpleDeviceWithName("reactivateDeviceOnUsagePointBeforeLastActivation");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(98L);
         Instant expectedStartWithUsagePoint = Instant.ofEpochMilli(97L);
@@ -2328,7 +2328,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     @Expected(UsagePointAlreadyLinkedToAnotherDeviceException.class)
     public void activateDeviceOnUsagePointAlreadyLinkedToAnotherDevice() {
-        Device device = this.createSimpleDevice();
+        Device device = this.createSimpleDeviceWithName("activateDeviceOnUsagePointAlreadyLinkedToAnotherDevice");
         Device anotherDevice = this.createSimpleDeviceWithName("another device", "anotherdevice");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(97L);
@@ -2346,7 +2346,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void activateDeviceOnUsagePointMissingReadingTypeRequirements() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID, inMemoryPersistence.getClock().instant());
         device.save();
 
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
@@ -2382,7 +2382,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void activateDeviceOnUsagePointCopyMultiplier() {
-        Device device = this.createSimpleDevice();
+        Device device = this.createSimpleDeviceWithName("activateDeviceOnUsagePointCopyMultiplier");
         device.setMultiplier(BigDecimal.valueOf(100), Instant.ofEpochMilli(96L));
         device = getReloadedDevice(device);
 
@@ -2501,7 +2501,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     @Expected(NoStatusInformationTaskException.class)
     public void testNoStatusInformationTaskAvailable() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID, inMemoryPersistence.getClock().instant());
         device.save();
         device.runStatusInformationTask(ComTaskExecution::runNow);
     }
@@ -2510,7 +2510,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void runStatusInformationComTaskTest() {
         createComTaskWithStatusInformation();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID, inMemoryPersistence.getClock().instant());
         device.save();
         assertThat(device.getComTaskExecutions()).hasSize(0);
         assertThat(device.getDeviceConfiguration().getComTaskEnablements()).hasSize(2);
@@ -2530,7 +2530,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void runStatusInformationComTaskTwiceTest() {
         createComTaskWithStatusInformation();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICENAME, MRID, inMemoryPersistence.getClock().instant());
         device.save();
         device.runStatusInformationTask(ComTaskExecution::runNow);
         assertThat(device.getComTaskExecutions()).hasSize(1);

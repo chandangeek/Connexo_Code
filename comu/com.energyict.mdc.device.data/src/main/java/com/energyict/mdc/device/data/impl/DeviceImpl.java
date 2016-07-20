@@ -1185,12 +1185,22 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<ProtocolDialectProperties> getProtocolDialectPropertiesList() {
-        return null;
+        List<ProtocolDialectProperties> all = new ArrayList<>(this.dialectPropertiesList.size() + this.newDialectProperties
+                .size());
+        all.addAll(this.dialectPropertiesList);
+        all.addAll(this.newDialectProperties);
+        return all;
     }
 
     @Override
     public Optional<ProtocolDialectProperties> getProtocolDialectProperties(String dialectName) {
-        return null;
+        Optional<ProtocolDialectProperties> dialectProperties = this.getProtocolDialectPropertiesFrom(dialectName, this.dialectPropertiesList);
+        if (dialectProperties.isPresent()) {
+            return dialectProperties;
+        } else {
+            // Attempt to find the dialect properties in the list of new ones that have not been saved yet
+            return this.getProtocolDialectPropertiesFrom(dialectName, this.newDialectProperties);
+        }
     }
 
     private void addDeviceProperty(Optional<PropertySpec> propertySpec, String propertyValue) {
