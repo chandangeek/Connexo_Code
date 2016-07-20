@@ -10,12 +10,16 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
@@ -41,8 +45,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -76,6 +81,8 @@ public class DeviceLifeCycleChangeEventsTest {
     private Clock clock;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     private ValidationService validationService;
     @Mock
@@ -112,6 +119,12 @@ public class DeviceLifeCycleChangeEventsTest {
     private Meter meter;
     @Mock
     private StateTimeline stateTimeline;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
+    private UserPreferencesService userPreferencesService;
+    @Mock
+    private DeviceConfigurationService deviceConfigurationService;
 
     @Before
     public void initializeMocks() {
@@ -281,6 +294,7 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.thesaurus,
                 this.clock,
                 this.meteringService,
+                this.metrologyConfigurationService,
                 this.validationService,
                 this.securityPropertyService,
                 this.scheduledConnectionTaskProvider,
@@ -291,7 +305,10 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.firmwareComTaskExecutionProvider,
                 this.meteringGroupsService,
                 customPropertySetService,
-                this.readingTypeUtilService)
+                this.readingTypeUtilService,
+                this.threadPrincipalService,
+                this.userPreferencesService,
+                this.deviceConfigurationService)
             .initialize(this.deviceConfiguration, "Hello world", "mRID");
     }
 

@@ -9,13 +9,15 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 
-import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
     
@@ -131,8 +133,8 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
         device.forEstimation().deactivateEstimationRuleSet(rs2);
         
         Meter meter = inMemoryPersistence.getMeteringService().findMeter("device").get();
-        meter.activate(Instant.now());
-        MeterActivation meterActivation = meter.getMeterActivation(Instant.now()).get();
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
         
         List<EstimationRuleSet> resolvedRuleSets = resolver.resolve(meterActivation);
         
