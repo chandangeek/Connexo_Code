@@ -2,18 +2,17 @@ package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.masterdata.RegisterType;
+
 import org.fest.assertions.api.Assertions;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -50,9 +49,7 @@ public class InstallerTest {
         assertThat(registerTypes).hasSize(MasterDataGenerator.FixedRegisterTypes.values().length);
         registerTypes.stream().forEach(registerType -> assertThat(
                 Stream.of(MasterDataGenerator.FixedRegisterTypes.values())
-                        .filter(fixedRegisterType -> fixedRegisterType.getReadingType().equals(registerType.getReadingType().getMRID()))
-                        .findFirst()
-                        .isPresent())
+                        .anyMatch(fixedRegisterType -> fixedRegisterType.getReadingType().equals(registerType.getReadingType().getMRID())))
                 .isTrue());
     }
 
