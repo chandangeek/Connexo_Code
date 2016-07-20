@@ -12,6 +12,7 @@ import com.energyict.protocolimpl.modbus.core.AbstractRegister;
 import com.energyict.protocolimpl.modbus.core.ModbusException;
 import com.energyict.protocolimpl.modbus.core.connection.ModbusConnection;
 import com.energyict.protocolimpl.modbus.core.functioncode.FunctionCodeFactory;
+import com.energyict.protocolimpl.modbus.core.functioncode.ReadHoldingRegistersRequest;
 import com.energyict.protocolimpl.modbus.core.functioncode.ReadStatuses;
 import com.energyict.protocolimpl.modbus.schneider.powerlogic.profile.ProfileBuilder;
 
@@ -153,21 +154,31 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     @Override
     public void setTime() throws IOException {
         Calendar instTime = Calendar.getInstance( gettimeZone() );
-        byte[] rawDate = getBytesFromDate(instTime.getTime());
         FunctionCodeFactory fcf = new FunctionCodeFactory(this);
+        ReadHoldingRegistersRequest registersRequest = fcf.getReadHoldingRegistersRequest(getCommandSemaphoreRegister().getReg(), 1);
+        int result[] = registersRequest.getRegisters();
+        String sResult = Integer.toString(result[0], 16);
+        byte[] rawDate = getBytesFromDate(instTime.getTime(), sResult);
         fcf.getWriteMultipleRegisters(getChangeDateTimeRegister().getReg(), 9, rawDate);
+        ReadHoldingRegistersRequest commandParameterRequest = fcf.getReadHoldingRegistersRequest(getCommandParameterRegister().getReg(), 1);
+        commandParameterRequest.getRegisters();
+        if(sResult.length() == 4) {
+            fcf.getWriteMultipleRegisters(getCommandSemaphoreRegister().getReg(), 1,
+                    new byte[]{(byte) Integer.parseInt(sResult.substring(0, 2), 16),
+                            (byte) Integer.parseInt(sResult.substring(2, 4), 16)});
+        }
     }
 
 
-    public static byte[] getBytesFromDate(Date date) {
+    public static byte[] getBytesFromDate(Date date, String commandCode) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
         byte[] returnValue = new byte[18];
         int index = 0;
         returnValue[index++] = 0x03;
         returnValue[index++] = (byte) 0xeb;
-        returnValue[index++] = (byte) 0xad;
-        returnValue[index++] = (byte) 0xdb;
+        returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(0, 2), 16);
+        returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(2, 4), 16);
         String year = Integer.toString(calendar.get(Calendar.YEAR), 16);
         returnValue[index++] = (byte) Integer.parseInt(year.substring(0,1), 16);
         returnValue[index++] = (byte) Integer.parseInt(year.substring(1,3), 16);
@@ -199,5 +210,11 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
         return getRegisterFactory().findRegister(PM5561RegisterFactory.ChangeDateTime);
     }
 
+    private AbstractRegister getCommandSemaphoreRegister() throws IOException {
+        return getRegisterFactory().findRegister(PM5561RegisterFactory.CommandSemaphore);
+    }
 
+    private AbstractRegister getCommandParameterRegister() throws IOException {
+        return getRegisterFactory().findRegister(PM5561RegisterFactory.CommandParameter);
+    }
 }
