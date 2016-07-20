@@ -24,7 +24,11 @@ public class WeatherGogoCommands {
 
     public void weather(String city) {
         WeatherInfo result = weatherService.getWeather(city);
-        System.out.println("The temperature at " + city + " is currently " + result.main.temp + "K with " + result.clouds.all + "% cloud coverage");
+        if (result.main == null || result.clouds == null) {
+            System.out.println("No weather information was found for " + city);
+        } else {
+            System.out.println("The temperature in " + city + " is currently " + result.main.temp + "K with " + result.clouds.all + "% cloud coverage");
+        }
     }
 
     @Reference
