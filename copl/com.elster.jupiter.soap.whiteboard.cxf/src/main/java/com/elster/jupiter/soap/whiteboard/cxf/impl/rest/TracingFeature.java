@@ -11,7 +11,8 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 /**
- * Created by bvn on 7/20/16.
+ * Jaxrs feature will register a tracing logger to the endpoint.
+ * Both incoming and outgoing traffic will be logged to a file on the local system.
  */
 public class TracingFeature implements Feature {
     private String fqFileName;
