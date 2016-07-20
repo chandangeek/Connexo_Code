@@ -15,8 +15,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
                 ui: 'large',
                 xtype: 'panel',
                 title: me.edit
-                    ? Uni.I18n.translate('usagePoint.editMetrologyConfigurationVersion', 'MDC', 'Edit metrology configuration versions')
-                    : Uni.I18n.translate('usagePoint.addMetrologyConfigurationVersion', 'MDC', 'Add metrology configuration versions'),
+                    ? Uni.I18n.translate('usagePoint.editMetrologyConfigurationVersion', 'MDC', 'Edit metrology configuration version')
+                    : Uni.I18n.translate('usagePoint.addMetrologyConfigurationVersion', 'MDC', 'Add metrology configuration version'),
                 items: [
                     {
                         xtype: 'form',
@@ -52,7 +52,9 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
                                 layout: 'hbox',
                                 valueInMilliseconds: true,
                                 dateConfig: {
-                                    width: 149
+                                    width: 149,
+                                    fieldLabel: Uni.I18n.translate('general.on', 'MDC', 'On'),
+                                    labelWidth: 16
                                 },
                                 dateTimeSeparatorConfig: {
                                     html: Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase(),
@@ -72,7 +74,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
                                 dateFieldName: 'end',
                                 itemId: 'end-time-date',
                                 fieldLabel: Uni.I18n.translate('general.label.end', 'MDC', 'End'),
-                                required: true
+                                required: true,
+                                dateOnLabel: Uni.I18n.translate('general.on', 'MDC', 'On')
                             },
                             {
                                 xtype: 'fieldcontainer',
