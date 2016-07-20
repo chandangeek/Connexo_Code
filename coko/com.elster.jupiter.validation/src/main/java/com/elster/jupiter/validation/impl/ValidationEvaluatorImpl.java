@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.validation.ValidationContextImpl;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
