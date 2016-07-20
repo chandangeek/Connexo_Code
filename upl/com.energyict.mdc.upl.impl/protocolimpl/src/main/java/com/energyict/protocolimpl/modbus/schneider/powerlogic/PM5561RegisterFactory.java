@@ -41,7 +41,8 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
     public static final String LOAD_PROFILE_FIRST_RECORD = "Load Profile Configuration - First Record Sequence Number";
     public static final String LOAD_PROFILE_LAST_RECORD = "Load Profile Configuration - Last Record Sequence Number";
     public static final String LOAD_PROFILE_NUMBER_OF_RECORDS = "Number of records in file";
-    public static final String CommandParameter1 = "CommandParameter1";
+    public static final String CommandSemaphore = "CommandSemaphore";
+    public static final String CommandParameter = "CommandParameter";
 
     public PM5561RegisterFactory(Modbus modBus) {
         super(modBus);
@@ -113,8 +114,9 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
 
         //CurrentDateTime
         getRegisters().add(new HoldingRegister(0x72D, 6, CurrentDateTime));
-        getRegisters().add(new InputRegister(0x1388, 9, ChangeDateTime));
-        getRegisters().add(new HoldingRegister(0x138B, 1, CommandParameter1));
+        getRegisters().add(new InputRegister(0x1387, 9, ChangeDateTime));
+        getRegisters().add(new HoldingRegister(0x162F, 1, CommandSemaphore).setParser(UnsignedValueParser));
+        getRegisters().add(new HoldingRegister(0x1404, 1, CommandParameter).setParser(CommandParameter));
 
         //Load Profiles
         getRegisters().add(new HoldingRegister(0x856, 1, ObisCode.fromString("0.1.128.0.0.255"), "Energy Channel").setParser(UnsignedValueParser));
