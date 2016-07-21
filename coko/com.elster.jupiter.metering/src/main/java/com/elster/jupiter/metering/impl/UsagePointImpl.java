@@ -441,17 +441,12 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurations() {
-        return this.metrologyConfiguration.all();
-    }
-
-    @Override
-    public List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
         return this.metrologyConfiguration
-                .effective(period)
+                .all()
                 .stream()
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration) {
@@ -476,7 +471,7 @@ public class UsagePointImpl implements UsagePoint {
 
         basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
 
-        Optional<EffectiveMetrologyConfigurationOnUsagePoint> latest = this.metrologyConfiguration.all().stream()
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> latest = this.getEffectiveMetrologyConfigurations().stream()
                 .sorted((m1, m2) -> -m1.getStart().compareTo(m2.getStart())).findFirst();
         if (latest.isPresent()) {
             Instant latestStartDate = latest.get().getStart();
@@ -519,25 +514,40 @@ public class UsagePointImpl implements UsagePoint {
 
 
         otherVersions.forEach(each -> checkOverlapsOfEffectiveMetrologyConfiguations(each, start, end));
-        metrologyConfigurationVersion.close(metrologyConfigurationVersion.getStart());
-        this.apply(metrologyConfiguration, start, end);
+
+        this.metrologyConfiguration.remove(metrologyConfigurationVersion);
+        Long endDate;
+        if (end != null) {
+            endDate = end.toEpochMilli();
+        } else {
+            endDate = null;
+        }
+        this.metrologyConfiguration.add(
+                this.dataModel
+                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
+                        .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), endDate))));
+        this.update();
     }
 
     private void checkOverlapsOfEffectiveMetrologyConfiguations(EffectiveMetrologyConfigurationOnUsagePoint each, Instant start, Instant end) {
         if (each.isEffectiveAt(start)) {
-            throw new OverlapsOnMetrologyConfigurationVersionStart(thesaurus);
-        } else if (each.isEffectiveAt(end)) {
-            throw new OverlapsOnMetrologyConfigurationVersionEnd(thesaurus);
+            if (each.getEnd() != null) {
+                throw new OverlapsOnMetrologyConfigurationVersionStart(thesaurus);
+            }
+        } else if (each.getStart().isAfter(start)) {
+            if (end == null) {
+                throw new OverlapsOnMetrologyConfigurationVersionEnd(thesaurus);
+            } else if (each.isEffectiveAt(end)) {
+                throw new OverlapsOnMetrologyConfigurationVersionEnd(thesaurus);
+            }
         }
     }
 
     private void basicCheckEffectiveMetrologyConfiguration(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
-
         List<MeterActivation> meterActivations = this.getMeterActivations(start);
         if (end != null && (end.isBefore(start) || end.equals(start))) {
             throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
         }
-
         List<Pair<MeterRole, Meter>> pairs = new ArrayList<>();
         metrologyConfiguration.getMeterRoles().stream().forEach(meterRole -> {
             meterActivations
@@ -551,17 +561,20 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void removeMetrologyConfiguration(Instant when) {
-        Optional<EffectiveMetrologyConfigurationOnUsagePoint> current = this.metrologyConfiguration.effective(this.clock.instant());
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> current = this.getCurrentEffectiveMetrologyConfiguration();
         if (current.isPresent()) {
             if (!current.get().getRange().contains(when)) {
                 throw new IllegalArgumentException("Time of metrology configuration removal is before it was actually applied");
             }
-            current.get().close(when);
+            this.metrologyConfiguration.remove(current.get());
         }
     }
 
     @Override
     public void removeMetrologyConfigurationVersion(EffectiveMetrologyConfigurationOnUsagePoint version) {
+        if (version.getStart().isBefore(clock.instant())) {
+            throw new RemoveCurrentEffectiveMetrologyConfigurationException(thesaurus);
+        }
         this.metrologyConfiguration.remove(version);
     }
 

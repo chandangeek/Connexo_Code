@@ -5,7 +5,6 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
@@ -155,15 +154,6 @@ public interface UsagePoint extends HasId, IdentifiedObject {
     void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end);
 
     void updateWithInterval(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationVersion, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end);
-
-    /**
-     * Gets the {@link MetrologyConfiguration}s that were
-     * applied to this UsagePoint during the specified period in time.
-     *
-     * @param period The period in time
-     * @return The List of MetrologyConfiguration
-     */
-    List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period);
 
     Optional<EffectiveMetrologyConfigurationOnUsagePoint> getCurrentEffectiveMetrologyConfiguration();
 

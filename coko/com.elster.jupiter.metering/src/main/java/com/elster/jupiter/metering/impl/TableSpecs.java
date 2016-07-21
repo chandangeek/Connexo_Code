@@ -793,7 +793,7 @@ public enum TableSpecs {
                     .references(UsagePointMetrologyConfiguration.class)
                     .map("metrologyConfiguration")
                     .add();
-            table.unique("MTR_UK_UPMTRCONFIG_STARTTIME").on(usagePoint, intervalColumns.get(0)).add();
+//            table.unique("MTR_UK_UPMTRCONFIG_STARTTIME").on(usagePoint, intervalColumns.get(0)).add();
         }
     },
     MTR_MULTIPLIERTYPE {
