@@ -197,12 +197,13 @@ public class UsagePointOutputResource {
     }
 
     @PUT
-    @Path("/{purposeId}/validate")
+    @Path("/{purposeId}")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response validateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
         MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(purposeInfo);
+        metrologyContract.update();
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         effectiveMC.getChannelsContainer(metrologyContract)

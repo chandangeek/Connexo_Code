@@ -90,7 +90,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         when(metrologyConfigurationService.findAndLockMetrologyContract(purposeInfo.id, purposeInfo.version)).thenReturn(Optional.of(metrologyContract));
 
         // Business method
-        Response response = target("usagepoints/MRID/purposes/1/validate").request().put(Entity.json(purposeInfo));
+        Response response = target("usagepoints/MRID/purposes/1").request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -105,7 +105,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         when(metrologyConfigurationService.findMetrologyContract(metrologyContract.getId())).thenReturn(Optional.of(metrologyContract));
 
         // Business method
-        Response response = target("usagepoints/MRID/purposes/1/validate").request().put(Entity.json(purposeInfo));
+        Response response = target("usagepoints/MRID/purposes/1").request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
