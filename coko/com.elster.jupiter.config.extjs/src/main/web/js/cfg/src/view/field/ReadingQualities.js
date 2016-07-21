@@ -110,7 +110,7 @@ Ext.define('Cfg.view.field.ReadingQualities', {
                 str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
 
                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
-                    var url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({
+                    var url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules/overview').buildUrl({
                         ruleSetId: rule.ruleSetVersion.ruleSet.id,
                         versionId: rule.ruleSetVersion.id, ruleId: rule.id
                     });
