@@ -26,6 +26,14 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
                         },
                         items: [
                             {
+                                itemId: 'form-info',
+                                xtype: 'uni-form-info-message',
+                                name: 'form-info',
+                                width: 600,
+                                hidden: true,
+                                text: Uni.I18n.translate('usagePointManagement.metrologyConfiguration.edit.current', 'MDC', 'Metrology configuration and start date can be modified for future versions only.')
+                            },
+                            {
                                 itemId: 'form-errors',
                                 xtype: 'uni-form-error-message',
                                 name: 'form-errors',
@@ -136,6 +144,11 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
         this.down('#mc-combo').setValue(record.get('metrologyConfiguration').id);
         if (record.get('end')) {
             this.down('installationtimefield').setValue({"installation-time": false});
+        }
+        if (record.get('current')) {
+            this.down('#form-info').show();
+            this.down('#mc-combo').disable();
+            this.down('#start-time-date').disable();
         }
     }
 });

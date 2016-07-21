@@ -4,6 +4,7 @@ Ext.define('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion', {
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'editable', type: 'boolean'},
+        {name: 'current', type: 'boolean'},
         {name: 'start', type: 'number', useNull: true},
         {name: 'end', type: 'number', useNull: true},
         {name: 'metrologyConfiguration', type: 'auto'},
