@@ -60,6 +60,8 @@ public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest
             latch = this.setupAppServerInfrastructure(latch);
             context.commit();
         }
+        AppServiceConsoleService consoleService = inMemoryPersistence.getService(AppServiceConsoleService.class);
+        consoleService.become(APP_SERVER_NAME);
 
         ((EventServiceImpl) inMemoryPersistence.getInjector()
                 .getInstance(EventService.class)).removeTopicHandler(inMemoryPersistence.getDeviceLifeCycleChangeEventHandler());
@@ -122,8 +124,6 @@ public class ChangeDeviceLifeCycleWithSuccess extends PersistenceIntegrationTest
                 .get());
         appServer.createSubscriberExecutionSpec(subscriberSpec, 1);
         appServer.activate();
-        AppServiceConsoleService consoleService = inMemoryPersistence.getService(AppServiceConsoleService.class);
-        consoleService.become(APP_SERVER_NAME);
         return latch;
     }
 

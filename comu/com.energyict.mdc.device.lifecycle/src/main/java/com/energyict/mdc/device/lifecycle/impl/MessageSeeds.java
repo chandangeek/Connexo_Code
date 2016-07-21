@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 
 import java.util.logging.Level;
 
@@ -36,6 +35,7 @@ public enum MessageSeeds implements MessageSeed {
     ALL_DATA_VALID(10013, MicroCheck.ALL_DATA_VALID, "All the collected data on the device must be valid"),
     ALL_DATA_VALIDATED(10014, MicroCheck.ALL_DATA_VALIDATED, "All the collected data on the device is validated"),
     AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE(10015, MicroCheck.AT_LEAST_ONE_ACTIVE_CONNECTION_AVAILABLE, "There should at least one active connection on the device"),
+    NO_ACTIVE_SERVICE_CALLS(10016, MicroCheck.NO_ACTIVE_SERVICE_CALLS, "There should not be any active service calls on the device"),
     // MicroActions
     MISSING_REQUIRED_PROPERTY_VALUES(20001, Keys.MISSING_REQUIRED_PROPERTY_VALUES, "No value was specified for the following property spec of the configured actions: {0}"),
     EFFECTIVE_TIMESTAMP_NOT_IN_RANGE(20002, Keys.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, "The transition date should be between {0} and {1}"),

@@ -126,6 +126,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>servicecall</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>
@@ -298,6 +302,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -1,20 +1,18 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.NlsService;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.topology.TopologyService;
-
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.topology.TopologyService;
 
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -64,7 +62,7 @@ public class MicroActionFactoryImplTest {
     }
 
     private MicroActionFactoryImpl getTestInstance() {
-        return new MicroActionFactoryImpl(this.nlsService, this.meteringService, this.meteringGroupsService, this.topologyService, this.transactionService, this.threadPrincipalService, this.validationService, this.estimationService, this.issueService);
+        return new MicroActionFactoryImpl(this.nlsService, this.meteringService, this.meteringGroupsService, this.topologyService, this.validationService, this.estimationService, this.issueService);
     }
 
 }
