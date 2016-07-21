@@ -377,7 +377,7 @@ public class DataAggregationServiceImplExpertModeIT {
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
             assertThat(deliverableWithClauseSql)
-                    .matches("SELECT -1, rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp,.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.processStatus,.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate\\s*FROM.*");
+                    .matches("SELECT -1, rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp,.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.readingQuality,.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate\\s*FROM.*");
             // Assert that the formula is applied to the requirements' value in the select clause
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*\\(\\s*\\?\\s*\\* \\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.value \\* \\(\\(rid" + temperatureRequirementId + "_" + deliverableId + "_1\\.value / rid" + pressureRequirementId + "_" + deliverableId + "_1\\.value\\) \\* \\(\\s*\\?\\s*/\\s*\\?\\s*\\)\\)\\)\\).*");
@@ -495,7 +495,7 @@ public class DataAggregationServiceImplExpertModeIT {
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[max|MAX]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
-                    .matches("SELECT.*aggFlags\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.processStatus.*\\).*FROM.*");
+                    .matches("SELECT.*MAX\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.readingQuality.*\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[trunc|TRUNC]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate, 'DDD'\\)\\s*FROM.*");
             // Assert that the formula and the aggregation function is applied to the requirements' value in the select clause
@@ -618,7 +618,7 @@ public class DataAggregationServiceImplExpertModeIT {
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[max|MAX]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
-                    .matches("SELECT.*aggFlags\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.processStatus.*\\).*FROM.*");
+                    .matches("SELECT.*MAX\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.readingQuality.*\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[trunc|TRUNC]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate, 'DDD'\\)\\s*FROM.*");
             // Assert that the formula and the aggregation function is applied to the requirements' value in the select clause

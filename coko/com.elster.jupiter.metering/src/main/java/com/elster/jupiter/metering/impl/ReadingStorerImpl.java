@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.IdsService;
@@ -210,7 +211,7 @@ class ReadingStorerImpl implements ReadingStorer {
     }
 
     @Override
-    public void execute() {
+    public void execute(QualityCodeSystem system) {
         doDeltas();
         doMultiplications();
         consolidatedValues.entrySet().stream()
@@ -219,25 +220,26 @@ class ReadingStorerImpl implements ReadingStorer {
                     Instant timestamp = entry.getKey().getLast();
                     Object[] values = entry.getValue();
                     channel.validateValues(readings.get(entry.getKey()), values);
-                    overflowBackflowDetection(channel, timestamp, values);
+                    overflowBackflowDetection(system, channel, timestamp, values);
                     storer.add(channel.getTimeSeries(), timestamp, values);
                 });
         storer.execute();
         eventService.postEvent(EventType.READINGS_CREATED.topic(), this);
     }
 
-    private void overflowBackflowDetection(ChannelContract channel, Instant timestamp, Object[] values) {
+    private void overflowBackflowDetection(QualityCodeSystem system, ChannelContract channel, Instant timestamp, Object[] values) {
         // for each readingtype (that has an overflow value configured at the time of the reading, check overflow
-        HashSet<IReadingType> readingTypes = new HashSet<>(channel.getReadingTypes());
+        HashSet<ReadingType> readingTypes = new HashSet<>(channel.getReadingTypes());
         List<MeterReadingTypeConfiguration> meterReadingTypeConfigurations = getMeterReadingTypeConfigurations(channel, timestamp);
         meterReadingTypeConfigurations
                 .stream()
                 .filter(meterReadingTypeConfiguration -> readingTypes.contains(meterReadingTypeConfiguration.getMeasured()))
                 .filter(meterReadingTypeConfiguration -> meterReadingTypeConfiguration.getOverflowValue().isPresent())
-                .forEach(meterReadingTypeConfiguration -> checkOverflowOrBackflow(meterReadingTypeConfiguration, channel, timestamp, values));
+                .forEach(meterReadingTypeConfiguration -> checkOverflowOrBackflow(system, meterReadingTypeConfiguration, channel, timestamp, values));
     }
 
-    private void checkOverflowOrBackflow(MeterReadingTypeConfiguration meterReadingTypeConfiguration, ChannelContract channel, Instant timestamp, Object[] values) {
+    private void checkOverflowOrBackflow(QualityCodeSystem system, MeterReadingTypeConfiguration meterReadingTypeConfiguration,
+                                         ChannelContract channel, Instant timestamp, Object[] values) {
         int slotOffset = channel.getRecordSpecDefinition().slotOffset();
         ReadingType readingType = meterReadingTypeConfiguration.getMeasured();
         CimChannel cimChannel = channel.getCimChannel(readingType).get();
@@ -249,10 +251,10 @@ class ReadingStorerImpl implements ReadingStorer {
             BigDecimal previousValue = previousValues != null && previousValues[valueIndex] instanceof BigDecimal ? (BigDecimal) previousValues[valueIndex] : null;
             switch (flowDetection(cimChannel, overflowValue, value, previousValue)) {
                 case BACKFLOW:
-                    backflowListeners.notify(listener -> listener.backflowOccurred(cimChannel, timestamp, value, overflowValue));
+                    backflowListeners.notify(listener -> listener.backflowOccurred(system, cimChannel, timestamp, value, overflowValue));
                     break;
                 case OVERFLOW:
-                    overflowListeners.notify(listener -> listener.overflowOccurred(cimChannel, timestamp, value, overflowValue));
+                    overflowListeners.notify(listener -> listener.overflowOccurred(system, cimChannel, timestamp, value, overflowValue));
                     break;
                 default:
             }
@@ -432,7 +434,6 @@ class ReadingStorerImpl implements ReadingStorer {
         }
 
         multipliedDerivations.forEach(this::doMultiplications);
-
     }
 
     private void doMultiplications(ChannelContract channelContract, List<Derivation> derivations) {

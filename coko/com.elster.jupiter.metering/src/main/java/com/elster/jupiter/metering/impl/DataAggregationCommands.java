@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -13,6 +14,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.aggregation.ReadingQuality;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -27,7 +29,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 
 @Component(name = "com.elster.jupiter.metering.aggregation.console", service = DataAggregationCommands.class, property = {
@@ -131,8 +136,21 @@ public class DataAggregationCommands {
     }
 
     private void showReading(BaseReadingRecord readingRecord) {
-        System.out.println(readingRecord.getTimeStamp() + " : " + readingRecord.getValue());
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
+                        .withLocale( Locale.UK )
+                        .withZone( ZoneId.systemDefault() );
+
+        List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
+        if (qualities.isEmpty()) {
+            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " : " + readingRecord.getValue());
+        } else {
+            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " : " + readingRecord.getValue() + " , "
+                    + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
+        }
     }
+
+
 
     private String getValue(BaseReadingRecord reading) {
         Quantity quantity = reading.getQuantity(reading.getReadingType());

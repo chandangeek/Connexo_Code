@@ -142,22 +142,21 @@ final class SqlConstants {
          * The version of a TimeSeries interval.
          * @see com.elster.jupiter.ids.TimeSeriesEntry#getLong(int)
          */
-        PROCESSSTATUS("processStatus", RecordSpecs.PROCESS_STATUS) {
+        READINGQUALITY("readingQuality", null) {
             @Override
             void appendAsDeliverableSelectValue(Formula.Mode mode, ServerExpressionNode expressionNode, Optional<IntervalLength> expertIntervalLength, VirtualReadingType targetReadingType, SqlBuilder sqlBuilder) {
-                String value = expressionNode.accept(new ProcessStatusFromExpressionNode());
+                String value = expressionNode.accept(new ReadingQualityFromExpressionNode());
                 if (value == null) {
                     sqlBuilder.append("0");
-                } else if (expertIntervalLength.isPresent()) {
-                    AggregationFunction.AGGREGATE_FLAGS.appendTo(sqlBuilder, Collections.singletonList(new TextFragment(value)));
                 } else {
-                    sqlBuilder.append(value);
+                    sqlBuilder.append("GREATEST(" + value + ")");
                 }
             }
 
             @Override
             AggregationFunction aggregationFunctionFor(VirtualReadingType readingType) {
-                return AggregationFunction.AGGREGATE_FLAGS;
+                return AggregationFunction.MAX;
+                //return AggregationFunction.AGGREGATE_FLAGS;
             }
         },
 

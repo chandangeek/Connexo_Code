@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.AmrSystem;
@@ -15,6 +16,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -24,7 +26,6 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.impl.config.ExpressionNodeParser;
 import com.elster.jupiter.metering.impl.config.ReadingTypeDeliverableBuilderImpl;
 import com.elster.jupiter.metering.impl.config.ServerExpressionNode;
@@ -337,7 +338,7 @@ public class MeteringConsoleCommands {
 
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                 meterReading.addAllEndDeviceEvents(deviceEvents);
-                meteringService.findMeter(mrId).get().store(meterReading);
+                meteringService.findMeter(mrId).get().store(QualityCodeSystem.MDC, meterReading);
 
                 context.commit();
             } catch (FileNotFoundException e) {

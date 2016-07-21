@@ -948,7 +948,7 @@ public class UsagePointImpl implements UsagePoint {
         }
     }
 
-    public void refreshMeterActivations() {
+    void refreshMeterActivations() {
         this.meterActivations.clear();
         this.meterActivations.addAll(this.dataModel.query(MeterActivationImpl.class)
                 .select(where("usagePoint").isEqualTo(this)));
