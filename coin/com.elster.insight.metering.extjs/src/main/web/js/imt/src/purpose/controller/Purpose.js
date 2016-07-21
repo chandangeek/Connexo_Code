@@ -12,7 +12,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
     stores: [
         'Imt.purpose.store.Outputs',
         'Imt.purpose.store.Readings',
-        'Uni.store.DataIntervalAndZoomLevels'
+        'Uni.store.DataIntervalAndZoomLevels',
+        'Imt.purpose.store.RegisterReadings'
     ],
 
     models: [
@@ -75,7 +76,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             prevNextListLink = me.makeLinkToOutputs(router);
 
         if (!tab) {
-            router.getRoute('usagepoints/view/purpose/output').forward({tab: 'readings'});
+            window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
         } else {
             mainView.setLoading();
             usagePointsController.loadUsagePoint(mRID, {
@@ -134,23 +135,35 @@ Ext.define('Imt.purpose.controller.Purpose', {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
 
-        Uni.util.History.suspendEventsForNextCall();
-        Uni.util.History.setParsePath(false);
-        router.arguments.tab = 'specifications';
-        router.getRoute('usagepoints/view/purpose/output').forward();
+        if (router.arguments.tab != 'specifications') {
+            Uni.util.History.suspendEventsForNextCall();
+            Uni.util.History.setParsePath(false);
+            router.arguments.tab = 'specifications';
+            router.getRoute('usagepoints/view/purpose/output').forward();
+        }
     },
 
     showReadingsTab: function(panel) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             output = panel.output,
-            readingsStore = me.getStore('Imt.purpose.store.Readings');
+            readingsStore;
 
+        switch (output.get('outputType')) {
+            case 'channel':
+                readingsStore = me.getStore('Imt.purpose.store.Readings');
+                break;
+            case 'register':
+                readingsStore = me.getStore('Imt.purpose.store.RegisterReadings');
+                break;
+        }
 
-        Uni.util.History.suspendEventsForNextCall();
-        Uni.util.History.setParsePath(false);
-        router.arguments.tab = 'readings';
-        router.getRoute('usagepoints/view/purpose/output').forward();
+        if (router.arguments.tab != 'readings') {
+            Uni.util.History.suspendEventsForNextCall();
+            Uni.util.History.setParsePath(false);
+            router.arguments.tab = 'readings';
+            router.getRoute('usagepoints/view/purpose/output').forward();
+        }
 
         readingsStore.getProxy().extraParams = {
             mRID: panel.usagePoint.get('mRID'),

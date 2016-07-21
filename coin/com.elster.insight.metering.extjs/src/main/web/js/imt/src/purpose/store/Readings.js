@@ -3,10 +3,10 @@ Ext.define('Imt.purpose.store.Readings', {
     model: 'Imt.purpose.model.Reading',
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepoints/{mRID}/purposes/{purposeId}/outputs/{outputId}/data',
+        url: '/api/udr/usagepoints/{mRID}/purposes/{purposeId}/outputs/{outputId}/channelData',
         reader: {
             type: 'json',
-            root: 'data'
+            root: 'channelData'
         },
         pageParam: false,
         startParam: false,
