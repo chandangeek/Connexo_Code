@@ -48,7 +48,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                 renderer: function (value) {
                     var result = '',
                         canViewDevices = Mdc.privileges.Device.canView(),
-                        infoIcon = '<span style="margin-left: 10px;display: inline-block;width: 16px;height: 16px;" class="uni-icon-info-small" data-qtip="'
+                        infoIcon = '<span style="margin-left: 10px; display:inline-block; color:#A9A9A9; font-size:16px;" class="icon-info" data-qtip="'
                             + Uni.I18n.translate('usagePointChannel.notAvailableChannel.qtip', 'MDC', 'This channel is not available on the device anymore because device configuration is changed')
                             + '"></span>';
 
@@ -65,7 +65,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                                     : deviceChannel.mRID,
                                 channel = canViewDevices && deviceChannel.channel.id
                                     ? '<a href="'
-                                + me.router.getRoute('devices/device/channels/channel').buildUrl({
+                                + me.router.getRoute('devices/device/channels/channeldata').buildUrl({
                                     mRID: deviceChannel.mRID,
                                     channelId: deviceChannel.channel.id
                                 })
@@ -90,7 +90,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelPreview', {
                         });
                     }
 
-                    return result;
+                    return result || '-';
                 }
             }
         ];
