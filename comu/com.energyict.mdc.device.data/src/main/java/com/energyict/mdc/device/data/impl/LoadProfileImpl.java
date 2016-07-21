@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
@@ -26,12 +27,12 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -387,20 +388,19 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
         @Override
         public void complete() {
-            groupReadingsByKoreChannel(this.edited).entrySet().forEach(entry -> entry.getKey().editReadings(entry.getValue()));
+            groupReadingsByKoreChannel(this.edited).entrySet().forEach(entry -> entry.getKey().editReadings(QualityCodeSystem.MDC, entry.getValue()));
             groupReadingsByKoreChannel(this.editedBulk).entrySet().forEach(entry -> {
                 com.elster.jupiter.metering.Channel koreChannel = entry.getKey();
-                Optional<? extends ReadingType> readingType = koreChannel.getBulkQuantityReadingType();
-                if (readingType.isPresent() && koreChannel.getCimChannel(readingType.get()).isPresent()) {
-                    koreChannel.getCimChannel(readingType.get()).get().editReadings(this.editedBulk);
-                }
+                koreChannel.getBulkQuantityReadingType().ifPresent(bulkReadingType ->
+                        koreChannel.getCimChannel(bulkReadingType).ifPresent(bulkCimChannel ->
+                                bulkCimChannel.editReadings(QualityCodeSystem.MDC, this.editedBulk)));
             });
-            groupReadingsByKoreChannel(this.confirmed).entrySet().forEach(entry -> entry.getKey().confirmReadings(entry.getValue()));
-            this.removed.forEach(instant -> {
-                LoadProfileImpl.this.device.get().findKoreChannel(channel, instant).ifPresent(koreChannel -> {
-                    koreChannel.removeReadings(koreChannel.getReading(instant).map(Stream::of).orElseGet(Stream::empty).collect(toList()));
-                });
-            });
+            groupReadingsByKoreChannel(this.confirmed).entrySet().forEach(entry ->
+                    entry.getKey().confirmReadings(QualityCodeSystem.MDC, entry.getValue()));
+            this.removed.forEach(instant ->
+                    LoadProfileImpl.this.device.get().findKoreChannel(channel, instant).ifPresent(koreChannel ->
+                            koreChannel.getReading(instant).ifPresent(reading ->
+                                    koreChannel.removeReadings(QualityCodeSystem.MDC, Collections.singletonList(reading)))));
         }
 
         private com.elster.jupiter.metering.Channel findOrCreateKoreChannel(Instant when) {

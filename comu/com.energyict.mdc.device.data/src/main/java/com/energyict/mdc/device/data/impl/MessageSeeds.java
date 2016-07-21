@@ -138,18 +138,21 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_UNIT_CODE(2112, Keys.UNKNOWN_UNIT_CODE, "The requested load limit unit is not supported at this time"),
     INCOMPLETE_LOADLIMIT(2113, Keys.INCOMPLETE_LOADLIMIT, "Received incomplete load limit - please make sure to specify both the limit and the unit."),
     UNKNOWN_READING_TYPE(2114, Keys.UNKNOWN_READING_TYPE, "The requested load limit reading type is not supported at this time"),
-    NO_COMTASK_FOR_STATUS_INFORMATION(2115, Keys.NO_COMTASK_FOR_STATUS_INFORMATION, "A comtask to verify the status information could not be located"),
     NO_DESTINATION_SPEC(2117, Keys.NO_DESTINATION_SPEC, "No such destination spec"),
     DUPLICATE_REGISTER_OBISCODE(2118, Keys.DUPLICATE_REGISTER_OBISCODE, "The OBIS code must be unique for all registers of your device"),
     DUPLICATE_CHANNEL_OBISCODE(2119, Keys.DUPLICATE_CHANNEL_OBISCODE, "The OBIS code must be unique for all the channels of your load profile"),
     OVERFLOW_INCREASED(2120, Keys.OVERFLOW_INCREASED, "The overflow value should not exceed the value of the configuration"),
     VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE(2121, Keys.VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE, "You can not change the OBIS code, you already have devices with an overridden value for this OBIS code: {0}"),
-    NO_SUCH_END_DEVICE_CONTROL_TYPE(2122, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
-    NO_SUCH_DEVICE_MESSAGE_SPEC(2123, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
-    NO_STATUS_INFORMATION_COMTASK(2124, Keys.NO_STATUS_INFORMATION_COMTASK, "A comtask to read out the status information could not be located"),
-    DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2125, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
-    COULD_NOT_FIND_SERVICE_CALL_TYPE(2126, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
-    COMMAND_ARGUMENT_SPEC_NOT_FOUND(2127, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(2122, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, "This device doesn’t have the following reading types that are specified in the metrology configurations of the selected usage point: {0}"),
+    USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(2123, "usagePointAlreadyLinkedToAnotherDeviceX", "The usage point is already linked to device {0} starting from {1}"),
+    USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(2124, "usagePointAlreadyLinkedToAnotherDeviceXUntil", "The usage point is already linked to device {0} starting from {1} until {2}"),
+    METER_ACTIVATION_TIMESTAMP_NOT_AFTER_LAST_ACTIVATION(2125, "meterActivationTimestampNotAfterLastActivation", "The activation date {0} should be after the last meter activation date {1}"),
+    NO_SUCH_END_DEVICE_CONTROL_TYPE(2126, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
+    NO_SUCH_DEVICE_MESSAGE_SPEC(2127, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
+    NO_STATUS_INFORMATION_COMTASK(2128, Keys.NO_STATUS_INFORMATION_COMTASK, "A comtask to read out the status information could not be located"),
+    DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2129, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
+    COULD_NOT_FIND_SERVICE_CALL_TYPE(2130, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
+    COMMAND_ARGUMENT_SPEC_NOT_FOUND(2131, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
     ;
 
     private final int number;
@@ -325,6 +328,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DUPLICATE_CHANNEL_OBISCODE = "duplicate.channel.obiscode";
         public static final String OVERFLOW_INCREASED = "overflow.increased";
         public static final String VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE = "cannot.change.obiscode.config.already.overriden.device";
+        public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT = "unsatisfied.reading.type.requirements.of.usage.point";
         public static final String NO_STATUS_INFORMATION_COMTASK = "no.status.information.comtask";
         public static final String COULD_NOT_FIND_SERVICE_CALL_TYPE = "could.not.find.service.call.type";
         public static final String COMMAND_ARGUMENT_SPEC_NOT_FOUND = "command.argument.spec.not.found";

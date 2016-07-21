@@ -25,6 +25,20 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeterReadingTypeConfiguration;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
@@ -50,8 +64,11 @@ import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
+import com.energyict.mdc.device.data.exceptions.MeterActivationTimestampNotAfterLastActivationException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
+import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
+import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -90,6 +107,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -127,6 +145,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
 
     @BeforeClass
     public static void setup() {
@@ -2253,6 +2274,160 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getComTaskExecutions()).isNotEmpty(); // I expect a ComTaskExecution was created for comTask_2 (which was marked as ignoreNextExecutionSpecsForInbound)
         assertThat(reloadedDevice.getComTaskExecutions()).hasSize(1);
         assertThat(reloadedDevice.getComTaskExecutions().get(0).getComTasks().stream().mapToLong(ComTask::getId).toArray()).containsOnly(Long.valueOf(comTask_2.getId()));
+    }
+
+    @Test
+    @Transactional
+    public void activateDeviceOnUsagePoint() {
+        Device device = this.createSimpleDevice();
+        UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
+        Instant expectedStart = Instant.ofEpochMilli(97L);
+
+        // Business method
+        device.activate(expectedStart, usagePoint);
+
+        // Asserts
+        assertThat(device.getCurrentMeterActivation()).isPresent();
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart);
+        assertThat(device.getCurrentMeterActivation().get().getUsagePoint().get()).isEqualTo(usagePoint);
+        assertThat(device.getCurrentMeterActivation().get().getMeterRole().get().getKey()).isEqualTo(DefaultMeterRole.DEFAULT.getKey());
+    }
+
+    @Test
+    @Transactional
+    public void reactivateDeviceOnUsagePoint() {
+        Device device = this.createSimpleDevice();
+        UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
+        Instant expectedStart = Instant.ofEpochMilli(97L);
+        Instant expectedStartWithUsagePoint = Instant.ofEpochMilli(98L);
+
+        // Business method
+        device.activate(expectedStart);
+        device.activate(expectedStartWithUsagePoint, usagePoint);
+
+        // Asserts
+        device = getReloadedDevice(device);
+
+        assertThat(device.getCurrentMeterActivation()).isPresent();
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStartWithUsagePoint);
+        assertThat(device.getCurrentMeterActivation().get().getUsagePoint().get()).isEqualTo(usagePoint);
+    }
+
+    @Test
+    @Transactional
+    @Expected(MeterActivationTimestampNotAfterLastActivationException.class)
+    public void reactivateDeviceOnUsagePointBeforeLastActivation() {
+        Device device = this.createSimpleDevice();
+        UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
+        Instant expectedStart = Instant.ofEpochMilli(98L);
+        Instant expectedStartWithUsagePoint = Instant.ofEpochMilli(97L);
+
+        // Business method
+        device.activate(expectedStart);
+        device.activate(expectedStartWithUsagePoint, usagePoint);
+
+        // Asserts
+        //exception is thrown
+    }
+
+    @Test
+    @Transactional
+    @Expected(UsagePointAlreadyLinkedToAnotherDeviceException.class)
+    public void activateDeviceOnUsagePointAlreadyLinkedToAnotherDevice() {
+        Device device = this.createSimpleDevice();
+        Device anotherDevice = this.createSimpleDeviceWithName("another device", "anotherdevice");
+        UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
+        Instant expectedStart = Instant.ofEpochMilli(97L);
+        anotherDevice.activate(Instant.ofEpochMilli(96L), usagePoint);
+        usagePoint = inMemoryPersistence.getMeteringService().findUsagePoint(usagePoint.getId()).get();
+
+        // Business method
+        device.activate(expectedStart, usagePoint);
+
+        // Asserts
+        //exception is thrown
+    }
+
+    @Test
+    @Transactional
+    public void activateDeviceOnUsagePointMissingReadingTypeRequirements() {
+        DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID);
+        device.save();
+
+        UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
+
+        ReadingType monthlyBulkAMinus = inMemoryPersistence.getMeteringService().getReadingType("13.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        ReadingType monthlyBulkAPlus = inMemoryPersistence.getMeteringService().getReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        ReadingType minutes15DeltaAPlus = inMemoryPersistence.getMeteringService().getReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+        ReadingType monthlyDeltaAPlus = inMemoryPersistence.getMeteringService().getReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
+
+        UsagePointMetrologyConfiguration mc0 = createMetrologyConfiguration("mc0", Collections.singletonList(monthlyBulkAMinus));
+        UsagePointMetrologyConfiguration mc1 = createMetrologyConfiguration("mc1", Arrays.asList(monthlyBulkAPlus, minutes15DeltaAPlus));
+        UsagePointMetrologyConfiguration mc2 = createMetrologyConfiguration("mc2", Collections.singletonList(monthlyDeltaAPlus));
+
+        usagePoint.apply(mc0, Instant.ofEpochMilli(96L));
+        usagePoint.apply(mc1, Instant.ofEpochMilli(97L));
+        usagePoint.apply(mc2, Instant.ofEpochMilli(98L));
+        Instant expectedStart = Instant.ofEpochMilli(97L);
+
+        expectedEx.expect(UnsatisfiedReadingTypeRequirementsOfUsagePointException.class);
+        expectedEx.expectMessage(
+                "This device doesn’t have the following reading types that are specified " +
+                        "in the metrology configurations of the selected usage point: " +
+                        "'" + mc1.getName() + "' (" + monthlyBulkAPlus.getName() + "), " +
+                        "'" + mc2.getName() + "' (" + monthlyDeltaAPlus.getName() + ")");
+
+        // Business method
+        getReloadedDevice(device).activate(expectedStart, usagePoint);
+
+        // Asserts
+        //exception is thrown
+    }
+
+    @Test
+    @Transactional
+    public void activateDeviceOnUsagePointCopyMultiplier() {
+        Device device = this.createSimpleDevice();
+        device.setMultiplier(BigDecimal.valueOf(100), Instant.ofEpochMilli(96L));
+        device = getReloadedDevice(device);
+
+        UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
+        Instant expectedStart = Instant.ofEpochMilli(97L);
+
+        // Business method
+        device.activate(expectedStart, usagePoint);
+
+        // Asserts
+        device = getReloadedDevice(device);
+        assertThat(device.getCurrentMeterActivation().get().getUsagePoint().get()).isEqualTo(usagePoint);
+        assertThat(device.getMultiplier()).isEqualTo(BigDecimal.valueOf(100));
+    }
+
+    private UsagePoint createSimpleUsagePoint(String mRID) {
+        return inMemoryPersistence.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get()
+                .newUsagePoint(mRID, Instant.now())
+                .create();
+    }
+
+    private UsagePointMetrologyConfiguration createMetrologyConfiguration(String name, List<ReadingType> readingTypes) {
+        ServiceCategory serviceCategory = inMemoryPersistence.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        MetrologyConfigurationService metrologyConfigurationService = inMemoryPersistence.getMetrologyConfigurationService();
+        MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION).get();
+        MeterRole meterRoleDefault = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+
+        UsagePointMetrologyConfiguration mc = metrologyConfigurationService.newUsagePointMetrologyConfiguration(name, serviceCategory).create();
+        mc.addMeterRole(meterRoleDefault);
+        MetrologyContract metrologyContract = mc.addMandatoryMetrologyContract(purpose);
+        for (ReadingType readingType : readingTypes) {
+            FullySpecifiedReadingTypeRequirement fullySpecifiedReadingTypeRequirement = mc.newReadingTypeRequirement(readingType.getFullAliasName(), meterRoleDefault)
+                    .withReadingType(readingType);
+            ReadingTypeDeliverableBuilder builder = mc.newReadingTypeDeliverable(readingType.getFullAliasName(), readingType, Formula.Mode.AUTO);
+            ReadingTypeDeliverable deliverable = builder.build(builder.requirement(fullySpecifiedReadingTypeRequirement));
+            metrologyContract.addDeliverable(deliverable);
+        }
+        mc.activate();
+        return mc;
     }
 
     private DeviceConfiguration createDeviceConfigurationWithTwoRegisterSpecs() {
