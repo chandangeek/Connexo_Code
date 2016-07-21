@@ -9,12 +9,12 @@ import java.util.function.Predicate;
 
 public enum ChannelDataValidationSummaryFlag implements TranslationKey {
     // The order is important; each previous one must overrule the next
-    // NOT_VALIDATED is processed in another way so must be the last one in order not to be affected
     MISSING("statisticsMissing", "Missing", ReadingQualityType::isMissing),
     SUSPECT("statisticsSuspect", "Suspect", ReadingQualityType::isSuspect),
     ESTIMATED("statisticsEstimated", "Estimated", ReadingQualityType::hasEstimatedCategory),
     EDITED("statisticsEdited", "Edited", ReadingQualityType::hasEditCategory),
     VALID("statisticsValid", "Valid", type -> type.qualityIndex().orElse(null) == QualityCodeIndex.DATAVALID),
+    // NOT_VALIDATED is processed in another way so must be the last one; predicate is not important
     NOT_VALIDATED("statisticsNotValidated", "Not validated", type -> true);
 
     private String key, translation;

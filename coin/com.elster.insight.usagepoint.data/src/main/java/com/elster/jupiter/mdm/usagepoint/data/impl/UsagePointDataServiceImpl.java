@@ -193,12 +193,13 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
         ChannelDataValidationSummaryImpl summary = new ChannelDataValidationSummaryImpl();
         if (lastCheckedOptional.isPresent()) {
             Instant lastChecked = lastCheckedOptional.get();
+            Range<Instant> checked = Range.atMost(lastChecked);
             Map<Instant, Set<ReadingQualityType>> uncheckedTimings = qualityTypesByAllTimings.tailMap(lastChecked, false);
             uncheckedTimingsCount = uncheckedTimings.size();
             uncheckedTimings.clear(); // removed from qualityTypesByAllTimings
-            if (!qualityTypesByAllTimings.isEmpty()) { // something remains => something is validated
+            if (checked.isConnected(interval)) { // something is validated
                 channel.findReadingQualities() // supply the map with all other qualities to consider
-                        .inTimeInterval(Range.atMost(lastChecked).intersection(interval))
+                        .inTimeInterval(checked.intersection(interval))
                         .actual()
                         .ofQualitySystem(QualityCodeSystem.MDM)
                         .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD))
@@ -229,7 +230,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 accountFlagValue(summary, flag, (int) qualityTypesByAllTimings.entrySet().stream()
                         .filter(entry -> entry.getValue().stream().anyMatch(flag.getQualityTypePredicate()))
                         .map(Map.Entry::getKey)
-                        // need to collect instants in a new collection so that to remove them from current one
+                        // need to collect instants in a new collection so that they can be removed from current one
                         .collect(Collectors.toList())
                         .stream()
                         .peek(qualityTypesByAllTimings::remove)
