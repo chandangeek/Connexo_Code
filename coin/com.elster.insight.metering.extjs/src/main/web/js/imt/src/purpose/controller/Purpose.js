@@ -103,7 +103,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
         if (!tab) {
             window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
-            // router.getRoute('usagepoints/view/purpose/output').forward({tab: 'readings'});
         } else {
             mainView.setLoading();
             usagePointsController.loadUsagePoint(mRID, {
