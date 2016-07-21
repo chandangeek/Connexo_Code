@@ -37,13 +37,15 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
     showDeviceHistory: function (mRID) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
+            router = me.getController('Uni.controller.history.Router'),
             view;
 
         deviceModel.load(mRID, {
             success: function (device) {
                 view = Ext.widget('device-history-setup', {
                     router: me.getController('Uni.controller.history.Router'),
-                    device: device
+                    device: device,
+                    activeTab: (!_.isEmpty(router.queryParams) && router.queryParams.activeTab == 'meterActivations') ? 2 : 0
                 });
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', view);

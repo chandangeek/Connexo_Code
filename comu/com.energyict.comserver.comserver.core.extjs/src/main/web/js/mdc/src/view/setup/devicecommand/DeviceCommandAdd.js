@@ -53,6 +53,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                         items: [
                             {
                                 xtype: 'button',
+                                itemId: 'mdc-addCommand-add-button',
                                 text: Uni.I18n.translate('general.add', 'MDC', 'Add'),
                                 ui: 'action',
                                 action: 'add',
@@ -60,6 +61,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                             },
                             {
                                 xtype: 'button',
+                                itemId: 'mdc-addCommand-cancel-button',
                                 text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
                                 ui: 'link',
                                 action: 'cancel',
