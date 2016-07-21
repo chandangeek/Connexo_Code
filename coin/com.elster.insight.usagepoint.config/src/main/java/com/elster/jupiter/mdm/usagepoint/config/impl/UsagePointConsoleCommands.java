@@ -197,17 +197,17 @@ public class UsagePointConsoleCommands {
                              @Descriptor("Value") double value) {
         try {
             transactionService.builder()
-                    .principal(() -> "console")
-                    .run(() -> {
-                        AmrSystem amrSystem = meteringService
-                                .findAmrSystem(amrSystemId)
-                                .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-                        Meter meter = amrSystem
-                                .findMeter(amrid)
-                                .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
-                        meter.store(createReading(cim, BigDecimal.valueOf(value), Instant.parse(timestamp)));
-                        System.out.println("Save register for ID: " + meter.getId());
-                    });
+            .principal(() -> "console")
+            .run(() -> {
+                AmrSystem amrSystem = meteringService
+                        .findAmrSystem(amrSystemId)
+                        .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
+                Meter meter = amrSystem
+                        .findMeter(amrid)
+                        .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
+                meter.store(QualityCodeSystem.MDM, createReading(cim, BigDecimal.valueOf(value), Instant.parse(timestamp)));
+                System.out.println("Save register for ID: " + meter.getId());
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -222,17 +222,17 @@ public class UsagePointConsoleCommands {
                        @Descriptor("Comma separated Values") String values) {
         try {
             transactionService.builder()
-                    .principal(() -> "console")
-                    .run(() -> {
-                        AmrSystem amrSystem = meteringService
-                                .findAmrSystem(amrSystemId)
-                                .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-                        Meter meter = amrSystem
-                                .findMeter(amrid)
-                                .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
-                        meter.store(createLPReading(cim, values, Instant.parse(timestamp), minutes));
-                        System.out.println("Save LP for ID: " + meter.getId());
-                    });
+            .principal(() -> "console")
+            .run(() -> {
+                AmrSystem amrSystem = meteringService
+                        .findAmrSystem(amrSystemId)
+                        .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
+                Meter meter = amrSystem
+                        .findMeter(amrid)
+                        .orElseThrow(() -> new IllegalArgumentException("Meter not found " + amrid));
+                meter.store(QualityCodeSystem.MDM, createLPReading(cim, values, Instant.parse(timestamp), minutes));
+                System.out.println("Save LP for ID: " + meter.getId());
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -240,8 +240,7 @@ public class UsagePointConsoleCommands {
 
     private MeterReading createReading(String cim, BigDecimal value, Instant timeStamp) {
         ReadingImpl reading = ReadingImpl.of(cim, value, timeStamp);
-        MeterReading results = MeterReadingImpl.of(reading);
-        return results;
+        return MeterReadingImpl.of(reading);
     }
 
     private MeterReading createLPReading(String cim, String values, Instant timeStamp, int minutes) {

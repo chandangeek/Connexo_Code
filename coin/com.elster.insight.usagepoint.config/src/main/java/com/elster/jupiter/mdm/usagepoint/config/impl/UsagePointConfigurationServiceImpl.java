@@ -2,6 +2,8 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
@@ -60,6 +62,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     private volatile DataModel dataModel;
     private volatile Clock clock;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile MeteringService meteringService;
     private volatile EventService eventService;
     private volatile ValidationService validationService;
     private volatile UserService userService;
@@ -74,11 +77,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     // For testing purposes
     @Inject
     public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService, UserService userService,
-                                              ValidationService validationService, NlsService nlsService, MetrologyConfigurationService metrologyConfigurationService, UpgradeService upgradeService) {
+                                              ValidationService validationService, NlsService nlsService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService, UpgradeService upgradeService) {
         this();
         setClock(clock);
         setOrmService(ormService);
         setMetrologyConfigurationService(metrologyConfigurationService);
+        setMeteringService(meteringService);
         setEventService(eventService);
         setUserService(userService);
         setValidationService(validationService);
@@ -98,6 +102,8 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 bind(UserService.class).toInstance(userService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
+                bind(MeteringService.class).toInstance(meteringService);
+                bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(UsagePointConfigurationService.class).toInstance(UsagePointConfigurationServiceImpl.this);
             }
         };
@@ -106,7 +112,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Activate
     public void activate() {
         dataModel.register(getModule());
-
         upgradeService.register(InstallIdentifier.identifier("Insight", UsagePointConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
@@ -121,6 +126,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Reference
     public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     @Reference
