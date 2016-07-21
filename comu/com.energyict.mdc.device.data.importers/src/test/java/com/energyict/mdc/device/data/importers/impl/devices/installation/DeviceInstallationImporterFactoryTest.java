@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.importers.impl.devices.install;
+package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
@@ -6,7 +6,17 @@ import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
+import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.impl.LocationTemplateImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -16,11 +26,13 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
+import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.SimpleNlsMessageFormat;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
-import com.energyict.mdc.device.data.importers.impl.devices.installation.DeviceInstallationImporterFactory;
+import com.energyict.mdc.device.data.importers.impl.parsers.DateParser;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
@@ -30,7 +42,19 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.elster.jupiter.metering.LocationBuilder.LocationMemberBuilder;
+
+import java.io.ByteArrayInputStream;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,18 +62,23 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import java.io.ByteArrayInputStream;
-import java.time.Clock;
-import java.time.Instant;
-import java.util.*;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-
-import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DATE_FORMAT;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
+import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.TIME_ZONE;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceInstallationImporterFactoryTest {
@@ -171,10 +200,6 @@ public class DeviceInstallationImporterFactoryTest {
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        Meter meter = mock(Meter.class);
-        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
 
         importer.process(importOccurrence);
 
@@ -267,10 +292,6 @@ public class DeviceInstallationImporterFactoryTest {
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(masterDevice));
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        Meter meter = mock(Meter.class);
-        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(1));
@@ -308,10 +329,6 @@ public class DeviceInstallationImporterFactoryTest {
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldMasterDevice));
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        Meter meter = mock(Meter.class);
-        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
 
         importer.process(importOccurrence);
         verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
@@ -411,10 +428,6 @@ public class DeviceInstallationImporterFactoryTest {
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
         UsagePoint usagePoint = mock(UsagePoint.class);
         when(serviceCategory.newUsagePoint(eq("Usage MRID"), any(Instant.class))).thenReturn(FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class));
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        Meter meter = mock(Meter.class);
-        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
 
         importer.process(importOccurrence);
 
@@ -557,10 +570,6 @@ public class DeviceInstallationImporterFactoryTest {
         PropertySpec multiplierPropertySpec = mock(PropertySpec.class);
         when(multiplierPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key());
         when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.SET_MULTIPLIER)).thenReturn(Collections.singletonList(multiplierPropertySpec));
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        Meter meter = mock(Meter.class);
-        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
 
         importer.process(importOccurrence);
 
@@ -597,10 +606,6 @@ public class DeviceInstallationImporterFactoryTest {
         PropertySpec multiplierPropertySpec = mock(PropertySpec.class);
         when(multiplierPropertySpec.getName()).thenReturn(DeviceLifeCycleService.MicroActionPropertyName.MULTIPLIER.key());
         when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.SET_MULTIPLIER)).thenReturn(Collections.singletonList(multiplierPropertySpec));
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        Meter meter = mock(Meter.class);
-        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
 
         importer.process(importOccurrence);
 
@@ -635,10 +640,6 @@ public class DeviceInstallationImporterFactoryTest {
         when(((AuthorizedTransitionAction) authorizedAction).getActions()).thenReturn(EnumSet.of(MicroAction.SET_MULTIPLIER));
         when(executableAction.getAction()).thenReturn(authorizedAction);
         when(deviceLifeCycleService.getPropertySpecsFor(MicroAction.SET_MULTIPLIER)).thenReturn(Collections.emptyList());
-        AmrSystem amrSystem = mock(AmrSystem.class);
-        when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
-        Meter meter = mock(Meter.class);
-        when(amrSystem.findMeter("1")).thenReturn(Optional.of(meter));
 
         importer.process(importOccurrence);
 
@@ -745,4 +746,96 @@ public class DeviceInstallationImporterFactoryTest {
         verify(logger, never()).severe(Matchers.anyString());
     }
 
+    @Test
+    public void testDeviceCanNotBeLinkedToUsagePointAlreadyInUse() {
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceInstallImporter();
+
+        Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
+        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        State deviceState = mock(State.class);
+        when(device.getState()).thenReturn(deviceState);
+        when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+        Device masterDevice = mock(Device.class);
+        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
+        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
+        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        ExecutableAction executableAction = mock(ExecutableAction.class);
+        when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
+        AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
+        when(executableAction.getAction()).thenReturn(authorizedAction);
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        when(usagePoint.getMRID()).thenReturn("Usage MRID");
+        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
+
+        DateParser dateParser = new DateParser("dd/MM/yyyy HH:mm", "GMT+00:00");
+        Instant installationTime = dateParser.parse("01/08/2015 00:30").toInstant();
+        UsagePointAlreadyLinkedToAnotherDeviceException ex = mock(UsagePointAlreadyLinkedToAnotherDeviceException.class);
+        MeterActivation ma = mock(MeterActivation.class);
+        when(ma.getStart()).thenReturn(installationTime);
+        Meter alreadyLinkedMeter = mock(Meter.class);
+        when(alreadyLinkedMeter.getMRID()).thenReturn("VPB0003");
+        when(ma.getMeter()).thenReturn(Optional.of(alreadyLinkedMeter));
+        when(ex.getMeterActivation()).thenReturn(ma);
+        when(device.activate(installationTime, usagePoint)).thenThrow(ex);
+
+        importer.process(importOccurrence);
+
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE)
+                .format(2, "Usage MRID", "VPB0003", DeviceInstallationImportProcessor.getFormattedInstant(installationTime)));
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(topologyService, times(1)).setPhysicalGateway(device, masterDevice);
+    }
+
+    @Test
+    public void testDeviceCanNotBeLinkedToUsagePointMissingReadingTypeRequirements() {
+        String csv = "mrid;installation date;latitude;longitude;elevation;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;master mrid;usage point;service category;install inactive;start validation\n" +
+                "VPB0002;01/08/2015 00:30;45.7540873;21.22388;17;countryCode;countryName;administrativeArea;locality;subLocality;streetType;streetName;streetNumber;establishmentType;establishmentName;establishmentNumber;addressDetail;zipCode;locale;VPB0001;Usage MRID;electricity;false;01/08/2015 00:30";
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        FileImporter importer = createDeviceInstallImporter();
+
+        Device device = mock(Device.class);
+        when(device.getId()).thenReturn(1L);
+        when(device.getmRID()).thenReturn("VPB0002");
+        when(deviceService.findByUniqueMrid("VPB0002")).thenReturn(Optional.of(device));
+        State deviceState = mock(State.class);
+        when(device.getState()).thenReturn(deviceState);
+        when(deviceState.getName()).thenReturn(DefaultState.IN_STOCK.getKey());
+        Device masterDevice = mock(Device.class);
+        when(masterDevice.getmRID()).thenReturn("VPB0001");
+        when(masterDevice.getConfigurationGatewayType()).thenReturn(GatewayType.HOME_AREA_NETWORK);
+        when(deviceService.findByUniqueMrid("VPB0001")).thenReturn(Optional.of(masterDevice));
+        CustomStateTransitionEventType transitionEventType = mock(CustomStateTransitionEventType.class);
+        when(finiteStateMachineService.findCustomStateTransitionEventType(Matchers.anyString())).thenReturn(Optional.of(transitionEventType));
+        ExecutableAction executableAction = mock(ExecutableAction.class);
+        when(deviceLifeCycleService.getExecutableActions(device, transitionEventType)).thenReturn(Optional.of(executableAction));
+        AuthorizedAction authorizedAction = mock(AuthorizedAction.class);
+        when(executableAction.getAction()).thenReturn(authorizedAction);
+        when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
+        UsagePoint usagePoint = mock(UsagePoint.class);
+        when(usagePoint.getMRID()).thenReturn("Usage MRID");
+        when(meteringService.findUsagePoint("Usage MRID")).thenReturn(Optional.of(usagePoint));
+
+        DateParser dateParser = new DateParser("dd/MM/yyyy HH:mm", "GMT+00:00");
+        Instant installationTime = dateParser.parse("01/08/2015 00:30").toInstant();
+        UnsatisfiedReadingTypeRequirementsOfUsagePointException ex = mock(UnsatisfiedReadingTypeRequirementsOfUsagePointException.class);
+        when(ex.getUnsatisfiedRequirements()).thenReturn(Collections.emptyMap());
+        when(device.activate(installationTime, usagePoint)).thenThrow(ex);
+
+        importer.process(importOccurrence);
+
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
+        verify(logger, never()).info(Matchers.anyString());
+        verify(logger, times(1)).warning(thesaurus.getFormat(MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT).format(2, "VPB0002", "Usage MRID", ""));
+        verify(logger, never()).severe(Matchers.anyString());
+        verify(topologyService, times(1)).setPhysicalGateway(device, masterDevice);
+    }
 }
