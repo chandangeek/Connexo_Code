@@ -212,7 +212,7 @@ public final class MeterActivationImpl implements IMeterActivation {
 
     @Override
     public void doEndAt(Instant end) {
-        this.interval = Interval.of(Range.closedOpen(getRange().lowerEndpoint(), end));
+        this.interval = Interval.of(end != null ? Range.closedOpen(getStart(), end) : Range.atLeast(getStart()));
         save();
     }
 
@@ -265,6 +265,14 @@ public final class MeterActivationImpl implements IMeterActivation {
         });
         this.usagePoint.set(usagePoint);
         this.save();
+    }
+
+    void doSetUsagePoint(UsagePoint usagePoint) {
+        this.usagePoint.set(usagePoint);
+    }
+
+    void doSetMeterRole(MeterRole meterRole) {
+        this.meterRole.set(meterRole);
     }
 
     private Predicate<MeterActivation> overlaps() {
@@ -375,6 +383,7 @@ public final class MeterActivationImpl implements IMeterActivation {
         this.meterRole.setNull();
         save();
     }
+
     private boolean hasDifferentMeter(MeterActivation other) {
         return getMeter()
                 .map(meter -> other.getMeter()

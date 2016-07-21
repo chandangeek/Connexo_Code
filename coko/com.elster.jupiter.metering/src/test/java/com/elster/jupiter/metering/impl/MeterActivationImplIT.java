@@ -585,4 +585,22 @@ public class MeterActivationImplIT {
         assertThat(meterActivations.get(0).getMeterRole().get())
                 .isEqualTo(inMemoryBootstrapModule.getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.MAIN));
     }
+
+    @Test
+    @Transactional
+    public void testCanLinkMeterWithMeterActivationEffectiveAndAfterInstallationTime() {
+
+    }
+
+    @Test
+    @Transactional
+    public void testCanLinkMeterWithDataAndMultiplier() {
+
+    }
+
+    @Test
+    @Transactional
+    public void testAfterMeterLinkAndUnlinkDataIsStillAvailable() {
+
+    }
 }
