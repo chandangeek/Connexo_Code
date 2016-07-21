@@ -144,6 +144,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
         this.down('#mc-combo').setValue(record.get('metrologyConfiguration').id);
         if (record.get('end')) {
             this.down('installationtimefield').setValue({"installation-time": false});
+            this.down('installationtimefield date-time[name=end]').setValue(record.get('end'));
         }
         if (record.get('current')) {
             this.down('#form-info').show();

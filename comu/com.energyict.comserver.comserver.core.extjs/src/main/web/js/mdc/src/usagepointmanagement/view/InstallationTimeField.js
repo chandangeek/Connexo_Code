@@ -8,7 +8,7 @@ Ext.define('Mdc.usagepointmanagement.view.InstallationTimeField', {
     listeners: {
         change: function (field, newValue) {
             var me = this,
-                dateField = field.down('date-time');
+                dateField = field.down('date-time[name=' + me.dateFieldName + ']');
 
             Ext.suspendLayouts();
             if (newValue['installation-time']) {
