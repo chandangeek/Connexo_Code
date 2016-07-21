@@ -159,8 +159,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
             }
 
             Ext.merge(point, properties);
-            data.push(point);
-
+            data.unshift(point);
 
             !point.y && (point.y = null);
             if (!point.y) {
