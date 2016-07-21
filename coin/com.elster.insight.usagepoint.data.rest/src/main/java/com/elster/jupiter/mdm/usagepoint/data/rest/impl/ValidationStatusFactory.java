@@ -98,7 +98,7 @@ public class ValidationStatusFactory {
         return validationRulesCount.entrySet()
                 .stream()
                 .map(this::getValidationRuleWithNumberSimpleInfo)
-                .sorted(Comparator.comparing(validationRuleInfo -> validationRuleInfo.key.name))
+                .sorted(Comparator.comparing(validationRuleInfo -> validationRuleInfo.key.displayName))
                 .collect(Collectors.toSet());
     }
 

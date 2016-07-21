@@ -114,7 +114,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
 
         // Business method
-        String json = target("/usagepoints/MRID/purposes/1/outputs/2/registerData").queryParam("filter", buildFilter()).request().get(String.class);
+        String json = target("/usagepoints/MRID/purposes/100/outputs/2/registerData").queryParam("filter", buildFilter()).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);

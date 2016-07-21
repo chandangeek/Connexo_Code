@@ -101,7 +101,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus("VAL", Layer.REST))
+                .join(nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST))
                 .join(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
@@ -255,7 +255,6 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(issueService).to(IssueService.class);
             bind(bpmService).to(BpmService.class);
-            bind(timeService).to(TimeService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);

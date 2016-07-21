@@ -24,6 +24,8 @@ import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -41,32 +43,43 @@ import static org.mockito.Mockito.when;
 
 public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestApplicationJerseyTest {
 
+    private static final Instant timeStamp = Instant.ofEpochMilli(1410774620100L);
+
+    private static final Range<Instant> interval_1 = Range.openClosed(timeStamp.plus(0, ChronoUnit.MINUTES), timeStamp.plus(15, ChronoUnit.MINUTES));
+    private static final Range<Instant> interval_2 = Range.openClosed(timeStamp.plus(15, ChronoUnit.MINUTES), timeStamp.plus(30, ChronoUnit.MINUTES));
+    private static final Range<Instant> interval_3 = Range.openClosed(timeStamp.plus(30, ChronoUnit.MINUTES), timeStamp.plus(45, ChronoUnit.MINUTES));
+
     @Mock
     private UsagePoint usagePoint;
+    @Mock
+    private ChannelsContainer channelsContainer;
 
     @Before
     public void before() {
         when(meteringService.findUsagePoint(any())).thenReturn(Optional.empty());
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
+
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+
+        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
         when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
     }
 
     private String buildFilter() throws UnsupportedEncodingException {
         return ExtjsFilter.filter()
-                .property("intervalStart", 1468846440000L)
-                .property("intervalEnd", 1500382440000L)
+                .property("intervalStart", interval_1.lowerEndpoint().toEpochMilli())
+                .property("intervalEnd", interval_3.upperEndpoint().toEpochMilli())
                 .create();
     }
 
     @Test
     public void testGetChannelDataNoSuchUsagePoint() throws Exception {
         // Business method
-        Response response = target("/usagepoints/xxx/purposes/1/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/xxx/purposes/100/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -77,7 +90,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
 
         // Business method
-        Response response = target("/usagepoints/MRID/purposes/1/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -95,7 +108,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     @Test
     public void testGetChannelDataOnIrregularReadingTypeDeliverable() throws Exception {
         // Business method
-        Response response = target("/usagepoints/MRID/purposes/1/outputs/2/channelData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/MRID/purposes/100/outputs/2/channelData").queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -103,58 +116,103 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testGetChannelData() throws Exception {
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().get();
-        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
-        when(effectiveMetrologyConfiguration.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(interval_1.lowerEndpoint()));
         Channel channel = mock(Channel.class);
         when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
-        mockIntervalReadingWithValidationResult(channel);
+        when(channel.toList(Range.openClosed(interval_1.lowerEndpoint(), interval_3.upperEndpoint()))).thenReturn(
+                Arrays.asList(interval_1.upperEndpoint(), interval_2.upperEndpoint(), interval_3.upperEndpoint())
+        );
+        mockIntervalReadingsWithValidationResult(channel);
 
         // Business method
-        String filter = ExtjsFilter.filter().property("intervalStart", 1468846440000L).property("intervalEnd", 1500382440000L).create();
-        String json = target("usagepoints/MRID/purposes/1/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", buildFilter()).request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
-        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
-        assertThat(jsonModel.<Long>get("$.channelData[0].interval.start")).isEqualTo(1468875600000L);
-        assertThat(jsonModel.<Long>get("$.channelData[0].interval.end")).isEqualTo(1468962000000L);
-        assertThat(jsonModel.<Long>get("$.channelData[0].readingTime")).isEqualTo(1468962000000L);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
+
+        assertThat(jsonModel.<Long>get("$.channelData[0].interval.start")).isEqualTo(interval_3.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[0].interval.end")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[0].readingTime")).isEqualTo(interval_3.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<String>get("$.channelData[0].value")).isEqualTo("10");
         assertThat(jsonModel.<Boolean>get("$.channelData[0].dataValidated")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.channelData[0].validationResult")).isEqualTo("validationStatus.suspect");
         assertThat(jsonModel.<String>get("$.channelData[0].action")).isEqualTo("FAIL");
+        assertThat(jsonModel.<Number>get("$.channelData[0].validationRules[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.channelData[0].validationRules[0].name")).isEqualTo("MinMax");
+
+        assertThat(jsonModel.<Long>get("$.channelData[1].interval.start")).isEqualTo(interval_2.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[1].interval.end")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[1].readingTime")).isEqualTo(interval_2.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Boolean>get("$.channelData[1].dataValidated")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.channelData[1].validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<String>get("$.channelData[1].action")).isEqualTo("FAIL");
+        assertThat(jsonModel.<Number>get("$.channelData[1].validationRules[0].id")).isEqualTo(2);
+        assertThat(jsonModel.<String>get("$.channelData[1].validationRules[0].name")).isEqualTo("Missing");
+
+        assertThat(jsonModel.<Long>get("$.channelData[2].interval.start")).isEqualTo(interval_1.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[2].interval.end")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<Long>get("$.channelData[2].readingTime")).isEqualTo(interval_1.upperEndpoint().toEpochMilli());
+        assertThat(jsonModel.<String>get("$.channelData[2].value")).isEqualTo("1");
+        assertThat(jsonModel.<Boolean>get("$.channelData[2].dataValidated")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.channelData[2].validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<String>get("$.channelData[2].action")).isEqualTo("FAIL");
+        assertThat(jsonModel.<Number>get("$.channelData[2].validationRules[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.channelData[2].validationRules[0].name")).isEqualTo("MinMax");
     }
 
-    private void mockIntervalReadingWithValidationResult(Channel channel) {
-        IntervalReadingRecord intervalReadingRecord = mock(IntervalReadingRecord.class);
-        ReadingQualityRecord quality = mock(ReadingQualityRecord.class);
+    private void mockIntervalReadingsWithValidationResult(Channel channel) {
+        ValidationRule minMax = mockValidationRule(1, "MinMax");
+        ValidationRule missing = mockValidationRule(2, "Missing");
+
+        IntervalReadingRecord intervalReadingRecord1 = mockIntervalReadingRecord(interval_1, BigDecimal.ONE);
+        DataValidationStatus dataValidationStatus_1 = mockValidationStatus(interval_1.upperEndpoint(), minMax);
+        // 2nd intentionally missing
+        DataValidationStatus dataValidationStatus_2 = mockValidationStatus(interval_2.upperEndpoint(), missing);
+        IntervalReadingRecord intervalReadingRecord3 = mockIntervalReadingRecord(interval_3, BigDecimal.TEN);
+        DataValidationStatus dataValidationStatus_3 = mockValidationStatus(interval_3.upperEndpoint(), minMax);
+
+        List<IntervalReadingRecord> intervalReadings = Arrays.asList(intervalReadingRecord1, intervalReadingRecord3);
+        when(channel.getIntervalReadings(any())).thenReturn(intervalReadings);
+
         ValidationEvaluator evaluator = mock(ValidationEvaluator.class);
-        DataValidationStatus validationStatus = mock(DataValidationStatus.class);
+        when(validationService.getEvaluator()).thenReturn(evaluator);
+        when(evaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings, Range.openClosed(interval_1.lowerEndpoint(), interval_3
+                .upperEndpoint())))
+                .thenReturn(Arrays.asList(dataValidationStatus_1, dataValidationStatus_2, dataValidationStatus_3));
+    }
+
+    private ValidationRule mockValidationRule(long id, String name) {
         ValidationRule validationRule = mock(ValidationRule.class);
         ValidationRuleSet validationRuleSet = mock(ValidationRuleSet.class);
         ValidationRuleSetVersion ruleSetVersion = mock(ValidationRuleSetVersion.class);
-        ReadingQualityType qualityType = new ReadingQualityType("3.5.258");
-
-        when(intervalReadingRecord.getTimePeriod()).thenReturn(Optional.of(Range.openClosed(Instant.ofEpochMilli(1468875600000L), Instant.ofEpochMilli(1468962000000L))));
-        when(intervalReadingRecord.getTimeStamp()).thenReturn(Instant.ofEpochMilli((1468962000000L)));
-        when(intervalReadingRecord.getValue()).thenReturn(BigDecimal.valueOf(10L));
-        when(quality.getType()).thenReturn(qualityType);
-        doReturn(Collections.singletonList(quality)).when(validationStatus).getReadingQualities();
-        List<IntervalReadingRecord> intervalReadings = Collections.singletonList(intervalReadingRecord);
-        when(channel.getIntervalReadings(any(Range.class))).thenReturn(intervalReadings);
-        when(validationService.getEvaluator()).thenReturn(evaluator);
-        when(validationStatus.getReadingTimestamp()).thenReturn(Instant.ofEpochMilli((1468962000000L)));
-        when(validationStatus.completelyValidated()).thenReturn(true);
-        when(validationStatus.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
-        when(validationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
-        when(validationRule.getId()).thenReturn(1L);
-        when(validationRule.getDisplayName()).thenReturn("testRule");
+        when(validationRule.getId()).thenReturn(id);
+        when(validationRule.getName()).thenReturn(name);
+        when(validationRule.getDisplayName()).thenReturn(name);
         when(validationRule.getRuleSet()).thenReturn(validationRuleSet);
         when(validationRule.getRuleSetVersion()).thenReturn(ruleSetVersion);
         when(ruleSetVersion.getRuleSet()).thenReturn(validationRuleSet);
-        when(evaluator.getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings,
-                Range.openClosed(Instant.ofEpochMilli(1468846440000L), Instant.ofEpochMilli(1500382440000L))))
-                .thenReturn(Collections.singletonList(validationStatus));
+        return validationRule;
+    }
+
+    private IntervalReadingRecord mockIntervalReadingRecord(Range<Instant> interval, BigDecimal value) {
+        IntervalReadingRecord intervalReadingRecord = mock(IntervalReadingRecord.class);
+        when(intervalReadingRecord.getTimePeriod()).thenReturn(Optional.of(interval));
+        when(intervalReadingRecord.getTimeStamp()).thenReturn(interval.upperEndpoint());
+        when(intervalReadingRecord.getValue()).thenReturn(value);
+        return intervalReadingRecord;
+    }
+
+    private DataValidationStatus mockValidationStatus(Instant timeStamp, ValidationRule validationRule) {
+        DataValidationStatus validationStatus = mock(DataValidationStatus.class);
+        ReadingQualityType qualityType = new ReadingQualityType("3.5.258");
+        ReadingQualityRecord quality = mock(ReadingQualityRecord.class);
+        when(quality.getType()).thenReturn(qualityType);
+        doReturn(Collections.singletonList(quality)).when(validationStatus).getReadingQualities();
+        when(validationStatus.getReadingTimestamp()).thenReturn(timeStamp);
+        when(validationStatus.completelyValidated()).thenReturn(true);
+        when(validationStatus.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
+        when(validationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
+        return validationStatus;
     }
 }

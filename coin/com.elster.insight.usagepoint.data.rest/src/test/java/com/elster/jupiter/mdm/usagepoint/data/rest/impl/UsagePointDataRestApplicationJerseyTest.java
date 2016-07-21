@@ -51,10 +51,12 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.mockito.Mock;
@@ -178,10 +180,11 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         MeterRole meterRole = mockMeterRole(DefaultMeterRole.DEFAULT);
         when(metrologyConfiguration.getMeterRoles()).thenReturn(Collections.singletonList(meterRole));
 
-        MetrologyContract contract = mockMetrologyContract(1L, DefaultMetrologyPurpose.BILLING, metrologyConfiguration);
+        MetrologyContract contract = mockMetrologyContract(100L, DefaultMetrologyPurpose.BILLING, metrologyConfiguration);
 
-        ReadingType regularReadingType = this.mockReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        ReadingType regularReadingType = this.mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         when(regularReadingType.isRegular()).thenReturn(true);
+        when(regularReadingType.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
         ReadingTypeDeliverable channelDeliverable = mockReadingTypeDeliverable(1L, "1 regular RT", metrologyConfiguration, regularReadingType);
 
         ReadingType irregularReadingType = this.mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");

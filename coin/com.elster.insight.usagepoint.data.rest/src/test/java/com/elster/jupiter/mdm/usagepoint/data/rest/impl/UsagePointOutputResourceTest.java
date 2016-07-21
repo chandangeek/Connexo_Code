@@ -46,7 +46,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     @Test
     public void testGetOutputsOfUsagePointPurpose() {
         // Business method
-        String json = target("/usagepoints/MRID/purposes/1/outputs").request().get(String.class);
+        String json = target("/usagepoints/MRID/purposes/100/outputs").request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -57,7 +57,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<String>get("$.outputs[0].name")).isEqualTo("1 regular RT");
         assertThat(jsonModel.<Number>get("$.outputs[0].interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.outputs[0].interval.timeUnit")).isEqualTo("minutes");
-        assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        assertThat(jsonModel.<String>get("$.outputs[0].readingType.mRID")).isEqualTo("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         assertThat(jsonModel.<String>get("$.outputs[0].formula.description")).isEqualTo("Formula Description");
         // register output
         assertThat(jsonModel.<Number>get("$.outputs[1].id")).isEqualTo(2);
@@ -70,7 +70,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     @Test
     public void testGetOutputById() {
         // Business method
-        String json = target("/usagepoints/MRID/purposes/1/outputs/1").request().get(String.class);
+        String json = target("/usagepoints/MRID/purposes/100/outputs/1").request().get(String.class);
 
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
@@ -79,7 +79,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("1 regular RT");
         assertThat(jsonModel.<Number>get("$.interval.count")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.interval.timeUnit")).isEqualTo("minutes");
-        assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
         assertThat(jsonModel.<String>get("$.formula.description")).isEqualTo("Formula Description");
     }
 

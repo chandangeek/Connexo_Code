@@ -2,6 +2,7 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.UsagePoint;
@@ -33,12 +34,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class UsagePointOutputResource {
@@ -111,10 +115,7 @@ public class UsagePointOutputResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream()
-                .filter(deliverable -> deliverable.getId() == outputId)
-                .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, mRID, outputId));
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, mRID);
         return outputInfoFactory.asFullInfo(readingTypeDeliverable, effectiveMC, metrologyContract);
     }
 
@@ -128,23 +129,42 @@ public class UsagePointOutputResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream()
-                .filter(deliverable -> deliverable.getId() == outputId)
-                .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, mRID, outputId));
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, mRID);
         if (!readingTypeDeliverable.getReadingType().isRegular()) {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_IRREGULAR, outputId);
         }
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            Channel channel = effectiveMC.getChannelsContainer(metrologyContract).get().getChannel(readingTypeDeliverable.getReadingType()).get();
-            List<DataValidationStatus> dataValidationStatusList = validationService.getEvaluator()
-                    .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, channel.getIntervalReadings(range), range);
-            outputChannelDataInfoList = channel.getIntervalReadings(range).stream()
-                    .sorted(Comparator.comparing(IntervalReadingRecord::getTimeStamp).reversed())
-                    .map(intervalReadingRecord -> outputChannelDataInfoFactory.createChannelDataInfo(intervalReadingRecord, dataValidationStatusList))
-                    .collect(Collectors.toList());
+            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+            ChannelsContainer channelsContainer = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get();
+            if (channelsContainer.getRange().isConnected(requestedInterval)) {
+                Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
+                Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
+                TemporalAmount intervalLength = readingTypeDeliverable.getReadingType().getIntervalLength().get();
+                Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval).stream()
+                        .collect(Collectors.toMap(Function.identity(), timeStamp -> new IntervalReadingWithValidationStatus(timeStamp, intervalLength)));
+
+                // add readings to pre filled channel data map
+                List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(effectiveInterval);
+                for (IntervalReadingRecord intervalReadingRecord : intervalReadings) {
+                    IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(intervalReadingRecord.getTimeStamp());
+                    readingWithValidationStatus.setIntervalReadingRecord(intervalReadingRecord);
+                }
+
+                // add validation statuses to pre filled channel data map
+                List<DataValidationStatus> dataValidationStatuses = validationService.getEvaluator()
+                        .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings, effectiveInterval);
+                for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
+                    IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());
+                    readingWithValidationStatus.setValidationStatus(dataValidationStatus);
+                }
+
+                outputChannelDataInfoList = preFilledChannelDataMap.entrySet().stream()
+                        .sorted(Collections.reverseOrder(Comparator.comparing(Map.Entry::getKey)))
+                        .map(Map.Entry::getValue)
+                        .map(outputChannelDataInfoFactory::createChannelDataInfo)
+                        .collect(Collectors.toList());
+            }
         }
         return PagedInfoList.fromCompleteList("channelData", outputChannelDataInfoList, queryParameters);
     }
@@ -159,10 +179,7 @@ public class UsagePointOutputResource {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
-        ReadingTypeDeliverable readingTypeDeliverable = metrologyContract.getDeliverables().stream()
-                .filter(deliverable -> deliverable.getId() == outputId)
-                .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, mRID, outputId));
+        ReadingTypeDeliverable readingTypeDeliverable = resourceHelper.findReadingTypeDeliverableOrThrowException(metrologyContract, outputId, mRID);
         if (readingTypeDeliverable.getReadingType().isRegular()) {
             throw exceptionFactory.newException(MessageSeeds.THIS_OUTPUT_IS_REGULAR, outputId);
         }
