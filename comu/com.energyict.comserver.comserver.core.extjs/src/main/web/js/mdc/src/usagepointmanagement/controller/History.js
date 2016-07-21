@@ -178,15 +178,20 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                 versionRecord.getProxy().setUrl(usagePoint.get('mRID'));
                 versionRecord.load(id, {
                     success: function (record) {
-                        availableConfigs.getProxy().setUrl(usagePoint.get('mRID'));
-                        availableConfigs.load({
-                            callback: function () {
-                                me.getApplication().fireEvent('changecontentevent', widget);
-                                widget.loadRecordToForm(record);
-                                me.versionRecord = record;
-                                pageMainContent.setLoading(false);
-                            }
-                        });
+                        if (record.get('editable') || record.get('current')) {
+                            availableConfigs.getProxy().setUrl(usagePoint.get('mRID'));
+                            availableConfigs.load({
+                                callback: function () {
+                                    me.getApplication().fireEvent('changecontentevent', widget);
+                                    widget.loadRecordToForm(record);
+                                    me.versionRecord = record;
+                                    pageMainContent.setLoading(false);
+                                }
+                            });
+                        } else {
+                            pageMainContent.setLoading(false);
+                            window.location.replace(router.getRoute('error').buildUrl())
+                        }
                     }
                 });
             }
