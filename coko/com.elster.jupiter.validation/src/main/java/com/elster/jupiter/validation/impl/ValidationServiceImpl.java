@@ -724,7 +724,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(found.get());
                 if(dataValidationKpi.isPresent()){
                     dataValidationKpi.get().getLatestCalculation();
-                    dataValidationKpi.get().getDataValidationKpiScores(1, Range.all());
+                    dataValidationKpi.get().getDataValidationKpiScores(1, Range.all()).get().getChannelSuspects();
                 }
 
             }

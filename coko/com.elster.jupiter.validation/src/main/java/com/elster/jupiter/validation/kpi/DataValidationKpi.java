@@ -27,7 +27,7 @@ public interface DataValidationKpi extends HasId {
 
     void delete();
 
-    List<DataValidationKpiScore> getDataValidationKpiScores(long deviceId, Range<Instant> interval);
+    Optional<DataValidationKpiScore> getDataValidationKpiScores(long deviceId, Range<Instant> interval);
 
     Optional<Instant> getLatestCalculation();
 

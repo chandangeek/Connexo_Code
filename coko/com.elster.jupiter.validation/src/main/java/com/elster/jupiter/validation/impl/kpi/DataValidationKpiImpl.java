@@ -154,15 +154,15 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     @Override
-    public List<DataValidationKpiScore> getDataValidationKpiScores(long deviceId, Range<Instant> interval) {
+    public Optional<DataValidationKpiScore> getDataValidationKpiScores(long deviceId, Range<Instant> interval) {
             if (this.childrenKpis!=null && !this.childrenKpis.isEmpty()) {
                 List<KpiMember> dataValidationKpiMembers = new ArrayList<>();
                 this.childrenKpis.stream().forEach(child ->
                         child.getChildKpi().getMembers().stream().filter(member -> member.getName().endsWith("_" + deviceId)).forEach(dataValidationKpiMembers::add));
-                        return new DataValidationKpiMembers(dataValidationKpiMembers).getScores(interval);
+                return new DataValidationKpiMembers(dataValidationKpiMembers).getScores(interval);
             }
             else {
-                return Collections.emptyList();
+                return Optional.empty();
             }
         }
 
