@@ -353,8 +353,7 @@ public class UsagePointResource {
 
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
         try {
-//            usagePoint.updateWithInterval(version, metrologyConfiguration, start, end);
-            usagePoint.apply(metrologyConfiguration, start, end);
+            usagePoint.updateWithInterval(version, metrologyConfiguration, start, end);
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
         } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMerologyConfigurationEndDate ex) {

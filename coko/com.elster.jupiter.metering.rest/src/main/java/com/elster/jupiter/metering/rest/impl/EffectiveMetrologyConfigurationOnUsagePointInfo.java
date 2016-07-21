@@ -30,9 +30,8 @@ public class EffectiveMetrologyConfigurationOnUsagePointInfo {
         this.end = config.getEnd() == null
                 ? null
                 : config.getEnd().toEpochMilli();
-        this.editable = config.getEnd() == null || config.getEnd().isAfter(clock.instant());
+        this.editable = config.getStart().isAfter(clock.instant());
         this.current = config.getRange().contains(clock.instant());
-
         this.metrologyConfiguration = new MetrologyConfigurationInfo();
         this.metrologyConfiguration.id = config.getMetrologyConfiguration().getId();
         this.metrologyConfiguration.name = config.getMetrologyConfiguration().getName();
