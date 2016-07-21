@@ -11,11 +11,19 @@ public class ValidationSummaryInfo {
     public String serialNumber;
     public String deviceType;
     public String deviceConfig;
+    public long amountOfSuspects;
+    public long channelSuspects;
+    public long registerSuspects;
+    public boolean allDataValidated;
 
     public ValidationSummaryInfo(ValidationOverview validationOverview) {
         this.mrid = validationOverview.getMrid();
         this.serialNumber = validationOverview.getSerialNumber();
         this.deviceType = validationOverview.getDeviceType();
         this.deviceConfig = validationOverview.getDeviceConfig();
+        this.amountOfSuspects = validationOverview.getAmountOfSuspects();
+        this.channelSuspects = validationOverview.getChannelSuspects();
+        this.registerSuspects = validationOverview.getRegisterSuspects();
+        this.allDataValidated = validationOverview.isAllDataValidated();
     }
 }
