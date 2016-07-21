@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl.kpi;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
+import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -24,6 +25,7 @@ import com.elster.jupiter.validation.impl.MessageSeeds;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiChild;
 import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -35,7 +37,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @MustHaveUniqueEndDeviceGroup(message=MessageSeeds.Constants.DEVICE_GROUP_MUST_BE_UNIQUE, groups={Save.Create.class, Save.Update.class})
@@ -49,21 +53,6 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
-            this.javaFieldName = javaFieldName;
-        }
-
-        public String fieldName() {
-            return javaFieldName;
-        }
-    }
-
-    protected enum DataValidationKpiMembers {
-        SUSPECT("SUSPECT_"),
-        REGISTER("REGISTER_"),
-        CHANNELS("CHANNELS_");
-        private final String javaFieldName;
-
-        DataValidationKpiMembers(String javaFieldName) {
             this.javaFieldName = javaFieldName;
         }
 
@@ -126,13 +115,13 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         endDeviceGroup.getMembers(Instant.now())
                 .stream()
                 .forEach(device ->
-                        Stream.of(DataValidationKpiMembers.values())
-                .map(DataValidationKpiMembers::fieldName)
+                        Stream.of(DataValidationKpiMemberTypes.values())
+                .map(DataValidationKpiMemberTypes::fieldName)
                 .forEach(member -> {
                     builder.member()
                             .named(member+device.getId())
                             .add();
-                    childrenKpis.add( DataValidationKpiChildImpl.from(dataModel,this, builder.create()));
+                    childrenKpis.add(DataValidationKpiChildImpl.from(dataModel,this, builder.create()));
                 }));
 
     }
@@ -165,10 +154,17 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     @Override
-    public List<DataValidationKpiScore> getDataValidationKpiScores() {
-        //FixMe will be implemented in next story CXO-1611;
-        return Collections.emptyList();
-    }
+    public List<DataValidationKpiScore> getDataValidationKpiScores(long deviceId, Range<Instant> interval) {
+            if (this.childrenKpis!=null && !this.childrenKpis.isEmpty()) {
+                List<KpiMember> dataValidationKpiMembers = new ArrayList<>();
+                this.childrenKpis.stream().forEach(child ->
+                        child.getChildKpi().getMembers().stream().filter(member -> member.getName().endsWith("_" + deviceId)).forEach(dataValidationKpiMembers::add));
+                        return new DataValidationKpiMembers(dataValidationKpiMembers).getScores(interval);
+            }
+            else {
+                return Collections.emptyList();
+            }
+        }
 
     @Override
     public void setFrequency(TemporalAmount intervalLength) {
@@ -206,6 +202,11 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                 flatMap(Functions.asStream()).
                 map(TaskOccurrence::getTriggerTime).
                 max(Comparator.nullsLast(Comparator.<Instant>naturalOrder()));
+    }
+
+    @Override
+    public List<DataValidationKpiChild> getChildrenKpis() {
+        return childrenKpis;
     }
 
     @Override
@@ -387,15 +388,15 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     private class TimeDurationFromPeriodFactory implements TimeDurationFactory {
-        private Stream<TimeDurationFactory> factories;
+            private Stream<TimeDurationFactory> factories;
 
-        private TimeDurationFromPeriodFactory() {
-            super();
-            this.factories = Stream.of(
-                    new TimeDurationFromPeriodValidatingFactory(),
-                    new TimeDurationFromPeriodInMonthsFactory(),
-                    new TimeDurationFromPeriodInDaysFactory());
-        }
+            private TimeDurationFromPeriodFactory() {
+                super();
+                this.factories = Stream.of(
+                        new TimeDurationFromPeriodValidatingFactory(),
+                        new TimeDurationFromPeriodInMonthsFactory(),
+                        new TimeDurationFromPeriodInDaysFactory());
+            }
 
         @Override
         public TimeDuration from(TemporalAmount temporalAmount) {
@@ -465,5 +466,4 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
             }
         }
     }
-
 }

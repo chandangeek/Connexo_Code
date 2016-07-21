@@ -60,7 +60,6 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                     }));
             range = Range.closedOpen(localTimeStamp.minus(Period.ofDays(1)), localTimeStamp);
             logger.log(Level.INFO, ">>>>>>>>>>> CalculateAndStore !!!" + " date " + localTimeStamp + " count " + i);
-
         }
     }
 
@@ -69,17 +68,17 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                 registerSuspects.keySet()
                         .stream()
                         .filter(register -> registerSuspects.get(register).compareTo(new BigDecimal(0)) == 1)
-                        .map(s -> s.replace(DataValidationKpiImpl.DataValidationKpiMembers.REGISTER.fieldName(), "")),
+                        .map(s -> s.replace(DataValidationKpiMemberTypes.REGISTER.fieldName(), "")),
                 channelsSuspects.keySet()
                         .stream()
                         .filter(channel -> channelsSuspects.get(channel).compareTo(new BigDecimal(0)) == 1)
-                        .map(s -> s.replace(DataValidationKpiImpl.DataValidationKpiMembers.CHANNELS.fieldName(), "")))
+                        .map(s -> s.replace(DataValidationKpiMemberTypes.CHANNEL.fieldName(), "")))
                 .distinct()
-                .map(suspect -> DataValidationKpiImpl.DataValidationKpiMembers.SUSPECT.fieldName() + suspect)
+                .map(suspect -> DataValidationKpiMemberTypes.SUSPECT.fieldName() + suspect)
                 .collect(Collectors.toMap(suspect -> suspect,
-                        s -> registerSuspects.get(s.replace(DataValidationKpiImpl.DataValidationKpiMembers.SUSPECT.fieldName(), DataValidationKpiImpl.DataValidationKpiMembers.REGISTER
+                        s -> registerSuspects.get(s.replace(DataValidationKpiMemberTypes.SUSPECT.fieldName(), DataValidationKpiMemberTypes.REGISTER
                                 .fieldName()))
-                                .add(channelsSuspects.get(s.replace(DataValidationKpiImpl.DataValidationKpiMembers.SUSPECT.fieldName(), DataValidationKpiImpl.DataValidationKpiMembers.CHANNELS
+                                .add(channelsSuspects.get(s.replace(DataValidationKpiMemberTypes.SUSPECT.fieldName(), DataValidationKpiMemberTypes.CHANNEL
                                         .fieldName())))
                 ));
     }

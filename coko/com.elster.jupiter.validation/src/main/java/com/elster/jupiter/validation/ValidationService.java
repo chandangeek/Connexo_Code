@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -138,4 +139,5 @@ public interface ValidationService {
     KpiService kpiService();
 
     List<DataValidationAssociationProvider> getDataValidationAssociatinProviders();
+
 }

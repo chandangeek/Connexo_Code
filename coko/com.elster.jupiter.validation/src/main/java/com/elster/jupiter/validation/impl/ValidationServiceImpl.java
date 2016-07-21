@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -55,6 +56,7 @@ import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
 import com.elster.jupiter.validation.impl.kpi.DataValidationReportServiceImpl;
+import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
@@ -709,6 +711,23 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
         if (found.isPresent()) {
+          /*  List<Kpi> kpiList = new ArrayList<>();
+                    dataValidationKpiService.findDataValidationKpi(found.get())
+                    .get().getDataValidationKpiChildren()
+                    .stream()
+                    .map(c -> c.getChildKpi())
+                    .collect(Collectors.toList());
+*/
+           // kpiList.forEach(kpi -> kpi.getMembers().stream().forEach(member -> member.getName().substring(member.getName().indexOf("_")+1)));
+
+            if(found.isPresent()) {
+                Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(found.get());
+                if(dataValidationKpi.isPresent()){
+                    dataValidationKpi.get().getLatestCalculation();
+                    dataValidationKpi.get().getDataValidationKpiScores(1, Range.all());
+                }
+
+            }
             EndDeviceGroup deviceGroup = found.get();
             try {
                 sqlBuilder.append("SELECT MED.id FROM (");

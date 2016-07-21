@@ -6,12 +6,12 @@ import java.time.Instant;
 
 public interface DataValidationKpiScore extends Comparable<DataValidationKpiScore> {
 
-    Instant getTimeStamp();
+    BigDecimal getTotalSuspects();
 
-    BigDecimal getSuccess();
+    BigDecimal getChannelSuspects();
 
-    BigDecimal getOngoing();
+    BigDecimal getRegisterSuspects();
 
-    BigDecimal getFailed();
+    Instant getTimestamp();
 
 }

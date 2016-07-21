@@ -26,7 +26,7 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
         Map<String, BigDecimal> registerSuspects = new HashMap<>();
         if(!validationService.getDataValidationAssociatinProviders().isEmpty()) {
             registerSuspects = deviceGroup.getMembers(Instant.now()).stream()
-                    .collect(Collectors.toMap(endDevice -> DataValidationKpiImpl.DataValidationKpiMembers.REGISTER.fieldName() + endDevice.getId(),
+                    .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.REGISTER.fieldName() + endDevice.getId(),
                             endDevice -> validationService.getDataValidationAssociatinProviders()
                                     .get(0)
                                     .getRegisterSuspects(endDevice.getMRID(), range)));
@@ -39,7 +39,7 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
         Map<String, BigDecimal> channelsSuspects = new HashMap<>();
         if(!validationService.getDataValidationAssociatinProviders().isEmpty()) {
             channelsSuspects = deviceGroup.getMembers(Instant.now()).stream()
-                    .collect(Collectors.toMap(endDevice -> DataValidationKpiImpl.DataValidationKpiMembers.CHANNELS.fieldName() + endDevice.getId(),
+                    .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.CHANNEL.fieldName() + endDevice.getId(),
                             endDevice -> validationService.getDataValidationAssociatinProviders()
                                     .get(0)
                                     .getChannelsSuspects(endDevice.getMRID(), range)));
