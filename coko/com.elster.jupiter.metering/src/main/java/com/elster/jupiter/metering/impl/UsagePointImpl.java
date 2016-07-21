@@ -455,12 +455,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
-        this.removeMetrologyConfiguration(when);
-        EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfiguration = this.dataModel
-                .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
-        effectiveMetrologyConfiguration.initAndSave(this, metrologyConfiguration, when);
-        this.metrologyConfiguration.add(effectiveMetrologyConfiguration);
-        effectiveMetrologyConfiguration.createEffectiveMetrologyContracts();
+        this.apply(metrologyConfiguration, when, null);
     }
 
     @Override
@@ -489,10 +484,11 @@ public class UsagePointImpl implements UsagePoint {
                 latest.get().close(start);
             }
         }
-        this.metrologyConfiguration.add(
-                this.dataModel
-                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                        .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate))));
+        EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfigurationOnUsagePoint = this.dataModel
+                .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
+                .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate)));
+        effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
+        this.metrologyConfiguration.add(effectiveMetrologyConfigurationOnUsagePoint);
         this.update();
     }
 
@@ -522,10 +518,11 @@ public class UsagePointImpl implements UsagePoint {
         } else {
             endDate = null;
         }
-        this.metrologyConfiguration.add(
-                this.dataModel
-                        .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
-                        .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), endDate))));
+        EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfigurationOnUsagePoint = this.dataModel
+                .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
+                .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), endDate)));
+        effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
+        this.metrologyConfiguration.add(effectiveMetrologyConfigurationOnUsagePoint);
         this.update();
     }
 
@@ -561,12 +558,12 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void removeMetrologyConfiguration(Instant when) {
-        Optional<EffectiveMetrologyConfigurationOnUsagePoint> current = this.getCurrentEffectiveMetrologyConfiguration();
-        if (current.isPresent()) {
-            if (!current.get().getRange().contains(when)) {
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> config = this.getEffectiveMetrologyConfiguration(when);
+        if (config.isPresent()) {
+            if (!config.get().getStart().isBefore(clock.instant())) {
                 throw new IllegalArgumentException("Time of metrology configuration removal is before it was actually applied");
             }
-            this.metrologyConfiguration.remove(current.get());
+            this.removeMetrologyConfigurationVersion(config.get());
         }
     }
 
