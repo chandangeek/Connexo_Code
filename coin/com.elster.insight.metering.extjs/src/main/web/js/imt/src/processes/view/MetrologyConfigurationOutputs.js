@@ -16,7 +16,7 @@ Ext.define('Imt.processes.view.MetrologyConfigurationOutputs', {
             fn: function () {
                 var me = this;
 
-                me.deliverablesStore.getProxy().url = '/api/ucr/metrologyconfigurations/' + me.up('property-form').context.id + '/deliverables';
+                me.deliverablesStore.getProxy().url = '/api/udr/usagepoints/' + me.up('property-form').context.id + '/deliverables';
                 me.deliverablesStore.load(function () {
                     me.getGrid().getSelectionModel().selectAll();
                 });
