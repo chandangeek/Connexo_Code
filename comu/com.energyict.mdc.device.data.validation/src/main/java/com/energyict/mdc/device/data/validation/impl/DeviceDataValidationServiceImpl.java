@@ -27,6 +27,7 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
     private volatile ValidationService validationService;
     private volatile DataModel dataModel;
 
+
     // For OSGi purposes
     public DeviceDataValidationServiceImpl() {
     }
@@ -52,16 +53,35 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
     @Override
     public List<ValidationOverview> getValidationResultsOfDeviceGroup(long groupId, Optional<Integer> start, Optional<Integer> limit) {
         List<ValidationOverview> list = new ArrayList<>();
+        List<Long> deviceIds = new ArrayList<>();
         Optional<SqlBuilder> found = validationService.getValidationResults(groupId, start, limit);
         if (found.isPresent()) {
+            try (Connection connection = dataModel.getConnection(false);
+                 PreparedStatement statement = found.get().prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    resultSet.getFetchSize();
+                    while (resultSet.next()) {
+                        deviceIds.add(resultSet.getLong(1));
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+
+
+       /*  if (found.isPresent()) {
             SqlBuilder validationOverviewBuilder = new SqlBuilder();
-            validationOverviewBuilder.append("SELECT DEV.mrid, DEV.serialnumber, DT.name, DC.name FROM DDC_DEVICE DEV ");
+            validationOverviewBuilder.append("SELECT DEV.mrid, DEV.serialnumber, DT.name, DC.name, s.SLOT0 FROM DDC_DEVICE DEV ");
             validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICETYPE DT ON dev.devicetype = DT.id");
             validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICECONFIG DC ON dev.deviceconfigid = DC.id");
             validationOverviewBuilder.append(" WHERE DEV.id IN (");
             validationOverviewBuilder.add(found.get());
             validationOverviewBuilder.append(")");
-            try (Connection connection = dataModel.getConnection(false);
+           try (Connection connection = dataModel.getConnection(false);
                  PreparedStatement statement = validationOverviewBuilder.prepare(connection)) {
                 try (ResultSet resultSet = statement.executeQuery()) {
                     while (resultSet.next()) {
@@ -74,8 +94,7 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-        }
+            }*/
 
         return list;
     }
