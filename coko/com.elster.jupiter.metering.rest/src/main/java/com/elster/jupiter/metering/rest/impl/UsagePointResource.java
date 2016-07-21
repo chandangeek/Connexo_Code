@@ -341,7 +341,7 @@ public class UsagePointResource {
 
     @PUT
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    @Path("/{mRID}/metrologyconfigurationversion/{versionId}")
+    @Path("/{mRID}/metrologyconfigurationversion/{configVersionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response updateMetrologyConfigurationVersion(UsagePointInfo info, @PathParam("mRID") String mRID, @PathParam("configVersionId") Long configVersionId) {
