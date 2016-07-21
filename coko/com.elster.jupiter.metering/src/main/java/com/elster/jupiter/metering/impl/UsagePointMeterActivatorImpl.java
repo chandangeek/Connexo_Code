@@ -200,65 +200,67 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
     }
 
     private void manageActivations() {
-        // Close all meter activations for that role which are active at activation time
-        this.usagePoint.getMeterActivations()
-                .stream()
-                .filter(ma -> ma.isEffectiveAt(this.activationTime))
-                .filter(ma -> ma.getMeter().isPresent() && ma.getMeterRole().isPresent() && this.meterRoleMapping.containsKey(ma.getMeterRole().get()))
-                .forEach(ma -> ((MeterActivationImpl) ma).detachUsagePoint());
+        detachUsagePointFromAllAffectedMeterRoles();
         for (Map.Entry<MeterRole, Meter> mappingEntry : this.meterRoleMapping.entrySet()) {
             MeterImpl meter = (MeterImpl) mappingEntry.getValue();
             MeterRole meterRole = mappingEntry.getKey();
             if (meter != null) {
                 /* reload meter activations, but without a new one (we need to reload because it is possible that we just detached an usage point a few lines above for that meter) */
                 meter.refreshMeterActivations();
-                List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
-                // Main point here - we have no gaps between meter activations
-                if (!meterActivations.isEmpty()) {
-                    for (int i = 0; i < meterActivations.size(); i++) {
-                        MeterActivationImpl meterActivation = (MeterActivationImpl) meterActivations.get(i);
-                        // if we still have meter activations after that which start before UP installation time, skip this one
-                        if (!meterActivation.getStart().isAfter(this.activationTime)
-                                && i + 1 < meterActivations.size() && !meterActivations.get(i + 1).getStart().isAfter(this.activationTime)) {
-                            continue;
-                        }
-                        if (meterActivation.getStart().isBefore(this.activationTime)) { // it is not a mistake, exclusive for corner case when start time = UP installation time
-                            // this meter activation starts before UP installation time
-                            if (meterActivation.isEffectiveAt(this.activationTime)) {
-                                Range<Instant> range = meterActivation.getRange().intersection(Range.atLeast(this.activationTime));
-                                if (i + 1 >= meterActivations.size()) { // if it is the last meter activation, then we shouldn't set end date for the new meter activation
-                                    range = Range.atLeast(this.activationTime);
-                                }
-                                meterActivation.doEndAt(this.activationTime);
-                                createNewMeterActivation(meter, meterRole, range).moveAllChannelsData(meterActivation, range);
-                            } else {
-                                if (i + 1 < meterActivations.size()) {
-                                    throw new IllegalStateException("Seems that you have gaps between meter activations: meter = " + meter.getId() + ", probably gap after meterActivation = " + meterActivation
-                                            .getId());
-                                }
-                                meterActivation.endAt(this.activationTime);
-                                createNewMeterActivation(meter, meterRole, Range.atLeast(this.activationTime));
-                            }
-                        } else {
-                            // this meter activation starts after UP installation time
-                            if (i == 0 && meterActivation.getStart().isAfter(this.activationTime)) {
-                                // if it is the first meter activation and it is in future, then update the start date
-                                meterActivation.advanceStartDate(this.activationTime);
-                            }
-                            meterActivation.doSetUsagePoint(usagePoint);
-                            meterActivation.doSetMeterRole(meterRole);
-                            if (i + 1 >= meterActivations.size()) { // if it is the last meter activation, then remove the end time
-                                meterActivation.doEndAt(null);
-                            }
-                        }
-                    }
-                } else {
-                    createNewMeterActivation(meter, meterRole, Range.atLeast(this.activationTime));
-                }
+                manageActivationsOnMeterForRole(meter, meterRole);
             }
         }
         this.usagePoint.touch();
         this.usagePoint.refreshMeterActivations();
+    }
+
+    private void manageActivationsOnMeterForRole(MeterImpl meter, MeterRole meterRole) {
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
+        // Main point here - we have no gaps between meter activations
+        if (!meterActivations.isEmpty()) {
+            for (int i = 0; i < meterActivations.size(); i++) {
+                MeterActivationImpl meterActivation = (MeterActivationImpl) meterActivations.get(i);
+                // if we still have meter activations after that which start before UP installation time, skip this one
+                if (!meterActivation.getStart().isAfter(this.activationTime)
+                        && i + 1 < meterActivations.size() && !meterActivations.get(i + 1).getStart().isAfter(this.activationTime)) {
+                    continue;
+                }
+                if (meterActivation.getStart().isBefore(this.activationTime)) { // it is not a mistake, exclusive for corner case when start time = UP installation time
+                    manageSingleMeterActivationStartedBefore(meter, meterRole, meterActivation, i, meterActivations);
+                } else {
+                    manageSingleMeterActivationStartedAfterOrAtTheSameTime(meterRole, meterActivation, i, meterActivations);
+                }
+            }
+        } else {
+            createNewMeterActivation(meter, meterRole, Range.atLeast(this.activationTime));
+        }
+    }
+
+    private void detachUsagePointFromAllAffectedMeterRoles() {
+        // Close all meter activations for that role which are active at activation time
+        this.usagePoint.getMeterActivations()
+                .stream()
+                .filter(ma -> ma.isEffectiveAt(this.activationTime))
+                .filter(ma -> ma.getMeter().isPresent() && ma.getMeterRole().isPresent() && this.meterRoleMapping.containsKey(ma.getMeterRole().get()))
+                .forEach(ma -> ((MeterActivationImpl) ma).detachUsagePoint());
+    }
+
+    private void manageSingleMeterActivationStartedBefore(MeterImpl meter, MeterRole meterRole, MeterActivationImpl currentMeterActivation, int currentMeterActivationIdx, List<? extends MeterActivation> meterActivations) {
+        if (currentMeterActivation.isEffectiveAt(this.activationTime)) {
+            Range<Instant> range = currentMeterActivation.getRange().intersection(Range.atLeast(this.activationTime));
+            if (currentMeterActivationIdx + 1 >= meterActivations.size()) { // if it is the last meter activation, then we shouldn't set end date for the new meter activation
+                range = Range.atLeast(this.activationTime);
+            }
+            currentMeterActivation.doEndAt(this.activationTime);
+            createNewMeterActivation(meter, meterRole, range).moveAllChannelsData(currentMeterActivation, range);
+        } else {
+            if (currentMeterActivationIdx + 1 < meterActivations.size()) {
+                throw new IllegalStateException("Seems that you have gaps between meter activations: meter = " + meter.getId() + ", probably gap after meterActivation = " + currentMeterActivation
+                        .getId());
+            }
+            currentMeterActivation.endAt(this.activationTime);
+            createNewMeterActivation(meter, meterRole, Range.atLeast(this.activationTime));
+        }
     }
 
     private MeterActivationImpl createNewMeterActivation(MeterImpl meter, MeterRole meterRole, Range<Instant> range) {
@@ -267,6 +269,20 @@ public class UsagePointMeterActivatorImpl implements UsagePointMeterActivator, S
                 .init(meter, meterRole, this.usagePoint, range);
         meterActivation.save();
         return meterActivation;
+    }
+
+    private void manageSingleMeterActivationStartedAfterOrAtTheSameTime(MeterRole meterRole, MeterActivationImpl currentMeterActivation, int currentMeterActivationIdx, List<? extends MeterActivation> meterActivations) {
+        if (currentMeterActivationIdx == 0 && currentMeterActivation.getStart().isAfter(this.activationTime)) {
+            // if it is the first meter activation and it is in future, then update the start date
+            currentMeterActivation.advanceStartDate(this.activationTime);
+        }
+        currentMeterActivation.doSetUsagePoint(this.usagePoint);
+        currentMeterActivation.doSetMeterRole(meterRole);
+        if (currentMeterActivationIdx + 1 >= meterActivations.size()) { // if it is the last meter activation, then remove the end time
+            currentMeterActivation.doEndAt(null);
+        } else {
+            currentMeterActivation.save(); // doEndAt call the save method inside
+        }
     }
 
     @Override

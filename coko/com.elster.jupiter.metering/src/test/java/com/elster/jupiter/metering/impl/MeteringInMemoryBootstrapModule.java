@@ -189,6 +189,11 @@ public class MeteringInMemoryBootstrapModule {
         return injector.getInstance(NlsService.class);
     }
 
+
+    public MeteringDataModelService getMeteringDataModelService() {
+        return injector.getInstance(MeteringDataModelService.class);
+    }
+
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
