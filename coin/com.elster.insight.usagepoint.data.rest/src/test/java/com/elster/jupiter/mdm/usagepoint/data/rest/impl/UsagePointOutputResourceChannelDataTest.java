@@ -67,6 +67,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
+
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(interval_1.lowerEndpoint()));
     }
 
     private String buildFilter() throws UnsupportedEncodingException {
@@ -106,6 +108,32 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     }
 
     @Test
+    public void testGetChannelDataMissingIntervalStart() throws Exception {
+        String filter = ExtjsFilter.filter().property("intervalEnd", timeStamp.toEpochMilli()).create();
+
+        // Business method
+        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.channelData")).isEmpty();
+    }
+
+    @Test
+    public void testGetChannelDataMissingIntervalEnd() throws Exception {
+        String filter = ExtjsFilter.filter().property("intervalStart", timeStamp.toEpochMilli()).create();
+
+        // Business method
+        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.channelData")).isEmpty();
+    }
+
+    @Test
     public void testGetChannelDataOnIrregularReadingTypeDeliverable() throws Exception {
         // Business method
         Response response = target("/usagepoints/MRID/purposes/100/outputs/2/channelData").queryParam("filter", buildFilter()).request().get();
@@ -115,8 +143,23 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
     }
 
     @Test
+    public void testGetChannelDataRequestedIntervalDoesNotContainData() throws Exception {
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", timeStamp.minus(15, ChronoUnit.MINUTES).toEpochMilli())
+                .property("intervalEnd", timeStamp.minus(10, ChronoUnit.MINUTES).toEpochMilli())
+                .create();
+
+        // Business method
+        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.channelData")).isEmpty();
+    }
+
+    @Test
     public void testGetChannelData() throws Exception {
-        when(channelsContainer.getRange()).thenReturn(Range.atLeast(interval_1.lowerEndpoint()));
         Channel channel = mock(Channel.class);
         when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
         when(channel.toList(Range.openClosed(interval_1.lowerEndpoint(), interval_3.upperEndpoint()))).thenReturn(

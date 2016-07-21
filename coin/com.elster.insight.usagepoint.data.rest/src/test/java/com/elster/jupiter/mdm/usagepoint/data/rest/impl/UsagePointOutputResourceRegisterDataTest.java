@@ -70,7 +70,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     @Test
     public void testGetRegisterDataNoSuchUsagePoint() throws Exception {
         // Business method
-        Response response = target("/usagepoints/xxx/purposes/1/outputs/1/registerData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/xxx/purposes/1/outputs/2/registerData").queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -81,7 +81,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
 
         // Business method
-        Response response = target("/usagepoints/MRID/purposes/1/outputs/1/registerData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/MRID/purposes/1/outputs/2/registerData").queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -90,10 +90,36 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     @Test
     public void testGetRegisterDataNoSuchContract() throws Exception {
         // Business method
-        Response response = target("/usagepoints/MRID/purposes/90030004443343/outputs/1/registerData").queryParam("filter", buildFilter()).request().get();
+        Response response = target("/usagepoints/MRID/purposes/90030004443343/outputs/2/registerData").queryParam("filter", buildFilter()).request().get();
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void testGetRegisterDataMissingIntervalStart() throws Exception {
+        String filter = ExtjsFilter.filter().property("intervalEnd", readingTimeStamp3.toEpochMilli()).create();
+
+        // Business method
+        String json = target("usagepoints/MRID/purposes/100/outputs/2/registerData").queryParam("filter", filter).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.registerData")).isEmpty();
+    }
+
+    @Test
+    public void testGetRegisterDataMissingIntervalEnd() throws Exception {
+        String filter = ExtjsFilter.filter().property("intervalStart", readingTimeStamp1.toEpochMilli()).create();
+
+        // Business method
+        String json = target("usagepoints/MRID/purposes/100/outputs/2/registerData").queryParam("filter", filter).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.registerData")).isEmpty();
     }
 
     @Test
