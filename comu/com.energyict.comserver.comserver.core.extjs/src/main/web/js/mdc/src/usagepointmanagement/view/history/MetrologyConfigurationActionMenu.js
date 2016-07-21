@@ -31,21 +31,21 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
         if (record) {
             var edititem = me.down('#action-menu-item-mc-edit'),
                 removeItem = me.down('#action-menu-item-mc-remove');
-            if (!record.get('editable')) {
-                edititem.disable();
-                edititem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Future version only can be modified'));
-                if (record.get('current')) {
-                    removeItem.enable();
-                    removeItem.setTooltip(false);
-                } else {
-                    removeItem.disable();
-                    removeItem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Future version only can be removed'));
-                }
-            } else {
-                edititem.enable();
-                edititem.setTooltip(false);
+            if (record.get('editable')) {
                 removeItem.enable();
-                removeItem.setTooltip(false);
+                removeItem.clearTip();
+                edititem.enable();
+                edititem.clearTip();
+            } else {
+                if (record.get('current')) {
+                    edititem.enable();
+                    edititem.clearTip();
+                } else {
+                    edititem.disable();
+                    edititem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Future version only can be modified'));
+                }
+                removeItem.disable();
+                removeItem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Future version only can be removed'));
             }
         }
     }

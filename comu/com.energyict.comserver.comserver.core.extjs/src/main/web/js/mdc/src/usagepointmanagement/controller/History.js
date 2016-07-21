@@ -243,12 +243,16 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
         versionForm.down('#form-errors').hide();
         versionForm.getForm().clearInvalid();
         versionForm.updateRecord(versionRecord);
+        if (versionForm.down('#end-time-date').getValue()['installation-time']) {
+            versionRecord.set('end', null);
+        }
         if (metrologyConfig) {
             versionRecord.set('metrologyConfiguration', metrologyConfig.getData());
             usagePointWithVersionModel.set(me.usagePoint.getRecordData());
             usagePointWithVersionModel.set('metrologyConfigurationVersion', versionRecord.getData());
             usagePointWithVersionModel.getProxy().setUrl(me.usagePoint.get('mRID'));
             if (btn.action == 'add') {
+
                 usagePointWithVersionModel.save({
                     success: function () {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.version.added', 'MDC', "Metrology configuration version added"));
@@ -268,6 +272,7 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                 });
             } else if (btn.action == 'edit') {
                 var url = usagePointWithVersionModel.getProxy().url + '/' + versionRecord.get('id');
+
                 Ext.Ajax.request({
                     url: url,
                     method: 'PUT',
@@ -276,12 +281,13 @@ Ext.define('Mdc.usagepointmanagement.controller.History', {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.version.saved', 'MDC', 'Metrology configuration version saved'));
                         router.getRoute('usagepoints/usagepoint/history').forward();
                     },
-                    failure: function (record, operation) {
-                        if (operation.response.status == 400) {
-                            if (!Ext.isEmpty(operation.response.responseText)) {
-                                var json = Ext.decode(operation.response.responseText, true);
+                    failure: function (response) {
+                        if (response.status == 400) {
+                            if (!Ext.isEmpty(response.responseText)) {
+                                var json = Ext.decode(response.responseText, true);
                                 if (json && json.errors) {
                                     versionForm.down('#form-errors').show();
+
                                     versionForm.getForm().markInvalid(json.errors);
                                 }
                             }
