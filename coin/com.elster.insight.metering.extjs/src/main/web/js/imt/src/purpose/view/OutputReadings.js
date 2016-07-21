@@ -6,6 +6,7 @@ Ext.define('Imt.purpose.view.OutputReadings', {
         'Uni.grid.FilterPanelTop',
         'Imt.purpose.view.ReadingsGraph',
         'Imt.purpose.view.ReadingsList',
+        'Imt.purpose.view.ReadingPreview'
         'Imt.purpose.view.NoReadingsFoundPanel',
         'Imt.purpose.view.RegisterDataGrid'
     ],
@@ -96,6 +97,40 @@ Ext.define('Imt.purpose.view.OutputReadings', {
                 });
                 break;
         }
+            },
+            {
+                xtype: 'readings-graph',
+                router: me.router,
+                output: me.output,
+                interval: me.interval,
+                hidden: !isComplete
+            },
+            {
+                xtype: 'preview-container',
+                hidden: !isComplete,
+                grid: {
+                    xtype: 'readings-list',
+                    output: me.output,
+                    router: me.router
+                },
+                emptyComponent: {
+                    xtype: 'no-items-found-panel',
+                    itemId: 'readings-empty-panel',
+                    title: Uni.I18n.translate('readings.list.empty', 'IMT', 'No data is available'),
+                    reasons: [
+                        Uni.I18n.translate('readings.list.reason1', 'IMT', 'No data has been collected yet'),
+                        Uni.I18n.translate('readings.list.reason2', 'IMT', 'Filter is too narrow')
+                    ]
+                },
+                previewComponent: {
+                    xtype: 'reading-preview',
+                    itemId: 'reading-preview',
+                    output: me.output,
+                    router: me.router,
+                    hidden: true
+                }
+            }
+        ];
 
         me.callParent(arguments);
     }
