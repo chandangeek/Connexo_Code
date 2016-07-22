@@ -3245,19 +3245,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    <<<<<<
 
-    <HEAD
-    Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from) {
-        List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations()
-                .stream()
-                .filter(emc -> emc.getRange().isConnected(Range.atLeast(from)))
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
-                .collect(Collectors.toList());
-        =======
         private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements (UsagePoint usagePoint, Instant from, DeviceConfiguration config){
-            List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
-            >>>>>>>master
+            List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations()
+                    .stream()
+                    .filter(emc -> emc.getRange().isConnected(Range.atLeast(from)))
+                    .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                    .collect(Collectors.toList());
+
         if (effectiveMetrologyConfigurations.isEmpty()) {
             return Collections.emptyMap();
         }
