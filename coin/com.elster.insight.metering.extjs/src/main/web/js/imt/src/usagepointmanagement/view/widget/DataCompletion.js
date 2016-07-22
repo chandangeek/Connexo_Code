@@ -4,7 +4,9 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
     requires: [
         'Imt.usagepointmanagement.store.DataCompletion',
         'Imt.usagepointmanagement.view.widget.OutputKpi',
-        'Ext.util.Bindable'
+        'Ext.util.Bindable',
+        'Imt.usagepointmanagement.store.Purposes',
+        'Imt.usagepointmanagement.store.Periods'
     ],
     mixins: {
         bindable: 'Ext.util.Bindable'
@@ -16,16 +18,19 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
     layout: 'fit',
     store: 'Imt.usagepointmanagement.store.DataCompletion',
 
-    //todo: change it after integration
     config: {
-        purpose: {id: 1},
-        period: {id: 1}
+        purpose: null,
+        period: null
     },
 
     initComponent: function () {
         var me = this,
-            store;
-
+            store,
+            purposesStore = Ext.getStore('Imt.usagepointmanagement.store.Purposes'),
+            periodsStore = Ext.getStore('Imt.usagepointmanagement.store.Periods') || Ext.create('Imt.usagepointmanagement.store.Periods'),
+            defaultPurposeId = purposesStore.first().getId();
+        
+        me.setPurpose(purposesStore.first());        
         me.items = {
             xtype: 'tabpanel',
             layout: 'fit',
@@ -44,43 +49,59 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
                 }
             }
         };
-
-        // todo: add purpose and period stores here
-        //var healthTypeStore = Ext.getStore('Uni.store.HealthCategories') || Ext.create('Uni.store.HealthCategories');
-        //me.tools = [
-        //    {
-        //        xtype: 'toolbar',
-        //        itemId: 'comboTool',
-        //        margin: '0 20 0 0',
-        //        layout: 'fit',
-        //        items: [
-        //            {
-        //                xtype: 'combobox',
-        //                value: 'all',
-        //                store: healthTypeStore,
-        //                displayField: 'displayValue',
-        //                valueField: 'type',
-        //                listeners: {
-        //                    change: function (combo, newvalue) {
-        //                        me.buildWidget(newvalue);
-        //                    }
-        //                }
-        //            }
-        //        ]
-        //
-        //    }
-        //];
-
         me.callParent(arguments);
-        me.bindStore(me.store || 'ext-empty-store', true);
-        store = me.getStore();
-        store.getProxy().extraParams = {
-            usagePointMRID: me.usagePoint.get('mRID'),
-            purposeId: me.getPurpose().id,
-            periodId: me.getPeriod().id
+        periodsStore.getProxy().extraParams = {
+            mRID: me.usagePoint.get('mRID'),
+            purposeId: defaultPurposeId
         };
+        periodsStore.load(function () {
+            me.tools = [
+                {
+                    xtype: 'toolbar',
+                    itemId: 'comboTool',
+                    margin: '0 20 0 0',
+                    layout: 'fit',
+                    items: [
+                        {
+                            xtype: 'combobox',
+                            fieldLabel: Uni.I18n.translate('general.purpose', 'IMT', 'Purpose'),
+                            itemId: 'purposes-combo',
+                            value: 'id',
+                            store: purposesStore,
+                            displayField: 'name',
+                            listeners: {
+                                change: function (combo, newvalue) {
+                                    // me.buildWidget(newvalue);
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'combobox',
+                            fieldLabel: Uni.I18n.translate('general.period', 'IMT', 'Period'),
+                            itemId: 'periods-combo',
+                            value: 'id',
+                            store: periodsStore,
+                            displayField: 'name',
+                            listeners: {
+                                change: function (combo, newvalue) {
+                                    // me.buildWidget(newvalue);
+                                }
+                            }
+                        }
+                    ]
+                }
+            ];
 
-        store.load();
+            me.bindStore(me.store || 'ext-empty-store', true);
+            store = me.getStore();
+            store.getProxy().extraParams = {
+                usagePointMRID: me.usagePoint.get('mRID'),
+                purposeId: defaultPurposeId,
+                periodId: periodsStore.first().getId()
+            };
+
+            store.load();
+        });
     },
 
     getStoreListeners: function () {
@@ -107,7 +128,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
         store.each(function (item, index, total) {
             var mod = Math.floor(index / 3);
             if (!tabs[mod]) {
-                tabs[mod] = me.addTab()
+                tabs[mod] = me.addTab(mod)
             }
 
             tabs[mod].items.push(me.addWidget(item));
@@ -116,7 +137,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
         me.down('tabpanel').add(tabs);
     },
 
-    addTab: function() {
+    addTab: function(mod) {
         return {
             layout: 'column',
             columnWidth: 0.3,

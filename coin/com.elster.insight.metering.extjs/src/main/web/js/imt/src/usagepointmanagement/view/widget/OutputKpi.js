@@ -30,7 +30,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
             router = me.getRouter(),
             purpose = me.getPurpose(),
             url = router.getRoute('usagepoints/view/purpose/output').buildUrl({
-                purposeId: purpose.id,
+                purposeId: purpose.getId(),
                 outputId: output.getId()
             }),
             data = []
