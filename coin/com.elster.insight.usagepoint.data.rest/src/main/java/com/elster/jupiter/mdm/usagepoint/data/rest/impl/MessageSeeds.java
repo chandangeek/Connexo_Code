@@ -29,7 +29,7 @@ public enum MessageSeeds implements MessageSeed {
     THIS_OUTPUT_IS_IRREGULAR(28, "ThisOutputIsIrregular", "Usage point output with id {0} is irregular and can''t provide interval data."),
     THIS_OUTPUT_IS_REGULAR(29, "ThisOutputIsRegular", "Usage point output with id {0} is regular and provides only interval data."),
     NO_RELATIVEPERIOD_FOR_ID(30, "NoRelativePeriodForId", "Relative period with id {0} is not found."),
-    RELATIVEPERIOD_IS_IN_THE_FUTURE(31, "RelativePeriodIsInTheFuture", "Cannot gather validation statistics for relative period with id {0}: it is in the future."),;
+    RELATIVEPERIOD_IS_IN_THE_FUTURE(31, "RelativePeriodIsInTheFuture", "Cannot gather validation statistics for relative period with id {0}: it is in the future.");
 
     private final int number;
     private final String key;
