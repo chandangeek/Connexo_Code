@@ -81,7 +81,7 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                         {
                             xtype: 'previous-next-navigation-toolbar',
                             itemId: 'tabbed-device-channels-view-previous-next-navigation-toolbar',
-                            store: dataStore,
+                            store: 'Imt.purpose.store.Outputs',
                             router: me.router,
                             routerIdArgument: 'outputId',
                             itemsName: me.prevNextListLink,
