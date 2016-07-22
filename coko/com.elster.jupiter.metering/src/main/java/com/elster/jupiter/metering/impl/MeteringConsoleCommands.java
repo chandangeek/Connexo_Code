@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.AmrSystem;
@@ -337,7 +338,7 @@ public class MeteringConsoleCommands {
 
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
                 meterReading.addAllEndDeviceEvents(deviceEvents);
-                meteringService.findMeter(mrId).get().store(meterReading);
+                meteringService.findMeter(mrId).get().store(QualityCodeSystem.MDC, meterReading);
 
                 context.commit();
             } catch (FileNotFoundException e) {

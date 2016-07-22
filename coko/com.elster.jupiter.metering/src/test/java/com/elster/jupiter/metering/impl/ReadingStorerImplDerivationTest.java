@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.events.EventService;
@@ -124,7 +125,7 @@ public class ReadingStorerImplDerivationTest {
         when(primaryDeltaReadingType.isRegular()).thenReturn(true);
         when(channel.isRegular()).thenReturn(true);
 
-        readingStorer = (ReadingStorerImpl) ReadingStorerImpl.createOverrulingStorer(idsService, eventService);
+        readingStorer = ReadingStorerImpl.createOverrulingStorer(idsService, eventService);
     }
 
     @After
@@ -139,7 +140,7 @@ public class ReadingStorerImplDerivationTest {
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(15).toInstant(), BigDecimal.valueOf(628, 2)));
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(30).toInstant(), BigDecimal.valueOf(1000, 2)));
 
-        readingStorer.execute();
+        readingStorer.execute(QualityCodeSystem.MDC);
 
         verify(storer).add(timeSeries, BASE_TIME.toInstant(), 0L, 0L, null, BigDecimal.valueOf(314, 2));
         verify(storer).add(timeSeries, BASE_TIME.plusMinutes(15).toInstant(), 0L, 0L, BigDecimal.valueOf(314, 2), BigDecimal.valueOf(628, 2));
@@ -158,7 +159,7 @@ public class ReadingStorerImplDerivationTest {
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(15).toInstant(), BigDecimal.valueOf(628, 2)));
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(30).toInstant(), BigDecimal.valueOf(1000, 2)));
 
-        readingStorer.execute();
+        readingStorer.execute(QualityCodeSystem.MDC);
 
         verify(storer).add(timeSeries, BASE_TIME.toInstant(), 0L, 0L, BigDecimal.valueOf(214, 2), BigDecimal.valueOf(314, 2));
         verify(storer).add(timeSeries, BASE_TIME.plusMinutes(15).toInstant(), 0L, 0L, BigDecimal.valueOf(314, 2), BigDecimal.valueOf(628, 2));
@@ -186,7 +187,7 @@ public class ReadingStorerImplDerivationTest {
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(15).toInstant(), BigDecimal.valueOf(628, 2)));
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(30).toInstant(), BigDecimal.valueOf(1000, 2)));
 
-        readingStorer.execute();
+        readingStorer.execute(QualityCodeSystem.MDC);
 
         verify(storer).add(timeSeries, BASE_TIME.toInstant(), 0L, 0L, null, BigDecimal.valueOf(314, 2));
         verify(storer).add(timeSeries, BASE_TIME.plusMinutes(15).toInstant(), 0L, 0L, BigDecimal.valueOf(1570, 2), BigDecimal.valueOf(628, 2));
@@ -214,11 +215,10 @@ public class ReadingStorerImplDerivationTest {
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(15).toInstant(), BigDecimal.valueOf(628, 0)));
         readingStorer.addReading(cimChannel, IntervalReadingImpl.of(BASE_TIME.plusMinutes(30).toInstant(), BigDecimal.valueOf(1000, 0)));
 
-        readingStorer.execute();
+        readingStorer.execute(QualityCodeSystem.MDC);
 
         verify(storer).add(timeSeries, BASE_TIME.toInstant(), 0L, 0L, BigDecimal.valueOf(1570, 0), BigDecimal.valueOf(314, 0));
         verify(storer).add(timeSeries, BASE_TIME.plusMinutes(15).toInstant(), 0L, 0L, BigDecimal.valueOf(3140, 0), BigDecimal.valueOf(628, 0));
         verify(storer).add(timeSeries, BASE_TIME.plusMinutes(30).toInstant(), 0L, 0L, BigDecimal.valueOf(5000, 0), BigDecimal.valueOf(1000, 0));
     }
-
 }
