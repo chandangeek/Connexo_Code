@@ -1,8 +1,6 @@
-package com.elster.jupiter.metering.rest.impl;
+package com.elster.jupiter.metering.rest;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.units.Unit;
 
