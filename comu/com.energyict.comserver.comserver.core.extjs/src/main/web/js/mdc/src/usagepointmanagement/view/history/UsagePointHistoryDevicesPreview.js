@@ -57,7 +57,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistoryDevicesPrevie
                                                 mRID: value
                                             }, {activeTab: 'meterActivations'});
                                         if (Mdc.privileges.Device.canView()) {
-                                            return '<a href="' + deviceUrl + '">' + value + '</a>&nbsp;&nbsp;&nbsp;&nbsp;(<a href="' + meterActivationHistoryUrl + '">' + 
+                                            return '<a href="' + deviceUrl + '">' + value + '</a>&nbsp;&nbsp;&nbsp;&nbsp;(<a href="' + meterActivationHistoryUrl + '">' +
                                                 Uni.I18n.translate('general.viewMeterActivationHistory', 'MDC', 'View meter activation history') + '</a>)';
                                         } else {
                                             return value;
