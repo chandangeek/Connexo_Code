@@ -20,6 +20,8 @@ import org.joda.time.DateTime;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -87,30 +89,16 @@ public class DeviceValidationImplTest {
 
     @Before
     public void setUp() {
-//
-//        //This was the setup before the merge ...
-//        when(device.getId()).thenReturn(666L);
-//        when(device.getMeter()).thenReturn(meterReference);
-//        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-//        when(deviceConfiguration.getValidationRuleSets()).thenReturn(Arrays.asList(ruleSet1, ruleSet2));
-//
-//        when(rule1.getReadingTypes()).thenReturn(Collections.singleton(readingType1));
-//        when(rule2.getReadingTypes()).thenReturn(Collections.singleton(readingType2));
-//
-//        when(meterReference.get()).thenReturn(meter);
-//        when(meterReference.isPresent()).thenReturn(true);
-//
-//        when(device.findKoreChannel(channel, NOW.toInstant())).thenReturn(Optional.of(koreChannel1));
-//        when(koreChannel1.meter).thenReturn(meterActivation);
-//
-//        doReturn(asList(readingType1)).when(koreChannel1).getReadingTypes();
-//        doReturn(asList(readingType2)).when(koreChannel2).getReadingTypes();
-//        doReturn(asList(readingType1)).when(koreChannel3).getReadingTypes();
-//        doReturn(asList(readingType2)).when(koreChannel4).getReadingTypes();
-//
-//        when(meterActivation1.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
-//        when(meterActivation1.getChannels()).thenReturn(asList(koreChannel1));
-
+        when(device.getId()).thenReturn(666L);
+        when(device.getMeter()).thenReturn(meterReference);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfiguration.getValidationRuleSets()).thenReturn(Arrays.asList(ruleSet1, ruleSet2));
+        when(rule1.getReadingTypes()).thenReturn(Collections.singleton(readingType1));
+        when(rule2.getReadingTypes()).thenReturn(Collections.singleton(readingType2));
+        doReturn(asList(readingType1)).when(koreChannel1).getReadingTypes();
+        doReturn(asList(readingType2)).when(koreChannel2).getReadingTypes();
+        doReturn(asList(readingType1)).when(koreChannel3).getReadingTypes();
+        doReturn(asList(readingType2)).when(koreChannel4).getReadingTypes();
 
         when(device.getMeter()).thenReturn(meterReference);
         when(meterReference.get()).thenReturn(meter);
@@ -171,9 +159,9 @@ public class DeviceValidationImplTest {
         doReturn(asList(meterActivation1, meterActivation2)).when(meter).getMeterActivations();
         when(channelsContainer1.getChannels()).thenReturn(asList(koreChannel1, koreChannel2));
         when(channelsContainer2.getChannels()).thenReturn(asList(koreChannel3, koreChannel4));
-
-        when(meterActivation1.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
-        when(meterActivation2.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(meter.getChannelsContainers()).thenReturn(Arrays.asList(channelsContainer1, channelsContainer2));
+        when(channelsContainer2.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
+        when(channelsContainer2.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
 
         when(validationEvaluator.isValidationEnabled(eq(meter))).thenReturn(true);
         when(validationEvaluator.isValidationEnabled(koreChannel1)).thenReturn(true);

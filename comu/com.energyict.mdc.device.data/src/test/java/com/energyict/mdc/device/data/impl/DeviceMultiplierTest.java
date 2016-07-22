@@ -230,7 +230,7 @@ public class DeviceMultiplierTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, metrologyConfigurationService, validationService, securityPropertyService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider, manuallyScheduledComTaskExecutionProvider,
                 firmwareComTaskExecutionProvider, meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService, deviceConfigurationService);
-        setId(device, ID);
+//        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", "Mrid", startOfMeterActivation);
         device.save();
         return device;

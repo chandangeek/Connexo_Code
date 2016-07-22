@@ -177,7 +177,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithName(String name, String mRID){
-        return createSimpleDeviceWithName(name, mRID, Instant.now());
+        return createSimpleDeviceWithName(name, mRID, inMemoryPersistence.getClock().instant());
     }
 
     private Device createSimpleDeviceWithName(String name, String mRID, Instant start){
@@ -1483,9 +1483,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers", inMemoryPersistence.getClock().instant());
-        device.save();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers", Instant.now());
         device.setMultiplier(BigDecimal.TEN);
+        device.save();
         Meter meter = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get();
 
         int channelSize = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().size();
@@ -2273,6 +2273,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void activateDeviceOnUsagePoint() {
+        Instant now = Instant.ofEpochMilli(50L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(now);
         Device device = this.createSimpleDeviceWithName("activateDeviceOnUsagePoint");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(97L);
@@ -2290,6 +2292,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void reactivateDeviceOnUsagePoint() {
+        Instant now = Instant.ofEpochMilli(50L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(now);
         Device device = this.createSimpleDeviceWithName("reactivateDeviceOnUsagePoint");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(97L);
@@ -2298,6 +2302,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         // Business method
         device.activate(expectedStart);
         device.activate(expectedStartWithUsagePoint, usagePoint);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(expectedStartWithUsagePoint.plus(1, ChronoUnit.MINUTES));
 
         // Asserts
         device = getReloadedDevice(device);
@@ -2311,6 +2316,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     @Expected(MeterActivationTimestampNotAfterLastActivationException.class)
     public void reactivateDeviceOnUsagePointBeforeLastActivation() {
+        Instant now = Instant.ofEpochMilli(50L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(now);
         Device device = this.createSimpleDeviceWithName("reactivateDeviceOnUsagePointBeforeLastActivation");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
         Instant expectedStart = Instant.ofEpochMilli(98L);
@@ -2328,6 +2335,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     @Expected(UsagePointAlreadyLinkedToAnotherDeviceException.class)
     public void activateDeviceOnUsagePointAlreadyLinkedToAnotherDevice() {
+        Instant now = Instant.ofEpochMilli(50L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(now);
         Device device = this.createSimpleDeviceWithName("activateDeviceOnUsagePointAlreadyLinkedToAnotherDevice");
         Device anotherDevice = this.createSimpleDeviceWithName("another device", "anotherdevice");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
@@ -2346,8 +2355,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void activateDeviceOnUsagePointMissingReadingTypeRequirements() {
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID, inMemoryPersistence.getClock().instant());
-        device.save();
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID, Instant.ofEpochMilli(50L));
 
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
 
@@ -2382,8 +2390,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void activateDeviceOnUsagePointCopyMultiplier() {
+        Instant now = Instant.ofEpochMilli(50L);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(now);
         Device device = this.createSimpleDeviceWithName("activateDeviceOnUsagePointCopyMultiplier");
-        device.setMultiplier(BigDecimal.valueOf(100), Instant.ofEpochMilli(96L));
+        BigDecimal multiplier = BigDecimal.valueOf(100);
+        device.setMultiplier(multiplier, Instant.ofEpochMilli(96L));
+        device.save();
         device = getReloadedDevice(device);
 
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
@@ -2391,16 +2403,17 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         // Business method
         device.activate(expectedStart, usagePoint);
+        when(inMemoryPersistence.getClock().instant()).thenReturn(expectedStart.plus(1, ChronoUnit.MINUTES));
 
         // Asserts
         device = getReloadedDevice(device);
         assertThat(device.getCurrentMeterActivation().get().getUsagePoint().get()).isEqualTo(usagePoint);
-        assertThat(device.getMultiplier()).isEqualTo(BigDecimal.valueOf(100));
+        assertThat(device.getMultiplier()).isEqualTo(multiplier);
     }
 
     private UsagePoint createSimpleUsagePoint(String mRID) {
         return inMemoryPersistence.getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get()
-                .newUsagePoint(mRID, Instant.now())
+                .newUsagePoint(mRID, inMemoryPersistence.getClock().instant())
                 .create();
     }
 
