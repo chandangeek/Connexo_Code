@@ -1,18 +1,16 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.time.TimeDuration;
-
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.logging.InboundComPortLogger;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.engine.monitor.InboundComPortMonitor;
-import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.io.CommunicationException;
 
 import java.time.Clock;
@@ -172,7 +170,7 @@ public abstract class ComPortListenerImpl implements ComPortListener, Runnable {
             } catch (CommunicationException e) {
                 logUnexpectedError(e);
                 waitAfterCommunicationTimeOut();
-            } catch (Throwable throwable) {
+            } catch (Exception throwable) {
                 logUnexpectedError(throwable);
             }
         }

@@ -185,7 +185,7 @@ public class InboundCommunicationHandler {
             else {
                 this.handleUnknownDevice(inboundDeviceProtocol);
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
         }
         this.closeContext();
