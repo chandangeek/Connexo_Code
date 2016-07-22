@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -234,6 +235,9 @@ class ReferenceValueFactory<T> implements ValueFactory<T> {
         }
 
         public T fromStringValue(String stringValue) {
+            if (Checks.is(stringValue).emptyOrOnlyWhiteSpace()) {
+                return null;
+            }
             Object primaryKey = this.converter.fromString(stringValue);
             return this.valueFromDatabase(primaryKey);
         }
