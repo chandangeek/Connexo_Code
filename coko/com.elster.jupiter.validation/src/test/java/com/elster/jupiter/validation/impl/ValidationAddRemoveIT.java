@@ -72,8 +72,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.After;
@@ -84,7 +84,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -168,9 +168,9 @@ public class ValidationAddRemoveIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX));
+        when(validatorFactory.available()).thenReturn(Collections.singletonList(MIN_MAX));
         when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
-        when(validatorFactory.create(eq(MIN_MAX), any(Map.class))).thenReturn(minMax);
+        when(validatorFactory.create(eq(MIN_MAX), anyMapOf(String.class, Object.class))).thenReturn(minMax);
         when(minMax.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
         when(min.getName()).thenReturn(MIN);
@@ -210,7 +210,7 @@ public class ValidationAddRemoveIT {
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
                 public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
-                    return Arrays.asList(validationRuleSet);
+                    return Collections.singletonList(validationRuleSet);
                 }
 
                 @Override
@@ -237,10 +237,10 @@ public class ValidationAddRemoveIT {
             @Override
             protected void doPerform() {
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(10L), date1.plusSeconds(900 * 1)));
+                meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(10L), date1.plusSeconds(900)));
                 meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(11L), date1.plusSeconds(900 * 2)));
                 meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(12L), date1.plusSeconds(900 * 3)));
-                meter.store(meterReading);
+                meter.store(QualityCodeSystem.MDC, meterReading);
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
                 List<ChannelsContainerValidation> channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class)
                         .find("channelsContainer", meterActivation.getChannelsContainer());
@@ -248,10 +248,10 @@ public class ValidationAddRemoveIT {
                 assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 3));
                 Channel channel = meter.getMeterActivations().get(0).getChannelsContainer().getChannels().get(0);
                 List<BaseReadingRecord> readings = channel.getReadings(Range.all());
-                channel.removeReadings(readings.subList(1, readings.size()));
+                channel.removeReadings(QualityCodeSystem.MDC, readings.subList(1, readings.size()));
                 channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("channelsContainer", meterActivation.getChannelsContainer());
                 channelValidation = channelsContainerValidations.get(0).getChannelValidations().iterator().next();
-                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 1));
+                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900));
             }
         });
     }
