@@ -23,6 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
@@ -143,6 +146,32 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         initSecurityTokenImpl();
     }
 
+    public void createNewTokenKey(String... args) {
+        System.out.println("Usage : createNewTokenKey <fileName>");
+    }
+
+    public void createNewTokenKey(String fileName) {
+        transactionService.builder().run(() -> {
+            try {
+                tryCreateNewTokenKey(fileName);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void tryCreateNewTokenKey(String fileName) throws NoSuchAlgorithmException, IOException {
+        getKeyPair().ifPresent(KeyStoreImpl::delete);
+        dataModel.getInstance(KeyStoreImpl.class).init(dataVaultService);
+        try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(FileSystems.getDefault()
+                .getPath(fileName)))) {
+            writer.write(new String(dataVaultService.decrypt(getKeyPair().get().getPublicKey())));
+            writer.flush();
+        }
+        initSecurityTokenImpl();
+    }
+
+
     private void initSecurityTokenImpl() {
         Optional<KeyStoreImpl> keyStore = getKeyPair();
         if (keyStore.isPresent()) {
@@ -205,7 +234,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
                 return true;
             } else if (!shouldUnauthorize(request.getRequestURI())) {
-                String server = request.getRequestURL().substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
+                String server = request.getRequestURL()
+                        .substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
                 response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
                 response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURL());
                 return true;
@@ -229,7 +259,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
 
     private boolean doCookieAuthorization(Cookie tokenCookie, HttpServletRequest request, HttpServletResponse response) {
-        SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request.getRemoteAddr());
+        SecurityTokenImpl.TokenValidation validation = securityToken.verifyToken(tokenCookie.getValue(), userService, request
+                .getRemoteAddr());
         return handleTokenValidation(validation, tokenCookie.getValue(), request, response);
     }
 
@@ -249,7 +280,8 @@ public final class BasicAuthentication implements HttpAuthenticationService {
         Optional<Cookie> xsrf = getTokenCookie(request);
         if (xsrf.isPresent()) {
             token = xsrf.get().getValue();
-            if (!securityToken.compareTokens(token, authentication.substring(authentication.lastIndexOf(" ") + 1), request.getRemoteAddr())) {
+            if (!securityToken.compareTokens(token, authentication.substring(authentication.lastIndexOf(" ") + 1), request
+                    .getRemoteAddr())) {
                 return deny(request, response);
             }
         }
