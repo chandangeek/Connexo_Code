@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.validation.ValidationAction;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -26,6 +27,9 @@ class MinimalVeeReadingValueInfo {
     @JsonProperty("valueModificationFlag")
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
     public ReadingModificationFlag valueModificationFlag;
+
+    @JsonProperty("editedInApp")
+    public IdWithNameInfo editedInApp;
 
     @JsonProperty("isConfirmed")
     public Boolean isConfirmed;

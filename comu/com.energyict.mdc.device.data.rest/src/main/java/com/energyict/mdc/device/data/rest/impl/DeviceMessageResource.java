@@ -31,8 +31,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.Checks.is;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
@@ -55,16 +58,14 @@ public class DeviceMessageResource {
     private final MdcPropertyUtils mdcPropertyUtils;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final ExceptionFactory exceptionFactory;
-    private final DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory;
 
     @Inject
-    public DeviceMessageResource(ResourceHelper resourceHelper, DeviceMessageInfoFactory deviceMessageInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceMessageSpecificationService deviceMessageSpecificationService, ExceptionFactory exceptionFactory, DeviceMessageSpecInfoFactory deviceMessageSpecInfoFactory) {
+    public DeviceMessageResource(ResourceHelper resourceHelper, DeviceMessageInfoFactory deviceMessageInfoFactory, MdcPropertyUtils mdcPropertyUtils, DeviceMessageSpecificationService deviceMessageSpecificationService, ExceptionFactory exceptionFactory) {
         this.resourceHelper = resourceHelper;
         this.deviceMessageInfoFactory = deviceMessageInfoFactory;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.exceptionFactory = exceptionFactory;
-        this.deviceMessageSpecInfoFactory = deviceMessageSpecInfoFactory;
     }
 
     @GET @Transactional
@@ -74,13 +75,13 @@ public class DeviceMessageResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+    public Response getDeviceCommands(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
                 // we do the explicit filtering because some categories should be hidden for the user
-                filter(deviceMessage -> deviceMessageSpecificationService.filteredCategoriesForUserSelection().contains(deviceMessage.getSpecification().getCategory())).
+                filter(deviceMessage -> deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition().contains(deviceMessage.getSpecification().getCategory())).
                 sorted(comparing(DeviceMessage::getReleaseDate, nullsLast(Comparator.<Instant>naturalOrder().reversed()))).
-                map(deviceMessageInfoFactory::asInfo).
+                map(deviceMessage -> deviceMessageInfoFactory.asInfo(deviceMessage, uriInfo)).
                 collect(toList());
         List<DeviceMessageInfo> infosInPage = ListPager.of(infos).from(queryParameters).find();
         return Response.ok(PagedInfoList.fromPagedList("deviceMessages", infosInPage, queryParameters)).build();
@@ -110,13 +111,13 @@ public class DeviceMessageResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response createDeviceMessage(@PathParam("mRID") String mrid, DeviceMessageInfo deviceMessageInfo) {
+    public Response createDeviceMessage(@PathParam("mRID") String mrid, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceMessageId deviceMessageId = DeviceMessageId.valueOf(deviceMessageInfo.messageSpecification.id);
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId).setReleaseDate(deviceMessageInfo.releaseDate);
         DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue()).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_SPEC));
 
-        if (deviceMessageInfo.properties !=null) {
+        if (deviceMessageInfo.properties != null) {
             try {
                 for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
                     Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, deviceMessageInfo.properties);
@@ -129,7 +130,7 @@ public class DeviceMessageResource {
             }
         }
 
-        return Response.status(Response.Status.CREATED).entity(deviceMessageInfoFactory.asInfo(deviceMessageBuilder.add())).build();
+        return Response.status(Response.Status.CREATED).entity(deviceMessageInfoFactory.asInfo(deviceMessageBuilder.add(), uriInfo)).build();
     }
 
     @PUT @Transactional
@@ -140,16 +141,18 @@ public class DeviceMessageResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
-    public DeviceMessageInfo updateDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId, DeviceMessageInfo deviceMessageInfo) {
+    public DeviceMessageInfo updateDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
         deviceMessageInfo.id = deviceMessageId;
         DeviceMessage deviceMessage = resourceHelper.lockDeviceMessageOrThrowException(deviceMessageInfo);
-        deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);
         if (deviceMessageInfo.status != null && DeviceMessageStatus.REVOKED.name().equals(deviceMessageInfo.status.value)) {
             deviceMessage.revoke();
         }
-        deviceMessage.save();
-        deviceMessage = resourceHelper.findDeviceMessageOrThrowException(deviceMessageId);
-        return deviceMessageInfoFactory.asInfo(deviceMessage);
+        if (!is(deviceMessage.getReleaseDate()).equalTo(deviceMessageInfo.releaseDate)) {
+            deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);
+            deviceMessage.save();
+        }
+        DeviceMessage reloaded = resourceHelper.findDeviceMessageOrThrowException(deviceMessageId);
+        return deviceMessageInfoFactory.asInfo(reloaded, uriInfo);
     }
 
     private boolean hasCommandsWithPrivileges (Device device) {

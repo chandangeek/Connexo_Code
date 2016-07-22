@@ -16,4 +16,5 @@ public class SearchCriteriaInfo {
         this.criteriaName = searchCriteria.getCriteriaName();
         this.criteriaValues = searchCriteria.getCriteriaValues();
     }
+
 }

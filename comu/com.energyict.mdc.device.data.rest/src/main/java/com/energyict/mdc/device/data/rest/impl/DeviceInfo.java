@@ -1,40 +1,26 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
-import com.energyict.mdc.protocol.api.calendars.ProtocolSupportedCalendarOptions;
-
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Collections;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -67,11 +53,13 @@ public class DeviceInfo extends DeviceVersionInfo {
     public String location;
     public LocationInfo locationInfo;
     public String geoCoordinates;
+    public Instant shipmentDate;
 
     public DeviceInfo() {
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus, String location, String geoCoordinates) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService,
+                                  IssueRetriever issueRetriever, Thesaurus thesaurus, String location, String geoCoordinates) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
@@ -93,8 +81,8 @@ public class DeviceInfo extends DeviceVersionInfo {
 
         deviceInfo.gatewayType = device.getConfigurationGatewayType();
         deviceInfo.slaveDevices = slaveDevices;
-        deviceInfo.nbrOfDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID());
-        deviceInfo.openDataValidationIssue = getOpenDataValidationIssue(device, meteringService, issueService, issueDataValidationService).map(Issue::getId).orElse(null);
+        deviceInfo.nbrOfDataCollectionIssues = issueRetriever.numberOfDataCollectionIssues(device);
+        deviceInfo.openDataValidationIssue = issueRetriever.getOpenDataValidationIssue(device).map(Entity::getId).orElse(null);
         deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
         deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
@@ -114,25 +102,14 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, null, deviceState);
         deviceInfo.version = device.getVersion();
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
-        if(geoCoordinates !=null){
+        if (geoCoordinates != null) {
             deviceInfo.geoCoordinates = geoCoordinates;
         }
-        if(location!=null){
+        if (location != null) {
             deviceInfo.location = location;
         }
+        deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
         return deviceInfo;
-    }
-
-
-
-
-    static Optional<? extends IssueDataValidation> getOpenDataValidationIssue(Device device, MeteringService meteringService, IssueService issueService, IssueDataValidationService issueDataValidationService) {
-        Optional<AmrSystem> amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId());
-        Optional<Meter> meter = amrSystem.get().findMeter(String.valueOf(device.getId()));
-        DataValidationIssueFilter filter = new DataValidationIssueFilter();
-        filter.setDevice(meter.get());
-        filter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
-        return issueDataValidationService.findAllDataValidationIssues(filter).stream().findFirst();
     }
 
     public static DeviceInfo from(Device device, String location, String geoCoordinates) {
@@ -149,6 +126,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         deviceInfo.location = location;
         deviceInfo.geoCoordinates = geoCoordinates;
+        deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
         return deviceInfo;
     }
 
@@ -164,6 +142,7 @@ public class DeviceInfo extends DeviceVersionInfo {
         deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
         deviceInfo.version = device.getVersion();
         deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        deviceInfo.shipmentDate = device.getLifecycleDates().getReceivedDate().orElse(null);
         return deviceInfo;
     }
 }

@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
@@ -47,15 +48,14 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
 
     @Mock
     Device device;
-
     @Mock
     DeviceConfiguration deviceConfiguration;
-
     @Mock
     DeviceType deviceType;
-
     @Mock
     State state;
+    @Mock
+    CIMLifecycleDates lifecycleDates;
 
     @Override
     public void setUp() throws Exception {
@@ -66,7 +66,9 @@ public class DeviceLifeCycleActionResourceTest extends DeviceDataRestApplication
         when(device.getVersion()).thenReturn(1L);
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device.getLifecycleDates()).thenReturn(lifecycleDates);
         when(state.getName()).thenReturn("Target state");
+        when(lifecycleDates.getReceivedDate()).thenReturn(Optional.empty());
     }
 
     protected List<PropertySpec> mockLastCheckedPropertySpec() {
