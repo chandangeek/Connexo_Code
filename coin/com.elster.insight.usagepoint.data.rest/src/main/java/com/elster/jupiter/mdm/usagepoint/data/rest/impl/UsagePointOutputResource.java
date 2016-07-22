@@ -31,6 +31,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -201,11 +202,11 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response validateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
-        MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(purposeInfo);
-        metrologyContract.update();
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
+    public Response validateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, @QueryParam("upVersion") long upVersion, PurposeInfo purposeInfo) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mRID, upVersion);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, purposeId);
+        usagePoint.update();
         effectiveMC.getChannelsContainer(metrologyContract)
                 .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer)
                         .setMetrologyContract(metrologyContract), purposeInfo.validationInfo.lastChecked));
