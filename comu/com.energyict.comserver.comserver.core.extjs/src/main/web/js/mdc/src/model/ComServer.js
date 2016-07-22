@@ -11,9 +11,6 @@ Ext.define('Mdc.model.ComServer', {
         {name: 'active', type: 'boolean', useNull: true},
         {name: 'serverLogLevel', type: 'string', useNull: true},
         {name: 'communicationLogLevel', type: 'string', useNull: true},
-        {name: 'queryAPIPostUri', type: 'string', useNull: true},
-        {name: 'eventRegistrationUri', type: 'string', useNull: true},
-        {name: 'statusUri', type: 'string', useNull: true},
         {name: 'storeTaskQueueSize', type: 'int', useNull: true},
         {name: 'numberOfStoreTaskThreads', type: 'int', useNull: true},
         {name: 'storeTaskThreadPriority', type: 'int', useNull: true},
@@ -35,36 +32,9 @@ Ext.define('Mdc.model.ComServer', {
                     + '</a>';
             }
         },
-        {
-            name: 'serverName',
-            persist: false,
-            mapping: function (data) {
-                if (data.eventRegistrationUri){
-                    return Ext.create('Mdc.util.UriParser').parse(data.statusUri).hostname;
-                }
-                return '';
-            }
-        },
-        {
-            name: 'monitorPort',
-            persist: false,
-            mapping: function (data) {
-                if (data.eventRegistrationUri){
-                    return Ext.create('Mdc.util.UriParser').parse(data.statusUri).port;
-                }
-                return '';
-            }
-        },
-        {
-            name: 'eventRegistrationPort',
-            persist: false,
-            mapping: function (data) {
-                if (data.eventRegistrationUri){
-                    return Ext.create('Mdc.util.UriParser').parse(data.eventRegistrationUri).port;
-                }
-                return '';
-            }
-        }
+        {name: 'serverName', type: 'string', useNull: true},
+        {name: 'statusPort', type: 'int', useNull: true},
+        {name: 'eventRegistrationPort', type: 'int', useNull: true}
     ],
     associations: [
         {name: 'changesInterPollDelay', type: 'hasOne', model: 'Mdc.model.field.TimeInfo', associationKey: 'changesInterPollDelay'},
@@ -85,40 +55,6 @@ Ext.define('Mdc.model.ComServer', {
         url: '/api/mdc/comservers',
         reader: {
             type: 'json'
-        }
-    },
-    updateHostNameOfUrisIfNeeded: function (){
-        var currentStatusUri =  Ext.create('Mdc.util.UriParser').parse(this.get('statusUri')),
-            currentEventRegistrationUri =  Ext.create('Mdc.util.UriParser').parse(this.get('eventRegistrationUri'));
-        var serverName = this.get('serverName');
-        if (serverName !== currentStatusUri.hostname) {
-            if (!serverName) {
-                serverName = 'servername_missing';  // Will be recognized by backend as server name missing
-            }
-
-            this.set('statusUri', currentStatusUri.withHostName(serverName).buildUrl());
-            this.set('eventRegistrationUri', currentEventRegistrationUri.withHostName(serverName).buildUrl());
-
-        }
-    },
-    updateMonitorAndStatusPortIfNeeded: function (){
-        var currentStatusUri =  Ext.create('Mdc.util.UriParser').parse(this.get('statusUri'));
-        var monitorPort = this.get('monitorPort');
-        if (monitorPort !== currentStatusUri.port) {
-            if (!monitorPort) {
-                monitorPort = '0'; // Will be recognized by backend as port missing
-            }
-            this.set('statusUri', currentStatusUri.withPort(monitorPort).buildUrl());
-        }
-    },
-    updateEventRegistrationPortIfNeeded: function (){
-        var currentEventRegistrationUri =  Ext.create('Mdc.util.UriParser').parse(this.get('eventRegistrationUri'));
-        var eventRegistrationPort = this.get('eventRegistrationPort');
-        if (eventRegistrationPort != currentEventRegistrationUri.port) {
-            if (!eventRegistrationPort) {
-                eventRegistrationPort = '0'; // Will be recognized by backend as port missing
-            }
-            this.set('eventRegistrationUri', currentEventRegistrationUri.withPort(eventRegistrationPort).buildUrl());
         }
     }
 

@@ -29,10 +29,13 @@ Ext.define('Mdc.view.setup.validation.RuleSetVersionPreview', {
                     ],
                     stepItems: [
                         {
+                            ctype: 'button',
                             text: Uni.I18n.translate('validation.addValidationRule', 'MDC', 'Add validation rule'),
                             privileges : Cfg.privileges.Validation.device,                            
 							action: 'addValidationRule',
-                            href: '#/administration/validation/rulesets/' + me.ruleSetId + '/versions/' + me.versionId + '/rules/add'
+                            itemId: 'cfg-add-rule-btn',
+                            ruleSetId: me.ruleSetId,
+                            versionId: me.versionId
                         }
                     ]
                 },

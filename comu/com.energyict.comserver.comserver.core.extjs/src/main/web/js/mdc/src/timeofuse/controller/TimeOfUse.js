@@ -7,6 +7,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         'Mdc.timeofuse.view.SpecificationsForm',
         'Mdc.timeofuse.view.EditSpecificationsSetup',
         'Mdc.timeofuse.view.ViewCalendarSetup',
+        'Mdc.timeofuse.view.EditSpecificationsForm',
         'Uni.view.error.NotFound'
     ],
 
@@ -42,7 +43,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
         },
         {
             ref: 'editForm',
-            selector: 'tou-devicetype-edit-specs-form'
+            selector: '#tou-devicetype-edit-specs-form'
         },
         {
             ref: 'breadCrumbs',
@@ -52,6 +53,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
 
     deviceTypeId: null,
     tab2Activate: undefined,
+    calendarCount: 0,
 
     init: function () {
         var me = this;
@@ -89,6 +91,9 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 },
                 '#tou-allowed-radio-field': {
                     change: this.disableEnableCheckboxes
+                },
+                '#device-type-tou-tab-panel': {
+                    tabChange: this.updateCounter
                 }
             }
         )
@@ -120,9 +125,8 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                         store.load({
                             callback: function (records, operation, success) {
                                 if (success === true) {
-                                    me.getCalendarGrid().down('pagingtoolbartop #displayItem').setText(
-                                        Uni.I18n.translatePlural('general.calendarCount', store.getCount(), 'MDC', 'No time of use calendars', '{0} time of use calendar', '{0} time of use calendars')
-                                    );
+                                    me.calendarCount = store.getCount();
+                                    me.updateCounter();
                                 }
                             }
                         });
@@ -134,6 +138,14 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 });
             }
         })
+    },
+
+    updateCounter: function () {
+        var me = this;
+
+        me.getCalendarGrid().down('pagingtoolbartop #displayItem').setText(
+            Uni.I18n.translatePlural('general.calendarCount', me.calendarCount, 'MDC', 'No time of use calendars', '{0} time of use calendar', '{0} time of use calendars')
+        );
     },
 
     goToAddCalendars: function () {
@@ -167,7 +179,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                             store.getProxy().setUrl(me.deviceTypeId);
                             store.load({
                                 callback: function (records, operation, success) {
-                                    if(records === null || records.length === 0) {
+                                    if (records === null || records.length === 0) {
                                         view.down('#btn-add-tou-calendars').hide();
                                     }
                                 }
@@ -236,7 +248,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                                 deviceTypeId: deviceTypeId,
                                 timeOfUseAllowed: options.get('isAllowed')
                             });
-                            view.down('tou-devicetype-edit-specs-form').fillOptions(options);
+                            view.down('#tou-devicetype-edit-specs-form').fillOptions(options);
 
                             me.deviceTypeId = deviceTypeId;
                             view.setLoading(true);

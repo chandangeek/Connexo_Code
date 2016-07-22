@@ -163,12 +163,13 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                         },
                         {
                             xtype: 'datefield',
-                            name: 'arrivalDate',
-                            itemId: 'deviceAddArrival',
+                            itemId: 'deviceAddShipmentDate',
+                            allowBlank: false,
+                            required: true,
                             maxWidth: 400,
                             editable: false,
                             value: new Date(),
-                            fieldLabel: Uni.I18n.translate('deviceAdd.arrivalDate', 'MDC', 'Arrival date'),
+                            fieldLabel: Uni.I18n.translate('deviceAdd.shipmentDate', 'MDC', 'Shipment date'),
                             format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                         },
                         {

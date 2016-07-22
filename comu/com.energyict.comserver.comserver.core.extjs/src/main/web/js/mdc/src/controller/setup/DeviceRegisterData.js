@@ -64,34 +64,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     },
 
     loadGridItemDetail: function (rowmodel, record) {
-        var me = this,
-            previewPanel = me.getDeviceregisterreportpreview(),
-            form = previewPanel.down('form'),
-            calculatedValueField = previewPanel.down('#mdc-calculated-value-field'),
-            deltaValueField = previewPanel.down('displayfield[name=deltaValue]'),
-            multiplierField = previewPanel.down('#mdc-register-preview-'+record.get('type')+'-multiplier'),
-            measurementDate = new Date(record.get('timeStamp')),
-            hasCalculatedValue = !Ext.isEmpty(record.get('calculatedValue')),
-            hasDeltaValue = !Ext.isEmpty(record.get('deltaValue'));
-
-        previewPanel.setTitle(
-            Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
-                [Uni.DateTime.formatDateLong(measurementDate), Uni.DateTime.formatTimeLong(measurementDate)]
-            )
-        );
-        if (calculatedValueField) {
-            calculatedValueField.setVisible(hasCalculatedValue);
-        }
-        if (deltaValueField) {
-            deltaValueField.setVisible(hasDeltaValue);
-        }
-        if (multiplierField) {
-            if (hasCalculatedValue) {
-                multiplierField.setValue(record.get('multiplier'));
-            }
-            multiplierField.setVisible(hasCalculatedValue);
-        }
-        form.loadRecord(record);
+        this.getDeviceregisterreportpreview().updateContent(record);
     },
 
     showDeviceRegisterDataView: function (mRID, registerId, tabController) {
@@ -114,6 +87,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
                         dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
                             mRID: mRID,
                             registerId: registerId,
+                            router: router,
                             unitOfMeasureCollected: collectedUnit
                         }),
                         dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');

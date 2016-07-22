@@ -36,6 +36,7 @@ Ext.define('Mdc.timeofuse.view.Setup', {
             items: [
                 {
                     xtype: 'tabpanel',
+                    itemId: 'device-type-tou-tab-panel',
                     ui: 'large',
                     activeTab: !Ext.isEmpty(me.tab2Activate) ? me.tab2Activate : (me.timeOfUseAllowed ? 1 : 0),
                     items: [

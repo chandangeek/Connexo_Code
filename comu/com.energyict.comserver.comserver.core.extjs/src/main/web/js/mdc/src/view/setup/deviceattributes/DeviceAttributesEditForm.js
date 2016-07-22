@@ -77,52 +77,6 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 fieldLabel: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point')
             },
             {
-                name: 'usagePointEdit',
-                xtype: 'combobox',
-                store: 'Mdc.store.UsagePointsForDeviceAttributes',
-                itemId: 'usagePointEdit',
-                fieldLabel: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
-                valueField: 'id',
-                displayField: 'mRID',
-                queryMode: 'remote',
-                queryParam: 'like',
-                queryCaching: false,
-                minChars: 0,
-                triggerAction: 'last',
-                forceSelection: true,
-                listeners: {
-                    change: {
-                        fn: function (combo, newValue) {
-                            if (!newValue) {
-                                combo.reset();
-                            }
-                        }
-                    },
-                    expand: {
-                        fn: function (combo) {
-                            var picker = combo.getPicker(),
-                                fn = function (view) {
-                                    var store = view.getStore(),
-                                        el = view.getEl().down('.' + Ext.baseCSSPrefix + 'list-plain');
-
-                                    if (store.getTotalCount() > store.getCount()) {
-                                        el.appendChild({
-                                            tag: 'li',
-                                            html: Uni.I18n.translate('issues.limitNotification', 'MDC', 'Keep typing to narrow down'),
-                                            cls: Ext.baseCSSPrefix + 'boundlist-item combo-limit-notification'
-                                        });
-                                    }
-                                };
-
-                            picker.on('refresh', fn);
-                            picker.on('beforehide', function () {
-                                picker.un('refresh', fn);
-                            }, combo, {single: true});
-                        }
-                    }
-                }
-            },
-            {
                 xtype: 'coordinates',
                 name: 'geoCoordinatesEdit',
                 itemId: 'geoCoordinatesEdit',

@@ -60,44 +60,18 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectPreview', {
                 {
                     xtype: 'container',
                     layout: {
-                        type: 'column'
+                        type: 'hbox',
+                        align: 'stretch'
                     },
                     defaults: {
-                        labelWidth: 250
+                        labelWidth: 250,
+                        flex: 1
                     },
                     items: [
                         {
-                            xtype: 'container',
-                            columnWidth: 0.49,
-                            layout: {
-                                type: 'vbox'
-                            },
-                            items: [
-                                {
-                                    xtype: 'displayfield',
-                                    name: 'name',
-                                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                                    labelAlign: 'right',
-                                    labelWidth: 250
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'container',
-                            columnWidth: 0.49,
-                            layout: {
-                                type: 'vbox'
-                            },
-                            items: [
-                                /* {
-                                 xtype: 'displayfield',
-                                 name: 'availableForUse',
-                                 fieldLabel: Uni.I18n.translate('protocolDialect.availableForUse', 'MDC', 'Available for use'),
-                                 labelAlign: 'right',
-                                 labelWidth: 250
-                                 }*/
-
-                            ]
+                            xtype: 'displayfield',
+                            name: 'name',
+                            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
                         }
                     ]
                 },
@@ -113,8 +87,10 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectPreview', {
                     items: [
                         {
                             xtype: 'displayfield',
-                            fieldLabel: '<h3>' + Uni.I18n.translate('protocolDialect.protocolDialectDetails', 'MDC', 'Protocol dialect details') + '</h3>',
-                            text: ''
+                            fieldLabel: Uni.I18n.translate('protocolDialect.protocolDialectDetails', 'MDC', 'Protocol dialect details'),
+                            renderer: function() {
+                                return ''; // No dash!
+                            }
                         }
                     ]
                 },
@@ -122,9 +98,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectPreview', {
                     xtype: 'property-form',
                     isEdit: false,
                     layout: 'column',
-
                     defaults: {
-                        xtype: 'container',
                         layout: 'form',
                         resetButtonHidden: true,
                         labelWidth: 250,

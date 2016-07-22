@@ -5,6 +5,9 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
     layout: {
         type: 'column'
     },
+    requires: [
+        'Uni.util.FormEmptyMessage'
+    ],
 
     initComponent: function () {
         var me = this;
@@ -16,6 +19,12 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
             },
             items: [
                 {
+                    xtype: 'uni-form-empty-message',
+                    itemId: 'commandWillNotBePickedUp',
+                    hidden: true,
+                    margin: '5 0 5 0'
+                },
+                {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('timeofuse.timeOfUseCalendar', 'MDC', 'Time of use calendar'),
                     itemId: 'nameField',
@@ -24,7 +33,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                 },
                 {
                     xtype: 'displayfield',
-                    fieldLabel: Uni.I18n.translate('general.lastVerifief', 'MDC', 'Last verified'),
+                    fieldLabel: Uni.I18n.translate('general.lastVerified', 'MDC', 'Last verified'),
                     itemId: 'lastVerifiedDisplayField',
                     value: '-'
                 },
@@ -56,7 +65,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('timeofuse.passiveCalendars', 'MDC', 'Passive calendar(s)'),
                     itemId: 'passiveField',
-                    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsPassive,
+                    //dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsPassive,
                     value: '-'
                 }
             ]

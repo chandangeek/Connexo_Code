@@ -2,6 +2,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
     extend: 'Ext.app.Controller',
 
     views: [
+        'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.devicehistory.Setup',
         'Mdc.view.setup.devicehistory.LifeCycle',
         'Mdc.view.setup.devicehistory.Firmware',
@@ -37,6 +38,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
     showDeviceHistory: function (mRID) {
         var me = this,
             deviceModel = me.getModel('Mdc.model.Device'),
+            router = me.getController('Uni.controller.history.Router'),
             view;
 
         deviceModel.load(mRID, {
@@ -44,7 +46,8 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
                 view = Ext.widget('device-history-setup', {
                     router: me.getController('Uni.controller.history.Router'),
                     device: device,
-                    controller: me
+                    controller: me,
+                    activeTab: (!_.isEmpty(router.queryParams) && router.queryParams.activeTab == 'meterActivations') ? 2 : 0
                 });
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', view);
@@ -75,8 +78,11 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
             firmwareHistoryStore.load(function() {
                 if (firmwareHistoryStore.getTotalCount()===0) {
                     firmwareTab.add({
-                        xtype: 'label',
-                        text: Uni.I18n.translate('general.noFirmwareHistory', 'MDC', 'No firmware history available')
+                        xtype: 'form',
+                        items: {
+                            xtype: 'uni-form-empty-message',
+                            text: Uni.I18n.translate('general.noFirmwareHistory', 'MDC', 'No firmware history available')
+                        }
                     });
                 } else {
                     firmwareTab.add(firmwareHistoryPanel);
@@ -118,7 +124,7 @@ Ext.define('Mdc.controller.setup.DeviceHistory', {
         attributeSetModel.getProxy().setUrl(mRID);
         if (queryParams.customAttributeSetId) {
             versionsStore.getProxy().setUrl(mRID, queryParams.customAttributeSetId);
-            component = tabpanel.down('#custom-attribute-set-' + queryParams.customAttributeSetId);
+            component = me.getTabPanel().down('#custom-attribute-set-' + queryParams.customAttributeSetId);
             component.add({
                 xtype: 'device-history-custom-attribute-sets-versions'
             });
