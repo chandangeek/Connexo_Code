@@ -207,7 +207,6 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         assertThat(jsonModel.<String>get("$.errors[2].id")).isEqualTo("typeOfUsagePoint");
     }
 
-
     @Test
     public void testValidateUsagePointTechnicalBeforeCreating() {
         UsagePointInfo info = new UsagePointInfo();
