@@ -112,7 +112,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Activate
     public void activate() {
         dataModel.register(getModule());
-
         upgradeService.register(InstallIdentifier.identifier("Insight", UsagePointConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 2), UpgraderV10_2.class
         ));
@@ -230,6 +229,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .select(condition)
                 .stream()
                 .map(MetrologyContractValidationRuleSetUsage::getValidationRuleSet)
+                .sorted((ruleSet1, ruleSet2) -> ruleSet1.getName().compareToIgnoreCase(ruleSet2.getName()))
                 .collect(Collectors.toList());
     }
 
