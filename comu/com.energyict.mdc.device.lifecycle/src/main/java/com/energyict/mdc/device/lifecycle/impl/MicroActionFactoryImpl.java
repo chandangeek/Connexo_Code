@@ -32,7 +32,6 @@ import com.energyict.mdc.device.lifecycle.impl.micro.actions.SetMultiplier;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartCommunication;
 import com.energyict.mdc.device.lifecycle.impl.micro.actions.StartRecurringCommunication;
 import com.energyict.mdc.device.topology.TopologyService;
-
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 
 import org.osgi.service.component.annotations.Component;

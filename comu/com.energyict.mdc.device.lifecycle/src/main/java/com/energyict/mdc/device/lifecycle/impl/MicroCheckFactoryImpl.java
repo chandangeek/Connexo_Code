@@ -8,8 +8,23 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.impl.micro.checks.*;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ActiveConnectionAvailable;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllDataValid;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllDataValidated;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllIssuesAreClosed;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.AllLoadProfileDataCollected;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ConnectionPropertiesAreValid;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.DefaultConnectionTaskAvailable;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.DeviceIsLinkedWithUsagePoint;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.GeneralProtocolPropertiesAreValid;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.NoActiveServiceCalls;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ProtocolDialectPropertiesAreValid;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.ScheduledCommunicationTaskAvailable;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.SecurityPropertiesAreValid;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.SharedScheduledCommunicationTaskAvailable;
+import com.energyict.mdc.device.lifecycle.impl.micro.checks.SlaveDeviceHasGateway;
 import com.energyict.mdc.device.topology.TopologyService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
