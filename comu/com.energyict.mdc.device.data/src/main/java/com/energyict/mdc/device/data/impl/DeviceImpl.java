@@ -39,6 +39,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -3232,7 +3233,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from) {
-        List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
+        List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations()
+                .stream()
+                .filter(emc -> emc.getRange().isConnected(Range.atLeast(from)))
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                .collect(Collectors.toList());
         if (effectiveMetrologyConfigurations.isEmpty()) {
             return Collections.emptyMap();
         }
