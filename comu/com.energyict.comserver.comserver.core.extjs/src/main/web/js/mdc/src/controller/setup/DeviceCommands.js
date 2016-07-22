@@ -218,7 +218,8 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     changeReleaseDate: function (record, device) {
         var me = this,
             title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'",[record.get('command').name]),
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            responseText;
 
         Ext.widget('device-command-change-release-date', {
             title: title,
@@ -234,7 +235,9 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                                 router.getRoute().forward();
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.changeReleaseDate.success', 'MDC', 'Release date changed'));
                             },
-                            failure: function () {
+                            failure: function (record, operation) {
+                                responseText = Ext.decode(operation.response.responseText, true);
+                                me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceCommand.changeReleaseDateFailed', 'MDC', "'Change release date' failed"), responseText.errors[0].msg);
                                 record.reject();
                             }
                         });
