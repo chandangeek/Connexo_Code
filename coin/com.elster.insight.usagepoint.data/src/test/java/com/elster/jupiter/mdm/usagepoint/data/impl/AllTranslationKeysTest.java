@@ -26,7 +26,7 @@ public class AllTranslationKeysTest {
                     .as(translation + " has empty key")
                     .isNotEmpty();
             assertThat(key.length())
-                    .as(translation + " key should not start or end with a space character")
+                    .as(translation + " key should not start or end with a non-printable character")
                     .isEqualTo(key.trim().length())
                     .as(translation + " key is longer than max of 256")
                     .isLessThanOrEqualTo(256);
@@ -38,7 +38,7 @@ public class AllTranslationKeysTest {
                     .as(translation + " has empty default format")
                     .isNotEmpty();
             assertThat(defaultFormat.length())
-                    .as(translation + " default format should not start or end with a space character")
+                    .as(translation + " default format should not start or end with a non-printable character")
                     .isEqualTo(defaultFormat.trim().length());
         }
     }
