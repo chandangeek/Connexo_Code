@@ -1,6 +1,7 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -50,7 +51,10 @@ public class UsagePointApplication extends Application implements TranslationKey
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer()).join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN)).join(nlsService.getThesaurus("DLR", Layer.REST));
+        this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer()).join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN))
+                .join(nlsService.getThesaurus("DLR", Layer.REST))
+                .join(nlsService.getThesaurus("MTR", Layer.REST))
+                .join(nlsService.getThesaurus("MTR", Layer.DOMAIN));
     }
 
     @Reference
@@ -92,6 +96,8 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(transactionService).to(TransactionService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(MeterInfoFactory.class).to(MeterInfoFactory.class);
+            bind(UsagePointChannelInfoFactory.class).to(UsagePointChannelInfoFactory.class);
+            bind(ReadingTypeInfoFactory.class).to(ReadingTypeInfoFactory.class);
         }
     }
 }
