@@ -254,6 +254,7 @@ class AppServerImpl implements AppServer {
             new ArrayList<>(getImportSchedulesOnAppServer()).forEach(updater::removeImportScheduleOnAppServer);
             updater.delete();
         }
+        webServicesService.removeAllEndPoints();
     }
 
     @Override
@@ -286,7 +287,7 @@ class AppServerImpl implements AppServer {
         if (!supportedEndPoints().contains(endPointConfiguration)) {
             EndPointForAppServerImpl link = webServiceForAppServerProvider.get().init(this, endPointConfiguration);
             link.save();
-            eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+            eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
         }
     }
 
@@ -302,18 +303,16 @@ class AppServerImpl implements AppServer {
         if (!links.isEmpty()) {
             dataModel.mapper(WebServiceForAppServer.class).remove(links.get(0)); // there can only be one anyway
         }
-        eventService.postEvent(EventType.WEB_SERVICE_CHANGED.topic(), endPointConfiguration);
+        eventService.postEvent(EventType.ENDPOINT_CONFIGURATION_CHANGED.topic(), endPointConfiguration);
     }
 
     @Override
     public List<EndPointConfiguration> supportedEndPoints() {
-        List<WebServiceForAppServer> links =
-                dataModel
-                        .query(WebServiceForAppServer.class)
-                        .select(where(EndPointForAppServerImpl.Fields.AppServer.fieldName()).isEqualTo(this));
-        List<EndPointConfiguration> endPointConfigurations = links.stream()
-                .map(WebServiceForAppServer::getEndPointConfiguration)
-                .collect(toList());
+        List<EndPointConfiguration> endPointConfigurations =
+                dataModel.stream(WebServiceForAppServer.class)
+                        .filter(where(EndPointForAppServerImpl.Fields.AppServer.fieldName()).isEqualTo(this))
+                        .map(WebServiceForAppServer::getEndPointConfiguration)
+                        .collect(toList());
         endPointConfigurationService.findEndPointConfigurations()
                 .stream()
                 .filter(epc -> !epc.isInbound())

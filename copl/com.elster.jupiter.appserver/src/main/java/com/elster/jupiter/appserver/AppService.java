@@ -24,6 +24,11 @@ public interface AppService {
     String ALL_SERVERS = "AllServers";
     String COMPONENT_NAME = "APS";
 
+    /**
+     * Returns the AppServer currently configured for this machine. Keep in mind that the returned AppServer is not necessarily active.
+     *
+     * @return AppServer, empty is non is configured on the current machine.
+     */
     Optional<AppServer> getAppServer();
 
     AppServer createAppServer(String name, CronExpression cronExpression);
