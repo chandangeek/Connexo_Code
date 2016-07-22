@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
 import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -16,6 +17,7 @@ public class MetrologyContractInfo {
     public Long version;
     public List<ReadingTypeDeliverablesInfo> readingTypeDeliverables;
     public List<ValidationRuleSetInfo> validationRuleSets;
+    public List<DataValidationTaskInfo> validationTasks;
 
     public MetrologyContractInfo() {
     }
@@ -27,8 +29,11 @@ public class MetrologyContractInfo {
         this.mandatory = metrologyContract.isMandatory();
     }
 
-    public MetrologyContractInfo(MetrologyContract metrologyContract, List<ValidationRuleSetInfo> validationRuleSets) {
-        this(metrologyContract);
+    public void addValidationTasks(List<DataValidationTaskInfo> validationTaskInfos) {
+        this.validationTasks = validationTaskInfos;
+    }
+
+    public void addValidationRuleSets(List<ValidationRuleSetInfo> validationRuleSets) {
         this.validationRuleSets = validationRuleSets;
     }
 }

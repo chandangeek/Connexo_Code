@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
@@ -45,6 +46,7 @@ public class UsagePointConfigurationApplication extends Application implements T
     private volatile UsagePointConfigurationService usagePointConfigurationService;
     private volatile ValidationService validationService;
     private volatile MeteringService meteringService;
+    private volatile TimeService timeService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile License license;
@@ -130,6 +132,11 @@ public class UsagePointConfigurationApplication extends Application implements T
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -144,6 +151,7 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(usagePointConfigurationService).to(UsagePointConfigurationService.class);
             bind(validationService).to(ValidationService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(timeService).to(TimeService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
