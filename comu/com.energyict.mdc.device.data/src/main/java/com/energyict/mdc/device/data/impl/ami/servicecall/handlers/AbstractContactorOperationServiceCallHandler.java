@@ -20,6 +20,9 @@ import com.energyict.mdc.tasks.StatusInformationTask;
 import java.text.MessageFormat;
 import java.util.Optional;
 
+import static com.elster.jupiter.metering.ami.CompletionMessageInfo.CompletionMessageStatus;
+import static com.elster.jupiter.metering.ami.CompletionMessageInfo.FailureReason;
+
 /**
  * Abstract implementation of {@link ServiceCallHandler} interface which handles the different steps for
  * the connect/dicsonnect/arm of the devices breaker.
@@ -83,6 +86,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
             return enablementOptional.get();
         } else {
             serviceCall.log(LogLevel.SEVERE, MessageSeeds.NO_STATUS_INFORMATION_COMTASK.getDefaultFormat());
+            getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.NO_COMTASK_TO_VERIFY_BREAKER_STATUS);
             serviceCall.requestTransition(DefaultState.FAILED);
             throw new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_STATUS_INFORMATION_COMTASK).format());
         }
@@ -101,6 +105,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
                         breakerStatus.get().getBreakerStatus(),
                         getDesiredBreakerStatus())
                 );
+                getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         } else {
