@@ -228,6 +228,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(EndDeviceResource.class).to(EndDeviceResource.class);
             bind(EffectiveMetrologyConfigurationInfoFactory.class).to(EffectiveMetrologyConfigurationInfoFactory.class);
             bind(EffectiveMetrologyConfigurationResource.class).to(EffectiveMetrologyConfigurationResource.class);
+            bind(MeterReadingsFactory.class).to(MeterReadingsFactory.class);
+            bind(MetrologyConfigurationPurposeInfoFactory.class).to(MetrologyConfigurationPurposeInfoFactory.class);
         }
     }
 

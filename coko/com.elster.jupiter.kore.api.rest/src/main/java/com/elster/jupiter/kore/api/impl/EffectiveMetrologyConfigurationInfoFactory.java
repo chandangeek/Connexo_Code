@@ -24,10 +24,12 @@ public class EffectiveMetrologyConfigurationInfoFactory extends SelectableFieldF
 
 
     private final Provider<MetrologyConfigurationInfoFactory> metrologyConfigurationInfoFactory;
+    private final Provider<MetrologyConfigurationPurposeInfoFactory> metrologyConfigurationPurposeInfoFactory;
 
     @Inject
-    public EffectiveMetrologyConfigurationInfoFactory(Provider<MetrologyConfigurationInfoFactory> metrologyConfigurationInfoFactory) {
+    public EffectiveMetrologyConfigurationInfoFactory(Provider<MetrologyConfigurationInfoFactory> metrologyConfigurationInfoFactory, Provider<MetrologyConfigurationPurposeInfoFactory> metrologyConfigurationPurposeInfoFactory) {
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
+        this.metrologyConfigurationPurposeInfoFactory = metrologyConfigurationPurposeInfoFactory;
     }
 
     public LinkInfo asLink(EffectiveMetrologyConfigurationOnUsagePoint metrology, Relation relation, UriInfo uriInfo) {
@@ -72,7 +74,7 @@ public class EffectiveMetrologyConfigurationInfoFactory extends SelectableFieldF
                 .get()
                 .asLink(metrology.getMetrologyConfiguration(), Relation.REF_RELATION, uriInfo));
         map.put("purposes", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.purposes = metrology.getMetrologyConfiguration()
-                .getContracts().stream().map(c -> new MetrologyConfigurationPurposeInfo(
+                .getContracts().stream().map(c -> metrologyConfigurationPurposeInfoFactory.get().asInfo(
                         c.getMetrologyPurpose().getId()
                         , c.getMetrologyPurpose().getName()
                         , c.isMandatory()

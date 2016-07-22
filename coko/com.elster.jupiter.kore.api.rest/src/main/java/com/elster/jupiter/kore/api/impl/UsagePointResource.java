@@ -266,37 +266,4 @@ public class UsagePointResource {
 
         return usagePointCommandInfo.command.process(usagePoint,usagePointCommandInfo,usagePointCommandHelper);
     }
-
-    @POST
-    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @Path("/{usagePointId}/activate")
-//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    @Transactional
-    public Response activateUsagePoint(@PathParam("usagePointId") long usagePointId,
-                                       UsagePointInfo usagePointInfo,
-                                       @Context UriInfo uriInfo) {
-
-        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_USAGE_POINT));
-
-        UsagePointMetrologyConfiguration metrologyConfiguration = usagePoint.getMetrologyConfiguration()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
-
-        metrologyConfiguration.getMeterRoles().stream()
-                .filter(meterRole -> usagePoint.getMeterActivations().stream()
-                        .anyMatch(meterActivation -> meterActivation.getMeterRole().filter(mr -> mr.equals(meterRole)).isPresent()))
-                .findAny()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE));
-
-        usagePoint.setConnectionState(ConnectionState.CONNECTED);
-        usagePoint.update();
-
-        URI uri = uriInfo.getBaseUriBuilder()
-                .path(UsagePointResource.class)
-                .path(UsagePointResource.class, "getUsagePoint")
-                .build(usagePoint.getId());
-
-        return Response.ok(uri).build();
-    }
 }

@@ -29,19 +29,21 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
-@Path("enddevices")
+@Path("/enddevices")
 public class EndDeviceResource {
 
     private final EndDeviceInfoFactory endDeviceInfoFactory;
+    private final MeterReadingsFactory meterReadingsFactory;
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
 
     @Inject
-    public EndDeviceResource(EndDeviceInfoFactory endDeviceInfoFactory, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
+    public EndDeviceResource(EndDeviceInfoFactory endDeviceInfoFactory, MeterReadingsFactory meterReadingsFactory, MeteringService meteringService, ExceptionFactory exceptionFactory, Clock clock) {
         this.endDeviceInfoFactory = endDeviceInfoFactory;
         this.meteringService = meteringService;
         this.exceptionFactory = exceptionFactory;
+        this.meterReadingsFactory = meterReadingsFactory;
         this.clock = clock;
     }
 
@@ -100,13 +102,13 @@ public class EndDeviceResource {
                 intervalBlockInfo.readingType = readingType.getMRID();
                 intervalBlockInfo.intervalReadings = meter.getReadings(range, readingType)
                         .stream()
-                        .map(reading -> MeterReadingInfo.asInfo(null, reading.getTimeStamp(), reading.getValue()))
+                        .map(reading -> meterReadingsFactory.asInfo(null, reading.getTimeStamp(), reading.getValue()))
                         .collect(Collectors.toList());
                 readings.intervalBlocks.add(intervalBlockInfo);
             } else {
                 readings.readings.addAll(meter.getReadings(range, readingType)
                         .stream()
-                        .map(reading -> MeterReadingInfo.asInfo(readingType.getMRID(), reading.getTimeStamp(), reading.getValue()))
+                        .map(reading -> meterReadingsFactory.asInfo(readingType.getMRID(), reading.getTimeStamp(), reading.getValue()))
                         .collect(Collectors.toList()));
             }
         }

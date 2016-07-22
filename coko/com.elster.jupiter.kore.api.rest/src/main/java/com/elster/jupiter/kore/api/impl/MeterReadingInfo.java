@@ -10,11 +10,5 @@ public class MeterReadingInfo {
     public Instant timestamp;
     public BigDecimal value;
 
-    public static MeterReadingInfo asInfo(String readingType, Instant timestamp, BigDecimal value){
-        MeterReadingInfo info = new MeterReadingInfo();
-        info.readingType = readingType;
-        info.timestamp = timestamp;
-        info.value = value;
-        return info;
-    }
+
 }

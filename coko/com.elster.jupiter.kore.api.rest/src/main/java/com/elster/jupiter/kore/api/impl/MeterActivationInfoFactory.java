@@ -82,7 +82,7 @@ public class MeterActivationInfoFactory extends SelectableFieldFactory<MeterActi
                 .ifPresent(m -> meterActivationInfo.meter = m.getId()));
         map.put("endDevice", (meterActivationInfo, meterActivation, uriInfo) -> meterActivation.getMeter()
                 .ifPresent(m -> meterActivationInfo.endDevice = endDeviceInfoFactory.get()
-                        .asLink(m, Relation.REF_SELF, uriInfo)));
+                        .asLink(m, Relation.REF_RELATION, uriInfo)));
         map.put("meterRole", (meterActivationInfo, meterActivation, uriInfo) -> meterActivationInfo.meterRole = meterActivation
                 .getMeterRole().map(MeterRole::getKey).orElse(null));
         return map;
