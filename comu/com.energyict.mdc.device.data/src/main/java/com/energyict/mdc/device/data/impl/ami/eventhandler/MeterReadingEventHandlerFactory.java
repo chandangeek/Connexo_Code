@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl.ami.eventhandler;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -21,6 +22,12 @@ public class MeterReadingEventHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile DeviceService deviceService;
     private volatile ServiceCallService serviceCallService;
+    private volatile MeteringService meteringService;
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
 
     @Reference
     public void setJsonService(JsonService jsonService) {
@@ -39,7 +46,7 @@ public class MeterReadingEventHandlerFactory implements MessageHandlerFactory {
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new MeterReadingEventHandler(this.jsonService, this.deviceService, this.serviceCallService);
+        return new MeterReadingEventHandler(this.jsonService, this.deviceService, this.serviceCallService, this.meteringService);
     }
 
 }

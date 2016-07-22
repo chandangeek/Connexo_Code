@@ -5,7 +5,6 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
-
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
@@ -80,7 +79,7 @@ public class OnDemandReadServiceCallDomainExtension implements PersistentDomainE
         this.setCompletedTasks(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.COMPLETED_TASKS.javaName()))
                 .orElse(BigDecimal.ZERO)
                 .toString()));
-        this.setCompletedTasks(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.TRIGGERDATE.javaName()))
+        this.setTriggerDate(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.TRIGGERDATE.javaName()))
                 .orElse(BigDecimal.ZERO)
                 .toString()));
     }
@@ -90,7 +89,7 @@ public class OnDemandReadServiceCallDomainExtension implements PersistentDomainE
         propertySetValues.setProperty(FieldNames.EXPECTED_TASKS.javaName(), this.getExpectedTasks());
         propertySetValues.setProperty(FieldNames.SUCCESSFUL_TASKS.javaName(), this.getSuccessfulTasks());
         propertySetValues.setProperty(FieldNames.COMPLETED_TASKS.javaName(), this.getCompletedTasks());
-        propertySetValues.setProperty(FieldNames.TRIGGERDATE.javaName(), this.getCompletedTasks());
+        propertySetValues.setProperty(FieldNames.TRIGGERDATE.javaName(), this.getTriggerDate());
     }
 
     @Override

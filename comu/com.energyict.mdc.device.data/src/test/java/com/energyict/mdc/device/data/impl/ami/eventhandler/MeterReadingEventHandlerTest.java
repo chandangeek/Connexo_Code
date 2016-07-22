@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.ami.eventhandler;
 
 import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -51,6 +52,8 @@ public class MeterReadingEventHandlerTest {
     @Mock
     private ServiceCallService serviceCallService;
     @Mock
+    private MeteringService meteringService;
+    @Mock
     private JsonService jsonService;
     @Mock
     private DeviceService deviceService;
@@ -73,7 +76,7 @@ public class MeterReadingEventHandlerTest {
 
     @Test
     public void testOnDemandReadSuccess() throws Exception {
-        MeterReadingEventHandler handler = new MeterReadingEventHandler(jsonService, deviceService, serviceCallService);
+        MeterReadingEventHandler handler = new MeterReadingEventHandler(jsonService, deviceService, serviceCallService, meteringService);
         Message message = mock(Message.class);
         byte [] payload = new byte[1];
         when(message.getPayload()).thenReturn(payload);
@@ -96,7 +99,7 @@ public class MeterReadingEventHandlerTest {
 
     @Test
     public void testOnDemandReadFail() throws Exception {
-        MeterReadingEventHandler handler = new MeterReadingEventHandler(jsonService, deviceService, serviceCallService);
+        MeterReadingEventHandler handler = new MeterReadingEventHandler(jsonService, deviceService, serviceCallService, meteringService);
         Message message = mock(Message.class);
         byte [] payload = new byte[1];
         when(message.getPayload()).thenReturn(payload);

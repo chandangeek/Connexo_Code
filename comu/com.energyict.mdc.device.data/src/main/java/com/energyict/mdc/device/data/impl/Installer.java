@@ -145,7 +145,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                     Pair.of(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
                     Pair.of(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED")),
                     Pair.of(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
-                    Pair.of(MeterReadingEventHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/elster/jupiter/metering/meterreading/CREATED"))
+                    Pair.of(MeterReadingEventHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/elster/jupiter/metering/meterreading/CREATED").and(whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION")))
             )
                     .stream()
                     .

@@ -299,6 +299,8 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         CompletionOptionsServiceCallDomainExtension completionOptionsServiceCallDomainExtension = new CompletionOptionsServiceCallDomainExtension();
         OnDemandReadServiceCallDomainExtension onDemandReadServiceCallDomainExtension = new OnDemandReadServiceCallDomainExtension();
         onDemandReadServiceCallDomainExtension.setExpectedTasks(new BigDecimal(estimatedTasks));
+        onDemandReadServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
+        onDemandReadServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
         onDemandReadServiceCallDomainExtension.setTriggerDate(new BigDecimal(triggerDate.toEpochMilli()));
 
         ServiceCallType serviceCallType = serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)

@@ -2,7 +2,9 @@ package com.energyict.mdc.device.data.impl.ami.eventhandler;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EventType;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
@@ -18,20 +20,20 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 public class MeterReadingEventHandler implements MessageHandler {
 
     private final JsonService jsonService;
     private final ServiceCallService serviceCallService;
     private final DeviceService deviceService;
+    private final MeteringService meteringService;
 
-    MeterReadingEventHandler(JsonService jsonService, DeviceService deviceService, ServiceCallService serviceCallService) {
+    MeterReadingEventHandler(JsonService jsonService, DeviceService deviceService, ServiceCallService serviceCallService, MeteringService meteringService) {
         super();
         this.jsonService = jsonService;
         this.serviceCallService = serviceCallService;
         this.deviceService = deviceService;
+        this.meteringService = meteringService;
     }
 
     @Override
@@ -41,7 +43,12 @@ public class MeterReadingEventHandler implements MessageHandler {
         System.out.println(messageProperties.get("event.topics").toString());
 
         if (messageProperties.get("meterId") != null) {
-            findServiceCallsLinkedTo(deviceService.findDeviceById(Long.valueOf(messageProperties.get("meterId")
+            findServiceCallsLinkedTo(deviceService.findDeviceById(meteringService.findMeter(Long.valueOf(messageProperties
+                    .get("meterId")
+                    .toString())).map(EndDevice::getId).orElse(0L)).orElseThrow(IllegalStateException::new))
+                    .forEach(serviceCall -> handle(serviceCall, messageProperties));
+        } else if (messageProperties.get("deviceIdentifier") != null) {
+            findServiceCallsLinkedTo(deviceService.findDeviceById(Long.valueOf(messageProperties.get("deviceIdentifier")
                     .toString())).orElseThrow(IllegalStateException::new))
                     .forEach(serviceCall -> handle(serviceCall, messageProperties));
         }
@@ -62,7 +69,6 @@ public class MeterReadingEventHandler implements MessageHandler {
             } else {
                 extension.setCompletedTasks(new BigDecimal(++completedTasks));
             }
-            extension.setExpectedTasks(new BigDecimal(++expectedTasks));
             System.out.println();
             serviceCall.update(extension);
         }
