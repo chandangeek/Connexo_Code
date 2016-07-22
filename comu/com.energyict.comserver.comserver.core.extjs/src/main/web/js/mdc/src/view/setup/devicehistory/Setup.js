@@ -57,6 +57,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                                 xtype: 'emptygridcontainer',
                                 grid: {
                                     xtype: 'device-history-meter-activations-tab',
+                                    itemId: 'device-history-meter-activations-grid',
                                     device: me.device,
                                     router: me.router
                                 },

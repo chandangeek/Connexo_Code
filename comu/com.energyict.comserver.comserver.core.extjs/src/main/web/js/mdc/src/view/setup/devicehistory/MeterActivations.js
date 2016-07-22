@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.devicehistory.MeterActivations', {
                 renderer: function(value) {
                     if (value) {
                         var url = router.getRoute('usagepoints/usagepoint').buildUrl({
-                            usagePointId: value.id
+                            usagePointId: value.name
                         });
                         return '<a href="' + url + '">' + value.name + '</a>';
                     } else {
