@@ -302,7 +302,7 @@ Ext.define('Imt.controller.History', {
                                 },
                                 validation: {
                                     title: Uni.I18n.translate('usagepoint.dataValidation.validationConfiguration', 'IMT', 'Validation configuration'),
-                                    route: 'validation',
+                                    route: 'validation/:tab:',
                                     controller: 'Imt.metrologyconfiguration.controller.ValidationConfiguration',
                                     action: 'showValidationConfiguration',
                                     privileges: Imt.privileges.MetrologyConfig.viewValidation,
