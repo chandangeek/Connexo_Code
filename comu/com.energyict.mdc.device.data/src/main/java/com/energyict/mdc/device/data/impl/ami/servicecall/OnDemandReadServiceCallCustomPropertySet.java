@@ -102,9 +102,15 @@ public class OnDemandReadServiceCallCustomPropertySet implements CustomPropertyS
                         .finish(),
                 this.propertySpecService
                         .bigDecimalSpec()
-                        .named(OnDemandReadServiceCallDomainExtension.FieldNames.FAILED_TASKS.javaName(), OnDemandReadServiceCallDomainExtension.FieldNames.FAILED_TASKS
+                        .named(OnDemandReadServiceCallDomainExtension.FieldNames.COMPLETED_TASKS.javaName(), OnDemandReadServiceCallDomainExtension.FieldNames.COMPLETED_TASKS
                                 .javaName())
-                        .describedAs(OnDemandReadServiceCallDomainExtension.FieldNames.FAILED_TASKS.javaName())
+                        .describedAs(OnDemandReadServiceCallDomainExtension.FieldNames.COMPLETED_TASKS.javaName())
+                        .finish(),
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(OnDemandReadServiceCallDomainExtension.FieldNames.TRIGGERDATE.javaName(), OnDemandReadServiceCallDomainExtension.FieldNames.TRIGGERDATE
+                                .javaName())
+                        .describedAs(OnDemandReadServiceCallDomainExtension.FieldNames.TRIGGERDATE.javaName())
                         .finish()
         );
     }
@@ -163,9 +169,15 @@ public class OnDemandReadServiceCallCustomPropertySet implements CustomPropertyS
                     .notNull()
                     .add();
             table
-                    .column(OnDemandReadServiceCallDomainExtension.FieldNames.FAILED_TASKS.databaseName())
+                    .column(OnDemandReadServiceCallDomainExtension.FieldNames.COMPLETED_TASKS.databaseName())
                     .number()
-                    .map(OnDemandReadServiceCallDomainExtension.FieldNames.FAILED_TASKS.javaName())
+                    .map(OnDemandReadServiceCallDomainExtension.FieldNames.COMPLETED_TASKS.javaName())
+                    .notNull()
+                    .add();
+            table
+                    .column(OnDemandReadServiceCallDomainExtension.FieldNames.TRIGGERDATE.databaseName())
+                    .number()
+                    .map(OnDemandReadServiceCallDomainExtension.FieldNames.TRIGGERDATE.javaName())
                     .notNull()
                     .add();
         }

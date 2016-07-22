@@ -194,7 +194,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         Set<ReadingType> supportedReadingTypes = getSupportedReadingTypes(multiSenseDevice, readingTypes);
 
         ServiceCall serviceCall = getOnDemandReadServiceCall(multiSenseDevice, getComTaskExecutionsForReadingTypes(multiSenseDevice
-                .getComTaskExecutions(), supportedReadingTypes).size(), Optional.ofNullable(parentServiceCall));
+                .getComTaskExecutions(), supportedReadingTypes).size(), instant, Optional.ofNullable(parentServiceCall));
         serviceCall.requestTransition(DefaultState.ONGOING);
 
         if (supportedReadingTypes.size() < readingTypes.size()) {
@@ -295,10 +295,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
 
-    private ServiceCall getOnDemandReadServiceCall(Device device, int estimatedTasks, Optional<ServiceCall> parentServiceCall) {
+    private ServiceCall getOnDemandReadServiceCall(Device device, int estimatedTasks, Instant triggerDate, Optional<ServiceCall> parentServiceCall) {
         CompletionOptionsServiceCallDomainExtension completionOptionsServiceCallDomainExtension = new CompletionOptionsServiceCallDomainExtension();
         OnDemandReadServiceCallDomainExtension onDemandReadServiceCallDomainExtension = new OnDemandReadServiceCallDomainExtension();
         onDemandReadServiceCallDomainExtension.setExpectedTasks(new BigDecimal(estimatedTasks));
+        onDemandReadServiceCallDomainExtension.setTriggerDate(new BigDecimal(triggerDate.toEpochMilli()));
 
         ServiceCallType serviceCallType = serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE)

@@ -3,15 +3,12 @@ package com.energyict.mdc.device.data.impl.ami.servicecall;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -24,7 +21,9 @@ public class OnDemandReadServiceCallDomainExtension implements PersistentDomainE
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private BigDecimal successfulTasks;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
-    private BigDecimal failedTasks;
+    private BigDecimal completedTasks;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    private BigDecimal triggerDate;
 
     public OnDemandReadServiceCallDomainExtension() {
         super();
@@ -54,12 +53,20 @@ public class OnDemandReadServiceCallDomainExtension implements PersistentDomainE
         this.successfulTasks = successfulTasks;
     }
 
-    public BigDecimal getFailedTasks() {
-        return failedTasks;
+    public BigDecimal getCompletedTasks() {
+        return completedTasks;
     }
 
-    public void setFailedTasks(BigDecimal failedTasks) {
-        this.failedTasks = failedTasks;
+    public void setCompletedTasks(BigDecimal completedTasks) {
+        this.completedTasks = completedTasks;
+    }
+
+    public BigDecimal getTriggerDate() {
+        return triggerDate;
+    }
+
+    public void setTriggerDate(BigDecimal triggerDate) {
+        this.triggerDate = triggerDate;
     }
 
     @Override
@@ -70,7 +77,10 @@ public class OnDemandReadServiceCallDomainExtension implements PersistentDomainE
                 .toString()));
         this.setSuccessfulTasks(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.SUCCESSFUL_TASKS
                 .javaName())).orElse(BigDecimal.ZERO).toString()));
-        this.setFailedTasks(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.FAILED_TASKS.javaName()))
+        this.setCompletedTasks(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.COMPLETED_TASKS.javaName()))
+                .orElse(BigDecimal.ZERO)
+                .toString()));
+        this.setCompletedTasks(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.TRIGGERDATE.javaName()))
                 .orElse(BigDecimal.ZERO)
                 .toString()));
     }
@@ -79,7 +89,8 @@ public class OnDemandReadServiceCallDomainExtension implements PersistentDomainE
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.EXPECTED_TASKS.javaName(), this.getExpectedTasks());
         propertySetValues.setProperty(FieldNames.SUCCESSFUL_TASKS.javaName(), this.getSuccessfulTasks());
-        propertySetValues.setProperty(FieldNames.FAILED_TASKS.javaName(), this.getFailedTasks());
+        propertySetValues.setProperty(FieldNames.COMPLETED_TASKS.javaName(), this.getCompletedTasks());
+        propertySetValues.setProperty(FieldNames.TRIGGERDATE.javaName(), this.getCompletedTasks());
     }
 
     @Override
@@ -90,7 +101,8 @@ public class OnDemandReadServiceCallDomainExtension implements PersistentDomainE
         DOMAIN("serviceCall", "service_call"),
         EXPECTED_TASKS("expectedTasks", "expected_tasks"),
         SUCCESSFUL_TASKS("successfulTasks", "succesful_tasks"),
-        FAILED_TASKS("failedTasks", "failed_tasks");
+        COMPLETED_TASKS("completedTasks", "completed_tasks"),
+        TRIGGERDATE("triggerDate", "trigger_date");
 
         private final String javaName;
         private final String databaseName;

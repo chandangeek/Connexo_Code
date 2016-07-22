@@ -63,7 +63,7 @@ public class MeterReadingEventHandlerTest {
         when(serviceCall.canTransitionTo(any(DefaultState.class))).thenReturn(true);
         onDemandReadServiceCallDomainExtension = new OnDemandReadServiceCallDomainExtension();
         onDemandReadServiceCallDomainExtension.setExpectedTasks(BigDecimal.ONE);
-        onDemandReadServiceCallDomainExtension.setFailedTasks(BigDecimal.ZERO);
+        onDemandReadServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
         onDemandReadServiceCallDomainExtension.setSuccessfulTasks(BigDecimal.ZERO);
         when(serviceCall.getExtensionFor(any(OnDemandReadServiceCallCustomPropertySet.class))).thenReturn(Optional.of(onDemandReadServiceCallDomainExtension));
         when(serviceCall.getExtension(any())).thenReturn(Optional.of(onDemandReadServiceCallDomainExtension));
