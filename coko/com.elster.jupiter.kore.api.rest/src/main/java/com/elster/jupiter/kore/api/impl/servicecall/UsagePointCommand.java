@@ -66,12 +66,12 @@ public enum UsagePointCommand {
                     .map(MeterActivation::getMeter)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .map(meter -> new CommandRunStatusInfo(meter.getId(), CommandStatus.FAILED, meter.getHeadEndInterface()
+                    .map(meter -> new CommandRunStatusInfo(meter.getMRID(), CommandStatus.FAILED, meter.getHeadEndInterface()
                             .map(HeadEndInterface::getAmrSystem)
                             .orElse(null)))
                     .collect(Collectors.toList());
 
-            CommandRunStatusInfo commandStatus =  new CommandRunStatusInfo(usagePoint.getId(),
+            CommandRunStatusInfo commandStatus =  new CommandRunStatusInfo(usagePoint.getMRID(),
                     CommandStatus.FAILED, childrenCommands.toArray(new CommandRunStatusInfo[childrenCommands
                     .size()]));
             commandStatus.system = childrenCommands.stream().map(commandRunStatusInfo -> Optional.ofNullable(commandRunStatusInfo.system)).filter(Optional::isPresent).map(Optional::get).findFirst().orElse("MDC");
@@ -83,12 +83,12 @@ public enum UsagePointCommand {
                     .map(MeterActivation::getMeter)
                     .filter(Optional::isPresent)
                     .map(Optional::get)
-                    .map(meter -> new CommandRunStatusInfo(meter.getId(), CommandStatus.SUCCESS, meter.getHeadEndInterface()
+                    .map(meter -> new CommandRunStatusInfo(meter.getMRID(), CommandStatus.SUCCESS, meter.getHeadEndInterface()
                             .map(HeadEndInterface::getAmrSystem)
                             .orElse(null)))
                     .collect(Collectors.toList());
 
-            return new CommandRunStatusInfo(usagePoint.getId(), CommandStatus.SUCCESS, childrenCommands
+            return new CommandRunStatusInfo(usagePoint.getMRID(), CommandStatus.SUCCESS, childrenCommands
                     .toArray(new CommandRunStatusInfo[childrenCommands.size()]));
         }
     }
