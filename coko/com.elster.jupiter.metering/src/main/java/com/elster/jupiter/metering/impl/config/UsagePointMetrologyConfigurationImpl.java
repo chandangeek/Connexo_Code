@@ -3,14 +3,12 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
 import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
@@ -176,16 +174,6 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
 
     }
 
-
-    private List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements() {
-        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
-        getContracts()
-                .stream()
-                .filter(MetrologyContract::isMandatory)
-                .flatMap(contract -> contract.getDeliverables().stream())
-                .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(requirementChecker));
-        return requirementChecker.getReadingTypeRequirements();
-    }
 
     private List<ReadingTypeRequirement> getUnmatchedMeterReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingTypeRequirement> mandatoryReadingTypeRequirements, Pair<MeterRole, Meter> pair) {
         List<ReadingType> readingTypesOnMeter = new ArrayList<>();
