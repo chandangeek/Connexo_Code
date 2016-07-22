@@ -20,10 +20,10 @@ public class EmptyIntervalReadingRecordImpl extends IntervalReadingRecordImpl {
     private ReadingType readingType;
 
     EmptyIntervalReadingRecordImpl(ReadingType readingType, Instant timeStamp) {
-		super(null,null);
-		this.timeStamp=timeStamp;
-		this.readingType=readingType;
-	}
+        super(null, null);
+        this.timeStamp = timeStamp;
+        this.readingType = readingType;
+    }
 
     @Override
     int getReadingTypeOffset() {
