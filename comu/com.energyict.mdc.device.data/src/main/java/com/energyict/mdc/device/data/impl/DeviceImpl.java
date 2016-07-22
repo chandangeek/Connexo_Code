@@ -3245,21 +3245,23 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-<<<<<<< HEAD
+    <<<<<<
+
+    <HEAD
     Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from) {
         List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations()
                 .stream()
                 .filter(emc -> emc.getRange().isConnected(Range.atLeast(from)))
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .collect(Collectors.toList());
-=======
-    private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from, DeviceConfiguration config) {
-        List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
->>>>>>> master
+        =======
+        private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements (UsagePoint usagePoint, Instant from, DeviceConfiguration config){
+            List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
+            >>>>>>>master
         if (effectiveMetrologyConfigurations.isEmpty()) {
             return Collections.emptyMap();
         }
-        List<ReadingType> supportedReadingTypes = getDeviceCapabilities(config);
+            List<ReadingType> supportedReadingTypes = getDeviceCapabilities(config);
         Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = new HashMap<>();
         for (MetrologyConfiguration metrologyConfiguration : effectiveMetrologyConfigurations) {
             List<ReadingTypeRequirement> unsatisfied = metrologyConfiguration.getMandatoryReadingTypeRequirements()
@@ -3273,8 +3275,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return unsatisfiedRequirements;
     }
 
-    private List<ReadingType> getDeviceCapabilities(DeviceConfiguration config) {
-        return deviceConfigurationService.getReadingTypesRelatedToConfiguration(config);
+        private List<ReadingType> getDeviceCapabilities (DeviceConfiguration config){
+            return deviceConfigurationService.getReadingTypesRelatedToConfiguration(config);
     }
 
     private DateTimeFormatter getLongDateFormatForCurrentUser() {
