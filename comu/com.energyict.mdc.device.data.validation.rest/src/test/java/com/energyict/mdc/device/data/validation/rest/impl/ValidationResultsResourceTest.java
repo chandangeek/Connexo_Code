@@ -1,9 +1,13 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
+import com.energyict.mdc.device.data.validation.DeviceValidationKpiResults;
 import com.energyict.mdc.device.data.validation.ValidationOverview;
+
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,10 +24,10 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
     public void testValidationOverview() {
 
         List<ValidationOverview> list = new ArrayList<>(2);
-        list.add(new ValidationOverview("ABC123451", "123451", "DT1", "DC1"));
-        list.add(new ValidationOverview("ABC123452", "123452", "DT2", "DC2"));
+        list.add(new ValidationOverview("ABC123451", "123451", "DT1", "DC1", new DeviceValidationKpiResults(2,1,1,true, Instant.now())));
+        list.add(new ValidationOverview("ABC123452", "123452", "DT2", "DC2", new DeviceValidationKpiResults(2,1,1,true, Instant.now())));
 
-        when(deviceDataValidationService.getValidationResultsOfDeviceGroup(1L, Optional.of(0), Optional.of(2))).thenReturn(list);
+        when(deviceDataValidationService.getValidationResultsOfDeviceGroup(1L, Optional.of(0), Optional.of(2), Range.all())).thenReturn(list);
 
         JsonModel jsonModel = JsonModel.model(target("/validationresults/devicegroups/1").queryParam("start", 0).queryParam("limit", 2).request().get(String.class));
 
