@@ -23,7 +23,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column nameColumn = table.column("NAME").varChar().map(ComPortPoolImpl.Fields.NAME.fieldName()).add();
-            table.column("ACTIVE").type("varchar2(1)").notNull().map(ComPortPoolImpl.Fields.ACTIVE.fieldName()).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
+            table.column("ACTIVE").varChar(1).notNull().map(ComPortPoolImpl.Fields.ACTIVE.fieldName()).conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").varChar().map(ComPortPoolImpl.Fields.DESCRIPTION.fieldName()).add();
             Column obsoleteColumn = table.column("OBSOLETE_DATE").number().map(ComPortPoolImpl.Fields.OBSOLETEDATE.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("COMPORTTYPE").number().notNull().map(ComPortPoolImpl.Fields.COMPORTTYPE.fieldName()).conversion(ColumnConversion.NUMBER2ENUM).add();
@@ -53,9 +53,9 @@ public enum TableSpecs {
             table.column("SCHEDULINGDELAYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.count").add();
             table.column("SCHEDULINGDELAYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map("schedulingInterPollDelay.timeUnitCode").add();
 
-            table.column("QUERYAPIPOSTURI").type("varchar2(512)").map("queryAPIPostUri").upTo(version(10, 2)).add();
+            table.column("QUERYAPIPOSTURI").varChar(512).map("queryAPIPostUri").upTo(version(10, 2)).add();
             table.column("DEFAULTQUERYAPIPOSTURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultQueryAPIPostUri").upTo(version(10, 2)).add();
-            table.column("EVENTREGISTRATIONURI").type("varchar2(512)").map("eventRegistrationUri").upTo(version(10, 2)).add();
+            table.column("EVENTREGISTRATIONURI").varChar(512).map("eventRegistrationUri").upTo(version(10, 2)).add();
             table.column("DEFAULTEVENTREGISTRATIONURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultEventRegistrationUri").upTo(version(10, 2)).add();
             table.column("STATUSURI").varChar(512).map("statusUri").upTo(version(10, 2)).add();
             table.column("DEFAULTSTATUSURI").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("usesDefaultStatusUri").upTo(version(10, 2)).add();
@@ -88,7 +88,7 @@ public enum TableSpecs {
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column nameColumn = table.column("NAME").varChar().map(ComPortImpl.FieldNames.NAME.getName()).add();
             Column comServerColumn = table.column("COMSERVERID").number().conversion(ColumnConversion.NUMBER2LONG).add(); // DO NOT MAP
-            table.column("ACTIVE").type("varchar2(1)").notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
+            table.column("ACTIVE").varChar(1).notNull().map("active").conversion(ColumnConversion.NUMBER2BOOLEAN).add();
             table.column("DESCRIPTION").varChar().map("description").add();
             Column obsoleteColumn = table.column("OBSOLETE_DATE").number().conversion(ColumnConversion.NUMBER2INSTANT).map("obsoleteDate").add();
             table.column("COMPORTTYPE").number().notNull().conversion(ColumnConversion.NUMBER2ENUM).map("type").add();
@@ -117,7 +117,7 @@ public enum TableSpecs {
             table.column("PARITY").varChar().map("serialPortConfiguration.parity").add();
             table.column("FLOWCONTROL").varChar().map("serialPortConfiguration.flowControl").add();
             // ServletBasedInboundComPortImpl
-            table.column("HTTPS").type("varchar2(1)").conversion(ColumnConversion.NUMBER2BOOLEAN).map("https").add();
+            table.column("HTTPS").varChar(1).conversion(ColumnConversion.NUMBER2BOOLEAN).map("https").add();
             table.column("KEYSTOREPATH").varChar().map("keyStoreSpecsFilePath").add();
             table.column("KEYSTOREPASSWORD").varChar().map("keyStoreSpecsPassword").add();
             table.column("TRUSTSTOREPATH").varChar().map("trustStoreSpecsFilePath").add();
