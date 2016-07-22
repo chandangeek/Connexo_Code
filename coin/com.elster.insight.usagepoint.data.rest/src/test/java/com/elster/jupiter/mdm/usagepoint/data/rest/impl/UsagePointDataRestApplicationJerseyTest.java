@@ -138,7 +138,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setServiceCallInfoFactory(serviceCallInfoFactory);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
         application.setThreadPrincipalService(threadPrincipalService);
-        application.setTimeService(timeService);
         return application;
     }
 
