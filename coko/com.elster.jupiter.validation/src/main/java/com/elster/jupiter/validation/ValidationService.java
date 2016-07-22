@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 
 import aQute.bnd.annotation.ProviderType;
@@ -121,6 +122,8 @@ public interface ValidationService {
     DataValidationOccurrence createValidationOccurrence(TaskOccurrence taskOccurrence);
 
     Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence);
+
+    Optional<DataValidationKpiScore> getDataValidationKpiScores(long groupId, long deviceId, Range<Instant> interval);
 
     Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit);
 

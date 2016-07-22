@@ -57,6 +57,7 @@ import com.elster.jupiter.validation.ValidatorNotFoundException;
 import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
 import com.elster.jupiter.validation.impl.kpi.DataValidationReportServiceImpl;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
+import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
@@ -705,29 +706,26 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         return dataModel.mapper(DataValidationOccurrence.class).lock(occurrence.getId());
     }
 
+
+    @Override
+    public Optional<DataValidationKpiScore> getDataValidationKpiScores(long endDeviceGroupId, long deviceId, Range<Instant> interval){
+        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
+        Optional<DataValidationKpiScore> score = Optional.empty();
+        if (found.isPresent()) {
+            Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(found.get());
+            if (dataValidationKpi.isPresent()) {
+               score = dataValidationKpi.get().getDataValidationKpiScores(deviceId, interval);
+            }
+        }
+        return score;
+    }
+
     @Override
     public Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit) {
         SqlBuilder sqlBuilder = new SqlBuilder();
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
         if (found.isPresent()) {
-          /*  List<Kpi> kpiList = new ArrayList<>();
-                    dataValidationKpiService.findDataValidationKpi(found.get())
-                    .get().getDataValidationKpiChildren()
-                    .stream()
-                    .map(c -> c.getChildKpi())
-                    .collect(Collectors.toList());
-*/
-           // kpiList.forEach(kpi -> kpi.getMembers().stream().forEach(member -> member.getName().substring(member.getName().indexOf("_")+1)));
-
-            if(found.isPresent()) {
-                Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(found.get());
-                if(dataValidationKpi.isPresent()){
-                    dataValidationKpi.get().getLatestCalculation();
-                    dataValidationKpi.get().getDataValidationKpiScores(1, Range.all()).get().getChannelSuspects();
-                }
-
-            }
             EndDeviceGroup deviceGroup = found.get();
             try {
                 sqlBuilder.append("SELECT MED.id FROM (");

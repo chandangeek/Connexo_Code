@@ -205,11 +205,6 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     @Override
-    public List<DataValidationKpiChild> getChildrenKpis() {
-        return childrenKpis;
-    }
-
-    @Override
     public void dropDataValidationKpi() {
         deleteDataValidationKpi();
         this.save();

@@ -31,8 +31,6 @@ public interface DataValidationKpi extends HasId {
 
     Optional<Instant> getLatestCalculation();
 
-    List<DataValidationKpiChild> getChildrenKpis();
-
     List<DataValidationKpiChild> getDataValidationKpiChildren();
 
     void dropDataValidationKpi();
