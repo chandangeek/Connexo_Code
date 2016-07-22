@@ -41,6 +41,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
 
     private List<IMeterActivation> meterActivations = new ArrayList<>();
@@ -258,5 +260,11 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
                 .filter(meterConfiguration -> meterConfiguration.isEffectiveAt(time))
                 .map(MeterConfiguration.class::cast)
                 .findAny();
+    }
+
+    void refreshMeterActivations() {
+        this.meterActivations.clear();
+        this.meterActivations.addAll(getDataModel().query(MeterActivationImpl.class)
+                .select(where("meter").isEqualTo(this)));
     }
 }
