@@ -1,11 +1,27 @@
 Ext.define('Imt.purpose.view.PurposeDetailsForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.purpose-details-form',
+    requires: [
+        'Imt.purpose.view.PurposeActionsMenu'
+    ],
     itemId: 'purpose-details-form',
     layout: {
         type: 'vbox',
         align: 'stretch'
     },
+    tools: [
+        {
+            xtype: 'button',
+            text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+            itemId: 'purpose-actions-button',
+            iconCls: 'x-uni-action-iconD',
+            privileges: Imt.privileges.UsagePoint.canAdministrate,
+            menu: {
+                xtype: 'purpose-actions-menu',
+                itemId: 'purpose-actions-menu'
+            }
+        }
+    ],
 
     initComponent: function () {
         var me = this,

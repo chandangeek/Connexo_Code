@@ -32,8 +32,14 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
                 name: 'interval',
                 itemId: 'output-interval-field',
                 fieldLabel: Uni.I18n.translate('form.output.label.interval', 'IMT', 'Interval'),
-                renderer: function (interval) {
-                    return interval.count + ' ' + interval.timeUnit;
+                renderer: function (interval, field) {
+                    if (Ext.isObject(interval)) {
+                        field.show();
+                        return interval.count + ' ' + interval.timeUnit;
+                    } else {
+                        field.hide();
+                        return '';
+                    }
                 }
             },
             {

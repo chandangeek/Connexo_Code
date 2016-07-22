@@ -21,7 +21,7 @@ Ext.define('Imt.metrologyconfiguration.view.validation.ValidationRuleSets', {
             store,
             ruleSetsCount = 0;
 
-        if (me.purposes.length) {
+        if (me.purposes && me.purposes.length) {
             me.emptyComponent = {
                 xtype: 'no-items-found-panel',
                 itemId: 'no-validation-rule-sets-found-panel',

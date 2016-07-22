@@ -10,7 +10,17 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
 
     initComponent: function () {
         var me = this,
-            router= me.router;
+            router = me.router,
+            dataStore;
+
+        switch (me.output.get('outputType')) {
+            case 'channel':
+                dataStore = 'Imt.purpose.store.Readings';
+                break;
+            case 'register':
+                dataStore = 'Imt.purpose.store.RegisterReadings';
+                break;
+        }
 
         me.content = [
             {
@@ -49,7 +59,8 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                             interval: me.interval,
                             purpose: me.purpose,
                             output: me.output,
-                            router: me.router
+                            router: me.router,
+                            dataStore: dataStore
                         },
                         listeners: {
                             activate: me.controller.showReadingsTab,
@@ -70,7 +81,7 @@ Ext.define('Imt.purpose.view.OutputChannelMain', {
                         {
                             xtype: 'previous-next-navigation-toolbar',
                             itemId: 'tabbed-device-channels-view-previous-next-navigation-toolbar',
-                            store: 'Imt.purpose.store.Outputs',
+                            store: dataStore,
                             router: me.router,
                             routerIdArgument: 'outputId',
                             itemsName: me.prevNextListLink,

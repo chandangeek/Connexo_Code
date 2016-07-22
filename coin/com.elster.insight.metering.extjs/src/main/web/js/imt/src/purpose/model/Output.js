@@ -1,7 +1,7 @@
 Ext.define('Imt.purpose.model.Output', {
     extend: 'Uni.model.Version',
     requires: [],
-    fields: [
+    fields: ['outputType',
         {name: 'id', type: 'int'},
         {name: 'name', type: 'string'},
         {name: 'interval', type: 'auto', useNull: true},
