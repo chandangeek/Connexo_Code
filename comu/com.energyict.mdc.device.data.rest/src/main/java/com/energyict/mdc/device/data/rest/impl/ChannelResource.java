@@ -397,7 +397,7 @@ public class ChannelResource {
             Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis - 1), Instant.ofEpochMilli(epochMillis));
             List<LoadProfileReading> channelData = channel.getChannelData(range);
             Optional<ChannelDataInfo> found = channelData.stream()
-                    .map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation))
+                    .map(oneLoadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, oneLoadProfileReading, isValidationActive, deviceValidation))
                     .findFirst();
             return Response.ok(found.orElse(new ChannelDataInfo())).build();
         }
