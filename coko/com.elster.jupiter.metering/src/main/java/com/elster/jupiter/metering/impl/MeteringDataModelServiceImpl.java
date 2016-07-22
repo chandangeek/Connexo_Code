@@ -20,7 +20,6 @@ import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
-import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;

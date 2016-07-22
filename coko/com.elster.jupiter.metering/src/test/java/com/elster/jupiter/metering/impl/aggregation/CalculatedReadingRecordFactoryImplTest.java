@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingType;
