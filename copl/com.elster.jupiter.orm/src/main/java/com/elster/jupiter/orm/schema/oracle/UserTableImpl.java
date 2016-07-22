@@ -10,8 +10,12 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.streams.Currying.perform;
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 public class UserTableImpl implements ExistingTable {
 
@@ -27,20 +31,22 @@ public class UserTableImpl implements ExistingTable {
 
     @Override
     public List<UserColumnImpl> getColumns() {
-        return ImmutableList.copyOf(columns);
+        return columns().collect(Collectors.toList());
     }
 
     public List<UserConstraintImpl> getConstraints() {
         return ImmutableList.copyOf(constraints);
     }
 
+    private Stream<UserColumnImpl> columns() {
+        return columns.stream().filter(not(UserColumnImpl::isHidden));
+    }
+
     public UserColumnImpl getColumn(String name) {
-        for (UserColumnImpl column : columns) {
-            if (column.getName().equals(name)) {
-                return column;
-            }
-        }
-        return null;
+        return columns()
+                .filter(userColumn -> userColumn.getName().equals(name))
+                .findAny()
+                .orElse(null);
     }
 
     @Override
@@ -62,9 +68,7 @@ public class UserTableImpl implements ExistingTable {
         if (!is(journalTableName).emptyOrOnlyWhiteSpace()) {
             table.setJournalTableName(journalTableName);
         }
-        for (UserColumnImpl column : columns) {
-            column.addTo(table);
-        }
+        columns().forEach(perform(UserColumnImpl::addTo).with(table));
     }
 
     @Override

@@ -21,7 +21,7 @@ public enum OracleTableSpecs implements SchemaInfoProvider.TableSpec {
         }
 
     },
-    USER_TAB_COLUMNS {
+    USER_TAB_COLS {
         @Override
         public void addTo(DataModel dataModel) {
             Table<ExistingColumn> table = dataModel.addTable(name(), ExistingColumn.class);
@@ -34,6 +34,8 @@ public enum OracleTableSpecs implements SchemaInfoProvider.TableSpec {
             table.column("CHAR_LENGTH").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("characterLength").add();
             table.column("NULLABLE").varChar(1).notNull().conversion(ColumnConversion.CHAR2BOOLEAN).map("nullable").add();
             table.column("DATA_DEFAULT").type("long()").map("dataDefault").add();
+            table.column("VIRTUAL_COLUMN").varChar(3).map("virtual").add();
+            table.column("HIDDEN_COLUMN").varChar(3).map("hidden").add();
             table.primaryKey("PK_USERCOLUMNS").on(tableColumn, nameColumn).add();
             table.foreignKey("FK_COLUMNTABLE").on(tableColumn).references(USER_TABLES.name())
                     .map("table").reverseMap("columns").reverseMapOrder("position").add();

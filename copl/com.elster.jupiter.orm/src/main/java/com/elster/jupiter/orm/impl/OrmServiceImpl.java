@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DataModelDifferencesLister;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.OrmService;
@@ -40,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -163,20 +165,18 @@ public final class OrmServiceImpl implements OrmService {
         this.fileSystem = fileSystem;
     }
 
-    private DataModel createDataModel(boolean register) {
+    private DataModel createDataModel() {
         DataModelImpl result = newDataModel(OrmService.COMPONENTNAME, "Object Relational Mapper");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(result);
         }
-        if (register) {
-            result.register();
-        }
+        result.register();
         return result;
     }
 
     @Activate
     public void activate() {
-        createDataModel(true);
+        createDataModel();
         createExistingTableDataModel();
     }
 
@@ -284,13 +284,13 @@ public final class OrmServiceImpl implements OrmService {
                 if (table.hasJournal()) {
                     existingJournalTable = existingTablesDataModel.mapper(ExistingTable.class).getEager(table.getJournalTableName());
                 }
-                addTableToExistingModel(existingDataModel, existingTablesDataModel, table.getName(), (existingJournalTable.isPresent() ? existingJournalTable.get().getName() : null), processedTables);
+                addTableToExistingModel(existingDataModel, existingTablesDataModel, table.getName(), (existingJournalTable.isPresent() ? existingJournalTable.get().getName() : null), processedTables, model.getTables());
             }
         }
         return existingDataModel;
     }
 
-    private void addTableToExistingModel(DataModelImpl existingModel, DataModel databaseTablesModel, String tableName, String journalTableName, Set<String> processedTables) {
+    private void addTableToExistingModel(DataModelImpl existingModel, DataModel databaseTablesModel, String tableName, String journalTableName, Set<String> processedTables, List<? extends Table> tablesToBeProcessed) {
         if (processedTables.add(tableName)) {
             Optional<ExistingTable> existingTable = databaseTablesModel.mapper(ExistingTable.class).getEager(tableName);
             if (existingTable.isPresent()) {
@@ -302,7 +302,14 @@ public final class OrmServiceImpl implements OrmService {
                     if (existingConstraint.isForeignKey()) {
                         String referencedTableName = existingConstraint.getReferencedTableName();
                         if (!tableName.equalsIgnoreCase(referencedTableName) && existingModel.getTable(referencedTableName) == null) {
-                            addTableToExistingModel(existingModel, databaseTablesModel, referencedTableName, null, processedTables);
+                            String refJournalTableName = tablesToBeProcessed.stream()
+                                    .filter(table -> table.getName().equals(referencedTableName))
+                                    .map(Table::getJournalTableName)
+                                    .filter(Objects::nonNull)
+                                    .findAny()
+                                    .orElse(null);
+
+                            addTableToExistingModel(existingModel, databaseTablesModel, referencedTableName, refJournalTableName, processedTables, tablesToBeProcessed);
                         }
                     }
                 }
@@ -328,10 +335,21 @@ public final class OrmServiceImpl implements OrmService {
 
     @Override
     public DataModelUpgrader getDataModelUpgrader(Logger logger) {
-        return new DataModelUpgraderImpl(schemaInfoProvider, this, logger);
+        return DataModelUpgraderImpl.forUpgrade(schemaInfoProvider, this, logger);
+    }
+
+    @Override
+    public DataModelDifferencesLister getDataModelDifferences(Logger logger) {
+        return DataModelUpgraderImpl.forDifferences(schemaInfoProvider, this, fileSystem, logger);
     }
 
     public FileSystem getFileSystem() {
         return fileSystem;
+    }
+
+    public DataModel getFullModel() {
+        DataModelImpl fullModel = new DataModelImpl(this);
+        dataModels.values().forEach(fullModel::addAllTables);
+        return fullModel;
     }
 }

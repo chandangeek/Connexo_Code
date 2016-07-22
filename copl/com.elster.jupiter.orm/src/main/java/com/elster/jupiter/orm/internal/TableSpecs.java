@@ -57,7 +57,7 @@ public enum TableSpecs {
 			table.column("DBTYPE").type(CATALOGDBTYPE).notNull().map("dbType").add();
 			table.column("NOTNULL").bool().map("notNull").add();
 			table.column("VERSIONCOUNT").bool().map("versionCount").add();
-			table.column("CONVERSION").type("varchar2(30)").notNull().conversion(CHAR2ENUM).map("conversion").add();
+			table.column("CONVERSION").varChar(30).notNull().conversion(CHAR2ENUM).map("conversion").add();
 			table.column("SKIPONUPDATE").bool().map("skipOnUpdate").add();
 			table.column("SEQUENCENAME").type(CATALOGDBTYPE).map("sequenceName").add();
 			table.column("INSERTVALUE").varChar(SHORT_DESCRIPTION_LENGTH).map("insertValue").add();

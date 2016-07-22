@@ -12,4 +12,6 @@ public interface ExistingColumn {
     boolean isConstraintPart();
 
     boolean isForeignKeyPart();
+
+    boolean isVirtual();
 }

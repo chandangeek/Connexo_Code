@@ -34,7 +34,12 @@ public enum SqlDialect {
         public boolean allowsConstraintRename() {
             return false;
         }
-    },
+
+		@Override
+		public String leftPad(String field, int zerofillSize, String padCharacter) {
+			return "lpad(" + field + "," + zerofillSize + ",'" + padCharacter + "'";
+		}
+	},
     /*
      * Oracle Enterprise Edition with partitioning option
      */
@@ -58,7 +63,12 @@ public enum SqlDialect {
 		public boolean hasIndexCompression() {
 			return true;
 		}
-    },
+
+		@Override
+		public String leftPad(String field, int zerofillSize, String padCharacter) {
+			return "lpad(to_char(" + field + ")," + zerofillSize + ",'" + padCharacter + "'";
+		}
+	},
     /*
      * Oracle Standard Edition
      */
@@ -83,6 +93,10 @@ public enum SqlDialect {
 			return true;
 		}
 
+		@Override
+		public String leftPad(String field, int zerofillSize, String padCharacter) {
+			return "lpad(to_char(" + field + ")," + zerofillSize + ",'" + padCharacter + "'";
+		}
 	};
     
     abstract public String rowId();
@@ -104,4 +118,6 @@ public enum SqlDialect {
     public boolean allowsConstraintRename() {
         return true;
     }
+
+	public abstract String leftPad(String id, int zerofillSize, String s);
 }
