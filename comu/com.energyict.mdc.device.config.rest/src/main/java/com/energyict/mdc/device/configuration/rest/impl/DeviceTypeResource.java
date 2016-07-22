@@ -545,6 +545,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<DeviceMessageFileInfo> files = deviceType.getDeviceMessageFiles()
                 .stream()
+                .sorted((f1,f2) -> f1.getName().compareTo(f2.getName()))
                 .map(DeviceMessageFileInfo::new)
                 .collect(Collectors.toList());
 
