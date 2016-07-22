@@ -129,4 +129,6 @@ public interface ServiceCallService {
      * @param properties
      */
     void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
+
+    Set<DefaultState> nonFinalStates();
 }
