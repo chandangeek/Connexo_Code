@@ -38,7 +38,9 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     @Mock
     private UsagePoint usagePoint;
     @Mock
-    EffectiveMetrologyConfigurationOnUsagePoint effectiveMC;
+    private EffectiveMetrologyConfigurationOnUsagePoint effectiveMC;
+    @Mock
+    private ChannelsContainer channelsContainer;
     @Mock
     private ReadingRecord readingRecord1, readingRecord2, readingRecord3;
 
@@ -51,6 +53,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
 
         when(readingRecord1.getValue()).thenReturn(BigDecimal.valueOf(200, 0));
         when(readingRecord1.getTimeStamp()).thenReturn(readingTimeStamp1);
@@ -132,11 +135,27 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
     }
 
     @Test
+    public void testGetRegisterDataRequestedIntervalDoesNotContainData() throws Exception {
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", readingTimeStamp1.minus(100, ChronoUnit.MINUTES).toEpochMilli())
+                .property("intervalEnd", readingTimeStamp1.minus(50, ChronoUnit.MINUTES).toEpochMilli())
+                .create();
+
+        // Business method
+        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(0);
+        assertThat(jsonModel.<List<?>>get("$.channelData")).isEmpty();
+    }
+
+    @Test
     public void testGetRegisterOutputData() throws Exception {
-        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
-        when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
         Channel channel = mock(Channel.class);
         when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
+        when(channelsContainer.getRange()).thenReturn(Range.atLeast(readingTimeStamp1));
         when(channel.getRegisterReadings(Range.openClosed(readingTimeStamp1, readingTimeStamp3))).thenReturn(Arrays.asList(readingRecord1, readingRecord2, readingRecord3));
 
         // Business method

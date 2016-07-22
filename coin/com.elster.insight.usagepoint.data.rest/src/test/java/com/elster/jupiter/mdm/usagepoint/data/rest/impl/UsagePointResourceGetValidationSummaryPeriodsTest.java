@@ -35,7 +35,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRestApplicationJerseyTest {
+public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePointDataRestApplicationJerseyTest {
 
     private static final String LAST_7_DAYS = "Last 7 days";
     private static final String PREVIOUS_MONTH = "Previous month";
@@ -139,7 +139,7 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         MetrologyContract metrologyContract = mockMetrologyContract(2);
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         List<ReadingTypeDeliverable> deliverables = Collections.singletonList(
-                mockReadingTypeDeliverable(Optional.of(Duration.ofMinutes(1)))
+                mockReadingTypeDeliverable(Duration.ofMinutes(1))
         );
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
@@ -161,8 +161,8 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         MetrologyContract metrologyContract = mockMetrologyContract(2);
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         List<ReadingTypeDeliverable> deliverables = Arrays.asList(
-                mockReadingTypeDeliverable(Optional.of(Duration.ofMinutes(15))),
-                mockReadingTypeDeliverable(Optional.of(Duration.ofMinutes(5)))
+                mockReadingTypeDeliverable(Duration.ofMinutes(15)),
+                mockReadingTypeDeliverable(Duration.ofMinutes(5))
         );
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
@@ -184,8 +184,8 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         MetrologyContract metrologyContract = mockMetrologyContract(2);
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         List<ReadingTypeDeliverable> deliverables = Arrays.asList(
-                mockReadingTypeDeliverable(Optional.of(Period.ofMonths(1))),
-                mockReadingTypeDeliverable(Optional.of(Duration.ofDays(1)))
+                mockReadingTypeDeliverable(Period.ofMonths(1)),
+                mockReadingTypeDeliverable(Duration.ofDays(1))
         );
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
@@ -207,8 +207,8 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         MetrologyContract metrologyContract = mockMetrologyContract(2);
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         List<ReadingTypeDeliverable> deliverables = Arrays.asList(
-                mockReadingTypeDeliverable(Optional.empty()),
-                mockReadingTypeDeliverable(Optional.empty())
+                mockReadingTypeDeliverable(null),
+                mockReadingTypeDeliverable(null)
         );
         when(metrologyContract.getDeliverables()).thenReturn(deliverables);
 
@@ -239,11 +239,11 @@ public class UsagePointGetValidationSummaryPeriodsTest extends UsagePointDataRes
         return metrologyContract;
     }
 
-    private ReadingTypeDeliverable mockReadingTypeDeliverable(Optional<TemporalAmount> intervalLength) {
+    private ReadingTypeDeliverable mockReadingTypeDeliverable(TemporalAmount intervalLength) {
         ReadingTypeDeliverable readingTypeDeliverable = mock(ReadingTypeDeliverable.class);
         ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getIntervalLength()).thenReturn(intervalLength);
-        when(readingType.isRegular()).thenReturn(intervalLength.isPresent());
+        when(readingType.getIntervalLength()).thenReturn(Optional.ofNullable(intervalLength));
+        when(readingType.isRegular()).thenReturn(intervalLength != null);
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
         return readingTypeDeliverable;
     }

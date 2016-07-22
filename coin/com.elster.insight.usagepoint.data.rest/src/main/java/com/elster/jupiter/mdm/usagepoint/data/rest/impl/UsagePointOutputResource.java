@@ -186,13 +186,17 @@ public class UsagePointOutputResource {
         }
         List<OutputRegisterDataInfo> outputRegisterData = new ArrayList<>();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            Channel channel = effectiveMC.getChannelsContainer(metrologyContract).get().getChannel(readingTypeDeliverable.getReadingType()).get();
-            outputRegisterData = channel.getRegisterReadings(range).stream()
-                    .sorted(Comparator.comparing(ReadingRecord::getTimeStamp).reversed())
-                    .map(outputRegisterDataInfoFactory::createRegisterDataInfo)
-                    .collect(Collectors.toList());
-            outputRegisterData = ListPager.of(outputRegisterData).from(queryParameters).find();
+            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+            ChannelsContainer channelsContainer = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get();
+            if (channelsContainer.getRange().isConnected(requestedInterval)) {
+                Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
+                Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
+                outputRegisterData = channel.getRegisterReadings(effectiveInterval).stream()
+                        .sorted(Comparator.comparing(ReadingRecord::getTimeStamp).reversed())
+                        .map(outputRegisterDataInfoFactory::createRegisterDataInfo)
+                        .collect(Collectors.toList());
+                outputRegisterData = ListPager.of(outputRegisterData).from(queryParameters).find();
+            }
         }
         return PagedInfoList.fromPagedList("registerData", outputRegisterData, queryParameters);
     }
