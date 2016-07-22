@@ -43,11 +43,11 @@ public enum MessageSeeds implements MessageSeed {
     UNEXPECTED_COMCHANNEL(252, "unexpected.comchannel", "Unexpected ComChannel, expected {0}, but was {1}", Level.SEVERE),
     INTERRUPTED_DURING_COMMUNICATION(253, "communication.interrupted", "The communication thread got interrupted, communication ended", Level.SEVERE),
     UNSUPPORTED_METHOD(254, "unsupportedMethod", "Method {1} is not supported for class {0}", Level.SEVERE),
-    IPv6_SETUP(255, "IPv6Setup", "", Level.SEVERE),
-    SAP_ASSIGNMENT(256, "SAPAssignment", "", Level.SEVERE),
-    PLC_OFDM_TYPE2MAC_SETUP(257, "PLCOFDMType2MACSetup", "", Level.SEVERE),
-    SIX_LOW_PAN_ADAPTATION_LAYER_SETUP(258, "SixLowPanAdaptationLayerSetup", "", Level.SEVERE),
-    G3_NETWORK_MANAGEMENT(259, "G3NetworkManagement", "", Level.SEVERE),
+    FAILED_IPv6_SETUP(255, "IPv6Setup", "Failed to collect the IPV6 setup, see error: {0}", Level.SEVERE),
+    FAILED_SAP_ASSIGNMENT(256, "SAPAssignment", "Failed to collect the SAP assignment list, see error: {0}", Level.SEVERE),
+    FAILED_PLC_OFDM_TYPE2MAC_SETUP(257, "PLCOFDMType2MACSetup", "Failed to collect the OFDM vs. MAC setup, see error: {0}", Level.SEVERE),
+    FAILED_SIX_LOW_PAN_ADAPTATION_LAYER_SETUP(258, "SixLowPanAdaptationLayerSetup", "Failed to collect the SixLowPan adaptation layer setup, see error: {0}", Level.SEVERE),
+    FAILED_G3_NETWORK_MANAGEMENT(259, "G3NetworkManagement", "Failed to collec the G3 network management, see error: {0}", Level.SEVERE),
     NOT_ALLOWED_TO_DO_SET_TIME(260, "notAllowed.timeSet", "It is not allowed to do a set time on the device", Level.SEVERE),
     ;
 
