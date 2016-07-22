@@ -7,7 +7,7 @@ Ext.define('Imt.usagepointmanagement.model.Purpose', {
         {name: 'required', type: 'boolean', useNull: true},
         {name: 'active', type: 'boolean', useNull: true},
         {name: 'status', type: 'auto', useNull: true},
-        {name: 'lastChecked', type: 'auto', useNull: true}
+        'validationInfo'        
     ],
     proxy: {
         type: 'rest',
