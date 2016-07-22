@@ -279,7 +279,7 @@ Ext.define('Imt.purpose.view.ReadingsGraph', {
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
-                    html += '<tr><td colspan="2"><b>' + Uni.I18n.translate('general.value', 'IMT', 'Value') + ':</b>&nbsp;' + value + icon + '</td></tr>';
+                    html += '<tr><td colspan="2"><b>' + Uni.I18n.translate('general.value', 'IMT', 'Value') + ':</b>&nbsp;' + value + (icon ? icon : '') + '</td></tr>';
 
                     if (!Ext.isEmpty(point.validationRules)) {
                         html += '<tr><td style="padding-right: 5px" valign="top">Reading qualities</td><td style="font-weight: 500">' + me.getValidationRules(point.validationRules) + '</td></tr>';

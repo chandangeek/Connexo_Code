@@ -16,7 +16,7 @@ Ext.define('Imt.purpose.view.RegisterDataGrid', {
                 flex: 1,
                 dataIndex: 'timeStamp',
                 renderer: function (value) {
-                    return !value
+                    return value
                         ? Uni.DateTime.formatDateTimeShort(new Date(value))
                         : '-'
                 }

@@ -242,7 +242,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
     },
 
     getActivationConfirmationContent: function (purpose) {
-        var lastCheckedDate = purpose.get('lastChecked') ? Uni.DateTime.formatDateShort(new Date(purpose.get('lastChecked'))) :  Uni.DateTime.formatDateShort(new Date());
+        var lastCheckedDate = purpose.get('validationInfo').lastChecked ? Uni.DateTime.formatDateShort(new Date(purpose.get('validationInfo').lastChecked)) :  Uni.DateTime.formatDateShort(new Date());
         return Ext.create('Ext.container.Container', {
             defaults: {
                 labelAlign: 'left'
@@ -286,7 +286,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                                     itemId: 'purpose-dtm-validation-from-date',
                                     editable: false,
                                     showToday: false,
-                                    value: purpose.get('lastChecked') ? new Date(purpose.get('lastChecked')) : new Date(),
+                                    value: purpose.get('validationInfo').lastChecked ? new Date(purpose.get('validationInfo').lastChecked) : new Date(),
                                     fieldLabel: '  ',
                                     labelWidth: 10,
                                     width: 150,
@@ -329,8 +329,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
         if (confWindow.down('#purpose-rdg-validation-run').getValue().validation === 'newValidation') {
             lastChecked = confWindow.down('#purpose-dtm-validation-from-date').getValue().getTime();
-        } else if (purpose.get('lastChecked')) {
-            lastChecked = purpose.get('lastChecked');
+        } else if (purpose.get('validationInfo').lastChecked) {
+            lastChecked = purpose.get('validationInfo').lastChecked;
         } else {
             lastChecked = new Date().getTime();
         }
@@ -365,7 +365,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             }
         });
 
-        purpose.set('lastChecked', lastChecked);
+        purpose.set('validationInfo', {lastChecked: lastChecked});
         purpose.getProxy().extraParams = {
             mRID: Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint.get('mRID')
         };
