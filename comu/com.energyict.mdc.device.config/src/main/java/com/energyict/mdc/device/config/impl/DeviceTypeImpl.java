@@ -566,9 +566,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Override
     public Optional<RegisteredCustomPropertySet> getLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType) {
         return this.loadProfileTypeUsages.stream().filter(f -> f.sameLoadProfileType(loadProfileType))
+                .map(DeviceTypeLoadProfileTypeUsage::getRegisteredCustomPropertySet)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .filter(registeredCustomPropertySet -> customPropertySetService.findActiveCustomPropertySets().contains(registeredCustomPropertySet))
-                .findAny()
-                .flatMap(DeviceTypeLoadProfileTypeUsage::getRegisteredCustomPropertySet);
+                .findAny();
     }
 
     @Override
@@ -665,9 +667,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     public Optional<RegisteredCustomPropertySet> getRegisterTypeTypeCustomPropertySet(RegisterType registerType) {
         return this.registerTypeUsages.stream().filter(f -> f.sameRegisterType(registerType))
+                .map(DeviceTypeRegisterTypeUsage::getRegisteredCustomPropertySet)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .filter(registeredCustomPropertySet -> customPropertySetService.findActiveCustomPropertySets().contains(registeredCustomPropertySet))
-                .findAny()
-                .flatMap(DeviceTypeRegisterTypeUsage::getRegisteredCustomPropertySet);
+                .findAny();
     }
 
     @Override
