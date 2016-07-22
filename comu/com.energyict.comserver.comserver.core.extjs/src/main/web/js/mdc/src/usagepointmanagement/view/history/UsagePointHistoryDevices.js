@@ -29,7 +29,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistoryDevices', {
         };
 
         me.on('afterrender', function () {
-            me.grid.getStore().fireEvent('load');            
+            me.grid.getStore().fireEvent('load');
         }, me, {single: true});
 
         me.callParent(arguments);

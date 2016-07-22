@@ -7,6 +7,6 @@ Ext.define('Mdc.usagepointmanagement.model.UsagePointHistoryDevice', {
         {name: 'start', type: 'date', dateFormat: 'time'},
         {name: 'end', type: 'date', dateFormat: 'time'},
         {name: 'active', type: 'boolean'},
-        {name: 'deviceType', type: 'auto'}        
+        {name: 'deviceType', type: 'auto'}
     ]
 });

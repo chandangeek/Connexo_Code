@@ -49,7 +49,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
                                 htmlEncode: false,
                                 style: 'font-style: italic',
                                 value: '<span style="color: #686868; font-style: italic">'
-                                + Uni.I18n.translate('usagePointManagement.metrologyConfiguration.noMcAvailable', 'IMT', 'No active metrology configurations with appropriate service category')
+                                + Uni.I18n.translate('usagePointManagement.metrologyConfiguration.noMcAvailable', 'MDC', 'No active metrology configurations with appropriate service category')
                                 + '</span>'
                             },
                             {
