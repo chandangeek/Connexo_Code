@@ -8,21 +8,15 @@ public class ValidationOverview {
     private String serialNumber;
     private String deviceType;
     private String deviceConfig;
-    public long amountOfSuspects;
-    public long channelSuspects;
-    public long registerSuspects;
-    public boolean allDataValidated;
+    private DeviceValidationKpiResults deviceValidationKpiResults;
 
 
-    public ValidationOverview(String mrid, String serialNumber, String deviceType, String deviceConfig, long amountOfSuspects, long channelSuspects, long registerSuspects, boolean allDataValidated){
+    public ValidationOverview(String mrid, String serialNumber, String deviceType, String deviceConfig, DeviceValidationKpiResults deviceValidationKpiResults){
         this.mrid = mrid;
         this.serialNumber = serialNumber;
         this.deviceType = deviceType;
         this.deviceConfig = deviceConfig;
-        this.amountOfSuspects = amountOfSuspects;
-        this.allDataValidated = allDataValidated;
-        this.channelSuspects = channelSuspects;
-        this.registerSuspects = registerSuspects;
+        this. deviceValidationKpiResults = deviceValidationKpiResults;
     }
 
     public String getMrid() {
@@ -57,35 +51,11 @@ public class ValidationOverview {
         this.deviceConfig = deviceConfig;
     }
 
-    public boolean isAllDataValidated() {
-        return allDataValidated;
+    public DeviceValidationKpiResults getDeviceValidationKpiResults() {
+        return deviceValidationKpiResults;
     }
 
-    public void setAllDataValidated(boolean allDataValidated) {
-        this.allDataValidated = allDataValidated;
-    }
-
-    public long getAmountOfSuspects() {
-        return amountOfSuspects;
-    }
-
-    public void setAmountOfSuspects(long amountOfSuspects) {
-        this.amountOfSuspects = amountOfSuspects;
-    }
-
-    public long getChannelSuspects() {
-        return channelSuspects;
-    }
-
-    public void setChannelSuspects(long channelSuspects) {
-        this.channelSuspects = channelSuspects;
-    }
-
-    public long getRegisterSuspects() {
-        return registerSuspects;
-    }
-
-    public void setRegisterSuspects(long registerSuspects) {
-        this.registerSuspects = registerSuspects;
+    public void setDeviceValidationKpiResults(DeviceValidationKpiResults deviceValidationKpiResults) {
+        this.deviceValidationKpiResults = deviceValidationKpiResults;
     }
 }
