@@ -43,11 +43,15 @@ Ext.define('Mdc.view.setup.devicehistory.MeterActivations', {
                 header: Uni.I18n.translate('general.deviceConfiguration', 'MDC', 'Device configuration'),
                 dataIndex: 'deviceConfiguration',
                 renderer: function(value) {
-                    var url = router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({
-                        deviceTypeId: me.device.get('deviceTypeId'),
-                        deviceConfigurationId: value.id
-                    });
-                    return '<a href="' + url + '">' + value.name + '</a>';
+                    if (value) {
+                        var url = router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({
+                            deviceTypeId: me.device.get('deviceTypeId'),
+                            deviceConfigurationId: value.id
+                        });
+                        return '<a href="' + url + '">' + value.name + '</a>';
+                    } else {
+                        return '-';
+                    }
                 },
                 flex: 1
             },
