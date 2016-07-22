@@ -54,7 +54,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
@@ -89,11 +88,11 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.issue",
         service = {IssueService.class, TranslationKeyProvider.class, MessageSeedProvider.class},
-    property = {"name=" + IssueService.COMPONENT_NAME,
+        property = {"name=" + IssueService.COMPONENT_NAME,
                 "osgi.command.scope=issue",
                 "osgi.command.function=rebuildAssignmentRules",
                 "osgi.command.function=loadAssignmentRuleFromFile"},
-    immediate = true)
+        immediate = true)
 public class IssueServiceImpl implements IssueService, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile DataModel dataModel;
@@ -327,7 +326,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Override
     public Optional<? extends Issue> findIssue(long id) {
         Optional<? extends Issue> issue = findOpenIssue(id);
-        if (!issue.isPresent()){
+        if (!issue.isPresent()) {
             issue = findHistoricalIssue(id);
         }
         return issue;
@@ -375,7 +374,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public IssueStatus createStatus(String key, boolean isHistorical, TranslationKey translationKey) {
-        if(findStatus(key).isPresent()){
+        if (findStatus(key).isPresent()) {
             throw new NotUniqueKeyException(thesaurus, key);
         }
         IssueStatusImpl status = dataModel.getInstance(IssueStatusImpl.class);
@@ -385,7 +384,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public IssueReason createReason(String key, IssueType type, TranslationKey name, TranslationKey description) {
-        if(findReason(key).isPresent()){
+        if (findReason(key).isPresent()) {
             throw new NotUniqueKeyException(thesaurus, key);
         }
         IssueReasonImpl reason = dataModel.getInstance(IssueReasonImpl.class);
@@ -395,7 +394,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public IssueType createIssueType(String key, TranslationKey translationKey, String prefix) {
-        if(findIssueType(key).isPresent()){
+        if (findIssueType(key).isPresent()) {
             throw new NotUniqueKeyException(thesaurus, key);
         }
         IssueTypeImpl issueType = dataModel.getInstance(IssueTypeImpl.class);
@@ -477,10 +476,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     public Finder<? extends Issue> findIssues(IssueFilter filter, Class<?>... eagers) {
         Condition condition = buildConditionFromFilter(filter);
         List<Class<?>> eagerClasses = determineMainApiClass(filter);
-        if (eagers == null) {
-            eagerClasses.addAll(Arrays.asList(IssueStatus.class, EndDevice.class, User.class, IssueReason.class, IssueType.class));
-        } else {
+        if (eagers != null && eagers.length > 0) {
             eagerClasses.addAll(Arrays.asList(eagers));
+        }
+        if ((!filter.getIssueTypes().isEmpty() || filter.getIssueId().isPresent()) && !eagerClasses.contains(IssueType.class)) {
+            eagerClasses.addAll(Arrays.asList(IssueReason.class, IssueType.class));
         }
         return DefaultFinder.of((Class<Issue>) eagerClasses.remove(0), condition, dataModel, eagerClasses.toArray(new Class<?>[eagerClasses.size()]));
     }
@@ -558,7 +558,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         //filter by due dates
         if (!filter.getDueDates().isEmpty()) {
             Condition dueDateCondition = Condition.FALSE;
-            for(int i=0; i<filter.getDueDates().size(); i++) {
+            for (int i = 0; i < filter.getDueDates().size(); i++) {
                 dueDateCondition = dueDateCondition.or(where("dueDate").isGreaterThanOrEqual(filter.getDueDates().get(i).getStartTimeAsInstant())
                         .and(where("dueDate").isLessThan(filter.getDueDates().get(i).getEndTimeAsInstant())));
             }
