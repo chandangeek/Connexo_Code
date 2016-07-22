@@ -92,10 +92,10 @@ public class DataValidationTaskResource {
     }
 
     @POST
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    @Transactional
     public Response createDataValidationTask(DataValidationTaskInfo info,
                                              @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         DataValidationTaskBuilder builder = validationService.newTaskBuilder()
@@ -131,15 +131,15 @@ public class DataValidationTaskResource {
     }
 
     @DELETE
+    @Transactional
     @Path("/{dataValidationTaskId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    @Transactional
     public Response deleteDataValidationTask(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                              @PathParam("dataValidationTaskId") long dataValidationTaskId,
                                              DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
-        transactionService.execute(VoidTransaction.of(() -> findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName)).delete()));
+        findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName)).delete();
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
@@ -156,10 +156,10 @@ public class DataValidationTaskResource {
     }
 
     @PUT
+    @Transactional
     @Path("/{dataValidationTaskId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    @Transactional
     public Response updateReadingTypeDataValidationTask(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                         @PathParam("dataValidationTaskId") long dataValidationTaskId,
                                                         DataValidationTaskInfo info) {
