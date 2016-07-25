@@ -31,6 +31,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -185,13 +186,17 @@ public class UsagePointOutputResource {
         }
         List<OutputRegisterDataInfo> outputRegisterData = new ArrayList<>();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            Channel channel = effectiveMC.getChannelsContainer(metrologyContract).get().getChannel(readingTypeDeliverable.getReadingType()).get();
-            outputRegisterData = channel.getRegisterReadings(range).stream()
-                    .sorted(Comparator.comparing(ReadingRecord::getTimeStamp).reversed())
-                    .map(outputRegisterDataInfoFactory::createRegisterDataInfo)
-                    .collect(Collectors.toList());
-            outputRegisterData = ListPager.of(outputRegisterData).from(queryParameters).find();
+            Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+            ChannelsContainer channelsContainer = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get();
+            if (channelsContainer.getRange().isConnected(requestedInterval)) {
+                Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
+                Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
+                outputRegisterData = channel.getRegisterReadings(effectiveInterval).stream()
+                        .sorted(Comparator.comparing(ReadingRecord::getTimeStamp).reversed())
+                        .map(outputRegisterDataInfoFactory::createRegisterDataInfo)
+                        .collect(Collectors.toList());
+                outputRegisterData = ListPager.of(outputRegisterData).from(queryParameters).find();
+            }
         }
         return PagedInfoList.fromPagedList("registerData", outputRegisterData, queryParameters);
     }
@@ -201,11 +206,11 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response validateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, PurposeInfo purposeInfo) {
-        MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(purposeInfo);
-        metrologyContract.update();
-        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
+    public Response validateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, @QueryParam("upVersion") long upVersion, PurposeInfo purposeInfo) {
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mRID, upVersion);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, purposeId);
+        usagePoint.update();
         effectiveMC.getChannelsContainer(metrologyContract)
                 .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer)
                         .setMetrologyContract(metrologyContract), purposeInfo.validationInfo.lastChecked));

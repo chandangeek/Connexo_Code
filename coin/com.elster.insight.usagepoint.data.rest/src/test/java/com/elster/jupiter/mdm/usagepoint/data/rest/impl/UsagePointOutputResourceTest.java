@@ -85,12 +85,11 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
 
     @Test
     public void testValidatePurposeOnRequest() {
+        when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
         MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts().get(0);
         PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
-        when(metrologyConfigurationService.findAndLockMetrologyContract(purposeInfo.id, purposeInfo.version)).thenReturn(Optional.of(metrologyContract));
-
         // Business method
-        Response response = target("usagepoints/MRID/purposes/1").request().put(Entity.json(purposeInfo));
+        Response response = target("usagepoints/MRID/purposes/100").queryParam("upVersion", usagePoint.getVersion()).request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -101,11 +100,10 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     public void testValidatePurposeOnRequestConcurrencyCheck() {
         MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts().get(0);
         PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
-        when(metrologyConfigurationService.findAndLockMetrologyContract(purposeInfo.id, purposeInfo.version)).thenReturn(Optional.empty());
-        when(metrologyConfigurationService.findMetrologyContract(metrologyContract.getId())).thenReturn(Optional.of(metrologyContract));
-
+        when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.empty());
+        when(meteringService.findUsagePoint(usagePoint.getId())).thenReturn(Optional.of(usagePoint));
         // Business method
-        Response response = target("usagepoints/MRID/purposes/1").request().put(Entity.json(purposeInfo));
+        Response response = target("usagepoints/MRID/purposes/100").queryParam("upVersion", usagePoint.getVersion()).request().put(Entity.json(purposeInfo));
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
