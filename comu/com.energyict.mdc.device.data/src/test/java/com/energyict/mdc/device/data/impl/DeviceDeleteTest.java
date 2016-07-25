@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
@@ -162,10 +163,13 @@ public class DeviceDeleteTest {
     private UserPreferencesService userPreferencesService;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private EstimationService estimationService;
 
     @Before
     public void setup() {
         when(dataModel.mapper(DeviceImpl.class)).thenReturn(dataMapper);
+        when(this.dataModel.getInstance(DeviceEstimationImpl.class)).thenReturn(new DeviceEstimationImpl(this.dataModel, this.estimationService));
         when(meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(amrSystem));
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.<Meter>empty());
         when(issueService.query(OpenIssue.class)).thenReturn(openIssueQuery);

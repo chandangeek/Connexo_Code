@@ -1,13 +1,10 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
-import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -30,24 +27,13 @@ public class DeviceConfigChangeInActionImpl implements DeviceConfigChangeInActio
         }
     }
 
-    private final DataModel dataModel;
-
     private Reference<Device> device = ValueReference.absent();
     private Reference<DeviceConfigChangeRequest> deviceConfigChangeRequest = ValueReference.absent();
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
 
-    @SuppressWarnings("unused")
-    private String userName;
-    @SuppressWarnings("unused")
-    private long version;
-    @SuppressWarnings("unused")
-    private Instant createTime;
-    @SuppressWarnings("unused")
-    private Instant modTime;
-
     @Inject
-    public DeviceConfigChangeInActionImpl(DataModel dataModel){
-        this.dataModel = dataModel;
+    public DeviceConfigChangeInActionImpl() {
     }
 
     public DeviceConfigChangeInActionImpl init(Device device, DeviceConfigChangeRequest deviceConfigChangeRequest){

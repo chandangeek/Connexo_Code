@@ -16,14 +16,13 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
-import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
  * Date: 10/29/14
  * Time: 2:59 PM
  */
-public class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribute> implements DeviceMessageAttribute {
+class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribute> implements DeviceMessageAttribute {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_IS_REQUIRED + "}")
     private Reference<DeviceMessage<Device>> deviceMessage = ValueReference.absent();
@@ -33,10 +32,6 @@ public class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessage
     private Object value;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String stringValue = ""; // the string representation of the value
-    private String userName;
-    private long version;
-    private Instant createTime;
-    private Instant modTime;
 
     @Inject
     protected DeviceMessageAttributeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

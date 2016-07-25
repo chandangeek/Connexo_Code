@@ -57,14 +57,10 @@ import static org.mockito.Mockito.when;
  */
 public class DeviceServiceImplTest extends PersistenceIntegrationTest {
 
-
     private static final String DEVICENAME = "deviceName";
-    private static final String MRID = "MyUniqueMRID";
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private final TimeZone testDefaultTimeZone = TimeZone.getTimeZone("Canada/East-Saskatchewan");
-    private final TimeDuration interval = TimeDuration.minutes(15);
     private final BigDecimal overflowValue = BigDecimal.valueOf(1234567);
-    private final int numberOfFractionDigits = 2;
 
     private ReadingType forwardBulkSecondaryEnergyReadingType;
     private ReadingType forwardDeltaSecondaryEnergyReadingType;

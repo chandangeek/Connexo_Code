@@ -91,7 +91,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
-    public static final BigDecimal OVERFLOW_VALUE = BigDecimal.valueOf(1000000000);
+    private static final BigDecimal OVERFLOW_VALUE = BigDecimal.valueOf(1000000000);
     private static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
     private final String connectionTaskCreatedTopic = "com/energyict/mdc/device/config/partial(.*)connectiontask/CREATED";
     private final String securitySetCreatedTopic = "com/energyict/mdc/device/config/securitypropertyset/CREATED";
@@ -134,7 +134,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             super.initializeMocks();
             final List<DeviceConfiguration> configurations = deviceType.getConfigurations();
-            configurations.stream().forEach(deviceConfiguration -> {
+            configurations.forEach(deviceConfiguration -> {
                 deviceConfiguration.deactivate();
                 this.deviceType.removeConfiguration(deviceConfiguration);
             });
@@ -180,7 +180,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             inMemoryPersistence.getMasterDataService().findAllLoadProfileTypes().forEach(LoadProfileType::delete);
             inMemoryPersistence.getMasterDataService().findAllLogBookTypes().stream().forEach(LogBookType::delete);
 
-            inMemoryPersistence.getEngineConfigurationService().findAllComPortPools().stream()
+            inMemoryPersistence.getEngineConfigurationService()
+                    .findAllComPortPools()
                     .forEach(ComPortPool::delete);
 
             inMemoryPersistence.getEngineConfigurationService().findAllComServers().find().forEach(ComServer::delete);
@@ -264,7 +265,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
         try {
-            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
+            inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
         } catch (DeviceConfigurationChangeException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG)) {
                 fail("Should have gotten an exception indicating that you can not change the config to the same config");
@@ -286,7 +287,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
         try {
-            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
+            inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
         } catch (DeviceConfigurationChangeException e) {
             // we expect this :)
         }
@@ -309,7 +310,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
         try {
-            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , configOfOtherDeviceType.getId(), configOfOtherDeviceType.getVersion());
+            inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , configOfOtherDeviceType.getId(), configOfOtherDeviceType.getVersion());
         } catch (DeviceConfigurationChangeException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE)) {
                 e.printStackTrace();
@@ -644,7 +645,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.save();
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
     }
 
     @Test
@@ -668,8 +669,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
             device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
             device.save();
-            final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
-
+            device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
 
             context.commit();
         }
@@ -832,7 +832,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.save();
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
     }
 
     @Test
@@ -1201,7 +1201,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             secondDeviceConfiguration.save();
 
             final List<DeviceMessageId> deviceMessageIds = secondDeviceConfiguration.getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
-            deviceMessageIds.stream().forEach(secondDeviceConfiguration::removeDeviceMessageEnablement);
+            deviceMessageIds.forEach(secondDeviceConfiguration::removeDeviceMessageEnablement);
             secondDeviceConfiguration.save();
 
             device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
@@ -1288,7 +1288,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     private Consumer<LoadProfileType> getLoadProfileSpec(DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder) {
         return loadProfileType -> {
             LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
-            loadProfileType.getChannelTypes().stream().forEach(channelType -> deviceConfigurationBuilder.newChannelSpec(channelType, loadProfileSpecBuilder).overflow(OVERFLOW_VALUE).nbrOfFractionDigits(3));
+            loadProfileType.getChannelTypes().forEach(channelType -> deviceConfigurationBuilder.newChannelSpec(channelType, loadProfileSpecBuilder).overflow(OVERFLOW_VALUE).nbrOfFractionDigits(3));
         };
     }
 
@@ -1300,7 +1300,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         };
     }
 
-    protected static void grantAllViewAndEditPrivilegesToPrincipal() {
+    private static void grantAllViewAndEditPrivilegesToPrincipal() {
         Set<Privilege> privileges = new HashSet<>();
         Privilege editPrivilege = mock(Privilege.class);
         when(editPrivilege.getName()).thenReturn(EditPrivilege.LEVEL_1.getPrivilege());
@@ -1310,4 +1310,5 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         privileges.add(viewPrivilege);
         when(inMemoryPersistence.getMockedUser().getPrivileges()).thenReturn(privileges);
     }
+
 }
