@@ -4,7 +4,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistory', {
 
     requires: [
         'Mdc.usagepointmanagement.view.UsagePointSideMenu',
-        'Mdc.usagepointmanagement.view.history.UsagePointHistoryDevices'
+        'Mdc.usagepointmanagement.view.history.UsagePointHistoryDevices',
+        'Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistory'
     ],
 
     router: null,

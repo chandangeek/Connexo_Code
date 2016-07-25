@@ -9,7 +9,6 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         'Mdc.usagepointmanagement.store.ServiceCategories'
     ],
     views: [
-        'Mdc.usagepointmanagement.view.Setup',
         'Mdc.usagepointmanagement.view.AddUsagePoint'
     ],
     refs: [
