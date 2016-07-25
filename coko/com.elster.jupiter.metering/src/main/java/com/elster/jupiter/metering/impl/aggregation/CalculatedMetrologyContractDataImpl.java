@@ -118,14 +118,14 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
      */
     private Map<ReadingType, List<CalculatedReadingRecord>> generateConstantsAsTimeSeries(MetrologyContract contract, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
         return calculatedReadingRecords
-                        .keySet()
-                        .stream()
-                        .collect(Collectors.toMap(
-                                java.util.function.Function.identity(),
-                                readingType -> this.generateConstantsAsTimeSeries(
-                                                    contract,
-                                                    readingType,
-                                                    calculatedReadingRecords.get(readingType))));
+                .keySet()
+                .stream()
+                .collect(Collectors.toMap(
+                        java.util.function.Function.identity(),
+                        readingType -> this.generateConstantsAsTimeSeries(
+                                contract,
+                                readingType,
+                                calculatedReadingRecords.get(readingType))));
     }
 
     private List<CalculatedReadingRecord> generateConstantsAsTimeSeries(MetrologyContract contract, ReadingType readingType, List<CalculatedReadingRecord> calculatedReadingRecords) {
