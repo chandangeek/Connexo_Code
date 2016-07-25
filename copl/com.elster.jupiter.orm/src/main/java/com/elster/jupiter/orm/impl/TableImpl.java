@@ -275,17 +275,17 @@ public class TableImpl<T> implements Table<T> {
     }
 
     ColumnImpl[] getVersionColumns() {
-        List<Column> result = columns.stream().filter(ColumnImpl::isVersion).collect(Collectors.toList());
+        List<Column> result = realColumns.stream().filter(ColumnImpl::isVersion).collect(Collectors.toList());
         return result.toArray(new ColumnImpl[result.size()]);
     }
 
     List<ColumnImpl> getColumnsThatMandateRefreshAfterInsert() {
-        return columns.stream().filter(ColumnImpl::mandatesRefreshAfterInsert).collect(Collectors.toList());
+        return realColumns.stream().filter(ColumnImpl::mandatesRefreshAfterInsert).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getUpdateValueColumns() {
         List<ColumnImpl> result = new ArrayList<>();
-        for (ColumnImpl column : columns) {
+        for (ColumnImpl column : realColumns) {
             if (column.hasUpdateValue()) {
                 result.add(column);
             }
@@ -298,7 +298,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
     List<ColumnImpl> getAutoUpdateColumns() {
-        return columns.stream().filter(column -> column.hasAutoValue(true)).collect(Collectors.toList());
+        return realColumns.stream().filter(column -> column.hasAutoValue(true)).collect(Collectors.toList());
     }
 
     @Override
@@ -424,7 +424,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
     public ColumnImpl getColumnForField(String name) {
-        for (ColumnImpl column : columns) {
+        for (ColumnImpl column : realColumns) {
             if (name.equals(column.getFieldName())) {
                 return column;
             }
@@ -1059,15 +1059,9 @@ public class TableImpl<T> implements Table<T> {
                 .stream()
                 .flatMap(range -> Stream.of(Ranges.lowerBound(range), Ranges.upperBound(range)).flatMap(Functions.asStream()))
                 .collect(Collectors.toCollection(TreeSet::new));
-        columns
-                .stream()
-                .forEach(column -> versions.addAll(column.changeVersions()));
-        constraints
-                .stream()
-                .forEach(constraint -> versions.addAll(constraint.changeVersions()));
-        indexes
-                .stream()
-                .forEach(index -> versions.addAll(index.changeVersions()));
+        columns.forEach(column -> versions.addAll(column.changeVersions()));
+        constraints.forEach(constraint -> versions.addAll(constraint.changeVersions()));
+        indexes.forEach(index -> versions.addAll(index.changeVersions()));
         return versions;
     }
 
