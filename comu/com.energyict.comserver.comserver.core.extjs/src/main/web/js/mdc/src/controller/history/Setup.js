@@ -2268,6 +2268,14 @@ Ext.define('Mdc.controller.history.Setup', {
                                         privileges: Mdc.privileges.UsagePoint.canAdmin()
                                     }
                                 }
+                            },
+                            channels: {
+                                title: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
+                                privileges: Mdc.privileges.UsagePoint.canView(),
+                                route: 'channels',
+                                controller: 'Mdc.usagepointmanagement.controller.ViewChannelsList',
+                                action: 'showOverview',
+                                callback: me.checkInsightRedirect
                             }
                         }
                     }
