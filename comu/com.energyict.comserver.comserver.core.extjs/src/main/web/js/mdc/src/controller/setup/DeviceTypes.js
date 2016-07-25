@@ -271,7 +271,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showDeviceTypeEditView: function (deviceTypeId) {
         var me = this,
             protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols'),
-            confugurationStore = me.getStore('Mdc.store.DeviceConfigurations'),
+            configurationStore = me.getStore('Mdc.store.DeviceConfigurations'),
             lifeCycleStore = me.getStore('Mdc.store.DeviceLifeCycles'),
             deviceTypePurposesStore = me.getStore('Mdc.store.DeviceTypePurposes'),
             router = me.getController('Uni.controller.history.Router'),
@@ -286,7 +286,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
-        confugurationStore.getProxy().url = confugurationStore.getProxy().baseUrl.replace('{deviceType}', deviceTypeId);
+        configurationStore.getProxy().url = configurationStore.getProxy().baseUrl.replace('{deviceType}', deviceTypeId);
         var when = new Uni.util.When();
         when.when([
             {
@@ -297,7 +297,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             {action: protocolStore.load, context: protocolStore, simple: true},
             {action: lifeCycleStore.load, context: lifeCycleStore, simple: true},
             {action: deviceTypePurposesStore.load, context: deviceTypePurposesStore, simple: true},
-            {action: confugurationStore.load, context: confugurationStore, simple: true}
+            {action: configurationStore.load, context: configurationStore, simple: true}
         ]).then(
             {
                 success: function (results) {
@@ -308,7 +308,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         me.getDeviceTypeEditForm().loadRecord(deviceType);
                         widget.down('#mdc-deviceTypeEdit-typeComboBox').setValue(deviceType.get('deviceTypePurpose'));
                         me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", deviceType.get('name')));
-                        me.modifyEditView(widget, confugurationStore);
+                        me.modifyEditView(widget, configurationStore);
                         Ext.resumeLayouts(true);
                         widget.setLoading(false);
                     }
