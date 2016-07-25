@@ -5,12 +5,12 @@ Ext.define('Imt.util.IconsMap', {
         ELECTRICITY: 'icon-power',
         GAS: 'icon-fire2',
         WATER: 'icon-droplet',
-        HEAT: 'icon-rating3',
-        CONNECTED: 'icon-rating3',
-        PHYSICALLY_DISCONNECTED: 'icon-rating3',
-        LOGICALLY_DISCONNECTED: 'icon-rating3',
-        DEMOLISHED: 'icon-blocked',
-        UNDER_CONSTRUCTION: 'icon-construction'
+        HEAT: 'icon-fire',
+        connected: 'icon-link4',
+        physicallyDisconnected: 'icon-unlink3',
+        logicallyDisconnected: 'icon-unlink',
+        demolished: 'icon-cancel-circle',
+        underConstruction: 'icon-construction'
     },
 
     getCls: function (key) {
