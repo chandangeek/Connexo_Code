@@ -11,6 +11,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 @Component(name="com.elster.jupiter.validation.impl.kpi", service = MessageHandlerFactory.class, property = {"subscriber=" + DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, "destination=" + DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION}, immediate = true)
 public class DataValidationKpiCalculatorHandlerFactory implements MessageHandlerFactory {
@@ -22,14 +23,17 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
     private volatile TaskService taskService;
     private volatile DataValidationKpiService dataValidationKpiService;
     private volatile DataValidationReportService dataValidationReportService;
+    private volatile Clock clock;
 
     public DataValidationKpiCalculatorHandlerFactory() {super();}
 
     @Inject
-    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService) {
+    public DataValidationKpiCalculatorHandlerFactory(TaskService taskService, DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService, Clock clock) {
         this();
         this.setTaskService(taskService);
+        this.setDataValidationReportService(dataValidationReportService);
         this.setDataValidationKpiService(dataValidationKpiService);
+        this.setClock(clock);
     }
 
     @Override
@@ -37,7 +41,7 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
         return this.taskService.createMessageHandler(
                 new DataManagementKpiCalculatorHandler(
                         dataValidationKpiService,
-                        dataValidationReportService
+                        dataValidationReportService, clock
                 ));
     }
 
@@ -56,4 +60,8 @@ public class DataValidationKpiCalculatorHandlerFactory implements MessageHandler
         this.dataValidationKpiService = dataValidationKpiService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 }

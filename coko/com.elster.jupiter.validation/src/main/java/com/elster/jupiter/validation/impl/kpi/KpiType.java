@@ -6,6 +6,7 @@ import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
+import java.time.Clock;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -20,8 +21,8 @@ public enum KpiType {
         }
 
         @Override
-        protected DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, TaskOccurrence taskOccurrence, ServiceProvider serviceProvider) {
-            return new DataValidationKpiCalculator(dataValidationKpi, taskOccurrence.getTriggerTime(), LOGGER, serviceProvider.dataValidationReportService());
+        protected DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, ServiceProvider serviceProvider) {
+            return new DataValidationKpiCalculator(dataValidationKpi, LOGGER, serviceProvider.dataValidationReportService(), serviceProvider.getClock());
         }
     };
 
@@ -35,11 +36,12 @@ public enum KpiType {
         return this.name() + '-' + id;
     }
 
-    protected abstract DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, TaskOccurrence taskOccurrence, ServiceProvider serviceProvider);
+    protected abstract DataManagementKpiCalculator newValidationCalculator(DataValidationKpiImpl dataValidationKpi, ServiceProvider serviceProvider);
 
     public interface ServiceProvider {
         DataValidationKpiService dataValidationKpiService();
         DataValidationReportService dataValidationReportService();
+        Clock getClock();
     }
 
     public static DataManagementKpiCalculator calculatorForRecurrentPayload(TaskOccurrence taskOccurrence, ServiceProvider serviceProvider) {
@@ -52,7 +54,7 @@ public enum KpiType {
                 Optional<DataValidationKpi> dataValidationKpi = serviceProvider.dataValidationKpiService().findDataValidationKpi(id);
                 return dataValidationKpi
                         .map(DataValidationKpiImpl.class::cast)
-                        .map(kpi -> kpiType.newValidationCalculator(kpi, taskOccurrence, serviceProvider))
+                        .map(kpi -> kpiType.newValidationCalculator(kpi, serviceProvider))
                         .orElseGet(() -> new DataManagementKpiDoesNotExist(LOGGER, payload));
             }
             catch (NumberFormatException e) {

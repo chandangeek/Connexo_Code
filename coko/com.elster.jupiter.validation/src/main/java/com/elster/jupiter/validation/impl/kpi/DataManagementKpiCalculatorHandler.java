@@ -5,15 +5,19 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
+import java.time.Clock;
+
 
 public class DataManagementKpiCalculatorHandler implements TaskExecutor {
 
     private final DataValidationKpiService dataValidationKpiService;
     private final DataValidationReportService dataValidationReportService;
+    private final Clock clock;
 
-    public DataManagementKpiCalculatorHandler(DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService){
+    public DataManagementKpiCalculatorHandler(DataValidationKpiService dataValidationKpiService, DataValidationReportService dataValidationReportService, Clock clock){
         this.dataValidationKpiService = dataValidationKpiService;
         this.dataValidationReportService = dataValidationReportService;
+        this.clock = clock;
     }
 
     @Override
@@ -31,6 +35,11 @@ public class DataManagementKpiCalculatorHandler implements TaskExecutor {
         @Override
         public DataValidationReportService dataValidationReportService() {
             return dataValidationReportService;
+        }
+
+        @Override
+        public Clock getClock() {
+            return clock;
         }
     }
 
