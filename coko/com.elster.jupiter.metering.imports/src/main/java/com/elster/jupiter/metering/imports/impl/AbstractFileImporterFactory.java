@@ -2,7 +2,10 @@ package com.elster.jupiter.metering.imports.impl;
 
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.FileImporterProperty;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.properties.PropertySpec;
+
+import org.osgi.service.component.annotations.Reference;
 
 import java.util.List;
 import java.util.Set;
@@ -46,4 +49,7 @@ public abstract class AbstractFileImporterFactory implements FileImporterFactory
     protected abstract MeteringDataImporterContext getContext();
 
     public abstract void setMeteringDataImporterContext(MeteringDataImporterContext context);
+
+    @Reference
+    public abstract void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService);
 }

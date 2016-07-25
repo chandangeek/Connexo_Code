@@ -18,6 +18,8 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     private String mRID;
     private String serviceKind;
     private String name;
+    private boolean isSdp;
+    private boolean isVirtual;
     private Instant installationTime;
     private String outageRegion;
     private String readRoute;
@@ -62,7 +64,17 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
 
     private boolean allowUpdate;
 
+    public Number metrologyConfiguration;
+
     public UsagePointImportRecord() {
+    }
+
+    public Optional<Number> getMetrologyConfiguration() {
+        return Optional.ofNullable(metrologyConfiguration);
+    }
+
+    public void setMetrologyConfiguration(Number metrologyConfiguration) {
+        this.metrologyConfiguration = metrologyConfiguration;
     }
 
     public UsagePointImportRecord(long lineNumber) {
@@ -308,4 +320,21 @@ public class UsagePointImportRecord extends FileImportRecordWithCustomProperties
     public void setAllowUpdate(Boolean allowUpdate) {
         this.allowUpdate = allowUpdate != null && allowUpdate;
     }
+
+    public void setSdp(boolean sdp) {
+        isSdp = sdp;
+    }
+
+    public void setVirtual(boolean virtual) {
+        isVirtual = virtual;
+    }
+
+    public boolean isSdp() {
+        return isSdp;
+    }
+
+    public boolean isVirtual() {
+        return isVirtual;
+    }
+
 }

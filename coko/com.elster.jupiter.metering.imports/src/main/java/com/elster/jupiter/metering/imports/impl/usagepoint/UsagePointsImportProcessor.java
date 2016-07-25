@@ -20,6 +20,8 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.imports.impl.CustomPropertySetRecord;
 import com.elster.jupiter.metering.imports.impl.FileImportLogger;
 import com.elster.jupiter.metering.imports.impl.FileImportProcessor;
@@ -43,10 +45,11 @@ import java.util.stream.Collectors;
 public class UsagePointsImportProcessor implements FileImportProcessor<UsagePointImportRecord> {
 
     private final MeteringDataImporterContext context;
+    private final MetrologyConfigurationService metrologyConfigurationService;
 
-
-    UsagePointsImportProcessor(MeteringDataImporterContext context) {
+    UsagePointsImportProcessor(MeteringDataImporterContext context, MetrologyConfigurationService metrologyConfigurationService) {
         this.context = context;
+        this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Override
@@ -56,10 +59,21 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
 
             UsagePoint usagePoint = getUsagePoint(data, logger);
 
+            addCustomPropertySetValues(usagePoint, data);
+
             if (usagePoint.getDetail(context.getClock().instant()).isPresent()) {
                 updateDetails(usagePoint, data, logger).create();
             } else {
                 createDetails(usagePoint, data, logger).create();
+                data.getMetrologyConfiguration().ifPresent(mc -> {
+                            try {
+                                usagePoint.apply(findMetrologyConfiguration(mc.longValue(), usagePoint));
+                            } catch (Exception e) {
+                                usagePoint.delete();
+                                throw e;
+                            }
+                        }
+                );
             }
 
             addCustomPropertySetValues(usagePoint, data);
@@ -179,8 +193,8 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
     }
 
     private UsagePoint createUsagePoint(UsagePointBuilder usagePointBuilder, UsagePointImportRecord data, FileImportLogger logger) {
-        usagePointBuilder.withIsSdp(false);
-        boolean isVirtual = true;
+        usagePointBuilder.withIsSdp(data.isSdp());
+        boolean isVirtual = data.isVirtual();
         List<String> locationData = data.getLocation();
         List<String> geoCoordinatesData = data.getGeoCoordinates();
 
@@ -221,6 +235,14 @@ public class UsagePointsImportProcessor implements FileImportProcessor<UsagePoin
         usagePointBuilder.withServicePriority(data.getServicePriority().orElse(null));
         usagePointBuilder.withServiceDeliveryRemark(data.getServiceDeliveryRemark().orElse(null));
         return usagePointBuilder.create();
+    }
+
+    private UsagePointMetrologyConfiguration findMetrologyConfiguration(Long id, UsagePoint usagePoint) {
+        return metrologyConfigurationService.findLinkableMetrologyConfigurations(usagePoint)
+                .stream()
+                .filter(mc -> id == mc.getId())
+                .findFirst()
+                .orElseThrow(() -> new ProcessorException(MessageSeeds.IMPORT_USAGEPOINT_NO_METROLOGYCONFIG_FOR_ID, id, usagePoint.getMRID()));
     }
 
     private UsagePoint updateUsagePoint(UsagePoint usagePoint, UsagePointImportRecord data, FileImportLogger logger) {
