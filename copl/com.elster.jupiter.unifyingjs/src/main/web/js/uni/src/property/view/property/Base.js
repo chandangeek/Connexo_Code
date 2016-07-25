@@ -334,7 +334,7 @@ Ext.define('Uni.property.view.property.Base', {
             if (this.getProperty().get('hasValue')) {
                 this.getDisplayField().setValue('********');
             } else {
-                this.getDisplayField().setValue(value);
+                this.getDisplayField().setValue(Ext.isEmpty(value) ? '-' : value);
             }
         }
     },

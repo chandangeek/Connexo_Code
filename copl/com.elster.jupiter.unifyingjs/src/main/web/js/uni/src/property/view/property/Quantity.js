@@ -13,6 +13,7 @@ Ext.define('Uni.property.view.property.Quantity', {
             {
                 xtype: 'numberfield',
                 itemId: me.key + 'value',
+                name: me.getName(),
                 allowExponential: false,
                 margin: '0 10 0 0',
                 width: me.width - 90
