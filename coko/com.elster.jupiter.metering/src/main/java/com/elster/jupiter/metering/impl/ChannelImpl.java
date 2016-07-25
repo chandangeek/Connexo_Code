@@ -76,6 +76,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.streams.Currying.use;
+import static com.elster.jupiter.util.streams.Predicates.not;
 import static com.elster.jupiter.util.streams.Predicates.on;
 import static com.elster.jupiter.util.streams.Predicates.self;
 
@@ -727,6 +728,7 @@ public final class ChannelImpl implements ChannelContract {
             qualities.get(reading.getTimeStamp())
                     .stream()
                     .filter(rqr -> rqr.getReadingType().equals(readingType))
+                    .filter(not(readingQualityRecord -> readingQualityRecord.getReadingTimestamp().equals(reading.getTimeStamp())))
                     .forEach(rqr -> reading.addQuality(rqr.getTypeCode(), rqr.getComment()));
         }
     }
