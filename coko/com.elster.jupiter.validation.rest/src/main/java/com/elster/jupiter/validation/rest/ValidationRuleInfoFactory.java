@@ -1,13 +1,19 @@
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +45,12 @@ public class ValidationRuleInfoFactory {
         validationRuleInfo.readingTypes.addAll(validationRule.getReadingTypes().stream().map(ReadingTypeInfo::new).collect(Collectors.toList()));
         validationRuleInfo.version = validationRule.getVersion();
         validationRuleInfo.parent = new VersionInfo<>(ruleSetVersion.getId(), ruleSetVersion.getVersion());
+        if (validationRule.getRuleSet().getQualityCodeSystem() != null) {
+            IdWithNameInfo applicationInfo = new IdWithNameInfo();
+            applicationInfo.id = validationRule.getRuleSet().getQualityCodeSystem().name();
+            applicationInfo.name = validationRule.getRuleSet().getQualityCodeSystem() == QualityCodeSystem.MDC ? "MultiSense" : "Insight";
+            validationRuleInfo.application = applicationInfo;
+        }
         return validationRuleInfo;
     }
 

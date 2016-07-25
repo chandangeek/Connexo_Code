@@ -8,6 +8,7 @@ import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -205,9 +206,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
 
     @Test
     public void testGetValidatorsNoValidators() throws IOException {
-        when(validationService.getAvailableValidators("APP")).thenReturn(Collections.emptyList());
+        when(validationService.getAvailableValidators(QualityCodeSystem.MDC)).thenReturn(Collections.emptyList());
 
-        Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "APP").get();
+        Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "MDC").get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel body = JsonModel.create((ByteArrayInputStream)response.getEntity());
@@ -218,9 +219,9 @@ public class ValidationResourceTest extends BaseValidationRestTest {
     @Test
     public void testGetValidators() throws IOException {
         List<Validator> mockValidator = Arrays.asList(mockValidator("B Validator"), mockValidator("A Validator"));
-        when(validationService.getAvailableValidators("APP")).thenReturn(mockValidator);
+        when(validationService.getAvailableValidators(QualityCodeSystem.MDC)).thenReturn(mockValidator);
 
-        Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "APP").get();
+        Response response = target("/validation/validators").request().header(APPLICATION_HEADER_PARAM, "MDC").get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel body = JsonModel.create((ByteArrayInputStream)response.getEntity());
@@ -424,8 +425,8 @@ public class ValidationResourceTest extends BaseValidationRestTest {
         info.description = "desc";
 
         ValidationRuleSet ruleSet = mockValidationRuleSet(V_RULE_SET_ID);
-        when(validationService.createValidationRuleSet(info.name, "APP", info.description)).thenReturn(ruleSet);
-        Response response = target("/validation").request().header(APPLICATION_HEADER_PARAM, "APP").post(Entity.json(info));
+        when(validationService.createValidationRuleSet(info.name, QualityCodeSystem.MDC, info.description)).thenReturn(ruleSet);
+        Response response = target("/validation").request().header(APPLICATION_HEADER_PARAM, "MDC").post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 

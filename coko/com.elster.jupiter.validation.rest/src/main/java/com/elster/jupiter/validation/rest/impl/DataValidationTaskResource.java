@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -85,6 +86,11 @@ public class DataValidationTaskResource {
         this.conflictFactory = conflictFactory;
     }
 
+    private QualityCodeSystem getQualityCodeSystemForApplication(String applicationName) {
+        // TODO kore shouldn't know anything about applications, to be fixed
+        return "MDC".equals(applicationName) ? QualityCodeSystem.MDC : QualityCodeSystem.MDM;
+    }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -92,11 +98,9 @@ public class DataValidationTaskResource {
     @Transactional
     public Response createDataValidationTask(DataValidationTaskInfo info,
                                              @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
-
-
         DataValidationTaskBuilder builder = validationService.newTaskBuilder()
                 .setName(info.name)
-                .setApplication(applicationName)
+                .setQualityCodeSystem(getQualityCodeSystemForApplication(applicationName))
                 .setScheduleExpression(getScheduleExpression(info))
                 .setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
         if (info.deviceGroup != null) {
@@ -119,7 +123,7 @@ public class DataValidationTaskResource {
                                                 @BeanParam JsonQueryParameters queryParameters) {
         List<DataValidationTaskInfo> infos = validationService.findValidationTasks()
                 .stream()
-                .filter(task -> task.getApplication().equals(applicationName))
+                .filter(task -> task.getQualityCodeSystem().equals(getQualityCodeSystemForApplication(applicationName)))
                 .map(dataValidationTask -> new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService))
                 .collect(Collectors.toList());
 
@@ -130,11 +134,12 @@ public class DataValidationTaskResource {
     @Path("/{dataValidationTaskId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @Transactional
     public Response deleteDataValidationTask(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                              @PathParam("dataValidationTaskId") long dataValidationTaskId,
                                              DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
-        transactionService.execute(VoidTransaction.of(() -> findAndLockDataValidationTask(info, applicationName).delete()));
+        findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName)).delete();
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
@@ -145,7 +150,8 @@ public class DataValidationTaskResource {
     public DataValidationTaskInfo getDataValidationTask(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                         @PathParam("dataValidationTaskId") long dataValidationTaskId,
                                                         @Context SecurityContext securityContext) {
-        DataValidationTask task = findValidationTaskInApplication(dataValidationTaskId, applicationName).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        DataValidationTask task = findValidationTaskForQualitySystem(dataValidationTaskId, getQualityCodeSystemForApplication(applicationName))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return new DataValidationTaskInfo(task, thesaurus, timeService);
     }
 
@@ -158,7 +164,7 @@ public class DataValidationTaskResource {
                                                         @PathParam("dataValidationTaskId") long dataValidationTaskId,
                                                         DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
-        DataValidationTask task = findAndLockDataValidationTask(info, applicationName);
+        DataValidationTask task = findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName));
         task.setName(info.name);
         task.setScheduleExpression(getScheduleExpression(info));
         if (info.deviceGroup != null) {
@@ -190,7 +196,8 @@ public class DataValidationTaskResource {
                 .orElseThrow(conflictFactory.conflict()
                         .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
                         .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
-                        .withActualVersion(() -> findValidationTaskInApplication(info.id, applicationName).map(DataValidationTask::getVersion).orElse(null))
+                        .withActualVersion(() -> findValidationTaskForQualitySystem(info.id, getQualityCodeSystemForApplication(applicationName))
+                                .map(DataValidationTask::getVersion).orElse(null))
                         .supplier())
                 .triggerNow()));
         return Response.status(Response.Status.OK).build();
@@ -261,7 +268,7 @@ public class DataValidationTaskResource {
     }
 
     private DataValidationTask fetchDataValidationTask(long id, String applicationName) {
-        return findValidationTaskInApplication(id, applicationName).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return findValidationTaskForQualitySystem(id, getQualityCodeSystemForApplication(applicationName)).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private DataValidationOccurrence fetchDataValidationOccurrence(long id, DataValidationTask task) {
@@ -280,18 +287,18 @@ public class DataValidationTaskResource {
         return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
     }
 
-    private DataValidationTask findAndLockDataValidationTask(DataValidationTaskInfo info, String applicationName) {
-        return findAndLockValidationTaskByIdAndVersionInApplication(info.id, info.version, applicationName)
+    private DataValidationTask findAndLockDataValidationTask(DataValidationTaskInfo info, QualityCodeSystem qualityCodeSystem) {
+        return findAndLockValidationTaskByIdAndVersionForQualitySystem(info.id, info.version, qualityCodeSystem)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> findValidationTaskInApplication(info.id, applicationName).map(DataValidationTask::getVersion).orElse(null))
+                        .withActualVersion(() -> findValidationTaskForQualitySystem(info.id, qualityCodeSystem).map(DataValidationTask::getVersion).orElse(null))
                         .supplier());
     }
 
-    private Optional<DataValidationTask> findValidationTaskInApplication(long id, String applicationName) {
-        return validationService.findValidationTask(id).filter(task -> task.getApplication().equals(applicationName));
+    private Optional<DataValidationTask> findValidationTaskForQualitySystem(long id, QualityCodeSystem qualityCodeSystem) {
+        return validationService.findValidationTask(id).filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem));
     }
 
-    private Optional<DataValidationTask> findAndLockValidationTaskByIdAndVersionInApplication(long id, long version, String applicationName) {
-        return validationService.findAndLockValidationTaskByIdAndVersion(id, version).filter(task -> task.getApplication().equals(applicationName));
+    private Optional<DataValidationTask> findAndLockValidationTaskByIdAndVersionForQualitySystem(long id, long version, QualityCodeSystem qualityCodeSystem) {
+        return validationService.findAndLockValidationTaskByIdAndVersion(id, version).filter(task -> task.getQualityCodeSystem().equals(qualityCodeSystem));
     }
 }

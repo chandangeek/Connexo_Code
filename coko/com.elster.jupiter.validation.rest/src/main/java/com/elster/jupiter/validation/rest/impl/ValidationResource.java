@@ -1,6 +1,8 @@
 package com.elster.jupiter.validation.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -71,6 +73,7 @@ public class ValidationResource {
     private final ValidationRuleInfoFactory validationRuleInfoFactory;
     private final PropertyUtils propertyUtils;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
     public ValidationResource(RestQueryService queryService,
@@ -78,13 +81,20 @@ public class ValidationResource {
                               TransactionService transactionService,
                               ValidationRuleInfoFactory validationRuleInfoFactory,
                               PropertyUtils propertyUtils,
-                              ConcurrentModificationExceptionFactory conflictFactory) {
+                              ConcurrentModificationExceptionFactory conflictFactory,
+                              Thesaurus thesaurus) {
         this.queryService = queryService;
         this.validationService = validationService;
         this.transactionService = transactionService;
         this.validationRuleInfoFactory = validationRuleInfoFactory;
         this.propertyUtils = propertyUtils;
         this.conflictFactory = conflictFactory;
+        this.thesaurus = thesaurus;
+    }
+
+    private QualityCodeSystem getQualityCodeSystemFromApplicationName(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        // TODO kore shouldn't know anything about applications, to be fixed
+        return "MDC".equals(applicationName) ? QualityCodeSystem.MDC : QualityCodeSystem.MDM;
     }
 
     @GET
@@ -93,7 +103,7 @@ public class ValidationResource {
             Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getValidationRuleSets(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<ValidationRuleSet> list = queryRuleSets(params, applicationName);
+        List<ValidationRuleSet> list = queryRuleSets(params, getQualityCodeSystemFromApplicationName(applicationName));
 
         ValidationRuleSetInfos infos = new ValidationRuleSetInfos(params.clipToLimit(list));
         infos.total = params.determineTotal(list.size());
@@ -106,9 +116,11 @@ public class ValidationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response createValidationRuleSet(final ValidationRuleSetInfo info, @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+
         return Response.status(Response.Status.CREATED)
                 .entity(new ValidationRuleSetInfo(transactionService.execute(
-                        () -> validationService.createValidationRuleSet(info.name, applicationName, info.description)))).build();
+                        () -> validationService.createValidationRuleSet(info.name, qualityCodeSystem, info.description)))).build();
     }
 
     @PUT
@@ -148,16 +160,21 @@ public class ValidationResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response deleteValidationRuleSet(@PathParam("ruleSetId") long ruleSetId, ValidationRuleSetInfo info) {
         info.id = ruleSetId;
-        transactionService.execute(() -> {
-            findAndLockValidationRuleSet(info).delete();
-            return null;
-        });
+        ValidationRuleSet validationRuleSet = findAndLockValidationRuleSet(info);
+        if (validationService.isValidationRuleSetInUse(validationRuleSet) && validationRuleSet.getQualityCodeSystem().equals(QualityCodeSystem.MDM)) {
+            throw new ValidationRuleSetInUseLocalizedException(thesaurus, validationRuleSet);
+        } else {
+            transactionService.execute(() -> {
+                validationRuleSet.delete();
+                return null;
+            });
+        }
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters, String applicationName) {
+    private List<ValidationRuleSet> queryRuleSets(QueryParameters queryParameters, QualityCodeSystem qualityCodeSystem) {
         Query<ValidationRuleSet> query = validationService.getRuleSetQuery();
-        query.setRestriction(where("applicationName").isEqualTo(applicationName));
+        query.setRestriction(where("qualityCodeSystem").isEqualTo(qualityCodeSystem));
         RestQuery<ValidationRuleSet> restQuery = queryService.wrap(query);
         return restQuery.select(queryParameters, Order.ascending("upper(name)"));
     }
@@ -290,7 +307,7 @@ public class ValidationResource {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
 
         List<? extends ValidationRule> rules;
-        if (queryParameters.size() == 0) {
+        if (queryParameters.size() == 0 || queryParameters.getStartInt() == 0) {
             rules = ruleSetVersion.getRules();
         } else {
             rules = ruleSetVersion.getRules(queryParameters.getStartInt(), queryParameters.getLimit());
@@ -446,7 +463,9 @@ public class ValidationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public PagedInfoList getAvailableValidators(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName, @BeanParam JsonQueryParameters parameters) {
-        List<ValidatorInfo> data = validationService.getAvailableValidators(applicationName).stream()
+        QualityCodeSystem qualityCodeSystem = getQualityCodeSystemFromApplicationName(applicationName);
+
+        List<ValidatorInfo> data = validationService.getAvailableValidators(qualityCodeSystem).stream()
                 .sorted(Compare.BY_DISPLAY_NAME)
                 .map(validator -> new ValidatorInfo(
                         validator.getClass().getName(),
