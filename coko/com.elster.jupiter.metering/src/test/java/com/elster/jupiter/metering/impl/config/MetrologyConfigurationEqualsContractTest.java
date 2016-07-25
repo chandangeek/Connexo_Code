@@ -6,14 +6,19 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.search.SearchService;
 
 import org.fest.reflect.core.Reflection;
+
+import java.util.Optional;
 
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static java.util.Collections.singletonList;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest {
@@ -32,6 +37,8 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     UsagePointRequirementsSearchDomain searchDomain;
     @Mock
     private CustomPropertySetService customPropertySetService;
+    @Mock
+    private SearchService searchService;
 
     private MetrologyConfigurationImpl instanceA;
 
@@ -65,6 +72,8 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
+        when(searchDomain.getId()).thenReturn("UsagePoint");
+        when(searchService.findDomain(any())).thenReturn(Optional.of(searchDomain));
         UsagePointMetrologyConfigurationImpl subInst = new UsagePointMetrologyConfigurationImpl(metrologyConfigurationService, eventService, this.customPropertySetService, searchDomain, searchService);
         Reflection.field("id").ofType(Long.TYPE).in(subInst).set(INSTANCE_A_ID);
         return subInst;
