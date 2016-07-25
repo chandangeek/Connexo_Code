@@ -105,7 +105,7 @@ public class ReadingTypeDeliverableBuilderImpl implements ReadingTypeDeliverable
     private boolean isNumerical(PropertySpec propertySpec) {
         Class valueType = propertySpec.getValueFactory().getValueType();
         return Number.class.isAssignableFrom(valueType)
-            || Quantity.class.isAssignableFrom(valueType);
+                || Quantity.class.isAssignableFrom(valueType);
     }
 
     @Override

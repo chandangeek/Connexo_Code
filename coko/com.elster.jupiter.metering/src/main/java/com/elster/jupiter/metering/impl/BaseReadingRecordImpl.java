@@ -137,7 +137,7 @@ public abstract class BaseReadingRecordImpl implements BaseReadingRecord {
 
     // TODO: check if sorting is always needed here
     public List<? extends ReadingQualityRecord> getReadingQualities() {
-    	return getChannel().findReadingQualities().atTimestamp(getTimeStamp()).sorted().collect();
+        return getChannel().findReadingQualities().atTimestamp(getTimeStamp()).sorted().collect();
     }
 
 }

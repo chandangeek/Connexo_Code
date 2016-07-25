@@ -13,6 +13,7 @@ public interface LocationBuilder {
     LocationBuilder named(String name);
 
     LocationMemberBuilder member();
+
     Optional<LocationMemberBuilder> getMemberBuilder(String locale);
 
     /**
