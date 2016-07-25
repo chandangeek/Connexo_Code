@@ -6,7 +6,7 @@ Ext.define('Cfg.view.field.ReadingQualities', {
     usedInInsight: false,
 
     renderer : function(value, field) {
-        var validationRules = value.validationRules ? value.validationRules : value;
+        var validationRules = Ext.isArray(value) ? value : value.validationRules;
         field.show();
         if (value.isConfirmed) {
             return this.getConfirmed(value.confirmedInApps);
@@ -110,7 +110,7 @@ Ext.define('Cfg.view.field.ReadingQualities', {
                 str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
 
                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
-                    var url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({
+                    var url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules/overview').buildUrl({
                         ruleSetId: rule.ruleSetVersion.ruleSet.id,
                         versionId: rule.ruleSetVersion.id, ruleId: rule.id
                     });
@@ -119,7 +119,7 @@ Ext.define('Cfg.view.field.ReadingQualities', {
                 } else {
                     str += rule.name;
                 }
-                str += prop + '&nbsp;' + (me.usedInInsight ? application : '' ) + '</span><br>';
+                str += prop + '&nbsp;' + application + '</span><br>';
             }
         });
 
