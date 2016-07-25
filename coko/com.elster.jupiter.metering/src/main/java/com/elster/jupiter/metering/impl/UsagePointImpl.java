@@ -126,7 +126,7 @@ public class UsagePointImpl implements UsagePoint {
     private SpatialCoordinates spatialCoordinates;
 
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
-    private TemporalReference<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = Temporals.absent();
+    private List<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfigurations = new ArrayList<>();
 
     // associations
     private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
@@ -431,19 +431,25 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when) {
-        return this.metrologyConfiguration.effective(when);
+        return this.metrologyConfigurations.stream()
+                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
+                .filter(emc -> emc.getRange().contains(when))
+                .findFirst();
+
     }
 
     @Override
     public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getCurrentEffectiveMetrologyConfiguration() {
-        return this.metrologyConfiguration.effective(this.clock.instant());
+        return this.metrologyConfigurations.stream()
+                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
+                .filter(emc -> emc.getRange().contains(clock.instant()))
+                .findFirst();
     }
 
     @Override
     public List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurations() {
-        return this.metrologyConfiguration
-                .all()
-                .stream()
+        return this.metrologyConfigurations.stream()
+                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
                 .collect(Collectors.toList());
     }
 
@@ -488,7 +494,7 @@ public class UsagePointImpl implements UsagePoint {
                 .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
                 .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate)));
         effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
-        this.metrologyConfiguration.add(effectiveMetrologyConfigurationOnUsagePoint);
+        this.metrologyConfigurations.add(effectiveMetrologyConfigurationOnUsagePoint);
         this.update();
     }
 
@@ -522,7 +528,7 @@ public class UsagePointImpl implements UsagePoint {
                 .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
                 .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), endDate)));
         effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
-        this.metrologyConfiguration.add(effectiveMetrologyConfigurationOnUsagePoint);
+        this.metrologyConfigurations.add(effectiveMetrologyConfigurationOnUsagePoint);
         this.update();
     }
 
@@ -572,13 +578,8 @@ public class UsagePointImpl implements UsagePoint {
         if (version.getStart().isBefore(clock.instant())) {
             throw new RemoveCurrentEffectiveMetrologyConfigurationException(thesaurus);
         }
-        version.getMetrologyConfiguration().getContracts()
-                .stream()
-                .map(contr -> version.getChannelsContainer(contr))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .forEach(cc -> dataModel.remove(cc));
-        this.metrologyConfiguration.remove(version);
+        version.close(version.getStart());
+        this.update();
     }
 
     @Override
