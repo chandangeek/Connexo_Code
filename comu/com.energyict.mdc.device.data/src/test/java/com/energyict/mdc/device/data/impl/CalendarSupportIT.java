@@ -5,7 +5,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
 
 import com.google.common.collect.Range;
@@ -77,10 +77,10 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         // Asserts
         assertThat(device.calendars().getActive()).isEmpty();
         assertThat(device.calendars().getPassive()).isPresent();
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
-        assertThat(passiveEffectiveCalendar.getActivationDate()).isEqualTo(june1st2016);
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
+        PassiveCalendar passiveCalendar = device.calendars().getPassive().get();
+        assertThat(passiveCalendar.getActivationDate()).isEqualTo(june1st2016);
+        assertThat(passiveCalendar.getAllowedCalendar().isGhost()).isTrue();
+        assertThat(passiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
     }
 
     @Test
@@ -107,10 +107,10 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
         assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedActiveCalendarName);
         assertThat(device.calendars().getPassive()).isPresent();
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
-        assertThat(passiveEffectiveCalendar.getActivationDate()).isEqualTo(june1st2016);
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedPassiveCalendarName);
+        PassiveCalendar passiveCalendar = device.calendars().getPassive().get();
+        assertThat(passiveCalendar.getActivationDate()).isEqualTo(june1st2016);
+        assertThat(passiveCalendar.getAllowedCalendar().isGhost()).isTrue();
+        assertThat(passiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedPassiveCalendarName);
     }
 
     @Test
@@ -158,10 +158,10 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         // Asserts
         assertThat(device.calendars().getActive()).isEmpty();
         assertThat(device.calendars().getPassive()).isPresent();
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
-        assertThat(passiveEffectiveCalendar.getActivationDate()).isEqualTo(june1st2016);
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().isGhost()).isFalse();
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(calendar.getName());
+        PassiveCalendar passiveCalendar = device.calendars().getPassive().get();
+        assertThat(passiveCalendar.getActivationDate()).isEqualTo(june1st2016);
+        assertThat(passiveCalendar.getAllowedCalendar().isGhost()).isFalse();
+        assertThat(passiveCalendar.getAllowedCalendar().getName()).isEqualTo(calendar.getName());
     }
 
     @Test
@@ -209,10 +209,10 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         // Asserts
         assertThat(device.calendars().getActive()).isEmpty();
         assertThat(device.calendars().getPassive()).isPresent();
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
-        assertThat(passiveEffectiveCalendar.getActivationDate()).isEqualTo(may1st2016);
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().isGhost()).isFalse();
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(CALENDAR_NAME);
+        PassiveCalendar passiveCalendar = device.calendars().getPassive().get();
+        assertThat(passiveCalendar.getActivationDate()).isEqualTo(may1st2016);
+        assertThat(passiveCalendar.getAllowedCalendar().isGhost()).isFalse();
+        assertThat(passiveCalendar.getAllowedCalendar().getName()).isEqualTo(CALENDAR_NAME);
     }
 
     @Test
@@ -302,10 +302,10 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
         assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo("Casper1");
         assertThat(device.calendars().getPassive()).isPresent();
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
-        assertThat(passiveEffectiveCalendar.getActivationDate()).isEqualTo(june1st2016);
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().isGhost()).isFalse();
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
+        PassiveCalendar passiveCalendar = device.calendars().getPassive().get();
+        assertThat(passiveCalendar.getActivationDate()).isEqualTo(june1st2016);
+        assertThat(passiveCalendar.getAllowedCalendar().isGhost()).isFalse();
+        assertThat(passiveCalendar.getAllowedCalendar().getName()).isEqualTo(expectedCalendarName);
     }
 
     private Calendar addCalendarToDeviceType(Device device) {

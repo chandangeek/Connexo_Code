@@ -30,6 +30,7 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.ConnectionTaskIsR
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -48,7 +49,9 @@ import com.google.common.collect.ImmutableMap;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -118,6 +121,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private ComTaskExecutionSession.SuccessIndicator lastSessionSuccessIndicator;
     private boolean useDefaultConnectionTask;
     private boolean ignoreNextExecutionSpecsForInbound;
+    private List<ComTaskExecutionTrigger> comTaskExecutionTriggers = new ArrayList<>();
 
     @Inject
     public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, CommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
@@ -450,6 +454,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private void doReschedule(Instant nextExecutionTimestamp, Instant plannedNextExecutionTimestamp) {
         this.setExecutingComPort(null);
         this.setExecutionStartedTimestamp(null);
+
+        nextExecutionTimestamp = applyCommunicationTriggersTo(Optional.ofNullable(nextExecutionTimestamp));
         if (nextExecutionTimestamp != null) {// nextExecutionTimestamp is null when putting on hold
             nextExecutionTimestamp = defineNextExecutionTimeStamp(nextExecutionTimestamp);
         }
@@ -459,6 +465,46 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         /* ConnectionTask can be null when the default is used but
          * no default has been set or created yet. */
         this.getConnectionTask().ifPresent(ct -> ct.scheduledComTaskRescheduled(this));
+    }
+
+    /**
+     * Apply the communication triggers (see {@link #getComTaskExecutionTriggers()}) to the given nextExecutionTimeStamp<br/>
+     * This method will return the earliest date of either:
+     * <ul>
+     * <li>the given nextExecutionTimeStamp</li>
+     * <li>the earliest communication trigger timeStamp after {@link #getLastExecutionStartTimestamp()}</li>
+     * </ul>
+     *
+     * @param nextExecutionTimeStamp the next execution timestamp for which the ComTaskExecutionTriggers should be applied
+     * @return the nextExecutionTimeStamp (which is either the given nextExecutionTimeStamp or the earliest communication trigger timeStamp)
+     */
+    protected Instant applyCommunicationTriggersTo(Optional<Instant> nextExecutionTimeStamp) {
+        Optional<Instant> nextExecutionTimeStampAccordingToTriggers = calculateNextExecutionTimestampFromTriggers();
+        if (nextExecutionTimeStamp.isPresent()) {
+            return nextExecutionTimeStampAccordingToTriggers.isPresent() ? earliestOf(nextExecutionTimeStamp.get(), nextExecutionTimeStampAccordingToTriggers.get()) : nextExecutionTimeStamp.get();
+        } else {
+            return nextExecutionTimeStampAccordingToTriggers.isPresent() ? nextExecutionTimeStampAccordingToTriggers.get() : null;
+        }
+    }
+
+    private Instant earliestOf(Instant timeStamp1, Instant timeStamp2) {
+        return timeStamp1.isBefore(timeStamp2) ? timeStamp1 : timeStamp2;
+    }
+
+    /**
+     * Calculates the next execution timestamp based on the list of {@link ComTaskExecutionTrigger}s
+     * <b>Remark:</b> for this calculation, all ComTaskExecutionTriggers having a timeStamp after {@link #getLastExecutionStartTimestamp()}
+     * are taken into account. If {@link #getLastExecutionStartTimestamp()} returns null, then all ComTaskExecutionTriggers after the current time (now) will
+     * be taken into account.
+     *
+     * @return An optional containing the next execution timestamp, or Optional.empty() in case there were no ComTaskExecutionTriggers for this ComTaskExecution
+     */
+    private Optional<Instant> calculateNextExecutionTimestampFromTriggers() {
+        Optional<ComTaskExecutionTrigger> earliestComTaskExecutionTrigger = getComTaskExecutionTriggers().stream()
+                .filter(comTaskExecutionTrigger -> comTaskExecutionTrigger.getTriggerTimeStamp()
+                        .isAfter(getLastExecutionStartTimestamp() != null ? getLastExecutionStartTimestamp() : Instant.now(clock)))
+                .sorted((e1, e2) -> e1.getTriggerTimeStamp().compareTo(e2.getTriggerTimeStamp())).findFirst();
+        return earliestComTaskExecutionTrigger.isPresent() ? Optional.of(earliestComTaskExecutionTrigger.get().getTriggerTimeStamp()) : Optional.empty();
     }
 
     private void setExecutingComPort(ComPort comPort) {
@@ -714,6 +760,20 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.setConnectionTask(null);
         this.setUseDefaultConnectionTask(true);
         this.update();
+    }
+
+    @Override
+    public List<ComTaskExecutionTrigger> getComTaskExecutionTriggers() {
+        return comTaskExecutionTriggers;
+    }
+
+    @Override
+    public void addNewComTaskExecutionTrigger(Instant triggerTimeStamp) {
+        if (!getComTaskExecutionTriggers().stream().anyMatch(trigger -> trigger.getTriggerTimeStamp().getEpochSecond() == triggerTimeStamp.getEpochSecond())) {
+            ComTaskExecutionTriggerImpl comTaskExecutionTrigger = ComTaskExecutionTriggerImpl.from(getDataModel(), this, triggerTimeStamp);
+            getComTaskExecutionTriggers().add(comTaskExecutionTrigger);
+            comTaskExecutionTrigger.notifyCreated();
+        }
     }
 
     @Override

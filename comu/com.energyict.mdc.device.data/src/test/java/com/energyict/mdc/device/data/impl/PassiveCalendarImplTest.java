@@ -4,7 +4,7 @@ import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.PassiveEffectiveCalendar;
+import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendarInformation;
 
 import java.time.LocalDate;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PassiveEffectiveCalendarImplTest extends PersistenceIntegrationTest {
+public class PassiveCalendarImplTest extends PersistenceIntegrationTest {
 
     private static final String CALENDAR_NAME = "Calendar";
 
@@ -42,8 +42,8 @@ public class PassiveEffectiveCalendarImplTest extends PersistenceIntegrationTest
     public void testDeviceEffectiveCalendar() {
         Device device = createSimpleDeviceWithOneCalendar();
         assertThat(device.calendars().getPassive()).isPresent();
-        PassiveEffectiveCalendar passiveEffectiveCalendar = device.calendars().getPassive().get();
-        assertThat(passiveEffectiveCalendar.getAllowedCalendar().getCalendar().get().getName()).isEqualTo("Calendar");
+        PassiveCalendar passiveCalendar = device.calendars().getPassive().get();
+        assertThat(passiveCalendar.getAllowedCalendar().getCalendar().get().getName()).isEqualTo("Calendar");
     }
 
     private Calendar createCalendar() {
