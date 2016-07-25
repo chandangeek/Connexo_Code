@@ -23,14 +23,12 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                         itemId: 'fld-up-metrology-configuration',
                         fieldLabel: Uni.I18n.translate('usagePoint.generalAttributes.metrologyConfiguration', 'MDC', 'Metrology configuration'),
                         renderer: function (value) {
-                            console.log(value);
-                            console.log(me.getRecord());
                             var result = '',
                                 record = me.getRecord(),
                                 startTime,
                                 endTime,
                                 versionsLink = '<a href="'
-                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({usagePointId: record.get('mRID')},{historyTab: 'metrologyConfiguration'})
+                                    + me.router.getRoute('usagepoints/usagepoint/history').buildUrl({usagePointId: record.get('mRID'), tab: 'metrologyconfigurationversion'})
                                     + '">Versions</a>';
 
                             if (value) {

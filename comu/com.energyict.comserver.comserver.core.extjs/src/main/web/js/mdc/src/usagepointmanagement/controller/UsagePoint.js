@@ -9,7 +9,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
         'Mdc.usagepointmanagement.store.ServiceCategories'
     ],
     views: [
-        'Mdc.usagepointmanagement.view.AddUsagePoint'
+        'Mdc.usagepointmanagement.view.AddUsagePoint',
+        'Mdc.usagepointmanagement.view.Setup'
     ],
     refs: [
         {ref: 'metrologyConfiguration', selector: 'metrology-configuration'},
