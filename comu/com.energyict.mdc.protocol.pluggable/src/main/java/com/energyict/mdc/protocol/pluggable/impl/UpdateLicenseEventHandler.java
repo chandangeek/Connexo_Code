@@ -4,6 +4,7 @@ import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.events.TopicHandler;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
@@ -13,6 +14,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -30,6 +32,7 @@ public class UpdateLicenseEventHandler implements TopicHandler {
     private static final String MDC_APPLICATION_KEY = "MDC";
 
     private volatile ServerProtocolPluggableService protocolPluggableService;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile TransactionService transactionService;
     private volatile MeteringService meteringService;
     private volatile List<InboundDeviceProtocolService> inboundDeviceProtocolServices = new CopyOnWriteArrayList<>();
@@ -48,9 +51,18 @@ public class UpdateLicenseEventHandler implements TopicHandler {
     }
 
     private void registerAllPluggableClasses() {
-        this.registerInboundDeviceProtocolPluggableClasses();
-        this.registerDeviceProtocolPluggableClasses();
-        this.registerConnectionTypePluggableClasses();
+        try {
+            this.threadPrincipalService.set(getPrincipal());
+            this.registerInboundDeviceProtocolPluggableClasses();
+            this.registerDeviceProtocolPluggableClasses();
+            this.registerConnectionTypePluggableClasses();
+        } finally {
+            this.threadPrincipalService.clear();
+        }
+    }
+
+    private Principal getPrincipal() {
+        return () -> "Jupiter Installer";
     }
 
     private void registerConnectionTypePluggableClasses() {
@@ -78,6 +90,11 @@ public class UpdateLicenseEventHandler implements TopicHandler {
     @SuppressWarnings("unused")
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = new FakeTransactionService(transactionService);
+    }
+
+    @Reference(name = "AThreadPrincipalService")
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference(name = "AMeteringService")
