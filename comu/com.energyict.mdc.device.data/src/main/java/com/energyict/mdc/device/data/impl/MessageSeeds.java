@@ -144,7 +144,7 @@ public enum MessageSeeds implements MessageSeed {
     OVERFLOW_INCREASED(2120, Keys.OVERFLOW_INCREASED, "The overflow value should not exceed the value of the configuration"),
     VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE(2121, Keys.VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE, "You can not change the OBIS code, you already have devices with an overridden value for this OBIS code: {0}"),
     VAL_KPI_DEVICEGROUP_DELETION(3001, "deviceGroupXstillInUse", "Device group {0} is still in use by a data validation KPI"),
-    KPIS_DEVICEGROUP_DELETION(3001, "deviceGroupXstillInUse", "Device group {0} is still in use by: data validation KPI, data collection KPI")
+    KPIS_DEVICEGROUP_DELETION(3001, "deviceGroupXstillInUse", "Device group {0} is still in use by: data validation KPI, data collection KPI"),
     UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(2122, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, "This device doesn’t have the following reading types that are specified in the metrology configurations of the selected usage point: {0}"),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(2123, "usagePointAlreadyLinkedToAnotherDeviceX", "The usage point is already linked to device {0} starting from {1}"),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(2124, "usagePointAlreadyLinkedToAnotherDeviceXUntil", "The usage point is already linked to device {0} starting from {1} until {2}"),
@@ -154,7 +154,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_STATUS_INFORMATION_COMTASK(2128, Keys.NO_STATUS_INFORMATION_COMTASK, "A comtask to read out the status information could not be located"),
     DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2129, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2130, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
-    COMMAND_ARGUMENT_SPEC_NOT_FOUND(2131, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
+    COMMAND_ARGUMENT_SPEC_NOT_FOUND(2131, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}")
     ;
 
     private final int number;
