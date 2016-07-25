@@ -511,7 +511,7 @@ public class UsagePointImpl implements UsagePoint {
 
         otherVersions.forEach(each -> checkOverlapsOfEffectiveMetrologyConfiguations(each, start, end));
 
-        this.metrologyConfiguration.remove(metrologyConfigurationVersion);
+        this.removeMetrologyConfigurationVersion(metrologyConfigurationVersion);
         Long endDate;
         if (end != null) {
             endDate = end.toEpochMilli();
@@ -572,6 +572,12 @@ public class UsagePointImpl implements UsagePoint {
         if (version.getStart().isBefore(clock.instant())) {
             throw new RemoveCurrentEffectiveMetrologyConfigurationException(thesaurus);
         }
+        version.getMetrologyConfiguration().getContracts()
+                .stream()
+                .map(contr -> version.getChannelsContainer(contr))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(cc -> dataModel.remove(cc));
         this.metrologyConfiguration.remove(version);
     }
 

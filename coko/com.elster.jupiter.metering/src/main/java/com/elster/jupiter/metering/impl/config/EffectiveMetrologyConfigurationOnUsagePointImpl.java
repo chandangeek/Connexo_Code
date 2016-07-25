@@ -3,8 +3,6 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
@@ -100,6 +98,11 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
                 .filter(effectiveContract -> effectiveContract.getMetrologyContract().equals(metrologyContract))
                 .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
                 .findAny();
+    }
+
+    @Override
+    public void setMetrologyConfiguration(UsagePointMetrologyConfiguration metrologyConfiguration) {
+        this.metrologyConfiguration.set(metrologyConfiguration);
     }
 
     public void createEffectiveMetrologyContracts() {
