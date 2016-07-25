@@ -22,7 +22,8 @@ public enum MessageSeeds implements MessageSeed {
 
     DUPLICATE_VALIDATION_TASK(104, Constants.DUPLICATE_VALIDATION_TASK, "Name must be unique", Level.SEVERE),
     CANNOT_DELETE_WHILE_RUNNING(105, Constants.CANNOT_DELETE_WHILE_RUNNING, "Cannot delete a validation task ''{0}'' while it is running.", Level.SEVERE),
-    TASK_VALIDATED_SUCCESFULLY(107, Constants.TASK_VALIDATED_SUCCESFULLY, "Device {0} validated successfully on {1}", Level.INFO),
+    DEVICE_TASK_VALIDATED_SUCCESFULLY(107, Constants.DEVICE_TASK_VALIDATED_SUCCESFULLY, "Device {0} validated successfully on {1}", Level.INFO),
+    USAGE_POINT_TASK_VALIDATED_SUCCESFULLY(108, Constants.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY, "Usage point {0} validated successfully on {1}", Level.INFO),
 
     NO_SUCH_VALIDATOR(1001, Constants.NO_SUCH_VALIDATOR, "Validator {0} does not exist.", Level.SEVERE),
     NO_SUCH_READINGTYPE(1002, Constants.NO_SUCH_READINGTYPE, "Reading type {0} does not exist.", Level.SEVERE),
@@ -97,7 +98,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String VALIDATOR_REQUIRED_PROPERTY_MISSING_KEY = "ValidatorPropertyRequired";
         public static final String DUPLICATE_VALIDATION_TASK = "DuplicateValidationTask";
         public static final String CANNOT_DELETE_WHILE_RUNNING = "CannotDeleteValidationTask";
-        public static final String TASK_VALIDATED_SUCCESFULLY = "TaskValidatedSuccesfully";
+        public static final String DEVICE_TASK_VALIDATED_SUCCESFULLY = "TaskValidatedSuccesfully";
+        public static final String USAGE_POINT_TASK_VALIDATED_SUCCESFULLY = "UsagePointTaskValidatedSuccesfully";
         public static final String OVERLAPPED_PERIOD = "OverlappedPeriod";
         public static final String DEVICE_GROUP_STILL_IN_USE = "DeviceGroupStillInUse";
         public static final String CAN_NOT_CHANGE_FREQUENCY_KEY = "CanNotChangeFrequency";

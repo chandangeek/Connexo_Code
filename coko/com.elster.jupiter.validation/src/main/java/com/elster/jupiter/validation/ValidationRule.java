@@ -1,6 +1,5 @@
 package com.elster.jupiter.validation;
 
-import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.properties.PropertySpec;
 
@@ -60,6 +59,4 @@ public interface ValidationRule {
     List<PropertySpec> getPropertySpecs();
 
     boolean isObsolete();
-
-    QualityCodeSystem getSystem();
 }

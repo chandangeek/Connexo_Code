@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
 import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
@@ -50,6 +51,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
@@ -70,8 +72,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.After;
@@ -82,7 +84,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -166,9 +168,9 @@ public class ValidationAddRemoveIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        when(validatorFactory.available()).thenReturn(Arrays.asList(MIN_MAX));
+        when(validatorFactory.available()).thenReturn(Collections.singletonList(MIN_MAX));
         when(validatorFactory.createTemplate(eq(MIN_MAX))).thenReturn(minMax);
-        when(validatorFactory.create(eq(MIN_MAX), any(Map.class))).thenReturn(minMax);
+        when(validatorFactory.create(eq(MIN_MAX), anyMapOf(String.class, Object.class))).thenReturn(minMax);
         when(minMax.getReadingQualityCodeIndex()).thenReturn(Optional.empty());
         when(minMax.getPropertySpecs()).thenReturn(Arrays.asList(min, max));
         when(min.getName()).thenReturn(MIN);
@@ -191,12 +193,12 @@ public class ValidationAddRemoveIT {
             meter = amrSystem.newMeter("2331").create();
             meter.update();
             meterActivation = meter.activate(date1);
-            meterActivation.createChannel(readingType1);
+            meterActivation.getChannelsContainer().createChannel(readingType1);
 
             ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
             validationService.addResource(validatorFactory);
 
-            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "MDC");
+            final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
             ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
             ValidationRule minMaxRule = validationRuleSetVersion.addRule(ValidationAction.WARN_ONLY, MIN_MAX, "minmax")
                     .withReadingType(readingType1)
@@ -207,8 +209,8 @@ public class ValidationAddRemoveIT {
 
             validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                 @Override
-                public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
-                    return Arrays.asList(validationRuleSet);
+                public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
+                    return Collections.singletonList(validationRuleSet);
                 }
 
                 @Override
@@ -235,20 +237,21 @@ public class ValidationAddRemoveIT {
             @Override
             protected void doPerform() {
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(10L), date1.plusSeconds(900 * 1)));
+                meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(10L), date1.plusSeconds(900)));
                 meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(11L), date1.plusSeconds(900 * 2)));
                 meterReading.addReading(ReadingImpl.of(readingType, BigDecimal.valueOf(12L), date1.plusSeconds(900 * 3)));
-                meter.store(meterReading);
+                meter.store(QualityCodeSystem.MDC, meterReading);
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
-                List<IMeterActivationValidation> meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
-                IChannelValidation channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
+                List<ChannelsContainerValidation> channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class)
+                        .find("channelsContainer", meterActivation.getChannelsContainer());
+                ChannelValidation channelValidation = channelsContainerValidations.get(0).getChannelValidations().iterator().next();
                 assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 3));
-                Channel channel = meter.getMeterActivations().get(0).getChannels().get(0);
+                Channel channel = meter.getMeterActivations().get(0).getChannelsContainer().getChannels().get(0);
                 List<BaseReadingRecord> readings = channel.getReadings(Range.all());
-                channel.removeReadings(readings.subList(1, readings.size()));
-                meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
-                channelValidation = meterActivationValidations.get(0).getChannelValidations().iterator().next();
-                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900 * 1));
+                channel.removeReadings(QualityCodeSystem.MDC, readings.subList(1, readings.size()));
+                channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class).find("channelsContainer", meterActivation.getChannelsContainer());
+                channelValidation = channelsContainerValidations.get(0).getChannelValidations().iterator().next();
+                assertThat(channelValidation.getLastChecked()).isEqualTo(date1.plusSeconds(900));
             }
         });
     }

@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
@@ -31,7 +32,7 @@ public interface DataValidationTask extends HasAuditInfo {
 
     void setName(String name);
 
-    String getApplication();
+    QualityCodeSystem getQualityCodeSystem();
 
     Optional<EndDeviceGroup> getEndDeviceGroup();
 

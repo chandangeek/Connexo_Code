@@ -1,9 +1,12 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -16,40 +19,37 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
-import com.elster.jupiter.validation.ValidationService;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.logging.Level;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class DataValidationTaskExecutor implements TaskExecutor {
 
-    public static final String MULTISENSE_KEY = "MDC";
-    public static final String INSIGHT_KEY = "INS";
-
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
-    private final ValidationService validationService;
-    private final MeteringService meteringService;
+    private final ValidationServiceImpl validationService;
+    private final MetrologyConfigurationService metrologyConfigurationService;
     private final ThreadPrincipalService threadPrincipalService;
     private final User user;
 
 
-    public DataValidationTaskExecutor(ValidationService validationService, MeteringService meteringService, TransactionService transactionService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, User user) {
+    public DataValidationTaskExecutor(ValidationServiceImpl validationService, MetrologyConfigurationService metrologyConfigurationService, TransactionService transactionService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, User user) {
         this.thesaurus = thesaurus;
         this.validationService = validationService;
         this.transactionService = transactionService;
-        this.meteringService = meteringService;
+        this.metrologyConfigurationService = metrologyConfigurationService;
         this.threadPrincipalService = threadPrincipalService;
         this.user = user;
     }
 
     @Override
     public void execute(TaskOccurrence taskOccurrence) {
-        DataValidationOccurrence dataValidationOccurence = createOccurence(taskOccurrence);
+        createOccurrence(taskOccurrence);
     }
 
     @Override
@@ -88,10 +88,10 @@ public class DataValidationTaskExecutor implements TaskExecutor {
         return logger;
     }
 
-    public DataValidationOccurrence createOccurence(TaskOccurrence taskOccurrence) {
-        DataValidationOccurrence dataValidationOccurence = validationService.createValidationOccurrence(taskOccurrence);
-        dataValidationOccurence.persist();
-        return dataValidationOccurence;
+    public DataValidationOccurrence createOccurrence(TaskOccurrence taskOccurrence) {
+        DataValidationOccurrence dataValidationOccurrence = validationService.createValidationOccurrence(taskOccurrence);
+        dataValidationOccurrence.persist();
+        return dataValidationOccurrence;
     }
 
     private DataValidationOccurrence findOccurrence(TaskOccurrence occurrence) {
@@ -99,63 +99,70 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     }
 
     private DataValidationOccurrence findAndLockOccurrence(TaskOccurrence occurrence) {
-        return ((ValidationServiceImpl) validationService).findAndLockDataValidationOccurrence(occurrence);
+        return validationService.findAndLockDataValidationOccurrence(occurrence);
     }
 
     private void doExecute(DataValidationOccurrence occurrence, Logger logger) {
         DataValidationTask task = occurrence.getTask();
+        switch (task.getQualityCodeSystem()) {
+            case MDC:
+                executeMdcTask(occurrence, logger, task);
+                break;
+            case MDM:
+                executeMdmTask(occurrence, logger, task);
+                break;
+        }
+    }
 
-        switch(task.getApplication()){
-            case MULTISENSE_KEY :
-                List<EndDevice> devices = task.getEndDeviceGroup().get().getMembers(Instant.now());
-                for (EndDevice device : devices) {
-                    Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
-                    if (found.isPresent()) {
-                        List<? extends MeterActivation> activations = found.get().getMeterActivations();
-                        for (MeterActivation activation : activations) {
-                            try (TransactionContext transactionContext = transactionService.getContext()) {
-                                validationService.validate(activation);
-                                transactionContext.commit();
-                            }
-                            transactionService.execute(VoidTransaction.of(() -> MessageSeeds.TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate().get())));
-                        }
-
+    private void executeMdcTask(DataValidationOccurrence occurrence, Logger logger, DataValidationTask task) {
+        List<EndDevice> devices = task.getEndDeviceGroup().get().getMembers(Instant.now());
+        for (EndDevice device : devices) {
+            Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
+            if (found.isPresent()) {
+                List<ChannelsContainer> channelsContainers = found.get().getChannelsContainers();
+                for (ChannelsContainer channelsContainer : channelsContainers) {
+                    try (TransactionContext transactionContext = transactionService.getContext()) {
+                        validationService.validate(new ValidationContextImpl(EnumSet.of(task.getQualityCodeSystem()), channelsContainer));
+                        transactionContext.commit();
                     }
+                    transactionService.execute(VoidTransaction.of(() -> MessageSeeds.DEVICE_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, device.getMRID(), occurrence.getStartDate()
+                            .get())));
                 }
-                break;
-            case INSIGHT_KEY :
-                MetrologyContract metrologyContract = task.getMetrologyContract().get();
-                // Validation should be added in scope of "Usage point validation".
-                break;
-
-        }
-    }
-
-    private LoggingExceptions loggingExceptions(Logger logger, Runnable runnable) {
-        return new LoggingExceptions(runnable, logger);
-    }
-
-    private class LoggingExceptions implements Runnable {
-
-        private final Runnable decorated;
-        private final Logger logger;
-
-        private LoggingExceptions(Runnable decorated, Logger logger) {
-            this.decorated = decorated;
-            this.logger = logger;
-        }
-
-        @Override
-        public void run() {
-            try {
-                decorated.run();
-            } catch (RuntimeException e) {
-                try (TransactionContext context = transactionService.getContext()) {
-                    logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-                    context.commit();
-                }
-                throw e;
             }
         }
+    }
+
+    private void executeMdmTask(DataValidationOccurrence occurrence, Logger logger, DataValidationTask task) {
+        MetrologyContract metrologyContract = task.getMetrologyContract().get();
+        metrologyConfigurationService.getEffectiveMetrologyConfigurationFinderFor(metrologyContract).stream()
+                .forEach(effectiveMetrologyConfiguration -> {
+                    // Validate inputs provided by linked meters
+                    validateUsagePointInputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, effectiveMetrologyConfiguration);
+                    // Validate outputs provided by metrology configuration
+                    validateUsagePointOutputs(EnumSet.of(task.getQualityCodeSystem()), metrologyContract, effectiveMetrologyConfiguration);
+                    transactionService.execute(VoidTransaction.of(() -> MessageSeeds.USAGE_POINT_TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, effectiveMetrologyConfiguration.getUsagePoint()
+                            .getMRID(), occurrence.getStartDate().get())));
+                });
+    }
+
+    private void validateUsagePointInputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
+        effectiveMetrologyConfiguration.getUsagePoint().getCurrentMeterActivations()
+                .stream()
+                .map(MeterActivation::getChannelsContainer)
+                .forEach(channelsContainer -> {
+                    try (TransactionContext transactionContext = transactionService.getContext()) {
+                        validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer).setMetrologyContract(metrologyContract));
+                        transactionContext.commit();
+                    }
+                });
+    }
+
+    private void validateUsagePointOutputs(Set<QualityCodeSystem> qualityCodeSystems, MetrologyContract metrologyContract, EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration) {
+        effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer -> {
+            try (TransactionContext transactionContext = transactionService.getContext()) {
+                validationService.validate(new ValidationContextImpl(qualityCodeSystems, channelsContainer).setMetrologyContract(metrologyContract));
+                transactionContext.commit();
+            }
+        });
     }
 }

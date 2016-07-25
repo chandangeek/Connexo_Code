@@ -2,9 +2,9 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.StorerProcess;
 import com.elster.jupiter.pubsub.EventHandler;
@@ -57,36 +57,35 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     }
 
     private void handleAdvanceEvent(EventType.MeterActivationAdvancedEvent advanceEvent) {
-        validationService.getIMeterActivationValidations(advanceEvent.getAdvanced())
+        validationService.getPersistedChannelsContainerValidations(advanceEvent.getAdvanced().getChannelsContainer())
                 .stream()
-                .forEach(iMeterActivationValidation -> {
-                    iMeterActivationValidation.getChannelValidations()
-                            .forEach(iChannelValidation -> iChannelValidation.updateLastChecked(advanceEvent.getAdvanced().getStart()));
-                    iMeterActivationValidation.save();
+                .forEach(channelsContainerValidation -> {
+                    channelsContainerValidation.getChannelValidations()
+                            .forEach(channelValidation -> channelValidation.updateLastChecked(advanceEvent.getAdvanced().getStart()));
+                    channelsContainerValidation.save();
                 });
         if (advanceEvent.getShrunk() != null) {
-            validationService.getIMeterActivationValidations(advanceEvent.getShrunk())
+            validationService.getPersistedChannelsContainerValidations(advanceEvent.getShrunk().getChannelsContainer())
                     .stream()
-                    .forEach(iMeterActivationValidation -> {
-                        iMeterActivationValidation.getChannelValidations()
-                                .forEach(iChannelValidation -> {
+                    .forEach(channelsContainerValidation -> {
+                        channelsContainerValidation.getChannelValidations()
+                                .forEach(channelValidation -> {
                                     Instant end = advanceEvent.getShrunk().getEnd();
-                                    if (iChannelValidation.getLastChecked() != null && end.isBefore(iChannelValidation.getLastChecked())) {
-                                        iChannelValidation.updateLastChecked(end);
+                                    if (channelValidation.getLastChecked() != null && end.isBefore(channelValidation.getLastChecked())) {
+                                        channelValidation.updateLastChecked(end);
                                     }
-                                    ;
                                 });
-                        iMeterActivationValidation.save();
+                        channelsContainerValidation.save();
                     });
         }
     }
 
     private void handleReadingStorer(ReadingStorer storer) {
-        Map<MeterActivation, Map<Channel, Range<Instant>>> map = determineScopePerMeterActivation(storer);
+        Map<ChannelsContainer, Map<Channel, Range<Instant>>> map = determineScopePerChannelContainer(storer);
         map.entrySet().forEach(entry -> validationService.validate(entry.getKey(), entry.getValue()));
     }
 
-    private Map<MeterActivation, Map<Channel, Range<Instant>>> determineScopePerMeterActivation(ReadingStorer storer) {
+    private Map<ChannelsContainer, Map<Channel, Range<Instant>>> determineScopePerChannelContainer(ReadingStorer storer) {
         Map<CimChannel, Range<Instant>> scope = storer.getScope();
 
         //Collector<Map.Entry<CimChannel, Range<Instant>>, Range<Instant>, Range<Instant>> merger =
@@ -101,8 +100,8 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
         return byChannel.entrySet().stream().collect(
                 HashMap::new,
                 (map, entry) -> {
-                    map.computeIfAbsent(entry.getKey().getMeterActivation(), meterActivation -> new HashMap<>());
-                    map.computeIfPresent(entry.getKey().getMeterActivation(), (meterActivation, map1) -> {
+                    map.computeIfAbsent(entry.getKey().getChannelsContainer(), channelsContainer -> new HashMap<>());
+                    map.computeIfPresent(entry.getKey().getChannelsContainer(), (channelsContainer, map1) -> {
                         map1.put(entry.getKey(), entry.getValue());
                         return map1;
                     });
@@ -112,7 +111,7 @@ public class ValidationEventHandler extends EventHandler<LocalEvent> {
     }
 
     private void handleDeleteEvent(Channel.ReadingsDeletedEvent deleteEvent) {
-    	validationService.validate(deleteEvent.getChannel().getMeterActivation(), ImmutableMap.of(deleteEvent.getChannel(), deleteEvent.getRange()));
+        validationService.validate(deleteEvent.getChannel().getChannelsContainer(), ImmutableMap.of(deleteEvent.getChannel(), deleteEvent.getRange()));
     }
 
 }

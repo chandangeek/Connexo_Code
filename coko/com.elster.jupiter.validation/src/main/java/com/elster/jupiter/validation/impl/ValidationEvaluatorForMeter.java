@@ -1,10 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
+
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
@@ -29,7 +30,7 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
     private final Meter meter;
     private final ValidationServiceImpl validationService;
 
-    private Map<Long, MeterActivationValidationContainer> mapToValidation;   
+    private Map<Long, ChannelsContainerValidationList> mapToValidation;
     private Map<Long, ChannelValidationContainer> mapChannelToValidation;
     private Multimap<String, IValidationRule> mapQualityToRule;
 
@@ -41,10 +42,9 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
         this.meter = meter;
     }
 
-
     @Override
-    public boolean isAllDataValidated(MeterActivation meterActivation) {
-        return getMapToValidation().get(meterActivation.getId()).isAllDataValidated();               
+    public boolean isAllDataValidated(ChannelsContainer channelsContainer) {
+        return getMapToValidation().get(channelsContainer.getId()).isAllDataValidated();
     }
 
     @Override
@@ -70,8 +70,9 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
     }
 
     @Override
-    public boolean isValidationEnabled(ReadingContainer meter, ReadingType readingType){
-        return (meter.getMeterActivations().stream()
+    public boolean isValidationEnabled(ReadingContainer meter, ReadingType readingType) {
+        return (meter.getChannelsContainers()
+                .stream()
                 .flatMap(m -> m.getChannels().stream())
                 .filter(k -> k.getReadingTypes().contains(readingType))
                 .filter(validationService::isValidationActive)).count() > 0;
@@ -79,7 +80,8 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
 
     @Override
     public Optional<Instant> getLastChecked(ReadingContainer readingContainer, ReadingType readingType) {
-        return readingContainer.getMeterActivations().stream()
+        return readingContainer.getChannelsContainers()
+                .stream()
                 .flatMap(m -> m.getChannels().stream())
                 .filter(k -> k.getReadingTypes().contains(readingType))
                 .map(channel -> getMapChannelToValidation().get(channel.getId()))
@@ -102,26 +104,26 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
         return mapQualityToRule;
     }
 
-    private ImmutableMap<Long, MeterActivationValidationContainer> initMeterActivationMap(ValidationServiceImpl validationService, Meter meter) {
-        ImmutableMap.Builder<Long, MeterActivationValidationContainer> validationMapBuilder = ImmutableMap.builder();
-        for (MeterActivation meterActivation : meter.getMeterActivations()) {
-            MeterActivationValidationContainer container = validationService.updatedMeterActivationValidationsFor(meterActivation);
-            validationMapBuilder.put(meterActivation.getId(), container);
+    private ImmutableMap<Long, ChannelsContainerValidationList> initChannelContainerMap(ValidationServiceImpl validationService, Meter meter) {
+        ImmutableMap.Builder<Long, ChannelsContainerValidationList> validationMapBuilder = ImmutableMap.builder();
+        for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {
+            ChannelsContainerValidationList container = validationService.updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer));
+            validationMapBuilder.put(channelsContainer.getId(), container);
         }
         return validationMapBuilder.build();
     }
 
     private Map<Long, ChannelValidationContainer> initChannelMap(Meter meter) {
         ImmutableMap.Builder<Long, ChannelValidationContainer> channelValidationMapBuilder = ImmutableMap.builder();
-        meter.getMeterActivations().stream()
-                .flatMap(m -> m.getChannels().stream())             
-                .forEach(c -> channelValidationMapBuilder.put(c.getId(), getMapToValidation().get(c.getMeterActivation().getId()).channelValidationsFor(c)));                                           
+        meter.getChannelsContainers().stream()
+                .flatMap(channelContainer -> channelContainer.getChannels().stream())
+                .forEach(channel -> channelValidationMapBuilder.put(channel.getId(), getMapToValidation().get(channel.getChannelsContainer().getId()).channelValidationsFor(channel)));
         return channelValidationMapBuilder.build();
     }
 
     private ImmutableListMultimap<String, IValidationRule> initRulesPerQuality() {
         Set<IValidationRule> rules = getMapToValidation().values().stream()
-                .flatMap(meterActivationValidationContainer -> meterActivationValidationContainer.ruleSets().stream())
+                .flatMap(channelsContainerValidationList -> channelsContainerValidationList.ruleSets().stream())
                 .distinct()
                 .flatMap(ruleSet -> ruleSet.getRules().stream())
                 .map(IValidationRule.class::cast)
@@ -129,9 +131,9 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
         return Multimaps.index(rules, i -> i.getReadingQualityType().getCode());
     }
 
-    private Map<Long, MeterActivationValidationContainer> getMapToValidation() {
+    private Map<Long, ChannelsContainerValidationList> getMapToValidation() {
         if (mapToValidation == null) {
-            mapToValidation = initMeterActivationMap(validationService, meter);
+            mapToValidation = initChannelContainerMap(validationService, meter);
         }
         return mapToValidation;
     }

@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -39,6 +40,7 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationAction;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
@@ -58,6 +60,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -185,13 +188,13 @@ public class ValidationIT {
                 Meter meter = amrSystem.newMeter("2331").create();
                 meter.update();
                 meterActivation = meter.activate(date1);
-                meterActivation.createChannel(readingType1, readingType2);
-                meterActivation.createChannel(readingType1, readingType3);
+                meterActivation.getChannelsContainer().createChannel(readingType1, readingType2);
+                meterActivation.getChannelsContainer().createChannel(readingType1, readingType3);
 
                 ValidationServiceImpl validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
                 validationService.addResource(validatorFactory);
 
-                final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, "MDC");
+                final ValidationRuleSet validationRuleSet = validationService.createValidationRuleSet(MY_RULE_SET, QualityCodeSystem.MDC);
                 ValidationRuleSetVersion validationRuleSetVersion = validationRuleSet.addRuleSetVersion("description", Instant.EPOCH);
                 ValidationRule zeroesRule = validationRuleSetVersion.addRule(ValidationAction.FAIL, CONSECUTIVE_ZEROES, "consecutivezeros")
                         .withReadingType(readingType1)
@@ -209,7 +212,7 @@ public class ValidationIT {
 
                 validationService.addValidationRuleSetResolver(new ValidationRuleSetResolver() {
                     @Override
-                    public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
+                    public List<ValidationRuleSet> resolve(ValidationContext validationContext) {
                         return Arrays.asList(validationRuleSet);
                     }
 
@@ -238,14 +241,15 @@ public class ValidationIT {
             @Override
             protected void doPerform() {
                 ValidationService service = injector.getInstance(ValidationService.class);
-                service.validate(meterActivation);
+                service.validate(Collections.emptySet(), meterActivation.getChannelsContainer());
 
                 DataModel valDataModel = injector.getInstance(OrmService.class).getDataModel(ValidationService.COMPONENTNAME).get();
-                List<IMeterActivationValidation> meterActivationValidations = valDataModel.mapper(IMeterActivationValidation.class).find("meterActivation", meterActivation);
-                assertThat(meterActivationValidations).hasSize(1);
-                assertThat(meterActivationValidations.get(0).getRuleSet().getName()).isEqualTo(MY_RULE_SET);
-                assertThat(meterActivationValidations.get(0).isObsolete()).isFalse();
-                assertThat(meterActivationValidations.get(0).getChannelValidations()).hasSize(2);
+                List<ChannelsContainerValidation> channelsContainerValidations = valDataModel.mapper(ChannelsContainerValidation.class)
+                        .find("channelsContainer", meterActivation.getChannelsContainer());
+                assertThat(channelsContainerValidations).hasSize(1);
+                assertThat(channelsContainerValidations.get(0).getRuleSet().getName()).isEqualTo(MY_RULE_SET);
+                assertThat(channelsContainerValidations.get(0).isObsolete()).isFalse();
+                assertThat(channelsContainerValidations.get(0).getChannelValidations()).hasSize(2);
 
             }
         });

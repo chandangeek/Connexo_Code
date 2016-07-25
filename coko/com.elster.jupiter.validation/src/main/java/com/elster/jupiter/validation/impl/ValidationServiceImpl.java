@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -8,6 +9,7 @@ import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -45,6 +47,7 @@ import com.elster.jupiter.validation.DataValidationAssociationProvider;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
+import com.elster.jupiter.validation.ValidationContext;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -80,10 +83,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -246,13 +251,13 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public ValidationRuleSet createValidationRuleSet(String name, String applicationName) {
-        return createValidationRuleSet(name, applicationName, null);
+    public ValidationRuleSet createValidationRuleSet(String name, QualityCodeSystem qualityCodeSystem) {
+        return createValidationRuleSet(name, qualityCodeSystem, null);
     }
 
     @Override
-    public ValidationRuleSet createValidationRuleSet(String name, String applicationName, String description) {
-        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, applicationName, description);
+    public ValidationRuleSet createValidationRuleSet(String name, QualityCodeSystem qualityCodeSystem, String description) {
+        ValidationRuleSet set = dataModel.getInstance(ValidationRuleSetImpl.class).init(name, qualityCodeSystem, description);
         set.save();
         return set;
     }
@@ -277,12 +282,15 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 meterValidation.get().setActivationStatus(true);
                 meterValidation.get().save();
                 meter.getCurrentMeterActivation()
-                        .map(this::updatedMeterActivationValidationsFor)
-                        .ifPresent(MeterActivationValidationContainer::activate);
+                        .map(MeterActivation::getChannelsContainer)
+                        .map(channelsContainer -> updatedChannelsContainerValidationsFor(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDC), channelsContainer)))
+                        .ifPresent(ChannelsContainerValidationList::activate);
             } // else already active
         } else {
             createMeterValidation(meter, true, false);
-            meter.getCurrentMeterActivation().ifPresent(this::updatedMeterActivationValidationsFor);
+            meter.getCurrentMeterActivation()
+                    .map(MeterActivation::getChannelsContainer)
+                    .ifPresent(channelsContainer -> updatedChannelsContainerValidationsFor(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDC), channelsContainer)));
         }
     }
 
@@ -307,7 +315,6 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 });
     }
 
-
     @Override
     public void disableValidationOnStorage(Meter meter) {
         getMeterValidation(meter)
@@ -317,7 +324,6 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                     meterValidation.save();
                 });
     }
-
 
     @Override
     public boolean validationEnabled(Meter meter) {
@@ -350,30 +356,29 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public void updateLastChecked(MeterActivation meterActivation, Instant date) {
-        updatedMeterActivationValidationsFor(meterActivation).updateLastChecked(Objects.requireNonNull(date));
+    public void updateLastChecked(ChannelsContainer channelsContainer, Instant date) {
+        updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer)).updateLastChecked(Objects.requireNonNull(date));
     }
 
     @Override
     public void updateLastChecked(Channel channel, Instant date) {
-        activeMeterActivationValidationsFor(Objects.requireNonNull(channel).getMeterActivation())
+        activeChannelsContainerValidationsFor(Objects.requireNonNull(channel).getChannelsContainer())
                 .updateLastChecked(channel, Objects.requireNonNull(date));
     }
 
-
     @Override
     public boolean isValidationActive(Channel channel) {
-        return activeMeterActivationValidationsFor(Objects.requireNonNull(channel).getMeterActivation()).isValidationActive(channel);
+        return activeChannelsContainerValidationsFor(Objects.requireNonNull(channel).getChannelsContainer()).isValidationActive(channel);
     }
 
     @Override
-    public Optional<Instant> getLastChecked(MeterActivation meterActivation) {
-        return activeMeterActivationValidationsFor(Objects.requireNonNull(meterActivation)).getLastChecked();
+    public Optional<Instant> getLastChecked(ChannelsContainer channelsContainer) {
+        return activeChannelsContainerValidationsFor(Objects.requireNonNull(channelsContainer)).getLastChecked();
     }
 
     @Override
     public Optional<Instant> getLastChecked(Channel channel) {
-        return activeMeterActivationValidationsFor(Objects.requireNonNull(channel).getMeterActivation()).getLastChecked(channel);
+        return activeChannelsContainerValidationsFor(Objects.requireNonNull(channel).getChannelsContainer()).getLastChecked(channel);
     }
 
     @Override
@@ -405,39 +410,60 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public void validate(MeterActivation meterActivation) {
-        if (isValidationActive(meterActivation)) {
-            updatedMeterActivationValidationsFor(meterActivation).validate();
-        }
+    public void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer) {
+        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer));
     }
 
     @Override
-    public void validate(MeterActivation meterActivation, ReadingType readingType) {
-        if (isValidationActive(meterActivation)) {
-            updatedMeterActivationValidationsFor(meterActivation).validate(readingType);
+    public void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType) {
+        validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer).setReadingType(readingType));
+    }
+
+    public void validate(ValidationContextImpl validationContext) {
+        Set<QualityCodeSystem> allowedQualityCodeSystems = getQualityCodeSystemsWithAllowedValidation(validationContext);
+        if (!allowedQualityCodeSystems.isEmpty()) {
+            // Update the list of requested quality systems, because it is possible that some of them was restricted
+            validationContext.setQualityCodeSystems(allowedQualityCodeSystems);
+            if (validationContext.getReadingType().isPresent()) {
+                updatedChannelsContainerValidationsFor(validationContext).validate(validationContext.getReadingType().get());
+            } else {
+                updatedChannelsContainerValidationsFor(validationContext).validate();
+            }
         }
     }
 
-    public void validate(MeterActivation meterActivation, Map<Channel, Range<Instant>> ranges) {
-        MeterActivationValidationContainer container = updatedMeterActivationValidationsFor(meterActivation);
+    public void validate(ChannelsContainer channelsContainer, Map<Channel, Range<Instant>> ranges) {
+        ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(new ValidationContextImpl(channelsContainer));
         container.moveLastCheckedBefore(ranges);
-        if (isValidationActiveOnStorage(meterActivation)) {
+        if (isValidationActiveOnStorage(channelsContainer)) {
             container.validate();
         } else {
             container.update();
         }
     }
 
-    private boolean isValidationActive(MeterActivation meterActivation) {
-        Optional<Meter> meter = meterActivation.getMeter();
+    private Set<QualityCodeSystem> getQualityCodeSystemsWithAllowedValidation(ValidationContext validationContext) {
+        Set<QualityCodeSystem> toValidate = validationContext.getQualityCodeSystems();
+        if (toValidate == null || toValidate.isEmpty()) {
+            toValidate = EnumSet.allOf(QualityCodeSystem.class);
+        } else {
+            toValidate = EnumSet.copyOf(toValidate); // make an editable copy
+        }
+        if (toValidate.contains(QualityCodeSystem.MDC) && !isValidationActiveOnMeter(validationContext.getMeter())) {
+            toValidate.remove(QualityCodeSystem.MDC);
+        }
+        return toValidate;
+    }
+
+    private Boolean isValidationActiveOnMeter(Optional<Meter> meter) {
         return meter
                 .flatMap(this::getMeterValidation)
                 .map(MeterValidationImpl::getActivationStatus)
                 .orElse(!meter.isPresent());
     }
 
-    private boolean isValidationActiveOnStorage(MeterActivation meterActivation) {
-        Optional<Meter> meter = meterActivation.getMeter();
+    private boolean isValidationActiveOnStorage(ChannelsContainer channelsContainer) {
+        Optional<Meter> meter = channelsContainer.getMeter();
         return meter
                 .flatMap(this::getMeterValidation)
                 .filter(MeterValidationImpl::getActivationStatus) // validation should be active
@@ -445,59 +471,70 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 .orElse(!meter.isPresent());
     }
 
-    List<IMeterActivationValidation> getUpdatedMeterActivationValidations(MeterActivation meterActivation) {
+    List<ChannelsContainerValidation> getUpdatedChannelsContainerValidations(ValidationContext validationContext) {
         List<ValidationRuleSet> ruleSets = ruleSetResolvers.stream()
-                .flatMap(r -> r.resolve(meterActivation).stream())
+                .flatMap(r -> r.resolve(validationContext).stream())
+                .filter(ruleSet -> validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems().contains(ruleSet.getQualityCodeSystem()))
                 .collect(Collectors.toList());
-        List<IMeterActivationValidation> existingMeterActivationValidations = getIMeterActivationValidations(meterActivation);
-        List<IMeterActivationValidation> returnList = ruleSets.stream()
-                .map(r -> Pair.of(r, getForRuleSet(existingMeterActivationValidations, r)))
-                .map(p -> p.getLast().orElseGet(() -> applyRuleSet(p.getFirst(), meterActivation)))
+        List<ChannelsContainerValidation> persistedChannelsContainerValidations = getPersistedChannelsContainerValidations(validationContext.getChannelsContainer());
+        List<ChannelsContainerValidation> returnList = ruleSets.stream()
+                .map(ruleSet -> Pair.of(ruleSet, getForRuleSet(persistedChannelsContainerValidations, ruleSet)))
+                .map(validationPair -> validationPair.getLast().orElseGet(() -> applyRuleSet(validationPair.getFirst(), validationContext.getChannelsContainer())))
                 .collect(Collectors.toList());
-        returnList.stream().forEach(m -> m.getChannels().stream().filter(c -> !m.getRuleSet()
-                .getRules(c.getReadingTypes()).isEmpty())
-                .filter(c -> !m.getChannelValidation(c).isPresent())
-                .forEach(m::addChannelValidation));
-        existingMeterActivationValidations.stream()
-                .filter(m -> !ruleSets.contains(m.getRuleSet()))
-                .forEach(IMeterActivationValidation::makeObsolete);
+        returnList.stream()
+                .forEach(channelsContainerValidation -> channelsContainerValidation.getChannelsContainer().getChannels()
+                        .stream()
+                        .filter(channel -> !channelsContainerValidation.getRuleSet().getRules(channel.getReadingTypes()).isEmpty())
+                        .filter(channel -> !channelsContainerValidation.getChannelValidation(channel).isPresent())
+                        .forEach(channelsContainerValidation::addChannelValidation));
+        persistedChannelsContainerValidations.stream()
+                .filter(channelsContainerValidation -> {
+                    ValidationRuleSet validationRuleSet = channelsContainerValidation.getRuleSet();
+                    return !ruleSets.contains(validationRuleSet)
+                            && (validationContext.getQualityCodeSystems().isEmpty() || validationContext.getQualityCodeSystems().contains(validationRuleSet.getQualityCodeSystem()))
+                            && (validationRuleSet.getObsoleteDate() != null || !isValidationRuleSetInUse(validationRuleSet));
+                })
+                .forEach(ChannelsContainerValidation::makeObsolete);
         return returnList;
     }
 
-    MeterActivationValidationContainer activeMeterActivationValidationsFor(MeterActivation meterActivation) {
-        return MeterActivationValidationContainer.of(getActiveIMeterActivationValidations(meterActivation));
+    ChannelsContainerValidationList activeChannelsContainerValidationsFor(ChannelsContainer channelsContainer) {
+        return ChannelsContainerValidationList.of(getActivePersistedChannelsContainerValidations(channelsContainer));
     }
 
-    MeterActivationValidationContainer updatedMeterActivationValidationsFor(MeterActivation meterActivation) {
-        return MeterActivationValidationContainer.of(getUpdatedMeterActivationValidations(meterActivation));
+    ChannelsContainerValidationList updatedChannelsContainerValidationsFor(ValidationContext validationContext) {
+        return ChannelsContainerValidationList.of(getUpdatedChannelsContainerValidations(validationContext));
     }
 
-    private Optional<IMeterActivationValidation> getForRuleSet(List<IMeterActivationValidation> meterActivations, ValidationRuleSet ruleSet) {
-        return meterActivations.stream().filter(meterActivation -> ruleSet.equals(meterActivation.getRuleSet())).findFirst();
+    private Optional<ChannelsContainerValidation> getForRuleSet(List<ChannelsContainerValidation> channelsContainerValidations, ValidationRuleSet ruleSet) {
+        return channelsContainerValidations.stream().filter(channelsContainerValidation -> ruleSet.equals(channelsContainerValidation.getRuleSet())).findFirst();
     }
 
-    List<IMeterActivationValidation> getIMeterActivationValidations(MeterActivation meterActivation) {
-        Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where("obsoleteTime").isNull());
-        return dataModel.query(IMeterActivationValidation.class, IChannelValidation.class).select(condition);
+    List<ChannelsContainerValidation> getPersistedChannelsContainerValidations(ChannelsContainer channelsContainer) {
+        Condition condition = where("channelsContainer").isEqualTo(channelsContainer)
+                .and(where("obsoleteTime").isNull());
+        return dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class).select(condition);
     }
 
-    private List<IMeterActivationValidation> getActiveIMeterActivationValidations(MeterActivation meterActivation) {
-        Condition condition = where("meterActivation").isEqualTo(meterActivation).and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull()).and(where("active").isEqualTo(true));
-        return dataModel.query(IMeterActivationValidation.class, IChannelValidation.class).select(condition);
+    private List<ChannelsContainerValidation> getActivePersistedChannelsContainerValidations(ChannelsContainer channelsContainer) {
+        Condition condition = where("channelsContainer").isEqualTo(channelsContainer)
+                .and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull())
+                .and(where("active").isEqualTo(true));
+        return dataModel.query(ChannelsContainerValidation.class, ChannelValidation.class).select(condition);
     }
 
-    private IMeterActivationValidation applyRuleSet(ValidationRuleSet ruleSet, MeterActivation meterActivation) {
-        IMeterActivationValidation meterActivationValidation = new MeterActivationValidationImpl(dataModel, clock).init(meterActivation);
-        meterActivationValidation.setRuleSet(ruleSet);
-        meterActivation.getChannels().stream()
+    private ChannelsContainerValidation applyRuleSet(ValidationRuleSet ruleSet, ChannelsContainer channelsContainer) {
+        ChannelsContainerValidation channelsContainerValidation = dataModel.getInstance(ChannelsContainerValidationImpl.class).init(channelsContainer);
+        channelsContainerValidation.setRuleSet(ruleSet);
+        channelsContainer.getChannels().stream()
                 .filter(c -> !ruleSet.getRules(c.getReadingTypes()).isEmpty())
-                .forEach(meterActivationValidation::addChannelValidation);
-        meterActivationValidation.save();
-        return meterActivationValidation;
+                .forEach(channelsContainerValidation::addChannelValidation);
+        channelsContainerValidation.save();
+        return channelsContainerValidation;
     }
 
-    public List<? extends IMeterActivationValidation> getMeterActivationValidations(MeterActivation meterActivation) {
-        return getUpdatedMeterActivationValidations(meterActivation);
+    public List<? extends ChannelsContainerValidation> getChannelsContainerValidations(ChannelsContainer channelsContainer) {
+        return getUpdatedChannelsContainerValidations(new ValidationContextImpl(channelsContainer));
     }
 
     @Override
@@ -510,8 +547,8 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         return queryService.wrap(dataModel.query(IValidationRule.class, IValidationRuleSetVersion.class, IValidationRuleSet.class));
     }
 
-    List<? extends IChannelValidation> getChannelValidations(Channel channel) {
-        return dataModel.mapper(IChannelValidation.class).find("channel", channel);
+    List<? extends ChannelValidation> getChannelValidations(Channel channel) {
+        return dataModel.mapper(ChannelValidation.class).find("channel", channel);
     }
 
     @Override
@@ -524,12 +561,12 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public List<Validator> getAvailableValidators(String application) {
+    public List<Validator> getAvailableValidators(QualityCodeSystem qualityCodeSystem) {
         ValidatorCreator validatorCreator = new DefaultValidatorCreator();
         return validatorFactories.stream()
                 .flatMap(f -> f.available().stream())
                 .map(validatorCreator::getTemplateValidator)
-                .filter(validator -> validator.getSupportedApplications().contains(application))
+                .filter(validator -> validator.getSupportedQualityCodeSystems().contains(qualityCodeSystem))
                 .collect(Collectors.toList());
     }
 
@@ -624,32 +661,32 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         return dataModel;
     }
 
-    private Optional<? extends IMeterActivationValidation> findMeterActivationValidation(MeterActivation meterActivation, ValidationRuleSet ruleSet) {
-        return getMeterActivationValidations(meterActivation).stream()
-                .filter(meterActivationValidation -> meterActivationValidation.getRuleSet().equals(ruleSet))
+    private Optional<? extends ChannelsContainerValidation> findChannelsContainerValidation(ChannelsContainer channelsContainer, ValidationRuleSet ruleSet) {
+        return getChannelsContainerValidations(channelsContainer).stream()
+                .filter(channelsContainerValidation -> channelsContainerValidation.getRuleSet().equals(ruleSet))
                 .findFirst();
     }
 
     @Override
-    public void activate(MeterActivation meterActivation, ValidationRuleSet ruleSet) {
-        findMeterActivationValidation(meterActivation, ruleSet).ifPresent(meterActivationValidation -> {
-            meterActivationValidation.activate();
-            meterActivationValidation.save();
+    public void activate(ChannelsContainer channelsContainer, ValidationRuleSet ruleSet) {
+        findChannelsContainerValidation(channelsContainer, ruleSet).ifPresent(channelsContainerValidation -> {
+            channelsContainerValidation.activate();
+            channelsContainerValidation.save();
         });
     }
 
     @Override
-    public void deactivate(MeterActivation meterActivation, ValidationRuleSet ruleSet) {
-        findMeterActivationValidation(meterActivation, ruleSet).ifPresent(meterActivationValidation -> {
-            meterActivationValidation.deactivate();
-            meterActivationValidation.save();
+    public void deactivate(ChannelsContainer channelsContainer, ValidationRuleSet ruleSet) {
+        findChannelsContainerValidation(channelsContainer, ruleSet).ifPresent(channelsContainerValidation -> {
+            channelsContainerValidation.deactivate();
+            channelsContainerValidation.save();
         });
     }
 
     @Override
-    public List<ValidationRuleSet> activeRuleSets(MeterActivation meterActivation) {
-        return getActiveIMeterActivationValidations(meterActivation).stream()
-                .map(IMeterActivationValidation::getRuleSet)
+    public List<ValidationRuleSet> activeRuleSets(ChannelsContainer channelsContainer) {
+        return getActivePersistedChannelsContainerValidations(channelsContainer).stream()
+                .map(ChannelsContainerValidation::getRuleSet)
                 .collect(Collectors.toList());
     }
 
@@ -742,7 +779,8 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 sqlBuilder.append("WHERE EXISTS (");
                 sqlBuilder.append("SELECT * FROM MTR_READINGQUALITY mrq ");
                 sqlBuilder.append("  LEFT JOIN MTR_CHANNEL mc ON mrq.CHANNELID = mc.id");
-                sqlBuilder.append("  LEFT JOIN MTR_METERACTIVATION MA ON mc.meteractivationid = ma.id");
+                sqlBuilder.append("  LEFT JOIN MTR_CHANNEL_CONTAINER cc ON mc.CHANNEL_CONTAINER = cc.id");
+                sqlBuilder.append("  LEFT JOIN MTR_METERACTIVATION ma ON cc.METER_ACTIVATION = ma.id");
                 sqlBuilder.append(" WHERE (mrq.type = '2.5.258' OR mrq.type = '2.5.259')");
                 sqlBuilder.append("   AND mrq.actual='Y' AND MA.meterid = med.id)");
 

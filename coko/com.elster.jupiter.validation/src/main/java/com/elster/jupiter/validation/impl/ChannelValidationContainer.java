@@ -9,43 +9,48 @@ import java.util.stream.Stream;
 
 public class ChannelValidationContainer {
 
-	private final List<? extends IChannelValidation> channelValidations;
-	
-	private ChannelValidationContainer(List<? extends IChannelValidation> channelValidations) {
-		this.channelValidations = channelValidations;
-	}
-	
-	static ChannelValidationContainer of(List<? extends IChannelValidation> channelValidations) {
-		return new ChannelValidationContainer(channelValidations);
-	}
-	
-	void updateLastChecked(Instant date) {
-		 channelValidations.stream()
-         	.filter(IChannelValidation::hasActiveRules)
-         	.forEach(cv -> {
-         		cv.updateLastChecked(date);
-         		cv.getMeterActivationValidation().save();
-         	});
-	}
-	
-	boolean isValidationActive() {
-    	return channelValidations.stream().anyMatch(IChannelValidation::hasActiveRules);
-    }
-	
-	Optional<Instant> getLastChecked() {
-		// if any is null, then we should return Optional.empty()
-		return channelValidations.stream()
-			.map(IChannelValidation::getLastChecked)
-			.map(instant -> instant == null ? Instant.MIN : instant)
-			.min(Comparator.<Instant>naturalOrder())
-			.flatMap(instant -> Instant.MIN.equals(instant) ? Optional.empty() : Optional.of(instant));
-	}
-	
-	boolean isEmpty() {
-		return channelValidations.isEmpty();
-	}
+    private final List<? extends ChannelValidation> channelValidations;
 
-	public Stream<IChannelValidation> stream() {
-		return channelValidations.stream().map(Function.<IChannelValidation>identity());
-	}
+    private ChannelValidationContainer(List<? extends ChannelValidation> channelValidations) {
+        this.channelValidations = channelValidations;
+    }
+
+    static ChannelValidationContainer of(List<? extends ChannelValidation> channelValidations) {
+        return new ChannelValidationContainer(channelValidations);
+    }
+
+    void updateLastChecked(Instant date) {
+        channelValidations.stream()
+                .filter(ChannelValidation::hasActiveRules)
+                .forEach(channelValidation -> {
+                    channelValidation.updateLastChecked(date);
+                    channelValidation.getChannelsContainerValidation().save();
+                });
+    }
+
+    boolean isValidationActive() {
+        return channelValidations.stream().anyMatch(ChannelValidation::hasActiveRules);
+    }
+
+    // TODO: think of lastChecked, if it should be common for MDC & MDM, or calculated and set independently
+    Optional<Instant> getLastChecked() {
+        return getLastChecked(stream());
+    }
+
+    static Optional<Instant> getLastChecked(Stream<? extends ChannelValidation> validations) {
+        // if any is null, then we should return Optional.empty()
+        return validations
+                .map(ChannelValidation::getLastChecked)
+                .map(instant -> instant == null ? Instant.MIN : instant)
+                .min(Comparator.naturalOrder())
+                .flatMap(instant -> Instant.MIN.equals(instant) ? Optional.empty() : Optional.of(instant));
+    }
+
+    boolean isEmpty() {
+        return channelValidations.isEmpty();
+    }
+
+    public Stream<ChannelValidation> stream() {
+        return channelValidations.stream().map(Function.<ChannelValidation>identity());
+    }
 }

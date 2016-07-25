@@ -2,8 +2,8 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -36,6 +36,7 @@ import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
 
@@ -48,7 +49,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
-            table.column("APPLICATION").varChar(NAME_LENGTH).notNull().map("applicationName").add();
+            table.column("QUALITY_SYSTEM").number().conversion(ColumnConversion.NUMBER2ENUM).map("qualityCodeSystem").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
@@ -113,35 +114,42 @@ public enum TableSpecs {
     VAL_MA_VALIDATION {
         @Override
         void addTo(DataModel dataModel) {
-            Table<IMeterActivationValidation> table = dataModel.addTable(name(), IMeterActivationValidation.class);
-            table.map(MeterActivationValidationImpl.class);
+            Table<ChannelsContainerValidation> table = dataModel.addTable(name(), ChannelsContainerValidation.class);
+            table.map(ChannelsContainerValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column ruleSetColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
-            Column meterActivationColumn = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).add();
+            Column meterActivationColumn = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).upTo(version(10, 2)).add();
+            Column channelContainer = table.column("CHANNEL_CONTAINER").number().conversion(NUMBER2LONG).since(version(10, 2)).previously(meterActivationColumn).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.column("ACTIVE").bool().map("active").add();
             Column obsoleteColumn = table.column("OBSOLETETIME").number().conversion(NUMBER2INSTANT).map("obsoleteTime").add();
             table.primaryKey("VAL_PK_MA_VALIDATION").on(idColumn).add();
-            table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(MeterActivation.class).onDelete(RESTRICT).map("meterActivation").on(meterActivationColumn).add();
+            table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(ChannelsContainer.class).onDelete(RESTRICT).map("channelsContainer").on(channelContainer).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).on(ruleSetColumn).onDelete(DeleteRule.RESTRICT)
                     .map("ruleSet", ValidationRuleSetVersionImpl.class, ValidationRuleImpl.class, ReadingTypeInValidationRule.class).add();
-            table.unique("VAL_MA_VALIDATION_U").on(ruleSetColumn, meterActivationColumn, obsoleteColumn).add();
+            table.unique("VAL_MA_VALIDATION_U").on(ruleSetColumn, channelContainer, obsoleteColumn).add();
         }
     },
     VAL_CH_VALIDATION {
         @Override
         void addTo(DataModel dataModel) {
-            Table<IChannelValidation> table = dataModel.addTable(name(), IChannelValidation.class);
+            Table<ChannelValidation> table = dataModel.addTable(name(), ChannelValidation.class);
             table.map(ChannelValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).map("channelId").add();
-            Column meterActivationValidationColumn = table.column("MAV_ID").number().conversion(NUMBER2LONG).add();
+            Column channelsContainerValidationColumn = table.column("MAV_ID").number().conversion(NUMBER2LONG).add();
             table.column("LASTCHECKED").number().conversion(NUMBER2INSTANT).map("lastChecked").add();
             table.column("ACTIVERULES").bool().map("activeRules").add();
             table.primaryKey("VAL_PK_CH_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_CH_VALIDATION_CH").references(Channel.class).onDelete(RESTRICT).on(channelRef).map("channel").add();
-            table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL").references(VAL_MA_VALIDATION.name()).onDelete(DeleteRule.CASCADE).map("meterActivationValidation").reverseMap("channelValidations")
-                    .composition().on(meterActivationValidationColumn).add();
+            table.foreignKey("VAL_FK_CH_VALIDATION_MA_VAL")
+                    .references(VAL_MA_VALIDATION.name())
+                    .onDelete(DeleteRule.CASCADE)
+                    .map("channelsContainerValidation")
+                    .reverseMap("channelValidations")
+                    .composition()
+                    .on(channelsContainerValidationColumn)
+                    .add();
         }
     },
     VAL_METER_VALIDATION {
@@ -154,12 +162,12 @@ public enum TableSpecs {
             table.column("VALIDATEONSTORAGE").bool().map("validateOnStorage").add();
             table.primaryKey("VAL_PK_MA_METER_VALIDATION").on(meterId).add();
             table
-                .foreignKey("VAL_FK_MA_METER_VALIDATION")
-                .references(EndDevice.class)
-                .onDelete(RESTRICT)
-                .map("meter")
-                .on(meterId)
-                .add();
+                    .foreignKey("VAL_FK_MA_METER_VALIDATION")
+                    .references(EndDevice.class)
+                    .onDelete(RESTRICT)
+                    .map("meter")
+                    .on(meterId)
+                    .add();
         }
     },
 
@@ -174,11 +182,11 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").composition()
                     .on(ruleIdColumn).add();
             table
-                .foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE")
-                .references(ReadingType.class)
-                .onDelete(RESTRICT)
-                .map("readingType")
-                .on(readingTypeMRIDColumn).add();
+                    .foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE")
+                    .references(ReadingType.class)
+                    .onDelete(RESTRICT)
+                    .map("readingType")
+                    .on(readingTypeMRIDColumn).add();
         }
     },
     VAL_DATAVALIDATIONTASK {
@@ -192,7 +200,7 @@ public enum TableSpecs {
             Column metrologyContractId = table.column("METROLOGYCONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
-            table.column("APPLICATION").varChar(NAME_LENGTH).map("application").add();
+            table.column("QUALITY_SYSTEM").number().conversion(ColumnConversion.NUMBER2ENUM).map("qualityCodeSystem").add();
             table.addAuditColumns();
             table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP")
                     .on(endDeviceGroupId)
@@ -295,6 +303,7 @@ public enum TableSpecs {
                     .composition().add();
         }
     };
+
     abstract void addTo(DataModel component);
 
 }

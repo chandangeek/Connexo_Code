@@ -1,10 +1,11 @@
 package com.elster.jupiter.validation;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -20,6 +21,7 @@ import com.google.common.collect.Range;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ProviderType
 public interface ValidationService {
@@ -30,9 +32,9 @@ public interface ValidationService {
      * Management of ruleSets and rules *
      */
 
-    ValidationRuleSet createValidationRuleSet(String name, String applicationName);
+    ValidationRuleSet createValidationRuleSet(String name, QualityCodeSystem qualityCodeSystem);
 
-    ValidationRuleSet createValidationRuleSet(String name, String applicationName, String description);
+    ValidationRuleSet createValidationRuleSet(String name, QualityCodeSystem qualityCodeSystem, String description);
 
     List<ValidationRuleSet> getValidationRuleSets();
 
@@ -53,11 +55,12 @@ public interface ValidationService {
     List<Validator> getAvailableValidators();
 
     /**
-     * Filters validators and returns ones supporting a given <code>targetApplication</code>.
-     * @param targetApplication a string representation of target application.
-     * @return the list of validators supporting a given <code>targetApplication</code>.
+     * Filters validators and returns ones supporting a given <code>qualityCodeSystem</code>.
+     *
+     * @param qualityCodeSystem a target QualityCodeSystem.
+     * @return the list of validators supporting a given <code>qualityCodeSystem</code>.
      */
-    List<Validator> getAvailableValidators(String targetApplication);
+    List<Validator> getAvailableValidators(QualityCodeSystem qualityCodeSystem);
 
     Validator getValidator(String implementation);
 
@@ -66,15 +69,18 @@ public interface ValidationService {
      */
 
     void activateValidation(Meter meter);
+
     void deactivateValidation(Meter meter);
 
     void enableValidationOnStorage(Meter meter);
+
     void disableValidationOnStorage(Meter meter);
 
-    void activate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
-    void deactivate(MeterActivation meterActivation, ValidationRuleSet ruleSet);
+    void activate(ChannelsContainer channelsContainer, ValidationRuleSet ruleSet);
 
-    List<ValidationRuleSet> activeRuleSets(MeterActivation meterActivation);
+    void deactivate(ChannelsContainer channelsContainer, ValidationRuleSet ruleSet);
+
+    List<ValidationRuleSet> activeRuleSets(ChannelsContainer channelsContainer);
 
     boolean validationEnabled(Meter meter);
 
@@ -84,15 +90,30 @@ public interface ValidationService {
 
     /* last checked */
 
-    Optional<Instant> getLastChecked(MeterActivation meterActivation);
+    Optional<Instant> getLastChecked(ChannelsContainer channelsContainer);
 
-    void updateLastChecked(MeterActivation meterActivation, Instant date);
+    void updateLastChecked(ChannelsContainer channelsContainer, Instant date);
 
     void updateLastChecked(Channel channel, Instant date);
 
-    void validate(MeterActivation meterActivation);
+    /**
+     * Validates all channels in the given <code>channelsContainer</code>.
+     *
+     * @param targetQualityCodeSystems set of desired QualityCodeSystems (only rulesets with these QualityCodeSystems will be applied).
+     * It can be empty (in that case engine will use rulesets with any QualityCodeSystem).
+     * @param channelsContainer
+     */
+    void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer);
 
-    void validate(MeterActivation meterActivation, ReadingType readingType);
+    /**
+     * Validates channel with specific <code>readingType</code> in the given <code>channelsContainer</code>.
+     *
+     * @param targetQualityCodeSystems set of desired QualityCodeSystems (only rulesets with these QualityCodeSystems will be applied).
+     * It can be empty (in that case engine will use rulesets with any QualityCodeSystem).
+     * @param channelsContainer
+     * @param readingType channel's reading type
+     */
+    void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType);
 
     ValidationEvaluator getEvaluator();
 
@@ -103,6 +124,7 @@ public interface ValidationService {
      */
 
     void addValidatorFactory(ValidatorFactory validatorfactory);
+
     void addValidationRuleSetResolver(ValidationRuleSetResolver resolver);
 
     DataValidationTaskBuilder newTaskBuilder();
