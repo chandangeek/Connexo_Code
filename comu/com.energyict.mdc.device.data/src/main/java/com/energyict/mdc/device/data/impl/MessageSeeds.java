@@ -138,7 +138,6 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_UNIT_CODE(2112, Keys.UNKNOWN_UNIT_CODE, "The requested load limit unit is not supported at this time"),
     INCOMPLETE_LOADLIMIT(2113, Keys.INCOMPLETE_LOADLIMIT, "Received incomplete load limit - please make sure to specify both the limit and the unit."),
     UNKNOWN_READING_TYPE(2114, Keys.UNKNOWN_READING_TYPE, "The requested load limit reading type is not supported at this time"),
-    NO_COMTASK_FOR_STATUS_INFORMATION(2115, Keys.NO_COMTASK_FOR_STATUS_INFORMATION, "A comtask to verify the status information could not be located"),
     NO_DESTINATION_SPEC(2117, Keys.NO_DESTINATION_SPEC, "No such destination spec"),
     DUPLICATE_REGISTER_OBISCODE(2118, Keys.DUPLICATE_REGISTER_OBISCODE, "The OBIS code must be unique for all registers of your device"),
     DUPLICATE_CHANNEL_OBISCODE(2119, Keys.DUPLICATE_CHANNEL_OBISCODE, "The OBIS code must be unique for all the channels of your load profile"),
