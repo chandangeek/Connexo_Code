@@ -1,41 +1,42 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.device.data.Device;
+
+import java.util.Optional;
 
 public class CoordinatesInfo {
 
     public String coordinatesDisplay;
     public String spatialCoordinates;
-    public Long deviceGeoCoordinatesId;
     public boolean isInherited = false;
     public String usagePointCoordinatesDisplay;
     public String usagePointSpatialCoordinates;
-    public Long usagePointGeoCoordinatesId;
+
 
     public CoordinatesInfo() {
     }
 
-    public CoordinatesInfo(MeteringService meteringService, Device device) {
-        meteringService.findDeviceGeoCoordinates(device.getmRID()).ifPresent(deviceGeoCoordinates -> {
-            coordinatesDisplay = deviceGeoCoordinates.getCoordinates().toString();
-            spatialCoordinates = String.format("%s:%s:%s", deviceGeoCoordinates.getCoordinates().getLatitude().getValue().toString(),
-                    deviceGeoCoordinates.getCoordinates().getLongitude().getValue().toString(),
-                    deviceGeoCoordinates.getCoordinates().getElevation().getValue().toString());
-            deviceGeoCoordinatesId = deviceGeoCoordinates.getId();
+    public CoordinatesInfo(Device device) {
+        Optional<SpatialCoordinates> coordinates = device.getSpatialCoordinates();
+        coordinates.ifPresent(deviceGeoCoordinates -> {
+            coordinatesDisplay = deviceGeoCoordinates.toString();
+            spatialCoordinates = String.format("%s:%s:%s", deviceGeoCoordinates.getLatitude().getValue().toString(),
+                    deviceGeoCoordinates.getLongitude().getValue().toString(),
+                    deviceGeoCoordinates.getElevation().getValue().toString());
         });
         device.getUsagePoint().ifPresent(usagePoint -> {
-            usagePoint.getGeoCoordinates().ifPresent(usagePointGeoCoordinates -> {
-                if((deviceGeoCoordinatesId != null) && (usagePointGeoCoordinates.getId() == deviceGeoCoordinatesId)){
+            usagePoint.getSpatialCoordinates().ifPresent(usagePointGeoCoordinates -> {
+                if (spatialCoordinates != null && usagePointGeoCoordinates.equals(coordinates.get())) {
                     isInherited = true;
                 }
-                usagePointCoordinatesDisplay = usagePointGeoCoordinates.getCoordinates().toString();
-                usagePointSpatialCoordinates = String.format("%s:%s:%s", usagePointGeoCoordinates.getCoordinates().getLatitude().getValue().toString(),
-                        usagePointGeoCoordinates.getCoordinates().getLongitude().getValue().toString(),
-                        usagePointGeoCoordinates.getCoordinates().getElevation().getValue().toString());
-                usagePointGeoCoordinatesId = usagePointGeoCoordinates.getId();
+                usagePointCoordinatesDisplay = usagePointGeoCoordinates.toString();
+                usagePointSpatialCoordinates = String.format("%s:%s:%s", usagePointGeoCoordinates.getLatitude().getValue().toString(),
+                        usagePointGeoCoordinates.getLongitude().getValue().toString(),
+                        usagePointGeoCoordinates.getElevation().getValue().toString());
             });
         });
     }
+
 
 }

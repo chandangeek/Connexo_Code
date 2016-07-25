@@ -9,11 +9,13 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.cbo.impl.CboTranslationProvider;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -108,6 +110,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile ValidationService validationService;
     private volatile EstimationService estimationService;
     private volatile MeteringService meteringService;
+    private volatile LocationService locationService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile RestQueryService restQueryService;
     private volatile TaskService taskService;
@@ -248,8 +251,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
-        this.thesaurus = thesaurus.join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN));
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus(CboTranslationProvider.COMPONENT_NAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(DeviceMessageSpecificationService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Reference
@@ -375,6 +379,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Reference
+    public void setLocationService(LocationService locationService) {
+        this.locationService = locationService;
+    }
+
+    @Reference
     public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }
@@ -477,6 +486,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(validationService).to(ValidationService.class);
             bind(estimationService).to(EstimationService.class);
             bind(meteringService).to(MeteringService.class);
+            bind(locationService).to(LocationService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(restQueryService).to(RestQueryService.class);
             bind(yellowfinGroupsService).to(YellowfinGroupsService.class);

@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.readings.BaseReading;
-import com.energyict.mdc.device.data.Reading;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.data.Register;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -32,15 +33,10 @@ public abstract class ReadingInfo {
     @JsonProperty("modificationFlag")
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
     public ReadingModificationFlag modificationFlag;
+    @JsonProperty("editedInApp")
+    public IdWithNameInfo editedInApp;
 
     public ReadingInfo() {
-    }
-
-    public ReadingInfo(Reading reading) {
-        this.id = reading.getTimeStamp();
-        this.timeStamp = reading.getTimeStamp();
-        this.reportedDateTime = reading.getReportedDateTime();
-        this.modificationFlag = ReadingModificationFlag.getModificationFlag(reading.getActualReading());
     }
 
     protected abstract BaseReading createNew(Register<?, ?> register);

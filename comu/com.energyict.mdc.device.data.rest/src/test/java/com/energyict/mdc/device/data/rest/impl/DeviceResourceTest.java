@@ -4,7 +4,12 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventOrAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
-import com.elster.jupiter.cps.*;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.OverlapCalculatorBuilder;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ValuesRangeConflict;
+import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
@@ -12,7 +17,12 @@ import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.IntervalReadingRecord;
+import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
@@ -32,9 +42,22 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -54,14 +77,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -69,9 +88,24 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import org.assertj.core.data.MapEntry;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -79,8 +113,13 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -1213,6 +1252,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testUpdateMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         DeviceConfiguration deviceConfig = device.getDeviceConfiguration();
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         Device gateway = mockDeviceForTopologyTest("gateway");
@@ -1221,8 +1262,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
         Device oldGateway = mockDeviceForTopologyTest("oldGateway");
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(oldGateway));
-        when(device.getLocation()).thenReturn(Optional.empty());
-        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
+        when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
         when(deviceConfigurationService.findTimeOfUseOptions(any())).thenReturn(Optional.empty());
 
         DeviceInfo info = new DeviceInfo();
@@ -1262,12 +1302,14 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testDeleteMasterDevice() {
         Device device = mockDeviceForTopologyTest("device");
+        when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(1L), anyLong())).thenReturn(Optional.of(deviceConfiguration));
         when(device.getLocation()).thenReturn(Optional.empty());
-        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
+        when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(deviceConfigurationService.findTimeOfUseOptions(any())).thenReturn(Optional.empty());
 
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
@@ -1751,6 +1793,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testGetDeviceLocation() throws Exception {
+        when(locationService.findLocationById(anyLong())).thenReturn(Optional.empty());
         LocationTemplate locationTemplate = mock(LocationTemplate.class);
         List<String> templateElementsNames = new ArrayList<>();
 
@@ -1796,7 +1839,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);
         when(device.getLocation()).thenReturn(Optional.empty());
-        when(device.getGeoCoordinates()).thenReturn(Optional.empty());
+        when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         String mrid = "mrid";
         when(deviceService.newDevice(deviceConfiguration, mrid, mrid)).thenReturn(device);
         DeviceInfo deviceInfo = new DeviceInfo();

@@ -6,22 +6,33 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
+import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.BillingReading;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.NumericalRegister;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.RegisterDataUpdater;
 import com.energyict.mdc.masterdata.RegisterType;
+
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
+import javax.ws.rs.HEAD;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -36,9 +47,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -65,15 +83,13 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
     @Mock
     private Channel meteringChannel;
     @Mock
-    private MeterActivation meterActivation;
+    private ChannelsContainer channelsContainer;
 
     public static final Instant BILLING_READING_INTERVAL_END = Instant.ofEpochMilli(1410786196000L);
     public static final Instant BILLING_READING_INTERVAL_START = Instant.ofEpochMilli(1409570229000L);
     public static final Instant READING_TIMESTAMP = Instant.ofEpochMilli(1409570229000L);
 
     public static final Instant NOW = ZonedDateTime.of(2014, 10, 01, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
-
-    private ReadingQualityType readingQualityTypeConfirmed = new ReadingQualityType("2.10.1");
 
     public RegisterDataResourceTest() {
     }
@@ -108,9 +124,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
         when(register.getReadings(any(Interval.class))).thenReturn(Arrays.asList(billingReading, numericalReading, numericalReadingConfirmed));
 
-        doReturn(Arrays.asList(meterActivation)).when(meter).getMeterActivations();
+        doReturn(Arrays.asList(channelsContainer)).when(meter).getChannelsContainers();
         when(registerType.getReadingType()).thenReturn(readingType);
-        when(meterActivation.getChannels()).thenReturn(Arrays.asList(meteringChannel));
+        when(channelsContainer.getChannels()).thenReturn(Arrays.asList(meteringChannel));
         doReturn(Arrays.asList(readingType)).when(meteringChannel).getReadingTypes();
         when(device.forValidation()).thenReturn(deviceValidation);
         when(deviceValidation.isValidationActive(any(Register.class), any(Instant.class))).thenReturn(false);
@@ -120,10 +136,12 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         ReadingQualityRecord readingQualityEstimated = mockReadingQuality(readingQualityType.getCode());
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         when(estimationRule.getId()).thenReturn(13L);
-        EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
-        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
-        when(estimationRuleSet.getId()).thenReturn(15L);
         when(estimationRule.getName()).thenReturn("EstimationRule");
+        EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
+        when(estimationRuleSet.getId()).thenReturn(15L);
+        when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
+        when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
         doReturn(Arrays.asList(readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus).getReadingQualities();
     }
@@ -179,11 +197,15 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(3);
         assertThat(jsonModel.<String>get("$.data[0].type")).isEqualTo("billing");
-        assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo("ADDED");
+        assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
+        assertThat(jsonModel.<String>get("$.data[0].editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[0].editedInApp.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Number>get("$.data[0].estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[0].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.name")).isEqualTo("EstimationRule");
         assertThat(jsonModel.<List<?>>get("$.data[0].estimatedByRule.properties")).isEmpty();
+        assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[0].estimatedByRule.application.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<List<?>>get("$.data[0].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].cimCode")).isEqualTo("2.7.1");
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].indexName")).isEqualTo("Manually added");
@@ -191,7 +213,9 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0].categoryName")).isEqualTo("Edited");
 
         assertThat(jsonModel.<String>get("$.data[1].type")).isEqualTo("numerical");
-        assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo("EDITED");
+        assertThat(jsonModel.<String>get("$.data[1].modificationFlag")).isEqualTo(ReadingModificationFlag.EDITED.name());
+        assertThat(jsonModel.<String>get("$.data[1].editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[1].editedInApp.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.id")).isEqualTo(13);
         assertThat(jsonModel.<Number>get("$.data[1].estimatedByRule.ruleSetId")).isEqualTo(15);
         assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.name")).isEqualTo("EstimationRule");
@@ -202,7 +226,11 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         assertThat(jsonModel.<String>get("$.data[1].readingQualities[0].categoryName")).isEqualTo("Edited");
 
         assertThat(jsonModel.<List<?>>get("$.data[1].estimatedByRule.properties")).isEmpty();
+        assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[1].estimatedByRule.application.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Boolean>get("$.data[2].isConfirmed")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.data[2].confirmedInApps[0].id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[2].confirmedInApps[0].name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<List<?>>get("$.data[2].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].cimCode")).isEqualTo("2.10.1");
         assertThat(jsonModel.<String>get("$.data[2].readingQualities[0].indexName")).isEqualTo("Manually accepted");
