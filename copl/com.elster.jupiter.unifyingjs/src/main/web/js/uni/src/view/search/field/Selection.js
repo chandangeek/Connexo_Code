@@ -138,6 +138,7 @@ Ext.define('Uni.view.search.field.Selection', {
 
         me.items = {
             xtype: 'grid',
+            itemId: 'grid-selection',
             layout: 'fit',
             columns: {
                 style: {
@@ -155,6 +156,7 @@ Ext.define('Uni.view.search.field.Selection', {
                     margin: 0,
                     padding: 0
                 },
+                itemId: 'docked-items',
                 padding: 5,
                 items: [
                     {
@@ -232,6 +234,7 @@ Ext.define('Uni.view.search.field.Selection', {
                     },
                     {
                         xtype: 'checkboxfield',
+                        itemId: 'empty-values',
                         boxLabel: Uni.I18n.translate('search.field.selection.checkbox.empty', 'UNI', 'Include empty values'),
                         disabled: true,
                         name: 'topping'

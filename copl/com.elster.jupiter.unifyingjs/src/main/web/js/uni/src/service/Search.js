@@ -494,6 +494,12 @@ Ext.define('Uni.service.Search', {
             });
         }
 
+        if (property.get('name') === 'location') {
+            Ext.apply(config, {
+                xtype: 'uni-search-criteria-location'
+            });
+        }
+
         if (Ext.isEmpty(config.xtype)) {
             Ext.apply(config, {
                 xtype: 'uni-search-criteria-simple'
