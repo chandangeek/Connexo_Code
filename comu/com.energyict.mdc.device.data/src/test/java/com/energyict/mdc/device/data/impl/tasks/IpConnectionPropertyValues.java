@@ -15,7 +15,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-05 (13:27)
  */
-public class IpConnectionPropertyValues extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ConnectionProvider> {
+class IpConnectionPropertyValues extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ConnectionProvider> {
 
     @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();

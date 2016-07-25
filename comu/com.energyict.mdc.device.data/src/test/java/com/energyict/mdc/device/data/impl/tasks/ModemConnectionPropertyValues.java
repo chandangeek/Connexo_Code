@@ -14,7 +14,7 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-05 (13:27)
  */
-public class ModemConnectionPropertyValues extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ConnectionProvider> {
+class ModemConnectionPropertyValues extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ConnectionProvider> {
 
     @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();

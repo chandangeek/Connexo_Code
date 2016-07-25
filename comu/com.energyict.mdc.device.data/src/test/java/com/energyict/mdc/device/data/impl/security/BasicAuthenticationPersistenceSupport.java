@@ -5,8 +5,8 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
-
 import com.energyict.mdc.protocol.api.security.SecurityPropertySpecProvider;
+
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -60,24 +60,24 @@ public class BasicAuthenticationPersistenceSupport implements PersistenceSupport
     public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
         return Collections.singletonList(
                 table
-                        .column(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.databaseName())
-                        .number()
-                        .notNull()
-                        .add());
+                    .column(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.databaseName())
+                    .number()
+                    .notNull()
+                    .add());
     }
 
     @Override
     public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
-                .of(BasicAuthenticationSecurityProperties.ActualFields.values())
-                .forEach(field -> field.addTo(table));
+            .of(BasicAuthenticationSecurityProperties.ActualFields.values())
+            .forEach(field -> field.addTo(table));
 
         table
-                .foreignKey("DDT_FK_BASIC_AUTH_SECPROV")
-                .on(customPrimaryKeyColumns.get(0))
-                .map(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.javaName())
-                .references(SecurityPropertySpecProvider.class)
-                .add();
+            .foreignKey("DDT_FK_BASIC_AUTH_SECPROV")
+            .on(customPrimaryKeyColumns.get(0))
+            .map(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.javaName())
+            .references(SecurityPropertySpecProvider.class)
+            .add();
     }
 
 }
