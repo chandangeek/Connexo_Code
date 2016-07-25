@@ -60,6 +60,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             'comPortPoolsComPortsView comPortPoolComPortsGrid': {
                 select: this.showPreviewWithServerName
             },
+            'comPortPoolsComPortsView comPortPoolComPortsGrid actioncolumn': {
+                removeCommPort: this.removeCommunicationPort
+            },
             'comPortPoolsComPortsView comPortPoolComPortPreview [action=passwordVisibleTrigger]': {
                 change: this.passwordVisibleTrigger
             },
@@ -77,6 +80,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         this.comPortsStoreToAdd = this.getStore('ComPortPoolComports');
     },
 
+    removeCommunicationPort: function (record) {
+        this.showDeleteConfirmation(record);
+    },
     showPreviewWithServerName: function (selectionModel, record) {
         this.showPreview(selectionModel, record, true);
     },
