@@ -13,6 +13,27 @@
     <packaging>bundle</packaging>
     <name>[MDC] mdc.usagepoint.data.rest</name>
 
+    <profiles>
+        <profile>
+            <id>restdoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.qmino</groupId>
+                        <artifactId>miredot-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>restdoc</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    
     <dependencies>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -110,6 +131,8 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.rest</artifactId>
         </dependency>
+
+        <!-- test -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-inmemory</artifactId>
@@ -133,11 +156,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>servicecall</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
