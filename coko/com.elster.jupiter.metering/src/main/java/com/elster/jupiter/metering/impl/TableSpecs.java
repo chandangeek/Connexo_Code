@@ -785,7 +785,7 @@ public enum TableSpecs {
                     .references(UsagePoint.class)
                     .onDelete(CASCADE)
                     .map("usagePoint")
-                    .reverseMap("metrologyConfiguration")
+                    .reverseMap("metrologyConfigurations")
                     .composition()
                     .add();
             table.foreignKey("MTR_FK_UPMTRCONFIG_MC")
