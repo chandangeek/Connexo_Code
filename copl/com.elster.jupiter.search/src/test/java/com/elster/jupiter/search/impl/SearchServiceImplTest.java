@@ -194,7 +194,8 @@ public class SearchServiceImplTest {
         Optional<SearchDomain> domain = searchService.pollDomain(domainId, Duration.ofSeconds(1));
 
         // Asserts
-        assertThat(domain).contains(searchDomain);
+        assertThat(domain).isPresent();
+        assertThat(domain.map(SearchDomain::getId)).contains(searchDomain.getId());
     }
 
     @Test
