@@ -67,7 +67,7 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlavesGrid', {
                 items: [
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('dataLoggerSlaves.linkSlave', 'MDC', 'Link slave'),
+                        text: Uni.I18n.translate('general.linkDataLoggerSlave', 'MDC', 'Link data logger slave'),
                         itemId: 'mdc-dataloggerslavesgrid-link-slave-btn',
                         privileges: Mdc.privileges.Device.administrateDevice
                     }
