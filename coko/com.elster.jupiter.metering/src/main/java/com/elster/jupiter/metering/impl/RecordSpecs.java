@@ -38,7 +38,7 @@ public enum RecordSpecs {
             result[1] = 0L;            ////The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
             result[2] = reading.getValue();
             return result;
-		}
+        }
 
         @Override
         Object[] toArray(BaseReading reading, int slotIndex, ProcessStatus status) {
@@ -76,7 +76,7 @@ public enum RecordSpecs {
             result[1] = 0L;            //The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
             result[2 + slotIndex] = reading.getValue();
             return result;
-		}
+        }
 
         @Override
         int slotOffset() {
@@ -109,7 +109,7 @@ public enum RecordSpecs {
             result[1] = 0L;            //The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
             result[2 + slotIndex] = reading.getValue();
             return result;
-		}
+        }
 
         @Override
         int slotOffset() {
