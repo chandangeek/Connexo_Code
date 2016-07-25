@@ -4,7 +4,6 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -27,8 +26,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -82,7 +81,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -133,7 +131,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
     @Inject
     ValidationServiceImpl(BundleContext bundleContext, Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService,
-                          OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, KpiService kpiService) {
+                          OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, UpgradeService upgradeService, KpiService kpiService) {
         this.clock = clock;
         this.messageService = messageService;
         setMessageService(messageService);
