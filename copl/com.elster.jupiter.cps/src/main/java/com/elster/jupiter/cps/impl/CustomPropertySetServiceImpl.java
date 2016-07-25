@@ -311,8 +311,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     private void addCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         if (this.installed) {
+            boolean noPrincipalYet = this.threadPrincipalService.getPrincipal() == null;
             try {
-                this.threadPrincipalService.set(this.getPrincipal());
+                if (noPrincipalYet) {
+                    this.threadPrincipalService.set(this.getPrincipal());
+                }
                 if (!transactionService.isInTransaction()) {
                     try (TransactionContext ctx = transactionService.getContext()) {
                         this.registerCustomPropertySet(customPropertySet, systemDefined);
@@ -324,7 +327,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                     this.registerCustomPropertySet(customPropertySet, systemDefined);
                 }
             } finally {
-                this.threadPrincipalService.clear();
+                if (noPrincipalYet) {
+                    this.threadPrincipalService.clear();
+                }
             }
         } else {
             this.publishedPropertySets.put(customPropertySet, systemDefined);
