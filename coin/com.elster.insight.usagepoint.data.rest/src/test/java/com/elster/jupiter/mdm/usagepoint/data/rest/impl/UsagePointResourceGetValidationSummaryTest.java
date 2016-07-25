@@ -1,5 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
 import com.elster.jupiter.metering.UsagePoint;
@@ -23,7 +24,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +45,9 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
     private static final RelativePeriod TODAY = mockRelativePeriod(5, "Today", NOW.withMinute(0), NOW.plusDays(1).withMinute(0));
     private static final RelativePeriod YESTERDAY = mockRelativePeriod(6, "Yesterday", NOW.minusDays(1).withMinute(0), NOW.withMinute(0));
     private static final RelativePeriod TOMORROW = mockRelativePeriod(7, "Tomorrow", NOW.plusDays(1).withMinute(0), NOW.plusDays(2).withMinute(0));
+
+    @Rule
+    public TestRule maltaLocale = Using.localeOfMalta();
 
     @Mock
     private UsagePoint usagePoint;
@@ -112,7 +118,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Metrology purpose with id 1 000 is not found on usage point with MRID MRID.");
+        assertThat(jsonModel.<String>get("$.message")).isEqualTo("Metrology purpose with id 1,000 is not found on usage point with MRID MRID.");
     }
 
     @Test
