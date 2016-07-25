@@ -67,7 +67,7 @@ public class MeterReadingEventHandler implements MessageHandler {
         Instant triggerDate = Instant.ofEpochMilli(extension.getTriggerDate().longValue());
 
         if (Instant.ofEpochMilli(Long.valueOf(messageProperties.get("timestamp").toString())).isAfter(triggerDate)) {
-            if(EventType.METERREADING_CREATED.equals(messageProperties.get("event.topics"))){
+            if(EventType.METERREADING_CREATED.topic().equals(messageProperties.get("event.topics"))){
                 extension.setSuccessfulTasks(new BigDecimal(++successfulTasks));
             } else {
                 extension.setCompletedTasks(new BigDecimal(++completedTasks));
