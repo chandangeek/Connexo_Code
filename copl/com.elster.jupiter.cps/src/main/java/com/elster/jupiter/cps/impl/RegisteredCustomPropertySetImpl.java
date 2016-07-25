@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.security.Principal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -26,7 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, PersistenceAware {
+class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, PersistenceAware {
 
     enum FieldNames {
         LOGICAL_ID("logicalId"),
@@ -49,7 +50,7 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
     private final ServerCustomPropertySetService customPropertySetService;
 
     @Inject
-    public RegisteredCustomPropertySetImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, ServerCustomPropertySetService customPropertySetService) {
+    RegisteredCustomPropertySetImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, ServerCustomPropertySetService customPropertySetService) {
         super();
         this.dataModel = dataModel;
         this.threadPrincipalService = threadPrincipalService;
@@ -70,6 +71,14 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
     private long editPrivilegesBits;
     private EnumSet<EditPrivilege> editPrivileges = EnumSet.noneOf(EditPrivilege.class);
     private Optional<CustomPropertySet> customPropertySet;
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     public RegisteredCustomPropertySetImpl initialize(CustomPropertySet customPropertySet, boolean systemDefined, Set<ViewPrivilege> viewPrivileges, Set<EditPrivilege> editPrivileges) {
         this.logicalId = customPropertySet.getId();

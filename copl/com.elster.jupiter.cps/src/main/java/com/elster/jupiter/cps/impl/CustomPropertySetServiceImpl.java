@@ -68,6 +68,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -389,7 +390,13 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .stream()
                 .collect(Collectors.toMap(Function.identity(), version -> CustomPropertySetInstaller.class));
 
-        upgradeService.register(InstallIdentifier.identifier(persistenceSupport.application(), persistenceSupport.componentName()), dataModel, CustomPropertySetInstaller.class, versionClassMap);
+        upgradeService.register(
+                InstallIdentifier.identifier(
+                        persistenceSupport.application(),
+                        persistenceSupport.componentName()),
+                dataModel,
+                CustomPropertySetInstaller.class,
+                versionClassMap);
         return dataModel;
     }
 
@@ -863,16 +870,18 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         }
 
         @SuppressWarnings("unchecked")
-        void initializeUnderConstruction() {
+        private void initializeUnderConstruction() {
             this.underConstruction =
                     this.dataModel.addTable(
                             this.tableNameFor(this.customPropertySet),
                             this.customPropertySet.getPersistenceSupport().persistenceClass());
             this.underConstruction.map(this.customPropertySet.getPersistenceSupport().persistenceClass());
+            this.underConstruction.setJournalTableName(this.customPropertySet().getPersistenceSupport().journalTableName());
         }
 
         private void addColumns() {
             this.addPrimaryKeyColumns();
+            this.underConstruction.addAuditColumns();
             this.customPropertySet.getPersistenceSupport().addCustomPropertyColumnsTo(this.underConstruction, this.customPrimaryKeyColumns);
         }
 
@@ -899,18 +908,18 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             PersistenceSupport persistenceSupport = customPropertySet.getPersistenceSupport();
             Column domainReference =
                     table
-                            .column(persistenceSupport.domainColumnName())
-                            .notNull()
-                            .number()
-                            .conversion(ColumnConversion.NUMBER2LONG)
-                            .skipOnUpdate()
-                            .add();
+                        .column(persistenceSupport.domainColumnName())
+                        .notNull()
+                        .number()
+                        .conversion(ColumnConversion.NUMBER2LONG)
+                        .skipOnUpdate()
+                        .add();
             table
-                    .foreignKey(persistenceSupport.domainForeignKeyName())
-                    .on(domainReference)
-                    .references(customPropertySet.getDomainClass())
-                    .map(persistenceSupport.domainFieldName())
-                    .add();
+                .foreignKey(persistenceSupport.domainForeignKeyName())
+                .on(domainReference)
+                .references(customPropertySet.getDomainClass())
+                .map(persistenceSupport.domainFieldName())
+                .add();
             return domainReference;
         }
 
@@ -930,11 +939,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                     .skipOnUpdate()
                     .add();
             table
-                    .foreignKey(this.customPropertySetForeignKeyName(customPropertySet))
-                    .on(cps)
-                    .references(RegisteredCustomPropertySet.class)
-                    .map(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName())
-                    .add();
+                .foreignKey(this.customPropertySetForeignKeyName(customPropertySet))
+                .on(cps)
+                .references(RegisteredCustomPropertySet.class)
+                .map(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName())
+                .add();
             return cps;
         }
 
@@ -977,12 +986,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             super.addPrimaryKeyColumns();
             List<Column> intervalColumns = this.underConstruction().addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
             this.effectivityStartColumn = intervalColumns.get(0);
-        }
-
-        @Override
-        void initializeUnderConstruction() {
-            super.initializeUnderConstruction();
-            this.underConstruction().setJournalTableName(this.customPropertySet().getPersistenceSupport().tableName() + "JRNL");
         }
 
         @Override
