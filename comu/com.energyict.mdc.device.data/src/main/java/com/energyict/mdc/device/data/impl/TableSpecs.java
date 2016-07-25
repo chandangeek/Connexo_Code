@@ -647,7 +647,6 @@ public enum TableSpecs {
                     .references(DDC_DEVICE.name())
                     .map(DeviceEstimationImpl.Fields.DEVICE.fieldName())
                     .reverseMap("deviceEstimation")
-                    .onDelete(CASCADE)
                     .add();
         }
     },
@@ -676,7 +675,6 @@ public enum TableSpecs {
                     .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONACTIVATION.fieldName())
                     .reverseMap(DeviceEstimationImpl.Fields.ESTRULESETACTIVATIONS.fieldName())
                     .composition()
-                    .onDelete(CASCADE)
                     .add();
         }
     },
@@ -871,7 +869,6 @@ public enum TableSpecs {
                     .map("device").
                     reverseMap("readingTypeObisCodeUsages").
                     composition().
-                    onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DDC_OVEROBIS_RDNGTYPE").
                     on(readingType).
