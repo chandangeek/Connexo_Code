@@ -59,7 +59,7 @@ public class UsagePointResource {
     public PagedInfoList getChannels(@PathParam("mRID") String mRID, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
         List<UsagePointChannelInfo> channelInfos = new ArrayList<>();
         UsagePoint usagePoint = fetchUsagePoint(mRID);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration().orElse(null);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().orElse(null);
         if (effectiveMetrologyConfiguration != null) {
             UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
             channelInfos = metrologyConfiguration.getContracts().stream()
