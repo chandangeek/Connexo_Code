@@ -128,7 +128,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainPreview', {
 
         if (me.mentionDataLoggerSlave) {
             me.on('afterrender', function() {
-                me.down('#mdc-register-data-preview-fields-container').insert(1,
+                me.down('#mdc-register-general-form').insert(1,
                     {
                         xtype: 'displayfield',
                         labelWidth: 200,

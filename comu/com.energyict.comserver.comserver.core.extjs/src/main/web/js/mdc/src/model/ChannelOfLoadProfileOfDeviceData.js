@@ -15,7 +15,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'confirmed', type: 'auto'},
         {name: 'dataValidated', type: 'auto'},
         {name: 'multiplier', type: 'auto'},
-        {name: 'slaveChannel', type: 'auto'},
+        {name: 'slaveChannel', type: 'auto', defaultValue: null},
         'plotband',
         'readingQualities',
         {
