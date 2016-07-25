@@ -493,7 +493,6 @@ public class UsagePointImpl implements UsagePoint {
         EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfigurationOnUsagePoint = this.dataModel
                 .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
                 .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate)));
-        effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
         this.metrologyConfigurations.add(effectiveMetrologyConfigurationOnUsagePoint);
         this.update();
     }
@@ -509,15 +508,12 @@ public class UsagePointImpl implements UsagePoint {
         if (end != null && metrologyConfigurationVersion.getStart().equals(startTimeOfCurrent) && end.isBefore(this.clock.instant())) {
             throw new UnsatisfiedMerologyConfigurationEndDateInThePast(thesaurus);
         }
-        List<EffectiveMetrologyConfigurationOnUsagePoint> otherVersions = this.getEffectiveMetrologyConfigurations()
+        this.getEffectiveMetrologyConfigurations()
                 .stream()
                 .filter(v -> !v.getStart().equals(metrologyConfigurationVersion.getStart()))
-                .collect(Collectors.toList());
+                .forEach(each -> checkOverlapsOfEffectiveMetrologyConfiguations(each, start, end));
 
-
-        otherVersions.forEach(each -> checkOverlapsOfEffectiveMetrologyConfiguations(each, start, end));
-
-        this.removeMetrologyConfigurationVersion(metrologyConfigurationVersion);
+        metrologyConfigurationVersion.close(metrologyConfigurationVersion.getStart());
         Long endDate;
         if (end != null) {
             endDate = end.toEpochMilli();

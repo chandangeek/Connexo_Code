@@ -96,7 +96,7 @@ public enum MessageSeeds implements MessageSeed {
     END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION(7010, Constants.END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION, "End date can't be in the past for current metrology configuration version"),
     CHANNEL_DATA_PRESENT(7011, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
     UNSUPPORTED_COMMAND(7012, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device with MRID {1}"),
-    CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED(7013, Constants.CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED, "Unsupported Command {0} for end device with MRID {1}")
+    CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED(7013, Constants.CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED, "Current metrology configuration version can't be removed")
     ;
 
     private final int number;
