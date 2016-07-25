@@ -1,16 +1,16 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
-import com.elster.jupiter.rest.util.Transactional;
-import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
-
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validation.security.Privileges;
+import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
 
 import com.google.common.collect.Range;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -19,7 +19,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -43,8 +42,10 @@ public class ValidationResultsResource {
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public PagedInfoList getValidationResultsPerDeviceGroup(@Context UriInfo uriInf, @BeanParam JsonQueryParameters queryParameters, @PathParam("id") Long groupId)
             throws JSONException {
-        Instant from = Instant.ofEpochMilli(Long.parseLong(String.valueOf(new JSONArray(uriInf.getQueryParameters().get("filter").get(0)).getJSONObject(0).get("value"))));
-        Instant to = Instant.ofEpochMilli(Long.parseLong(String.valueOf(new JSONArray(uriInf.getQueryParameters().get("filter").get(0)).getJSONObject(1).get("value"))));
+        //FixMe from and to
+        ValidationService validationService = new ValidationServiceImpl();
+        Instant from = Instant.ofEpochMilli(Long.parseLong(String.valueOf(new JSONArray(uriInf.getQueryParameters().get("filter").get(0)).getJSONObject(1).get("value"))));
+        Instant to = Instant.ofEpochMilli(Long.parseLong(String.valueOf(new JSONArray(uriInf.getQueryParameters().get("filter").get(0)).getJSONObject(2).get("value"))));
         List<ValidationSummaryInfo> data =
                 deviceDataValidationService
                         .getValidationResultsOfDeviceGroup(groupId, queryParameters.getStart(), queryParameters.getLimit(), Range.closed(from,to))
