@@ -148,12 +148,12 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(2124, "usagePointAlreadyLinkedToAnotherDeviceXUntil", "The usage point is already linked to device {0} starting from {1} until {2}"),
     METER_ACTIVATION_TIMESTAMP_NOT_AFTER_LAST_ACTIVATION(2125, "meterActivationTimestampNotAfterLastActivation", "The activation date {0} should be after the last meter activation date {1}"),
     CHANGE_DEVICE_CONFIG_UNSATISFIED_REQUIREMENTS(2126, "changeDeviceConfigUnsatisfiedRequirements", "The device {0} can’t have the device configuration {1} because this device configuration doesn’t have the following reading types that are specified in the metrology configuration versions of the usage points that are linked to this device: \n {2}"),
-    NO_SUCH_END_DEVICE_CONTROL_TYPE(2126, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
-    NO_SUCH_DEVICE_MESSAGE_SPEC(2127, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
-    NO_STATUS_INFORMATION_COMTASK(2128, Keys.NO_STATUS_INFORMATION_COMTASK, "A comtask to read out the status information could not be located"),
-    DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2129, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
-    COULD_NOT_FIND_SERVICE_CALL_TYPE(2130, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
-    COMMAND_ARGUMENT_SPEC_NOT_FOUND(2131, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
+    NO_SUCH_END_DEVICE_CONTROL_TYPE(2127, "NoSuchEndDeviceControlType", "No end device control type with MRID {0}"),
+    NO_SUCH_DEVICE_MESSAGE_SPEC(2128, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
+    NO_STATUS_INFORMATION_COMTASK(2129, Keys.NO_STATUS_INFORMATION_COMTASK, "A comtask to read out the status information could not be located"),
+    DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2130, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
+    COULD_NOT_FIND_SERVICE_CALL_TYPE(2131, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
+    COMMAND_ARGUMENT_SPEC_NOT_FOUND(2132, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
     ;
 
     private final int number;
