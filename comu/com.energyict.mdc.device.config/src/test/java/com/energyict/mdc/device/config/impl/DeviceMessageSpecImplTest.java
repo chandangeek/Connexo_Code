@@ -108,8 +108,11 @@ public class DeviceMessageSpecImplTest {
     public void oneDeviceMessageFileSpecWithPossibleValues() {
         DeviceType otherDeviceType = mock(DeviceType.class);
         DeviceMessageFile file1 = mock(DeviceMessageFile.class);
+        when(file1.getName()).thenReturn("file1");
         DeviceMessageFile file2 = mock(DeviceMessageFile.class);
+        when(file2.getName()).thenReturn("file2");
         DeviceMessageFile file3 = mock(DeviceMessageFile.class);
+        when(file3.getName()).thenReturn("file3");
         when(otherDeviceType.getDeviceMessageFiles()).thenReturn(Collections.singletonList(file1));
         when(this.deviceType.getDeviceMessageFiles()).thenReturn(Arrays.asList(file2, file3));
         PropertySpec propertySpec = this.propertySpecService
