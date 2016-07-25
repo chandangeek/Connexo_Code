@@ -611,7 +611,6 @@ public class DeviceTypeResource {
                 deviceType
                         .getAllowedCalendars()
                         .stream()
-                        .filter(Predicates.not(AllowedCalendar::isGhost))
                         .filter(each -> each.getId() == allowedCalendarInfo.id)
                         .findFirst();
         if (allowedCalendar.isPresent()) {
