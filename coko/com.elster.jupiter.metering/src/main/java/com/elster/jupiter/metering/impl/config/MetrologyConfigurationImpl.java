@@ -175,7 +175,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     private void checkLinkedUsagePoints() {
         if (!metrologyConfigurationService.getDataModel().query(UsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
-                .select(Where.where("metrologyConfiguration.metrologyConfiguration").isEqualTo(this), Order.NOORDER, false, null, 1, 1).isEmpty()) {
+                .select(Where.where("metrologyConfigurations.metrologyConfiguration").isEqualTo(this), Order.NOORDER, false, null, 1, 1).isEmpty()) {
             throw new CannotDeactivateMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
         }
     }

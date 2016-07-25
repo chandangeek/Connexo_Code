@@ -493,6 +493,7 @@ public class UsagePointImpl implements UsagePoint {
         EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfigurationOnUsagePoint = this.dataModel
                 .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
                 .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate)));
+        effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
         this.metrologyConfigurations.add(effectiveMetrologyConfigurationOnUsagePoint);
         this.update();
     }
