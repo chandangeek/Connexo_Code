@@ -39,7 +39,7 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                     result += '<br><span style="font-size: 90%">'
                                         + Uni.I18n.translate('general.fromDate.from', 'MDC', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
                                     if (endTime) {
-                                        result += '&nbsp' + Uni.I18n.translate('general.fromDate.untill', 'MDC', 'untill {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
+                                        result += '&nbsp' + Uni.I18n.translate('general.fromDate.until', 'MDC', 'until {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
                                     }
                                     result += '&nbsp' + versionsLink + '</span>';
                                 }
@@ -83,7 +83,7 @@ Ext.define('Mdc.usagepointmanagement.view.MetrologyConfiguration', {
                                     result += '<br><span style="font-size: 90%">'
                                         + Uni.I18n.translate('general.fromDate.from', 'MDC', 'From {0}', [Uni.DateTime.formatDateTimeShort(new Date(startTime))], false);
                                     if (endTime) {
-                                        result += '&nbsp' + Uni.I18n.translate('general.untillDate.until', 'MDC', 'until {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
+                                        result += '&nbsp' + Uni.I18n.translate('general.untilDate.until', 'MDC', 'until {0}', [Uni.DateTime.formatDateTimeShort(new Date(endTime))], false);
                                     }
                                     result += '&nbsp' + versionsLink + '</span>';
                                 }

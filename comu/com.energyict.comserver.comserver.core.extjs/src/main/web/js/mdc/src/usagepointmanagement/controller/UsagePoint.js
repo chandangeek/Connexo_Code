@@ -41,7 +41,6 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
 
         pageMainContent.setLoading(true);
-
         usagePointModel.load(id, {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
