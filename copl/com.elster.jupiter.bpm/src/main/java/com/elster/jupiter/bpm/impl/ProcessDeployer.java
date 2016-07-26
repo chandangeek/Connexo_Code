@@ -11,23 +11,30 @@ import java.util.Base64;
  */
 public class ProcessDeployer {
 
-    private static final String defaultRepoPayload="{\"name\":\"connexoRepo\",\"description\":\"repository for the new Connexo project\",\"userName\":null,\"password\":null,\"requestType\":\"new\",\"gitURL\":null}";
-    private static final String defaultOrgUnitPayload="{\"name\":\"connexoGroup\",\"description\":\"default Connexo organizational unit\",\"owner\":\"rootUsr\",\"repositories\":[\"connexoRepo\"]}";
+    private static final String defaultRepoPayload = "{\"name\":\"connexoRepo\",\"description\":\"repository for the new Connexo project\",\"userName\":null,\"password\":null,\"requestType\":\"new\",\"gitURL\":null,\"organizationalUnitName\":\"connexoGroup\"}";
+    private static final String defaultOrgUnitPayload = "{\"name\":\"connexoGroup\",\"description\":\"default Connexo organizational unit\",\"owner\":\"rootUsr\",\"defaultGroupId\":\"connexoGroup\"}";
 
     public static void main(String args[]) {
-        if (args.length < 3) {
+        if ((args.length < 4) || (args[0].equals("deployProcess") && (args.length < 5))) {
             System.out.println("Incorrect syntax. The following parameters are required:");
-            System.out.println("url -- url to the Connexo Flow installation");
+            System.out.println("command -- command identifier");
             System.out.println("user -- a Conenxo Flow user with administrative privileges");
             System.out.println("password -- password for the provided user");
+            System.out.println("url -- url to the Connexo Flow installation");
+            System.out.println("deploymentId -- deployment identifier for deploy process");
             return;
         }
 
         String authString = "Basic " + new String(Base64.getEncoder().encode((args[1] + ":" + args[2]).getBytes()));
-        createRepository(args[0], authString, defaultRepoPayload);
-        createOrganizationalUnit(args[0], authString,defaultOrgUnitPayload);
-        deployProcess("org.jbpm:notifyuser:1.0:defaultKieBase:defaultKieSession", args[0], authString);
-        deployProcess("org.jbpm:sendsomeone:1.0:defaultKieBase:defaultKieSession", args[0], authString);
+        if (args[0].equals("createRepository")) {
+            createRepository(args[3], authString, defaultRepoPayload);
+        }
+        if (args[0].equals("createOrganizationalUnit")) {
+            createOrganizationalUnit(args[3], authString, defaultOrgUnitPayload);
+        }
+        if (args[0].equals("deployProcess")) {
+            deployProcess(args[4], args[3], authString);
+        }
     }
 
     private static void createRepository(String arg, String authString, String payload){
