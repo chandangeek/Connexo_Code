@@ -236,8 +236,11 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 
     private String getJournalConstraint(TableConstraintImpl<?> constraint) {
         StringBuilder sb = new StringBuilder("constraint ");
-        sb.append(constraint.getName());
-        sb.append("_JRNL");
+        String constraintName = constraint.getName() + "_JRNL";
+        if (constraintName.length() > 30) {
+            throw new IllegalArgumentException("Primary key for journal table too long: " + constraintName + ". Max length is 30 but found " + constraintName.length());
+        }
+        sb.append(constraintName);
         sb.append(" PRIMARY KEY ");
         sb.append("(");
         doAppendColumns(sb, constraint.getColumns(), false, false);
