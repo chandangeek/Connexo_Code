@@ -11,6 +11,7 @@ import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import com.fasterxml.jackson.jaxrs.base.JsonMappingExceptionMapper;
 import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.message.DeflateEncoder;
 import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.filter.EncodingFilter;
@@ -81,7 +82,9 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         tracingFeature = new TracingFeature().init(logDirectory, endPointConfiguration);
         secureConfig.register(tracingFeature);
 
-        EncodingFilter.enableFor(secureConfig, GZipEncoder.class); // TODO deflate also
+        if (endPointConfiguration.isHttpCompression()) {
+            EncodingFilter.enableFor(secureConfig, GZipEncoder.class, DeflateEncoder.class);
+        }
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
 //            HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container, threadPrincipalService), this);

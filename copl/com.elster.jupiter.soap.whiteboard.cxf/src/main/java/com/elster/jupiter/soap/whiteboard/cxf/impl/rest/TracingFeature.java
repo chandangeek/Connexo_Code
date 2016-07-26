@@ -33,10 +33,12 @@ public class TracingFeature implements Feature {
             return false;
         }
         try {
-            Logger logger = Logger.getLogger(TracingFeature.class.getSimpleName());
-            fileHandler = new FileHandler(logDirectory + endPointConfiguration.getTraceFile(), true);
-            fileHandler.setFormatter(new SimpleFormatter());
-            logger.addHandler(fileHandler);
+            Logger logger = Logger.getLogger(endPointConfiguration.getName());
+            if (logger.getHandlers().length == 0) {
+                fileHandler = new FileHandler(logDirectory + endPointConfiguration.getTraceFile(), true);
+                fileHandler.setFormatter(new SimpleFormatter());
+                logger.addHandler(fileHandler);
+            }
             logger.setUseParentHandlers(false);
             featureContext.register(new LoggingFilter(logger, true));
             return true;

@@ -8,6 +8,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.jackson.JacksonFeature;
+import org.glassfish.jersey.message.DeflateEncoder;
+import org.glassfish.jersey.message.GZipEncoder;
 import org.joda.time.DateTimeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -64,6 +66,10 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
         if (EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())) {
             client.register(HttpAuthenticationFeature.basic(endPointConfiguration.getUsername(), endPointConfiguration.getPassword()
                     .getBytes()));
+        }
+        if (endPointConfiguration.isHttpCompression()) {
+            client.register(GZipEncoder.class);
+            client.register(DeflateEncoder.class);
         }
         tracingFeature = new TracingFeature().init(logDirectory, endPointConfiguration);
         client.register(tracingFeature);
