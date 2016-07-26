@@ -7,6 +7,7 @@ package com.elster.jupiter.cps;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
+import javax.validation.constraints.Size;
 import java.time.Instant;
 
 /**
@@ -21,9 +22,14 @@ import java.time.Instant;
 public abstract class AbstractPersistentDomainExtension {
     @IsPresent
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    @Size(max=80)
     private String userName;
 
     protected RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
