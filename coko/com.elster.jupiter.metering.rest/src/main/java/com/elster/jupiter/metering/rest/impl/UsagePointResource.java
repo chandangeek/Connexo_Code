@@ -319,7 +319,7 @@ public class UsagePointResource {
         try {
             usagePoint.apply(metrologyConfiguration, start, end);
         } catch (UnsatisfiedReadingTypeRequirements ex) {
-            throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
+            throw new FormValidationException().addException("metrologyConfiguration", MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE);
         } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
             throw new FormValidationException().addException("end", ex.getMessage());
         } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
