@@ -1,7 +1,14 @@
-package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
+package com.elster.jupiter.mdm.usagepoint.config.rest;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.mdm.usagepoint.config.rest.impl.CustomPropertiesInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.impl.FormulaInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.impl.MetrologyConfigurationInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypeDeliverablesInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypePatternAttributeInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypePatternInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypeRequirementsInfo;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
@@ -10,6 +17,7 @@ import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.FunctionCallNode;
 import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.NullNode;
@@ -61,16 +69,19 @@ public class MetrologyConfigurationInfoFactory {
         return info;
     }
 
-    public MetrologyConfigurationInfo asDetailedInfo(UsagePointMetrologyConfiguration meterConfiguration) {
-        MetrologyConfigurationInfo info = asInfo(meterConfiguration);
-        info.metrologyContracts = meterConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
-
-        info.customPropertySets = meterConfiguration.getCustomPropertySets()
+    public MetrologyConfigurationInfo asDetailedInfo(UsagePointMetrologyConfiguration metrologyConfiguration) {
+        MetrologyConfigurationInfo info = asInfo(metrologyConfiguration);
+        info.metrologyContracts = metrologyConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
+        info.customPropertySets = metrologyConfiguration.getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .map(this.customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
                 .collect(Collectors.toList());
         return info;
+    }
+
+    public List<MetrologyContractInfo> getMetrologyContractsInfo(MetrologyConfiguration metrologyConfiguration) {
+        return metrologyConfiguration.getContracts().stream().map(this::asDetailedInfo).collect(Collectors.toList());
     }
 
     private IdWithNameInfo asInfo(MetrologyConfigurationStatus status) {
@@ -123,7 +134,9 @@ public class MetrologyConfigurationInfoFactory {
         FormulaInfo info = new FormulaInfo();
         info.description = formula.getDescription();
         info.readingTypeRequirements = asInfoList(formula.getExpressionNode());
-        info.customProperties = Collections.emptyList(); //not supported yet
+        FormulaVisitor visitor = new FormulaVisitor();
+        formula.getExpressionNode().accept(visitor);
+        info.customProperties = visitor.getCustomPropertiesInfos();
         return info;
     }
 
@@ -170,6 +183,56 @@ public class MetrologyConfigurationInfoFactory {
             }
         }
         return info;
+    }
+
+    private class FormulaVisitor implements ExpressionNode.Visitor<Void> {
+
+        private List<CustomPropertiesInfo> customProperties = new ArrayList<>();
+
+        @Override
+        public Void visitConstant(ConstantNode constant) {
+            return null;
+        }
+
+        @Override
+        public Void visitRequirement(ReadingTypeRequirementNode requirement) {
+            return null;
+        }
+
+        @Override
+        public Void visitDeliverable(ReadingTypeDeliverableNode deliverable) {
+            return null;
+        }
+
+        public List<CustomPropertiesInfo> getCustomPropertiesInfos() {
+            return customProperties;
+        }
+
+        @Override
+        public Void visitProperty(CustomPropertyNode property) {
+            CustomPropertiesInfo customProperty = new CustomPropertiesInfo();
+            customProperty.name = property.getPropertySpec().getDisplayName();
+            customProperty.key = property.getPropertySpec().getName();
+            customProperty.customPropertySet = new IdWithNameInfo(property.getCustomPropertySet().getId(), property.getCustomPropertySet().getName());
+            this.customProperties.add(customProperty);
+            return null;
+        }
+
+        @Override
+        public Void visitOperation(OperationNode operationNode) {
+            operationNode.getChildren().forEach(n -> n.accept(this));
+            return null;
+        }
+
+        @Override
+        public Void visitFunctionCall(FunctionCallNode functionCall) {
+            return null;
+        }
+
+        @Override
+        public Void visitNull(NullNode nullNode) {
+            return null;
+        }
     }
 
     private class ReadingTypeVisitor implements ExpressionNode.Visitor<Void> {

@@ -7,6 +7,8 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfoFactory;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyContractInfo;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
@@ -99,7 +101,7 @@ public class MetrologyConfigurationResource {
                         .collect(Collectors.toList());
         List<MetrologyConfigurationInfo> metrologyConfigurationsInfos = ListPager.of(allMetrologyConfigurations).from(queryParameters).find()
                 .stream()
-                .map(metrologyConfigurationInfoFactory::asInfo)
+                .map(metrologyConfigurationInfoFactory::asDetailedInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("metrologyconfigurations", metrologyConfigurationsInfos, queryParameters);
     }
@@ -289,7 +291,7 @@ public class MetrologyConfigurationResource {
         List<?> infos = customPropertySets
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .sorted((a, b) -> a.getCustomPropertySet().getName().compareToIgnoreCase(b.getCustomPropertySet().getName()))
-                .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
+                .map(rcps -> customPropertySetInfoFactory.getGeneralAndPropertiesInfo(rcps, metrologyConfiguration))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
     }
