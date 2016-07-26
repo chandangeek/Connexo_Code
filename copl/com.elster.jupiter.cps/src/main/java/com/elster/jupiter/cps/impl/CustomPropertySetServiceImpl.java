@@ -322,6 +322,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                         this.registerCustomPropertySet(customPropertySet, systemDefined);
                         ctx.commit();
                     } catch (UnderlyingSQLFailedException | CommitException ex) {
+                        LOGGER.log(Level.SEVERE, ex, ex::getMessage);
                         ex.printStackTrace();
                     }
                 } else {

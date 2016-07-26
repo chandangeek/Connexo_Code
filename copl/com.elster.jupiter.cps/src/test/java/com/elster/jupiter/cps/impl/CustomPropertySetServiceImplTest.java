@@ -249,10 +249,10 @@ public class CustomPropertySetServiceImplTest {
     }
 
     @Test
-    public void addCustomPropertySet_SetAndClearsPrincipal() {
+    public void addCustomPropertySet_SetsAndClearsPrincipal() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        when(this.customPropertySet.getId()).thenReturn("addCustomPropertySet_SetAndClearsPrincipal");
+        when(this.customPropertySet.getId()).thenReturn("addCustomPropertySet_SetsAndClearsPrincipal");
         when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
 
         // Business method
@@ -264,10 +264,10 @@ public class CustomPropertySetServiceImplTest {
     }
 
     @Test
-    public void addSystemCustomPropertySet_SetAndClearsPrincipal() {
+    public void addSystemCustomPropertySet_SetsAndClearsPrincipal() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        when(this.customPropertySet.getId()).thenReturn("addSystemCustomPropertySet_SetAndClearsPrincipal");
+        when(this.customPropertySet.getId()).thenReturn("addSystemCustomPropertySet_SetsAndClearsPrincipal");
         when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
 
         // Business method
