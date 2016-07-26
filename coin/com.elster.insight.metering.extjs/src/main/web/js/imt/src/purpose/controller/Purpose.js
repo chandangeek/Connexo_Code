@@ -58,7 +58,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         purpose: purpose
                     });
                 widget.down('#purpose-details-form').loadRecord(purpose);
-                widget.down('#purpose-details-form #output-validation-status-form').loadRecord(purpose.getValidationInfo());
                 app.fireEvent('changecontentevent', widget);
                 mainView.setLoading(false);
                 me.loadOutputs(mRID, purposeId);

@@ -1,13 +1,13 @@
 Ext.define('Imt.purpose.view.PurposeDetailsForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.purpose-details-form',
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
     required: [
         'Imt.purpose.view.ValidationStatusForm'
     ],
+    defaults: {
+        xtype: 'displayfield',
+        labelWidth: 200
+    },
 
     initComponent: function () {
         var me = this;
@@ -33,10 +33,18 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
             },
             {
                 xtype: 'output-validation-status-form',
-                itemId: 'output-validation-status-form'
+                itemId: 'output-validation-status-form',
+                defaults: me.defaults
             }
         ];
 
         me.callParent();
+    },
+
+    loadRecord: function (record) {
+        var me = this;
+
+        me.down('#output-validation-status-form').loadValidationInfo(record.get('validationInfo'));
+        me.callParent(arguments);
     }
 });

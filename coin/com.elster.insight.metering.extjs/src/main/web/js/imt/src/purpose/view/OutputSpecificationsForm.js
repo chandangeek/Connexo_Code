@@ -2,14 +2,13 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.output-specifications-form',
     itemId: 'output-specifications-form',
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
-
     requires: [
         'Uni.form.field.ReadingTypeDisplay'
     ],
+    defaults: {
+        xtype: 'displayfield',
+        labelWidth: 200
+    },
 
     padding: '10 0 0 0',
 
@@ -44,6 +43,17 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
                 renderer: function (formula) {
                     return formula.description;
                 }
+            },
+            {
+                xtype: 'fieldcontainer',
+                itemId: 'output-validation-title',
+                labelAlign: 'left',
+                fieldLabel: Uni.I18n.translate('general.validation', 'IMT', 'Validation')
+            },
+            {
+                xtype: 'output-validation-status-form',
+                itemId: 'output-validation-status-form',
+                defaults: me.defaults
             }
             //{
             //    xtype: 'fieldcontainer',
@@ -65,5 +75,12 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
         ];
 
         me.callParent();
+    },
+
+    loadRecord: function (record) {
+        var me = this;
+
+        me.down('#output-validation-status-form').loadValidationInfo(record.get('validationInfo'));
+        me.callParent(arguments);
     }
 });

@@ -2,6 +2,7 @@ Ext.define('Imt.usagepointmanagement.model.Purpose', {
     extend: 'Ext.data.Model',
     requires: ['Imt.usagepointmanagement.model.ValidationInfo'],
     fields: [
+        'validationInfo',
         {name: 'id', type: 'int'},
         {name: 'name', type: 'string'},
         {name: 'required', type: 'boolean', useNull: true},
