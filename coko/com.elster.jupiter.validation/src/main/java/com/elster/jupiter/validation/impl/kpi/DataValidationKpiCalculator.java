@@ -30,8 +30,7 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
 
     @Override
     public void calculateAndStore() {
-        //FixMe will be implemented in next story CXO-1611;
-        //Clean up - inject clock for accuracy
+        //FixMe Clean up - inject clock for accuracy
         /*
         private Range<Instant> lastMonth() {
         ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
