@@ -7,10 +7,12 @@ import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.function.Predicate;
 
+import static com.elster.jupiter.util.streams.Predicates.either;
+
 public enum ChannelDataValidationSummaryFlag implements TranslationKey {
     // The order is important; each previous one must overrule the next
     MISSING("statisticsMissing", "Missing", ReadingQualityType::isMissing),
-    SUSPECT("statisticsSuspect", "Suspect", ReadingQualityType::isSuspect),
+    SUSPECT("statisticsSuspect", "Suspect", either(ReadingQualityType::isSuspect).or(ReadingQualityType::isError)),
     ESTIMATED("statisticsEstimated", "Estimated", ReadingQualityType::hasEstimatedCategory),
     EDITED("statisticsEdited", "Edited", ReadingQualityType::hasEditCategory),
     VALID("statisticsValid", "Valid", type -> type.qualityIndex().orElse(null) == QualityCodeIndex.DATAVALID),

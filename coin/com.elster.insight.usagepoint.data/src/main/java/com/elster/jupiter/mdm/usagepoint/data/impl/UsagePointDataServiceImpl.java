@@ -210,7 +210,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                         .inTimeInterval(checked.intersection(interval))
                         .actual()
                         .ofQualitySystem(QualityCodeSystem.MDM)
-                        .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD))
+                        .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE))
                         .orOfAnotherTypeInSameSystems()
                         .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED))
                         .stream()

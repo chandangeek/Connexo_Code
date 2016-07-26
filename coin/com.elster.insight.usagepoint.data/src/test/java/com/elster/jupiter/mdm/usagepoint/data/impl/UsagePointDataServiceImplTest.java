@@ -117,7 +117,7 @@ public class UsagePointDataServiceImplTest {
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private ReadingQualityWithTypeFetcher fetcher;
     @Mock
-    private ReadingQualityRecord suspect1, suspect2, missing, added, edited, removed, estimated;
+    private ReadingQualityRecord error, suspect, missing, added, edited, removed, estimated;
 
     @Captor
     ArgumentCaptor<Range<Instant>> captor;
@@ -149,10 +149,10 @@ public class UsagePointDataServiceImplTest {
         when(channel.isRegular()).thenReturn(true);
         when(channel.toList(captor.capture())).thenAnswer(invocation -> getInstantsFromInterval(captor.getValue()));
         when(channel.findReadingQualities()).thenReturn(fetcher);
-        when(suspect1.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT));
-        when(suspect1.getReadingTimestamp()).thenReturn(MISSING_DATE);
-        when(suspect2.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT));
-        when(suspect2.getReadingTimestamp()).thenReturn(SUSPECT_DATE);
+        when(error.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ERRORCODE));
+        when(error.getReadingTimestamp()).thenReturn(MISSING_DATE);
+        when(suspect.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT));
+        when(suspect.getReadingTimestamp()).thenReturn(SUSPECT_DATE);
         when(missing.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD));
         when(missing.getReadingTimestamp()).thenReturn(MISSING_DATE);
         when(added.getType()).thenReturn(ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED));
@@ -167,11 +167,11 @@ public class UsagePointDataServiceImplTest {
         when(fetcher.inTimeInterval(captor.capture())
                 .actual()
                 .ofQualitySystem(QualityCodeSystem.MDM)
-                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD))
+                .ofQualityIndices(ImmutableSet.of(QualityCodeIndex.SUSPECT, QualityCodeIndex.KNOWNMISSINGREAD, QualityCodeIndex.ERRORCODE))
                 .orOfAnotherTypeInSameSystems()
                 .ofAnyQualityIndexInCategories(ImmutableSet.of(QualityCodeCategory.EDITED, QualityCodeCategory.ESTIMATED))
                 .stream())
-                .thenAnswer(invocation -> Stream.of(suspect1, suspect2, missing, added, edited, removed, estimated)
+                .thenAnswer(invocation -> Stream.of(error, suspect, missing, added, edited, removed, estimated)
                         .filter(record -> captor.getValue().contains(record.getReadingTimestamp())));
     }
 
@@ -348,13 +348,15 @@ public class UsagePointDataServiceImplTest {
     @Test
     public void testGetValidationSummaryFlagPrecedence() {
         Range<Instant> oneTimestampRange = Range.singleton(MISSING_DATE);
+        when(suspect.getReadingTimestamp()).thenReturn(MISSING_DATE);
         when(added.getReadingTimestamp()).thenReturn(MISSING_DATE);
         when(edited.getReadingTimestamp()).thenReturn(MISSING_DATE);
         when(removed.getReadingTimestamp()).thenReturn(MISSING_DATE);
         when(estimated.getReadingTimestamp()).thenReturn(MISSING_DATE);
         List<Pair<ChannelDataValidationSummaryFlag, ReadingQualityRecord>> expectedMapping = ImmutableList.of(
                 Pair.of(ChannelDataValidationSummaryFlag.MISSING, missing), // check that flag is missing, remove missing
-                Pair.of(ChannelDataValidationSummaryFlag.SUSPECT, suspect1), // etc.
+                Pair.of(ChannelDataValidationSummaryFlag.SUSPECT, suspect), // etc.
+                Pair.of(ChannelDataValidationSummaryFlag.SUSPECT, error),
                 Pair.of(ChannelDataValidationSummaryFlag.ESTIMATED, estimated),
                 Pair.of(ChannelDataValidationSummaryFlag.EDITED, edited),
                 Pair.of(ChannelDataValidationSummaryFlag.EDITED, added),
