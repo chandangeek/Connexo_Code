@@ -743,18 +743,40 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
 
 
     @Override
-    public Optional<DataValidationKpiScore> getDataValidationKpiScores(long endDeviceGroupId, long deviceId, Range<Instant> interval){
+    public Optional<DataValidationKpiScore> getDataValidationKpiScores(long endDeviceGroupId, long deviceId, Range<Instant> interval) {
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
         Optional<DataValidationKpiScore> score = Optional.empty();
         if (found.isPresent()) {
             Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(found.get());
             if (dataValidationKpi.isPresent()) {
-               score = dataValidationKpi.get().getDataValidationKpiScores(deviceId, interval);
+                score = dataValidationKpi.get().getDataValidationKpiScores(deviceId, interval);
             }
         }
         return score;
     }
 
+    @Override
+    public List<Long> getDevicesWithSuspects(long endDeviceGroupId) {
+        List<Long> devices = new ArrayList<>();
+        Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
+        if (endDeviceGroup.isPresent()) {
+            Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(endDeviceGroup.get());
+            if (dataValidationKpi.isPresent()) {
+                devices = dataValidationKpi.get()
+                        .getDataValidationKpiChildren()
+                        .stream()
+                        .map(child -> child.getChildKpi().getMembers())
+                        .flatMap(List::stream)
+                        .map(member -> member.getName().substring(member.getName().indexOf("_") + 1))
+                        .map(id -> Long.parseLong(id))
+                        .distinct().sorted().collect(Collectors.toList());
+            }
+        }
+        return devices;
+    }
+
+
+    @Deprecated
     @Override
     public Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit) {
         SqlBuilder sqlBuilder = new SqlBuilder();
@@ -859,7 +881,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Override
-    public List<DataValidationAssociationProvider> getDataValidationAssociatinProviders(){
+    public List<DataValidationAssociationProvider> getDataValidationAssociatinProviders() {
         return this.dataValidationAssociationProviders;
     }
 }
