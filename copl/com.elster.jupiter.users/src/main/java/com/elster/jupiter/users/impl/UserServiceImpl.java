@@ -42,7 +42,6 @@ import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -54,6 +53,7 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -86,10 +86,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private volatile ThreadPrincipalService threadPrincipalService;
     private List<User> loggedInUsers = new CopyOnWriteArrayList<>();
     private volatile DataVaultService dataVaultService;
-    private volatile BundleContext bundleContext;
     private volatile UpgradeService upgradeService;
     private volatile Clock clock;
-
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
     private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
@@ -139,7 +137,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     public void activate(BundleContext context) {
         if (context != null) {
             setTrustStore(context);
-            bundleContext = context;
         }
         dataModel.register(new AbstractModule() {
             @Override
@@ -299,12 +296,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return result;
     }
 
-
     @Override
     public Group createGroup(String name, String description) {
         GroupImpl result = GroupImpl.from(dataModel, name, description);
         result.update();
-
         return result;
     }
 
@@ -328,17 +323,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
     }
 
-
     private Resource createResource(String component, String name, String description) {
         ResourceImpl result = ResourceImpl.from(dataModel, component, name, description);
         result.persist();
-
         return result;
-    }
-
-    @Deactivate
-    public void deactivate() {
-        bundleContext = null;
     }
 
     @Override
@@ -713,9 +701,9 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private void doAssignPrivileges(PrivilegesProvider privilegesProvider) {
         if (!privilegesNotYetRegistered.isEmpty()) {
             privilegesProvider.getModuleResources().stream()
-                    .map(resource -> resource.getPrivilegeNames())
-                    .flatMap(privileges -> privileges.stream())
-                    .filter(item -> privilegesNotYetRegistered.containsKey(item))
+                    .map(ResourceDefinition::getPrivilegeNames)
+                    .flatMap(Collection::stream)
+                    .filter(privilegesNotYetRegistered::containsKey)
                     .forEach(privilege -> {
                         for (PrivilegeAssociation association : privilegesNotYetRegistered.get(privilege)) {
                             Optional<Group> group = findGroup(association.group);
@@ -729,7 +717,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
     }
 
-    public List<Resource> getApplicationResources(String applicationName) {
+    private List<Resource> getApplicationResources(String applicationName) {
         List<String> applicationPrivileges = applicationPrivilegesProviders
                 .stream()
                 .filter(app -> app.getApplicationName().equals(applicationName))
@@ -751,7 +739,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                 ).collect(Collectors.toList());
     }
 
-    public List<Resource> getApplicationResources() {
+    private List<Resource> getApplicationResources() {
         return applicationPrivilegesProviders.stream()
                 .flatMap(a -> getApplicationResources(a.getApplicationName()).stream()).collect(Collectors.toList());
     }
@@ -777,7 +765,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     public List<User> getGroupMembers(String groupName) {
         QueryExecutor<UserInGroup> queryExecutor = dataModel.query(UserInGroup.class, Group.class);
         List<UserInGroup> membership = queryExecutor.select(where("group.name").isEqualTo(groupName));
-        return membership.stream().map(s -> s.getUser()).collect(Collectors.toList());
+        return membership.stream().map(UserInGroup::getUser).collect(Collectors.toList());
     }
 
     @Override
@@ -809,27 +797,30 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     private void logMessage(String message, String userName, String domain, String ipAddr) {
-        ipAddr = ipAddr.equals("0:0:0:0:0:0:0:1") ? "localhost" : ipAddr;
-        if (message.equals(SUCCESSFUL_LOGIN)) {
-            String userNameFormatted = domain == null ? userName : domain + "/" + userName;
-            userLogin.log(Level.INFO, message + "[" + userNameFormatted + "] ", ipAddr);
-            this.findUserIgnoreStatus(userName).ifPresent(user -> {
-                try (TransactionContext context = transactionService.getContext()) {
-                    user.setLastSuccessfulLogin(clock.instant());
-                    user.update();
-                    context.commit();
-                }
-            });
-        } else {
-            String userNameFormatted = domain == null ? userName : domain + "/" + userName;
-            userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] ", ipAddr);
-            this.findUserIgnoreStatus(userName).ifPresent(user -> {
-                try (TransactionContext context = transactionService.getContext()) {
-                    user.setLastUnSuccessfulLogin(clock.instant());
-                    user.update();
-                    context.commit();
-                }
-            });
+        this.threadPrincipalService.set(() -> "UserService.login");
+        try {
+            ipAddr = "0:0:0:0:0:0:0:1".equals(ipAddr) ? "localhost" : ipAddr;
+            if (message.equals(SUCCESSFUL_LOGIN)) {
+                String userNameFormatted = domain == null ? userName : domain + "/" + userName;
+                userLogin.log(Level.INFO, message + "[" + userNameFormatted + "] ", ipAddr);
+                this.findUserIgnoreStatus(userName).ifPresent(user -> {
+                    try (TransactionContext context = transactionService.getContext()) {
+                        user.setLastSuccessfulLogin(clock.instant());
+                        context.commit();
+                    }
+                });
+            } else {
+                String userNameFormatted = domain == null ? userName : domain + "/" + userName;
+                userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] ", ipAddr);
+                this.findUserIgnoreStatus(userName).ifPresent(user -> {
+                    try (TransactionContext context = transactionService.getContext()) {
+                        user.setLastUnSuccessfulLogin(clock.instant());
+                        context.commit();
+                    }
+                });
+            }
+        } finally {
+            this.threadPrincipalService.clear();
         }
     }
 

@@ -364,6 +364,7 @@ public final class UserImpl implements User {
 
     public void setLastSuccessfulLogin(Instant lastSuccessfulLogin) {
         this.lastSuccessfulLogin = lastSuccessfulLogin;
+        this.dataModel.update(this, "lastSuccessfulLogin");
     }
 
     public Instant getLastUnSuccessfulLogin() {
@@ -372,5 +373,7 @@ public final class UserImpl implements User {
 
     public void setLastUnSuccessfulLogin(Instant lastUnSuccessfulLogin) {
         this.lastUnSuccessfulLogin = lastUnSuccessfulLogin;
+        this.dataModel.update(this, "lastUnSuccessfulLogin");
     }
+
 }
