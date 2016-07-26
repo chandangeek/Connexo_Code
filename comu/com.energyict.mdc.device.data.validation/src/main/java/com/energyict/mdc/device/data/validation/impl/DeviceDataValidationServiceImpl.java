@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -57,29 +56,17 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
         dataModel = ormService.getDataModel(ValidationService.COMPONENTNAME).orElse(null);
     }
 
+
     @Override
-    public List<ValidationOverview> getValidationResultsOfDeviceGroup(long groupId, Optional<Integer> start, Optional<Integer> limit, Range<Instant> range) {
+    public List<ValidationOverview> getValidationResultsOfDeviceGroup(long groupId, Range<Instant> range) {
         List<ValidationOverview> list = new ArrayList<>();
-        List<Long> deviceIds = new ArrayList<>();
-        Optional<SqlBuilder> found = validationService.getValidationResults(groupId, start, limit);
-        if (found.isPresent()) {
-            try (Connection connection = dataModel.getConnection(false);
-                 PreparedStatement statement = found.get().prepare(connection)) {
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    while (resultSet.next()) {
-                        deviceIds.add(resultSet.getLong(1));
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        List<Long> deviceIds = validationService.getDevicesWithSuspects(groupId);
         SqlBuilder validationOverviewBuilder = new SqlBuilder();
         validationOverviewBuilder.append("SELECT DEV.mrid, DEV.serialnumber, DT.name, DC.name FROM DDC_DEVICE DEV ");
         validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICETYPE DT ON dev.devicetype = DT.id");
         validationOverviewBuilder.append("  LEFT JOIN DTC_DEVICECONFIG DC ON dev.deviceconfigid = DC.id");
         validationOverviewBuilder.append(" WHERE DEV.id IN (");
-        validationOverviewBuilder.append(deviceIds.stream().sorted().map(id -> String.valueOf(id)).collect(Collectors.joining(", ")));
+        validationOverviewBuilder.append(deviceIds.isEmpty() ? "0" : deviceIds.stream().sorted().map(id -> String.valueOf(id)).collect(Collectors.joining(", ")));
         validationOverviewBuilder.append(")");
         try (Connection connection = dataModel.getConnection(false);
              PreparedStatement statement = validationOverviewBuilder.prepare(connection)) {
@@ -87,7 +74,7 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
                 resultSet.getFetchSize();
                 while (resultSet.next()) {
                     AtomicLong idx = new AtomicLong(0);
-                    list.add(new ValidationOverview(
+                    list.add(new ValidationOverviewImpl(
                             resultSet.getString(1),
                             resultSet.getString(2),
                             resultSet.getString(3),

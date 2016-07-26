@@ -1,61 +1,25 @@
 package com.energyict.mdc.device.data.validation;
 
-/**
- * Created by Lucian on 7/2/2015.
- */
-public class ValidationOverview {
-    private String mrid;
-    private String serialNumber;
-    private String deviceType;
-    private String deviceConfig;
-    private DeviceValidationKpiResults deviceValidationKpiResults;
 
+public interface ValidationOverview {
 
-    public ValidationOverview(String mrid, String serialNumber, String deviceType, String deviceConfig, DeviceValidationKpiResults deviceValidationKpiResults){
-        this.mrid = mrid;
-        this.serialNumber = serialNumber;
-        this.deviceType = deviceType;
-        this.deviceConfig = deviceConfig;
-        this. deviceValidationKpiResults = deviceValidationKpiResults;
-    }
+    String getMrid();
 
-    public String getMrid() {
-        return mrid;
-    }
+    void setMrid(String mrid);
 
-    public void setMrid(String mrid) {
-        this.mrid = mrid;
-    }
+    String getSerialNumber();
 
-    public String getSerialNumber() {
-        return serialNumber;
-    }
+    void setSerialNumber(String serialNumber);
 
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
-    }
+    String getDeviceType();
 
-    public String getDeviceType() {
-        return deviceType;
-    }
+    void setDeviceType(String deviceType);
 
-    public void setDeviceType(String deviceType) {
-        this.deviceType = deviceType;
-    }
+    String getDeviceConfig();
 
-    public String getDeviceConfig() {
-        return deviceConfig;
-    }
+    void setDeviceConfig(String deviceConfig);
 
-    public void setDeviceConfig(String deviceConfig) {
-        this.deviceConfig = deviceConfig;
-    }
+    DeviceValidationKpiResults getDeviceValidationKpiResults();
 
-    public DeviceValidationKpiResults getDeviceValidationKpiResults() {
-        return deviceValidationKpiResults;
-    }
-
-    public void setDeviceValidationKpiResults(DeviceValidationKpiResults deviceValidationKpiResults) {
-        this.deviceValidationKpiResults = deviceValidationKpiResults;
-    }
+    void setDeviceValidationKpiResults(DeviceValidationKpiResults deviceValidationKpiResults);
 }
