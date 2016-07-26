@@ -49,6 +49,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -797,8 +798,8 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     }
 
     private void logMessage(String message, String userName, String domain, String ipAddr) {
-        this.threadPrincipalService.set(() -> "UserService.login");
         try {
+            this.threadPrincipalService.set(getPrincipal());
             ipAddr = "0:0:0:0:0:0:0:1".equals(ipAddr) ? "localhost" : ipAddr;
             if (message.equals(SUCCESSFUL_LOGIN)) {
                 String userNameFormatted = domain == null ? userName : domain + "/" + userName;
@@ -833,4 +834,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         return Optional.empty();
     }
 
+    private Principal getPrincipal() {
+        return () -> "Authentication process";
+    }
 }
