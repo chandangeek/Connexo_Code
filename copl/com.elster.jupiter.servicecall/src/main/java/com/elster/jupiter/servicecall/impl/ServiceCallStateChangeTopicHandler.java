@@ -50,8 +50,7 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
         if (serviceCallHandler.allowStateChange(serviceCall, oldState, newState)) {
             doStateChange(serviceCall, oldState, newState);
         } else {
-            serviceCall.log(LogLevel.WARNING, "Handler rejected the transition from " + oldState.getDefaultFormat() + " to " + newState
-                    .getDefaultFormat());
+            serviceCall.log(LogLevel.WARNING, "Handler rejected the transition from " + oldState.getDefaultFormat() + " to " + newState.getDefaultFormat());
         }
     }
 
@@ -65,7 +64,7 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
 
         if (DefaultState.CANCELLED.equals(newState)) {
             serviceCallQueue.purgeCorrelationId(serviceCall.getNumber());
-            serviceCall.findChildren().stream().forEach(ServiceCall::cancel);
+            serviceCall.findChildren().stream().filter(sc -> sc.canTransitionTo(DefaultState.CANCELLED)).forEach(ServiceCall::cancel);
         }
 
         serviceCallQueue.message(jsonService.serialize(transitionNotification))
