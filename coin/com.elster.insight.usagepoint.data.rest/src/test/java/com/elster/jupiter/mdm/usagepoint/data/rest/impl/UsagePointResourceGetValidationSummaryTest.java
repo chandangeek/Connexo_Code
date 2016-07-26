@@ -17,6 +17,7 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -176,6 +177,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         when(readingTypeDeliverable1.getName()).thenReturn("Ityvbelomplatye");
         when(readingTypeDeliverable2.getId()).thenReturn(2L);
         when(readingTypeDeliverable2.getName()).thenReturn("Vmoihobyatiah");
+        Range<Instant> interval = Range.openClosed(NOW.withMinute(0).toInstant(), NOW.toInstant());
         when(summary1.getSum()).thenReturn(105);
         when(summary1.getValues()).thenReturn(ImmutableMap.of(
                 ChannelDataValidationSummaryFlag.MISSING, 2,
@@ -184,23 +186,29 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
                 ChannelDataValidationSummaryFlag.EDITED, 0,
                 ChannelDataValidationSummaryFlag.VALID, 6
         ));
+        when(summary1.getTargetInterval()).thenReturn(interval);
         when(summary2.getSum()).thenReturn(22);
         when(summary2.getValues()).thenReturn(ImmutableMap.of(
                 ChannelDataValidationSummaryFlag.VALID, 9,
                 ChannelDataValidationSummaryFlag.NOT_VALIDATED, 13
         ));
+        when(summary2.getTargetInterval()).thenReturn(interval);
 
         // Business method
         Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 4).queryParam("periodId", 5).request().get();
 
         // Asserts
-        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, Range.openClosed(NOW.withMinute(0).toInstant(), NOW.toInstant()));
+        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, interval);
         verifyNoMoreInteractions(usagePointDataService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(2, 1);
         assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("Vmoihobyatiah", "Ityvbelomplatye");
+        long start = interval.lowerEndpoint().toEpochMilli();
+        long end = interval.upperEndpoint().toEpochMilli();
+        assertThat(jsonModel.<List<Long>>get("$.outputs[*].intervalStart")).containsExactly(start, start);
+        assertThat(jsonModel.<List<Long>>get("$.outputs[*].intervalEnd")).containsExactly(end, end);
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].total")).containsExactly(22, 105);
         assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].key")).containsExactly("statisticsValid", "statisticsNotValidated");
         assertThat(jsonModel.<List<String>>get("$.outputs[0].statistics[*].displayName")).containsExactly("Valid", "Not validated");
@@ -222,20 +230,24 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
                 ));
         when(readingTypeDeliverable1.getId()).thenReturn(3L);
         when(readingTypeDeliverable1.getName()).thenReturn("DekabrJanvahrIFevral");
+        Range<Instant> interval = YESTERDAY.getOpenClosedInterval(NOW);
         when(summary1.getSum()).thenReturn(0);
         when(summary1.getValues()).thenReturn(Collections.emptyMap());
+        when(summary1.getTargetInterval()).thenReturn(interval);
 
         // Business method
         Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
 
         // Asserts
-        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, YESTERDAY.getOpenClosedInterval(NOW));
+        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, interval);
         verifyNoMoreInteractions(usagePointDataService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(3);
         assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("DekabrJanvahrIFevral");
+        assertThat(jsonModel.<List<Long>>get("$.outputs[*].intervalStart")).containsExactly(interval.lowerEndpoint().toEpochMilli());
+        assertThat(jsonModel.<List<Long>>get("$.outputs[*].intervalEnd")).containsExactly(interval.upperEndpoint().toEpochMilli());
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].total")).containsExactly(0);
         assertThat(jsonModel.<List<List<ChannelDataValidationSummaryFlagInfo>>>get("$.outputs[*].statistics"))
                 .isEqualTo(Collections.singletonList(Collections.emptyList()));
