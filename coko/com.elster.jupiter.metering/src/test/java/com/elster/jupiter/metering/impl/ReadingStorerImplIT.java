@@ -574,7 +574,7 @@ public class ReadingStorerImplIT {
 
                 meterActivation.setMultiplier(multiplierType, multiplierValue);
 
-                meter.startingConfigurationOn(ACTIVATION.toInstant())
+            meter.startingConfigurationOn(ACTIVATION.toInstant())
                         .configureReadingType(measured)
                         .withMultiplierOfType(multiplierType)
                         .calculating(caluclated)

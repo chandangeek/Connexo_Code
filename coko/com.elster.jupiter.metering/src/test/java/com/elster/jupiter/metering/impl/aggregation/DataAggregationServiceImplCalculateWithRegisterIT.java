@@ -46,6 +46,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -133,7 +134,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
             bind(LicenseService.class).to(LicenseServiceImpl.class).in(Scopes.SINGLETON);
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(SearchService.class).toInstance(mockSearchService());
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
@@ -250,6 +251,13 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         when(clauseAwareSqlBuilder.with(matches("rod" + netConsumptionDeliverableId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.netConsumptionWithClauseBuilder);
         when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
         when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
+    }
+
+    private static SearchService mockSearchService() {
+        SearchService searchService = mock(SearchService.class);
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchService.findDomain(any())).thenReturn(Optional.of(searchDomain));
+        return searchService;
     }
 
     @After

@@ -131,7 +131,7 @@ public class CalculatedReadingRecordTest {
         doThrow(SQLException.class).when(this.resultSet).getLong(anyInt());
 
         //Business method
-        testInstance.init(this.resultSet,deliverablesPerMeterActivation);
+        testInstance.init(this.resultSet, deliverablesPerMeterActivation);
 
         // Asserts: see expected exception rule
     }
@@ -147,7 +147,7 @@ public class CalculatedReadingRecordTest {
         when(this.resultSet.getLong(4)).thenReturn(jan1st2016.getTime());
         when(this.resultSet.getLong(5)).thenReturn(0L);
         when(this.resultSet.getLong(6)).thenReturn(1L);
-        testInstance.init(this.resultSet,deliverablesPerMeterActivation);
+        testInstance.init(this.resultSet, deliverablesPerMeterActivation);
 
         //Business method
         testInstance.setReadingType(this.monthlyNetConsumption);
