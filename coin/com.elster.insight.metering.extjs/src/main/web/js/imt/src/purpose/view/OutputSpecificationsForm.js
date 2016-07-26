@@ -8,9 +8,14 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
     },
 
     requires: [
-        'Uni.form.field.ReadingTypeDisplay'
+        'Uni.form.field.ReadingTypeDisplay',
+        'Imt.util.CommonFields'
     ],
 
+    defaults: {
+        xtype: 'displayfield',
+        labelWidth: 200
+    },
     padding: '10 0 0 0',
 
     initComponent: function () {
@@ -50,26 +55,38 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
                 renderer: function (formula) {
                     return formula.description;
                 }
+            },
+            {
+                xtype: 'fieldcontainer',
+                itemId: 'purpose-formula-components',
+                fieldLabel: Uni.I18n.translate('form.output.section.formulaComponents', 'IMT', 'Formula components'),
+                layout: 'vbox',
+                labelAlign: 'top',
+                defaults: me.defaults
             }
-            //{
-            //    xtype: 'fieldcontainer',
-            //    fieldLabel: Uni.I18n.translate('form.output.section.formulaComponents', 'IMT', 'Formula components'),
-            //    layout: 'vbox',
-            //    labelAlign: 'top',
-            //    items: [
-            //        {
-            //            xtype: 'displayfield',
-            //            fieldLabel: 'Field 1',
-            //            name: 'formula'
-            //        }, {
-            //            xtype: 'displayfield',
-            //            fieldLabel: 'Field 2',
-            //            name: 'formula'
-            //        }
-            //    ]
-            //}
         ];
 
         me.callParent();
+    },
+
+    loadRecord: function (record) {
+        var me = this,
+            formula = record.getFormula(),
+            formulaComponentsContainer = me.down('#purpose-formula-components'),
+            formulaComponents,
+            customProperties;
+
+        Ext.suspendLayouts();
+        formulaComponents = Imt.util.CommonFields.prepareReadingTypeRequirementFields(formula.readingTypeRequirements());
+        customProperties = Imt.util.CommonFields.prepareCustomProperties(formula.customProperties());
+        if (customProperties) {
+            formulaComponents.push(customProperties);
+        }
+
+        formulaComponentsContainer.removeAll();
+        formulaComponentsContainer.add(formulaComponents);
+        Ext.resumeLayouts(true);
+
+        me.callParent(arguments);
     }
 });
