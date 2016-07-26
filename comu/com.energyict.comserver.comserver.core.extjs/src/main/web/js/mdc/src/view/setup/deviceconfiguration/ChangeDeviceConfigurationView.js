@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.ChangeDeviceConfigurationView', {
                                 xtype: 'displayfield',
                                 itemId: 'no-device-configuration',
                                 fieldLabel: Uni.I18n.translate('device.changeDeviceConfiguration.newDeviceConfiguration', 'MDC', 'New device configuration'),
-                                value: Uni.I18n.translate('device.changeDeviceConfiguration.noOtherActiveDeviceConfigurationsDefined', 'MDC', 'No other active, non-data logger device configurations defined.'),
+                                value: Uni.I18n.translate('general.noOtherActiveNonDataLoggerDeviceConfigurationsDefined', 'MDC', 'No other active, non-data logger device configurations defined.'),
                                 fieldStyle: 'color: #eb5642',
                                 required: true,
                                 hidden: true
