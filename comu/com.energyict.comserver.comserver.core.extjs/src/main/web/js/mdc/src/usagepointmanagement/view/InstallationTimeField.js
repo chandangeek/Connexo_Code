@@ -42,6 +42,7 @@ Ext.define('Mdc.usagepointmanagement.view.InstallationTimeField', {
             {
                 xtype: 'container',
                 layout: 'hbox',
+                width: 500,
                 items: [
                     {
                         xtype: 'radiofield',
@@ -58,6 +59,7 @@ Ext.define('Mdc.usagepointmanagement.view.InstallationTimeField', {
                         required: true,
                         layout: 'hbox',
                         valueInMilliseconds: true,
+                        minWidth: 500,
                         dateConfig: {
                             width: 148,
                             fieldLabel: me.dateOnLabel ? me.dateOnLabel : '',
