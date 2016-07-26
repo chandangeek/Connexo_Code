@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.sync.KoreMeterConfigurationUpdater;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.math.BigDecimal;
@@ -70,10 +71,9 @@ public class RegisterUpdaterImpl implements Register.RegisterUpdater {
     @Override
     public void update() {
         DeviceImpl device = (DeviceImpl) register.getDevice();
-        KoreMeterConfigurationUpdater koreMeterConfigurationUpdater = null;
         if (register.getRegisterSpec() instanceof NumericalRegisterSpec) { //textRegisters don't have fraction digits and overflow values
             if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null){
-               device.syncWithKore(koreMeterConfigurationUpdater = new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock).withRegisterUpdater(this));
+                device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock).withRegisterUpdater(this));
                device.executeSyncs();
             }
         }

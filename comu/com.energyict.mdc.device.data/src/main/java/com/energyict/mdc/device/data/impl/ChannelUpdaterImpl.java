@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.impl.sync.KoreMeterConfigurationUpdater;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.math.BigDecimal;
@@ -69,7 +70,6 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
      @Override
      public void update() {
          DeviceImpl device = (DeviceImpl) channel.getDevice();
-         KoreMeterConfigurationUpdater koreMeterConfigurationUpdater = null;
          if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null){
              device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock).withChannelUpdater(this));
              device.executeSyncs();

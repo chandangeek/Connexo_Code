@@ -37,10 +37,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
-import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -50,7 +47,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
@@ -67,7 +63,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.DateTimeFormatGenerator;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -106,13 +101,10 @@ import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnr
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
-import com.energyict.mdc.device.data.exceptions.MeterActivationTimestampNotAfterLastActivationException;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
-import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
-import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.configchange.ServerSecurityPropertyServiceForConfigChange;
 import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurationIsPresentAndActive;
@@ -122,6 +114,13 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.ValidOverruledAtt
 import com.energyict.mdc.device.data.impl.constraintvalidators.ValidSecurityProperties;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.ServerDeviceForValidation;
+import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForInfo;
+import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForRemoval;
+import com.energyict.mdc.device.data.impl.sync.SyncDeviceWithKoreForSimpleUpdate;
+import com.energyict.mdc.device.data.impl.sync.SynchDeviceWithKoreForConfigurationChange;
+import com.energyict.mdc.device.data.impl.sync.SynchDeviceWithKoreForMultiplierChange;
+import com.energyict.mdc.device.data.impl.sync.SynchDeviceWithKoreForUsagePointChange;
+import com.energyict.mdc.device.data.impl.sync.SynchNewDeviceWithKore;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
@@ -188,7 +187,6 @@ import java.time.Instant;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
@@ -225,7 +223,7 @@ import static java.util.stream.Collectors.toList;
 @DeviceImpl.HasValidShipmentDate(groups = {Save.Create.class})
 @ValidSecurityProperties(groups = {Save.Update.class})
 @ValidOverruledAttributes(groups = {Save.Update.class})
-public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation {
+public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDeviceForValidation, ServerDevice {
 
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
 
@@ -363,7 +361,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.userPreferencesService = userPreferencesService;
         this.deviceConfigurationService = deviceConfigurationService;
         // Helper to get activation info... from 'Kore'
-        this.koreHelper = new SyncDeviceWithKoreForInfo(this.meteringService, this.readingTypeUtilService);
+        this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.meteringService, this.readingTypeUtilService, clock);
         this.koreHelper.syncWithKore(this);
     }
 
@@ -452,7 +450,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
 
             //All actions to take to sync with Kore once a Device is created
-            syncsWithKore.add(new SynchNewDeviceWithKore(koreHelper.getInitialMeterActivationStartDate()));
+            syncsWithKore.add(new SynchNewDeviceWithKore(this, koreHelper.getInitialMeterActivationStartDate(), meteringService, readingTypeUtilService, clock));
 
             this.saveNewDialectProperties();
             this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
@@ -488,7 +486,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void setLocation(Location location) {
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
-        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate();
+        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, meteringService, readingTypeUtilService);
         if (!currentKoreUpdater.isPresent()) {
             syncsWithKore.add(koreUpdater);
         } else {
@@ -509,7 +507,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
-        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate();
+        SyncDeviceWithKoreForSimpleUpdate koreUpdater = new SyncDeviceWithKoreForSimpleUpdate(this, meteringService, readingTypeUtilService);
         if (!currentKoreUpdater.isPresent()) {
             syncsWithKore.add(koreUpdater);
         } else {
@@ -522,9 +520,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             SyncDeviceWithKoreForSimpleUpdate simpleKoreUpdater = currentKoreUpdater.get();
-            if (simpleKoreUpdater.location.isPresent()) {
-                return simpleKoreUpdater.location;
-            }
+            return simpleKoreUpdater.getLocation();
         }
         return Optional.empty();
     }
@@ -533,9 +529,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             SyncDeviceWithKoreForSimpleUpdate simpleKoreUpdater = currentKoreUpdater.get();
-            if (simpleKoreUpdater.location.isPresent()) {
-                return simpleKoreUpdater.spatialCoordinates;
-            }
+            return simpleKoreUpdater.getSpatialCoordinates();
         }
         return Optional.empty();
     }
@@ -633,8 +627,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         deleteDeviceMessages();
         deleteSecuritySettings();
         removeDeviceFromStaticGroups();
-        new SyncDeviceWithKoreForRemoval().syncWithKore(this);
-        koreHelper.currentMeterActivation = null;
+        new SyncDeviceWithKoreForRemoval(this, meteringService, readingTypeUtilService, clock).syncWithKore(this);
+        koreHelper.deactivateMeter(clock.instant());
         this.clearPassiveCalendar();
         this.getDataMapper().remove(this);
     }
@@ -744,8 +738,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getDeviceConfiguration().getDeviceType();
     }
 
-    Reference<Meter> getMeter() {
+    public Reference<Meter> getMeter() {
         return this.meter;
+    }
+
+    @Override
+    public SyncDeviceWithKoreForInfo getKoreHelper() {
+        return this.koreHelper;
     }
 
     @Override
@@ -849,7 +848,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Instant now = clock.instant();
             Optional<Instant> startDateMultiplier = Optional.ofNullable(from);
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
-            SynchDeviceWithKoreForMultiplierChange multiplierChange = new SynchDeviceWithKoreForMultiplierChange(startDateMultiplier.get(), multiplier);
+            SynchDeviceWithKoreForMultiplierChange multiplierChange = new SynchDeviceWithKoreForMultiplierChange(this, startDateMultiplier.get(), multiplier, meteringService, readingTypeUtilService);
             //All actions to take to sync with Kore once a Device is created
             syncsWithKore.add(multiplierChange);
         }
@@ -1009,7 +1008,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public void setNewDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         this.deviceConfiguration.set(deviceConfiguration);
-        SynchDeviceWithKoreForConfigurationChange multiplierChange = new SynchDeviceWithKoreForConfigurationChange();
+        SynchDeviceWithKoreForConfigurationChange multiplierChange = new SynchDeviceWithKoreForConfigurationChange(this, meteringService, readingTypeUtilService, clock);
         //All actions to take to sync with Kore once a Device is created
         syncsWithKore.add(multiplierChange);
     }
@@ -1264,7 +1263,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void setUsagePoint(UsagePoint usagePoint) {
-        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(clock.instant(), usagePoint);
+        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(this, clock.instant(), usagePoint, meteringService, readingTypeUtilService, deviceConfigurationService, thesaurus, userPreferencesService, threadPrincipalService);
         //All actions to take to sync with Kore once a Device is created
         syncsWithKore.add(usagePointChange);
     }
@@ -1663,7 +1662,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public MeterActivation activate(Instant start, UsagePoint usagePoint) {
-        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(start, usagePoint);
+        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(this, start, usagePoint, meteringService, readingTypeUtilService, deviceConfigurationService, thesaurus, userPreferencesService, threadPrincipalService);
         //All actions to take to sync with Kore once a Device is created
         usagePointChange.syncWithKore(this);
         return getCurrentMeterActivation().get();
@@ -2780,393 +2779,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-
-    // Internal Helper class for getting additional info from 'Kore' and create 'Kore' MeterActivations
-    private class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
-
-        private Optional<MeterActivation> currentMeterActivation = null;
-        @IsPresent
-        private Optional<Instant> initialMeterActivationStartDate = Optional.empty();
-
-        public SyncDeviceWithKoreForInfo(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService) {
-            super(meteringService, readingTypeUtilService, null);
-        }
-
-        public Optional<Instant> getInitialMeterActivationStartDate() {
-            return initialMeterActivationStartDate;
-        }
-
-        public void setInitialMeterActivationStartDate(Instant initialMeterActivationStartDate) {
-            this.initialMeterActivationStartDate = Optional.ofNullable(initialMeterActivationStartDate);
-        }
-
-        @Override
-        protected MeterActivation activateMeter(Instant start) {
-            super.setDevice(DeviceImpl.this);
-            this.currentMeterActivation = Optional.of(this.endMeterActivationAndRestart(start, getCurrentMeterActivation(), Optional.empty()));
-            return currentMeterActivation.get();
-        }
-
-        void deactivateMeter(Instant when) {
-            if (currentMeterActivation != null) {
-                this.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(when));
-                currentMeterActivation = null;
-            }
-        }
-
-        @Override
-        public void syncWithKore(DeviceImpl device) {
-            super.setDevice(device);
-        }
-
-        Optional<MeterActivation> getCurrentMeterActivation() {
-            if (this.currentMeterActivation == null) {
-                if (getDevice().getMeter().isPresent() && getDevice().getMeter().get().getCurrentMeterActivation().isPresent()) {
-                    this.currentMeterActivation = Optional.of(getDevice().getMeter().get().getCurrentMeterActivation().get());
-                } else {
-                    this.currentMeterActivation = Optional.empty();
-                }
-            }
-            return this.currentMeterActivation;
-        }
-
-        void setCurrentMeterActivation(Optional<MeterActivation> meterActivation) {
-            this.currentMeterActivation = meterActivation;
-        }
-
-        Optional<UsagePoint> getUsagePoint() {
-            if (getCurrentMeterActivation().isPresent()) {
-                return currentMeterActivation.get().getUsagePoint();
-            } else {
-                return Optional.empty();
-            }
-        }
-
-        Optional<BigDecimal> getMultiplier() {
-            return getMultiplier(getCurrentMeterActivation());
-        }
-
-        Optional<BigDecimal> getMultiplierAt(Instant multiplierEffectiveTimeStamp) {
-            return getMultiplier(this.getDevice().meter.get().getMeterActivation(multiplierEffectiveTimeStamp));
-        }
-
-        Instant getMultiplierEffectiveTimeStamp() {
-            List<MeterActivation> meterActivationsMostRecentFirst = getMeterActivationsMostRecentFirst();
-            Instant effectiveTimeStamp = clock.instant();
-            Optional<BigDecimal> currentMultiplier = getMultiplier();
-            for (MeterActivation meterActivation : meterActivationsMostRecentFirst) {
-                Optional<BigDecimal> multiplier = getMultiplier(Optional.of(meterActivation));
-                if (multiplier.isPresent()) {
-                    if (currentMultiplier.get().compareTo(multiplier.get()) == 0) {
-                        effectiveTimeStamp = meterActivation.getStart();
-                    } else {
-                        break;
-                    }
-                }
-            }
-            return effectiveTimeStamp;
-        }
-
-        @Override
-        public boolean canUpdateCurrentMeterActivation() {
-            return false;
-        }
-    }
-
-    /**
-     * Additional behaviour related to 'Kore' objects when a new Device is saved
-     */
-    private class SynchNewDeviceWithKore extends AbstractSyncDeviceWithKoreMeter {
-
-        SynchNewDeviceWithKore(Optional<Instant> startDate) {
-            super(DeviceImpl.this.meteringService, DeviceImpl.this.readingTypeUtilService, DeviceImpl.this.createTime == null ? DeviceImpl.this.clock.instant() : startDate.isPresent() ? startDate.get() : DeviceImpl.this.createTime);
-        }
-
-        @Override
-        public void syncWithKore(DeviceImpl device) {
-            this.setDevice(device);
-
-            createKoreMeterConfiguration(false);
-            // create a new MeterActivation
-            MeterActivation activation = this.activateMeter(getStart());
-            // add Kore Channels for all MDC Channels and registers
-            addKoreChannelsIfNecessary(activation);
-
-            koreHelper.setCurrentMeterActivation(Optional.ofNullable(activation));
-        }
-
-        @Override
-        public boolean canUpdateCurrentMeterActivation() {
-            return false; //No current meter activation a new meter activation needs to be created
-        }
-
-        protected MeterActivation activateMeter(Instant start) {
-            if (getDevice().getUsagePoint().isPresent()) {
-                return getDevice().meter.get().activate(DeviceImpl.this.getUsagePoint().get(), start);
-            }
-            return getDevice().meter.get().activate(start);
-        }
-    }
-
-    /**
-     * Additional behaviour related to 'Kore' objects when the Device's multiplier is changed
-     */
-    private class SynchDeviceWithKoreForMultiplierChange extends AbstractSyncDeviceWithKoreMeter {
-
-        private BigDecimal multiplier;
-
-        SynchDeviceWithKoreForMultiplierChange(Instant start, BigDecimal multiplier) {
-            super(DeviceImpl.this.meteringService, DeviceImpl.this.readingTypeUtilService, start);
-            this.multiplier = multiplier;
-        }
-
-        @Override
-        public void syncWithKore(DeviceImpl device) {
-            this.setDevice(device);
-
-            endCurrentMeterConfigurationIfPresent();
-            createKoreMeterConfiguration(true);
-            // create a new MeterActivation
-            MeterActivation activation = this.activateMeter(getStart());
-            // add Kore Channels for all MDC Channels and registers
-            addKoreChannelsIfNecessary(activation);
-        }
-
-        @Override
-        public boolean canUpdateCurrentMeterActivation() {
-            return true; // meter activation has a setMultiplier method;
-        }
-
-        protected MeterActivation activateMeter(Instant start) {
-            Optional<MeterActivation> meterActivation;
-            // If the devices current meter activation starts at start, we just have to update this one!
-            if (koreHelper.getCurrentMeterActivation().isPresent() && koreHelper.getCurrentMeterActivation().get().getStart().equals(start)) {
-                meterActivation = koreHelper.getCurrentMeterActivation();
-            } else {
-                meterActivation = Optional.of(getDevice().meter.get().getMeterActivation(start).get());
-            }
-            if (meterActivation.isPresent() && meterActivation.get().getStart().compareTo(start) < 0) {
-                meterActivation = Optional.of(endMeterActivationAndRestart(start, meterActivation, Optional.empty()));
-            }
-            setMultiplier(meterActivation.get(), multiplier);
-            koreHelper.setCurrentMeterActivation(meterActivation);
-            return meterActivation.get();
-        }
-    }
-
-    /**
-     * Additional behaviour related to 'Kore' objects when the Device's UsagePoint is changed
-     */
-    private class SynchDeviceWithKoreForUsagePointChange extends AbstractSyncDeviceWithKoreMeter {
-
-        private UsagePoint usagePoint;
-
-        SynchDeviceWithKoreForUsagePointChange(Instant start, UsagePoint usagePoint) {
-            super(DeviceImpl.this.meteringService, DeviceImpl.this.readingTypeUtilService, (start == null ? koreHelper.getCurrentMeterActivation().get().getStart() : start));
-            this.usagePoint = usagePoint;
-        }
-
-        @Override
-        public void syncWithKore(DeviceImpl device) {
-            setDevice(device);
-
-            MeterActivation activation = this.activateMeter(getStart());
-            // add Kore Channels for all MDC Channels and registers
-            addKoreChannelsIfNecessary(activation);
-        }
-
-        @Override
-        public boolean canUpdateCurrentMeterActivation() {
-            return false;   // a meter activation with the newly set usagepoint needs to be created
-        }
-
-        protected MeterActivation activateMeter(Instant start) {
-            Optional<MeterActivation> meterActivation;
-            // If the devices current meter activation starts at start, we just have to update this one!
-            Optional<MeterActivation> currentMeterActivation = koreHelper.getCurrentMeterActivation();
-            if (currentMeterActivation.isPresent() && start.isBefore(currentMeterActivation.get().getStart())) {
-                throw new MeterActivationTimestampNotAfterLastActivationException(thesaurus, getLongDateFormatForCurrentUser(), start, currentMeterActivation.get().getStart());
-            }
-            //validate business constraints
-            validateUsagePointIsNotLinkedAlready(usagePoint, start);
-            validateReadingTypeRequirements(usagePoint, start);
-
-            if (currentMeterActivation.isPresent() && currentMeterActivation.get().getStart().equals(start)) {
-                meterActivation = currentMeterActivation;
-            } else {
-                meterActivation = Optional.of(getDevice().meter.get().getMeterActivation(start).get());
-            }
-            if (meterActivation.isPresent() && (!meterActivation.get().getUsagePoint().isPresent() || meterActivation.get().getUsagePoint().get().getId() != this.usagePoint.getId())) {
-                meterActivation = Optional.of(endMeterActivationAndRestart(start, meterActivation, Optional.of(usagePoint)));
-            }
-            koreHelper.setCurrentMeterActivation(meterActivation);
-            return meterActivation.get();
-        }
-
-        private void validateUsagePointIsNotLinkedAlready(UsagePoint usagePoint, Instant from) {
-            Optional<MeterActivation> usagePointMeterActivation = usagePoint.getMeterActivations().stream()
-                    .filter(meterActivation -> meterActivation.getEnd() == null || meterActivation.getEnd().isAfter(from))
-                    .sorted(Comparator.comparing(MeterActivation::getStart))
-                    .findFirst();
-            if (usagePointMeterActivation.isPresent()) {
-                Meter currentMeter = meter.get();
-                Optional<Meter> meterLinkedToUsagePoint = usagePointMeterActivation.get().getMeter();
-                if (meterLinkedToUsagePoint.isPresent() && !meterLinkedToUsagePoint.get().equals(currentMeter)) {
-                    throw new UsagePointAlreadyLinkedToAnotherDeviceException(thesaurus, getLongDateFormatForCurrentUser(), usagePointMeterActivation.get());
-                }
-            }
-        }
-
-        private void validateReadingTypeRequirements(UsagePoint usagePoint, Instant from) {
-            Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, from);
-            if (!unsatisfiedRequirements.isEmpty()) {
-                throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(thesaurus, unsatisfiedRequirements);
-            }
-        }
-
-        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from) {
-            List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
-            if (effectiveMetrologyConfigurations.isEmpty()) {
-                return Collections.emptyMap();
-            }
-            List<ReadingType> supportedReadingTypes = getDeviceCapabilities();
-            Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = new HashMap<>();
-            for (MetrologyConfiguration metrologyConfiguration : effectiveMetrologyConfigurations) {
-                List<ReadingTypeRequirement> unsatisfied = metrologyConfiguration.getMandatoryReadingTypeRequirements()
-                        .stream()
-                        .filter(requirement -> supportedReadingTypes.stream().noneMatch(requirement::matches))
-                        .collect(Collectors.toList());
-                if (!unsatisfied.isEmpty()) {
-                    unsatisfiedRequirements.put(metrologyConfiguration, unsatisfied);
-                }
-            }
-            return unsatisfiedRequirements;
-        }
-
-        private List<ReadingType> getDeviceCapabilities() {
-            return deviceConfigurationService.getReadingTypesRelatedToConfiguration(getDeviceConfiguration());
-        }
-    }
-
-    /**
-     * Additional behaviour related to 'Kore' objects when the Device's configuration is changed
-     */
-    private class SynchDeviceWithKoreForConfigurationChange extends AbstractSyncDeviceWithKoreMeter {
-
-        SynchDeviceWithKoreForConfigurationChange() {
-            super(DeviceImpl.this.meteringService, DeviceImpl.this.readingTypeUtilService, DeviceImpl.this.clock.instant());
-        }
-
-        @Override
-        public void syncWithKore(DeviceImpl device) {
-            this.setDevice(device);
-
-            endCurrentMeterConfigurationIfPresent();
-            createKoreMeterConfiguration(DeviceImpl.this.koreHelper.getMultiplier().isPresent());
-            // create a new MeterActivation
-
-            MeterActivation activation = this.activateMeter(getStart());
-            // add Kore Channels for all MDC Channels and registers
-            addKoreChannelsIfNecessary(activation);
-        }
-
-        @Override
-        public boolean canUpdateCurrentMeterActivation() {
-            return false; // meter activation has a setMultiplier method;
-        }
-
-        protected MeterActivation activateMeter(Instant start) {
-            Optional<MeterActivation> meterActivation;
-            // If the devices current meter activation starts at start, we just have to update this one!
-            if (koreHelper.getCurrentMeterActivation().isPresent() && koreHelper.getCurrentMeterActivation().get().getStart().equals(start)) {
-                meterActivation = koreHelper.getCurrentMeterActivation();
-            } else {
-                meterActivation = Optional.of(getDevice().getMeter().get().getMeterActivation(start).get());
-            }
-            if (meterActivation.isPresent() && meterActivation.get().getStart().compareTo(start) < 0) {
-                meterActivation = Optional.of(endMeterActivationAndRestart(start, meterActivation, Optional.empty()));
-            }
-            koreHelper.setCurrentMeterActivation(meterActivation);
-            return meterActivation.get();
-        }
-    }
-
-
-    /**
-     * Additional behaviour related to 'Kore' objects when a Device multiplier is removed
-     */
-    private class SyncDeviceWithKoreForRemoval extends AbstractSyncDeviceWithKoreMeter {
-
-        public SyncDeviceWithKoreForRemoval() {
-            super(DeviceImpl.this.meteringService, DeviceImpl.this.readingTypeUtilService, DeviceImpl.this.clock.instant());
-        }
-
-        @Override
-        protected MeterActivation activateMeter(Instant start) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void syncWithKore(DeviceImpl device) {
-            setDevice(device);
-            super.endCurrentMeterActivationIfPresent();
-            getDevice().getMeter().get().makeObsolete();
-        }
-
-        @Override
-        public boolean canUpdateCurrentMeterActivation() {
-            return false;
-        }
-    }
-
     private class CanUpdateMeterActivationLast implements Comparator<SyncDeviceWithKoreMeter> {
         @Override
         public int compare(SyncDeviceWithKoreMeter o1, SyncDeviceWithKoreMeter o2) {
             int a = o1.canUpdateCurrentMeterActivation() ? 1 : 0;
             int b = o2.canUpdateCurrentMeterActivation() ? 1 : 0;
             return new Integer(a).compareTo(b);
-        }
-    }
-
-    /**
-     * Just update the (mdc) device's counterpart (pulse) enddevice
-     */
-    private class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKoreMeter {
-
-        private Optional<Location> location = Optional.empty();
-        private Optional<SpatialCoordinates> spatialCoordinates = Optional.empty();
-
-        public SyncDeviceWithKoreForSimpleUpdate() {
-            super(DeviceImpl.this.meteringService, DeviceImpl.this.readingTypeUtilService, DeviceImpl.this.clock.instant());
-        }
-
-        public void setLocation(Location location) {
-            this.location = Optional.ofNullable(location);
-        }
-
-        public void setSpatialCoordinates(SpatialCoordinates spatialCoordinates) {
-            this.spatialCoordinates = Optional.ofNullable(spatialCoordinates);
-        }
-
-        @Override
-        public void syncWithKore(DeviceImpl device) {
-            if (this.location.isPresent()) {
-                device.getMeter().get().setLocation(location.get());
-            }
-            if (this.spatialCoordinates.isPresent()) {
-                device.getMeter().get().setSpatialCoordinates(spatialCoordinates.get());
-            }
-            device.getMeter().getOptional().get().update();
-        }
-
-        @Override
-        protected MeterActivation activateMeter(Instant start) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public boolean canUpdateCurrentMeterActivation() {
-            return false;
         }
     }
 
@@ -3199,13 +2817,5 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
             return true;
         }
-    }
-
-    private DateTimeFormatter getLongDateFormatForCurrentUser() {
-        return DateTimeFormatGenerator.getDateFormatForUser(
-                DateTimeFormatGenerator.Mode.LONG,
-                DateTimeFormatGenerator.Mode.LONG,
-                this.userPreferencesService,
-                this.threadPrincipalService.getPrincipal());
     }
 }

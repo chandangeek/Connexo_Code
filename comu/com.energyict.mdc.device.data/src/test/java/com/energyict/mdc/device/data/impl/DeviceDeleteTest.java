@@ -55,6 +55,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -281,7 +282,7 @@ public class DeviceDeleteTest {
 
         device.delete();
 
-        verify(currentActiveMeterActivation).endAt(now);
+        verify(currentActiveMeterActivation).endAt(now.truncatedTo(ChronoUnit.MINUTES));
     }
 
     @Test

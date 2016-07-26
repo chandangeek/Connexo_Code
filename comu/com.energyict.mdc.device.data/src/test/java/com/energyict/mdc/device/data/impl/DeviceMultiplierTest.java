@@ -263,14 +263,14 @@ public class DeviceMultiplierTest {
 
     @Test
     public void setMultiplierTest() {
-        Instant start =  Instant.ofEpochSecond(1448266879L);
+        Instant start = Instant.ofEpochSecond(1469540100L);
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         when(meterActivation.getStart()).thenReturn(start);
         doReturn(Collections.singletonList(meterActivation)).when(meter).getMeterActivations();
 
         Device mockedDevice = createMockedDevice(start);
 
-        Instant from = Instant.ofEpochSecond(1448466879L);
+        Instant from = Instant.ofEpochSecond(1469540400L);
         MeterActivation newMeterActivation = mock(MeterActivation.class);
         when(newMeterActivation.getStart()).thenReturn(from);
         when(meter.activate(from)).thenReturn(newMeterActivation);
@@ -341,7 +341,7 @@ public class DeviceMultiplierTest {
         Device mockedDevice = createMockedDevice(now);
 
         when(meter.hasData()).thenReturn(true);
-        Instant from = Instant.ofEpochSecond(1448466879L);
+        Instant from = Instant.ofEpochSecond(1469540400L);
         doReturn(Optional.of(meterActivation)).when(meter).getMeterActivation(from);
         MeterActivation newMeterActivation = mock(MeterActivation.class);
         when(meter.activate(from)).thenReturn(newMeterActivation);

@@ -1193,14 +1193,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void aNewDeviceHasMeterActivation() {
-        Instant initialStart = Instant.ofEpochMilli(1000L);
+        Instant initialStart = Instant.ofEpochMilli(1000000L);
 
         // Business method
         Device device = this.createSimpleDeviceWithName(DEVICENAME, "SimpleMrid", initialStart);
 
         // Asserts
         assertThat(device.getCurrentMeterActivation()).isPresent();
-        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(initialStart);
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(initialStart.truncatedTo(ChronoUnit.MINUTES));
     }
 
     @Test
@@ -1208,7 +1208,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     public void activateMeterWhenStillActive() {
         Instant initialStart = Instant.ofEpochMilli(1000L);
         Device device = this.createSimpleDeviceWithName(DEVICENAME, "SimpleMrid", initialStart);
-        Instant expectedStart = Instant.ofEpochMilli(2000L);
+        Instant expectedStart = Instant.ofEpochMilli(200000L);
 
         // Business method
         device.activate(expectedStart);
@@ -1216,7 +1216,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         // Asserts
         assertThat(device.getCurrentMeterActivation()).isPresent();
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);
-        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart);
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart.truncatedTo(ChronoUnit.MINUTES));
     }
 
     @Test
@@ -1248,19 +1248,19 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void reactivateMeter() {
-        Instant initialStart = Instant.ofEpochMilli(1000L);
+        Instant initialStart = Instant.ofEpochMilli(100000L);
         Device device = this.createSimpleDeviceWithName(DEVICENAME,"SimpleMrid", initialStart);
-        Instant end = Instant.ofEpochMilli(2000L);
+        Instant end = Instant.ofEpochMilli(200000L);
         device.deactivate(end);
 
-        Instant expectedStart = Instant.ofEpochMilli(3000L);
+        Instant expectedStart = Instant.ofEpochMilli(300000L);
 
         // Business method
         device.activate(expectedStart);
 
         // Asserts
         assertThat(device.getCurrentMeterActivation()).isPresent();
-        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart);
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart.truncatedTo(ChronoUnit.MINUTES));
     }
 
     @Test
@@ -1329,8 +1329,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void setMultiplierTest() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
-
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest2", "setMultiplierTest2", Instant.now());
+        freezeClock(2016, 1, 2);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest2", "setMultiplierTest2", inMemoryPersistence.getClock().instant());
+        freezeClock(2016, 1, 3);
         device.setMultiplier(BigDecimal.TEN);
         device.save();
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(2);
@@ -1343,8 +1344,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Transactional
     public void setMultiplierToOneOnNewDevice() {
         DeviceConfiguration deviceConfiguration = createSetupWithMultiplierRegisterSpec();
-
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest3", "setMultiplierTest3", Instant.now());
+        freezeClock(2016, 1, 2);
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "setMultiplierTest3", "setMultiplierTest3", inMemoryPersistence.getClock().instant());
+        freezeClock(2016, 1, 3);
         device.setMultiplier(BigDecimal.ONE);
         device.save();
         assertThat(device.getMeterActivationsMostRecentFirst()).hasSize(1);    // no new Meter Activation
@@ -1460,6 +1462,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void headEndInterfaceCreatesCorrectKoreChannels() {
+        freezeClock(2016, 6, 1);
         RegisterType registerType1 = this.createRegisterTypeIfMissing(forwardEnergyObisCode, forwardBulkSecondaryEnergyReadingType);
         RegisterType registerType2 = createRegisterTypeIfMissing(reverseEnergyObisCode, reverseBulkSecondaryEnergyReadingType);
         LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService()
@@ -1483,7 +1486,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder.add();
         deviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithMultipliers", "DeviceWithMultipliers", inMemoryPersistence.getClock().instant());
+        freezeClock(2016, 6, 2);
         device.setMultiplier(BigDecimal.TEN);
         device.save();
         Meter meter = inMemoryPersistence.getMeteringService().findMeter(device.getId()).get();
@@ -2277,14 +2281,14 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         when(inMemoryPersistence.getClock().instant()).thenReturn(now);
         Device device = this.createSimpleDeviceWithName("activateDeviceOnUsagePoint");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
-        Instant expectedStart = Instant.ofEpochMilli(97L);
+        Instant expectedStart = Instant.ofEpochMilli(907L);
 
         // Business method
         device.activate(expectedStart, usagePoint);
 
         // Asserts
         assertThat(device.getCurrentMeterActivation()).isPresent();
-        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart);
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStart.truncatedTo(ChronoUnit.MINUTES));
         assertThat(device.getCurrentMeterActivation().get().getUsagePoint().get()).isEqualTo(usagePoint);
         assertThat(device.getCurrentMeterActivation().get().getMeterRole().get().getKey()).isEqualTo(DefaultMeterRole.DEFAULT.getKey());
     }
@@ -2292,12 +2296,12 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void reactivateDeviceOnUsagePoint() {
-        Instant now = Instant.ofEpochMilli(50L);
+        Instant now = Instant.ofEpochMilli(50000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(now);
         Device device = this.createSimpleDeviceWithName("reactivateDeviceOnUsagePoint");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
-        Instant expectedStart = Instant.ofEpochMilli(97L);
-        Instant expectedStartWithUsagePoint = Instant.ofEpochMilli(98L);
+        Instant expectedStart = Instant.ofEpochMilli(97000L);
+        Instant expectedStartWithUsagePoint = Instant.ofEpochMilli(980000L);
 
         // Business method
         device.activate(expectedStart);
@@ -2308,7 +2312,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device = getReloadedDevice(device);
 
         assertThat(device.getCurrentMeterActivation()).isPresent();
-        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStartWithUsagePoint);
+        assertThat(device.getCurrentMeterActivation().get().getStart()).isEqualTo(expectedStartWithUsagePoint.truncatedTo(ChronoUnit.MINUTES));
         assertThat(device.getCurrentMeterActivation().get().getUsagePoint().get()).isEqualTo(usagePoint);
     }
 
@@ -2320,8 +2324,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         when(inMemoryPersistence.getClock().instant()).thenReturn(now);
         Device device = this.createSimpleDeviceWithName("reactivateDeviceOnUsagePointBeforeLastActivation");
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
-        Instant expectedStart = Instant.ofEpochMilli(98L);
-        Instant expectedStartWithUsagePoint = Instant.ofEpochMilli(97L);
+        Instant expectedStart = Instant.ofEpochMilli(980000L);
+        Instant expectedStartWithUsagePoint = Instant.ofEpochMilli(9007L);
 
         // Business method
         device.activate(expectedStart);
@@ -2354,8 +2358,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void activateDeviceOnUsagePointMissingReadingTypeRequirements() {
+        freezeClock(2016, 6, 1);
         DeviceConfiguration deviceConfigurationWithTwoChannelSpecs = createDeviceConfigurationWithTwoChannelSpecs(interval);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID, Instant.ofEpochMilli(50L));
+        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithTwoChannelSpecs, "DeviceWithChannels", MRID, inMemoryPersistence.getClock().instant());
 
         UsagePoint usagePoint = this.createSimpleUsagePoint("UP001");
 
@@ -2368,10 +2373,13 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         UsagePointMetrologyConfiguration mc1 = createMetrologyConfiguration("mc1", Arrays.asList(monthlyBulkAPlus, minutes15DeltaAPlus));
         UsagePointMetrologyConfiguration mc2 = createMetrologyConfiguration("mc2", Collections.singletonList(monthlyDeltaAPlus));
 
-        usagePoint.apply(mc0, Instant.ofEpochMilli(96L));
-        usagePoint.apply(mc1, Instant.ofEpochMilli(97L));
-        usagePoint.apply(mc2, Instant.ofEpochMilli(98L));
-        Instant expectedStart = Instant.ofEpochMilli(97L);
+        Instant startMC0 = freezeClock(2016, 6, 2);
+        Instant startMC1 = freezeClock(2016, 6, 3);
+        Instant startMC2 = freezeClock(2016, 6, 4);
+
+        usagePoint.apply(mc0, startMC0);
+        usagePoint.apply(mc1, startMC1);
+        usagePoint.apply(mc2, startMC2);
 
         expectedEx.expect(UnsatisfiedReadingTypeRequirementsOfUsagePointException.class);
         expectedEx.expectMessage(
@@ -2381,7 +2389,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
                         "'" + mc2.getName() + "' (" + monthlyDeltaAPlus.getName() + ")");
 
         // Business method
-        getReloadedDevice(device).activate(expectedStart, usagePoint);
+        getReloadedDevice(device).activate(startMC1, usagePoint);
 
         // Asserts
         //exception is thrown

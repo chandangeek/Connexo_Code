@@ -1,11 +1,13 @@
-package com.energyict.mdc.device.data.impl;
+package com.energyict.mdc.device.data.impl.sync;
 
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.data.impl.ChannelUpdaterImpl;
+import com.energyict.mdc.device.data.impl.DeviceImpl;
+import com.energyict.mdc.device.data.impl.RegisterUpdaterImpl;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import javax.inject.Inject;
@@ -29,25 +31,25 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
     private Function<Void, Meter.MeterConfigurationBuilder> meterConfigurationBuilderProvider;
 
     @Inject
-    KoreMeterConfigurationUpdater(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock) {
+    public KoreMeterConfigurationUpdater(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock) {
         super(meteringService, readingTypeUtilService, null);
         this.clock = clock;
     }
 
-    public KoreMeterConfigurationUpdater withRegisterUpdater(RegisterUpdaterImpl registerUpdater){
+    public KoreMeterConfigurationUpdater withRegisterUpdater(RegisterUpdaterImpl registerUpdater) {
         this.readingType = registerUpdater.getReadingType();
         this.overruledNbrOfFractionDigits = registerUpdater.getOverruledNbrOfFractionDigits();
         this.overruledOverflowValue = registerUpdater.getOverruledOverflowValue();
         this.meterConfigurationBuilderProvider = (x) -> meterconfigurationBuilderForRegisters();
-        return this ;
+        return this;
     }
 
-    public KoreMeterConfigurationUpdater withChannelUpdater(ChannelUpdaterImpl channelUpdater){
+    public KoreMeterConfigurationUpdater withChannelUpdater(ChannelUpdaterImpl channelUpdater) {
         this.readingType = channelUpdater.getReadingType();
         this.overruledNbrOfFractionDigits = channelUpdater.getOverruledNbrOfFractionDigits();
         this.overruledOverflowValue = channelUpdater.getOverruledOverflowValue();
         this.meterConfigurationBuilderProvider = (x) -> meterconfigurationBuilderForChannels();
-        return this ;
+        return this;
     }
 
 
@@ -59,47 +61,47 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
         endCurrentMeterConfigurationIfPresent();
 
         Meter.MeterConfigurationBuilder meterConfigurationBuilder = meterConfigurationBuilderProvider.apply(null);
-        if (overruledNbrOfFractionDigits!= null && overruledOverflowValue!=null){
+        if (overruledNbrOfFractionDigits != null && overruledOverflowValue != null) {
             meterConfigurationBuilder.configureReadingType(this.readingType)
                     .withOverflowValue(overruledOverflowValue)
                     .withNumberOfFractionDigits(overruledNbrOfFractionDigits).create();
-        }else if(overruledNbrOfFractionDigits == null) {
+        } else if (overruledNbrOfFractionDigits == null) {
             meterConfigurationBuilder.configureReadingType(this.readingType)
                     .withOverflowValue(overruledOverflowValue).create();
-        }else {
+        } else {
             meterConfigurationBuilder.configureReadingType(this.readingType)
                     .withNumberOfFractionDigits(overruledNbrOfFractionDigits).create();
         }
     }
 
-    private Meter.MeterConfigurationBuilder meterconfigurationBuilderForRegisters(){
+    private Meter.MeterConfigurationBuilder meterconfigurationBuilderForRegisters() {
         Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter().get().startingConfigurationOn(getStart());
         createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder, true);
         getDevice().getDeviceConfiguration().getRegisterSpecs().stream()
                 .filter(registerSpec -> registerSpec.getReadingType() != this.readingType)
                 .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1))
                 .forEach(registerSpec ->
-                    configureReadingType(
-                        meterConfigurationBuilder,
-                        registerSpec.getReadingType(),
-                        registerSpec.getNumberOfFractionDigits(),
-                        registerSpec.getOverflowValue(),
-                        ( registerSpec.isUseMultiplier() ?  registerSpec.getCalculatedReadingType().get() : null ))
+                        configureReadingType(
+                                meterConfigurationBuilder,
+                                registerSpec.getReadingType(),
+                                registerSpec.getNumberOfFractionDigits(),
+                                registerSpec.getOverflowValue(),
+                                (registerSpec.isUseMultiplier() ? registerSpec.getCalculatedReadingType().get() : null))
                 );
         return meterConfigurationBuilder;
     }
 
-    private Meter.MeterConfigurationBuilder meterconfigurationBuilderForChannels(){
+    private Meter.MeterConfigurationBuilder meterconfigurationBuilderForChannels() {
         Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter().get().startingConfigurationOn(getStart());
         getDevice().getDeviceConfiguration().getChannelSpecs().stream()
                 .filter(channelSpec -> channelSpec.getReadingType() != this.readingType)
                 .forEach(channelSpec ->
-                    configureReadingType(
-                        meterConfigurationBuilder,
-                        channelSpec.getReadingType(),
-                        channelSpec.getNbrOfFractionDigits(),
-                        channelSpec.getOverflow(),
-                        ( channelSpec.isUseMultiplier() ?  channelSpec.getCalculatedReadingType().get() : null ))
+                        configureReadingType(
+                                meterConfigurationBuilder,
+                                channelSpec.getReadingType(),
+                                channelSpec.getNbrOfFractionDigits(),
+                                channelSpec.getOverflow(),
+                                (channelSpec.isUseMultiplier() ? channelSpec.getCalculatedReadingType().get() : null))
                 );
         createMeterConfigurationsForRegisterSpecs(meterConfigurationBuilder, true);
         return meterConfigurationBuilder;
@@ -112,7 +114,7 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
     }
 
     @Override
-    protected MeterActivation activateMeter(Instant start) {
+    protected MeterActivation doActivateMeter(Instant generalizedStartDate) {
         throw new UnsupportedOperationException();
     }
 
@@ -144,68 +146,68 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
 
 // Registers
 //                DeviceImpl.this.findKoreMeter(getMdcAmrSystem()).ifPresent(koreMeter -> {
-              //                    Optional<MeterConfiguration> currentMeterConfiguration = koreMeter.getConfiguration(updateInstant);
-              //                    if (requiredToCreateNewMeterConfiguration(currentMeterConfiguration, register.getReadingType(), overruledOverflowValue, overruledNbrOfFractionDigits)) { // if we need to update it
-              //                        if (currentMeterConfiguration.isPresent()) {
-              //                            MeterConfiguration meterConfiguration = currentMeterConfiguration.get();
-              //                            meterConfiguration.endAt(updateInstant);
-              //                            Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
-              //                            NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) register.getRegisterSpec();
-              //                            meterConfiguration.getReadingTypeConfigs().stream().forEach(meterReadingTypeConfiguration -> {
-              //                                Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(meterReadingTypeConfiguration.getMeasured());
-              //                                if (registerWeNeedToUpdate(meterReadingTypeConfiguration)) {
-              //                                    if (overruledOverflowValue == null) {
-              //                                        meterReadingTypeConfigurationBuilder.withOverflowValue(registerSpec.getOverflowValue().orElse(null));
-              //                                    } else {
-              //                                        meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
-              //                                    }
-              //                                } else if (meterReadingTypeConfiguration.getOverflowValue().isPresent()) {
-              //                                    meterReadingTypeConfigurationBuilder.withOverflowValue(meterReadingTypeConfiguration.getOverflowValue().get());
-              //                                }
-              //                                if (registerWeNeedToUpdate(meterReadingTypeConfiguration)) {
-              //                                    if (overruledNbrOfFractionDigits == null) {
-              //                                        meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
-              //                                    } else {
-              //                                        meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
-              //                                    }
-              //                                } else if (meterReadingTypeConfiguration.getNumberOfFractionDigits().isPresent()) {
-              //                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(meterReadingTypeConfiguration.getNumberOfFractionDigits().getAsInt());
-              //                                }
-              //                                meterReadingTypeConfiguration.getCalculated()
-              //                                        .ifPresent(readingType -> meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating(readingType));
-              //                            });
-              //                            newMeterConfigBuilder.create();
-              //                        } else {
-              //                            Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
-              //                            getDeviceConfiguration().getRegisterSpecs().stream().filter(spec -> spec instanceof NumericalRegisterSpec)
-              //                                    .map(numeriaclSpec -> ((NumericalRegisterSpec) numeriaclSpec)).forEach(registerSpec -> {
-              //                                Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(registerSpec.getReadingType());
-              //                                if (registerWeNeedToUpdate(registerSpec) && overruledOverflowValue != null) {
-              //                                    meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
-              //                                } else if (registerSpec.getOverflowValue().isPresent()) {
-              //                                    meterReadingTypeConfigurationBuilder.withOverflowValue(registerSpec.getOverflowValue().get());
-              //                                }
-              //                                if (registerWeNeedToUpdate(registerSpec) && overruledNbrOfFractionDigits != null) {
-              //                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
-              //                                } else {
-              //                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
-              //                                }
-              //                                if (getMultiplier().compareTo(BigDecimal.ONE) == 1 && registerSpec.isUseMultiplier()) {
-              //                                    meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating((registerSpec.getCalculatedReadingType().get()));
-              //                                }
-              //                            });
-              //                            newMeterConfigBuilder.create();
-              //                        }
-              //                    }
-              //                });
+    //                    Optional<MeterConfiguration> currentMeterConfiguration = koreMeter.getConfiguration(updateInstant);
+    //                    if (requiredToCreateNewMeterConfiguration(currentMeterConfiguration, register.getReadingType(), overruledOverflowValue, overruledNbrOfFractionDigits)) { // if we need to update it
+    //                        if (currentMeterConfiguration.isPresent()) {
+    //                            MeterConfiguration meterConfiguration = currentMeterConfiguration.get();
+    //                            meterConfiguration.endAt(updateInstant);
+    //                            Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
+    //                            NumericalRegisterSpec registerSpec = (NumericalRegisterSpec) register.getRegisterSpec();
+    //                            meterConfiguration.getReadingTypeConfigs().stream().forEach(meterReadingTypeConfiguration -> {
+    //                                Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(meterReadingTypeConfiguration.getMeasured());
+    //                                if (registerWeNeedToUpdate(meterReadingTypeConfiguration)) {
+    //                                    if (overruledOverflowValue == null) {
+    //                                        meterReadingTypeConfigurationBuilder.withOverflowValue(registerSpec.getOverflowValue().orElse(null));
+    //                                    } else {
+    //                                        meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
+    //                                    }
+    //                                } else if (meterReadingTypeConfiguration.getOverflowValue().isPresent()) {
+    //                                    meterReadingTypeConfigurationBuilder.withOverflowValue(meterReadingTypeConfiguration.getOverflowValue().get());
+    //                                }
+    //                                if (registerWeNeedToUpdate(meterReadingTypeConfiguration)) {
+    //                                    if (overruledNbrOfFractionDigits == null) {
+    //                                        meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
+    //                                    } else {
+    //                                        meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+    //                                    }
+    //                                } else if (meterReadingTypeConfiguration.getNumberOfFractionDigits().isPresent()) {
+    //                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(meterReadingTypeConfiguration.getNumberOfFractionDigits().getAsInt());
+    //                                }
+    //                                meterReadingTypeConfiguration.getCalculated()
+    //                                        .ifPresent(readingType -> meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating(readingType));
+    //                            });
+    //                            newMeterConfigBuilder.create();
+    //                        } else {
+    //                            Meter.MeterConfigurationBuilder newMeterConfigBuilder = koreMeter.startingConfigurationOn(updateInstant);
+    //                            getDeviceConfiguration().getRegisterSpecs().stream().filter(spec -> spec instanceof NumericalRegisterSpec)
+    //                                    .map(numeriaclSpec -> ((NumericalRegisterSpec) numeriaclSpec)).forEach(registerSpec -> {
+    //                                Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = newMeterConfigBuilder.configureReadingType(registerSpec.getReadingType());
+    //                                if (registerWeNeedToUpdate(registerSpec) && overruledOverflowValue != null) {
+    //                                    meterReadingTypeConfigurationBuilder.withOverflowValue(overruledOverflowValue);
+    //                                } else if (registerSpec.getOverflowValue().isPresent()) {
+    //                                    meterReadingTypeConfigurationBuilder.withOverflowValue(registerSpec.getOverflowValue().get());
+    //                                }
+    //                                if (registerWeNeedToUpdate(registerSpec) && overruledNbrOfFractionDigits != null) {
+    //                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(overruledNbrOfFractionDigits);
+    //                                } else {
+    //                                    meterReadingTypeConfigurationBuilder.withNumberOfFractionDigits(registerSpec.getNumberOfFractionDigits());
+    //                                }
+    //                                if (getMultiplier().compareTo(BigDecimal.ONE) == 1 && registerSpec.isUseMultiplier()) {
+    //                                    meterReadingTypeConfigurationBuilder.withMultiplierOfType(getDefaultMultiplierType()).calculating((registerSpec.getCalculatedReadingType().get()));
+    //                                }
+    //                            });
+    //                            newMeterConfigBuilder.create();
+    //                        }
+    //                    }
+    //                });
 
 //    private boolean registerWeNeedToUpdate(RegisterSpec registerSpec) {
 //         return registerSpec.getReadingType().equals(register.getReadingType());
 //     }
 
- //    private boolean registerWeNeedToUpdate(MeterReadingTypeConfiguration meterReadingTypeConfiguration) {
- //        return meterReadingTypeConfiguration.getMeasured().equals(register.getReadingType());
- //    }
+    //    private boolean registerWeNeedToUpdate(MeterReadingTypeConfiguration meterReadingTypeConfiguration) {
+    //        return meterReadingTypeConfiguration.getMeasured().equals(register.getReadingType());
+    //    }
 
 //Channels
 //    Instant updateInstant = DeviceImpl.this.clock.instant();

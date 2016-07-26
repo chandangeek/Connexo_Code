@@ -1,4 +1,4 @@
-package com.energyict.mdc.device.data.impl;
+package com.energyict.mdc.device.data.impl.sync;
 
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
@@ -11,17 +11,24 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.ServerDevice;
+import com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 /**
  * Base methods that can be used to sync the (Kore) Meter with the configuration of this (MDC) Device
- *
- * Additional behaviour related to 'Kore' objects
- *
+ * <p>
+ * Additional behaviour related to 'Kore' objects.
+ * <p>
+ * Note: always try to use the {@link #generalizeDatesToMinutes(Instant)} method for start and end dates.
+ * This way it is more clear that all start and end dates begin at zero seconds. This should prevent overlap
+ * when we have FrontEnd fields that don't contain seconds
+ * <p>
  * Copyrights EnergyICT
  * Date: 21/04/2016
  * Time: 13:14
@@ -32,21 +39,21 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     private final MdcReadingTypeUtilService readingTypeUtilService;
 
     private Instant start;
-    private DeviceImpl device;
+    private ServerDevice device;
     private MultiplierType multiplierType;
 
     AbstractSyncDeviceWithKoreMeter(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Instant start) {
         this.meteringService = meteringService;
         this.readingTypeUtilService = readingTypeUtilService;
-        this.start = start;
+        this.start = generalizeDatesToMinutes(start);
         this.multiplierType = getDefaultMultiplierType();
     }
 
-    protected void setDevice(DeviceImpl device) {
+    protected void setDevice(ServerDevice device) {
         this.device = device;
     }
 
-    protected DeviceImpl getDevice() {
+    protected ServerDevice getDevice() {
         return device;
     }
 
@@ -55,7 +62,7 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     }
 
     protected void setStart(Instant start) {
-        this.start = start;
+        this.start = generalizeDatesToMinutes(start);
     }
 
     protected void endCurrentMeterConfigurationIfPresent() {
@@ -71,7 +78,8 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
             this.device.getMeter().get().makeObsolete();
         }
     }
-    protected Meter.MeterConfigurationBuilder meterconfigurationBuilder(boolean withCalculatedReadingType){
+
+    protected Meter.MeterConfigurationBuilder meterconfigurationBuilder(boolean withCalculatedReadingType) {
         Meter.MeterConfigurationBuilder meterConfigurationBuilder = device.getMeter().get().startingConfigurationOn(start);
         createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder, withCalculatedReadingType);
         createMeterConfigurationsForRegisterSpecs(meterConfigurationBuilder, withCalculatedReadingType);
@@ -85,7 +93,11 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         return Optional.empty();
     }
 
-    protected abstract MeterActivation activateMeter(Instant start);
+    public MeterActivation activateMeter(Instant start) {
+        return doActivateMeter(generalizeDatesToMinutes(start));
+    }
+
+    abstract MeterActivation doActivateMeter(Instant generalizedStartDate);
 
     protected void addKoreChannelsIfNecessary(MeterActivation activation) {
         device.getChannels().forEach((x) -> addKoreChannelIfNecessary(activation, x));
@@ -109,12 +121,12 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     protected void createMeterConfigurationsForChannelSpecs(Meter.MeterConfigurationBuilder meterConfigurationBuilder, boolean addCalculatedReadingType) {
         device.getDeviceConfiguration().getChannelSpecs()
                 .forEach(channelSpec ->
-                    configureReadingType(
-                        meterConfigurationBuilder,
-                        channelSpec.getReadingType(),
-                        channelSpec.getNbrOfFractionDigits(),
-                        channelSpec.getOverflow(),
-                        (addCalculatedReadingType && channelSpec.isUseMultiplier() ?  getMultipliedReadingTypeForChannelSpec(channelSpec) : null))
+                        configureReadingType(
+                                meterConfigurationBuilder,
+                                channelSpec.getReadingType(),
+                                channelSpec.getNbrOfFractionDigits(),
+                                channelSpec.getOverflow(),
+                                (addCalculatedReadingType && channelSpec.isUseMultiplier() ? getMultipliedReadingTypeForChannelSpec(channelSpec) : null))
                 );
     }
 
@@ -122,16 +134,16 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         device.getDeviceConfiguration().getRegisterSpecs().stream().filter(registerSpec -> !registerSpec.isTextual())
                 .map(registerSpec1 -> ((NumericalRegisterSpec) registerSpec1))
                 .forEach(registerSpec ->
-                    configureReadingType(
-                        meterConfigurationBuilder,
-                        registerSpec.getReadingType(),
-                        registerSpec.getNumberOfFractionDigits(),
-                        registerSpec.getOverflowValue(),
-                        (addCalculatedReadingType && registerSpec.isUseMultiplier() ?  registerSpec.getCalculatedReadingType().get() : null ))
+                        configureReadingType(
+                                meterConfigurationBuilder,
+                                registerSpec.getReadingType(),
+                                registerSpec.getNumberOfFractionDigits(),
+                                registerSpec.getOverflowValue(),
+                                (addCalculatedReadingType && registerSpec.isUseMultiplier() ? registerSpec.getCalculatedReadingType().get() : null))
                 );
     }
 
-    protected  Meter.MeterReadingTypeConfigurationBuilder configureReadingType(Meter.MeterConfigurationBuilder meterConfigurationBuilder, ReadingType readingType, int numberOfFractionDigits, Optional<BigDecimal> overflowValue, ReadingType calculatedReadingType){
+    protected Meter.MeterReadingTypeConfigurationBuilder configureReadingType(Meter.MeterConfigurationBuilder meterConfigurationBuilder, ReadingType readingType, int numberOfFractionDigits, Optional<BigDecimal> overflowValue, ReadingType calculatedReadingType) {
         Meter.MeterReadingTypeConfigurationBuilder meterReadingTypeConfigurationBuilder = meterConfigurationBuilder
                 .configureReadingType(readingType)
                 .withNumberOfFractionDigits(numberOfFractionDigits);
@@ -156,18 +168,19 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     }
 
     protected Optional<BigDecimal> getMultiplier(Optional<? extends MeterActivation> activation) {
-        if (activation.isPresent() && activation.get().getMultiplier(multiplierType).isPresent()){
+        if (activation.isPresent() && activation.get().getMultiplier(multiplierType).isPresent()) {
             return activation.get().getMultiplier(multiplierType);
         }
         return Optional.of(MULTIPLIER_ONE);
     }
 
-    protected void setMultiplier(MeterActivation activation, BigDecimal multiplier){
+    protected void setMultiplier(MeterActivation activation, BigDecimal multiplier) {
         activation.setMultiplier(multiplierType, multiplier);
     }
 
     /**
      * Ends the given {@link MeterActivation} at the given start and create a new one by cloning the previouslu ended one's data.
+     *
      * @param end date of the given MeterActivation, and becomes the start date of the newly created one
      * @param meterActivation MeterActivation to end
      * @param usagePoint the UsagePoint for the new meterActivation. If not given the meterActivation's UsagePoint is used
@@ -196,10 +209,25 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
 
     private MultiplierType getDefaultMultiplierType() {
         Optional<MultiplierType> mt = this.meteringService.getMultiplierType(MULTIPLIER_TYPE);
-        if (! mt.isPresent()){
+        if (!mt.isPresent()) {
             return this.meteringService.createMultiplierType(MULTIPLIER_TYPE);
         }
         return mt.get();
+    }
+
+    /**
+     * We truncate the start- and endDates to minutes as it is not always required to provide seconds in the FrontEnd.
+     * This way we prevent having startDates before endDates in the same minute...
+     *
+     * @param when the date to generalize
+     * @return the truncated date
+     */
+    Instant generalizeDatesToMinutes(Instant when) {
+        if (when != null) {
+            return when.truncatedTo(ChronoUnit.MINUTES);
+        } else {
+            return when;
+        }
     }
 
 }
