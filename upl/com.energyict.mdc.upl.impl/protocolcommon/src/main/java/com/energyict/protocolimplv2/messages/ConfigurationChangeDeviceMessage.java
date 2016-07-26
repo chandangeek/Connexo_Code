@@ -4,6 +4,8 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
+import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
+
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
@@ -336,7 +338,6 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.ACTIONS_IN_HEX_DAILY_PROFILE1),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.DAY_PROFILES),
             PropertySpecFactory.dateTimePropertySpec(DeviceMessageConstants.ACTIVATION_DATE)
-
     ),
     ConfigureEmergencyConsumptionLimitation(77,
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.DURATION_MINUTES, new BigDecimal(1), new BigDecimal(65535)),
@@ -349,7 +350,11 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     ConfigureTariffSettings(78,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.UNIQUE_TARIFF_ID_NO),
             PropertySpecFactory.boundedDecimalPropertySpec(DeviceMessageConstants.NUMBER_OF_TARIFF_RATES, new BigDecimal(0), new BigDecimal(4)),
-            PropertySpecFactory.codeTableReferencePropertySpec(DeviceMessageConstants.CODE_TABLE_ID)
+            PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.CODE_TABLE_ID)),
+    EnableGzipCompression(79, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.ENABLE_GZIP_COMPRESSION)),
+    SetAuthenticationMechanism(80, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM, AuthenticationMechanism.getAuthNames())),
+    SetMaxLoginAttempts(81, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS)),
+    SetLockoutDuration(82, PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DeviceMessageConstants.SET_LOCKOUT_DURATION, new TimeDuration(10000, TimeDuration.MILLISECONDS))
     );
 
     private final List<PropertySpec> deviceMessagePropertySpecs;

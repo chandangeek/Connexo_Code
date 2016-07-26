@@ -70,6 +70,7 @@ public class DeviceMessageConstants {
     public static final String clientMacAddress = "ClientMacAddress";
     public static final String masterKey = "SecurityMessage.masterkey";
     public static final String pskAttributeName = "SecurityMessage.psk";
+    public static final String clientCertificateAttributeName = "SecurityMessage.new.clientcertificate";
     public static final String newPasswordAttributeName = "SecurityMessage.new.password";
     public static final String newHexPasswordAttributeName = "SecurityMessage.newhexpassword";
     public static final String preparedDataAttributeName = "SecurityMessage.prepareddata";
@@ -215,6 +216,7 @@ public class DeviceMessageConstants {
     public static final String SetGatewayAttributeName = "NetworkConnectivityMessage.setgateway";
     public static final String SetNameServerAttributeName = "NetworkConnectivityMessage.setnameserver";
     public static final String SetHttpPortAttributeName = "NetworkConnectivityMessage.sethttpport";
+    public static final String SetHttpsPortAttributeName = "NetworkConnectivityMessage.SET_HTTPS_PORT";
     public static final String NetworkConnectivityIPAddressAttributeName = "NetworkConnectivityMessage.ipaddress";
     public static final String NetworkConnectivityIntervalAttributeName = "NetworkConnectivityMessage.interval";
     public static final String preferGPRSUpstreamCommunication = "NetworkConnectivityMessage.preferGPRSUpstreamCommunication";
@@ -709,4 +711,13 @@ public class DeviceMessageConstants {
     public static final String SPECIAL_LOAD_PROFILE_INTERVAL = "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE_INTERVAL";
     public static final String SPECIAL_LOAD_PROFILE_MAX_NO = "ACE4000ConfigurationMessages.SPECIAL_LOAD_PROFILE_MAX_NO";
     public static final String DISPLAY_MESSAGE = "Display_Message";
+    public static final String ETHERNET_WAN = "NetworkConnectivityMessage.Ethernet_WAN";
+    public static final String ETHERNET_LAN = "NetworkConnectivityMessage.Ethernet_LAN";
+    public static final String WIRELESS_WAN = "NetworkConnectivityMessage.Wireless_WAN";
+    public static final String IP6_TUNNEL = "NetworkConnectivityMessage.IP6_Tunnel";
+    public static final String PLC_NETWORK = "NetworkConnectivityMessage.PLC_Network";
+    public static final String ENABLE_GZIP_COMPRESSION = "ConfigurationChangeDeviceMessage.ENABLE_GZIP_COMPRESSION";
+    public static final String SET_AUTHENTICATION_MECHANISM = "ConfigurationChangeDeviceMessage.SET_AUTHENTICATION_MECHANISM";
+    public static final String SET_MAX_LOGIN_ATTEMPTS = "ConfigurationChangeDeviceMessage.SET_MAX_LOGIN_ATTEMPTS";
+    public static final String SET_LOCKOUT_DURATION = "ConfigurationChangeDeviceMessage.SET_LOCKOUT_DURATION";
 }

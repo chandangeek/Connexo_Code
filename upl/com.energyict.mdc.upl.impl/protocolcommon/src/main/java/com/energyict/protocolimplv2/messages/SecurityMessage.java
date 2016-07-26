@@ -8,6 +8,7 @@ import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
+import com.energyict.protocolimplv2.messages.enums.UserNames;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -122,8 +123,8 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.hexStringPropertySpec(DeviceMessageConstants.signatureAttributeName),
             PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.verificationKeyAttributeName)
     ),
-    CHANGE_WEBPORTAL_PASSWORD1(29, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),  //ASCII password
-    CHANGE_WEBPORTAL_PASSWORD2(30, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)),
+    CHANGE_WEBPORTAL_PASSWORD1(29, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),  //ASCII password
+    CHANGE_WEBPORTAL_PASSWORD2(30, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)),
     CHANGE_HLS_SECRET_PASSWORD(31, PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newPasswordAttributeName)), //Password field
     CHANGE_SECURITY_KEYS(32,
             PropertySpecFactory.bigDecimalPropertySpec(DeviceMessageConstants.clientMacAddress),
@@ -131,7 +132,15 @@ public enum SecurityMessage implements DeviceMessageSpec {
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newAuthenticationKeyAttributeName),
             PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.newEncryptionKeyAttributeName)
     ),
-    ;
+    CHANGE_WEBPORTAL_PASSWORD(33,
+            PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.usernameAttributeName, UserNames.getAllNames()),
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.passwordAttributeName)
+    ),  //ASCII password
+    IMPORT_CLIENT_CERTIFICATE(34,
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.clientCertificateAttributeName)),
+    REMOVE_CLIENT_CERTIFICATE(35,
+            PropertySpecFactory.passwordPropertySpec(DeviceMessageConstants.clientCertificateAttributeName)
+    );
 
     private static final DeviceMessageCategory securityCategory = DeviceMessageCategories.SECURITY;
 
