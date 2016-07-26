@@ -1,12 +1,12 @@
 package com.elster.jupiter.metering.impl;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
+import com.google.common.collect.ImmutableMap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -16,13 +16,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 @Component(name = "com.elster.jupiter.search.location", service = {SearchLocationService.class}, property = "name=" + SearchService.COMPONENT_NAME)
 @SuppressWarnings("unused")
@@ -30,52 +29,60 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
     private final Map<String, String> templateMap = templateMap();
     private volatile DataModel dataModel;
-    private volatile MeteringService meteringService;
     private String locationTemplate;
 
-    @Inject
+    // For OSGi purposes
     public SearchLocationServiceImpl() {
         super();
     }
 
-    protected Map<String, String> templateMap() {
+    // For testing purposes
+    @Inject
+    public SearchLocationServiceImpl(OrmService ormService) {
+        this();
+        this.setOrmService(ormService);
+        this.activate();
+    }
 
-        return Collections.unmodifiableMap(new HashMap<String, String>() {
-            {
-                put("#ccod", "countryCode");
-                put("#cnam", "countryName");
-                put("#adma", "administrativeArea");
-                put("#loc", "locality");
-                put("#subloc", "subLocality");
-                put("#styp", "streetType");
-                put("#snam", "streetName");
-                put("#snum", "streetNumber");
-                put("#etyp", "establishmentType");
-                put("#enam", "establishmentName");
-                put("#enum", "establishmentNumber");
-                put("#addtl", "addressDetail");
-                put("#zip", "zipCode");
-                put("#locale", "locale");
-
-            }
-        });
+    private Map<String, String> templateMap() {
+        return ImmutableMap.<String, String>builder()
+                .put("#ccod", "countryCode")
+                .put("#cnam", "countryName")
+                .put("#adma", "administrativeArea")
+                .put("#loc", "locality")
+                .put("#subloc", "subLocality")
+                .put("#styp", "streetType")
+                .put("#snam", "streetName")
+                .put("#snum", "streetNumber")
+                .put("#etyp", "establishmentType")
+                .put("#enam", "establishmentName")
+                .put("#enum", "establishmentNumber")
+                .put("#addtl", "addressDetail")
+                .put("#zip", "zipCode")
+                .put("#locale", "locale")
+                .build();
     }
 
     @Activate
     public void activate() {
-        locationTemplate = getAddressTemplate();
-    }
-
-    @Reference
-    public void setOrmService(OrmService ormService) {
-        if ((ormService.getDataModel("ORM").get() != null)) {
-            this.dataModel = ormService.getDataModel("ORM").get();
+        if (this.dataModel != null) {
+            this.ensureLocationTemplateInitialized();
         }
     }
 
     @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
+    public void setOrmService(OrmService ormService) {
+        Optional<DataModel> ormDataModel = ormService.getDataModel("ORM");
+        if (ormDataModel.isPresent()) {
+            this.dataModel = ormDataModel.get();
+            this.ensureLocationTemplateInitialized();
+        }
+    }
+
+    private void ensureLocationTemplateInitialized() {
+        if (this.locationTemplate == null) {
+            this.locationTemplate = getAddressTemplate();
+        }
     }
 
     @Override
@@ -137,13 +144,13 @@ public class SearchLocationServiceImpl implements SearchLocationService {
     }
 
     private String getWhereClause(String locationPart) {
-        if ((locationPart == null) || (locationPart.length() == 0)) {
+        if ((locationPart == null) || (locationPart.isEmpty())) {
             return "";
         }
 
         String[] mapLocationPart = locationPart.split(",");
         String[] mapTemplate = locationTemplate.split(",");
-        List<String> resultClause = new ArrayList<String>();
+        List<String> resultClause = new ArrayList<>();
 
         //mapTemplate = Arrays.copyOfRange(mapTemplate, 1, mapTemplate.length);
 
@@ -159,18 +166,18 @@ public class SearchLocationServiceImpl implements SearchLocationService {
             }
 
             if ((i == mapLocationPart.length - 1) && (!locationPart.endsWith(","))) {
-                if (part.isEmpty() == false) {
+                if (!part.isEmpty()) {
                     resultClause.add(String.format("upper%s LIKE UPPER('%%%s%%')", templateMap.get("#" + item), part));
                 }
             } else {
-                if (part.isEmpty() == false) {
+                if (!part.isEmpty()) {
                     resultClause.add(String.format("upper%s = UPPER('%s')", templateMap.get("#" + item), part));
                 }
             }
         }
 
         String result = resultClause.stream().map(Object::toString).collect(Collectors.joining(" AND "));
-        if (result.length() > 0) {
+        if (!result.isEmpty()) {
             return String.format(" WHERE %s", result);
         }
         return "";
