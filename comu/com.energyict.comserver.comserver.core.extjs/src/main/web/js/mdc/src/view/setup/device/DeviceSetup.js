@@ -177,7 +177,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         var me = this,
             panel = me.content[0],
             isGateway = me.device.get('isGateway'),
-            isDirectlyAddressable = me.device.get('isDirectlyAddressed');
+            isDirectlyAddressable = me.device.get('isDirectlyAddressed'),
+            disableChangeConfigSinceDataLoggerOrSlave = me.device.get('isDataLogger') || me.device.get('isDataLoggerSlave');
 
         panel.tools = [
             {
@@ -232,7 +233,8 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         menu: {
                             xtype: 'device-action-menu',
                             itemId: 'deviceActionMenu',
-                            router: me.router
+                            router: me.router,
+                            disableChangeConfigSinceDataLoggerOrSlave: disableChangeConfigSinceDataLoggerOrSlave
                         }
                     }
                 ]
