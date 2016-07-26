@@ -130,17 +130,16 @@ public class DataValidationTaskResource {
         return PagedInfoList.fromCompleteList("dataValidationTasks", infos, queryParameters);
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{dataValidationTaskId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    @Transactional
     public Response deleteDataValidationTask(@HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                              @PathParam("dataValidationTaskId") long dataValidationTaskId,
                                              DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
         findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName)).delete();
-        return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.ok().build();
     }
 
     @GET
