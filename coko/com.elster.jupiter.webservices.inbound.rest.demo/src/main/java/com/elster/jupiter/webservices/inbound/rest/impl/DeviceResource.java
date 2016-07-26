@@ -8,7 +8,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
@@ -24,23 +23,23 @@ public class DeviceResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Object getDevices() {
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    public Response getDevices() {
         return Response.status(Response.Status.NOT_IMPLEMENTED)
-                .entity(Entity.text("Not possible to retrieve all devices in the system"))
+                .entity("{\"error\" : \"Not possible to retrieve all devices in the system\"}")
                 .build();
     }
 
     @GET
     @Path("/{mRID}/")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Object getDevice(@PathParam("mRID") String mRID) {
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    public Response getDevice(@PathParam("mRID") String mRID) {
         Optional<Meter> foundMeter = meteringService.findMeter(mRID);
         if (foundMeter.isPresent()) {
-            return new MeterInfo(foundMeter.get());
+            return Response.ok(new MeterInfo(foundMeter.get()), MediaType.APPLICATION_JSON_TYPE).build();
         }
         return Response.status(Response.Status.NOT_FOUND)
-                .entity(Entity.text("No device exists with mRID " + mRID))
+                .entity("{\"error\" : \"No device exists with mRID " + mRID + "\"}")
                 .build();
     }
 
