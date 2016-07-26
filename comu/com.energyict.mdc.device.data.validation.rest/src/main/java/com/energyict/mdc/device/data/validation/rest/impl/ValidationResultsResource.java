@@ -3,8 +3,6 @@ package com.energyict.mdc.device.data.validation.rest.impl;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationServiceImpl;
 import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
 
@@ -40,15 +38,20 @@ public class ValidationResultsResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/devicegroups/{id}")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public PagedInfoList getValidationResultsPerDeviceGroup(@Context UriInfo uriInf, @BeanParam JsonQueryParameters queryParameters, @PathParam("id") Long groupId)
-            throws JSONException {
-        //FixMe from and to
-        ValidationService validationService = new ValidationServiceImpl();
-        Instant from = Instant.ofEpochMilli(Long.parseLong(String.valueOf(new JSONArray(uriInf.getQueryParameters().get("filter").get(0)).getJSONObject(1).get("value"))));
-        Instant to = Instant.ofEpochMilli(Long.parseLong(String.valueOf(new JSONArray(uriInf.getQueryParameters().get("filter").get(0)).getJSONObject(2).get("value"))));
+    public PagedInfoList getValidationResultsPerDeviceGroup(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @PathParam("id") Long groupId) throws JSONException {
+        Instant from = null;
+        Instant to = null;
+        JSONArray filters = new JSONArray(uriInfo.getQueryParameters().getFirst("filter"));
+        for(int i = 0; i < filters.length(); i++){
+            if(filters.getJSONObject(i).get("property").equals("from")){
+                from = Instant.ofEpochMilli((Long) filters.getJSONObject(i).get("value"));
+            }else if(filters.getJSONObject(i).get("property").equals("to")){
+                to = Instant.ofEpochMilli((Long) filters.getJSONObject(i).get("value"));
+            }
+        }
         List<ValidationSummaryInfo> data =
                 deviceDataValidationService
-                        .getValidationResultsOfDeviceGroup(groupId, queryParameters.getStart(), queryParameters.getLimit(), Range.closed(from,to))
+                        .getValidationResultsOfDeviceGroup(groupId, queryParameters.getStart(), queryParameters.getLimit(), from != null && to != null ? Range.closed(from, to) : Range.all())
                         .stream()
                         .map(ValidationSummaryInfo::new)
                         .collect(Collectors.toList());
