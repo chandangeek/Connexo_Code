@@ -66,7 +66,7 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                             member.score(localTimeStamp, totalSuspects.get(member.getName()));
                         }
                         if(allDataValidated.get(member.getName()) != null){
-                            member.score(localTimeStamp, allDataValidated.get(member.getName()).);
+                            member.score(localTimeStamp, allDataValidated.get(member.getName()) ? BigDecimal.ONE : BigDecimal.ZERO);
                         }
                     }));
             range = Range.closedOpen(localTimeStamp.minus(Period.ofDays(1)), localTimeStamp);

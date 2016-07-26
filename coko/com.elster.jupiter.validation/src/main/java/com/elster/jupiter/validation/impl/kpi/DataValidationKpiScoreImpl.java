@@ -49,6 +49,11 @@ public final class DataValidationKpiScoreImpl implements DataValidationKpiScore 
     }
 
     @Override
+    public BigDecimal getAllDataValidated() {
+        return this.getValue(MonitoredDataValidationKpiMemberTypes.ALL_DATA_VALIDATED);
+    }
+
+    @Override
     public int compareTo(DataValidationKpiScore other) {
         return this.getTimestamp().compareTo(other.getTimestamp());
     }

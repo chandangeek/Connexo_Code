@@ -12,6 +12,8 @@ public interface DataValidationKpiScore extends Comparable<DataValidationKpiScor
 
     BigDecimal getRegisterSuspects();
 
+    BigDecimal getAllDataValidated();
+
     Instant getTimestamp();
 
 }

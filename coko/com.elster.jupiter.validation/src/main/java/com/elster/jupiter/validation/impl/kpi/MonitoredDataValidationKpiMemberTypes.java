@@ -24,6 +24,13 @@ public enum MonitoredDataValidationKpiMemberTypes {
         public Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes() {
             return EnumSet.of(DataValidationKpiMemberTypes.REGISTER);
         }
+    },
+
+    ALL_DATA_VALIDATED {
+        @Override
+        public Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes() {
+            return EnumSet.of(DataValidationKpiMemberTypes.ALLDATAVALIDATED);
+        }
     };
 
     public abstract Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes();
