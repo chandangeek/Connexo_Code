@@ -3,10 +3,18 @@ package com.elster.jupiter.validation.impl.kpi;
 import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import com.google.common.collect.Range;
+import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.Period;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,32 +24,32 @@ import java.util.stream.Stream;
 
 public class DataValidationKpiCalculator implements DataManagementKpiCalculator {
 
-    private final DataValidationKpiImpl dataValidationKpi;
-    private final Logger logger;
-    private final DataValidationReportService dataValidationReportService;
-    private final Instant timestamp;
+    private volatile DataValidationKpiImpl dataValidationKpi;
+    private volatile Logger logger;
+    private volatile DataValidationReportService dataValidationReportService;
+    private volatile Clock clock;
 
-    public DataValidationKpiCalculator(DataValidationKpiImpl dataValidationKpi, Instant timestamp, Logger logger, DataValidationReportService dataValidationReportService) {
-        this.timestamp = timestamp;
+    public DataValidationKpiCalculator(DataValidationKpiImpl dataValidationKpi, Logger logger, DataValidationReportService dataValidationReportService, Clock clock) {
         this.dataValidationKpi = dataValidationKpi;
         this.logger = logger;
         this.dataValidationReportService = dataValidationReportService;
+        this.setClock(clock);
     }
+
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
 
     @Override
     public void calculateAndStore() {
-        //FixMe Clean up - inject clock for accuracy
-        /*
-        private Range<Instant> lastMonth() {
-        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
+        ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
-        return Range.openClosed(start.toInstant(), end.toInstant());
-    }
-         */
-        Range<Instant> range = Range.closed(timestamp.minus(Period.ofDays(30)), timestamp);
-        int i = 0;
-        for (; i <= 30; i++) {
-            Instant localTimeStamp = timestamp.minus(Period.ofDays(i));
+        Range<Instant> range = Range.openClosed(start.toInstant(), end.toInstant());
+        long dayCount = ChronoUnit.DAYS.between(start,end);
+        ZonedDateTime currentZonedDateTime = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L);
+        for (int i = 0 ; i <= dayCount; ++i) {
+            Instant localTimeStamp = currentZonedDateTime.minusDays(i).toInstant();
             Map<String, BigDecimal> registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpi.getDeviceGroup(), range);
             Map<String, BigDecimal> channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpi.getDeviceGroup(), range);
             Map<String, BigDecimal> totalSuspects = aggregateSuspects(registerSuspects, channelsSuspects);
