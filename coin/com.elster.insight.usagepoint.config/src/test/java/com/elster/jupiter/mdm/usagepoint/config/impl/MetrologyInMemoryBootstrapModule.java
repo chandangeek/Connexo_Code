@@ -9,6 +9,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -23,7 +24,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -44,7 +45,11 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
+import java.util.Optional;
+
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MetrologyInMemoryBootstrapModule {
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -80,7 +85,8 @@ public class MetrologyInMemoryBootstrapModule {
                 new TaskModule(),
                 new BasicPropertiesModule(),
                 new TimeModule(),
-                new CustomPropertySetsModule()
+                new CustomPropertySetsModule(),
+                new SearchModule()
         );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(ThreadPrincipalService.class);
@@ -130,9 +136,15 @@ public class MetrologyInMemoryBootstrapModule {
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(LicenseService.class).toInstance(mockLicenseService());
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
+    }
+
+    private static LicenseService mockLicenseService() {
+        LicenseService licenseService = mock(LicenseService.class);
+        License license = mock(License.class);
+        when(licenseService.getLicenseForApplication(any())).thenReturn(Optional.of(license));
+        return licenseService;
     }
 }
