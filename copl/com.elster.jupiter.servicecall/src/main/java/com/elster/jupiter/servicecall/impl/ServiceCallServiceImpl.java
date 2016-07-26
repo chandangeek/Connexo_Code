@@ -369,6 +369,17 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 .forEach(ServiceCall::cancel);
     }
 
+    @Override
+    public Set<DefaultState> nonFinalStates() {
+        return EnumSet.of(
+                DefaultState.CREATED,
+                DefaultState.ONGOING,
+                DefaultState.PAUSED,
+                DefaultState.PENDING,
+                DefaultState.SCHEDULED,
+                DefaultState.WAITING
+        );    }
+
     private Condition createConditionFromFilter(ServiceCallFilter filter) {
         Condition condition = Condition.TRUE;
 
