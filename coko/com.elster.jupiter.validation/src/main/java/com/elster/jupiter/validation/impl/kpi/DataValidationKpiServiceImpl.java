@@ -73,7 +73,7 @@ public class DataValidationKpiServiceImpl implements DataValidationKpiService{
 
         @Override
         public DataValidationKpi build() {
-            this.state = this.state.build(this.underConstruction, validationService.kpiService().newKpi());
+            this.state = this.state.build(this.underConstruction);
             return this.underConstruction;
         }
     }
@@ -81,10 +81,8 @@ public class DataValidationKpiServiceImpl implements DataValidationKpiService{
     private enum DataValidationKpiBuilderState {
         INCOMPLETE {
             @Override
-            DataValidationKpiBuilderState build(DataValidationKpiImpl underConstruction, KpiBuilder dataValidationKpiBuilder) {
-                if (dataValidationKpiBuilder != null) {
-                  underConstruction.dataValidationKpiBuilder(dataValidationKpiBuilder, underConstruction.getDeviceGroup());
-                }
+            DataValidationKpiBuilderState build(DataValidationKpiImpl underConstruction) {
+                underConstruction.dataValidationKpiBuilder(underConstruction.getDeviceGroup());
                 underConstruction.save();
                 return COMPLETE;
             }
@@ -92,12 +90,12 @@ public class DataValidationKpiServiceImpl implements DataValidationKpiService{
 
         COMPLETE {
             @Override
-            DataValidationKpiBuilderState build(DataValidationKpiImpl underConstruction, KpiBuilder dataValidationKpiBuilder) {
+            DataValidationKpiBuilderState build(DataValidationKpiImpl underConstruction) {
                 throw new IllegalStateException("DataValidationKpi has already been saved");
             }
         };
 
-        abstract DataValidationKpiBuilderState build(DataValidationKpiImpl underConstruction, KpiBuilder dataValidationKpiBuilder);
+        abstract DataValidationKpiBuilderState build(DataValidationKpiImpl underConstruction);
     }
 
 }

@@ -46,4 +46,17 @@ public class DataValidationReportServiceImpl implements DataValidationReportServ
         }
         return channelsSuspects;
     }
+
+    @Override
+    public Map<String, Boolean> getAllDataValidated(EndDeviceGroup deviceGroup, Range<Instant> range){
+        Map<String, Boolean> allDataValidated = new HashMap<>();
+        if(!validationService.getDataValidationAssociatinProviders().isEmpty()) {
+            allDataValidated = deviceGroup.getMembers(Instant.now()).stream()
+                    .collect(Collectors.toMap(endDevice -> DataValidationKpiMemberTypes.ALLDATAVALIDATED.fieldName() + endDevice.getId(),
+                            endDevice -> validationService.getDataValidationAssociatinProviders()
+                                    .get(0)
+                                    .isAllDataValidated(endDevice.getMRID(), range)));
+        }
+        return allDataValidated;
+    }
 }

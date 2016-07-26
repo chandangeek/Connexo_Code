@@ -52,6 +52,7 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
             Instant localTimeStamp = currentZonedDateTime.minusDays(i).toInstant();
             Map<String, BigDecimal> registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpi.getDeviceGroup(), range);
             Map<String, BigDecimal> channelsSuspects = dataValidationReportService.getChannelsSuspects(dataValidationKpi.getDeviceGroup(), range);
+            Map<String, Boolean> allDataValidated = dataValidationReportService.getAllDataValidated(dataValidationKpi.getDeviceGroup(), range);
             Map<String, BigDecimal> totalSuspects = aggregateSuspects(registerSuspects, channelsSuspects);
             dataValidationKpi.getDataValidationKpiChildren().stream().forEach(kpi -> kpi.getChildKpi().getMembers().stream()
                     .forEach(member -> {
@@ -63,6 +64,9 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                         }
                         if (totalSuspects.get(member.getName()) != null && (totalSuspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
                             member.score(localTimeStamp, totalSuspects.get(member.getName()));
+                        }
+                        if(allDataValidated.get(member.getName()) != null){
+                            member.score(localTimeStamp, allDataValidated.get(member.getName()).);
                         }
                     }));
             range = Range.closedOpen(localTimeStamp.minus(Period.ofDays(1)), localTimeStamp);

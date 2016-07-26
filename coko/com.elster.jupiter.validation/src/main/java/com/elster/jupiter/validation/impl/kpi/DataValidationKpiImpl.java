@@ -110,20 +110,21 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         Save.UPDATE.save(this.dataModel, this);
     }
 
-    void dataValidationKpiBuilder(KpiBuilder builder, EndDeviceGroup endDeviceGroup){
-        builder.interval(this.frequency);
+    void dataValidationKpiBuilder(EndDeviceGroup endDeviceGroup){
         endDeviceGroup.getMembers(Instant.now())
                 .stream()
-                .forEach(device ->
-                        Stream.of(DataValidationKpiMemberTypes.values())
-                .map(DataValidationKpiMemberTypes::fieldName)
-                .forEach(member -> {
-                    builder.member()
-                            .named(member+device.getId())
-                            .add();
+                .forEach(device -> {
+                    KpiBuilder builder= kpiService.newKpi();
+                    builder.interval(this.frequency);
+                    Stream.of(DataValidationKpiMemberTypes.values())
+                            .map(DataValidationKpiMemberTypes::fieldName)
+                            .forEach(member -> {
+                                builder.member()
+                                        .named(member+device.getId())
+                                        .add();
+                            });
                     childrenKpis.add(DataValidationKpiChildImpl.from(dataModel,this, builder.create()));
-                }));
-
+                });
     }
 
     public boolean hasDeviceGroup() {

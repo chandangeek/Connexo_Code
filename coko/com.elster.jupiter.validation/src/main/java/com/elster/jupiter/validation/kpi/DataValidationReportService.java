@@ -15,5 +15,6 @@ public interface DataValidationReportService {
 
     Map<String, BigDecimal> getChannelsSuspects(EndDeviceGroup deviceGroup, Range<Instant> range);
 
+    Map<String, Boolean> getAllDataValidated(EndDeviceGroup deviceGroup, Range<Instant> range);
 
 }

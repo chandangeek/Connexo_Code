@@ -13,4 +13,6 @@ public interface DataValidationAssociationProvider {
     BigDecimal getRegisterSuspects(String mRID, Range<Instant> range);
 
     BigDecimal getChannelsSuspects(String mRID, Range<Instant> range);
+
+    boolean isAllDataValidated(String mRID, Range<Instant> range);
 }
