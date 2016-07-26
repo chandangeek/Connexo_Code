@@ -86,13 +86,12 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>upgrade</artifactId>
         </dependency>
-
-        <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
-            <scope>test</scope>
         </dependency>
+
+        <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>parties</artifactId>
