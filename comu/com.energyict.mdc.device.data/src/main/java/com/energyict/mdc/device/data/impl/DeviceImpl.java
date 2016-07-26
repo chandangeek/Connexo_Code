@@ -992,6 +992,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             throw DeviceConfigurationChangeException.cannotChangeToConfigOfOtherDeviceType(thesaurus);
         }
         checkIfAllConflictsAreSolved(this.getDeviceConfiguration(), destinationDeviceConfiguration);
+        validateMetrologyConfigRequirements(destinationDeviceConfiguration);
+    }
+
+    void validateMetrologyConfigRequirements(DeviceConfiguration destinationDeviceConfiguration) {
+        this.getCurrentMeterActivation()
+                .ifPresent(meterActivation -> meterActivation.getUsagePoint()
+                        .ifPresent(usagePoint -> {
+                            Map unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, clock.instant(), destinationDeviceConfiguration);
+                            if (!unsatisfiedRequirements.isEmpty()) {
+                                throw DeviceConfigurationChangeException.unsatisfiedRequirements(thesaurus, this, destinationDeviceConfiguration, unsatisfiedRequirements);
+                            }
+                        })
+                );
     }
 
     @Override
@@ -3237,18 +3250,18 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     private void validateReadingTypeRequirements(UsagePoint usagePoint, Instant from) {
-        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, from);
+        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, from, this.getDeviceConfiguration());
         if (!unsatisfiedRequirements.isEmpty()) {
             throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(this.thesaurus, unsatisfiedRequirements);
         }
     }
 
-    Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from) {
+    private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from, DeviceConfiguration config) {
         List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
         if (effectiveMetrologyConfigurations.isEmpty()) {
             return Collections.emptyMap();
         }
-        List<ReadingType> supportedReadingTypes = getDeviceCapabilities();
+        List<ReadingType> supportedReadingTypes = getDeviceCapabilities(config);
         Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = new HashMap<>();
         for (MetrologyConfiguration metrologyConfiguration : effectiveMetrologyConfigurations) {
             List<ReadingTypeRequirement> unsatisfied = metrologyConfiguration.getMandatoryReadingTypeRequirements()
@@ -3262,8 +3275,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return unsatisfiedRequirements;
     }
 
-    private List<ReadingType> getDeviceCapabilities() {
-        return deviceConfigurationService.getReadingTypesRelatedToConfiguration(getDeviceConfiguration());
+    private List<ReadingType> getDeviceCapabilities(DeviceConfiguration config) {
+        return deviceConfigurationService.getReadingTypesRelatedToConfiguration(config);
     }
 
     private DateTimeFormatter getLongDateFormatForCurrentUser() {

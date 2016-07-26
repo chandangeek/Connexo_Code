@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.data.impl.ami.eventhandler;
 
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.ConnectServiceCallHandler;
@@ -49,6 +51,8 @@ public class DeviceMessageUpdateEventHandlerTest {
     private ServiceCallType serviceCallType;
     @Mock
     private ServiceCallService serviceCallService;
+    @Mock
+    CompletionOptionsCallBack completionOptionsCallBack;
 
     @Before
     public void setUp() throws Exception {
@@ -62,7 +66,7 @@ public class DeviceMessageUpdateEventHandlerTest {
 
     @Test
     public void testDeviceMessageWithoutTrackingInfo() throws Exception {
-        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService);
+        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService, completionOptionsCallBack);
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         LocalEvent localEvent = createEventFor(deviceMessage, DeviceMessageStatus.CONFIRMED);
 
@@ -77,7 +81,7 @@ public class DeviceMessageUpdateEventHandlerTest {
     public void testDeviceMessageWithServiceCallNotRelatedToHeadEndInterface() throws Exception {
         when(serviceCallType.getName()).thenReturn(NON_HEADEND_SERVICECALL_TYPE);
 
-        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService);
+        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService, completionOptionsCallBack);
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getTrackingCategory()).thenReturn(TrackingCategory.serviceCall);
         when(deviceMessage.getTrackingId()).thenReturn(Long.toString(SERVICE_CALL_ID));
@@ -92,7 +96,7 @@ public class DeviceMessageUpdateEventHandlerTest {
 
     @Test
     public void testDeviceMessageStatusHasNotChanged() throws Exception {
-        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService);
+        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService, completionOptionsCallBack);
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         when(deviceMessage.getTrackingCategory()).thenReturn(TrackingCategory.serviceCall);
@@ -110,7 +114,7 @@ public class DeviceMessageUpdateEventHandlerTest {
     public void testDeviceMessageConfirmed() throws Exception {
         when(serviceCallType.getName()).thenReturn(ConnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
 
-        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService);
+        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService, completionOptionsCallBack);
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
         when(deviceMessage.getTrackingCategory()).thenReturn(TrackingCategory.serviceCall);
@@ -131,7 +135,7 @@ public class DeviceMessageUpdateEventHandlerTest {
     public void testDeviceMessageFailed() throws Exception {
         when(serviceCallType.getName()).thenReturn(ConnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
 
-        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService);
+        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService, completionOptionsCallBack);
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.FAILED);
         when(deviceMessage.getTrackingCategory()).thenReturn(TrackingCategory.serviceCall);
@@ -145,13 +149,14 @@ public class DeviceMessageUpdateEventHandlerTest {
         verify(serviceCall, never()).update(any(CommandServiceCallDomainExtension.class));
         verify(serviceCall, times(1)).requestTransition(DefaultState.ONGOING);
         verify(serviceCall, times(1)).requestTransition(DefaultState.FAILED);
+        verify(completionOptionsCallBack, times(1)).sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.ONE_OR_MORE_DEVICE_COMMANDS_FAILED);
     }
 
     @Test
     public void testDeviceMessageRevoked() throws Exception {
         when(serviceCallType.getName()).thenReturn(ConnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
 
-        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService);
+        DeviceMessageUpdateEventHandler handler = new DeviceMessageUpdateEventHandler(serviceCallService, completionOptionsCallBack);
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.REVOKED);
         when(deviceMessage.getTrackingCategory()).thenReturn(TrackingCategory.serviceCall);
@@ -163,8 +168,8 @@ public class DeviceMessageUpdateEventHandlerTest {
 
         // Asserts
         verify(serviceCall, never()).update(any(CommandServiceCallDomainExtension.class));
-        verify(serviceCall, times(1)).requestTransition(DefaultState.ONGOING);
-        verify(serviceCall, times(1)).requestTransition(DefaultState.FAILED);
+        verify(serviceCall, times(1)).requestTransition(DefaultState.CANCELLED);
+        verify(completionOptionsCallBack, times(1)).sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.CANCELLED, CompletionMessageInfo.FailureReason.ONE_OR_MORE_DEVICE_COMMANDS_HAVE_BEEN_REVOKED);
     }
 
     private LocalEvent createEventFor(DeviceMessage deviceMessage, DeviceMessageStatus oldDeviceMessageStatus) {
