@@ -42,7 +42,7 @@ Ext.define('Mdc.usagepointmanagement.view.history.MetrologyConfigurationActionMe
                     edititem.clearTip();
                 } else {
                     edititem.disable();
-                    edititem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Future version only can be modified'));
+                    edititem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.editQtip', 'MDC', 'Version in the past can\'t be modified'));
                 }
                 removeItem.disable();
                 removeItem.setTooltip(Uni.I18n.translate('usagepoint.actionMenu.removeQtip', 'MDC', 'Future version only can be removed'));
