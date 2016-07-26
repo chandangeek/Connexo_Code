@@ -5,12 +5,16 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.energyict.mdc.device.data.DeviceDataServices;
 
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -36,13 +40,15 @@ public class CompletionOptionsCustomPropertySet implements CustomPropertySet<Ser
 
     public static final String CUSTOM_PROPERTY_SET_NAME = "CompletionOptionsCustomPropertySet";
 
-    public volatile PropertySpecService propertySpecService;
+    private volatile Thesaurus thesaurus;
+    private volatile PropertySpecService propertySpecService;
 
     public CompletionOptionsCustomPropertySet() {
     }
 
     @Inject
-    public CompletionOptionsCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+    public CompletionOptionsCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
@@ -60,6 +66,11 @@ public class CompletionOptionsCustomPropertySet implements CustomPropertySet<Ser
     @Reference
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         customPropertySetService.addCustomPropertySet(this);
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Activate
@@ -106,13 +117,15 @@ public class CompletionOptionsCustomPropertySet implements CustomPropertySet<Ser
         return Arrays.asList(
                 this.propertySpecService
                         .longSpec()
-                        .named(CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_SPEC.javaName(), CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_SPEC.javaName())
-                        .describedAs("Destination spec")
+                        .named(CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_SPEC.javaName(), CustomPropertySetsTranslationKeys.DESTINATION_SPEC)
+                        .describedAs(CustomPropertySetsTranslationKeys.DESTINATION_SPEC)
+                        .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
                         .longSpec()
-                        .named(CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_MESSAGE.javaName(), CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_MESSAGE.javaName())
-                        .describedAs("Destination message")
+                        .named(CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_IDENTIFICATION.javaName(), CustomPropertySetsTranslationKeys.DESTINATION_IDENTIFICATION)
+                        .describedAs(CustomPropertySetsTranslationKeys.DESTINATION_IDENTIFICATION)
+                        .fromThesaurus(thesaurus)
                         .finish());
     }
 
@@ -163,9 +176,9 @@ public class CompletionOptionsCustomPropertySet implements CustomPropertySet<Ser
                     .map(CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_SPEC.javaName())
                     .add();
             table
-                    .column(CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_MESSAGE.databaseName())
+                    .column(CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_IDENTIFICATION.databaseName())
                     .varChar()
-                    .map(CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_MESSAGE.javaName())
+                    .map(CompletionOptionsServiceCallDomainExtension.FieldNames.DESTINATION_IDENTIFICATION.javaName())
                     .add();
         }
 

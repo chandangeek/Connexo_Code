@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.ami.servicecall.handlers;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -12,6 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
@@ -32,11 +34,9 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -62,6 +62,8 @@ public class AbstractOperationServiceCallHandlerTest {
 
     @Mock
     Thesaurus thesaurus;
+    @Mock
+    CompletionOptionsCallBack completionOptionsCallBack;
     @Mock
     MessageService messageService;
     @Mock
@@ -105,6 +107,7 @@ public class AbstractOperationServiceCallHandlerTest {
         });
 
         when(serviceCall.getType()).thenReturn(serviceCallType);
+        when(serviceCall.getParent()).thenReturn(Optional.empty());
         when(serviceCall.canTransitionTo(any(DefaultState.class))).thenReturn(true);
         CommandServiceCallDomainExtension commandServiceCallDomainExtension = new CommandServiceCallDomainExtension();
         commandServiceCallDomainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
@@ -115,7 +118,7 @@ public class AbstractOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromPendingToOngoingIgnored() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
 
         // Business method
         serviceCallHandler.onStateChange(serviceCall, DefaultState.PENDING, DefaultState.ONGOING);
@@ -127,7 +130,7 @@ public class AbstractOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromWaitingToOngoingNotAllMessagesConfirmed() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(10);
@@ -142,7 +145,7 @@ public class AbstractOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeFromWaitingToOngoingAllMessagesConfirmed() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(0);
@@ -157,10 +160,10 @@ public class AbstractOperationServiceCallHandlerTest {
 
     @Test
     public void testStateChangeToSuccessful() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
         CompletionOptionsServiceCallDomainExtension domainExtension = new CompletionOptionsServiceCallDomainExtension();
         domainExtension.setDestinationSpec(DESTINATION_SPEC);
-        domainExtension.setDestinationMessage(DESTIONATION_MSG);
+        domainExtension.setDestinationIdentification(DESTIONATION_MSG);
         when(serviceCall.getExtensionFor(any(CompletionOptionsCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
         when(messageService.getDestinationSpec(DESTINATION_SPEC)).thenReturn(Optional.of(destinationSpec));
 
@@ -168,9 +171,7 @@ public class AbstractOperationServiceCallHandlerTest {
         serviceCallHandler.onStateChange(serviceCall, DefaultState.ONGOING, DefaultState.SUCCESSFUL);
 
         // Asserts
-        ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
-        verify(destinationSpec).message(messageCaptor.capture());
-        assertEquals(DESTIONATION_MSG, messageCaptor.getValue());
+        verify(completionOptionsCallBack).sendFinishedMessageToDestinationSpec(serviceCall);
     }
 
     @Test
@@ -189,7 +190,7 @@ public class AbstractOperationServiceCallHandlerTest {
         when(device.getMessagesByState(DeviceMessageStatus.WAITING)).thenReturn(new ArrayList<>(Collections.singletonList(deviceMessage2)));
         doReturn(Optional.of(device)).when(serviceCall).getTargetObject();
 
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(2);
@@ -203,6 +204,7 @@ public class AbstractOperationServiceCallHandlerTest {
         verify(deviceMessage1).revoke();
         verify(deviceMessage2).revoke();
         verify(deviceMessage3, never()).revoke(); // deviceMessage3 was pending, but not part of the service call - therefore it should not be revoked!
+        verify(completionOptionsCallBack).sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.CANCELLED, CompletionMessageInfo.FailureReason.SERVICE_CALL_HAS_BEEN_CANCELLED);
     }
 
     @Test
@@ -226,7 +228,7 @@ public class AbstractOperationServiceCallHandlerTest {
         when(device.getMessagesByState(DeviceMessageStatus.WAITING)).thenReturn(new ArrayList<>(Collections.singletonList(deviceMessage2)));
         doReturn(Optional.of(device)).when(serviceCall).getTargetObject();
 
-        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus);
+        AbstractOperationServiceCallHandler serviceCallHandler = new EnableLoadLimitServiceCallHandler(messageService, thesaurus, completionOptionsCallBack);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
         domainExtension.setNrOfUnconfirmedDeviceCommands(2);
@@ -241,5 +243,6 @@ public class AbstractOperationServiceCallHandlerTest {
         verify(deviceMessage2).revoke();
         verify(deviceMessage3, never()).revoke(); // deviceMessage3 was pending, but not part of the service call - therefore it should not be revoked!
         verify(serviceCall).log(LogLevel.SEVERE, MessageFormat.format("Could not revoke device message with id {0}: {1}", deviceMessage1.getId(), CONSTRAINT_VIOLATION_MESSAGE));
+        verify(completionOptionsCallBack).sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.CANCELLED, CompletionMessageInfo.FailureReason.SERVICE_CALL_HAS_BEEN_CANCELLED);
     }
 }

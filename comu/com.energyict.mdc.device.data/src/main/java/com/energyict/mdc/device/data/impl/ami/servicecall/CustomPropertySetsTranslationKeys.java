@@ -11,7 +11,9 @@ public enum CustomPropertySetsTranslationKeys implements TranslationKey {
     RELEASE_DATE("Release date"),
     DEVICE_MSG("ID of device commands"),
     NR_OF_UNCONFIRMED_DEVICE_COMMANDS("Number of unconfirmed device commands"),
-    STATUS("Status");
+    STATUS("Status"),
+    DESTINATION_SPEC("Destination spec"),
+    DESTINATION_IDENTIFICATION("Destination identification");
 
     private String defaultFormat;
 
