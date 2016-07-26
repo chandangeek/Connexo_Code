@@ -33,6 +33,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                 },
                 {
                     xtype: 'preview-container',
+                    hidden: isActive,
                     grid: {
                         xtype: 'cas-grid',
                         itemId: 'cas-grid',
