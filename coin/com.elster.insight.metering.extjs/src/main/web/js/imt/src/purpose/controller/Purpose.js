@@ -65,7 +65,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
-
         mainView.setLoading();
         usagePointsController.loadUsagePoint(mRID, {
             success: function (types, usagePoint, purposes) {
@@ -305,16 +304,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 },
                 {
                     xtype: 'panel',
-                    itemId: 'purpose-pnl-validation-date-errors',
-                    hidden: true,
-                    bodyStyle: {
-                        color: '#eb5642',
-                        padding: '0 0 15px 65px'
-                    },
-                    html: ''
-                },
-                {
-                    xtype: 'panel',
                     itemId: 'purpose-pnl-validation-progress',
                     layout: 'fit',
                     padding: '0 0 0 50'
@@ -325,7 +314,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     onValidateNow: function (confWindow, purpose) {
         var me = this,
-            lastChecked;
+            lastChecked,
+            usagePoint = Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint;
 
         if (confWindow.down('#purpose-rdg-validation-run').getValue().validation === 'newValidation') {
             lastChecked = confWindow.down('#purpose-dtm-validation-from-date').getValue().getTime();
@@ -367,7 +357,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
         purpose.set('validationInfo', {lastChecked: lastChecked});
         purpose.getProxy().extraParams = {
-            mRID: Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint.get('mRID')
+            mRID: usagePoint.get('mRID'),
+            upVersion: usagePoint.get('version')
         };
         purpose.save({
             isNotEdit: true,
