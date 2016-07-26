@@ -319,7 +319,7 @@ public class UsagePointResource {
         try {
             usagePoint.apply(metrologyConfiguration, start, end);
         } catch (UnsatisfiedReadingTypeRequirements ex) {
-            throw new FormValidationException().addException("metrologyConfiguration", MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE);
+            throw new FormValidationException().addException("metrologyConfiguration", MessageSeeds.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE.getDefaultFormat());
         } catch (UnsatisfiedMerologyConfigurationEndDate ex) {
             throw new FormValidationException().addException("end", ex.getMessage());
         } catch (UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart | UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd ex) {
@@ -332,28 +332,29 @@ public class UsagePointResource {
 
     @GET
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    @Path("/{mRID}/metrologyconfigurationversion/{configVersionId}")
+    @Path("/{mRID}/metrologyconfigurationversion/{start}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public EffectiveMetrologyConfigurationOnUsagePointInfo getMetrologyConfigurationVersion(@PathParam("mRID") String mRID, @PathParam("configVersionId") Long configVersionId) {
+    public EffectiveMetrologyConfigurationOnUsagePointInfo getMetrologyConfigurationVersion(@PathParam("mRID") String mRID, @PathParam("start") Long start) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
-        return metrologyConfigurationInfoFactory.asInfo(usagePoint.findEffectiveMetrologyConfigurationById(configVersionId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)));
+        return metrologyConfigurationInfoFactory.asInfo(usagePoint.getEffectiveMetrologyConfigurationByStart(Instant.ofEpochMilli(start))
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)));
     }
 
     @PUT
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    @Path("/{mRID}/metrologyconfigurationversion/{configVersionId}")
+    @Path("/{mRID}/metrologyconfigurationversion/{start}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response updateMetrologyConfigurationVersion(UsagePointInfo info, @PathParam("mRID") String mRID, @PathParam("configVersionId") Long configVersionId) {
+    public Response updateMetrologyConfigurationVersion(UsagePointInfo info, @PathParam("mRID") String mRID, @PathParam("start") Long start) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
-        EffectiveMetrologyConfigurationOnUsagePoint version = usagePoint.findEffectiveMetrologyConfigurationById(configVersionId)
+        EffectiveMetrologyConfigurationOnUsagePoint version = usagePoint.getEffectiveMetrologyConfigurationByStart(Instant.ofEpochMilli(start))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        Instant start = info.metrologyConfigurationVersion.start != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.start) : null;
-        Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end) : null;
+        Instant startTime = info.metrologyConfigurationVersion.start != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.start) : null;
+        Instant endTime = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end) : null;
 
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
         try {
-            usagePoint.updateWithInterval(version, metrologyConfiguration, start, end);
+            usagePoint.updateWithInterval(version, metrologyConfiguration, startTime, endTime);
         } catch (UnsatisfiedReadingTypeRequirements ex) {
             throw new FormValidationException().addException("metrologyConfiguration", ex.getMessage());
         } catch (OverlapsOnMetrologyConfigurationVersionEnd | UnsatisfiedMerologyConfigurationEndDateInThePast | UnsatisfiedMerologyConfigurationEndDate ex) {
