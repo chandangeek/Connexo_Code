@@ -52,6 +52,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.HEAD;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
@@ -67,6 +68,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -116,11 +118,13 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private EstimationRule estimationRule;
     @Mock
-    private ReadingQualityRecord quality1, quality2, quality3;
+    private ReadingQualityRecord quality1, quality2, quality3, quality4;
     /*    @Mock
         private ReadingQualityRecord quality2;*/
     @Mock
     private ValidationRuleSet validationRuleSet;
+    @Mock
+    private ValidationRuleSetVersion validationRuleSetVersion;
     @Mock
     private EstimationRuleSet estimationRuleSet;
     @Mock
@@ -137,8 +141,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private ReadingQualityType readingQualityTypeAdded = new ReadingQualityType("2.7.1");
     private ReadingQualityType readingQualityTypeEdited = new ReadingQualityType("2.7.0");
     private ReadingQualityType readingQualityTypeRejected = new ReadingQualityType("2.7.3");
-    private ReadingQualityType readingQualityTypeConfirmed = new ReadingQualityType("2.10.1");
-    private ReadingQualityType readingQualityTypeValidated = new ReadingQualityType("2.0.1");
+    private ReadingQualityType readingQualityTypeConfirmedInMDC = new ReadingQualityType("2.10.1");
+    private ReadingQualityType readingQualityTypeConfirmedInMDM = new ReadingQualityType("3.10.1");
 
     @Before
     public void setUpStubs() {
@@ -221,7 +225,11 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         dataValidationStatus.addReadingQuality(quality1, asList(validationRule));
         dataValidationStatus.addBulkReadingQuality(quality1, asList(validationRule));
         when(quality1.getType()).thenReturn(readingQualityTypeAdded);
+        when(validationRule.getRuleSetVersion()).thenReturn(validationRuleSetVersion);
         when(validationRule.getRuleSet()).thenReturn(validationRuleSet);
+        when(validationRuleSetVersion.getId()).thenReturn(1L);
+        when(validationRuleSetVersion.getVersion()).thenReturn(1L);
+        when(validationRuleSetVersion.getRuleSet()).thenReturn(validationRuleSet);
         when(validationRuleSet.getName()).thenReturn("ruleSetName");
         doReturn(Arrays.asList(validationRule)).when(validationRuleSet).getRules();
         when(validationRule.isActive()).thenReturn(true);
@@ -231,6 +239,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(estimationRule.getId()).thenReturn(13L);
         when(estimationRule.getRuleSet()).thenReturn(estimationRuleSet);
         when(estimationRuleSet.getId()).thenReturn(15L);
+        when(estimationRuleSet.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(estimationRule.getName()).thenReturn("EstimationRule");
         ReadingQualityType readingQualityTypeEstimatedByRule = ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, (int) estimationRule.getId());
         when(quality2.getType()).thenReturn(readingQualityTypeEstimatedByRule);
@@ -238,15 +247,20 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         //add confirm quality
         dataValidationStatus.addBulkReadingQuality(quality3, Collections.emptyList());
         when(quality3.isConfirmed()).thenReturn(true);
-        when(quality3.getType()).thenReturn(readingQualityTypeConfirmed);
+        when(quality3.getType()).thenReturn(readingQualityTypeConfirmedInMDM);
+        dataValidationStatus.addBulkReadingQuality(quality4, Collections.emptyList());
+        when(quality4.isConfirmed()).thenReturn(true);
+        when(quality4.getType()).thenReturn(readingQualityTypeConfirmedInMDC);
+
 
         when(loadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, dataValidationStatus));
         when(addedLoadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, dataValidationStatus));
-        DataValidationStatus statusForBulkEdited = mockDataValidationStatus(readingQualityTypeEdited, true);
+        DataValidationStatus statusForBulkEdited = mockDataValidationStatus(true, readingQualityTypeEdited);
+
         when(editedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForBulkEdited));
-        DataValidationStatus statusForBulkConfirmed = mockDataValidationStatus(readingQualityTypeConfirmed, true);
+        DataValidationStatus statusForBulkConfirmed = mockDataValidationStatus(true, readingQualityTypeConfirmedInMDC, readingQualityTypeConfirmedInMDM);
         when(confirmedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForBulkConfirmed));
-        DataValidationStatus statusForValueRemoved = mockDataValidationStatus(readingQualityTypeRejected, false);
+        DataValidationStatus statusForValueRemoved = mockDataValidationStatus(false, readingQualityTypeRejected);
         when(removedProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel, statusForValueRemoved));
 
         when(validationService.getEvaluator()).thenReturn(evaluator);
@@ -293,17 +307,21 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         return readingQuality;
     }
 
-    private DataValidationStatus mockDataValidationStatus(ReadingQualityType readingQualityType, boolean isBulk) {
+    private DataValidationStatus mockDataValidationStatus(boolean isBulk, ReadingQualityType... readingQualityTypes) {
         DataValidationStatus status = mock(DataValidationStatus.class);
-        ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
-        when(readingQualityRecord.getType()).thenReturn(readingQualityType);
-        List<? extends ReadingQualityRecord> readingQualities = Arrays.asList(readingQualityRecord);
+        List<? extends ReadingQualityRecord> readingQualities = Arrays.asList(readingQualityTypes).stream().map(this::mockReadingQualityRecord).collect(Collectors.toList());
         if (isBulk) {
             doReturn(readingQualities).when(status).getBulkReadingQualities();
         } else {
             doReturn(readingQualities).when(status).getReadingQualities();
         }
         return status;
+    }
+
+    private ReadingQualityRecord mockReadingQualityRecord(ReadingQualityType readingQualityType) {
+        ReadingQualityRecord readingQualityRecord = mock(ReadingQualityRecord.class);
+        when(readingQualityRecord.getType()).thenReturn(readingQualityType);
+        return readingQualityRecord;
     }
 
     @Test
@@ -345,31 +363,39 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.data[0].mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
 
         assertThat(jsonModel.<String>get("$.data[0].bulkValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<Number>get("$.data[0].bulkValidationInfo.estimatedByRule")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.data[0].bulkValidationInfo.estimatedByRule")).isTrue();
 
         assertThat(jsonModel.<String>get("$.data[0].modificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[0].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
 
         assertThat(jsonModel.<String>get("$.data[1].collectedValue")).isEqualTo("201.000");
-        assertThat(jsonModel.<String>get("$.data[1].mainValidationInfo.valueModificationFlag")).isEqualTo("ADDED");
-        assertThat(jsonModel.<String>get("$.data[1].bulkValidationInfo.valueModificationFlag")).isEqualTo("ADDED");
+        assertThat(jsonModel.<String>get("$.data[1].mainValidationInfo.valueModificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
+        assertThat(jsonModel.<String>get("$.data[1].mainValidationInfo.editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[1].mainValidationInfo.editedInApp.name")).isEqualTo("MultiSense");
+        assertThat(jsonModel.<String>get("$.data[1].bulkValidationInfo.valueModificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
+        assertThat(jsonModel.<String>get("$.data[1].bulkValidationInfo.editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[1].bulkValidationInfo.editedInApp.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Long>get("$.data[1].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
         assertThat(jsonModel.<List<?>>get("$.data[1].readingQualities")).hasSize(0);
 
         assertThat(jsonModel.<String>get("$.data[2].collectedValue")).isEqualTo("202.000");
         assertThat(jsonModel.<String>get("$.data[2].mainValidationInfo.valueModificationFlag")).isNull();
-        assertThat(jsonModel.<String>get("$.data[2].bulkValidationInfo.valueModificationFlag")).isEqualTo("EDITED");
+        assertThat(jsonModel.<String>get("$.data[2].bulkValidationInfo.valueModificationFlag")).isEqualTo(ReadingModificationFlag.EDITED.name());
+        assertThat(jsonModel.<String>get("$.data[2].bulkValidationInfo.editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[2].bulkValidationInfo.editedInApp.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<Long>get("$.data[2].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
         assertThat(jsonModel.<List<?>>get("$.data[2].readingQualities")).hasSize(0);
 
         assertThat(jsonModel.<String>get("$.data[3].value")).isNull();
         assertThat(jsonModel.<String>get("$.data[3].mainValidationInfo.valueModificationFlag")).isEqualTo("REMOVED");
+        assertThat(jsonModel.<String>get("$.data[3].mainValidationInfo.editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.data[3].mainValidationInfo.editedInApp.name")).isEqualTo("MultiSense");
         assertThat(jsonModel.<String>get("$.data[3].bulkValidationInfo.valueModificationFlag")).isNull();
         assertThat(jsonModel.<Long>get("$.data[3].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
         assertThat(jsonModel.<List<?>>get("$.data[3].readingQualities")).hasSize(0);
 
-        assertThat(jsonModel.<Boolean>get("$.data[4].mainValidationInfo.isConfirmed")).isEqualTo(false);
-        assertThat(jsonModel.<Boolean>get("$.data[4].bulkValidationInfo.isConfirmed")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.data[4].mainValidationInfo.isConfirmed")).isFalse();
+        assertThat(jsonModel.<Boolean>get("$.data[4].bulkValidationInfo.isConfirmed")).isTrue();
         assertThat(jsonModel.<Long>get("$.data[4].reportedDateTime")).isEqualTo(LAST_READING.toEpochMilli());
         assertThat(jsonModel.<List<?>>get("$.data[4].readingQualities")).hasSize(0);
 
@@ -789,4 +815,94 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
+    @Test
+    public void testChannelReadingEstimationInfoAboutApplication() {
+        Instant readingStart = Instant.ofEpochMilli(1410827730000L);
+        Instant readingEnd = Instant.ofEpochMilli(1410828630000L);
+
+        Range<Instant> interval = Ranges.openClosed(readingStart, readingEnd);
+        when(channel.getChannelData(interval)).thenReturn(Collections.singletonList(loadProfileReading));
+
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data/" + readingEnd.toEpochMilli() + "/validation").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.id")).isEqualTo(((Long)estimationRule.getId()).intValue());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.name")).isEqualTo(estimationRule.getName());
+        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(((Long)estimationRule.getRuleSet().getId()).intValue());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.application.name")).isEqualTo("MultiSense");
+    }
+
+    @Test
+    public void testChannelReadingConfirmedInfoAboutApplication() {
+        Instant readingStart = Instant.ofEpochMilli(1410827730000L);
+        Instant readingEnd = Instant.ofEpochMilli(1410828630000L);
+
+        Range<Instant> interval = Ranges.openClosed(readingStart, readingEnd);
+        when(channel.getChannelData(interval)).thenReturn(Collections.singletonList(confirmedProfileReading));
+
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data/" + readingEnd.toEpochMilli() + "/validation").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<Boolean>get("$.mainValidationInfo.isConfirmed")).isFalse();
+        assertThat(jsonModel.<Boolean>get("$.bulkValidationInfo.isConfirmed")).isTrue();
+        assertThat(jsonModel.<List<String>>get("$.bulkValidationInfo.confirmedInApps[*].id")).contains(QualityCodeSystem.MDM.name(), QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<List<String>>get("$.bulkValidationInfo.confirmedInApps[*].name")).contains("Insight", "MultiSense");
+    }
+
+    @Test
+    public void testChannelReadingAddedInfoAboutApplication() {
+        Instant readingStart = Instant.ofEpochMilli(1410827730000L);
+        Instant readingEnd = Instant.ofEpochMilli(1410828630000L);
+
+        Range<Instant> interval = Ranges.openClosed(readingStart, readingEnd);
+        when(channel.getChannelData(interval)).thenReturn(Collections.singletonList(addedLoadProfileReading));
+
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data/" + readingEnd.toEpochMilli() + "/validation").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<String>get("$.mainValidationInfo.valueModificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
+        assertThat(jsonModel.<String>get("$.mainValidationInfo.editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.mainValidationInfo.editedInApp.name")).isEqualTo("MultiSense");
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.valueModificationFlag")).isEqualTo(ReadingModificationFlag.ADDED.name());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.editedInApp.name")).isEqualTo("MultiSense");
+    }
+
+    @Test
+    public void testChannelReadingEditedInfoAboutApplication() {
+        Instant readingStart = Instant.ofEpochMilli(1410827730000L);
+        Instant readingEnd = Instant.ofEpochMilli(1410828630000L);
+
+        Range<Instant> interval = Ranges.openClosed(readingStart, readingEnd);
+        when(channel.getChannelData(interval)).thenReturn(Collections.singletonList(editedProfileReading));
+
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data/" + readingEnd.toEpochMilli() + "/validation").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.valueModificationFlag")).isEqualTo(ReadingModificationFlag.EDITED.name());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.bulkValidationInfo.editedInApp.name")).isEqualTo("MultiSense");
+    }
+
+    @Test
+    public void testChannelReadingRemovedInfoAboutApplication() {
+        Instant readingStart = Instant.ofEpochMilli(1410827730000L);
+        Instant readingEnd = Instant.ofEpochMilli(1410828630000L);
+
+        Range<Instant> interval = Ranges.openClosed(readingStart, readingEnd);
+        when(channel.getChannelData(interval)).thenReturn(Collections.singletonList(removedProfileReading));
+
+        String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data/" + readingEnd.toEpochMilli() + "/validation").request().get(String.class);
+
+        JsonModel jsonModel = JsonModel.create(json);
+
+        assertThat(jsonModel.<String>get("$.mainValidationInfo.valueModificationFlag")).isEqualTo(ReadingModificationFlag.REMOVED.name());
+        assertThat(jsonModel.<String>get("$.mainValidationInfo.editedInApp.id")).isEqualTo(QualityCodeSystem.MDC.name());
+        assertThat(jsonModel.<String>get("$.mainValidationInfo.editedInApp.name")).isEqualTo("MultiSense");
+    }
 }
