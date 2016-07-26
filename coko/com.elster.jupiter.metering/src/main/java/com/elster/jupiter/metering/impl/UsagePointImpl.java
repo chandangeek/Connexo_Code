@@ -439,6 +439,14 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
+    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationByStart(Instant start) {
+        return this.metrologyConfigurations.stream()
+                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
+                .filter(emc -> emc.getStart().equals(start))
+                .findFirst();
+    }
+
+    @Override
     public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getCurrentEffectiveMetrologyConfiguration() {
         return this.metrologyConfigurations.stream()
                 .filter(emc -> !emc.getStart().equals(emc.getEnd()))
@@ -469,9 +477,6 @@ public class UsagePointImpl implements UsagePoint {
         Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
         Long startDate = start.toEpochMilli();
         Long endDate = end != null ? end.toEpochMilli() : null;
-
-        basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
-
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> latest = this.getEffectiveMetrologyConfigurations().stream()
                 .sorted((m1, m2) -> -m1.getStart().compareTo(m2.getStart())).findFirst();
         if (latest.isPresent()) {
@@ -490,6 +495,7 @@ public class UsagePointImpl implements UsagePoint {
                 latest.get().close(start);
             }
         }
+        basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
         EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfigurationOnUsagePoint = this.dataModel
                 .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
                 .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate)));
@@ -505,7 +511,6 @@ public class UsagePointImpl implements UsagePoint {
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getStart)
                 .orElse(null);
 
-        basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
         if (end != null && metrologyConfigurationVersion.getStart().equals(startTimeOfCurrent) && end.isBefore(this.clock.instant())) {
             throw new UnsatisfiedMerologyConfigurationEndDateInThePast(thesaurus);
         }
@@ -521,6 +526,7 @@ public class UsagePointImpl implements UsagePoint {
         } else {
             endDate = null;
         }
+        basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
         EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfigurationOnUsagePoint = this.dataModel
                 .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
                 .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), endDate)));
