@@ -36,6 +36,7 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -309,6 +310,10 @@ public class CopyTest {
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.WATTHOUR);
         when(readingType.getMultiplier()).thenReturn(MetricMultiplier.ZERO);
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
+
+        ServerExpressionNode serverExpressionNode = mock(ServerExpressionNode.class);
+        when(serverExpressionNode.accept(any(RequirementsFromExpressionNode.class))).thenReturn(new ArrayList<VirtualRequirementNode>());
+
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
         FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
         Dimension dimension = readingType.getUnit().getUnit().getDimension();
@@ -330,7 +335,7 @@ public class CopyTest {
                         readingTypeDeliverable,
                         this.meterActivationSet,
                         1,
-                        mock(ServerExpressionNode.class),
+                        serverExpressionNode,
                         VirtualReadingType.from(readingType));
         when(this.readingTypeDeliverableForMeterActivationSetProvider.from(readingTypeDeliverable, this.meterActivationSet)).thenReturn(readingTypeDeliverableForMeterActivationSet);
 

@@ -1,6 +1,8 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.readings.BaseReading;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -16,7 +18,12 @@ public interface ReadingStorer {
 
     boolean overrules();
 
-    void execute();
+    /**
+     * Stores the readings.
+     *
+     * @param system {@link QualityCodeSystem} that handles storage.
+     */
+    void execute(QualityCodeSystem system);
 
     void addReading(CimChannel channel, BaseReading reading);
 

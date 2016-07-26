@@ -60,6 +60,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -161,7 +162,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             bind(LicenseService.class).to(LicenseServiceImpl.class).in(Scopes.SINGLETON);
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(SearchService.class).toInstance(mockSearchService());
             bind(UpgradeService.class).toInstance(new UpgradeModule.FakeUpgradeService());
         }
     }
@@ -294,12 +295,21 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
 
     private void initializeSqlBuilders() {
         when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
-        when(clauseAwareSqlBuilder.with(matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + ".*"), any(Optional.class), anyVararg())).thenReturn(this.antennaPowerPropertyWithClauseBuilder);
-        when(clauseAwareSqlBuilder.with(matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName().hashCode()) + ".*"), any(Optional.class), anyVararg())).thenReturn(this.antennaCountPropertyWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName()
+                .hashCode()) + ".*"), any(Optional.class), anyVararg())).thenReturn(this.antennaPowerPropertyWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName()
+                .hashCode()) + ".*"), any(Optional.class), anyVararg())).thenReturn(this.antennaCountPropertyWithClauseBuilder);
         when(clauseAwareSqlBuilder.with(matches("rid" + this.localPowerRequirementId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.localPowerWithClauseBuilder);
         when(clauseAwareSqlBuilder.with(matches("rod" + this.netConsumptionDeliverableId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.netConsumptionWithClauseBuilder);
         when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
         when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
+    }
+
+    private static SearchService mockSearchService() {
+        SearchService searchService = mock(SearchService.class);
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchService.findDomain(any())).thenReturn(Optional.of(searchDomain));
+        return searchService;
     }
 
     @After
@@ -374,15 +384,15 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName().hashCode()) + "_\\d*"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName().hashCode()) + "_\\d*"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(this.antennaCountPropertyWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_\\d*"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_\\d*"),
+                            any(Optional.class),
+                            anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
             assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
                     .toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
@@ -392,12 +402,15 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                             any(Optional.class),
                             anyVararg());
             String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
-            assertThat(netConsumptionSql).matches(".*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName().hashCode()) + "_1\\.value \\* cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1\\.value.*");
+            assertThat(netConsumptionSql).matches(".*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName()
+                    .hashCode()) + "_1\\.value \\* cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1\\.value.*");
             // Assert that the with clauses for both properties are joined on the utc timestamp
             assertThat(netConsumptionSql)
                     .matches("SELECT.*FROM\\s*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1\\s*JOIN.*");
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName().hashCode()) + "_1\\s*ON\\s*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName().hashCode()) + "\\_1.starttime < cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1.timestamp.*");
+                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName()
+                            .hashCode()) + "_1\\s*ON\\s*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.COUNT.javaName()
+                            .hashCode()) + "\\_1.starttime < cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1.timestamp.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
@@ -476,9 +489,9 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_\\d*"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_\\d*"),
+                            any(Optional.class),
+                            anyVararg());
             String propertySql = this.antennaPowerPropertyWithClauseBuilder.getText().replace("\n", " ").toLowerCase();
             assertThat(propertySql).matches(".*\\(select cps." + AntennaFields.POWER.databaseName()
                     .toLowerCase() + " as value, cps.starttime, cps.endtime from \\(select " + AntennaFields.POWER.databaseName().toLowerCase() + ", starttime, endtime from tst_antenna.*cps\\)");
@@ -488,12 +501,16 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
                             any(Optional.class),
                             anyVararg());
             String netConsumptionSql = this.netConsumptionWithClauseBuilder.getText().replace("\n", " ");
-            assertThat(netConsumptionSql).matches(".*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value \\+ cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1\\.value.*");
+            assertThat(netConsumptionSql).matches(".*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\.value \\+ cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER
+                    .javaName()
+                    .hashCode()) + "_1\\.value.*");
             // Assert that the with clauses for both properties are joined on the utc timestamp
             assertThat(netConsumptionSql)
                     .matches("SELECT.*FROM\\s*rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1\\s*JOIN.*");
             assertThat(netConsumptionSql)
-                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1\\s*ON\\s*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName().hashCode()) + "_1\\.starttime < rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1.timestamp.*");
+                    .matches("SELECT.*JOIN\\s*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName()
+                            .hashCode()) + "_1\\s*ON\\s*cps" + this.customPropertySetId + "_" + Math.abs(AntennaFields.POWER.javaName()
+                            .hashCode()) + "_1\\.starttime < rid" + this.localPowerRequirementId + "_" + this.netConsumptionDeliverableId + "_1.timestamp.*");
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
