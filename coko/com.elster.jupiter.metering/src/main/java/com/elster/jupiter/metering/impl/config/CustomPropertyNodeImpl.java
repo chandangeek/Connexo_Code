@@ -78,4 +78,9 @@ public class CustomPropertyNodeImpl extends AbstractNode implements CustomProper
         return visitor.visitProperty(this);
     }
 
+    @Override
+    public String toString() {
+        return this.getPropertySpec().getDisplayName();
+    }
+
 }

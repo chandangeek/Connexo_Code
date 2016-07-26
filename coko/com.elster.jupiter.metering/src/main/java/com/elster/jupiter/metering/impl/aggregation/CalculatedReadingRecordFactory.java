@@ -1,8 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.impl.IReadingType;
 
 import java.sql.ResultSet;
 import java.util.List;

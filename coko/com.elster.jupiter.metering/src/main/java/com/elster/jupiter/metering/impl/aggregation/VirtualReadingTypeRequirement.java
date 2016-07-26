@@ -68,7 +68,7 @@ class VirtualReadingTypeRequirement {
         return "rid" + this.requirement.getId() + "_" + this.deliverable.getId() + "_" + this.meterActivationSequenceNumber;
     }
 
-    String tempSqlName () {
+    String tempSqlName() {
         return "temp" + this.requirement.getId() + "_" + this.deliverable.getId() + "_" + this.meterActivationSequenceNumber;
     }
 

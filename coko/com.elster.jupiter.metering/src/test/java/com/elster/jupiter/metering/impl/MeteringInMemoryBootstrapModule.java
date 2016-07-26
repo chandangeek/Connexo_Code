@@ -11,6 +11,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
@@ -47,8 +48,10 @@ import org.osgi.service.event.EventAdmin;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MeteringInMemoryBootstrapModule {
     private final Clock clock;
@@ -199,12 +202,19 @@ public class MeteringInMemoryBootstrapModule {
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-            bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(LicenseService.class).toInstance(mockLicenseService());
             if (customPropertySetService != null) {
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             }
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
+    }
+
+    private LicenseService mockLicenseService() {
+        LicenseService licenseService = mock(LicenseService.class);
+        License license = mock(License.class);
+        when(licenseService.getLicenseForApplication("INS")).thenReturn(Optional.of(license));
+        return licenseService;
     }
 
 }
