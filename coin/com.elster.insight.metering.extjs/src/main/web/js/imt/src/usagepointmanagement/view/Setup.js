@@ -116,18 +116,23 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                         router: me.router
                     }
                 ]
-            },
-            {
-                xtype: 'data-completion-widget',
-                itemId: 'data-completion-widget',
-                title: Uni.I18n.translate('general.dataCompletion', 'IMT', 'Data Completion'),
-                ui: 'tile2',
-                flex: 1,
-                router: me.router,
-                usagePoint: me.usagePoint,
-                purposes: me.purposes
             }
         ];
+
+        if (me.purposes.length) {
+            me.content.push(
+                {
+                    xtype: 'data-completion-widget',
+                    itemId: 'data-completion-widget',
+                    title: Uni.I18n.translate('general.dataCompletion', 'IMT', 'Data completion'),
+                    ui: 'tile2',
+                    flex: 1,
+                    router: me.router,
+                    usagePoint: me.usagePoint,
+                    purposes: me.purposes
+                }
+            )
+        }
 
         me.side = [
             {

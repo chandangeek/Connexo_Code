@@ -10,7 +10,8 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
 
     requires: [
         'Ext.chart.Chart',
-        'Ext.chart.series.Pie'
+        'Ext.chart.series.Pie',
+        'Imt.purpose.view.NoReadingsFoundPanel'
     ],
 
     config: {
@@ -19,8 +20,11 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
         router: null
     },
 
-    titleAlign: 'center',
+    titleAlign: 'left',
     header: {
+        style: {
+            marginLeft: '55px'
+        },
         htmlEncode: false
     },
 
@@ -33,83 +37,109 @@ Ext.define('Imt.usagepointmanagement.view.widget.OutputKpi', {
                 purposeId: purpose.getId(),
                 outputId: output.getId()
             }),
-            data = []
-            ;
-
-        output.get('statistics').map(function(item) {
-            var queryParams = {};
-            queryParams[item.key] = true;
-            data.push({
-                name: item.displayName,
-                data: item.count,
-                url: router.getRoute('usagepoints/view/purpose/output').buildUrl({
-                    purposeId: purpose.id,
-                    outputId: output.getId(),
-                    tab: 'registers'
-                }, queryParams)
-            });
-        });
-
-        var store = Ext.create('Ext.data.JsonStore', {
-            fields: ['name', 'data', 'url'],
-            data: data
-        });
+            data = [],
+            total = output.get('total');
 
         me.title = '<a href="' + url + '">'
             + Ext.String.htmlEncode(output.get('name'))
             + '</a>';
+        
+        if (output.get('statistics').length) {
+            output.get('statistics').map(function(item) {
+                var queryParams = {},
+                    percentageUrl;
 
-        //there is no possibility to display HTML inside of legend, so legend is separated from chart
-        me.items = [{
-            xtype: 'chart',
-            width: 180,
-            height: 150,
-            animate: false,
-            //legend: {
-            //    position: 'right',
-            //    boxStrokeWidth: 0
-            //},
-            shadow: false,
-            store: store,
-            theme: 'Base',
-            series: [{
-                type: 'pie',
-                angleField: 'data',
-                //showInLegend: true,
-                tips: {
-                    trackMouse: true,
-                    //width: 140,
-                    //height: 28,
-                    renderer: function(storeItem, item) {
-                        // calculate and display percentage on hover
-                        var total = 0;
-                        store.each(function(rec) {
-                            total += rec.get('data');
-                        });
-                        this.setTitle(storeItem.get('name') + ': ' + Math.round(storeItem.get('data') / total * 100) + '%');
-                    }
-                },
-                highlight: {
-                    opacity: 0.6,
-                    segment: {
-                        margin: 4
-                    }
+                if (item.key == 'statisticsSuspect' || item.key == 'statisticsMissing') {
+                    percentageUrl = router.getRoute('usagepoints/view/purpose/output').buildUrl({
+                        purposeId: purpose.getId(),
+                        outputId: output.getId()
+                    }, queryParams);
                 }
+                data.push({
+                    name: item.displayName,
+                    key: item.key,
+                    data: item.count,
+                    url: percentageUrl,
+                    percentage: Math.round(item.count / total * 100) + '%'
+                });
+            });
+
+            var store = Ext.create('Ext.data.JsonStore', {
+                fields: ['name', 'key', 'data', 'url', 'percentage'],
+                data: data
+            });
+
+            //there is no possibility to display HTML inside of legend, so legend is separated from chart
+            me.items = [{
+                xtype: 'chart',
+                width: 230,
+                height: 200,
+                animate: false,
+                shadow: false,
+                store: store,
+                theme: 'Base',
+                series: [{
+                    type: 'pie',
+                    angleField: 'data',
+                    tips: {
+                        bodyPadding: -10,
+                        trackMouse: true,
+                        showDelay: 0,
+                        hideDelay: 0,
+                        renderer: function(storeItem) {
+                            this.setTitle(storeItem.get('percentage') + ' ' + storeItem.get('name').toLowerCase());
+                        }
+                    },
+                    renderer: function (sprite, record, attributes) {
+                        var color;
+                        switch (record.get('key')) {
+                            case 'statisticsSuspect':
+                                color = 'rgba(235, 86, 66, 1)';
+                                break;
+                            case 'statisticsValid':
+                                color = '#70BB51';
+                                break;
+                            case 'statisticsNotValidated':
+                                color = '#71adc7';
+                                break;
+                            case 'statisticsMissing':
+                                color = 'rgba(235, 86, 66, 0.3)';
+                                break;
+                        }
+                        return Ext.apply(attributes, {
+                            fill: color
+                        });
+                    },
+                    highlight: {
+                        opacity: 0.6,
+                        segment: {
+                            margin: 4
+                        }
+                    }
+                }]
+            }, {
+                xtype: 'dataview',
+                store: store,
+                itemSelector: 'tr.trlegend',
+                tpl: new Ext.XTemplate(
+                    '<table>',
+                    '<tpl for=".">',
+                    '<tr class="trlegend"><td style="text-align: right"><b>{name}</b></td><td style="vertical-align: top">&nbsp;&nbsp;' +
+                    '<tpl if="url"><a href="{url}">{percentage}</a>' +
+                    '<tpl else>{percentage}</tpl>' +
+                    '</td></tr>',
+                    '</tpl>',
+                    '</table>'
+                )
+            }];
+        } else {
+            me.items = [{
+                xtype: 'no-readings-found-panel',
+                itemId: 'up-no-readings-found-panel',
+                margin: '0 20 0 20'
             }]
-        }, {
-            xtype: 'dataview',
-            store: store,
-            itemSelector: 'div.legend',
-            tpl: new Ext.XTemplate(
-                '<tpl for=".">',
-                    '<div class="legend">',
-                        '<b>{name}</b>: <a href="{url}">{data}</a>',
-                    '</div>',
-                '</tpl>'
-            )
-        }];
+        }
 
         this.callParent(arguments);
     }
-
 });

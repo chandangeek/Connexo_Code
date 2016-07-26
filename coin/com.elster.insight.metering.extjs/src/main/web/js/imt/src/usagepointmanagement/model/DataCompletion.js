@@ -4,6 +4,7 @@ Ext.define('Imt.usagepointmanagement.model.DataCompletion', {
     fields: [
         {name: 'id', type: 'int'},
         {name: 'name', type: 'string'},
-        {name: 'statistics', type: 'auto', useNull: true}
+        {name: 'statistics', type: 'auto', useNull: true},        
+        {name: 'total', type: 'int'}
     ]
 });
