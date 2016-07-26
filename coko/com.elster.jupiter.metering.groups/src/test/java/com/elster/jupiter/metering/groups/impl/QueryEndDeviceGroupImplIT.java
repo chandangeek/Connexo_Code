@@ -21,7 +21,6 @@ import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.SearchDomain;
@@ -167,7 +166,7 @@ public class QueryEndDeviceGroupImplIT {
             assertThat(endDeviceGroup.getName()).isEqualTo("QueryEndDeviceGroup");
             assertThat(endDeviceGroup.getMRID()).isEqualTo("MRID");
             assertThat(endDeviceGroup.isDynamic()).isTrue();
-            assertThat(endDeviceGroup.getSearchDomain()).isEqualTo(searchDomain);
+            assertThat(endDeviceGroup.getSearchDomain().getId()).isEqualTo(searchDomain.getId());
             List<QueryEndDeviceGroupCondition> conditions = endDeviceGroup.getConditions();
             assertThat(conditions).hasSize(2);
 
@@ -235,7 +234,7 @@ public class QueryEndDeviceGroupImplIT {
             assertThat(endDeviceGroup.getName()).isEqualTo("QueryEndDeviceGroupV2");
             assertThat(endDeviceGroup.getMRID()).isEqualTo("MRID:V2");
             assertThat(endDeviceGroup.isDynamic()).isTrue();
-            assertThat(endDeviceGroup.getSearchDomain()).isEqualTo(searchDomain);
+            assertThat(endDeviceGroup.getSearchDomain().getId()).isEqualTo(searchDomain.getId());
             List<QueryEndDeviceGroupCondition> conditions = endDeviceGroup.getConditions();
             assertThat(conditions).hasSize(1);
 
