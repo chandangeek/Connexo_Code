@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
@@ -23,7 +24,7 @@ import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 public enum TableSpecs {
     SCS_SERVICE_CALL_LIFECYCLE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, SqlDialect sqlDialect) {
             Table<ServiceCallLifeCycle> table = dataModel.addTable(name(), ServiceCallLifeCycle.class);
             table.map(ServiceCallLifeCycleImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -44,7 +45,7 @@ public enum TableSpecs {
 
     SCS_SERVICE_CALL_TYPE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, SqlDialect sqlDialect) {
             Table<IServiceCallType> table = dataModel.addTable(name(), IServiceCallType.class);
             table.alsoReferredToAs(ServiceCallType.class);
             table.map(ServiceCallTypeImpl.class);
@@ -92,7 +93,7 @@ public enum TableSpecs {
     },
     SCS_CPS_USAGE {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, SqlDialect sqlDialect) {
             Table<ServiceCallTypeCustomPropertySetUsage> table = dataModel.addTable(name(), ServiceCallTypeCustomPropertySetUsage.class);
             table.map(ServiceCallTypeCustomPropertySetUsageImpl.class);
             Column serviceCallType = table.column("SERVICECALLTYPE").number().notNull().add();
@@ -116,7 +117,7 @@ public enum TableSpecs {
     },
     SCS_SERVICE_CALL {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, SqlDialect sqlDialect) {
             Table<ServiceCall> table = dataModel.addTable(name(), ServiceCall.class);
             table.map(ServiceCallImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -139,7 +140,7 @@ public enum TableSpecs {
                     .add();
             table.column("REFERENCE")
                     .varChar(NAME_LENGTH)
-                    .as("'SC_'||lpad(to_char(ID)," + ServiceCallImpl.ZEROFILL_SIZE + ",'0')")
+                    .as("'SC_'||" + sqlDialect.leftPad("ID", ServiceCallImpl.ZEROFILL_SIZE, "0") + ")")
                     .alias("internalReference")
                     .add();
             table.addRefAnyColumns("TARGET", false, ServiceCallImpl.Fields.targetObject.fieldName());
@@ -167,7 +168,7 @@ public enum TableSpecs {
     },
     SCS_SERVICE_CALL_LOG {
         @Override
-        public void addTo(DataModel dataModel) {
+        public void addTo(DataModel dataModel, SqlDialect sqlDialect) {
             Table<ServiceCallLog> table = dataModel.addTable(name(), ServiceCallLog.class);
             table.map(ServiceCallLogImpl.class);
             Column idColumn = table.addAutoIdColumn();
@@ -205,6 +206,6 @@ public enum TableSpecs {
         }
     };
 
-    public abstract void addTo(DataModel component);
+    public abstract void addTo(DataModel component, SqlDialect sqlDialect);
 
 }
