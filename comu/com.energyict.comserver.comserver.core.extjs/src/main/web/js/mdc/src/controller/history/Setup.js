@@ -2261,7 +2261,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         privileges: Mdc.privileges.UsagePoint.canAdmin()
                                     },
                                     editmetrologyconfigurationversion: {
-                                        route: 'metrologyconfigurationversion/{id}/edit',
+                                        route: 'metrologyconfigurationversion/{start}/edit',
                                         title: Uni.I18n.translate('general.editMcVersion', 'MDC', 'Edit metrology configuration version'),
                                         controller: 'Mdc.usagepointmanagement.controller.UsagePointHistory',
                                         action: 'showEditVersion',

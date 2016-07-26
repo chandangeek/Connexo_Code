@@ -159,7 +159,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
     editMetrologyConfigurationVersion: function (menu, item) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-        router.getRoute('usagepoints/usagepoint/history/editmetrologyconfigurationversion').forward({mRID: menu.usagePoint.get('mRID'), id: menu.record.get('id')});
+        router.getRoute('usagepoints/usagepoint/history/editmetrologyconfigurationversion').forward({mRID: menu.usagePoint.get('mRID'), start: menu.record.get('start')});
     },
 
     showMetrologyConfigurationHistory: function (tab) {
@@ -237,7 +237,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
 
     },
 
-    showEditVersion: function (mRID, tabname, id) {
+    showEditVersion: function (mRID, tabname, start) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Mdc.usagepointmanagement.model.UsagePoint'),
@@ -245,29 +245,30 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
             usagePointWithVersionModel = me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
             availableConfigs = me.getStore('Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations');
 
-            pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
+
+        pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
         pageMainContent.setLoading(true);
         usagePointModel.load(mRID, {
             success: function (usagePoint) {
                 me.usagePoint = usagePoint;
-                versionRecord.getProxy().setUrl(usagePoint.get('mRID'));
-                versionRecord.load(id, {
-                    success: function (record) {
-                        if (record.get('editable') || record.get('current')) {
-                            availableConfigs.getProxy().setUrl(usagePoint.get('mRID'));
-                            availableConfigs.load({
-                                callback: function () {
+                availableConfigs.getProxy().setUrl(usagePoint.get('mRID'));
+                availableConfigs.load({
+                    callback: function (store) {
+                        versionRecord.getProxy().setUrl(usagePoint.get('mRID'));
+                        versionRecord.load(start, {
+                            success: function (record) {
+                                if (record.get('editable') || record.get('current')) {
                                     var widget = Ext.widget('add-metrology-configuration-version', {router: router, edit: true});
                                     me.getApplication().fireEvent('changecontentevent', widget);
                                     widget.loadRecordToForm(record);
                                     me.versionRecord = record;
                                     pageMainContent.setLoading(false);
+                                } else {
+                                    pageMainContent.setLoading(false);
+                                    window.location.replace(router.getRoute('error').buildUrl())
                                 }
-                            });
-                        } else {
-                            pageMainContent.setLoading(false);
-                            window.location.replace(router.getRoute('error').buildUrl())
-                        }
+                            }
+                        });
                     }
                 });
             }
@@ -347,7 +348,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                     }
                 });
             } else if (btn.action == 'edit') {
-                var url = usagePointWithVersionModel.getProxy().url + '/' + versionRecord.get('id');
+                var url = usagePointWithVersionModel.getProxy().url + '/' + router.arguments.start;
 
                 Ext.Ajax.request({
                     url: url,
