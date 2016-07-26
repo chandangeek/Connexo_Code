@@ -73,6 +73,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationPurposeDetails
 
         formulaComponentsContainer.removeAll();
         formulaComponentsContainer.add(formulaComponents);
+        formulaComponentsContainer.setVisible(!!formulaComponents.length);
         Ext.resumeLayouts(true);
 
         me.callParent(arguments);
