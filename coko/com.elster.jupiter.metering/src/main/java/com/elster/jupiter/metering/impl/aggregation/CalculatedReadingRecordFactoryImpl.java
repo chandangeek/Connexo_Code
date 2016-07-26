@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.IReadingType;
@@ -63,7 +62,7 @@ public class CalculatedReadingRecordFactoryImpl implements CalculatedReadingReco
         return (IReadingType) meteringService.getReadingType(mRID).get();
     }
 
-    private BiFunction<? super String, ? super List<CalculatedReadingRecord>, ? extends List<CalculatedReadingRecord>> createOrUpdate(ResultSet resultSet,Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
+    private BiFunction<? super String, ? super List<CalculatedReadingRecord>, ? extends List<CalculatedReadingRecord>> createOrUpdate(ResultSet resultSet, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
         return (mRID, readingRecords) -> readingRecords == null ? this.newListFrom(resultSet, deliverablesPerMeterActivation) : this.addToList(resultSet, readingRecords, deliverablesPerMeterActivation);
     }
 

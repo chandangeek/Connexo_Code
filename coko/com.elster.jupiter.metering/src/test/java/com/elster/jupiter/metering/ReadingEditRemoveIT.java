@@ -163,7 +163,7 @@ public class ReadingEditRemoveIT {
         }
         Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().get(0);
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
-        assertQualities(channel, existDate, new ReadingQualityType[] {
+        assertQualities(channel, existDate, new ReadingQualityType[]{
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT),
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ZEROUSAGE)
         }, new ReadingQualityType[0]);
@@ -192,16 +192,16 @@ public class ReadingEditRemoveIT {
             ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
             channel.editReadings(QualityCodeSystem.MDC, ImmutableList.of(reading1, reading2));
             // existDate qualities
-            assertQualities(channel, existDate, new ReadingQualityType[] {
+            assertQualities(channel, existDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ZEROUSAGE),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED)
             });
             // newDate qualities
-            assertQualities(channel, newDate, new ReadingQualityType[] {
+            assertQualities(channel, newDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
@@ -220,9 +220,9 @@ public class ReadingEditRemoveIT {
         try (TransactionContext ctx = transactionService.getContext()) {
             ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(3), newDate);
             channel.editReadings(QualityCodeSystem.MDM, ImmutableList.of(reading2));
-            assertQualities(channel, newDate, new ReadingQualityType[] {
+            assertQualities(channel, newDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
@@ -240,12 +240,12 @@ public class ReadingEditRemoveIT {
             BaseReadingRecord reading1 = channel.getReading(existDate).get();
             BaseReadingRecord reading2 = channel.getReading(newDate).get();
             channel.removeReadings(QualityCodeSystem.MDM, ImmutableList.of(reading1));
-            assertQualities(channel, existDate, new ReadingQualityType[] {
+            assertQualities(channel, existDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.REJECTED)
             }, new ReadingQualityType[0]);
             assertThat(channel.getReading(existDate)).isEmpty();
             channel.removeReadings(QualityCodeSystem.MDC, ImmutableList.of(reading2));
-            assertQualities(channel, newDate, new ReadingQualityType[] {
+            assertQualities(channel, newDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.REJECTED)
             }, new ReadingQualityType[0]);
             assertThat(channel.getReading(newDate)).isEmpty();

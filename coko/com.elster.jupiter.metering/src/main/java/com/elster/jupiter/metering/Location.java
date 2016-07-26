@@ -11,5 +11,6 @@ public interface Location {
     long getId();
     List<? extends LocationMember> getMembers();
     Optional<LocationMember> getMember(String locale);
+
     List<List<String>> format();
 }
