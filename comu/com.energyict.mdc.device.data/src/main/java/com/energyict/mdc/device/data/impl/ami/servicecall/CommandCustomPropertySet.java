@@ -42,7 +42,7 @@ public class CommandCustomPropertySet implements CustomPropertySet<ServiceCall, 
     public static final String CUSTOM_PROPERTY_SET_NAME = "CommandCustomPropertySet";
 
     private volatile Thesaurus thesaurus;
-    public volatile PropertySpecService propertySpecService;
+    private volatile PropertySpecService propertySpecService;
 
     public CommandCustomPropertySet() {
     }
