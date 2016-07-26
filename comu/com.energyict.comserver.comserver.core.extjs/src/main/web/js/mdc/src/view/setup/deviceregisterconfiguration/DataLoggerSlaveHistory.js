@@ -23,7 +23,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.DataLoggerSlaveHistory', 
                     xtype: 'form',
                     items: {
                         xtype: 'uni-form-empty-message',
-                        text: Uni.I18n.translate('dataLoggerSlaveHistory.empty', 'MDC', 'No data logger slave history available')
+                        text: Uni.I18n.translate('dataLoggerSlaveHistory.empty', 'MDC', 'No data logger slave history available.')
                     }
                 }
             ];
