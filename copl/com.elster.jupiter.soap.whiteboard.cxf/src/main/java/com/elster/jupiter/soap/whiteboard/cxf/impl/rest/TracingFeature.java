@@ -34,11 +34,9 @@ public class TracingFeature implements Feature {
         }
         try {
             Logger logger = Logger.getLogger(endPointConfiguration.getName());
-            if (logger.getHandlers().length == 0) {
-                fileHandler = new FileHandler(logDirectory + endPointConfiguration.getTraceFile(), true);
-                fileHandler.setFormatter(new SimpleFormatter());
-                logger.addHandler(fileHandler);
-            }
+            fileHandler = new FileHandler(logDirectory + endPointConfiguration.getTraceFile(), true);
+            fileHandler.setFormatter(new SimpleFormatter());
+            logger.addHandler(fileHandler);
             logger.setUseParentHandlers(false);
             featureContext.register(new LoggingFilter(logger, true));
             return true;
@@ -50,7 +48,9 @@ public class TracingFeature implements Feature {
 
     public void close() {
         if (fileHandler != null) {
-            fileHandler.close();
+            Logger logger = Logger.getLogger(endPointConfiguration.getName());
+            logger.removeHandler(fileHandler);
+            fileHandler.close(); // removes file lock
         }
     }
 
