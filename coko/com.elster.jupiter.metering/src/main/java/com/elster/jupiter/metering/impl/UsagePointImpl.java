@@ -544,7 +544,8 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     private void basicCheckEffectiveMetrologyConfiguration(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
-        List<MeterActivation> meterActivations = this.getMeterActivations(start);
+        Range range = end == null ? Range.atLeast(start) : Range.closedOpen(start, end);
+        List<MeterActivation> meterActivations = this.getMeterActivations(range);
         if (end != null && (end.isBefore(start) || end.equals(start))) {
             throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
         }
@@ -869,6 +870,15 @@ public class UsagePointImpl implements UsagePoint {
     public List<MeterActivation> getMeterActivations(Instant when) {
         return this.meterActivations.stream()
                 .filter(meterActivation -> meterActivation.isEffectiveAt(when))
+                .collect(Collectors.toList());
+    }
+
+    private List<MeterActivation> getMeterActivations(Range<Instant> range) {
+        if (range == null) {
+            throw new IllegalArgumentException("Range can't be null");
+        }
+        return this.meterActivations.stream()
+                .filter(meterActivation -> meterActivation.getRange().isConnected(range))
                 .collect(Collectors.toList());
     }
 
