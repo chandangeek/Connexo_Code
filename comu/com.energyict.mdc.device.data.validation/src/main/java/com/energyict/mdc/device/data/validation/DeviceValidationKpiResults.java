@@ -12,11 +12,11 @@ public class DeviceValidationKpiResults {
     public Instant lastSuspect;
 
 
-    public DeviceValidationKpiResults(long amountOfSuspects, long channelSuspects, long registerSuspects, boolean allDataValidated, Instant lastSuspect) {
+    public DeviceValidationKpiResults(long amountOfSuspects, long channelSuspects, long registerSuspects, long allDataValidated, Instant lastSuspect) {
         this.amountOfSuspects = amountOfSuspects;
         this.channelSuspects = channelSuspects;
         this.registerSuspects = registerSuspects;
-        this.allDataValidated = allDataValidated;
+        this.allDataValidated = allDataValidated == 1;
         this.lastSuspect = lastSuspect;
     }
 
