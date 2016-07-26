@@ -31,8 +31,8 @@ Ext.define('Ddv.view.validations.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('validations.configuration', 'DDV', 'Configuration'),
-                dataIndex: 'configuration',
+                header: Uni.I18n.translate('validations.devicedeviceConfigConfig', 'DDV', 'Configuration'),
+                dataIndex: 'deviceConfig',
                 flex: 1
             },
             {
@@ -43,7 +43,14 @@ Ext.define('Ddv.view.validations.Grid', {
             {
                 header: Uni.I18n.translate('validations.allDataValidated', 'DDV', 'All data validated'),
                 dataIndex: 'allDataValidated',
-                flex: 1
+                flex: 1,
+                renderer: function (value) {
+                    if (value===true) {
+                        return 'Yes';
+                    } else {
+                        return 'No';
+                    }
+                }
             }
         ];
 

@@ -34,14 +34,22 @@ Ext.define('Ddv.view.validations.Preview', {
                             itemId: 'deviceType-validations-preview'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('validations.configuration', 'DDV', 'Configuration'),
-                            name: 'configuration',
-                            itemId: 'configuration-validations-preview'
+                            fieldLabel: Uni.I18n.translate('validations.deviceConfig', 'DDV', 'Configuration'),
+                            name: 'deviceConfig',
+                            itemId: 'deviceConfiguration-validations-preview'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('validations.allDataValidated', 'DDV', 'All data validated'),
+                            fieldLabel: Uni.I18n.translate('validations.allDataValidated', 'DDV', 'All Data Validated'),
                             name: 'allDataValidated',
-                            itemId: 'all-dataV-validated-validations-preview'
+                            itemId: 'allDataValidated-validations-preview',
+                            renderer: function (value) {
+                                if (value===true) {
+                                    return 'Yes';
+                                } else {
+                                    return 'No';
+                                }
+                            }
+
                         },
                         {
                             xtype: 'fieldcontainer',
@@ -54,22 +62,22 @@ Ext.define('Ddv.view.validations.Preview', {
                             },
                             items: [
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.registers', 'DDV', 'Registers'),
-                                    name: 'registers',
-                                    itemId: 'registers-number-validations-preview'
+                                    fieldLabel: Uni.I18n.translate('validations.registerSuspects', 'DDV', 'Registers'),
+                                    name: 'registerSuspects',
+                                    itemId: 'registerSuspects-number-validations-preview'
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.channels', 'DDV', 'Channels'),
-                                    name: 'channels',
-                                    itemId: 'channels-validations-preview'
+                                    fieldLabel: Uni.I18n.translate('validations.channelSuspects', 'DDV', 'Channels'),
+                                    name: 'channelSuspects',
+                                    itemId: 'channelSuspects-validations-preview'
                                 },
                                 {
+                                    fieldLabel: Uni.I18n.translate('validations.lastSuspect', 'DDV', 'Last suspect'),
                                     name: 'lastSuspect',
                                     itemId: 'last-suspect-validations-preview',
-                                    fieldLabel: Uni.I18n.translate('validations.lastSuspect', 'DDV', 'Last suspect'),
                                     renderer: function (value) {
                                         if (value) {
-                                            return Uni.DateTime.formatDateTimeLong(value);
+                                            return Uni.DateTime.formatDateLong(new Date(value));
                                         } else {
                                             return '-';
                                         }

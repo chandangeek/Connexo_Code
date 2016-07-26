@@ -12,10 +12,10 @@ Ext.define('Ddv.model.Validation', {
         'serialNumber',
         'deviceType',
         'deviceConfig',
-        'configuration',
+        'amountOfSuspects',
         'allDataValidated',
-        'registers',
-        'channels',
+        'registerSuspects',
+        'channelSuspects',
         'lastValidation',
         'lastSuspect',
         'typeOfSuspects'
