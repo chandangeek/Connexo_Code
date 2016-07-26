@@ -228,7 +228,6 @@ public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDiffer
             for (TableImpl<?> table : model.getTables(version)) {
                 String existingJournalTableName = getExistingJournalTableName(metaData, table);
                 table.getHistoricalNames()
-                        .stream()
                         .forEach(tableName -> addTableToExistingModel(currentDataModel, metaData, tableName, existingJournalTableName, processedTables, model.getTables(version)));
             }
         }
@@ -334,14 +333,13 @@ public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDiffer
                 .orElse(null);
     }
 
-    private Difference createTable(TableImpl<?> table, Version version) throws SQLException {
+    private Difference createTable(TableImpl<?> table, Version version) {
         DifferenceImpl.DifferenceBuilder difference = DifferenceImpl.builder("Table " + table.getName() + " : Added table");
         table.getDdl(version).forEach(difference::add);
         return difference.build().get();
     }
 
-    private List<Difference> upgradeTable(TableImpl<?> toTable, TableImpl<?> fromTable, Version version, Context context) throws
-            SQLException {
+    private List<Difference> upgradeTable(TableImpl<?> toTable, TableImpl<?> fromTable, Version version, Context context) {
         List<Difference> upgradeDdl = state.ddlGenerator(fromTable, version).upgradeDdl(toTable);
         for (ColumnImpl sequenceColumn : toTable.getAutoUpdateColumns()) {
             if (sequenceColumn.getQualifiedSequenceName() != null) {
