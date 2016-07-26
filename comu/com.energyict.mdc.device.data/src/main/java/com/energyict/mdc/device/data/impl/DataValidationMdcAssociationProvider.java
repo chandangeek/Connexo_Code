@@ -125,7 +125,7 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
     }
 
     private boolean isAllDataValidated(Device device, Range<Instant> range){
-        boolean isValidated = true;
+        boolean isValidated;
         List<DataValidationStatus> lpStatuses = device.getLoadProfiles().stream()
                 .flatMap(l -> l.getChannels().stream())
                 .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), range).stream())
