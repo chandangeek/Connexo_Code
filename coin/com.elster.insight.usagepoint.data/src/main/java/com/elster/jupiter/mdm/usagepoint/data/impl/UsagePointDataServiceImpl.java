@@ -176,6 +176,14 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
         return dataModel;
     }
 
+    /**
+     * Gathers validation statistics by {@link ChannelDataValidationSummaryFlag ChannelDataValidationSummaryFlags}
+     * on a given {@code channel} within a given {@code interval}. Please note, there's no guarantee what happens
+     * if the interval starts before channel creation.
+     * @param channel {@link Channel} to gather statistics for.
+     * @param interval The time interval to gather statistics for.
+     * @return {@link ChannelDataValidationSummary}.
+     */
     @Override
     public ChannelDataValidationSummary getValidationSummary(Channel channel, Range<Instant> interval) {
         ReadingQualityType valid = ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.DATAVALID);
@@ -190,7 +198,7 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
                 ));
         Optional<Instant> lastCheckedOptional = validationService.getLastChecked(channel);
         int uncheckedTimingsCount;
-        ChannelDataValidationSummaryImpl summary = new ChannelDataValidationSummaryImpl();
+        ChannelDataValidationSummaryImpl summary = new ChannelDataValidationSummaryImpl(interval);
         if (lastCheckedOptional.isPresent()) {
             Instant lastChecked = lastCheckedOptional.get();
             Range<Instant> checked = Range.atMost(lastChecked);
@@ -251,11 +259,15 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
         ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(contract)
                 .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT,
                         contract.getMetrologyPurpose().getId(), effectiveMetrologyConfiguration.getUsagePoint().getMRID()) {});
+        Optional<Range<Instant>> optionalIntervalWithData = container.intersection(interval);
         return contract.getDeliverables().stream().collect(Collectors.toMap(
                 Function.identity(),
-                deliverable -> container.getChannel(deliverable.getReadingType()) // channel cannot be unfound
-                        .map(channel -> getValidationSummary(channel, interval))
-                        .orElseGet(ChannelDataValidationSummaryImpl::new),
+                deliverable -> optionalIntervalWithData
+                        .map(intervalWithData -> container.getChannel(deliverable.getReadingType())
+                                // channel cannot be unfound
+                                .map(channel -> getValidationSummary(channel, intervalWithData))
+                                .orElse(new ChannelDataValidationSummaryImpl(intervalWithData)))
+                        .orElse(new ChannelDataValidationSummaryImpl(interval)),
                 (summary1, summary2) -> { // merge should not appear since no ReadingTypeDeliverable duplication allowed
                     throw new LocalizedException(thesaurus,
                             MessageSeeds.DUPLICATE_READINGTYPE_ON_METROLOGY_CONTRACT,

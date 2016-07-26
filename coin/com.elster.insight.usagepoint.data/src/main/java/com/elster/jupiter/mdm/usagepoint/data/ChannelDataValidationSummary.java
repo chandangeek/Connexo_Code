@@ -1,7 +1,9 @@
 package com.elster.jupiter.mdm.usagepoint.data;
 
 import aQute.bnd.annotation.ProviderType;
+import com.google.common.collect.Range;
 
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -24,4 +26,10 @@ public interface ChannelDataValidationSummary {
      * @return The entire count of all {@link ChannelDataValidationSummaryFlag ChannelDataValidationSummaryFlags}.
      */
     int getSum();
+
+    /**
+     * Returns the target interval used to gather statistics.
+     * @return The target interval used to gather statistics.
+     */
+    Range<Instant> getTargetInterval();
 }
