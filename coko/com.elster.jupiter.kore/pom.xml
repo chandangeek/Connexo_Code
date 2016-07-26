@@ -245,6 +245,12 @@
                 <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>webservices.outbound.rest.demo</artifactId>
+                <version>1.0.0${revision}</version>
+                <scope>provided</scope>
+            </dependency>
 
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
@@ -318,6 +324,9 @@
             <modules>
                 <module>../com.elster.jupiter.gogo</module>
                 <module>../com.elster.jupiter.metering.cps</module>
+                <module>../com.elster.jupiter.webservices.inbound.rest.demo</module>
+                <module>../com.elster.jupiter.webservices.outbound.rest.demo</module>
+                <module>../com.elster.jupiter.webservices.outbound.client.demo</module>
             </modules>
         </profile>
     </profiles>
