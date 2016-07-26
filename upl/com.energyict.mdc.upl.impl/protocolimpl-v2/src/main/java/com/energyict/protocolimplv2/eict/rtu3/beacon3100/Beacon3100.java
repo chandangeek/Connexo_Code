@@ -37,6 +37,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
@@ -82,6 +83,7 @@ public class Beacon3100 extends AbstractDlmsProtocol {
     private Beacon3100Messaging beacon3100Messaging;
     private G3GatewayEvents g3GatewayEvents;
     private RegisterFactory registerFactory;
+    private Beacon3100LogBookFactory logBookFactory;
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
@@ -184,19 +186,16 @@ public class Beacon3100 extends AbstractDlmsProtocol {
         return Collections.emptyList(); //Not supported
     }
 
-    /**
-     * Note that the logbook (and it's possible entries) are exactly the same as for the G3 gateway.
-     */
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        return getG3GatewayEvents().readEvents(logBooks);
+        return getBeacon3100LogBookFactory().getLogBookData(logBooks);
     }
 
-    private G3GatewayEvents getG3GatewayEvents() {
-        if (g3GatewayEvents == null) {
-            g3GatewayEvents = new G3GatewayEvents(getDlmsSession());
+    private Beacon3100LogBookFactory getBeacon3100LogBookFactory() {
+        if (logBookFactory == null) {
+            logBookFactory = new Beacon3100LogBookFactory(this);
         }
-        return g3GatewayEvents;
+        return logBookFactory;
     }
 
     @Override

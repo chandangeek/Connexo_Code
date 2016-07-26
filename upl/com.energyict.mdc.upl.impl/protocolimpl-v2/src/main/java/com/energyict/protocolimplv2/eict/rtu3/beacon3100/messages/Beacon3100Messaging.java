@@ -7,6 +7,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
+import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
@@ -40,6 +41,7 @@ import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
+import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
@@ -115,7 +117,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(NetworkConnectivityMessage.SetModemWatchdogParameters2);
         supportedMessages.add(NetworkConnectivityMessage.SetPrimaryDNSAddress);
         supportedMessages.add(NetworkConnectivityMessage.SetSecondaryDNSAddress);
-        //supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
+        supportedMessages.add(NetworkConnectivityMessage.EnableNetworkInterfaces);
+        supportedMessages.add(NetworkConnectivityMessage.SetHttpPort);
+        supportedMessages.add(NetworkConnectivityMessage.SetHttpsPort);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.EnableGzipCompression);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.EnableSSL);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.SetAuthenticationMechanism);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.SetMaxLoginAttempts);
+        supportedMessages.add(ConfigurationChangeDeviceMessage.SetLockoutDuration);
         supportedMessages.add(AlarmConfigurationMessage.CONFIGURE_PUSH_EVENT_NOTIFICATION);
         supportedMessages.add(AlarmConfigurationMessage.ENABLE_EVENT_NOTIFICATIONS);
         supportedMessages.add(ConfigurationChangeDeviceMessage.SetDeviceName);
@@ -129,7 +138,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(FirewallConfigurationMessage.ConfigureFWWAN);
         supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD1);
         supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2);
-
+        supportedMessages.add(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD);
+        supportedMessages.add(SecurityMessage.IMPORT_CLIENT_CERTIFICATE);
+        supportedMessages.add(SecurityMessage.REMOVE_CLIENT_CERTIFICATE);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetMaxNumberOfHopsAttributeName);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetWeakLQIValueAttributeName);
         supportedMessages.add(PLCConfigurationDeviceMessage.SetSecurityLevel);
@@ -381,6 +392,22 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         changePasswordUser1(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2)) {
                         changePasswordUser2(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD)) {
+                        changeUserPassword(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetHttpPort)) {
+                        setHttpPort(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetHttpsPort)) {
+                        setHttpsPort(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.EnableGzipCompression)) {
+                        enableGzipCompression(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.EnableSSL)) {
+                        enableSSL(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetAuthenticationMechanism)) {
+                        setAuthenticationMechanism(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetMaxLoginAttempts)) {
+                        setMaxLoginAttempts(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SetLockoutDuration)) {
+                        setLockoutDuration(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.EnableUplinkPing)) {
                         enableUplinkPing(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(UplinkConfigurationDeviceMessage.WriteUplinkPingDestinationAddress)) {
@@ -417,6 +444,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         activateDlmsEncryption(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEYS)) {
                         changeAuthKey(pendingMessage);
+/*                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.IMPORT_CLIENT_CERTIFICATE)) {
+                        importClientCertificate(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(SecurityMessage.REMOVE_CLIENT_CERTIFICATE)) {
+                        removeClientCertificate(pendingMessage);*/
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEYS)) {
                         changeEncryptionKey(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD)) {
@@ -456,6 +487,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         collectedMessage = dcMulticastUpgrade(pendingMessage, collectedMessage);
                     } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.ReadMulticastProgress)) {
                         collectedMessage = readMulticastProgress(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.EnableNetworkInterfaces)) {
+                        enableNetworkInterfaces(pendingMessage);
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -871,6 +904,37 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         cof.getAssociationLN().changeHLSSecret(ProtocolTools.getBytesFromHexString(hex, ""));
     }
 
+    private void enableNetworkInterfaces(OfflineDeviceMessage pendingMessage) throws IOException {
+        boolean isEthernetWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_WAN).getDeviceMessageAttributeValue());
+        boolean isEthernetLanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ETHERNET_LAN).getDeviceMessageAttributeValue());
+        boolean isWirelessWanEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.WIRELESS_WAN).getDeviceMessageAttributeValue());
+        boolean isIp6_TunnelEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.IP6_TUNNEL).getDeviceMessageAttributeValue());
+        boolean isPlc_NetworkEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.PLC_NETWORK).getDeviceMessageAttributeValue());
+        boolean allInterfacesEnabled = isEthernetWanEnabled && isEthernetLanEnabled && isWirelessWanEnabled && isIp6_TunnelEnabled && isPlc_NetworkEnabled;
+
+        Array interfacesArray = new Array();
+        if (allInterfacesEnabled) {
+            interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ALL.getNetworkType()));
+        } else {
+            if (isEthernetWanEnabled) {
+                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ETHERNET_WAN.getNetworkType()));
+            }
+            if (isEthernetLanEnabled) {
+                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.ETHERNET_LAN.getNetworkType()));
+            }
+            if (isWirelessWanEnabled) {
+                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.WIRELESS_WAN.getNetworkType()));
+            }
+            if (isIp6_TunnelEnabled) {
+                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.IP6_TUNNEL.getNetworkType()));
+            }
+            if (isPlc_NetworkEnabled) {
+                interfacesArray.addDataType(new TypeEnum(NetworkInterfaceType.PLC_NETWORK.getNetworkType()));
+            }
+        }
+        getCosemObjectFactory().getWebPortalConfig().enableInterfaces(interfacesArray);
+    }
+
     protected void changeEncryptionKey(OfflineDeviceMessage pendingMessage) throws IOException {
         String wrappedHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newWrappedEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
         String plainHexKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.newEncryptionKeyAttributeName).getDeviceMessageAttributeValue();
@@ -1011,12 +1075,19 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private void changePasswordUser1(OfflineDeviceMessage pendingMessage) throws IOException {
         String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getWebPortalPasswordConfig().changeUser1Password(newPassword);
+        getCosemObjectFactory().getWebPortalConfig().changeUser1Password(newPassword);
     }
 
     private void changePasswordUser2(OfflineDeviceMessage pendingMessage) throws IOException {
         String newPassword = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
-        getCosemObjectFactory().getWebPortalPasswordConfig().changeUser2Password(newPassword);
+        getCosemObjectFactory().getWebPortalConfig().changeUser2Password(newPassword);
+    }
+
+    private void changeUserPassword(OfflineDeviceMessage pendingMessage) throws IOException {
+        String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.usernameAttributeName).getDeviceMessageAttributeValue();
+        String newPassword = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.passwordAttributeName).getDeviceMessageAttributeValue();
+
+        getCosemObjectFactory().getWebPortalConfig().changeUserPassword(userName, newPassword);
     }
 
     private void writeUplinkPingInterval(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -1046,6 +1117,43 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     private void writeSecondaryDNSAddress(OfflineDeviceMessage pendingMessage) throws IOException {
         String address = pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue();
         getCosemObjectFactory().getIPv4Setup().setSecondaryDNSAddress(address);
+    }
+
+    private void setHttpPort(OfflineDeviceMessage pendingMessage) throws IOException {
+        String httpPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpPortAttributeName).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getWebPortalConfig().setHttpPort(httpPort);
+    }
+
+    private void setHttpsPort(OfflineDeviceMessage pendingMessage) throws IOException {
+        String httpsPort = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SetHttpsPortAttributeName).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getWebPortalConfig().setHttpsPort(httpsPort);
+    }
+
+    private void setMaxLoginAttempts(OfflineDeviceMessage pendingMessage) throws IOException {
+        /*final long logAttempts = Long.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getDeviceMessageAttributeValue());*/
+        String logAttempts = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getWebPortalConfig().setMaxLoginAttempts(logAttempts);
+    }
+
+    private void setLockoutDuration(OfflineDeviceMessage pendingMessage) throws IOException {
+        String duration = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_LOCKOUT_DURATION).getDeviceMessageAttributeValue();
+        getCosemObjectFactory().getWebPortalConfig().setLockoutDuration(duration);
+    }
+
+    private void enableGzipCompression(OfflineDeviceMessage pendingMessage) throws IOException {
+        boolean enableGzip = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.ENABLE_GZIP_COMPRESSION).getDeviceMessageAttributeValue());
+        getCosemObjectFactory().getWebPortalConfig().enableGzipCompression(enableGzip);
+    }
+
+    private void enableSSL(OfflineDeviceMessage pendingMessage) throws IOException {
+        boolean enableSSL = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.enableSSL).getDeviceMessageAttributeValue());
+        getCosemObjectFactory().getWebPortalConfig().enableSSL(enableSSL);
+    }
+
+    private void setAuthenticationMechanism(OfflineDeviceMessage pendingMessage) throws IOException {
+        String authName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM).getDeviceMessageAttributeValue();
+        int auth = AuthenticationMechanism.fromAuthName(authName);
+        getCosemObjectFactory().getWebPortalConfig().setAuthenticationMechanism(auth);
     }
 
     /**

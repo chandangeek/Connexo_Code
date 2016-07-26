@@ -239,8 +239,8 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new EventPushNotificationConfig(protocolLink, getObjectReference(obisCode));
     }
 
-    public WebPortalPasswordConfig getWebPortalPasswordConfig() throws NotInObjectListException {
-        return new WebPortalPasswordConfig(protocolLink, getObjectReference(WebPortalPasswordConfig.getDefaultObisCode()));
+    public WebPortalConfig getWebPortalConfig() throws NotInObjectListException {
+        return new WebPortalConfig(protocolLink, getObjectReference(WebPortalConfig.getDefaultObisCode()));
     }
 
     public PrivacyEnhancingDataAggregation getPrivacyEnhancingDataAggregation(ObisCode obisCode) throws NotInObjectListException {
