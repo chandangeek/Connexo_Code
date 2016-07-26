@@ -197,7 +197,9 @@ public class DynamicDeviceGroupImplIT {
     private SearchableProperty mockSearchableProperty(String name) {
         SearchableProperty property = mock(SearchableProperty.class, RETURNS_DEEP_STUBS);
         when(property.getName()).thenReturn(name);
+        when(property.getSpecification().getName()).thenReturn(name);
         when(property.getSpecification().getValueFactory()).thenReturn(new StringFactory());
+        when(property.getConstraints()).thenReturn(Collections.emptyList());
         return property;
     }
 
