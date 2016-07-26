@@ -29,8 +29,8 @@ public class UsagePointTechInstEGCustomPropertySet implements CustomPropertySet<
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "IEG_CPS_MTR_USAGEPOINT_INST_EG";
-    private static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_INST_EG";
+    public static final String TABLE_NAME = "IEG_CPS_USAGEPOINT_INSTEG";
+    private static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_USAGEPOINT_INSTEG";
     public static final String COMPONENT_NAME = "IEG";
 
     public UsagePointTechInstEGCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {

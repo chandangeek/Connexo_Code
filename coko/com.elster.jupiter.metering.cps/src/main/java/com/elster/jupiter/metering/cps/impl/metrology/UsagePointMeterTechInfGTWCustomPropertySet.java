@@ -30,8 +30,8 @@ public class UsagePointMeterTechInfGTWCustomPropertySet implements CustomPropert
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "INF_CPS_MTR_USAGEPOINT_T_INFO";
-    private static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_INFO";
+    public static final String TABLE_NAME = "INF_CPS_USAGEPNT_TECHINFO";
+    private static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_USAGEPNT_TECHINFO";
     public static final String COMPONENT_NAME = "INF";
 
     public UsagePointMeterTechInfGTWCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
