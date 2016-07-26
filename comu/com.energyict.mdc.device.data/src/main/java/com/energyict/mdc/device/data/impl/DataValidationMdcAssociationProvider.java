@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -118,9 +119,45 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
         return new BigDecimal(0);
     }
 
+    @Override
+    public boolean isAllDataValidated(String mRID, Range<Instant> range){
+        return deviceService.findByUniqueMrid(mRID).map(device -> isAllDataValidated(device, range)).orElse(false);
+    }
+
+    private boolean isAllDataValidated(Device device, Range<Instant> range){
+        boolean isValidated = true;
+        List<DataValidationStatus> lpStatuses = device.getLoadProfiles().stream()
+                .flatMap(l -> l.getChannels().stream())
+                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), range).stream())
+                .collect(Collectors.toList());
+
+        isValidated = device.getLoadProfiles().stream()
+                .flatMap(l -> l.getChannels().stream())
+                .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
+
+        isValidated &= lpStatuses.stream()
+                .allMatch(DataValidationStatus::completelyValidated);
+
+
+        List<DataValidationStatus> rgStatuses = device.getRegisters().stream()
+                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), range).stream())
+                .collect(Collectors.toList());
+        isValidated &= device.getRegisters().stream()
+                .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
+        isValidated &= rgStatuses.stream()
+                .allMatch(DataValidationStatus::completelyValidated);
+
+        return isValidated;
+    }
+
 
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 }
