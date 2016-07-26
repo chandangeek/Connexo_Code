@@ -27,7 +27,8 @@ Ext.define('Imt.purpose.view.Outputs', {
                     {
                         xtype: 'purpose-details-form',
                         record: me.purpose,
-                        itemId: 'purpose-details-form'
+                        itemId: 'purpose-details-form',
+                        router: me.router
                     },
                     {
                         xtype: 'panel',

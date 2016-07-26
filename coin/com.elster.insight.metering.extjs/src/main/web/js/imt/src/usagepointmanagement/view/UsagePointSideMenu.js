@@ -68,10 +68,29 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointSideMenu', {
             var items = [];
             purposes.map(function(purpose) {
                 if (purpose.get('active')) {
-                    var status = purpose.get('status'),
-                        icon = '&nbsp;&nbsp;<i class="icon ' + (status.id == 'incomplete' ? 'icon-warning2' : 'icon-checkmark-circle2') + '" style="display: inline-block; width: 16px; height: 16px;" data-qtip="'
-                            + status.name
-                            + '"></i>';
+                    var validationInfo = purpose.get('validationInfo'),
+                        status = purpose.get('status'),
+                        icon = '';
+
+                    switch (validationInfo.allDataValidated) {
+                        case true:
+                            if (!validationInfo.hasSuspects) {
+                                icon = '<span class="icon-checkmark-circle" style="color: #33CC33; margin-left: 10px" data-qtip="'
+                                    + status.name
+                                    + '"></span>';
+                            } else {
+                                icon = '<span class="icon-warning" style="color: #eb5642; margin-left: 10px" data-qtip="'
+                                    + status.name
+                                    + '"></span>';
+                            }
+                            break;
+                        case false:
+                            icon = '<span class="icon-blocked" style="color: #686868; margin-left: 10px" data-qtip="'
+                                + status.name
+                                + '"></span>';
+                            break;
+
+                    }
 
                     items.push({
                         text: purpose.get('name') + icon,

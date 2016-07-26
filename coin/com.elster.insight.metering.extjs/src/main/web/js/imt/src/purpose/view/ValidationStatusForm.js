@@ -1,9 +1,11 @@
 Ext.define('Imt.purpose.view.ValidationStatusForm', {
     extend: 'Ext.container.Container',
     alias: 'widget.output-validation-status-form',
+    router: null,
 
     initComponent: function () {
         var me = this;
+
         me.items = [
             {
                 xtype: 'displayfield',
@@ -21,11 +23,11 @@ Ext.define('Imt.purpose.view.ValidationStatusForm', {
                     switch (value) {
                         case true:
                             status = Uni.I18n.translate('usagepoint.purpose.output.validation.status.active', 'IMT', 'Active');
-                            icon = '<span class="icon-checkmark-circle" style="color: green; margin-left: 10px"></span>';
+                            icon = '<span class="icon-checkmark-circle" style="color: #33CC33; margin-left: 10px"></span>';
                             break;
                         case false:
                             status = Uni.I18n.translate('usagepoint.purpose.output.validation.status.inactive', 'IMT', 'Inactive');
-                            icon = '<span class="icon-blocked" style="color: red; margin-left: 10px"></span>';
+                            icon = '<span class="icon-blocked" style="color: #eb5642; margin-left: 10px"></span>';
                             break;
                     }
 
@@ -81,7 +83,11 @@ Ext.define('Imt.purpose.view.ValidationStatusForm', {
 
                     if (Ext.isArray(value)) {
                         Ext.Array.each(value, function (item, index) {
-                            var url = '#/administration/validation/rulesets/' + item.key.ruleSetVersion.ruleSet.id + '/versions/' + item.key.ruleSetVersion.id + '/rules/' + item.key.id;
+                            var url = me.router.getRoute('administration/rulesets/overview/versions/overview/rules/overview').buildUrl({
+                                ruleSetId: item.key.ruleSetVersion.ruleSet.id,
+                                versionId: item.key.ruleSetVersion.id,
+                                ruleId: item.key.id
+                            });
 
                             if (index) {
                                 result += '<br>';

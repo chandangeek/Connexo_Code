@@ -9,6 +9,7 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
         xtype: 'displayfield',
         labelWidth: 200
     },
+    router: null,
 
     padding: '10 0 0 0',
 
@@ -53,7 +54,8 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
             {
                 xtype: 'output-validation-status-form',
                 itemId: 'output-validation-status-form',
-                defaults: me.defaults
+                defaults: me.defaults,
+                router: me.router
             }
             //{
             //    xtype: 'fieldcontainer',
