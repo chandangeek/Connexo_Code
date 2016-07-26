@@ -243,8 +243,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
             usagePointModel = me.getModel('Mdc.usagepointmanagement.model.UsagePoint'),
             versionRecord = me.getModel('Mdc.usagepointmanagement.model.MetrologyConfigurationVersion'),
             usagePointWithVersionModel = me.getModel('Mdc.usagepointmanagement.model.UsagePointWithVersion'),
-            availableConfigs = me.getStore('Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations'),
-            widget = Ext.widget('add-metrology-configuration-version', {router: router, edit: true}),
+            availableConfigs = me.getStore('Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations');
 
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
         pageMainContent.setLoading(true);
@@ -258,6 +257,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                             availableConfigs.getProxy().setUrl(usagePoint.get('mRID'));
                             availableConfigs.load({
                                 callback: function () {
+                                    var widget = Ext.widget('add-metrology-configuration-version', {router: router, edit: true});
                                     me.getApplication().fireEvent('changecontentevent', widget);
                                     widget.loadRecordToForm(record);
                                     me.versionRecord = record;
