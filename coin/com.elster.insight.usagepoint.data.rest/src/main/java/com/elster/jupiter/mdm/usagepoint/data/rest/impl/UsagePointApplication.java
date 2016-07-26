@@ -8,6 +8,7 @@ import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfoFactory;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
@@ -267,6 +268,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(OutputRegisterDataInfoFactory.class).to(OutputRegisterDataInfoFactory.class);
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(GoingOnResource.class).to(GoingOnResource.class);
+            bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ChannelDataValidationSummaryInfoFactory.class).to(ChannelDataValidationSummaryInfoFactory.class);
             bind(OutputInfoFactory.class).to(OutputInfoFactory.class);
             bind(PurposeInfoFactory.class).to(PurposeInfoFactory.class);
