@@ -100,6 +100,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
             writeSpecialDays(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ALARM_BITS)) {
             resetAllAlarmBits(ALARM_BITS_OBISCODE);
+            collectedMessage.setDeviceProtocolInformation("Reset ALL alarm bits from "+ALARM_BITS_OBISCODE.toString());
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.RESET_ALL_ERROR_BITS)) {
             resetAllErrorBits(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(AlarmConfigurationMessage.WRITE_ALARM_FILTER)) {
@@ -389,15 +390,13 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
 
 
     protected void resetAllAlarmBits(ObisCode obisCode) throws IOException {
-        long alarmBits = getCosemObjectFactory().getData(obisCode).getValue();
         Data data = getCosemObjectFactory().getData(obisCode);
-        data.setValueAttr(new Unsigned32(alarmBits));
+        data.setValueAttr(new Unsigned32(0)); // to reset the alarm bits we have to write zero back to the register
     }
 
     private void resetAllErrorBits(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         Data data = getCosemObjectFactory().getData(ERROR_BITS_OBISCODE);
-        long errorBits = data.getValueAttr().longValue();
-        data.setValueAttr(new Unsigned32(errorBits));
+        data.setValueAttr(new Unsigned32(0)); // to reset the error bits we have to write zero back to the register
     }
 
     protected void writeAlarmFilter(ObisCode obisCode, long filter) throws IOException {

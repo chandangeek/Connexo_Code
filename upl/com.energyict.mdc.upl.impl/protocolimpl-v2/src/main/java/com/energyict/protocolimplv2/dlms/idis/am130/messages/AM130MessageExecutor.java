@@ -414,6 +414,7 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
         }
 
         resetAllAlarmBits(alarmRegisterObisCode);
+        collectedMessage.setDeviceProtocolInformation("Alarm bits reset for "+alarmRegisterObisCode.toString());
         return collectedMessage;
     }
 
