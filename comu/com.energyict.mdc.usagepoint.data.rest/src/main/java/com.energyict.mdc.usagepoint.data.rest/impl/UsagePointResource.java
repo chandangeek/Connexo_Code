@@ -34,6 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -80,14 +81,14 @@ public class UsagePointResource {
     @Path("/{mRID}/channels")
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Transactional
-    public PagedInfoList getChannels(@PathParam("mRID") String mRID, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getChannels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         List<UsagePointChannelInfo> channelInfos = new ArrayList<>();
-        UsagePoint usagePoint = fetchUsagePoint(mRID);
+        UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().orElse(null);
         if (effectiveMetrologyConfiguration != null) {
             UsagePointMetrologyConfiguration metrologyConfiguration = effectiveMetrologyConfiguration.getMetrologyConfiguration();
             channelInfos = metrologyConfiguration.getContracts().stream()
-                    .map(effectiveMC::getChannelsContainer)
+                    .map(effectiveMetrologyConfiguration::getChannelsContainer)
                     .flatMap(Functions.asStream())
                     .flatMap(channelsContainer -> channelsContainer.getChannels().stream())
                     .map(channel -> usagePointChannelInfoFactory.from(channel, usagePoint, metrologyConfiguration))
@@ -103,7 +104,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT, Privileges.Constants.ADMINISTER_OWN_USAGEPOINT})
     public UsagePointChannelInfo getChannel(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId) {
         UsagePoint usagePoint = resourceHelper.findUsagePointOrThrowException(mRID);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration()
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getMRID()));
         Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
         return usagePointChannelInfoFactory.from(channel, usagePoint, effectiveMetrologyConfiguration.getMetrologyConfiguration());
@@ -119,7 +120,7 @@ public class UsagePointResource {
         List<ChannelDataInfo> outputChannelDataInfoList = Collections.emptyList();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration()
+            EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_FOR_USAGE_POINT, usagePoint.getMRID()));
             Channel channel = resourceHelper.findChannelOnUsagePointOrThrowException(effectiveMetrologyConfiguration, channelId);
             ChannelsContainer channelsContainer = channel.getChannelsContainer();
