@@ -123,6 +123,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         return result
                 .entrySet()
                 .stream()
+                .sorted(Map.Entry.comparingByValue(String::compareToIgnoreCase))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (e1, e2) -> e1, LinkedHashMap::new));
     }
@@ -170,8 +171,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 "                ESTABLISHMENTNAME," +
                 "                ESTABLISHMENTNUMBER," +
                 "                ADDRESSDETAIL," +
-                "                ZIPCODE," +
-                "                rownum rn" +
+                "                ZIPCODE" +
                 " FROM (" + selectClause + ")" +
                 " WHERE rownum <=5 " +
                 " GROUP BY COUNTRYNAME," +
@@ -186,9 +186,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 "                ESTABLISHMENTNAME," +
                 "                ESTABLISHMENTNUMBER," +
                 "                ADDRESSDETAIL," +
-                "                ZIPCODE, " +
-                "                rownum" +
-                " ORDER BY rn";
+                "                ZIPCODE";
 
         return selectClause;
     }

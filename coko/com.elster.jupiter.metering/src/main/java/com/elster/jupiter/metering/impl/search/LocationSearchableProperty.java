@@ -118,15 +118,14 @@ class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {
 
     private boolean isJSONArrayValid(String jsonData) {
         try {
-            new JSONArray(jsonData);
+            return new JSONObject(jsonData).get("values") instanceof JSONArray;
         } catch (JSONException ex) {
             return false;
         }
-        return true;
     }
 
     private JSONArray getJSONArrayData(String jsonData) throws JSONException {
-        return new JSONArray(jsonData);
+        return new JSONObject(jsonData).getJSONArray("values");
     }
 
     @Override
