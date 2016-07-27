@@ -8,7 +8,7 @@ import com.elster.jupiter.util.json.JsonService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(name="com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandMessageHandlerFactory",
+@Component(name = "com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandMessageHandlerFactory",
         service = MessageHandlerFactory.class,
         property = {"subscriber=CommandCallback", "destination=CommandCallback"},
         immediate = true)

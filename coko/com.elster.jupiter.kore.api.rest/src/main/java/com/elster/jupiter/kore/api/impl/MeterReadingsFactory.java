@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 public class MeterReadingsFactory {
-    public MeterReadingInfo asInfo(String readingType, Instant timestamp, BigDecimal value){
+    public MeterReadingInfo asInfo(String readingType, Instant timestamp, BigDecimal value) {
         MeterReadingInfo info = new MeterReadingInfo();
         info.readingType = readingType;
         info.timestamp = timestamp;

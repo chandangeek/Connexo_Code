@@ -54,14 +54,14 @@ public class UsagePointCommandHelper {
         return serviceCall;
     }
 
-    public long getExpectedNumberOfCommands(UsagePoint usagePoint, Instant when){
+    public long getExpectedNumberOfCommands(UsagePoint usagePoint, Instant when) {
         return usagePoint.getMeterActivations(when)
                 .stream()
                 .flatMap(meterActivation -> meterActivation.getMeter()
                         .isPresent() ? Stream.of(meterActivation.getMeter().get()) : Stream.empty()).count();
     }
 
-    public DestinationSpec getDestinationSpec(){
+    public DestinationSpec getDestinationSpec() {
         return messageService.getDestinationSpec("CommandCallback").orElseGet(this::createDestinationSpec);
     }
 

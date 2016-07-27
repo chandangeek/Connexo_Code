@@ -10,7 +10,7 @@ import javax.ws.rs.client.WebTarget;
         service = {OutboundRestEndPointProvider.class},
         immediate = true,
         property = {"name=kore.api.callback"})
-public class CallbackOutboundEndpointProvider implements  OutboundRestEndPointProvider<UsagePointCommandCallbackWebService>{
+public class CallbackOutboundEndpointProvider implements OutboundRestEndPointProvider<UsagePointCommandCallbackWebService> {
     @Override
     public UsagePointCommandCallbackWebService get(WebTarget client) {
         return new UsagePointCommandCallbackWebService(client);

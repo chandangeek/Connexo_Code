@@ -47,7 +47,7 @@ public class UsagePointCommandCustomPropertySet implements CustomPropertySet<Ser
     }
 
     @Activate
-    public void activate(){
+    public void activate() {
     }
 
     @Override
@@ -126,7 +126,7 @@ public class UsagePointCommandCustomPropertySet implements CustomPropertySet<Ser
         );
     }
 
-    private class UsagePointCommandPersistenceSupport implements PersistenceSupport<ServiceCall,UsagePointCommandDomainExtension>{
+    private class UsagePointCommandPersistenceSupport implements PersistenceSupport<ServiceCall, UsagePointCommandDomainExtension> {
         private final String TABLE_NAME = "PRI_CPS_UP_COMMAND ";
         private final String FK_MTR_CPS_UP_COMMAND = "FK_PRI_CPS_UP_COMMAND";
 

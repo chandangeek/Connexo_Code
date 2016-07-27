@@ -50,7 +50,7 @@ public class EffectiveMetrologyConfigurationResource {
     public EffectiveMetrologyConfigurationInfo getEffectiveMetrologyConfiguration(@PathParam("usagePointId") long usagePointId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         return meteringService.findUsagePoint(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT))
-                .getEffectiveMetrologyConfiguration()
+                .getCurrentEffectiveMetrologyConfiguration()
                 .map(ct -> effectiveMetrologyConfigurationInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
     }

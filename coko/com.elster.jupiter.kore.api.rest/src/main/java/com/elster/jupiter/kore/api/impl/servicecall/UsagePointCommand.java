@@ -51,13 +51,13 @@ public enum UsagePointCommand {
         this.usagePointCommand = usagePointCommand;
     }
 
-    public CommandRunStatusInfo process(UsagePoint usagePoint, UsagePointCommandInfo commandInfo, UsagePointCommandHelper usagePointCommandHelper){
+    public CommandRunStatusInfo process(UsagePoint usagePoint, UsagePointCommandInfo commandInfo, UsagePointCommandHelper usagePointCommandHelper) {
         long expectedCommands = usagePointCommandHelper.getExpectedNumberOfCommands(usagePoint, Instant.ofEpochMilli(commandInfo.effectiveTimestamp));
 
         ServiceCall serviceCall = usagePointCommandHelper.createServiceCall(usagePoint, commandInfo);
         List<CompletionOptions> completionOptionsList = usagePointCommand.process(serviceCall, usagePoint, commandInfo, usagePointCommandHelper);
 
-        if(completionOptionsList.isEmpty() || completionOptionsList.size()<expectedCommands){
+        if (completionOptionsList.isEmpty() || completionOptionsList.size() < expectedCommands) {
             serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.FAILED);
 
@@ -71,10 +71,15 @@ public enum UsagePointCommand {
                             .orElse(null)))
                     .collect(Collectors.toList());
 
-            CommandRunStatusInfo commandStatus =  new CommandRunStatusInfo(usagePoint.getMRID(),
+            CommandRunStatusInfo commandStatus = new CommandRunStatusInfo(usagePoint.getMRID(),
                     CommandStatus.FAILED, childrenCommands.toArray(new CommandRunStatusInfo[childrenCommands
                     .size()]));
-            commandStatus.system = childrenCommands.stream().map(commandRunStatusInfo -> Optional.ofNullable(commandRunStatusInfo.system)).filter(Optional::isPresent).map(Optional::get).findFirst().orElse("MDC");
+            commandStatus.system = childrenCommands.stream()
+                    .map(commandRunStatusInfo -> Optional.ofNullable(commandRunStatusInfo.system))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .findFirst()
+                    .orElse("MDC");
             return commandStatus;
         } else {
 
@@ -94,10 +99,10 @@ public enum UsagePointCommand {
     }
 }
 
-interface Command{
+interface Command {
     List<CompletionOptions> process(ServiceCall serviceCall, UsagePoint usagePoint, UsagePointCommandInfo usagePointCommandInfo, UsagePointCommandHelper usagePointCommandHelper);
 
-    static void updateCallback(List<CompletionOptions> completionOptionsList, ServiceCall serviceCall, DestinationSpec destinationSpec){
+    static void updateCallback(List<CompletionOptions> completionOptionsList, ServiceCall serviceCall, DestinationSpec destinationSpec) {
         for (CompletionOptions options : completionOptionsList) {
             if (options != null) {
                 options.whenFinishedSendCompletionMessageWith(String.valueOf(serviceCall.getId()), destinationSpec);

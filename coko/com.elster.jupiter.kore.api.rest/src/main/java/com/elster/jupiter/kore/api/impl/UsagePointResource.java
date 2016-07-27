@@ -5,11 +5,9 @@ import com.elster.jupiter.kore.api.impl.servicecall.CommandRunStatusInfo;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
-import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
@@ -264,6 +262,6 @@ public class UsagePointResource {
         UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
 
-        return usagePointCommandInfo.command.process(usagePoint,usagePointCommandInfo,usagePointCommandHelper);
+        return usagePointCommandInfo.command.process(usagePoint, usagePointCommandInfo, usagePointCommandHelper);
     }
 }

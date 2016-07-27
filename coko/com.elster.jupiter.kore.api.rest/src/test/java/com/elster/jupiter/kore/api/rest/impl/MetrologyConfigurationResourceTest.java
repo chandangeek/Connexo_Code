@@ -1,6 +1,5 @@
 package com.elster.jupiter.kore.api.rest.impl;
 
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 

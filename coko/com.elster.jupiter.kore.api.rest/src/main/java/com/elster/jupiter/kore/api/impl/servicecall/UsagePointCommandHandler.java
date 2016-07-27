@@ -23,7 +23,7 @@ import java.util.Base64;
         service = ServiceCallHandler.class,
         immediate = true,
         property = "name=UsagePointCommandHandler")
-public class UsagePointCommandHandler  implements ServiceCallHandler {
+public class UsagePointCommandHandler implements ServiceCallHandler {
 
     public static final String USAGE_POINT_COMMAND_HANDLER_NAME = "UsagePointCommandHandler";
     public static final String USAGE_POINT_COMMAND_HANDLER_VERSION = "v1.0";
@@ -66,17 +66,17 @@ public class UsagePointCommandHandler  implements ServiceCallHandler {
         }
     }
 
-    public void sendSuccessResponce(ServiceCall serviceCall){
+    public void sendSuccessResponce(ServiceCall serviceCall) {
         serviceCall.getExtension(UsagePointCommandDomainExtension.class)
                 .ifPresent(extension -> sendResponse(extension.getCallbackSuccessURL(), extension.getCallbackHttpMethod()));
     }
 
-    public void getPartiallySuccessResponce(ServiceCall serviceCall){
+    public void getPartiallySuccessResponce(ServiceCall serviceCall) {
         serviceCall.getExtension(UsagePointCommandDomainExtension.class)
                 .ifPresent(extension -> sendResponse(extension.getCallbackPartialSuccessURL(), extension.getCallbackHttpMethod()));
     }
 
-    public void getFailureResponce(ServiceCall serviceCall){
+    public void getFailureResponce(ServiceCall serviceCall) {
         serviceCall.getExtension(UsagePointCommandDomainExtension.class)
                 .ifPresent(extension -> sendResponse(extension.getCallbackFailureURL(), extension.getCallbackHttpMethod()));
     }
@@ -97,12 +97,12 @@ public class UsagePointCommandHandler  implements ServiceCallHandler {
             httpConnection.setRequestMethod(method);
             httpConnection.setRequestProperty("Content-Type", "application/json");
             httpConnection.setRequestProperty("Accept", "application/json");
-            if(endPointConfiguration.getAuthenticationMethod().equals(EndPointAuthentication.BASIC_AUTHENTICATION)){
+            if (endPointConfiguration.getAuthenticationMethod().equals(EndPointAuthentication.BASIC_AUTHENTICATION)) {
                 httpConnection.setRequestProperty("Authorization",
                         "Basic " + new String(Base64.getEncoder().encode((
-                                ((OutboundEndPointConfiguration)endPointConfiguration).getUsername()
-                                + ":"
-                                + ((OutboundEndPointConfiguration)endPointConfiguration).getPassword()).getBytes())));
+                                ((OutboundEndPointConfiguration) endPointConfiguration).getUsername()
+                                        + ":"
+                                        + ((OutboundEndPointConfiguration) endPointConfiguration).getPassword()).getBytes())));
             }
             int responseCode = httpConnection.getResponseCode();
             if (responseCode != 200) {

@@ -159,8 +159,8 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
 
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
@@ -248,7 +248,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
         when(usagePoint.newElectricityDetailBuilder(any())).thenReturn(electricityDetailBuilder);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(effectiveMetrologyConfiguration));
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(newMetrologyConfiguration);

@@ -216,8 +216,8 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
         usagePoint.setServiceDeliveryRemark(usagePointInfo.serviceDeliveryRemark);
         usagePoint.setServicePriority(usagePointInfo.servicePriority);
 
-        if (usagePointInfo.connectionState!=null && usagePointInfo.connectionState.startDate != null) {
-            if(!("underConstruction".equals(usagePointInfo.connectionState.connectionStateId)) && usagePoint.getConnectionState().equals(ConnectionState.UNDER_CONSTRUCTION)){
+        if (usagePointInfo.connectionState != null && usagePointInfo.connectionState.startDate != null) {
+            if (!("underConstruction".equals(usagePointInfo.connectionState.connectionStateId)) && usagePoint.getConnectionState().equals(ConnectionState.UNDER_CONSTRUCTION)) {
                 validateUsagePoint(usagePoint);
             }
             usagePoint.setConnectionState(findConnectionState(usagePointInfo),
@@ -263,9 +263,9 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_STATE));
     }
 
-    private void validateUsagePoint(UsagePoint usagePoint){
-        UsagePointMetrologyConfiguration metrologyConfiguration = usagePoint.getMetrologyConfiguration()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION));
+    private void validateUsagePoint(UsagePoint usagePoint) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METROLOGY_CONFIGURATION)).getMetrologyConfiguration();
 
         metrologyConfiguration.getMeterRoles().stream()
                 .filter(meterRole -> usagePoint.getMeterActivations().stream()
@@ -273,8 +273,8 @@ public class UsagePointInfoFactory extends SelectableFieldFactory<UsagePointInfo
                 .findAny()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_METER_ACTIVATION_FOR_METER_ROLE));
 
-        if(metrologyConfiguration.getContracts().stream()
-                .anyMatch(metrologyContract -> metrologyContract.isMandatory() && !(metrologyContract.getStatus(usagePoint).getKey().equalsIgnoreCase("COMPLETE")))){
+        if (metrologyConfiguration.getContracts().stream()
+                .anyMatch(metrologyContract -> metrologyContract.isMandatory() && !(metrologyContract.getStatus(usagePoint).getKey().equalsIgnoreCase("COMPLETE")))) {
             throw exceptionFactory.newException(MessageSeeds.METROLOGY_CONTRACTS_INCOMPLETE);
         }
 
