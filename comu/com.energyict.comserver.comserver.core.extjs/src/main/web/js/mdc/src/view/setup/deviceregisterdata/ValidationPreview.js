@@ -15,7 +15,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
         labelWidth: 200
     },
 
-    initComponent: function() {
+    initComponent: function () {
         var me = this;
 
         me.items = [
@@ -70,7 +70,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.ValidationPreview', {
                 labelWidth: 200,
                 name: 'suspectReason',
                 router: me.router,
-                renderer: function(value, field) {
+                renderer: function (value, field) {
                     var rec = field.up('form').getRecord();
                     if (rec && rec.get('isConfirmed')) {
                         return this.getConfirmed(rec.get('confirmedInApps'));
