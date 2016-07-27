@@ -49,6 +49,7 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             ref: 'breadCrumbs',
             selector: 'breadcrumbTrail'
         }
+
     ],
 
     deviceTypeId: null,
@@ -320,7 +321,8 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
     },
 
     showRemovalPopup: function (calendarRecord) {
-        var me = this;
+        var me = this,
+            store = me.getStore('Mdc.timeofuse.store.UsedCalendars');
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             cancelText: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
@@ -330,7 +332,15 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
             fn: function (btn) {
                 if (btn === 'confirm') {
                     calendarRecord.getProxy().setUrl(me.deviceTypeId);
-                    calendarRecord.destroy();
+                    calendarRecord.destroy(
+                        {
+                            callback: function(record, operation, success) {
+                                debugger;
+                                me.calendarCount = store.getCount();
+                                me.updateCounter();
+                            }
+                        }
+                    );
                 }
             }
         });
