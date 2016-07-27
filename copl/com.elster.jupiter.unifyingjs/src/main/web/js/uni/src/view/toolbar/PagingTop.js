@@ -92,7 +92,6 @@ Ext.define('Uni.view.toolbar.PagingTop', {
             pageData = me.getPageData(),
             totalCount,
             msg;
-
         if (displayItem) {
             if (me.usesExactCount) {
                 me.totalCount = store.getTotalCount();
@@ -100,7 +99,7 @@ Ext.define('Uni.view.toolbar.PagingTop', {
                 if (!!me.noBottomPaging) {
                     me.totalCount = store.getTotalCount();
                 } else {
-                    me.totalCount = me.totalCount !== store.getTotalCount() ? store.getTotalCount() : me.totalCount;
+                    me.totalCount = me.totalCount <= store.getTotalCount() ? store.getTotalCount() : me.totalCount;
                 }
             }
             if (store.getCount() === 0) {
