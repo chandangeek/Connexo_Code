@@ -310,6 +310,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getDeviceType()).thenReturn(deviceType);
         when(deviceType.isDataloggerSlave()).thenReturn(false);
         when(topologyService.getSlaveChannel(any(Channel.class), any(Instant.class))).thenReturn(Optional.empty());
+
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenAnswer(invocationOnMock -> Collections.singletonList(Pair.of(((Channel) invocationOnMock.getArguments()[0]), ((Range<Instant>) invocationOnMock
+                .getArguments()[1]))));
     }
 
     private ReadingQualityRecord mockReadingQuality(String code) {
