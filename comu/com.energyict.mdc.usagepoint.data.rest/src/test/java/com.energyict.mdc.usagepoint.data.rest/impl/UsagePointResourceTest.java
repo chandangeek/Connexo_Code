@@ -1,25 +1,40 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.ReadingQualityRecord;
+import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
+import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationResult;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
@@ -29,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -131,6 +147,60 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         assertThat(jsonModel.<Integer>get("$.channels[0].deviceChannels[1].channel.id")).isNull();
     }
 
+    @Test
+    public void testGetChannel() {
+        EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
+
+        //Business method
+        String json = target("/usagepoints/testUP/channels/1").request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Integer>get("$.interval.count")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.dataUntil")).isEqualTo(1467710958704L);
+        assertThat(jsonModel.<String>get("$.readingType.mRID")).isEqualTo("11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
+        assertThat(jsonModel.<List>get("$.deviceChannels")).hasSize(2);
+        assertThat(jsonModel.<Long>get("$.deviceChannels[0].from")).isEqualTo(1410774620100L);
+        assertThat(jsonModel.<Long>get("$.deviceChannels[0].until")).isNull();
+        assertThat(jsonModel.<String>get("$.interval.timeUnit")).isEqualTo("days");
+        assertThat(jsonModel.<String>get("$.deviceChannels[0].mRID")).isEqualTo("testD");
+        assertThat(jsonModel.<String>get("$.deviceChannels[0].channel.name")).isEqualTo("testR");
+        assertThat(jsonModel.<Integer>get("$.deviceChannels[0].channel.id")).isEqualTo(1);
+        assertThat(jsonModel.<Long>get("$.deviceChannels[1].from")).isEqualTo(1410515420000L);
+        assertThat(jsonModel.<Long>get("$.deviceChannels[1].until")).isEqualTo(1410774620100L);
+        assertThat(jsonModel.<String>get("$.deviceChannels[1].mRID")).isEqualTo("testOldDevice");
+        assertThat(jsonModel.<String>get("$.deviceChannels[1].channel.name")).isEqualTo("testR");
+        assertThat(jsonModel.<Integer>get("$.deviceChannels[1].channel.id")).isNull();
+    }
+
+    @Test
+    @Ignore("not finished yet")
+    public void testGetChannelData() throws UnsupportedEncodingException {
+        EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
+        when(mc.getUsagePoint()).thenReturn(usagePoint);
+        ValidationEvaluator validationEvaluator = mock(ValidationEvaluator.class);
+        when(validationService.getEvaluator(any(), any())).thenReturn(validationEvaluator);
+        when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.empty());
+
+        //Business method
+        String filter = ExtjsFilter.filter().property("intervalStart", 1468846440000L).property("intervalEnd", 1500382440000L).create();
+        String json = target("/usagepoints/testUP/channels/1/data").queryParam("filter", filter).request().get(String.class);
+
+        //Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List>get("$.data")).hasSize(1);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(1468875600000L);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1468962000000L);
+        assertThat(jsonModel.<Long>get("$.data[0].readingTime")).isEqualTo(1468962000000L);
+        assertThat(jsonModel.<String>get("$.data[0].value")).isEqualTo("10");
+        assertThat(jsonModel.<Boolean>get("$.data[0].dataValidated")).isEqualTo(true);
+        assertThat(jsonModel.<String>get("$.data[0].validationResult")).isEqualTo("validationStatus.suspect");
+        assertThat(jsonModel.<String>get("$.data[0].validationAction")).isEqualTo("FAIL");
+    }
+
     private EffectiveMetrologyConfigurationOnUsagePoint mockEffectiveMetrologyConfiguration() {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
@@ -138,7 +208,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
         Channel channel = mock(Channel.class);
         ReadingTypeRequirementNode readingTypeRequirementNode = mock(ReadingTypeRequirementNode.class);
-        ReadingTypeRequirement readingTypeRequirement = mock(ReadingTypeRequirement.class);
+        ReadingTypeRequirement readingTypeRequirement = mock(FullySpecifiedReadingTypeRequirement.class);
         ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
         Formula formula = mock(Formula.class);
         ExpressionNode expressionNode = mock(ExpressionNode.class);
@@ -160,10 +230,15 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(metrologyContract));
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         when(channelsContainer.getChannels()).thenReturn(Collections.singletonList(channel));
+        when(channelsContainer.getRange()).thenReturn(Range.all());
+        when(channelsContainer.getMeter(any())).thenReturn(Optional.of(meter));
         when(channel.getMainReadingType()).thenReturn(readingType);
         when(channel.getLastDateTime()).thenReturn(Instant.ofEpochMilli(1467710958704L));
         when(intervalLength.get(ChronoUnit.DAYS)).thenReturn(1L);
         when(channel.getIntervalLength()).thenReturn(Optional.of(intervalLength));
+        when(channel.getId()).thenReturn(1L);
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(metrologyContract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(metrologyConfiguration.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
         when(deliverable.getReadingType()).thenReturn(readingType);
         doReturn(Arrays.asList(oldMeterActivation, meterActivation)).when(usagePoint).getMeterActivations();
@@ -177,6 +252,41 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(device.getChannels()).thenReturn(Collections.singletonList(deviceChannel));
         when(deviceChannel.getReadingType()).thenReturn(readingType);
         when(deviceChannel.getId()).thenReturn(1L);
+
+        // mock channel data
+        IntervalReadingRecord intervalReadingRecord = mock(IntervalReadingRecord.class);
+        when(intervalReadingRecord.getTimePeriod())
+                .thenReturn(Optional.of(Range.openClosed(Instant.ofEpochMilli(1468875600000L), Instant.ofEpochMilli(1468962000000L))));
+        when(intervalReadingRecord.getTimeStamp()).thenReturn(Instant.ofEpochMilli((1468962000000L)));
+        when(intervalReadingRecord.getValue()).thenReturn(BigDecimal.valueOf(10L));
+        ReadingQualityRecord quality = mock(ReadingQualityRecord.class);
+        ReadingQualityType qualityType = new ReadingQualityType("3.5.258");
+        when(quality.getType()).thenReturn(qualityType);
+        doReturn(Collections.singletonList(quality)).when(intervalReadingRecord).getReadingQualities();
+        List<IntervalReadingRecord> intervalReadings = Collections.singletonList(intervalReadingRecord);
+        when(channel.getIntervalReadings(any(Range.class))).thenReturn(intervalReadings);
+
+        ValidationEvaluator evaluator = mock(ValidationEvaluator.class);
+        when(validationService.getEvaluator()).thenReturn(evaluator);
+        DataValidationStatus validationStatus = mock(DataValidationStatus.class);
+        when(validationStatus.getReadingTimestamp()).thenReturn(Instant.ofEpochMilli((1468962000000L)));
+        when(validationStatus.completelyValidated()).thenReturn(true);
+        when(validationStatus.getValidationResult()).thenReturn(ValidationResult.SUSPECT);
+        ValidationRule validationRule = mock(ValidationRule.class);
+        when(validationRule.getId()).thenReturn(1L);
+        when(validationRule.getDisplayName()).thenReturn("testRule");
+        ValidationRuleSet validationRuleSet = mock(ValidationRuleSet.class);
+        when(validationRule.getRuleSet()).thenReturn(validationRuleSet);
+        ValidationRuleSetVersion ruleSetVersion = mock(ValidationRuleSetVersion.class);
+        when(ruleSetVersion.getRuleSet()).thenReturn(validationRuleSet);
+        when(validationRule.getRuleSetVersion()).thenReturn(ruleSetVersion);
+        when(validationStatus.getOffendedRules()).thenReturn(Collections.singletonList(validationRule));
+        when(evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC), channel, intervalReadings,
+                Range.openClosed(Instant.ofEpochMilli(1468846440000L), Instant.ofEpochMilli(1500382440000L))))
+                .thenReturn(Collections.singletonList(validationStatus));
+        when(evaluator.getValidationStatus(Collections.singleton(QualityCodeSystem.MDC), channel, intervalReadings,
+                Range.openClosed(Instant.ofEpochMilli(1500382440000L - 1), Instant.ofEpochMilli(1500382440000L))))
+                .thenReturn(Collections.singletonList(validationStatus));
 
         return effectiveMetrologyConfiguration;
     }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.cbo.ReadingTypeUnitConversion;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
@@ -37,9 +38,11 @@ public class UsagePointChannelInfoFactory {
         ReadingType readingType = channel.getMainReadingType();
         UsagePointChannelInfo info = new UsagePointChannelInfo();
 
+        info.id = channel.getId();
         Instant lastDateTime = channel.getLastDateTime();
         info.dataUntil = lastDateTime != null ? lastDateTime.toEpochMilli() : null;
         info.readingType = readingTypeInfoFactory.from(readingType);
+        info.flowUnit = ReadingTypeUnitConversion.isFlowUnit(readingType.getUnit()) ? "flow" : "volume";
 
         Optional<TemporalAmount> intervalLength = channel.getIntervalLength();
         if (intervalLength.isPresent()) {
