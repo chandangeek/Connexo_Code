@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.impl;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.validation.DataValidationAssociationProvider;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -18,12 +19,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalLong;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(name="com.energyict.mdc.device.data.impl.DataValidationMdcAssociationProvider",
         service = { DataValidationAssociationProvider.class },
@@ -43,89 +41,63 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
     }
 
     @Override
-    public BigDecimal getRegisterSuspects(String mRID, Range<Instant> range) {
-        Optional<Device> device = deviceService.findByUniqueMrid(mRID);
-        if (device.isPresent()) {
-            long registerSuspects = device.get()
-                    .getRegisters()
-                    .stream()
-                    .map(reg -> (device.get()
-                            .forValidation()
-                            .getValidationStatus(reg, Collections.emptyList(), range)
-                            .stream())
-                            .filter(s -> (s.getReadingQualities()
-                                    .stream()
-                                    .anyMatch(q -> q.getType()
-                                            .qualityIndex()
-                                            .orElse(QualityCodeIndex.DATAVALID)
-                                            .equals(QualityCodeIndex.SUSPECT))))
-                            .count())
-                    .filter(m -> m > 0L)
-                    .mapToLong(Long::longValue)
-                    .sum();
-
-            List<DataValidationStatus> yy = device.get()
-                    .getRegisters()
-                    .stream()
-                    .map(reg -> (device.get()
-                                    .forValidation()
-                                    .getValidationStatus(reg, Collections.emptyList(), range)
-                                    .stream())
-                                    .filter(s -> (s.getReadingQualities()
-                                            .stream()
-                                            .anyMatch(q -> q.getType()
-                                                    .qualityIndex()
-                                                    .orElse(QualityCodeIndex.DATAVALID)
-                                                    .equals(QualityCodeIndex.SUSPECT))))
-                                    .collect(Collectors.toList())
-//                            .map(DataValidationStatus::getReadingTimestamp)
-//                            .mapToLong(Instant::getEpochSecond)
-//                            .max()
-//                            .getAsLong()
-                    ).flatMap(Collection::stream).collect(Collectors.toList());
-
-            OptionalLong zz = yy.stream().mapToLong(v -> v.getReadingTimestamp().getEpochSecond()).max();
-            return new BigDecimal(registerSuspects);
-        }
-        return new BigDecimal(0);
+    public List<DataValidationStatus> getRegisterSuspects(String mRID, Range<Instant> range) {
+        return deviceService.findByUniqueMrid(mRID)
+                .map(device -> getDataValidationStatusForRegister(device, range))
+                .orElse(Collections.emptyList());
     }
 
     @Override
-    public BigDecimal getChannelsSuspects(String mRID, Range<Instant> range) {
-        Optional<Device> device = deviceService.findByUniqueMrid(mRID);
-        if (device.isPresent()) {
-            long channelsSuspects = device.get()
-                    .getLoadProfiles()
-                    .stream()
-                    .map(lp ->
-                            lp.getChannels().stream()
-                                    .flatMap(c -> c.getDevice()
-                                            .forValidation()
-                                            .getValidationStatus(c, Collections.emptyList(), range)
-                                            .stream())
-                                    .filter(s -> (s.getReadingQualities()
-                                            .stream()
-                                            .anyMatch(q -> q.getType()
-                                                    .qualityIndex()
-                                                    .orElse(QualityCodeIndex.DATAVALID)
-                                                    .equals(QualityCodeIndex.SUSPECT))))
-                                    .count())
-                    .filter(m -> m > 0L)
-                    .mapToLong(Long::longValue)
-                    .sum();
-
-            return new BigDecimal(channelsSuspects);
-        }
-        return new BigDecimal(0);
+    public List<DataValidationStatus> getChannelsSuspects(String mRID, Range<Instant> range) {
+        return deviceService.findByUniqueMrid(mRID)
+                .map(device -> getDataValidationStatusForChannels(device, range))
+                .orElse(Collections.emptyList());
     }
 
     @Override
     public boolean isAllDataValidated(String mRID, Range<Instant> range){
-        return deviceService.findByUniqueMrid(mRID).map(device -> isAllDataValidated(device, range)).orElse(false);
+        return deviceService.findByUniqueMrid(mRID)
+                .map(device -> isAllDataValidated(device, range))
+                .orElse(false);
+    }
+
+    private List<DataValidationStatus> getDataValidationStatusForRegister(Device device, Range<Instant> range){
+        return device.getRegisters()
+                .stream()
+                .map(register -> (device.forValidation()
+                        .getValidationStatus(register, Collections.emptyList(), range)
+                        .stream())
+                        .filter(dataValidationStatus -> (dataValidationStatus.getReadingQualities()
+                                .stream()
+                                .anyMatch(readingQuality -> readingQuality.getType()
+                                        .qualityIndex()
+                                        .orElse(QualityCodeIndex.DATAVALID)
+                                        .equals(QualityCodeIndex.SUSPECT))))
+                        .collect(Collectors.toList())
+                ).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    private List<DataValidationStatus> getDataValidationStatusForChannels(Device device, Range<Instant> range){
+        return device.getLoadProfiles()
+                .stream()
+                .map(loadProfile ->
+                        loadProfile.getChannels().stream()
+                                .flatMap(channel -> channel.getDevice()
+                                        .forValidation()
+                                        .getValidationStatus(channel, Collections.emptyList(), range)
+                                        .stream())
+                                .filter(dataValidationStatus -> (dataValidationStatus.getReadingQualities()
+                                        .stream()
+                                        .anyMatch(readingQuality -> readingQuality.getType()
+                                                .qualityIndex()
+                                                .orElse(QualityCodeIndex.DATAVALID)
+                                                .equals(QualityCodeIndex.SUSPECT))))
+                                .collect(Collectors.toList()))
+                .flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     private boolean isAllDataValidated(Device device, Range<Instant> range){
-        boolean isValidated = true;
+        boolean isValidated;
         List<DataValidationStatus> lpStatuses = device.getLoadProfiles().stream()
                 .flatMap(l -> l.getChannels().stream())
                 .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), range).stream())
@@ -138,7 +110,6 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
         isValidated &= lpStatuses.stream()
                 .allMatch(DataValidationStatus::completelyValidated);
 
-
         List<DataValidationStatus> rgStatuses = device.getRegisters().stream()
                 .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), range).stream())
                 .collect(Collectors.toList());
@@ -149,7 +120,6 @@ public class DataValidationMdcAssociationProvider implements DataValidationAssoc
 
         return isValidated;
     }
-
 
     @Reference
     public void setDeviceService(DeviceService deviceService) {
