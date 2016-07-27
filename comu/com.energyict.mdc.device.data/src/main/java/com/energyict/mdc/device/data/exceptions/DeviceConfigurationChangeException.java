@@ -73,6 +73,18 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
         return deviceConfigurationChangeException;
     }
 
+    public static DeviceConfigurationChangeException cannotChangeConfigOfDataLoggerSlave(Thesaurus thesaurus) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_DATALOGGER_SLAVE);
+    }
+
+    public static DeviceConfigurationChangeException cannotChangeConfigOfDataLoggerEnabledDevice(Thesaurus thesaurus) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_FROM_DATALOGGER_ENABLED);
+    }
+
+    public static DeviceConfigurationChangeException cannotchangeConfigToDataLoggerEnabled(Thesaurus thesaurus) {
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_CONFIG_TO_DATALOGGER_ENABLED);
+    }
+
     @Override
     public DeviceConfigurationChangeException get() {
         return this;
