@@ -29,7 +29,10 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_MULTIPLIER(2015, Constants.INVALID_MULTIPLIER, "Multiplier must be between {min} and {max}", Level.SEVERE),
     INVALID_UNIT(2016, Constants.INVALID_UNIT, "Invalid unit", Level.SEVERE),
     DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "MRID must be unique", Level.SEVERE),
-    NO_USAGE_POINT_FOR_MRID(2, Constants.NO_USAGE_POINT_FOR_MRID, "No usage point with MRID {0}"),
+    NO_USAGE_POINT_FOR_MRID(3002, Constants.NO_USAGE_POINT_FOR_MRID, "No usage point with MRID {0}"),
+    NO_CHANNEL_WITH_ID(3003, Constants.NO_CHANNEL_WITH_ID, "No channel with id {0}"),
+    NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT(3004, Constants.NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT, "No effective metrology configuration on usage point {0}"),
+    NO_READING_FOUND(3005, Constants.NO_READING_FOUND, "No reading found"),
 
     REQUIRED(4001, Constants.REQUIRED, "This field is required"),
     FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION(4002, Constants.FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION, "You cannot manage custom attribute sets because metrology configuration is active."),
@@ -157,6 +160,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_MULTIPLIER = "invalidMultiplier";
         public static final String INVALID_UNIT = "invalidUnit";
         public static final String NO_USAGE_POINT_FOR_MRID = "NoUsagePointForMRID";
+        public static final String NO_CHANNEL_WITH_ID = "no.channel.for.id";
+        public static final String NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT = "no.effective.metrology.configuration.on.usage.point";
+        public static final String NO_READING_FOUND = "no.reading.found";
         public static final String NO_SUCH_LOCATION = "no.such.location";
         public static final String DUPLICATE_LOCATION_ENTRY = "duplicate.address.entry";
         public static final String FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION = "failed.to.deactivate.metrology.configuration";
