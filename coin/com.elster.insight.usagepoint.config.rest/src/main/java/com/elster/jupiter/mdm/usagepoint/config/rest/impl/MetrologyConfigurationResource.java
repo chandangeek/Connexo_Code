@@ -291,7 +291,7 @@ public class MetrologyConfigurationResource {
         List<?> infos = customPropertySets
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .sorted((a, b) -> a.getCustomPropertySet().getName().compareToIgnoreCase(b.getCustomPropertySet().getName()))
-                .map(rcps -> customPropertySetInfoFactory.getGeneralAndPropertiesInfo(rcps, metrologyConfiguration))
+                .map(rcps -> customPropertySetInfoFactory.getGeneralAndPropertiesInfo(rcps))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
     }
