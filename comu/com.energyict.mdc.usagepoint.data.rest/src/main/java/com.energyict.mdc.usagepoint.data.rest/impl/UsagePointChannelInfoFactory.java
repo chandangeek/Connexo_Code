@@ -6,7 +6,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -64,8 +64,8 @@ public class UsagePointChannelInfoFactory {
                 .filter(deliverable -> deliverable.getReadingType().equals(readingType))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Mismatch between channels configuration and reading type deliverable"));
-        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
-        readingTypeDeliverable.getFormula().getExpressionNode().accept(requirementChecker);
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+        readingTypeDeliverable.getFormula().getExpressionNode().accept(requirementsCollector);
         MeterActivation meterActivationOld = null;
         List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
         for (int i = meterActivations.size() - 1; i >= 0; i--) {
@@ -83,7 +83,7 @@ public class UsagePointChannelInfoFactory {
                 deviceChannelInfo.mRID = mrid;
                 deviceChannelInfo.from = meterActivation.getStart().toEpochMilli();
                 deviceChannelInfo.until = meterActivation.getEnd() != null ? meterActivation.getEnd().toEpochMilli() : null;
-                requirementChecker.getReadingTypeRequirements().stream()
+                requirementsCollector.getReadingTypeRequirements().stream()
                         .flatMap(readingTypeRequirement -> readingTypeRequirement.getMatchingChannelsFor(meterActivation.getChannelsContainer()).stream())
                         .forEach(ch -> {
                             ReadingType mainReadingType = ch.getMainReadingType();
