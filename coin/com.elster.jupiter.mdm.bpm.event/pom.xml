@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>mdm.parent</artifactId>
+        <version>1.1.0${revision}</version>
+        <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>bpm.event.propagator</artifactId>
+    <version>1.0.0${revision}</version>
+    <packaging>bundle</packaging>
+    <name>[MDM] mdm.bpm.event.propagator</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
+        </dependency>
+        <!-- Testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-assert-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-assert</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.test-framework.providers</groupId>
+            <artifactId>jersey-test-framework-provider-inmemory</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
