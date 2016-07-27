@@ -91,7 +91,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
 
     @Test
     public void testGetNoChannels() {
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
 
         //Business method
         String json = target("/usagepoints/testUP/channels").request().get(String.class);
@@ -105,7 +105,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
     @Test
     public void testGetChannels() {
         EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
 
         //Business method
         String json = target("/usagepoints/testUP/channels").request().get(String.class);
