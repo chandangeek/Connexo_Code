@@ -140,6 +140,7 @@ public class MultisenseHeadEndInterfaceTest {
 
     @Before
     public void setup() {
+        when(clock.instant()).thenReturn(Instant.EPOCH);
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
         when(user.hasPrivilege(KnownAmrSystem.MDC.getName(), Privileges.Constants.VIEW_DEVICE)).thenReturn(true);
         Map<KnownAmrSystem, String> knownAmrSystemStringMap = new HashMap<>();
@@ -168,6 +169,7 @@ public class MultisenseHeadEndInterfaceTest {
 
         when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(any(DeviceConfiguration.class))).thenReturn(Collections.singletonList(readingType));
         when(device.getDeviceConfiguration().getDeviceType().getId()).thenReturn(3L);
+        when(device.getDeviceConfiguration().getComTaskEnablements()).thenReturn(Collections.emptyList());
         when(meteringService.getEndDeviceControlType(EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH.getEndDeviceControlTypeMRID())).thenReturn(Optional.of(contactorOpenEndDeviceControlType));
         when(meteringService.getEndDeviceControlType(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH.getEndDeviceControlTypeMRID())).thenReturn(Optional.of(contactoCloseEndDeviceControlType));
     }
