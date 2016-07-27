@@ -393,12 +393,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 },
                 failure: function (response) {
                     viewport.setLoading(false);
-                    var failureResponseText;
-
                     if (response.status == 400) {
-                        failureResponseText = Ext.decode(response.responseText, true);
-
-                        if (failureResponseText) {
+                        var failureResponseText = Ext.decode(response.responseText, true);
+                        if (failureResponseText && failureResponseText.error !== 'cannotAddChannelValueWhenLinkedToSlave') {
                             Ext.create('Uni.view.window.Confirmation', {
                                 confirmText: Uni.I18n.translate('general.retry', 'MDC', 'Retry'),
                                 closeAction: 'destroy',
