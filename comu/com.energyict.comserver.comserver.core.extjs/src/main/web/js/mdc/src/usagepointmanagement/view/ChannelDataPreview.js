@@ -86,14 +86,14 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                             renderer: function (value) {
                                 return me.displayValidationResult(true, value);
                             }
-                        },
+                        }/*,
                         {
                             xtype: 'reading-qualities-field',
                             itemId: 'validationRules-field',
                             fieldLabel: Uni.I18n.translate('general.readingQualities', 'MDC', 'Reading qualities'),
                             name: 'validationRules',
                             router: me.router
-                        }
+                         }*/
                     ]
                 }
             }

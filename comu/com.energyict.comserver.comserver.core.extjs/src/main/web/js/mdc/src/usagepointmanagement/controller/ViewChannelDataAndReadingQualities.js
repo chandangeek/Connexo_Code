@@ -97,22 +97,9 @@ Ext.define('Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualiti
 
     showPreview: function (selectionModel, record) {
         var me = this,
-            preview = me.getPreview(),
-            validation = record.get('validation');
+            preview = me.getPreview();
 
-        if (validation === 'NOT_VALIDATED' || validation === 'OK') {
-            preview.loadRecord(record);
-        } else {
-            preview.setLoading();
-            me.getModel('Mdc.usagepointmanagement.model.ChannelReading').load(record.getId(), {
-                success: function (reading) {
-                    preview.loadRecord(reading);
-                },
-                callback: function () {
-                    preview.setLoading(false);
-                }
-            });
-        }
+        preview.loadRecord(record);
     },
 
     setDataFilter: function (channel) {
