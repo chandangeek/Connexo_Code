@@ -141,6 +141,10 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataPreview', {
                 OK: {
                     icon: '',
                     text: Uni.I18n.translate('general.notSuspect', 'MDC', 'Not suspect')
+                },
+                NO_LINKED_DEVICES: {
+                    icon: '<span class="icon-flag5" style="color:#686868"></span>',
+                    text: Uni.I18n.translate('validationStatus.noLinkedDevices', 'MDC', 'No linked devices')
                 }
             };
 

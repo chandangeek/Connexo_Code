@@ -11,20 +11,24 @@ Ext.define('Mdc.usagepointmanagement.model.ChannelReading', {
             mapping: function (data) {
                 var result = 'NOT_VALIDATED';
 
-                switch (data.validationResult) {
-                    case 'validationStatus.ok':
-                        result = 'OK';
-                        break;
-                    case 'validationStatus.suspect':
-                        switch (data.validationAction.toLowerCase()) {
-                            case 'warnOnly':
-                                result = 'INFORMATIVE';
-                                break;
-                            case 'fail':
-                                result = 'SUSPECT';
-                                break;
-                        }
-                        break;
+                if (!data.readingTime && !data.value) {
+                    result = 'NO_LINKED_DEVICES';
+                } else {
+                    switch (data.validationResult) {
+                        case 'validationStatus.ok':
+                            result = 'OK';
+                            break;
+                        case 'validationStatus.suspect':
+                            switch (data.validationAction.toLowerCase()) {
+                                case 'warnOnly':
+                                    result = 'INFORMATIVE';
+                                    break;
+                                case 'fail':
+                                    result = 'SUSPECT';
+                                    break;
+                            }
+                            break;
+                    }
                 }
 
                 return result;
