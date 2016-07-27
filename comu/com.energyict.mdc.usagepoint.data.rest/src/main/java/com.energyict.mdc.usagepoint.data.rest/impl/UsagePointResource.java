@@ -10,7 +10,7 @@ import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -163,9 +163,9 @@ public class UsagePointResource {
         Optional<ReadingTypeDeliverable> readingTypeDeliverable = contract.getDeliverables().stream()
                 .filter(deliverable -> deliverable.getReadingType().equals(channel.getMainReadingType()))
                 .findFirst();
-        ReadingTypeRequirementChecker readingTypeRequirementChecker = new ReadingTypeRequirementChecker();
-        readingTypeDeliverable.get().getFormula().getExpressionNode().accept(readingTypeRequirementChecker);
-        List<ReadingTypeRequirement> readingTypeRequirements = readingTypeRequirementChecker.getReadingTypeRequirements();
+        ReadingTypeRequirementsCollector readingTypeRequirementsCollector = new ReadingTypeRequirementsCollector();
+        readingTypeDeliverable.get().getFormula().getExpressionNode().accept(readingTypeRequirementsCollector);
+        List<ReadingTypeRequirement> readingTypeRequirements = readingTypeRequirementsCollector.getReadingTypeRequirements();
         if (!readingTypeRequirements.isEmpty()) {
             FullySpecifiedReadingTypeRequirement readingTypeRequirement = (FullySpecifiedReadingTypeRequirement) readingTypeRequirements.get(0);// expecting max 1 requirement
             return Optional.of(readingTypeRequirement);
