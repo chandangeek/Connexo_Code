@@ -138,8 +138,8 @@ public class DataAggregationCommands {
     private void showReading(BaseReadingRecord readingRecord) {
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-                        .withLocale( Locale.UK )
-                        .withZone( ZoneId.systemDefault() );
+                        .withLocale(Locale.UK)
+                        .withZone(ZoneId.systemDefault());
 
         List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
         if (qualities.isEmpty()) {
@@ -149,7 +149,6 @@ public class DataAggregationCommands {
                     + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
         }
     }
-
 
 
     private String getValue(BaseReadingRecord reading) {

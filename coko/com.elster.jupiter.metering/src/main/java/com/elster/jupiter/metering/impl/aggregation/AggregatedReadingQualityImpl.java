@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.aggregation.AggregatedReadingQuality;
@@ -11,13 +10,13 @@ import com.elster.jupiter.metering.aggregation.AggregatedReadingQuality;
 import java.time.Instant;
 import java.util.Optional;
 
-public class AggregatedReadingQualityImpl implements AggregatedReadingQuality {
+class AggregatedReadingQualityImpl implements AggregatedReadingQuality {
 
     private final ReadingType readingType;
     private final ReadingQualityType readingQualityType;
     private final Instant readingTimestamp;
 
-    public AggregatedReadingQualityImpl(ReadingType readingType, ReadingQualityType readingQualityType, Instant readingTimestamp) {
+    AggregatedReadingQualityImpl(ReadingType readingType, ReadingQualityType readingQualityType, Instant readingTimestamp) {
         this.readingType = readingType;
         this.readingQualityType = readingQualityType;
         this.readingTimestamp = readingTimestamp;
@@ -109,15 +108,15 @@ public class AggregatedReadingQualityImpl implements AggregatedReadingQuality {
     }
 
     public boolean isSuspect() {
-        return getType().getCode().equals(ReadingQuality.DERIVED_SUSPECT);
+        return getType().getCode().equals(ReadingQuality.DERIVED_SUSPECT.getCode());
     }
 
     public boolean isMissing() {
-        return getType().getCode().equals(ReadingQuality.DERIVED_MISSING);
+        return getType().getCode().equals(ReadingQuality.DERIVED_MISSING.getCode());
     }
 
     public boolean isIndeterministic() {
-        return getType().getCode().equals(ReadingQuality.DERIVED_INDETERMINISTIC);
+        return getType().getCode().equals(ReadingQuality.DERIVED_INDETERMINISTIC.getCode());
     }
 
     public boolean hasEditCategory() {

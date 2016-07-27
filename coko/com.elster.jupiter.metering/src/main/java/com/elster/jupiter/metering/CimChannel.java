@@ -62,6 +62,7 @@ public interface CimChannel {
 
     /**
      * Sets a given list of {@link BaseReading BaseReadings} as addition/editing result.
+     *
      * @param system {@link QualityCodeSystem} that handles editing.
      * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
      */
@@ -69,6 +70,7 @@ public interface CimChannel {
 
     /**
      * Sets a given list of {@link BaseReading BaseReadings} as confirmation result.
+     *
      * @param system {@link QualityCodeSystem} that handles confirmation.
      * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
      */
@@ -76,6 +78,7 @@ public interface CimChannel {
 
     /**
      * Sets a given list of {@link BaseReading BaseReadings} as estimation result.
+     *
      * @param system {@link QualityCodeSystem} that handles estimation.
      * @param readings A list of {@link BaseReading BaseReadings} to put to channel.
      */

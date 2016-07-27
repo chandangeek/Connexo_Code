@@ -156,6 +156,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         createServices(bundleContext);
         registerDatabaseTables();
         registerDataModel();
+        registerUsagePointSearchDoamin();
         installDataModel();
         registerServices(bundleContext);
     }
@@ -220,7 +221,6 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private void registerServices(BundleContext bundleContext) {
         registerMeteringService(bundleContext);
         registerDataAggregationService(bundleContext);
-        registerUsagePointSearchDoamin();
         registerMetrologyConfigurationService(bundleContext); // Search domain must be already registered
     }
 

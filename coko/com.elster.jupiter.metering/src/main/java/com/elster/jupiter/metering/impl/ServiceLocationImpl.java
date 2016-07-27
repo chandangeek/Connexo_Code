@@ -23,7 +23,7 @@ final class ServiceLocationImpl implements ServiceLocation {
 	private static final String GOOGLE_GEOCODED = "GG";
     private static final int GOOGLE_GEOCODE_FIELD_COUNT = 3;
     // persistent fields
-    @SuppressWarnings("unused") // Managed by ORM
+	@SuppressWarnings("unused") // Managed by ORM
 	private long id;
 	private String aliasName;
 	private String description;
@@ -41,11 +41,11 @@ final class ServiceLocationImpl implements ServiceLocation {
 	private String accessMethod;
 	private boolean needsInspection;
 	private String siteAccessProblem;
-    @SuppressWarnings("unused") // Managed by ORM
+	@SuppressWarnings("unused") // Managed by ORM
 	private long version;
-    @SuppressWarnings("unused") // Managed by ORM
+	@SuppressWarnings("unused") // Managed by ORM
 	private Instant createTime;
-    @SuppressWarnings("unused") // Managed by ORM
+	@SuppressWarnings("unused") // Managed by ORM
 	private Instant modTime;
 	@SuppressWarnings("unused")
 	private String userName;
@@ -56,9 +56,9 @@ final class ServiceLocationImpl implements ServiceLocation {
     private final EventService eventService;
 
     @Inject
-    ServiceLocationImpl(DataModel dataModel, EventService eventService) {
-        this.dataModel = dataModel;
-        this.eventService = eventService;
+	ServiceLocationImpl(DataModel dataModel, EventService eventService) {
+		this.dataModel = dataModel;
+		this.eventService = eventService;
     }
 
 	@Override
@@ -263,7 +263,7 @@ final class ServiceLocationImpl implements ServiceLocation {
 		return createTime;
 	}
 
-    @Override
+	@Override
 	public Instant getModificationDate() {
 		return modTime;
 	}
@@ -292,11 +292,11 @@ final class ServiceLocationImpl implements ServiceLocation {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
-            return true;
-        }
+			return true;
+		}
 		if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+			return false;
+		}
 		ServiceLocationImpl that = (ServiceLocationImpl) o;
 		return Objects.equals(id, that.id);
 	}
