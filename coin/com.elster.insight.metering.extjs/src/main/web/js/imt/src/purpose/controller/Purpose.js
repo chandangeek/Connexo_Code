@@ -81,11 +81,11 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         purposes: purposes,
                         purpose: purpose
                     });
+                widget.down('#purpose-details-form').loadRecord(purpose);
+                app.fireEvent('changecontentevent', widget);
                 if (mainView.down('purpose-actions-menu')) {
                     mainView.down('purpose-actions-menu').record = purpose;
                 }
-                widget.down('#purpose-details-form').loadRecord(purpose);
-                app.fireEvent('changecontentevent', widget);
                 mainView.setLoading(false);
                 me.loadOutputs(mRID, purposeId);
             },
