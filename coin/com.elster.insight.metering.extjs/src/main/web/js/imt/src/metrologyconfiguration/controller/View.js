@@ -109,7 +109,13 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                         return record
                     });
                 }));
-                store.load();
+                store.load({
+                    callback: function () {
+                        if(record.get('status').id == 'active' && !store.getCount()){
+                            widget.down('#cas-preview-container').hide();
+                        }
+                    }
+                });
                 pageMainContent.setLoading(false);
 
                 widget.down('cas-grid').on('select', me.showCasPreview.bind(me, widget.down('cas-detail-form')));

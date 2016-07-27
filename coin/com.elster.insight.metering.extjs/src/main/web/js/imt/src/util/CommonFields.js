@@ -66,10 +66,35 @@ Ext.define('Imt.util.CommonFields', {
         return fields;
     },
 
-    prepareCustomProperties: function(properties) {
-        var attributes = '';
+    prepareCustomProperties: function(properties, upCustomPropertySets) {
+        var attributes = '',
+            propertyValue;
         properties.each(function (cps) {
             attributes += cps.get('name');
+
+            if(upCustomPropertySets){
+                upCustomPropertySets.each(function (upCustomPropertySet) {
+                    if(upCustomPropertySet.get('customPropertySetId') == cps.get('customPropertySet').id){
+                        upCustomPropertySet.properties().each(function(property){
+                            if(cps.get('key') == property.get('key')){
+                                console.log(property.getPropertyValue().get('displayValue'));
+                                console.log(property.getPropertyValue());
+                                if(property.getPropertyValue().get('value') && property.getPropertyValue().get('value').displayValue){
+                                    propertyValue = property.getPropertyValue().get('value').id + ' '
+                                        + property.getPropertyValue().get('value').displayValue;
+                                } else if (property.getPropertyValue().get('value')){
+                                    propertyValue = property.getPropertyValue().get('value');
+                                } else {
+                                    propertyValue = '-'
+                                }
+                                attributes += ' ' + propertyValue;
+                            }
+                        });
+
+                    }
+                });
+
+            }
             attributes += '<span class="icon-info" style="display: inline-block; font-size:16px; margin-left: 16px" data-qtip="'
                 + Uni.I18n.translate('general.tooltip.partOfCustomAttributeSet', 'IMT', 'Part of {0} custom attribute set', [cps.get('customPropertySet').name])
                 + '"></span>';

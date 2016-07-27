@@ -11,15 +11,44 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview
             {
                 xtype: 'fieldcontainer',
                 itemId: 'purposes-preview-container',
-                fieldLabel: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
+                fieldLabel: Uni.I18n.translate('form.metrologyconfiguration.section.meterRoles', 'IMT', 'Meter roles'),
                 defaults: {
                     xtype: 'displayfield',
                     labelWidth: 250
                 },
                 layout: 'vbox'
+            },
+            {
+                xtype: 'fieldcontainer',
+                itemId: 'purpose-preview-formula-components',
+                fieldLabel: Uni.I18n.translate('form.metrologyconfiguration.section.formulaComponents', 'IMT', 'Formula components'),
+                layout: 'vbox',
+                labelAlign: 'top',
+                defaults: {
+                    xtype: 'displayfield',
+                    labelWidth: 200
+                }
             }
         ];
         me.callParent(arguments);
+    },
+
+    addFormulaComponents: function (formula, upCustomPropertySets) {
+        var me = this,
+            formulaComponentsContainer = me.down('#purpose-preview-formula-components'),
+            formulaComponents,
+            customProperties;
+
+        Ext.suspendLayouts();
+
+        formulaComponents = Imt.util.CommonFields.prepareReadingTypeRequirementFields(formula.readingTypeRequirements());
+        customProperties = Imt.util.CommonFields.prepareCustomProperties(formula.customProperties(), upCustomPropertySets);
+        if (customProperties) {
+            formulaComponents.push(customProperties);
+        }
+
+        formulaComponentsContainer.add(formulaComponents);
+        Ext.resumeLayouts(true);
     }
 });
 

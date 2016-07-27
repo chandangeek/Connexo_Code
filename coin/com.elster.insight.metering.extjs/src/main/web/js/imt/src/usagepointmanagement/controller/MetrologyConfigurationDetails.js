@@ -24,6 +24,7 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             selector: 'usage-point-metrology-configuration-details'
         }
     ],
+    usagePoint: null,
 
     init: function () {
         this.control({
@@ -41,12 +42,14 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
         usagePointsController.loadUsagePoint(mRID, {
             success: function (types, usagePoint) {
+                me.usagePoint = usagePoint;
                 me.getApplication().fireEvent('changecontentevent', Ext.widget('usage-point-metrology-configuration-details', {
                     itemId: 'usage-point-metrology-configuration-details',
                     router: router,
                     usagePoint: usagePoint,
                     meterRolesAvailable: usagePoint.get('metrologyConfiguration_meterRoles')
                 }));
+
             },
             failure: function () {
                 viewport.setLoading(false);
@@ -55,8 +58,10 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
     },
 
     showPreview: function (selectionModel, record) {
-        var me = this;
-        
+        var me = this,
+            formula,
+            metrologyContracts = me.usagePoint.get('metrologyConfiguration').metrologyContracts;
+
         Ext.suspendLayouts();
         me.getPage().down('purposes-preview').setTitle(Ext.String.htmlEncode(record.get('name')));
         me.getPage().down('#purposes-preview-container').removeAll(true);
@@ -83,6 +88,19 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
                     value: deviceLink
                 }
             ));
+        });
+
+        Ext.Array.each(metrologyContracts, function (metrologyContract) {
+            if(metrologyContract.name == record.get('name')){
+                Ext.Array.each(metrologyContract.readingTypeDeliverables, function (readingTypeDeliverable) {
+
+                    formula = Ext.create('Imt.metrologyconfiguration.model.Formula',readingTypeDeliverable.formula);
+                    formula.readingTypeRequirements().loadData(readingTypeDeliverable.formula.readingTypeRequirements);
+                    formula.customProperties().loadData(readingTypeDeliverable.formula.customProperties);
+
+                    me.getPage().down('purposes-preview').addFormulaComponents(formula, me.usagePoint.customPropertySets());
+                });
+            }
         });
         Ext.resumeLayouts(true);
     }
