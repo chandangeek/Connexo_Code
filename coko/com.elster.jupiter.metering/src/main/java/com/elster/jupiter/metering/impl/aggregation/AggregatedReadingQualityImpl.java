@@ -108,15 +108,15 @@ public class AggregatedReadingQualityImpl implements AggregatedReadingQuality {
     }
 
     public boolean isSuspect() {
-        return getType().getCode().equals(ReadingQuality.DERIVED_SUSPECT);
+        return getType().getCode().equals(ReadingQuality.DERIVED_SUSPECT.getCode());
     }
 
     public boolean isMissing() {
-        return getType().getCode().equals(ReadingQuality.DERIVED_MISSING);
+        return getType().getCode().equals(ReadingQuality.DERIVED_MISSING.getCode());
     }
 
     public boolean isIndeterministic() {
-        return getType().getCode().equals(ReadingQuality.DERIVED_INDETERMINISTIC);
+        return getType().getCode().equals(ReadingQuality.DERIVED_INDETERMINISTIC.getCode());
     }
 
     public boolean hasEditCategory() {
