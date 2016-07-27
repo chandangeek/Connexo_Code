@@ -156,19 +156,45 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
             builder.append("        UPPERADDRESSDETAIL, UPPERZIPCODE from mtr_locationmember where ");
             builder.add(toSqlFragment("LOCATIONID", condition, now));
             builder.append("   ) locIn ");
-            builder.append("    on (locIn.UPPERCOUNTRYCODE = locOut.UPPERCOUNTRYCODE OR locIn.UPPERCOUNTRYCODE is null)");
-            builder.append("    AND (locIn.UPPERCOUNTRYNAME = locOut.UPPERCOUNTRYNAME OR locIn.UPPERCOUNTRYNAME is null)");
-            builder.append("    AND (locIn.UPPERADMINISTRATIVEAREA = locOut.UPPERADMINISTRATIVEAREA OR locIn.UPPERADMINISTRATIVEAREA is null)");
-            builder.append("    AND (locIn.UPPERLOCALITY = locOut.UPPERLOCALITY OR locIn.UPPERLOCALITY is null)");
-            builder.append("    AND (locIn.UPPERSUBLOCALITY = locOut.UPPERSUBLOCALITY OR locIn.UPPERSUBLOCALITY is null)");
-            builder.append("    AND (locIn.UPPERSTREETTYPE = locOut.UPPERSTREETTYPE OR locIn.UPPERSTREETTYPE is null)");
-            builder.append("    AND (locIn.UPPERSTREETNAME = locOut.UPPERSTREETNAME OR locIn.UPPERSTREETNAME is null)");
-            builder.append("    AND (locIn.UPPERSTREETNUMBER = locOut.UPPERSTREETNUMBER OR locIn.UPPERSTREETNUMBER is null)");
-            builder.append("    AND (locIn.UPPERESTABLISHMENTTYPE = locOut.UPPERESTABLISHMENTTYPE OR locIn.UPPERESTABLISHMENTTYPE is null)");
-            builder.append("    AND (locIn.UPPERESTABLISHMENTNAME = locOut.UPPERESTABLISHMENTNAME OR locIn.UPPERESTABLISHMENTNAME is null)");
-            builder.append("    AND (locIn.UPPERESTABLISHMENTNUMBER = locOut.UPPERESTABLISHMENTNUMBER OR locIn.UPPERESTABLISHMENTNUMBER is null)");
-            builder.append("    AND (locIn.UPPERADDRESSDETAIL = locOut.UPPERADDRESSDETAIL OR locIn.UPPERADDRESSDETAIL is null)");
-            builder.append("    AND (locIn.UPPERZIPCODE = locOut.UPPERZIPCODE OR locIn.UPPERZIPCODE is null)");
+            builder.append("    on ((locIn.UPPERCOUNTRYCODE = locOut.UPPERCOUNTRYCODE AND locIn.UPPERCOUNTRYCODE is not null)");
+            builder.append("        OR (locOut.UPPERCOUNTRYCODE is null AND locIn.UPPERCOUNTRYCODE is null))");
+
+            builder.append("    AND ((locIn.UPPERCOUNTRYNAME = locOut.UPPERCOUNTRYNAME AND locIn.UPPERCOUNTRYNAME is not null)");
+            builder.append("        OR (locOut.UPPERCOUNTRYNAME is null AND locIn.UPPERCOUNTRYNAME is null))");
+
+            builder.append("    AND ((locIn.UPPERADMINISTRATIVEAREA = locOut.UPPERADMINISTRATIVEAREA AND locIn.UPPERADMINISTRATIVEAREA is not null)");
+            builder.append("        OR (locOut.UPPERADMINISTRATIVEAREA is null AND locIn.UPPERADMINISTRATIVEAREA is null))");
+
+            builder.append("    AND ((locIn.UPPERLOCALITY = locOut.UPPERLOCALITY AND locIn.UPPERLOCALITY is not null)");
+            builder.append("        OR (locOut.UPPERLOCALITY is null AND locIn.UPPERLOCALITY is null))");
+
+            builder.append("    AND ((locIn.UPPERSUBLOCALITY = locOut.UPPERSUBLOCALITY AND locIn.UPPERSUBLOCALITY is not null)");
+            builder.append("        OR (locOut.UPPERSUBLOCALITY is null AND locIn.UPPERSUBLOCALITY is null))");
+
+            builder.append("    AND ((locIn.UPPERSTREETTYPE = locOut.UPPERSTREETTYPE AND locIn.UPPERSTREETTYPE is not null)");
+            builder.append("        OR (locOut.UPPERSTREETTYPE is null AND locIn.UPPERSTREETTYPE is null))");
+
+            builder.append("    AND ((locIn.UPPERSTREETNAME = locOut.UPPERSTREETNAME AND locIn.UPPERSTREETNAME is not null)");
+            builder.append("        OR (locOut.UPPERSTREETNAME is null AND locIn.UPPERSTREETNAME is null))");
+
+            builder.append("    AND ((locIn.UPPERSTREETNUMBER = locOut.UPPERSTREETNUMBER AND locIn.UPPERSTREETNUMBER is not null)");
+            builder.append("        OR (locOut.UPPERSTREETNUMBER is null AND locIn.UPPERSTREETNUMBER is null))");
+
+            builder.append("    AND ((locIn.UPPERESTABLISHMENTTYPE = locOut.UPPERESTABLISHMENTTYPE AND locIn.UPPERESTABLISHMENTTYPE is not null)");
+            builder.append("        OR (locOut.UPPERESTABLISHMENTTYPE is null AND locIn.UPPERESTABLISHMENTTYPE is null))");
+
+            builder.append("    AND ((locIn.UPPERESTABLISHMENTNAME = locOut.UPPERESTABLISHMENTNAME AND locIn.UPPERESTABLISHMENTNAME is not null)");
+            builder.append("        OR (locOut.UPPERESTABLISHMENTNAME is null AND locIn.UPPERESTABLISHMENTNAME is null))");
+
+            builder.append("    AND ((locIn.UPPERESTABLISHMENTNUMBER = locOut.UPPERESTABLISHMENTNUMBER AND locIn.UPPERESTABLISHMENTNUMBER is not null)");
+            builder.append("        OR (locOut.UPPERESTABLISHMENTNUMBER is null AND locIn.UPPERESTABLISHMENTNUMBER is null))");
+
+            builder.append("    AND ((locIn.UPPERADDRESSDETAIL = locOut.UPPERADDRESSDETAIL AND locIn.UPPERADDRESSDETAIL is not null)");
+            builder.append("        OR (locOut.UPPERADDRESSDETAIL is null AND locIn.UPPERADDRESSDETAIL is null))");
+
+            builder.append("    AND ((locIn.UPPERZIPCODE = locOut.UPPERZIPCODE AND locIn.UPPERZIPCODE is not null)");
+            builder.append("        OR (locOut.UPPERZIPCODE is null AND locIn.UPPERZIPCODE is null))");
+
             builder.append(" ) ");
         }
         return builder;
