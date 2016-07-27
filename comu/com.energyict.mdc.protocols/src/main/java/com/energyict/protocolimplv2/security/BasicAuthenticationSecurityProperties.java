@@ -43,7 +43,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
 
             @Override
             public String databaseName() {
-                return "USERNAME";
+                return "USER_NME";
             }
         };
 
@@ -59,10 +59,10 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
 
         public void addTo(Table table) {
             table
-                    .column(this.databaseName())
-                    .varChar()
-                    .map(this.javaName())
-                    .add();
+                .column(this.databaseName())
+                .varChar()
+                .map(this.javaName())
+                .add();
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -79,15 +79,13 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         this.password = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.PASSWORD.javaName());
-        this.userName = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER
-                .getKey());
+        this.userName = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey());
     }
 
     @Override
     protected void copyActualPropertiesTo(CustomPropertySetValues propertySetValues) {
         if (!is(this.password).empty()) {
             setTypedPropertyValueTo(propertySetValues, DeviceSecurityProperty.PASSWORD.javaName(), this.password);
-
         }
         this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey(), this.userName);
     }
