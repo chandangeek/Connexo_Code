@@ -5,19 +5,41 @@ Ext.define('Imt.purpose.view.OutputReadings', {
     requires: [
         'Uni.grid.FilterPanelTop',
         'Imt.purpose.view.ReadingsGraph',
-        'Imt.purpose.view.ReadingsList'
+        'Imt.purpose.view.ReadingsList',
+        'Imt.purpose.view.ReadingPreview',
+        'Imt.purpose.view.NoReadingsFoundPanel',
+        'Imt.purpose.view.RegisterDataGrid'
     ],
+    dataStore: null,
 
     initComponent: function () {
         var me = this,
             output = me.output,
-            interval = me.interval,
-            all = interval.get('all'),
-            duration = all.count + all.timeUnit,
-            durations = Ext.create('Uni.store.Durations'),
-            isComplete = me.purpose.get('status').id === 'complete';
+            isComplete = me.purpose.get('status').id === 'complete',
+            emptyComponent = {
+                xtype: 'no-readings-found-panel',
+                itemId: 'readings-empty-panel'
+            },
+            durations,
+            all,
+            duration;
 
-        durations.loadData(interval.get('duration'));
+        if (me.interval) {
+            durations = Ext.create('Uni.store.Durations');
+            all = me.interval.get('all');
+            duration = {
+                defaultFromDate: me.interval.getIntervalStart(output.get('lastReading') || new Date()),
+                defaultDuration: all.count + all.timeUnit,
+                durationStore: durations
+            };
+            durations.loadData(me.interval.get('duration'));
+        } else {
+            duration = {
+                defaultFromDate: moment().startOf('day').subtract(1, 'years').toDate(),
+                defaultDuration: '1years'
+            };
+        }
+
         me.items = [
             {
                 xtype: 'uni-form-empty-message',
@@ -27,50 +49,64 @@ Ext.define('Imt.purpose.view.OutputReadings', {
             {
                 xtype: 'uni-grid-filterpaneltop',
                 itemId: 'output-readings-topfilter',
-                store: 'Imt.purpose.store.Readings',
+                store: me.dataStore,
                 hasDefaultFilters: true,
                 hidden: !isComplete,
                 filters: [
-                    {
+                    Ext.apply({
                         type: 'duration',
                         dataIndex: 'interval',
                         dataIndexFrom: 'intervalStart',
                         dataIndexTo: 'intervalEnd',
-                        defaultFromDate: interval.getIntervalStart(output.get('lastReading') || new Date()),
-                        defaultDuration: duration,
                         text: Uni.I18n.translate('general.startDate', 'IMT', 'Start date'),
-                        durationStore: durations,
                         loadStore: false,
-                        //hideDateTtimeSelect: me.filterDefault.hideDateTtimeSelect,
                         itemId: 'devicechannels-topfilter-duration'
-                    }
+                    }, duration)
                 ]
-            },
-            {
-                xtype: 'readings-graph',
-                output: me.output,
-                interval: me.interval,
-                hidden: !isComplete
-            },
-            {
-                xtype: 'emptygridcontainer',
-                hidden: !isComplete,
-                grid: {
-                    xtype: 'readings-list',
-                    output: me.output,
-                    router: me.router
-                },
-                emptyComponent: {
-                    xtype: 'no-items-found-panel',
-                    itemId: 'readings-empty-panel',
-                    title: Uni.I18n.translate('readings.list.empty', 'IMT', 'No data is available'),
-                    reasons: [
-                        Uni.I18n.translate('readings.list.reason1', 'IMT', 'No data has been collected yet'),
-                        Uni.I18n.translate('readings.list.reason2', 'IMT', 'Filter is too narrow')
-                    ]
-                }
             }
         ];
+
+        switch (output.get('outputType')) {
+            case 'channel':
+                me.items.push(
+                    {
+                        xtype: 'readings-graph',
+                        router: me.router,
+                        output: me.output,
+                        interval: me.interval,
+                        hidden: !isComplete
+                    },
+                    {
+                        xtype: 'preview-container',
+                        hidden: !isComplete,
+                        grid: {
+                            xtype: 'readings-list',
+                            output: me.output,
+                            router: me.router
+                        },
+                        emptyComponent: emptyComponent,
+                        previewComponent: {
+                            xtype: 'reading-preview',
+                            itemId: 'reading-preview',
+                            output: me.output,
+                            router: me.router,
+                            hidden: true
+                        }
+                    }
+                );
+                break;
+            case 'register':
+                me.items.push({
+                    xtype: 'emptygridcontainer',
+                    hidden: !isComplete,
+                    grid: {
+                        xtype: 'register-data-grid',
+                        output: me.output
+                    },
+                    emptyComponent: emptyComponent
+                });
+                break;
+        }
 
         me.callParent(arguments);
     }

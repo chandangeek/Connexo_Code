@@ -7,6 +7,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
         'Imt.usagepointmanagement.model.MetrologyConfigOnUsagePoint',
         'Imt.usagepointmanagement.view.SetupActionMenu',
+        'Imt.usagepointmanagement.view.widget.DataCompletion',
         'Uni.view.widget.WhatsGoingOn'
     ],
 
@@ -117,6 +118,21 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                 ]
             }
         ];
+
+        if (me.purposes.length) {
+            me.content.push(
+                {
+                    xtype: 'data-completion-widget',
+                    itemId: 'data-completion-widget',
+                    title: Uni.I18n.translate('general.dataCompletion', 'IMT', 'Data completion'),
+                    ui: 'tile2',
+                    flex: 1,
+                    router: me.router,
+                    usagePoint: me.usagePoint,
+                    purposes: me.purposes
+                }
+            )
+        }
 
         me.side = [
             {
