@@ -18,6 +18,10 @@ public class ValidationSummaryInfo {
     public long registerSuspects;
     public boolean allDataValidated;
     public Instant lastSuspect;
+    public boolean thresholdValidator;
+    public boolean missingValuesValidator;
+    public boolean readingQualitiesValidator;
+    public boolean registerIncreaseValidator;
 
     public ValidationSummaryInfo(ValidationOverview validationOverview) {
         this.mrid = validationOverview.getMrid();
@@ -29,5 +33,9 @@ public class ValidationSummaryInfo {
         this.registerSuspects = validationOverview.getDeviceValidationKpiResults().getRegisterSuspects();
         this.allDataValidated = validationOverview.getDeviceValidationKpiResults().isAllDataValidated();
         this.lastSuspect = validationOverview.getDeviceValidationKpiResults().getLastSuspect();
+        this.thresholdValidator = validationOverview.getDeviceValidationKpiResults().isThresholdValidator();
+        this.missingValuesValidator = validationOverview.getDeviceValidationKpiResults().isMissingValuesValidator();
+        this.readingQualitiesValidator = validationOverview.getDeviceValidationKpiResults().isReadingQualitiesValidator();
+        this.registerIncreaseValidator = validationOverview.getDeviceValidationKpiResults().isRegisterIncreaseValidator();
     }
 }
