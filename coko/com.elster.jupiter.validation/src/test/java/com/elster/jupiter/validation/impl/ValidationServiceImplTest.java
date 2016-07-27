@@ -42,6 +42,7 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationContext;
+import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;

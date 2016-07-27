@@ -36,6 +36,8 @@ public interface ValidationEvaluator {
 
     boolean isAllDataValidated(ChannelsContainer channelsContainer);
 
+    boolean isAllDataValidated(List<Channel> channels);
+
     /**
      * Checks if there's at least one suspect put to {@link ChannelsContainer} by one of the {@code qualityCodeSystems}.
      * @param qualityCodeSystems Systems to take into account when checking for suspects; empty set means all systems.
