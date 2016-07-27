@@ -109,12 +109,72 @@ Ext.define('Ddv.view.validations.Preview', {
                             }
                         },
                         {
+                            xtype: 'fieldcontainer',
+                            fieldLabel: Uni.I18n.translate('validations.typeOfSuspects', 'DDV', 'Type of suspects'),
+                            labelAlign: 'top',
+                            layout: 'vbox',
+                            defaults: {
+                                xtype: 'displayfield',
+                                labelWidth: 250
+                            },
+                            items: [
+                                {
+                                    fieldLabel: Uni.I18n.translate('validations.thresholdValidator', 'DDV', 'Treshold Validator'),
+                                    name: 'thresholdValidator',
+                                    itemId: 'thresholdValidator-validations-preview',
+                                    renderer: function (value) {
+                                        if (value===true) {
+                                            return 'Yes';
+                                        } else {
+                                            return 'No';
+                                        }
+                                    }
+                                },
+                                {
+                                    fieldLabel: Uni.I18n.translate('validations.missingValuesValidator', 'DDV', 'Missing Values Validator'),
+                                    name: 'missingValuesValidator',
+                                    itemId: 'missingValuesValidator-validations-preview',
+                                    renderer: function (value) {
+                                        if (value===true) {
+                                            return 'Yes';
+                                        } else {
+                                            return 'No';
+                                        }
+                                    }
+                                },
+                                {
+                                    fieldLabel: Uni.I18n.translate('validations.readingQualitiesValidator', 'DDV', 'Reading Qualities Validator'),
+                                    name: 'readingQualitiesValidator',
+                                    itemId: 'readingQualitiesValidator-validations-preview',
+                                    renderer: function (value) {
+                                        if (value===true) {
+                                            return 'Yes';
+                                        } else {
+                                            return 'No';
+                                        }
+                                    }
+                                },
+                                {
+                                    fieldLabel: Uni.I18n.translate('validations.registerIncreaseValidator', 'DDV', 'Register Increase Validator'),
+                                    name: 'registerIncreaseValidator',
+                                    itemId: 'registerIncreaseValidator-validations-preview',
+                                    renderer: function (value) {
+                                        if (value===true) {
+                                            return 'Yes';
+                                        } else {
+                                            return 'No';
+                                        }
+                                    }
+                                },
+                            ]
+                        }
+                       /* {
                             itemId: 'type-of-suspects-validations-preview',
                             fieldLabel: Uni.I18n.translate('validations.typeOfSuspects', 'DDV', 'Type of suspects'),
                             renderer: function (value, field) {
                                 return value;
                             }
-                        }
+                        }*/
                     ]
                 }
 

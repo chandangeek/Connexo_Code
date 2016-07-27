@@ -18,7 +18,11 @@ Ext.define('Ddv.model.Validation', {
         'channelSuspects',
         'lastValidation',
         'lastSuspect',
-        'typeOfSuspects'
+        'typeOfSuspects',
+        'thresholdValidator',
+        'missingValuesValidator',
+        'readingQualitiesValidator',
+        'registerIncreaseValidator'
     ],
 
     associations: [
