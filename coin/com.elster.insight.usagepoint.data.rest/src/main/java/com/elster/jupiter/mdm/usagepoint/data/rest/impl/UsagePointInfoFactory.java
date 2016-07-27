@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfoFactory;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
 import com.elster.jupiter.metering.HeatDetail;
@@ -35,6 +36,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
@@ -70,6 +72,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile CustomPropertySetInfoFactory customPropertySetInfoFactory;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile License license;
+    private volatile MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
 
     public UsagePointInfoFactory() {
     }
@@ -82,7 +85,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  BpmService bpmService,
                                  IssueService issueService,
                                  ThreadPrincipalService threadPrincipalService,
-                                 LocationService locationService) {
+                                 LocationService locationService,
+                                 MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
@@ -92,6 +96,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.setServiceCallService(serviceCallService);
         this.setBpmService(bpmService);
         this.setIssueService(issueService);
+        this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
         activate();
     }
 
@@ -190,6 +195,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .ifPresent(mc -> {
                     info.metrologyConfiguration = new MetrologyConfigurationInfo(mc, usagePoint, this.thesaurus);
                     info.displayMetrologyConfiguration = mc.getName();
+                    info.metrologyConfiguration.metrologyContracts = metrologyConfigurationInfoFactory.getMetrologyContractsInfo(mc);
                 });
 
         addDetailsInfo(info, usagePoint);

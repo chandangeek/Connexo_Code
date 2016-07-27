@@ -8,6 +8,7 @@ import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfoFactory;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
@@ -15,6 +16,7 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -25,7 +27,9 @@ import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
@@ -37,6 +41,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.ws.rs.core.Application;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -46,7 +51,7 @@ import java.util.Set;
         service = {Application.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/udr", "app=INS", "name=" + UsagePointApplication.COMPONENT_NAME})
-public class UsagePointApplication extends Application implements TranslationKeyProvider {
+public class UsagePointApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
     public static final String APP_KEY = "INS";
     public static final String COMPONENT_NAME = "UDR";
 
@@ -71,6 +76,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile ServiceCallService serviceCallService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DataAggregationService dataAggregationService;
+    private volatile TimeService timeService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -78,6 +84,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                 UsagePointResource.class,
                 DeviceResource.class,
                 UsagePointCustomPropertySetResource.class,
+                UsagePointOutputResource.class,
+                GoingOnResource.class,
                 RestValidationExceptionMapper.class
         );
     }
@@ -93,7 +101,9 @@ public class UsagePointApplication extends Application implements TranslationKey
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
+                .join(nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST))
+                .join(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
     @Override
@@ -104,6 +114,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -211,6 +226,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.locationService = locationService;
     }
 
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -218,6 +238,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(transactionService).to(TransactionService.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(timeService).to(TimeService.class);
             bind(meteringService).to(MeteringService.class);
             bind(locationService).to(LocationService.class);
             bind(meteringGroupsService).to(MeteringGroupsService.class);
@@ -240,10 +261,18 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
+            bind(OutputChannelDataInfoFactory.class).to(OutputChannelDataInfoFactory.class);
+            bind(OutputRegisterDataInfoFactory.class).to(OutputRegisterDataInfoFactory.class);
             bind(LocationInfoFactory.class).to(LocationInfoFactory.class);
             bind(GoingOnResource.class).to(GoingOnResource.class);
+            bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
+            bind(ChannelDataValidationSummaryInfoFactory.class).to(ChannelDataValidationSummaryInfoFactory.class);
+            bind(OutputInfoFactory.class).to(OutputInfoFactory.class);
+            bind(PurposeInfoFactory.class).to(PurposeInfoFactory.class);
+            bind(ValidationStatusFactory.class).to(ValidationStatusFactory.class);
         }
     }
 }

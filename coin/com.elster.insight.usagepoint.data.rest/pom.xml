@@ -144,6 +144,12 @@
             <artifactId>issue</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>upgrade</artifactId>
+        </dependency>
+
+        <!-- test dependencies -->
+        <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-inmemory</artifactId>
             <scope>test</scope>
@@ -162,6 +168,14 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>time.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>security.thread</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
             <scope>test</scope>
         </dependency>
@@ -177,7 +191,8 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>security.thread</artifactId>
+            <artifactId>search.rest</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

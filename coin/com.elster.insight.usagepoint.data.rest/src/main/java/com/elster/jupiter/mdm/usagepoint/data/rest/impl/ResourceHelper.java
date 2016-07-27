@@ -4,9 +4,12 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
@@ -35,22 +38,22 @@ public class ResourceHelper {
 
     public MeterRole findMeterRoleOrThrowException(String key) {
         return metrologyConfigurationService.findMeterRole(key)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METER_ROLE_FOR_KEY, key));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METER_ROLE_FOR_KEY, key));
     }
 
     public Meter findMeterOrThrowException(String mrid) {
         return meteringService.findMeter(mrid)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_DEVICE_FOR_MRID, mrid));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_DEVICE_FOR_MRID, mrid));
     }
 
     public UsagePoint findUsagePointByMrIdOrThrowException(String mrid) {
         return meteringService.findUsagePoint(mrid)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mrid));
     }
 
     public UsagePoint findUsagePointByIdOrThrowException(long id) {
         return meteringService.findUsagePoint(id)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_ID, id));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_USAGE_POINT_FOR_ID, id));
     }
 
     public UsagePoint findAndLockUsagePointByMrIdOrThrowException(String mrid, long version) {
@@ -58,11 +61,16 @@ public class ResourceHelper {
         return lockUsagePointOrThrowException(up.getId(), version, up.getMRID());
     }
 
+    public EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfigurationByUsagePointOrThrowException(UsagePoint usagePoint) {
+        return usagePoint.getEffectiveMetrologyConfiguration()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getMRID()));
+    }
+
     public UsagePointMetrologyConfiguration findAndLockUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
         return metrologyConfigurationService.findAndLockMetrologyConfiguration(id, version)
                 .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
                 .map(UsagePointMetrologyConfiguration.class::cast)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
     }
 
     public UsagePointMetrologyConfiguration findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
@@ -71,7 +79,7 @@ public class ResourceHelper {
                 .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
                 .map(this::isActiveMetrologyConfigurationOrThrowException)
                 .map(UsagePointMetrologyConfiguration.class::cast)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
     }
 
     private MetrologyConfiguration isActiveMetrologyConfigurationOrThrowException(MetrologyConfiguration metrologyConfiguration) {
@@ -100,5 +108,32 @@ public class ResourceHelper {
 
     public ConcurrentModificationException throwUsagePointLinkedException(String mrid) {
         return conflictFactory.conflict().withMessageBody(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION_MSG, mrid).withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, mrid).build();
+    }
+
+    public MetrologyContract findAndLockContractOnMetrologyConfiguration(PurposeInfo purposeInfo) {
+        return metrologyConfigurationService.findAndLockMetrologyContract(purposeInfo.id, purposeInfo.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(purposeInfo.name)
+                        .withActualVersion(() -> getCurrentMetrologyContractVersion(purposeInfo.id))
+                        .supplier());
+    }
+
+    public Long getCurrentMetrologyContractVersion(long id) {
+        return metrologyConfigurationService.findMetrologyContract(id)
+                .map(MetrologyContract::getVersion)
+                .orElse(null);
+    }
+
+    public MetrologyContract findMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, long contractId) {
+        return effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(contract -> contract.getId() == contractId)
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT, contractId, effectiveMC.getUsagePoint().getMRID()));
+    }
+
+    public ReadingTypeDeliverable findReadingTypeDeliverableOrThrowException(MetrologyContract metrologyContract, long outputId, String usagePointMrid) {
+        return metrologyContract.getDeliverables().stream()
+                .filter(deliverable -> deliverable.getId() == outputId)
+                .findAny()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_OUTPUT_FOR_USAGEPOINT, usagePointMrid, outputId));
     }
 }
