@@ -48,6 +48,7 @@ Ext.define('Uni.property.form.Property', {
     editButtonTooltip: Uni.I18n.translate('general.edit', 'UNI', 'Edit'),
     removeButtonTooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
     blankText: Uni.I18n.translate('general.requiredField', 'UNI', 'This field is required'),
+    context: null,
 
     /**
      * Loads record to the form.
