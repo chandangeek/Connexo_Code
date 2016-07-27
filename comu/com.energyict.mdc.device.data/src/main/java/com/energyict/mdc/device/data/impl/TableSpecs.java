@@ -132,7 +132,7 @@ public enum TableSpecs {
             table.column("INFOVALUE").varChar().map("propertyValue").add();
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEV_PROTOCOL_PROP_JRNL").since(version(10, 2));
-            table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId, propertySpec).add();
+            table.primaryKey("PK_DDC_DEVICEPROTOCOLPROP").on(deviceId, propertySpec).add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE")
                     .on(deviceId)
                     .references(DDC_DEVICE.name())
@@ -662,8 +662,7 @@ public enum TableSpecs {
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationRuleSetActivationImpl.Fields.ACTIVE.fieldName()).add();
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEVRULESETACTJRNL").since(version(10, 2));
-
-            table.primaryKey("PK_DDC_DEVICEESTRULESETACT").on(estimationActivationColumn, estimationRuleSetColumn).add();
+            table.primaryKey("PK_DDC_DEVESTRULESETACTIV").on(estimationActivationColumn, estimationRuleSetColumn).add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_RULESET")
                     .on(estimationRuleSetColumn)
                     .references(EstimationRuleSet.class)
