@@ -254,7 +254,7 @@ public class UsagePointResource {
                 .map(mc -> new MetrologyConfigurationInfo(mc, mc.getCustomPropertySets()
                         .stream()
                         .sorted((a, b) -> a.getCustomPropertySet().getName().compareToIgnoreCase(b.getCustomPropertySet().getName()))
-                        .map(rcps -> customPropertySetInfoFactory.getGeneralAndPropertiesInfo(rcps, mc))
+                        .map(rcps -> customPropertySetInfoFactory.getGeneralAndPropertiesInfo(rcps))
                         .collect(Collectors.toList())))
                 .collect(Collectors.toList());
         return new MetrologyConfigurationInfos(configs);
