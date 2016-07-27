@@ -193,7 +193,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
         try (Connection connection = dataModel.getConnection(false);
              PreparedStatement statement = locationBuilder.prepare(connection)) {
-            try (ResultSet resultSet = statement.executeQuery()) {
+             try (ResultSet resultSet = statement.executeQuery()) {
 
                 while (resultSet.next()) {
                     template = resultSet.getString("LOCATIONTEMPLATE");
