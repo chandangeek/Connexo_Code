@@ -25,8 +25,8 @@ public class ValidationResultsResourceTest extends DeviceDataValidationRestAppli
     public void testValidationOverview() {
 
         List<ValidationOverview> list = new ArrayList<>(2);
-        list.add(new ValidationOverviewImpl("ABC123451", "123451", "DT1", "DC1", new DeviceValidationKpiResults(2, 1, 1, true, Instant.now())));
-        list.add(new ValidationOverviewImpl("ABC123452", "123452", "DT2", "DC2", new DeviceValidationKpiResults(2, 1, 1, true, Instant.now())));
+        list.add(new ValidationOverviewImpl("ABC123451", "123451", "DT1", "DC1", new DeviceValidationKpiResults(2, 1, 1, 1, Instant.now())));
+        list.add(new ValidationOverviewImpl("ABC123452", "123452", "DT2", "DC2", new DeviceValidationKpiResults(2, 1, 1, 1, Instant.now())));
 
         when(deviceDataValidationService.getValidationResultsOfDeviceGroup(1L, Range.all())).thenReturn(list);
 
