@@ -6,10 +6,10 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
         'Imt.purpose.view.ValidationStatusForm'
     ],
     itemId: 'purpose-details-form',
-    layout: 'column',
+    layout: 'hbox',
     defaults: {
         xtype: 'container',
-        columnWidth: 0.5
+        flex: 1
     },
     tools: [
         {
@@ -117,7 +117,7 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
 
     loadRecord: function (record) {
         var me = this,
-            hasValidationTasks = Ext.isArray(record.get('dataValidationTasks')),
+            hasValidationTasks = !Ext.isEmpty(record.get('dataValidationTasks')),
             validationTasksEmptyMsg = me.down('#data-validation-tasks-empty-msg');
 
         Ext.suspendLayouts();
