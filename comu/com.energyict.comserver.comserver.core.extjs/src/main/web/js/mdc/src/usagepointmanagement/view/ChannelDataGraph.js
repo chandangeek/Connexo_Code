@@ -126,7 +126,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
             point.unit = unit;
             //point.multiplier = record.get('multiplier');
 
-            data.push(point);
+            data.unshift(point);
         });
 
         return {data: data, missedValues: missedValues};
