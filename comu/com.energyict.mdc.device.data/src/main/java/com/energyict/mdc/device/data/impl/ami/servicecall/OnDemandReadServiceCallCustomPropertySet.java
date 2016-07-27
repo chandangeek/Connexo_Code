@@ -25,8 +25,11 @@ import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.data.OnDemandReadServiceCallCustomPropertySet",
         service = CustomPropertySet.class,
+        property = "name=" + OnDemandReadServiceCallCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
         immediate = true)
 public class OnDemandReadServiceCallCustomPropertySet implements CustomPropertySet<ServiceCall, OnDemandReadServiceCallDomainExtension> {
+
+    public static final String CUSTOM_PROPERTY_SET_NAME = "OnDemandReadServiceCallCustomPropertySet";
 
     private volatile PropertySpecService propertySpecService;
     private volatile CustomPropertySetService customPropertySetService;

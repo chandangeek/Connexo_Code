@@ -43,6 +43,7 @@ import com.energyict.mdc.device.data.impl.ami.eventhandler.MeterReadingEventHand
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CustomPropertySetsTranslationKeys;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
@@ -313,6 +314,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
 
     @Reference(target = "(name=" + CompletionOptionsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
     public void setCompletionOptionsCustomPropertySet(CustomPropertySet customPropertySet) {
+        // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference(target = "(name=" + OnDemandReadServiceCallCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
+    public void setOnDemandReadServiceCallCustomPropertySet(CustomPropertySet customPropertySet) {
         // PATCH; required for proper startup; do not delete
     }
 

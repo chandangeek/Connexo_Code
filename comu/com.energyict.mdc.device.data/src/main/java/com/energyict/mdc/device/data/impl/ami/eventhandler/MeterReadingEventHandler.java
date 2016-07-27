@@ -43,7 +43,6 @@ public class MeterReadingEventHandler implements MessageHandler {
     @SuppressWarnings("unchecked")
     public void process(Message message) {
         Map<String, Object> messageProperties = this.jsonService.deserialize(message.getPayload(), Map.class);
-        System.out.println(messageProperties.get("event.topics").toString());
 
         if (messageProperties.get("meterId") != null) {
             findServiceCallsLinkedTo(meteringService.findMeter(Long.valueOf(messageProperties
