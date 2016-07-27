@@ -1,12 +1,13 @@
 package com.elster.jupiter.mdm.usagepoint.data.impl;
 
 import com.elster.jupiter.mdm.usagepoint.data.exceptions.MessageSeeds;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MessageSeedsTest {
 
     @Test
-    public void testAllSeedsHaveUniqueNumber(){
+    public void testAllSeedsHaveUniqueNumber() {
         Set<Integer> uniqueIds = new HashSet<>();
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(uniqueIds).as(messageSeed.name() + " does not have a unique number")
@@ -24,17 +25,16 @@ public class MessageSeedsTest {
     }
 
     @Test
-    public void testAllMessageSeedsHaveUniqueKeys () {
+    public void testAllMessageSeedsHaveUniqueKeys() {
         Set<String> uniqueKeys = new HashSet<>();
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            assertThat(uniqueKeys).as(messageSeed.name() + " does not have a unique key")
-                    .doesNotContain(messageSeed.getKey());
-            uniqueKeys.add(messageSeed.getKey());
+            assertThat(uniqueKeys.add(messageSeed.getKey())).as(messageSeed.name() + " does not have a unique key")
+                    .isEqualTo(true);
         }
     }
-    
+
     @Test
-    public void testAllSeedsHaveNonNullKey(){
+    public void testAllSeedsHaveNonNullKey() {
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(messageSeed.getKey()).as(messageSeed.name() + " has null key")
                     .isNotNull();
@@ -42,7 +42,19 @@ public class MessageSeedsTest {
     }
 
     @Test
-    public void testAllMessageSeedKeysAreWithinLengthLimit () {
+    public void testKeyDoesntStartOrEndWithANonPrintableChar() {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            String key = messageSeed.getKey();
+            assertThat(key.trim().length())
+                    .as(messageSeed.name() + " has empty key")
+                    .isNotZero()
+                    .as(messageSeed.name() + " key should not start or end with a non-printable character")
+                    .isEqualTo(key.length());
+        }
+    }
+
+    @Test
+    public void testAllMessageSeedKeysAreWithinLengthLimit() {
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
             assertThat(messageSeed.getKey().length()).as(messageSeed.name() + " key is longer than max of 256")
                     .isLessThanOrEqualTo(256);
@@ -50,10 +62,22 @@ public class MessageSeedsTest {
     }
 
     @Test
-    public void testAllSeedsHaveNonNullDefaultFormat(){
+    public void testAllSeedsHaveNonNullDefaultFormat() {
         for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            assertThat(messageSeed.getKey()).as(messageSeed.name() + " has null default format")
+            assertThat(messageSeed.getDefaultFormat()).as(messageSeed.name() + " has null default format")
                     .isNotNull();
+        }
+    }
+
+    @Test
+    public void testDefaultFormatDoesntStartOrEndWithANonPrintableChar() {
+        for (MessageSeeds messageSeed : MessageSeeds.values()) {
+            String defaultFormat = messageSeed.getDefaultFormat();
+            assertThat(defaultFormat.trim().length())
+                    .as(messageSeed.name() + " has empty default format")
+                    .isNotZero()
+                    .as(messageSeed.name() + " default format should not start or end with a non-printable character")
+                    .isEqualTo(defaultFormat.length());
         }
     }
 }
