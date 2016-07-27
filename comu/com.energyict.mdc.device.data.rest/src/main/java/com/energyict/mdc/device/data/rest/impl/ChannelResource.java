@@ -390,30 +390,45 @@ public class ChannelResource {
             @PathParam("channelid") long channelId,
             @PathParam("epochMillis") long epochMillis) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        DeviceValidation deviceValidation = channel.getDevice().forValidation();
-        boolean isValidationActive = deviceValidation.isValidationActive();
-        Instant to = Instant.ofEpochMilli(epochMillis);
-        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channel.getDevice().getZone());
-        Instant from = zonedDateTime.minus(channel.getInterval().asTemporalAmount()).toInstant();
-        Optional<LoadProfileReading> loadProfileReading = channel.getChannelData(Range.openClosed(from, to)).stream().findAny();
-        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst());
 
-        Optional<VeeReadingInfo> veeReadingInfo = dataValidationStatus.map(status -> {
-            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues().entrySet().stream().map(Map.Entry::getValue).findFirst())
-                    .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
-            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading, isValidationActive);
-        });
-        if (veeReadingInfo.isPresent()) {
-            return Response.ok(veeReadingInfo.get()).build();
-        } else {
-            Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis - 1), Instant.ofEpochMilli(epochMillis));
-            List<LoadProfileReading> channelData = channel.getChannelData(range);
-            Optional<ChannelDataInfo> found = channelData.stream()
-                    //TODO update
-                    .map(oneLoadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, oneLoadProfileReading, isValidationActive, deviceValidation, null))
-                    .findFirst();
-            return Response.ok(found.orElse(new ChannelDataInfo())).build();
-        }
+        Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis - 1), Instant.ofEpochMilli(epochMillis));
+        List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
+        Optional<VeeReadingInfo> found = channelTimeLine.stream()
+                .flatMap(channelRangePair -> {
+                            Channel channelWithData = channelRangePair.getFirst();
+                            List<LoadProfileReading> loadProfileReadings = channelWithData.getChannelData(channelRangePair.getLast());
+                            return loadProfileReadings.stream()
+                                    .map(reading -> {
+                                        DeviceValidation deviceValidation = channelWithData.getDevice().forValidation();
+
+                                        boolean isValidationActive = deviceValidation.isValidationActive();
+                                        Instant to = Instant.ofEpochMilli(epochMillis);
+                                        ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channelWithData.getDevice().getZone());
+                                        Instant from = zonedDateTime.minus(channelWithData.getInterval().asTemporalAmount()).toInstant();
+                                        Optional<LoadProfileReading> loadProfileReading = channelWithData.getChannelData(Range.openClosed(from, to)).stream().findAny();
+                                        Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValidationStates()
+                                                .entrySet()
+                                                .stream()
+                                                .map(Map.Entry::getValue)
+                                                .findFirst());
+
+                                        if (dataValidationStatus.isPresent()) {
+                                            IntervalReadingRecord channelReading = loadProfileReading.flatMap(lpReading -> lpReading.getChannelValues()
+                                                    .entrySet()
+                                                    .stream()
+                                                    .map(Map.Entry::getValue)
+                                                    .findFirst())
+                                                    .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
+                                            return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, isValidationActive);
+                                        } else {
+                                            return null;
+
+                                        }
+                                    });
+                        }
+
+                ).findFirst();
+        return Response.ok(found.orElse(new VeeReadingInfo())).build();
     }
 
     private boolean hasSuspects(ChannelDataInfo info) {
