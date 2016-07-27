@@ -711,7 +711,7 @@ public class UsagePointResource {
     public PagedInfoList getMetrologyConfigurationDeliverables(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
 
-        List<ReadingTypeDeliverablesInfo> deliverables = usagePoint.getMetrologyConfiguration().get().getContracts()
+        List<ReadingTypeDeliverablesInfo> deliverables = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts()
                 .stream()
                 .filter(MetrologyContract::isMandatory) //Temporary. Should be replaced by active/inactive check
                 .flatMap(mc -> mc.getDeliverables().stream())
