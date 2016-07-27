@@ -43,6 +43,7 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
 
     @Override
     public void calculateAndStore() {
+        dataValidationKpi.updateMembers();
         ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
         Range<Instant> range = Range.openClosed(start.toInstant(), end.toInstant());

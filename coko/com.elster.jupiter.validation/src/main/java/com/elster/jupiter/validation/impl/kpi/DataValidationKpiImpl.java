@@ -25,6 +25,7 @@ import com.elster.jupiter.validation.impl.MessageSeeds;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
 import com.elster.jupiter.validation.kpi.DataValidationKpiChild;
 import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -37,12 +38,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@MustHaveUniqueEndDeviceGroup(message=MessageSeeds.Constants.DEVICE_GROUP_MUST_BE_UNIQUE, groups={Save.Create.class, Save.Update.class})
+@MustHaveUniqueEndDeviceGroup(message = MessageSeeds.Constants.DEVICE_GROUP_MUST_BE_UNIQUE, groups = {Save.Create.class, Save.Update.class})
 public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAware {
 
     public enum Fields {
@@ -102,7 +102,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         return this;
     }
 
-    public void save(){
+    public void save() {
         if (this.getId() == 0) {
             Save.CREATE.save(this.dataModel, this);
         }
@@ -110,21 +110,23 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         Save.UPDATE.save(this.dataModel, this);
     }
 
-    void dataValidationKpiBuilder(EndDeviceGroup endDeviceGroup){
+    void dataValidationKpiBuilder(EndDeviceGroup endDeviceGroup) {
         endDeviceGroup.getMembers(Instant.now())
                 .stream()
-                .forEach(device -> {
-                    KpiBuilder builder= kpiService.newKpi();
-                    builder.interval(this.frequency);
-                    Stream.of(DataValidationKpiMemberTypes.values())
-                            .map(DataValidationKpiMemberTypes::fieldName)
-                            .forEach(member -> {
-                                builder.member()
-                                        .named(member+device.getId())
-                                        .add();
-                            });
-                    childrenKpis.add(DataValidationKpiChildImpl.from(dataModel,this, builder.create()));
-                });
+                .forEach(device -> createValidationKpiMember(device.getId()));
+    }
+
+    private void createValidationKpiMember(long id) {
+        KpiBuilder builder = kpiService.newKpi();
+        builder.interval(this.frequency);
+        Stream.of(DataValidationKpiMemberTypes.values())
+                .map(DataValidationKpiMemberTypes::fieldName)
+                .forEach(member ->
+                        builder.member()
+                                .named(member + id)
+                                .add()
+                );
+        childrenKpis.add(DataValidationKpiChildImpl.from(dataModel, this, builder.create()));
     }
 
     public boolean hasDeviceGroup() {
@@ -141,35 +143,34 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     @Override
-    public long getId(){
+    public long getId() {
         return this.id;
     }
 
     @Override
     public Optional<TemporalAmount> dataValidationKpiCalculationIntervalLength() {
-        if (this.childrenKpis!= null && !this.childrenKpis.isEmpty()){
+        if (this.childrenKpis != null && !this.childrenKpis.isEmpty()) {
             return Optional.of(this.childrenKpis.get(0).getChildKpi().getIntervalLength());
-        }else{
+        } else {
             return Optional.empty();
         }
     }
 
     @Override
     public Optional<DataValidationKpiScore> getDataValidationKpiScores(long deviceId, Range<Instant> interval) {
-            if (this.childrenKpis!=null && !this.childrenKpis.isEmpty()) {
-                List<KpiMember> dataValidationKpiMembers = new ArrayList<>();
-                this.childrenKpis.stream().forEach(child ->
-                        child.getChildKpi().getMembers().stream().filter(member -> member.getName().endsWith("_" + deviceId)).forEach(dataValidationKpiMembers::add));
-                return new DataValidationKpiMembers(dataValidationKpiMembers).getScores(interval);
-            }
-            else {
-                return Optional.empty();
-            }
+        if (this.childrenKpis != null && !this.childrenKpis.isEmpty()) {
+            List<KpiMember> dataValidationKpiMembers = new ArrayList<>();
+            this.childrenKpis.stream().forEach(child ->
+                    child.getChildKpi().getMembers().stream().filter(member -> member.getName().endsWith("_" + deviceId)).forEach(dataValidationKpiMembers::add));
+            return new DataValidationKpiMembers(dataValidationKpiMembers).getScores(interval);
+        } else {
+            return Optional.empty();
         }
+    }
 
     @Override
     public void setFrequency(TemporalAmount intervalLength) {
-        if (this.frequency!=null) {
+        if (this.frequency != null) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.CAN_NOT_CHANGE_FREQUENCY);
         }
         this.frequency = intervalLength;
@@ -212,7 +213,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     @Override
-    public List<DataValidationKpiChild> getDataValidationKpiChildren(){
+    public List<DataValidationKpiChild> getDataValidationKpiChildren() {
         return Collections.unmodifiableList(childrenKpis);
     }
 
@@ -223,10 +224,31 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
     private void deleteDataValidationKpi() {
         Optional<RecurrentTask> recurrentTask = dataValidationKpiTask.getOptional();
-        recurrentTask.ifPresent(x->dataValidationKpiTask.setNull());
+        recurrentTask.ifPresent(x -> dataValidationKpiTask.setNull());
         this.save();
         childrenKpis.stream().forEach(DataValidationKpiChild::remove);
         recurrentTask.ifPresent(RecurrentTask::delete);
+    }
+
+    void updateMembers() {
+        List<Long> deviceGroupDeviceIds = getDeviceGroup().getMembers(Instant.now()).stream().map(device -> device.getId()).collect(Collectors.toList());
+        List<Long> dataValidationKpiMembers = new ArrayList<>();
+        this.childrenKpis.stream().forEach(child ->
+                child.getChildKpi().getMembers().stream()
+                        .map(member -> member.getName().substring(member.getName().indexOf("_")))
+                        .map(Long::parseLong)
+                        .forEach(dataValidationKpiMembers::add));
+        List<Long> commonElements = deviceGroupDeviceIds;
+        commonElements.retainAll(dataValidationKpiMembers);
+        deviceGroupDeviceIds.removeAll(commonElements);
+        dataValidationKpiMembers.removeAll(commonElements);
+        deviceGroupDeviceIds.stream().forEach(id -> createValidationKpiMember(id));
+
+        dataValidationKpiMembers.forEach(id -> {
+                    childrenKpis.forEach(child ->
+                            child.getChildKpi().getMembers().stream().filter(member -> member.getName().endsWith("_" + id)).forEach(dataValidationKpiMembers::remove));
+                }
+        );
     }
 
 
@@ -249,7 +271,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         @Override
         public void save() {
             //
-            if (this.childrenKpis !=null && !this.childrenKpis.isEmpty()) {
+            if (this.childrenKpis != null && !this.childrenKpis.isEmpty()) {
                 DestinationSpec destination = messageService.getDestinationSpec(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
                 RecurrentTask recurrentTask = taskService.newBuilder()
                         .setApplication("MultiSense")
@@ -275,8 +297,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
             if (kpi.getIntervalLength() instanceof Duration) {
                 Duration duration = (Duration) kpi.getIntervalLength();
                 return new TemporalExpression(new TimeDurationFromDurationFactory().from(duration));
-            }
-            else {
+            } else {
                 Period period = (Period) kpi.getIntervalLength();
                 return new TemporalExpression(new TimeDurationFromPeriodFactory().from(period));
             }
@@ -335,6 +356,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         }
 
     }
+
     private class TimeDurationFromDurationInHoursFactory implements TimeDurationFactory {
         @Override
         public TimeDuration from(TemporalAmount temporalAmount) {
@@ -344,8 +366,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         private TimeDuration from(Duration duration) {
             if (duration.toHours() != 0) {
                 return TimeDuration.hours(Math.toIntExact(duration.toHours()));
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -360,8 +381,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         private TimeDuration from(Duration duration) {
             if (duration.toMinutes() != 0) {
                 return TimeDuration.minutes(Math.toIntExact(duration.toMinutes()));
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -376,23 +396,22 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         private TimeDuration from(Duration duration) {
             if (duration.getSeconds() != 0) {
                 return TimeDuration.seconds(Math.toIntExact(duration.getSeconds()));
-            }
-            else {
+            } else {
                 return null;
             }
         }
     }
 
     private class TimeDurationFromPeriodFactory implements TimeDurationFactory {
-            private Stream<TimeDurationFactory> factories;
+        private Stream<TimeDurationFactory> factories;
 
-            private TimeDurationFromPeriodFactory() {
-                super();
-                this.factories = Stream.of(
-                        new TimeDurationFromPeriodValidatingFactory(),
-                        new TimeDurationFromPeriodInMonthsFactory(),
-                        new TimeDurationFromPeriodInDaysFactory());
-            }
+        private TimeDurationFromPeriodFactory() {
+            super();
+            this.factories = Stream.of(
+                    new TimeDurationFromPeriodValidatingFactory(),
+                    new TimeDurationFromPeriodInMonthsFactory(),
+                    new TimeDurationFromPeriodInDaysFactory());
+        }
 
         @Override
         public TimeDuration from(TemporalAmount temporalAmount) {
@@ -415,8 +434,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         private TimeDuration from(Period period) {
             if (period.getYears() != 0 || period.getMonths() != 0) {
                 return this.noDays(period);
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -424,8 +442,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         private TimeDuration noDays(Period period) {
             if (period.getDays() != 0) {
                 throw new IllegalArgumentException("Years and days or months and days are not supported");
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -440,8 +457,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         private TimeDuration from(Period period) {
             if (period.toTotalMonths() != 0) {
                 return TimeDuration.months(Math.toIntExact(period.toTotalMonths()));
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -456,8 +472,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         private TimeDuration from(Period period) {
             if (period.getDays() != 0) {
                 return TimeDuration.days(Math.toIntExact(period.getDays()));
-            }
-            else {
+            } else {
                 return null;
             }
         }
