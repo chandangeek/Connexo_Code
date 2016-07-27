@@ -66,14 +66,9 @@ public class DataValidationKpiChildImpl implements DataValidationKpiChild {
         return dataModel;
     }
 
-
-
-
-
     void doSave() {
         dataModel.mapper(DataValidationKpiChild.class).persist(this);
     }
-
 
     @Override
     public void remove() {

@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -235,22 +236,29 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         List<Long> dataValidationKpiMembers = new ArrayList<>();
         this.childrenKpis.stream().forEach(child ->
                 child.getChildKpi().getMembers().stream()
-                        .map(member -> member.getName().substring(member.getName().indexOf("_")))
-                        .map(Long::parseLong)
+                        .map(member -> member.getName().substring(member.getName().indexOf("_") + 1))
+                        .map(Long::parseLong).distinct()
                         .forEach(dataValidationKpiMembers::add));
-        List<Long> commonElements = deviceGroupDeviceIds;
+        deviceGroupDeviceIds.sort(Comparator.naturalOrder());
+        dataValidationKpiMembers.sort(Comparator.naturalOrder());
+        List<Long> commonElements = new ArrayList<>(deviceGroupDeviceIds);
         commonElements.retainAll(dataValidationKpiMembers);
-        deviceGroupDeviceIds.removeAll(commonElements);
-        dataValidationKpiMembers.removeAll(commonElements);
-        deviceGroupDeviceIds.stream().forEach(id -> createValidationKpiMember(id));
-
-        dataValidationKpiMembers.forEach(id -> {
-                    childrenKpis.forEach(child ->
-                            child.getChildKpi().getMembers().stream().filter(member -> member.getName().endsWith("_" + id)).forEach(dataValidationKpiMembers::remove));
-                }
-        );
+        if (!deviceGroupDeviceIds.isEmpty() && !dataValidationKpiMembers.isEmpty() && !deviceGroupDeviceIds.equals(dataValidationKpiMembers)) {
+            deviceGroupDeviceIds.removeAll(commonElements);
+            deviceGroupDeviceIds.stream().forEach(this::createValidationKpiMember);
+            dataValidationKpiMembers.removeAll(commonElements);
+            dataValidationKpiMembers.stream().forEach(id -> {
+                        List<Kpi> obsoleteKpiList = childrenKpis.stream().map(DataValidationKpiChild::getChildKpi).map(Kpi::getMembers)
+                                .flatMap(List::stream)
+                                .filter(member -> member.getName().endsWith("_" + id))
+                                .map(KpiMember::getKpi)
+                                .distinct()
+                                .collect(Collectors.toList());
+                        obsoleteKpiList.stream().forEach(Kpi::remove);
+                    }
+            );
+        }
     }
-
 
     private interface RecurrentTaskSaveStrategy {
         void save();
