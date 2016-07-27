@@ -99,7 +99,9 @@ public enum MessageSeeds implements MessageSeed {
     CALENDAR_NOT_ACTIVE_ON_DEVICE(281, "CalendarNotActiveOnDevice", "The requested calendar is not an active calendar on this device"),
     COMMAND_NOT_ALLOWED_OR_SUPPORTED(282, "CommandNotAllowedOrSupported", "The command you want to add is not supported or allowed on the device type"),
     UNIQUE_MRID(276, "unique.mrid", "The MRID of the device must be unique"), // we only use this validation/error when we use the wizard to create slave devices
-    INVALID_MULTIPLIER(277, "invalidMultiplier", "Should be larger than zero")
+    INVALID_MULTIPLIER(277, "invalidMultiplier", "Should be larger than zero"),
+    CANNOT_ADDEDITREMOVE_REGISTER_VALUE_WHEN_LINKED_TO_SLAVE(278, "cannotAddRegisterValueWhenLinkedToSlave", "You cannot add, edit or remove a register value at a timestamp at which you have a linked slave"),
+    CANNOT_ADDEDITREMOVE_CHANNEL_VALUE_WHEN_LINKED_TO_SLAVE(279, "cannotAddChannelValueWhenLinkedToSlave", "You cannot add, edit or remove a channel value at a timestamp at which you have a linked slave"),
     ;
     private final int number;
     private final String key;

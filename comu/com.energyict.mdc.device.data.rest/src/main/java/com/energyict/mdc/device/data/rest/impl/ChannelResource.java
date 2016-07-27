@@ -435,6 +435,7 @@ public class ChannelResource {
         List<BaseReading> confirmedReadings = new ArrayList<>();
         List<Instant> removeCandidates = new ArrayList<>();
         channelDataInfos.forEach((channelDataInfo) -> {
+            validateLinkedToSlave(channel, Instant.ofEpochMilli(channelDataInfo.interval.end));
             if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
             } else {
@@ -457,6 +458,13 @@ public class ChannelResource {
                 .complete();
 
         return Response.status(Response.Status.OK).build();
+    }
+
+    private void validateLinkedToSlave(Channel channel, Instant readingTimeStamp) {
+        Optional<Channel> slaveChannel = topologyService.getSlaveChannel(channel, readingTimeStamp);
+        if (slaveChannel.isPresent()) {
+            throw this.exceptionFactory.newException(MessageSeeds.CANNOT_ADDEDITREMOVE_CHANNEL_VALUE_WHEN_LINKED_TO_SLAVE);
+        }
     }
 
     private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {

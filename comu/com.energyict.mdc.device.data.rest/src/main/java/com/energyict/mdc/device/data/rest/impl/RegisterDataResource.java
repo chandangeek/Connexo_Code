@@ -156,6 +156,7 @@ public class RegisterDataResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         BaseReading reading = readingInfo.createNew(register);
+        validateLinkedToSlave(register, reading.getTimeStamp());
         validateManualAddedEditValueForOverflow(register, reading);
         if ((readingInfo instanceof NumericalReadingInfo && NumericalReadingInfo.class.cast(readingInfo).isConfirmed != null && NumericalReadingInfo.class.cast(readingInfo).isConfirmed) ||
                 (readingInfo instanceof BillingReadingInfo && BillingReadingInfo.class.cast(readingInfo).isConfirmed != null && BillingReadingInfo.class.cast(readingInfo).isConfirmed)) {
@@ -176,6 +177,7 @@ public class RegisterDataResource {
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         try {
             BaseReading reading = readingInfo.createNew(register);
+            validateLinkedToSlave(register, reading.getTimeStamp());
             validateManualAddedEditValueForOverflow(register, reading);
             register.startEditingData().editReading(reading).complete();
         } catch (NoMeterActivationAt e) {
@@ -183,6 +185,13 @@ public class RegisterDataResource {
             throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.CANT_ADD_READINGS_FOR_STATE, Date.from(time)).get();
         }
         return Response.status(Response.Status.OK).build();
+    }
+
+    private void validateLinkedToSlave(Register<?, ?> register, Instant readingTimeStamp) {
+        Optional<Register> slaveRegister = topologyService.getSlaveRegister(register, readingTimeStamp);
+        if (slaveRegister.isPresent()) {
+            throw this.exceptionFactory.newException(MessageSeeds.CANNOT_ADDEDITREMOVE_REGISTER_VALUE_WHEN_LINKED_TO_SLAVE);
+        }
     }
 
     private void validateManualAddedEditValueForOverflow(Register<?, ?> register, BaseReading reading) {
@@ -205,7 +214,9 @@ public class RegisterDataResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Register<?, ?> register = resourceHelper.findRegisterOrThrowException(device, registerId);
         try {
-            register.startEditingData().removeReading(Instant.ofEpochMilli(timeStamp)).complete();
+            Instant removalDate = Instant.ofEpochMilli(timeStamp);
+            validateLinkedToSlave(register, removalDate);
+            register.startEditingData().removeReading(removalDate).complete();
         } catch (IllegalArgumentException e) {
             throw this.exceptionFactory.newExceptionSupplier(MessageSeeds.NO_CHANNELS_ON_REGISTER, registerId).get();
         }
