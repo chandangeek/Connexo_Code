@@ -2259,7 +2259,25 @@ Ext.define('Mdc.controller.history.Setup', {
                                 route: 'channels',
                                 controller: 'Mdc.usagepointmanagement.controller.ViewChannelsList',
                                 action: 'showOverview',
-                                callback: me.checkInsightRedirect
+                                callback: me.checkInsightRedirect,
+                                items: {
+                                    channeldata: {
+                                        title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
+                                        privileges: Mdc.privileges.UsagePoint.canView(),
+                                        route: '{channelId}/data',
+                                        controller: 'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
+                                        action: 'showOverview',
+                                        callback: function (route) {
+                                            me.checkInsightRedirect(route);
+                                            this.getApplication().on('usagePointChannelLoaded', function (record) {
+                                                route.setTitle(record.get('readingType').fullAliasName);
+                                                return true;
+                                            }, {single: true});
+
+                                            return this;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
