@@ -10,7 +10,7 @@ public enum ValidationStatus {
     private final String nameKey;
     private final ValidationResult match;
 
-    private ValidationStatus(String nameKey, ValidationResult match) {
+    ValidationStatus(String nameKey, ValidationResult match) {
         this.nameKey = nameKey;
         this.match = match;
     }
@@ -22,14 +22,5 @@ public enum ValidationStatus {
     @Override
     public String toString() {
         return getNameKey();
-    }
-
-    public static ValidationStatus forResult(ValidationResult result) {
-        for (ValidationStatus validationStatus : values()) {
-            if (validationStatus.match.equals(result)) {
-                return validationStatus;
-            }
-        }
-        return null;
     }
 }

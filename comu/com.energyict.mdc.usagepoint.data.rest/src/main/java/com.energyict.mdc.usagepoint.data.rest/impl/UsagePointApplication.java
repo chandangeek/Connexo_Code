@@ -3,12 +3,12 @@ package com.energyict.mdc.usagepoint.data.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -20,15 +20,15 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.energyict.mdc.usagepoint.data.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true,
+@Component(name = "com.energyict.mdc.usagepoint.data.rest", service = {Application.class, MessageSeedProvider.class}, immediate = true,
         property = {"alias=/upr", "app=MDC", "name=" + UsagePointApplication.COMPONENT_NAME})
-public class UsagePointApplication extends Application implements TranslationKeyProvider {
+public class UsagePointApplication extends Application implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "UPR";
 
     private volatile DeviceService deviceService;
@@ -60,10 +60,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer()).join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN))
-                .join(nlsService.getThesaurus("DLR", Layer.REST))
-                .join(nlsService.getThesaurus("MTR", Layer.REST))
-                .join(nlsService.getThesaurus("MTR", Layer.DOMAIN));
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer())
+                .join(nlsService.getThesaurus("DLR", Layer.REST));
     }
 
     @Reference
@@ -72,8 +70,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
+    public Set<Object> getSingletons() {
+        Set<Object> hashSet = new HashSet<>();
+        hashSet.addAll(super.getSingletons());
+        hashSet.add(new HK2Binder());
+        return Collections.unmodifiableSet(hashSet);
     }
 
     @Override
@@ -82,17 +83,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        return keys;
-    }
-
-    @Override
-    public Set<Object> getSingletons() {
-        Set<Object> hashSet = new HashSet<>();
-        hashSet.addAll(super.getSingletons());
-        hashSet.add(new HK2Binder());
-        return Collections.unmodifiableSet(hashSet);
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     class HK2Binder extends AbstractBinder {
