@@ -97,6 +97,7 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
     }
 
    private DataValidationKpiScore  getKpiScores(long groupId, long deviceId, Range<Instant> interval){
-       return validationService.getDataValidationKpiScores(groupId,deviceId,interval).orElseThrow(() -> new IllegalArgumentException("No Score could be found for device having ID = : " + deviceId));
+       return validationService.getDataValidationKpiScores(groupId,deviceId,interval)
+               .orElseThrow(() -> new IllegalArgumentException("No Score could be found for end device having ID = : " + deviceId +" belonging to the group with ID = " + groupId));
     }
 }
