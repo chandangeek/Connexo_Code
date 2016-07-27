@@ -17,7 +17,7 @@ public interface MeterBuilder {
 
     MeterBuilder setSerialNumber(String serialNumber);
 
-    MeterBuilder setLocation (Location location);
+    MeterBuilder setLocation(Location location);
 
     MeterBuilder setSpatialCoordinates(SpatialCoordinates spatialCoordinates);
 

@@ -164,7 +164,7 @@ public class ReadingConfirmIT {
         Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().get(0);
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
         CimChannel cimChannel = channel.getCimChannel(readingType).get();
-        assertQualities(channel, existDate, new ReadingQualityType[] {
+        assertQualities(channel, existDate, new ReadingQualityType[]{
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT),
                 ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ZEROUSAGE)
         }, new ReadingQualityType[0]);
@@ -189,7 +189,7 @@ public class ReadingConfirmIT {
             ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(2), newDate);
             channel.confirmReadings(QualityCodeSystem.MDC, ImmutableList.of(reading1, reading2));
             // existDate qualities
-            assertQualities(channel, existDate, new ReadingQualityType[] {
+            assertQualities(channel, existDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ESTIMATEGENERIC),
@@ -198,14 +198,14 @@ public class ReadingConfirmIT {
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ZEROUSAGE)
             }, new ReadingQualityType[0]);
             // newDate qualities
-            assertQualities(channel, newDate, new ReadingQualityType[] {
+            assertQualities(channel, newDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.SUSPECT)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD)
             });
@@ -233,23 +233,23 @@ public class ReadingConfirmIT {
             ReadingImpl reading2 = ReadingImpl.of(readingTypeCode, BigDecimal.valueOf(3), newDate);
             channel.confirmReadings(QualityCodeSystem.MDM, ImmutableList.of(reading1, reading2));
             // existDate qualities
-            assertQualities(channel, existDate, new ReadingQualityType[] {
+            assertQualities(channel, existDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.EDITGENERIC),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ESTIMATEGENERIC),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ESTIMATEGENERIC)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ZEROUSAGE),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.TOUSUMCHECK)
             });
             // newDate qualities
-            assertQualities(channel, newDate, new ReadingQualityType[] {
+            assertQualities(channel, newDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ACCEPTED),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ACCEPTED),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.EDITGENERIC),
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD),

@@ -1,9 +1,6 @@
 package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.BaseReadingRecord;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -22,9 +19,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +70,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             merged.localDate = r1.localDate;
             merged.timestamp = mergedTimestamp;
             merged.usagePoint = r1.usagePoint;
-            merged.readingQuality =  Math.max(r1.readingQuality, r2.readingQuality);
+            merged.readingQuality = Math.max(r1.readingQuality, r2.readingQuality);
             merged.count = r1.count + r2.count;
             return merged;
         } else {
@@ -132,11 +127,11 @@ class CalculatedReadingRecord implements BaseReadingRecord {
                 if (this.count != expectedCount) {
                     List<? extends ReadingQualityRecord> qualities =
                             readingTypeDeliverableForMeterActivationSet.get().getReadingQualities(this.timestamp);
-                        this.readingQuality =
-                                qualities.stream().filter(record -> record.isSuspect()).findAny().isPresent() ?
-                                        SUSPECT : MISSING;
+                    this.readingQuality =
+                            qualities.stream().filter(record -> record.isSuspect()).findAny().isPresent() ?
+                                    SUSPECT : MISSING;
 
-                    }
+                }
             }
         }
     }
@@ -233,7 +228,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
         ReadingQuality readingQualityValue = null;
         if (readingQuality == SUSPECT) {
             readingQualityValue = ReadingQuality.DERIVED_SUSPECT;
-        } else if (readingQuality == MISSING){
+        } else if (readingQuality == MISSING) {
             readingQualityValue = ReadingQuality.DERIVED_MISSING;
         } else if (readingQuality == ESTIMATED_EDITED) {
             readingQualityValue = ReadingQuality.DERIVED_INDETERMINISTIC;
@@ -312,8 +307,6 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     public String getSource() {
         return null;
     }
-
-
 
 
 }

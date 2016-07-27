@@ -49,8 +49,8 @@ class ReadingQualityWithTypeFetcherImpl implements ReadingQualityWithTypeFetcher
     public ReadingQualityWithTypeFetcher ofQualityIndices(QualityCodeCategory category, Set<Integer> indices) {
         this.indicesRegexp = Integer.toString(category.ordinal()) + "\\." +
                 (indices.isEmpty() ? "\\d+" : "(" + indices.stream()
-                .map(index -> Integer.toString(index))
-                .collect(Collectors.joining("|")) + ")");
+                        .map(index -> Integer.toString(index))
+                        .collect(Collectors.joining("|")) + ")");
         return this;
     }
 
@@ -147,7 +147,7 @@ class ReadingQualityWithTypeFetcherImpl implements ReadingQualityWithTypeFetcher
         compoundIndicesRegexp = compoundIndicesRegexp.isEmpty() ? indicesRegexp :
                 compoundIndicesRegexp + buildCurrentIndicesRegexp();
         return (systemsRegexp.isEmpty() ? "\\d+" : "(" + systemsRegexp + ")")
-                + "\\." + (compoundIndicesRegexp.isEmpty() ? ANY_INDEX : "(" +  compoundIndicesRegexp + ")");
+                + "\\." + (compoundIndicesRegexp.isEmpty() ? ANY_INDEX : "(" + compoundIndicesRegexp + ")");
     }
 
     /**

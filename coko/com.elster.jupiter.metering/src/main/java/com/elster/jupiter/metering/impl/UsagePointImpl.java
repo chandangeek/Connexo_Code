@@ -511,7 +511,7 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void setConnectionState(ConnectionState connectionState, Instant effective) {
-        if(!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
+        if (!this.connectionState.effective(effective).filter(cs -> cs.getConnectionState().equals(connectionState)).isPresent()) {
             if (!this.connectionState.effective(Range.all()).isEmpty()) {
                 this.closeCurrentConnectionState(effective);
             }
@@ -520,7 +520,7 @@ public class UsagePointImpl implements UsagePoint {
         }
     }
 
-    private void closeCurrentConnectionState(Instant now){
+    private void closeCurrentConnectionState(Instant now) {
         UsagePointConnectionState currentState = this.connectionState.effective(now).get();
         currentState.close(now);
         this.dataModel.update(currentState);
@@ -825,7 +825,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public LocationBuilder updateLocation(){
+    public LocationBuilder updateLocation() {
         return new LocationBuilderImpl(dataModel);
     }
 
@@ -926,7 +926,7 @@ public class UsagePointImpl implements UsagePoint {
         }
     }
 
-    public void refreshMeterActivations() {
+    void refreshMeterActivations() {
         this.meterActivations.clear();
         this.meterActivations.addAll(this.dataModel.query(MeterActivationImpl.class)
                 .select(where("usagePoint").isEqualTo(this)));
@@ -963,7 +963,7 @@ public class UsagePointImpl implements UsagePoint {
                             findLocation(location).ifPresent(meter::setLocation);
                         }
                     }
-                    if (spatialCoordinates!=null) {
+                    if (spatialCoordinates != null) {
                         dataModel.mapper(UsagePoint.class).getOptional(this.getId()).ifPresent(up -> {
                             if (up.getSpatialCoordinates().isPresent()) {
                                 if (!meter.getSpatialCoordinates().isPresent() || meter.getSpatialCoordinates()

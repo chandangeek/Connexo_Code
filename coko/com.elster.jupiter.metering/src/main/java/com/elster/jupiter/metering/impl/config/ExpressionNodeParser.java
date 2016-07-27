@@ -190,7 +190,7 @@ public class ExpressionNodeParser {
     private boolean isNumerical(PropertySpec propertySpec) {
         Class valueType = propertySpec.getValueFactory().getValueType();
         return Number.class.isAssignableFrom(valueType)
-            || Quantity.class.isAssignableFrom(valueType);
+                || Quantity.class.isAssignableFrom(valueType);
     }
 
     private void handleNullNode() {

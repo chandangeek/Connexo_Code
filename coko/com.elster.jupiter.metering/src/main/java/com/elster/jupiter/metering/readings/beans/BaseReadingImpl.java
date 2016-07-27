@@ -83,7 +83,7 @@ public abstract class BaseReadingImpl implements BaseReading {
     }
 
     public void addQuality(ReadingQuality readingQuality) {
-    	readingQualities.add(readingQuality);
+        readingQualities.add(readingQuality);
     }
 
     public void addQuality(String typeCode) {
@@ -91,7 +91,7 @@ public abstract class BaseReadingImpl implements BaseReading {
     }
 
     public void addQuality(ReadingQualityType readingQualityType) {
-    	addQuality(readingQualityType.getCode());
+        addQuality(readingQualityType.getCode());
     }
 
     public List<? extends ReadingQuality> getReadingQualities() {

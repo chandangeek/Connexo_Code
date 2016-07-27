@@ -177,7 +177,7 @@ public class ChannelImplIT {
 
             Channel channel = meterActivation.getChannelsContainer().createChannel(bulkReadingType);
 
-            assertThat((List<ReadingType>)channel.getReadingTypes()).contains(deltaReadingType);
+            assertThat((List<ReadingType>) channel.getReadingTypes()).contains(deltaReadingType);
 
             MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
             IntervalBlockImpl intervalBlock = IntervalBlockImpl.of(BULK);
@@ -197,7 +197,9 @@ public class ChannelImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             ChannelsContainer channelsContainer = meter.getChannelsContainers().get(0);
             Channel channel = channelsContainer.getChannels().get(0);
-            channel.getCimChannel(deltaReadingType).get().editReadings(QualityCodeSystem.MDC, Collections.singletonList(IntervalReadingImpl.of(ACTIVATION.plusDays(3).toInstant(), BigDecimal.valueOf(5))));
+            channel.getCimChannel(deltaReadingType)
+                    .get()
+                    .editReadings(QualityCodeSystem.MDC, Collections.singletonList(IntervalReadingImpl.of(ACTIVATION.plusDays(3).toInstant(), BigDecimal.valueOf(5))));
 
             context.commit();
         }

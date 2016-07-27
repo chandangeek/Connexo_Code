@@ -17,6 +17,7 @@ public interface Meter extends EndDevice, ReadingContainer {
 
     /**
      * Stores {@link MeterReading}.
+     *
      * @param system {@link QualityCodeSystem} that handles storage.
      * @param reading {@link MeterReading} to store.
      */

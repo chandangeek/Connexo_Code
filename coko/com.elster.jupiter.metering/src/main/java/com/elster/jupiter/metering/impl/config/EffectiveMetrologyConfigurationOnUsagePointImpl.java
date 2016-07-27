@@ -30,7 +30,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     private boolean active;
-    private List<EffectiveMetrologyContractOnUsagePointImpl> effectiveContracts = new ArrayList<>();
+    private List<EffectiveMetrologyContractOnUsagePoint> effectiveContracts = new ArrayList<>();
 
     @Inject
     public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
@@ -82,7 +82,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
 
     @Override
     public Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract) {
-        return this.effectiveContracts.stream()
+        return effectiveContracts.stream()
                 .filter(effectiveContract -> effectiveContract.getMetrologyContract().equals(metrologyContract))
                 .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
                 .findAny();

@@ -10,15 +10,12 @@ import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +47,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.expressionNode = expressionNode;
         this.expressionReadingType = expressionReadingType;
         this.requirements = this.expressionNode.accept(new RequirementsFromExpressionNode()).stream()
-                                               .map(reqNode -> reqNode.getRequirement()).collect(Collectors.toList());
+                .map(reqNode -> reqNode.getRequirement()).collect(Collectors.toList());
         this.targetReadingType = VirtualReadingType.from(deliverable.getReadingType());
     }
 
@@ -117,7 +114,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         return Range.openClosed(targetIntervalLength.subtractFrom(endOfInterval, zoneId), endOfInterval);
     }
 
-    ReadingType getReadingType () {
+    ReadingType getReadingType() {
         return this.deliverable.getReadingType();
     }
 
