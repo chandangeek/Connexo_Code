@@ -235,20 +235,45 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         List<Long> dataValidationKpiMembers = new ArrayList<>();
         this.childrenKpis.stream().forEach(child ->
                 child.getChildKpi().getMembers().stream()
-                        .map(member -> member.getName().substring(member.getName().indexOf("_")))
-                        .map(Long::parseLong)
+                        .map(member -> member.getName().substring(member.getName().indexOf("_") + 1))
+                        .map(Long::parseLong).distinct()
                         .forEach(dataValidationKpiMembers::add));
-        List<Long> commonElements = deviceGroupDeviceIds;
-        commonElements.retainAll(dataValidationKpiMembers);
-        deviceGroupDeviceIds.removeAll(commonElements);
-        dataValidationKpiMembers.removeAll(commonElements);
-        deviceGroupDeviceIds.stream().forEach(id -> createValidationKpiMember(id));
+        if (deviceGroupDeviceIds.size() != dataValidationKpiMembers.size()) {
+            if (deviceGroupDeviceIds.size() > dataValidationKpiMembers.size()) {
+                deviceGroupDeviceIds.removeAll(dataValidationKpiMembers);
+                deviceGroupDeviceIds.stream().forEach(id -> createValidationKpiMember(id));
+            } else {
+                dataValidationKpiMembers.removeAll(deviceGroupDeviceIds);
+                dataValidationKpiMembers.stream().forEach(id -> {
+                            List<Kpi> kpis = childrenKpis.stream().map(kpi -> kpi.getChildKpi()).collect(Collectors.toList());
+                            List<Kpi> obsoleteKpiList = kpis.stream().map(kpi -> kpi.getMembers())
+                                    .flatMap(List::stream)
+                                    .filter(member -> member.getName().endsWith("_" + id)).map(KpiMember::getKpi).distinct().collect(Collectors.toList());
+                            obsoleteKpiList.stream().forEach(kpi -> kpi.remove());
+                        }
 
-        dataValidationKpiMembers.forEach(id -> {
-                    childrenKpis.forEach(child ->
-                            child.getChildKpi().getMembers().stream().filter(member -> member.getName().endsWith("_" + id)).forEach(dataValidationKpiMembers::remove));
-                }
-        );
+                );
+
+            }
+        }
+
+
+
+
+        /*List < Long > allElements = Stream.concat(deviceGroupDeviceIds.stream(), dataValidationKpiMembers.stream())
+                .filter(new ConcurrentSkipListSet<>()::add)
+                .collect(Collectors.toList());
+        if (allElements.size() > dataValidationKpiMembers.size()) {
+            allElements.removeAll(dataValidationKpiMembers);
+            allElements.stream().forEach(id -> createValidationKpiMember(id));
+        } else {
+            dataValidationKpiMembers.removeAll(allElements);
+            childrenKpis.forEach(child ->
+                    child.getChildKpi().getMembers().stream().filter(member -> member.getName().endsWith("_" + id))
+                            .forEach(found -> found.getKpi().remove()));
+        }
+*/
+
     }
 
 

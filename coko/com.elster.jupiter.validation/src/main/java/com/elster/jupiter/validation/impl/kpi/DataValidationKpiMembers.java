@@ -34,8 +34,8 @@ public class DataValidationKpiMembers {
                         .reduce(BigDecimal.ZERO, BigDecimal::add)));
         Map<MonitoredDataValidationKpiMemberTypes, BigDecimal> dataValidationStatusMap = Stream.of(MonitoredDataValidationKpiMemberTypes.values()).filter(kpiMemberType -> kpiMemberType.equals(MonitoredDataValidationKpiMemberTypes.ALLDATAVALIDATED))
                 .collect(Collectors.toMap(s -> s, s -> this.kpiMembers.get(s).getScores(interval).stream().map(KpiEntry::getScore).allMatch(a -> a.longValue() == 1) ? BigDecimal.ONE : BigDecimal.ZERO));
-        //Map<MonitoredDataValidationKpiMemberTypes, BigDecimal> validatorsMap = Stream.of(MonitoredDataValidationKpiMemberTypes.values()).skip(3)
-        //        .collect(Collectors.toMap(s -> s, s -> this.kpiMembers.get(s).getScores(interval).stream().map(el -> el.getScore()).anyMatch(a -> a.longValue() == 1) ? BigDecimal.ONE : BigDecimal.ZERO));
+        //Map<MonitoredDataValidationKpiMemberTypes, BigDecimal> validatorsMap = Stream.of(MonitoredDataValidationKpiMemberTypes.values()).skip(4)
+       //        .collect(Collectors.toMap(s -> s, s -> this.kpiMembers.get(s).getScores(interval).stream().map(el -> el.getScore()).parallel().anyMatch(a -> a.longValue() == 1) ? BigDecimal.ONE : BigDecimal.ZERO));
         Instant timestamp = kpiMembers.entrySet().stream().filter(member -> member.getKey().equals(MonitoredDataValidationKpiMemberTypes.SUSPECT))
                 .map(member -> member.getValue().getScores(interval)).map(list -> list.get(0).getTimestamp()).max(Comparator.naturalOrder()).get();
         suspectMap.putAll(dataValidationStatusMap);
