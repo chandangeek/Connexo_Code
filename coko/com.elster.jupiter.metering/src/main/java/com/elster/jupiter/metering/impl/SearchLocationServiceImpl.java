@@ -31,7 +31,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
     private final Map<String, String> templateMap = templateMap();
     private volatile DataModel dataModel;
     private volatile MeteringService meteringService;
-    private String locationTemplate;
+    private String[] templateMembers;
 
     @Inject
     public SearchLocationServiceImpl() {
@@ -63,7 +63,14 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
     @Activate
     public void activate() {
-        locationTemplate = getAddressTemplate();
+        String locationTemplate = getAddressTemplate();
+        if (locationTemplate != null) {
+
+            locationTemplate = locationTemplate.replace("\\r", "").replace("\\n", "")
+                    .replace("\r", "").replace("\n", "")
+                    .replace("\r\n", "").replace("\n\r", "");
+            templateMembers = locationTemplate.split(",");
+        }
     }
 
     @Reference
@@ -80,15 +87,9 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
     @Override
     public Map<Long, String> findLocations(String inputLocation) {
-        Map<Long, String> result = new HashMap<>();
+        Map<Long, String> result = new LinkedHashMap<>();
 
-        if (locationTemplate != null) {
-
-            locationTemplate = locationTemplate.replace("\\r", "").replace("\\n", "")
-                    .replace("\r", "").replace("\n", "")
-                    .replace("\r\n", "").replace("\n\r", "");
-            String[] templateMembers = locationTemplate.split(",");
-
+        if (templateMembers != null) {
             SqlBuilder locationBuilder = new SqlBuilder();
             locationBuilder.append(this.getQueryClause(inputLocation));
 
@@ -122,7 +123,6 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         return result
                 .entrySet()
                 .stream()
-                .sorted(Map.Entry.comparingByValue(String::compareToIgnoreCase))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (e1, e2) -> e1, LinkedHashMap::new));
     }
@@ -133,18 +133,22 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         }
 
         String[] mapInputLocation = inputLocation.split("\\s+|,\\s*|;\\s*|\\.\\s*");
+
         ArrayList<String> caseClauses = new ArrayList<>();
         String selectClause = "MTR_LOCATIONMEMBER";
         Integer i = 0;
         for (int j = 0; j < mapInputLocation.length; j++) {
-            for (Map.Entry<String, String> template : templateMap.entrySet()) {
-                String whenClause = "";
-                whenClause += String.format(" WHEN UPPER%s = UPPER('%s') THEN %s ", template.getValue(), mapInputLocation[j], i * 3 + 3);
-                whenClause += String.format(" WHEN UPPER%s LIKE UPPER('%s')||'%%' THEN %s ", template.getValue(), mapInputLocation[j], i * 3 + 2);
-                whenClause += String.format(" WHEN UPPER%s LIKE '%%'|| UPPER('%s') ||'%%' THEN %s ", template.getValue(), mapInputLocation[j], i * 3 + 1);
-                i++;
+            for (int k = 0; k < templateMembers.length; k++) {
+                String templateMember = templateMap.get(templateMembers[k]);
 
-                caseClauses.add(String.format(" CASE %s ELSE 0 END DESC ", whenClause));
+                if (templateMember != null) {
+                    String whenClause = "";
+                    whenClause += String.format(" WHEN UPPER%s = UPPER('%s') THEN %s ", templateMember, mapInputLocation[j], i * 3 + 3);
+                    whenClause += String.format(" WHEN UPPER%s LIKE UPPER('%s')||'%%' THEN %s ", templateMember, mapInputLocation[j], i * 3 + 2);
+                    whenClause += String.format(" WHEN UPPER%s LIKE '%%'|| UPPER('%s') ||'%%' THEN %s ", templateMember, mapInputLocation[j], i * 3 + 1);
+                    caseClauses.add(String.format(" CASE %s ELSE 0 END DESC ", whenClause));
+                    i++;
+                }
             }
 
             selectClause = String.format(" SELECT * FROM (%s) WHERE (%s) LIKE '%%' || UPPER('%s') || '%%' ORDER BY %s ",
@@ -166,7 +170,8 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 "                ESTABLISHMENTNAME," +
                 "                ESTABLISHMENTNUMBER," +
                 "                ADDRESSDETAIL," +
-                "                ZIPCODE" +
+                "                ZIPCODE," +
+                "                rownum rn" +
                 " FROM (" + selectClause + ")" +
                 " WHERE rownum <=5 " +
                 " GROUP BY COUNTRYNAME," +
@@ -181,7 +186,9 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 "                ESTABLISHMENTNAME," +
                 "                ESTABLISHMENTNUMBER," +
                 "                ADDRESSDETAIL," +
-                "                ZIPCODE";
+                "                ZIPCODE, " +
+                "                rownum" +
+                " ORDER BY rn";
 
         return selectClause;
     }
