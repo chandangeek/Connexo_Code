@@ -1,12 +1,19 @@
 package com.energyict.mdc.device.data.exceptions;
 
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Models an exception which occurs when one tries to change the configuration of a device
@@ -21,6 +28,13 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
         DeviceConfigurationChangeException deviceConfigurationChangeException = new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG, device);
         deviceConfigurationChangeException.set("device", device);
         return deviceConfigurationChangeException;
+    }
+
+    public static DeviceConfigurationChangeException unsatisfiedRequirements(Thesaurus thesaurus, Device device, DeviceConfiguration destinationDeviceConfig, Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements) {
+        HashSet<String> uniqReadingTypes = new HashSet<>();
+        unsatisfiedRequirements.forEach((mc, rtList) -> rtList.stream().forEach(rtr -> uniqReadingTypes.add(rtr.getName())));
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CHANGE_DEVICE_CONFIG_UNSATISFIED_REQUIREMENTS, device.getmRID(), destinationDeviceConfig.getName(), uniqReadingTypes.stream()
+                .collect(Collectors.joining(", ")));
     }
 
     public static DeviceConfigurationChangeException cannotChangeToConfigOfOtherDeviceType(Thesaurus thesaurus) {
