@@ -127,6 +127,18 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
             //point.multiplier = record.get('multiplier');
 
             data.unshift(point);
+            !point.y && (point.y = null);
+            if (!point.y) {
+                if (validation === 'SUSPECT') {
+                    missedValues.push({
+                        id: interval.start,
+                        from: interval.start,
+                        to: interval.end,
+                        color: 'rgba(235, 86, 66, 0.3)'
+                    });
+                    record.set('plotBand', true);
+                }
+            }
         });
 
         return {data: data, missedValues: missedValues};
@@ -231,7 +243,7 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
                     html = '<div style="background-color: ' + bgColor + '; padding: 8px">' + html + '</div>';
                     return html;
                 },
-                followPointer: true,
+                followPointer: false,
                 followTouchMove: false
             },
 
