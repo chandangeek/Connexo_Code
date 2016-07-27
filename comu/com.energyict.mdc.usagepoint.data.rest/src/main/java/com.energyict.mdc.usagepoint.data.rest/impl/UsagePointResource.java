@@ -4,7 +4,6 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
@@ -176,15 +175,8 @@ public class UsagePointResource {
 
     private List<Channel> findSourceChannelsOnUsagePoint(ReadingTypeRequirement readingTypeRequirement, UsagePoint usagePoint) {
         return usagePoint.getMeterActivations().stream()
-                .map(meterActivation -> findSourceChannelOnMeterActivation(readingTypeRequirement, meterActivation))
-                .flatMap(Functions.asStream())
+                .flatMap(meterActivation -> readingTypeRequirement.getMatchingChannelsFor(meterActivation.getChannelsContainer()).stream())
                 .collect(Collectors.toList());
-    }
-
-    private Optional<Channel> findSourceChannelOnMeterActivation(ReadingTypeRequirement readingTypeRequirement, MeterActivation meterActivation) {
-        return meterActivation.getChannelsContainer().getChannels().stream()
-                .filter(channel -> channel.getReadingTypes().stream().anyMatch(readingTypeRequirement::matches))
-                .findAny();
     }
 
     private Range<Instant> getRange(Channel channel) {

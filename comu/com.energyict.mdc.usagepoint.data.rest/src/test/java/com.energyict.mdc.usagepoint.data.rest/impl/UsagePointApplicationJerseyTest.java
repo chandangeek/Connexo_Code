@@ -42,13 +42,13 @@ public class
 UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock
+    static SecurityContext securityContext;
+    @Mock
     MeteringService meteringService;
     @Mock
     DeviceService deviceService;
     @Mock
     TransactionService transactionService;
-    @Mock
-    static SecurityContext securityContext;
     @Mock
     ValidationService validationService;
 
