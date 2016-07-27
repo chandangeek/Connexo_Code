@@ -10,10 +10,10 @@
         <relativePath>../com.elster.insight.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>bpm.event.propagator</artifactId>
+    <artifactId>mdm.bpm.event</artifactId>
     <version>1.0.0${revision}</version>
     <packaging>bundle</packaging>
-    <name>[MDM] mdm.bpm.event.propagator</name>
+    <name>[MDM] mdm.bpm.event</name>
 
     <dependencies>
         <dependency>
