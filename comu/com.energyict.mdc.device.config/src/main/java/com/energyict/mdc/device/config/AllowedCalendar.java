@@ -4,6 +4,7 @@ import com.elster.jupiter.calendar.Calendar;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @ProviderType
@@ -24,5 +25,11 @@ public interface AllowedCalendar {
     long getId();
 
     Optional<Calendar> getCalendar();
+
+    boolean isObsolete();
+
+    void setObsolete(Instant instant);
+
+    Instant getObsolete();
 
 }

@@ -12,6 +12,8 @@ import com.energyict.mdc.device.config.DeviceType;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.io.InputStream;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -20,7 +22,8 @@ class AllowedCalendarImpl implements AllowedCalendar {
         ID("id"),
         DEVICETYPE("deviceType"),
         CALENDAR("calendar"),
-        NAME("name");
+        NAME("name"),
+        OBSOLETE("obsolete");
 
         private final String javaFieldName;
 
@@ -41,6 +44,7 @@ class AllowedCalendarImpl implements AllowedCalendar {
     private String name;
     @IsPresent
     private Reference<Calendar> calendar = ValueReference.absent();
+    private Instant obsolete;
     private DataModel dataModel;
 
     @Inject
@@ -84,6 +88,22 @@ class AllowedCalendarImpl implements AllowedCalendar {
     @Override
     public Optional<Calendar> getCalendar() {
         return this.calendar.getOptional();
+    }
+
+    @Override
+    public boolean isObsolete() {
+        return this.obsolete != null;
+    }
+
+    @Override
+    public void setObsolete(Instant instant) {
+        this.obsolete = instant;
+        dataModel.update(this);
+    }
+
+    @Override
+    public Instant getObsolete() {
+        return obsolete;
     }
 
     void replaceGhostBy(Calendar newCalendar) {

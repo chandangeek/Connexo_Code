@@ -35,6 +35,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
 import com.energyict.mdc.device.config.exceptions.DuplicateDeviceMessageFileException;
@@ -491,11 +492,22 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public List<AllowedCalendar> getAllowedCalendars() {
-        return Collections.unmodifiableList(this.allowedCalendars);
+        return Collections.unmodifiableList(
+                this.allowedCalendars.stream()
+                        .filter(allowedCalendar -> !allowedCalendar.isObsolete())
+                        .collect(Collectors.toList()));
     }
 
     @Override
     public AllowedCalendar addCalendar(Calendar calendar) {
+        Optional<AllowedCalendar> existingAllowedCalendar = this.allowedCalendars.stream()
+                .filter(allowedCalendar -> !allowedCalendar.isGhost())
+                .filter(allowedCalendar -> allowedCalendar.getCalendar().get().getId() == calendar.getId())
+                .findFirst();
+        if(existingAllowedCalendar.isPresent()) {
+            existingAllowedCalendar.get().setObsolete(null);
+            return existingAllowedCalendar.get();
+        }
         return this.addCalendar(this.getDataModel().getInstance(AllowedCalendarImpl.class).initialize(calendar, this));
     }
 
@@ -512,7 +524,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void removeCalendar(AllowedCalendar allowedCalendar) {
-        this.allowedCalendars.remove(allowedCalendar);
+        this.getEventService().postEvent(EventType.ALLOWED_CALENDAR_VALIDATE_DELETE.topic(), allowedCalendar);
+        allowedCalendar.setObsolete(this.clock.instant());
         this.touch();
     }
 

@@ -46,6 +46,7 @@ import java.util.List;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
@@ -873,6 +874,7 @@ public enum TableSpecs {
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column calendar = table.column("CALENDAR").number().add();
             table.column("NAME").varChar().map(AllowedCalendarImpl.Fields.NAME.fieldName()).add();
+            table.column("OBSOLETE").number().conversion(NUMBER2INSTANT).map(AllowedCalendarImpl.Fields.OBSOLETE.fieldName()).add();
             table.primaryKey("PK_DTC_CALUSAGE").on(id).add();
             table.foreignKey("FK_DTC_CALDEVICETYPE")
                     .references(DTC_DEVICETYPE.name())
@@ -886,7 +888,6 @@ public enum TableSpecs {
                     .references(Calendar.class)
                     .on(calendar)
                     .map(AllowedCalendarImpl.Fields.CALENDAR.fieldName())
-                    //.onDelete(CASCADE)
                     .add();
         }
     },
