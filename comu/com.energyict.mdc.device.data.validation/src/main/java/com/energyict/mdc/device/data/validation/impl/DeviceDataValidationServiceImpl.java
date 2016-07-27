@@ -71,9 +71,8 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
         try (Connection connection = dataModel.getConnection(false);
              PreparedStatement statement = validationOverviewBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
-                resultSet.getFetchSize();
+                AtomicLong idx = new AtomicLong(0);
                 while (resultSet.next()) {
-                    AtomicLong idx = new AtomicLong(0);
                     list.add(new ValidationOverviewImpl(
                             resultSet.getString(1),
                             resultSet.getString(2),
