@@ -333,7 +333,7 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         Response response = target("/usagepoints/33/command").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<String>get("status")).isEqualTo("SUCCESS");
-        Assertions.assertThat(model.<Integer>get("id")).isEqualTo(33);
+        Assertions.assertThat(model.<String>get("status")).isEqualTo("FAILED");
+        Assertions.assertThat(model.<String>get("id")).isEqualTo("MRID");
     }
 }
