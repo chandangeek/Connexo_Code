@@ -68,7 +68,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
-
         mainView.setLoading();
         usagePointsController.loadUsagePoint(mRID, {
             success: function (types, usagePoint, purposes) {
@@ -249,7 +248,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
     },
 
     getActivationConfirmationContent: function (purpose) {
-        var lastCheckedDate = purpose.get('lastChecked') ? Uni.DateTime.formatDateShort(new Date(purpose.get('lastChecked'))) :  Uni.DateTime.formatDateShort(new Date());
+        var lastCheckedDate = purpose.get('validationInfo').lastChecked ? Uni.DateTime.formatDateShort(new Date(purpose.get('validationInfo').lastChecked)) :  Uni.DateTime.formatDateShort(new Date());
         return Ext.create('Ext.container.Container', {
             defaults: {
                 labelAlign: 'left'
@@ -293,7 +292,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                                     itemId: 'purpose-dtm-validation-from-date',
                                     editable: false,
                                     showToday: false,
-                                    value: purpose.get('lastChecked') ? new Date(purpose.get('lastChecked')) : new Date(),
+                                    value: purpose.get('validationInfo').lastChecked ? new Date(purpose.get('validationInfo').lastChecked) : new Date(),
                                     fieldLabel: '  ',
                                     labelWidth: 10,
                                     width: 150,
@@ -312,16 +311,6 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 },
                 {
                     xtype: 'panel',
-                    itemId: 'purpose-pnl-validation-date-errors',
-                    hidden: true,
-                    bodyStyle: {
-                        color: '#eb5642',
-                        padding: '0 0 15px 65px'
-                    },
-                    html: ''
-                },
-                {
-                    xtype: 'panel',
                     itemId: 'purpose-pnl-validation-progress',
                     layout: 'fit',
                     padding: '0 0 0 50'
@@ -332,12 +321,13 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
     onValidateNow: function (confWindow, purpose) {
         var me = this,
-            lastChecked;
+            lastChecked,
+            usagePoint = Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint;
 
         if (confWindow.down('#purpose-rdg-validation-run').getValue().validation === 'newValidation') {
             lastChecked = confWindow.down('#purpose-dtm-validation-from-date').getValue().getTime();
-        } else if (purpose.get('lastChecked')) {
-            lastChecked = purpose.get('lastChecked');
+        } else if (purpose.get('validationInfo').lastChecked) {
+            lastChecked = purpose.get('validationInfo').lastChecked;
         } else {
             lastChecked = new Date().getTime();
         }
@@ -372,9 +362,10 @@ Ext.define('Imt.purpose.controller.Purpose', {
             }
         });
 
-        purpose.set('lastChecked', lastChecked);
+        purpose.set('validationInfo', {lastChecked: lastChecked});
         purpose.getProxy().extraParams = {
-            mRID: Ext.ComponentQuery.query('#contentPanel')[0].down('purpose-outputs').usagePoint.get('mRID')
+            mRID: usagePoint.get('mRID'),
+            upVersion: usagePoint.get('version')
         };
         purpose.save({
             isNotEdit: true,

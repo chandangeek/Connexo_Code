@@ -47,28 +47,16 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationPurposeDetails
             formula = record.getFormula(),
             formulaComponentsContainer = me.down('#purpose-formula-components'),
             formulaComponents,
-            attributes = '';
+            customProperties;
 
         Ext.suspendLayouts();
         me.down('#purpose-reading-type').setValue(readingType.getData());
         me.down('#purpose-formula-description').setValue(formula.get('description'));
 
         formulaComponents = Imt.util.CommonFields.prepareReadingTypeRequirementFields(formula.readingTypeRequirements());
-
-        formula.customProperties().each(function (cps) {
-            attributes += cps.get('name');
-            attributes += '<span class="icon-info" style="display: inline-block; color:#A9A9A9; font-size:16px; margin-left: 16px" data-qtip="'
-                + Uni.I18n.translate('general.tooltip.partOfCustomAttributeSet', 'IMT', 'Part of {0} custom attribute set', [cps.get('customPropertySet').name])
-                + '"></span>';
-            attributes += '<br>';
-        });
-        if (attributes) {
-            formulaComponents.push({
-                itemId: 'purpose-formula-attributes',
-                fieldLabel: Uni.I18n.translate('general.attributes', 'IMT', 'Attributes'),
-                htmlEncode: false,
-                value: attributes
-            });
+        customProperties = Imt.util.CommonFields.prepareCustomProperties(formula.customProperties());
+        if (customProperties) {
+            formulaComponents.push(customProperties);
         }
 
         formulaComponentsContainer.removeAll();

@@ -64,5 +64,24 @@ Ext.define('Imt.util.CommonFields', {
         });
 
         return fields;
+    },
+
+    prepareCustomProperties: function(properties) {
+        var attributes = '';
+        properties.each(function (cps) {
+            attributes += cps.get('name');
+            attributes += '<span class="icon-info" style="display: inline-block; font-size:16px; margin-left: 16px" data-qtip="'
+                + Uni.I18n.translate('general.tooltip.partOfCustomAttributeSet', 'IMT', 'Part of {0} custom attribute set', [cps.get('customPropertySet').name])
+                + '"></span>';
+            attributes += '<br>';
+        });
+
+        return attributes
+            ? {
+            itemId: 'purpose-formula-attributes',
+            fieldLabel: Uni.I18n.translate('general.attributes', 'IMT', 'Attributes'),
+            htmlEncode: false,
+            value: attributes
+        } : null;
     }
 });

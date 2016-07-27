@@ -3,7 +3,8 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
     alias: 'widget.output-specifications-form',
     itemId: 'output-specifications-form',
     requires: [
-        'Uni.form.field.ReadingTypeDisplay'
+        'Uni.form.field.ReadingTypeDisplay',
+        'Imt.util.CommonFields'
     ],
     defaults: {
         xtype: 'displayfield',
@@ -11,6 +12,10 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
     },
     router: null,
 
+    defaults: {
+        xtype: 'displayfield',
+        labelWidth: 200
+    },
     padding: '10 0 0 0',
 
     initComponent: function () {
@@ -53,6 +58,14 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
             },
             {
                 xtype: 'fieldcontainer',
+                itemId: 'purpose-formula-components',
+                fieldLabel: Uni.I18n.translate('form.output.section.formulaComponents', 'IMT', 'Formula components'),
+                layout: 'vbox',
+                labelAlign: 'top',
+                defaults: me.defaults
+            },
+            {
+                xtype: 'fieldcontainer',
                 itemId: 'output-validation-title',
                 labelAlign: 'left',
                 fieldLabel: Uni.I18n.translate('general.validation', 'IMT', 'Validation')
@@ -63,32 +76,30 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
                 defaults: me.defaults,
                 router: me.router
             }
-            //{
-            //    xtype: 'fieldcontainer',
-            //    fieldLabel: Uni.I18n.translate('form.output.section.formulaComponents', 'IMT', 'Formula components'),
-            //    layout: 'vbox',
-            //    labelAlign: 'top',
-            //    items: [
-            //        {
-            //            xtype: 'displayfield',
-            //            fieldLabel: 'Field 1',
-            //            name: 'formula'
-            //        }, {
-            //            xtype: 'displayfield',
-            //            fieldLabel: 'Field 2',
-            //            name: 'formula'
-            //        }
-            //    ]
-            //}
         ];
 
         me.callParent();
     },
 
     loadRecord: function (record) {
-        var me = this;
+        var me = this,
+            formula = record.getFormula(),
+            formulaComponentsContainer = me.down('#purpose-formula-components'),
+            formulaComponents,
+            customProperties;
 
+        Ext.suspendLayouts();
+        formulaComponents = Imt.util.CommonFields.prepareReadingTypeRequirementFields(formula.readingTypeRequirements());
+        customProperties = Imt.util.CommonFields.prepareCustomProperties(formula.customProperties());
+        if (customProperties) {
+            formulaComponents.push(customProperties);
+        }
+
+        formulaComponentsContainer.removeAll();
+        formulaComponentsContainer.add(formulaComponents);
         me.down('#output-validation-status-form').loadValidationInfo(record.get('validationInfo'));
+        Ext.resumeLayouts(true);
+
         me.callParent(arguments);
     }
 });
