@@ -128,7 +128,9 @@ Ext.define('Uni.view.search.field.Location', {
         me.fireEvent('change', this, values.length == 0 ? "" : [
             Ext.create('Uni.model.search.Value', {
                 operator: '==',
-                criteria: Ext.encode(values)
+                criteria: {values: values}
+
+
             })
         ]);
     },
