@@ -159,7 +159,8 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                     caseClauses.stream().map(Object::toString).collect(Collectors.joining(", ")));
         }
 
-        selectClause = "SELECT max(locationid) locationid,  COUNTRYNAME," +
+        selectClause = "SELECT * from " +
+                "   (SELECT max(locationid) locationid,  COUNTRYNAME," +
                 "                COUNTRYCODE," +
                 "                ADMINISTRATIVEAREA," +
                 "                LOCALITY," +
@@ -173,7 +174,6 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 "                ADDRESSDETAIL," +
                 "                ZIPCODE" +
                 " FROM (" + selectClause + ")" +
-                " WHERE rownum <=5 " +
                 " GROUP BY COUNTRYNAME," +
                 "               COUNTRYCODE," +
                 "                ADMINISTRATIVEAREA," +
@@ -186,7 +186,8 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 "                ESTABLISHMENTNAME," +
                 "                ESTABLISHMENTNUMBER," +
                 "                ADDRESSDETAIL," +
-                "                ZIPCODE";
+                "                ZIPCODE" +
+                "   ) WHERE rownum <=5 ";
 
         return selectClause;
     }
