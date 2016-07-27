@@ -10,14 +10,22 @@ public class DeviceValidationKpiResults {
     public long channelSuspects;
     public long registerSuspects;
     public Instant lastSuspect;
+    public boolean thresholdValidator;
+    public boolean missingValuesValidator;
+    public boolean readingQualitiesValidator;
+    public boolean registerIncreaseValidator;
 
-
-    public DeviceValidationKpiResults(long amountOfSuspects, long channelSuspects, long registerSuspects, long allDataValidated, Instant lastSuspect) {
+    public DeviceValidationKpiResults(long amountOfSuspects, long channelSuspects, long registerSuspects, long allDataValidated, Instant lastSuspect,
+           long thresholdValidator, long missingValuesValidator, long readingQualitiesValidator, long registerIncreaseValidator) {
         this.amountOfSuspects = amountOfSuspects;
         this.channelSuspects = channelSuspects;
         this.registerSuspects = registerSuspects;
         this.allDataValidated = allDataValidated == 1;
         this.lastSuspect = lastSuspect;
+        this.thresholdValidator = thresholdValidator == 1;
+        this.missingValuesValidator = missingValuesValidator == 1;
+        this.readingQualitiesValidator = readingQualitiesValidator == 1;
+        this.registerIncreaseValidator = registerIncreaseValidator == 1;
     }
 
     public boolean isAllDataValidated() {
@@ -58,5 +66,37 @@ public class DeviceValidationKpiResults {
 
     public void setLastSuspect(Instant lastSuspect) {
         this.lastSuspect = lastSuspect;
+    }
+
+    public boolean isThresholdValidator() {
+        return thresholdValidator;
+    }
+
+    public void setThresholdValidator(boolean thresholdValidator) {
+        this.thresholdValidator = thresholdValidator;
+    }
+
+    public boolean isMissingValuesValidator() {
+        return missingValuesValidator;
+    }
+
+    public void setMissingValuesValidator(boolean missingValuesValidator) {
+        this.missingValuesValidator = missingValuesValidator;
+    }
+
+    public boolean isReadingQualitiesValidator() {
+        return readingQualitiesValidator;
+    }
+
+    public void setReadingQualitiesValidator(boolean readingQualitiesValidator) {
+        this.readingQualitiesValidator = readingQualitiesValidator;
+    }
+
+    public boolean isRegisterIncreaseValidator() {
+        return registerIncreaseValidator;
+    }
+
+    public void setRegisterIncreaseValidator(boolean registerIncreaseValidator) {
+        this.registerIncreaseValidator = registerIncreaseValidator;
     }
 }

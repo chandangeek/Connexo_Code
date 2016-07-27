@@ -84,7 +84,11 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
                                     getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getChannelSuspects().longValue(),
                                     getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getRegisterSuspects().longValue(),
                                     getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getAllDataValidated().longValue(),
-                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getTimestamp()
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getTimestamp(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getThresholdValidator().longValue(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getMissingValuesValidator().longValue(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getReadingQualitiesValidator().longValue(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getRegisterIncreaseValidator().longValue()
                             )));
                     idx.incrementAndGet();
                 }
