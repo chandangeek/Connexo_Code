@@ -3,7 +3,6 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
-import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.aggregation.AggregatedReadingQuality;
@@ -109,15 +108,15 @@ public class AggregatedReadingQualityImpl implements AggregatedReadingQuality {
     }
 
     public boolean isSuspect() {
-        return getType().getCode().equals(ReadingQuality.DERIVED_SUSPECT);
+        return getType().getCode().equals(ReadingQuality.DERIVED_SUSPECT.getCode());
     }
 
     public boolean isMissing() {
-        return getType().getCode().equals(ReadingQuality.DERIVED_MISSING);
+        return getType().getCode().equals(ReadingQuality.DERIVED_MISSING.getCode());
     }
 
     public boolean isIndeterministic() {
-        return getType().getCode().equals(ReadingQuality.DERIVED_INDETERMINISTIC);
+        return getType().getCode().equals(ReadingQuality.DERIVED_INDETERMINISTIC.getCode());
     }
 
     public boolean hasEditCategory() {
