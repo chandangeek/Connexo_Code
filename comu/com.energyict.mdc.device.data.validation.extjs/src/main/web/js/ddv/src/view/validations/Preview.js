@@ -96,7 +96,7 @@ Ext.define('Ddv.view.validations.Preview', {
                         labelWidth: 250
                     },
                     items: [
-                        {
+                       /* {
                             name: 'lastValidation',
                             itemId: 'last-validation-validations-preview',
                             fieldLabel: Uni.I18n.translate('validations.lastValidation', 'DDV', 'Last validation'),
@@ -107,7 +107,7 @@ Ext.define('Ddv.view.validations.Preview', {
                                     return '-';
                                 }
                             }
-                        },
+                        }, */
                         {
                             xtype: 'fieldcontainer',
                             fieldLabel: Uni.I18n.translate('validations.typeOfSuspects', 'DDV', 'Type of suspects'),
@@ -119,7 +119,7 @@ Ext.define('Ddv.view.validations.Preview', {
                             },
                             items: [
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.thresholdValidator', 'DDV', 'Treshold Validator'),
+                                    fieldLabel: Uni.I18n.translate('validations.thresholdValidator', 'DDV', 'Treshold Violation'),
                                     name: 'thresholdValidator',
                                     itemId: 'thresholdValidator-validations-preview',
                                     renderer: function (value) {
@@ -131,7 +131,7 @@ Ext.define('Ddv.view.validations.Preview', {
                                     }
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.missingValuesValidator', 'DDV', 'Missing Values Validator'),
+                                    fieldLabel: Uni.I18n.translate('validations.missingValuesValidator', 'DDV', 'Missing Values'),
                                     name: 'missingValuesValidator',
                                     itemId: 'missingValuesValidator-validations-preview',
                                     renderer: function (value) {
@@ -143,7 +143,7 @@ Ext.define('Ddv.view.validations.Preview', {
                                     }
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.readingQualitiesValidator', 'DDV', 'Reading Qualities Validator'),
+                                    fieldLabel: Uni.I18n.translate('validations.readingQualitiesValidator', 'DDV', 'Interval State'),
                                     name: 'readingQualitiesValidator',
                                     itemId: 'readingQualitiesValidator-validations-preview',
                                     renderer: function (value) {
@@ -155,7 +155,7 @@ Ext.define('Ddv.view.validations.Preview', {
                                     }
                                 },
                                 {
-                                    fieldLabel: Uni.I18n.translate('validations.registerIncreaseValidator', 'DDV', 'Register Increase Validator'),
+                                    fieldLabel: Uni.I18n.translate('validations.registerIncreaseValidator', 'DDV', 'Register Increase'),
                                     name: 'registerIncreaseValidator',
                                     itemId: 'registerIncreaseValidator-validations-preview',
                                     renderer: function (value) {
