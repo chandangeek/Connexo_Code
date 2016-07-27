@@ -11,4 +11,6 @@ public class MeterActivationInfo extends LinkInfo<Long> {
     public IntervalInfo interval;
     public Long meter;
     public LinkInfo usagePoint;
+    public LinkInfo endDevice;
+    public String meterRole;
 }

@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.rest.util.IntervalInfo;
 import com.elster.jupiter.rest.util.hypermedia.Relation;
 import com.elster.jupiter.util.time.Interval;
@@ -84,6 +85,9 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         when(meterActivation.getInterval()).thenReturn(Interval.of(Range.closed(start, end)));
         when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(meterActivation.getMeter()).thenReturn(Optional.empty());
+        MeterRole meterRole = mock(MeterRole.class);
+        when(meterRole.getKey()).thenReturn("meterRole");
+        when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole));
         return meterActivation;
     }
 
@@ -93,6 +97,9 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         when(meter.getId()).thenReturn(meterId);
         when(meteringService.findMeter(meterId)).thenReturn(Optional.of(meter));
         when(meterActivation.getMeter()).thenReturn(Optional.of(meter));
+        MeterRole meterRole = mock(MeterRole.class);
+        when(meterRole.getKey()).thenReturn("meterRole");
+        when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole));
         return meterActivation;
     }
 
@@ -230,9 +237,9 @@ public class MeterActivationResourceTest extends PlatformPublicApiJerseyTest {
         Response response = target("/usagepoints/x/meteractivations").request("application/json")
                 .method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        Assertions.assertThat(model.<List>get("$")).hasSize(6);
+        Assertions.assertThat(model.<List>get("$")).hasSize(8);
         Assertions.assertThat(model.<List<String>>get("$"))
-                .containsOnly("id", "link", "version", "interval", "meter", "usagePoint");
+                .containsOnly("endDevice", "id", "interval", "link", "meter", "meterRole", "usagePoint", "version");
     }
 
 

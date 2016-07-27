@@ -3,6 +3,9 @@ package com.elster.jupiter.kore.api.rest.impl;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.kore.api.impl.UsagePointInfo;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommand;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCallbackInfo;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.ElectricityDetailBuilder;
 import com.elster.jupiter.metering.Location;
@@ -15,6 +18,7 @@ import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsage
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.hypermedia.LinkInfo;
 
+import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
@@ -155,8 +159,14 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
 
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(effectiveMetrologyConfiguration.getRange()).thenReturn(Range.atLeast(Instant.EPOCH));
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
         when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
         ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
@@ -180,9 +190,14 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         UsagePointMetrologyConfiguration oldMetrologyConfiguration = mockMetrologyConfiguration(234L, "metro", 1);
         UsagePointMetrologyConfiguration newMetrologyConfiguration = mockMetrologyConfiguration(235L, "metro", 1);
         UsagePoint usagePoint = mockUsagePoint(11L, "usage point", 2L, ServiceKind.ELECTRICITY);
-        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
-        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(oldMetrologyConfiguration);
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(oldMetrologyConfiguration);
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(newMetrologyConfiguration);
+        when(effectiveMetrologyConfiguration.getRange()).thenReturn(Range.atLeast(clock.instant()));
+        when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(oldMetrologyConfiguration);
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
         ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
         when(usagePoint.newElectricityDetailBuilder(any())).thenReturn(electricityDetailBuilder);
@@ -232,7 +247,12 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
         ElectricityDetail electricityDetail = mock(ElectricityDetail.class);
         ElectricityDetailBuilder electricityDetailBuilder = FakeBuilder.initBuilderStub(electricityDetail, ElectricityDetailBuilder.class);
         when(usagePoint.newElectricityDetailBuilder(any())).thenReturn(electricityDetailBuilder);
-
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(effectiveMetrologyConfiguration));
+        when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
+        when(effectiveMetrologyConfiguration.getMetrologyConfiguration()).thenReturn(newMetrologyConfiguration);
+        when(effectiveMetrologyConfiguration.getRange()).thenReturn(Range.atLeast(clock.instant()));
         Response response = target("/usagepoints/11").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(usagePoint, never()).removeMetrologyConfiguration(clock.instant());
@@ -302,5 +322,25 @@ public class UsagePointResourceTest extends PlatformPublicApiJerseyTest {
                 "connectionState",
                 "detail"
         );
+    }
+
+    @Test
+    public void testUsagePointCommand() throws Exception {
+        mockCommands();
+        Instant now = Instant.now(clock);
+        UsagePointCommandInfo info = new UsagePointCommandInfo();
+        info.command = UsagePointCommand.CONNECT;
+        info.httpCallBack = new UsagePointCommandCallbackInfo();
+        info.httpCallBack.method = "POST";
+        info.httpCallBack.successURL = "http://success";
+        info.httpCallBack.partialSuccessURL = "http://successPartial";
+        info.httpCallBack.failureURL = "http://fail";
+
+        UsagePoint usagePoint = mockUsagePoint(33L, "usage point", 2L, ServiceKind.ELECTRICITY);
+        Response response = target("/usagepoints/33/command").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        Assertions.assertThat(model.<String>get("status")).isEqualTo("FAILED");
+        Assertions.assertThat(model.<String>get("id")).isEqualTo("MRID");
     }
 }

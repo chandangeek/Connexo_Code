@@ -14,11 +14,18 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.kore.api.impl.PublicRestApplication;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCustomPropertySet;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandMessageHandler;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
@@ -38,11 +45,17 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallBuilder;
+import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.util.json.JsonService;
 
 import com.google.common.collect.Range;
 
 import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -54,12 +67,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.longThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -76,7 +92,12 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
     CustomPropertySetService customPropertySetService;
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
-
+    @Mock
+    MessageService messageService;
+    @Mock
+    ServiceCallService serviceCallService;
+//    @Mock
+//    JsonService jsonService;
     @Override
     protected Application getApplication() {
         PublicRestApplication application = new PublicRestApplication();
@@ -86,6 +107,8 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         application.setCustomPropertySetService(customPropertySetService);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
         application.setMeteringService(meteringService);
+        application.setMessageService(messageService);
+        application.setServiceCallService(serviceCallService);
         return application;
     }
 
@@ -161,11 +184,13 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         doReturn(Optional.ofNullable(detail)).when(usagePoint).getDetail(any(Instant.class));
         doReturn(Collections.singletonList(detail)).when(usagePoint).getDetails();
+        doReturn(Collections.singletonList(detail)).when(usagePoint).getDetail(eq(Range.all()));
         when(usagePoint.getMRID()).thenReturn("MRID");
         when(usagePoint.getInstallationTime()).thenReturn(LocalDateTime.of(2016, 3, 20, 11, 0)
                 .toInstant(ZoneOffset.UTC));
         when(usagePoint.getServiceDeliveryRemark()).thenReturn("remark");
         when(usagePoint.getServicePriority()).thenReturn("service priority");
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.empty());
         when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
         when(usagePoint.getConnectionState()).thenReturn(ConnectionState.CONNECTED);
 
@@ -233,6 +258,28 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
         when(finder.find()).thenReturn(list);
         when(finder.stream()).thenReturn(list.stream());
         return finder;
+    }
+
+    protected void mockCommands(){
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        UsagePointCommandCustomPropertySet customPropertySet = new UsagePointCommandCustomPropertySet();
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        ServiceCall serviceCall = mock(ServiceCall.class);
+        ServiceCallType serviceCallType = mock(ServiceCallType.class);
+        when(serviceCallService.findServiceCallType(anyString(),anyString())).thenReturn(Optional.of(serviceCallType));
+        ServiceCallBuilder serviceCallBuilder  = mock(ServiceCallBuilder.class);
+        when(serviceCallType.newServiceCall()).thenReturn(serviceCallBuilder);
+        when(serviceCallBuilder.origin(anyString())).thenReturn(serviceCallBuilder);
+        when(serviceCallBuilder.extendedWith(any())).thenReturn(serviceCallBuilder);
+        when(serviceCallBuilder.targetObject(any())).thenReturn(serviceCallBuilder);
+        when(serviceCallBuilder.create()).thenReturn(serviceCall);
+
+        DestinationSpec destinationSpec = mock(DestinationSpec.class);
+        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.of(destinationSpec));
+
+        MessageBuilder messageBuilder = mock(MessageBuilder.class);
+        when(destinationSpec.message(anyString())).thenReturn(messageBuilder);
     }
 
 }

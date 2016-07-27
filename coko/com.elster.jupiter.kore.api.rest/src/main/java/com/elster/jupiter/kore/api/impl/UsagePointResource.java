@@ -1,10 +1,15 @@
 package com.elster.jupiter.kore.api.impl;
 
 import com.elster.jupiter.kore.api.impl.security.Privileges;
+import com.elster.jupiter.kore.api.impl.servicecall.CommandRunStatusInfo;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandHelper;
+import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandInfo;
 import com.elster.jupiter.kore.api.impl.utils.MessageSeeds;
+import com.elster.jupiter.metering.ConnectionState;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
@@ -44,6 +49,7 @@ public class UsagePointResource {
     private final Provider<GasDetailResource> gasDetailResourceProvider;
     private final Provider<HeatDetailsResource> heatDetailResourceProvider;
     private final Provider<WaterDetailResource> waterDetailResourceProvider;
+    private final UsagePointCommandHelper usagePointCommandHelper;
 
     @Inject
     public UsagePointResource(MeteringService meteringService, UsagePointInfoFactory usagePointInfoFactory,
@@ -51,7 +57,8 @@ public class UsagePointResource {
                               Provider<ElectricityDetailResource> electricityDetailResourceProvider,
                               Provider<GasDetailResource> gasDetailResourceProvider,
                               Provider<HeatDetailsResource> heatDetailResourceProvider,
-                              Provider<WaterDetailResource> waterDetailResourceProvider) {
+                              Provider<WaterDetailResource> waterDetailResourceProvider,
+                              UsagePointCommandHelper usagePointCommandHelper) {
         this.meteringService = meteringService;
         this.usagePointInfoFactory = usagePointInfoFactory;
         this.exceptionFactory = exceptionFactory;
@@ -59,6 +66,7 @@ public class UsagePointResource {
         this.gasDetailResourceProvider = gasDetailResourceProvider;
         this.heatDetailResourceProvider = heatDetailResourceProvider;
         this.waterDetailResourceProvider = waterDetailResourceProvider;
+        this.usagePointCommandHelper = usagePointCommandHelper;
     }
 
     /**
@@ -243,5 +251,19 @@ public class UsagePointResource {
         }
     }
 
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{usagePointId}/command")
+//    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
+    @Transactional
+    public CommandRunStatusInfo runCommandOnUsagePoint(@PathParam("usagePointId") long usagePointId,
+                                                       UsagePointCommandInfo usagePointCommandInfo,
+                                                       @Context UriInfo uriInfo) {
 
+        UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_USAGE_POINT));
+
+        return usagePointCommandInfo.command.process(usagePoint,usagePointCommandInfo,usagePointCommandHelper);
+    }
 }
