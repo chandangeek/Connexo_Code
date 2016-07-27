@@ -8,7 +8,6 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
@@ -86,7 +85,7 @@ public class DataAggregationCommands {
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
-            MetrologyConfiguration configuration = usagePoint.getMetrologyConfiguration()
+            UsagePointMetrologyConfiguration configuration = usagePoint.getMetrologyConfiguration()
                     .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
             MetrologyContract contract = configuration.getContracts().stream()
                     .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
@@ -111,7 +110,7 @@ public class DataAggregationCommands {
         try (TransactionContext context = transactionService.getContext()) {
             UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID)
                     .orElseThrow(() -> new NoSuchElementException("No such usagepoint"));
-            MetrologyConfiguration configuration = usagePoint.getMetrologyConfiguration()
+            UsagePointMetrologyConfiguration configuration = usagePoint.getMetrologyConfiguration()
                     .orElseThrow(() -> new NoSuchElementException("No metrology configuration"));
             MetrologyContract contract = configuration.getContracts().stream()
                     .filter(c -> c.getMetrologyPurpose().getName().equals(contractPurpose))
@@ -177,12 +176,7 @@ public class DataAggregationCommands {
                     .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
                     .map(UsagePointMetrologyConfiguration.class::cast)
                     .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"));
-            if (configuration instanceof UsagePointMetrologyConfiguration) {
-                UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) configuration;
-                usagePoint.apply(usagePointMetrologyConfiguration);
-            } else {
-                throw new NoSuchElementException("No such metrology configuration");
-            }
+            usagePoint.apply(configuration);
             context.commit();
         }
     }
