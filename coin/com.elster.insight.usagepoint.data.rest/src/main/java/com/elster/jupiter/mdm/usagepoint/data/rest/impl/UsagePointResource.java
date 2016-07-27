@@ -703,4 +703,19 @@ public class UsagePointResource {
     public UsagePointOutputResource getUsagePointOutputResource() {
         return usagePointOutputResourceProvider.get();
     }
+        
+    @GET
+    @Path("/{mRID}/deliverables")
+    @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getMetrologyConfigurationDeliverables(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
+
+        List<ReadingTypeDeliverablesInfo> deliverables = usagePoint.getMetrologyConfiguration().get().getContracts()
+                .stream()
+                .filter(MetrologyContract::isMandatory) //Temporary. Should be replaced by active/inactive check
+                .flatMap(mc -> mc.getDeliverables().stream())
+                .map(ReadingTypeDeliverablesInfo::asInfo).collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("deliverables", deliverables, queryParameters);
+    }
 }
