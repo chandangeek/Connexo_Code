@@ -111,15 +111,14 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
 
     private boolean isJSONArrayValid(String jsonData) {
         try {
-            new JSONArray(jsonData);
+            return new JSONObject(jsonData).get("values") instanceof JSONArray;
         } catch (JSONException ex) {
             return false;
         }
-        return true;
     }
 
     private JSONArray getJSONArrayData(String jsonData) throws JSONException {
-        return new JSONArray(jsonData);
+        return new JSONObject(jsonData).getJSONArray("values");
     }
 
     @Override
@@ -127,6 +126,7 @@ public class LocationSearchableProperty extends AbstractSearchableDeviceProperty
         SqlBuilder builder = new SqlBuilder();
 
         String searchCondition = ((Comparison) condition).getValues()[0].toString();
+
         if (isJSONArrayValid(searchCondition)) {
 
             try {
