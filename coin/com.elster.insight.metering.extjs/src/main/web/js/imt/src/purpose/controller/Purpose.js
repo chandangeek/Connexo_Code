@@ -19,12 +19,15 @@ Ext.define('Imt.purpose.controller.Purpose', {
     models: [
         'Imt.purpose.model.Output',
         'Imt.purpose.model.Reading',
+        'Imt.usagepointmanagement.model.ValidationInfo',
+        'Imt.usagepointmanagement.model.SuspectReason',
         'Imt.usagepointmanagement.model.Purpose'
     ],
 
     views: [
         'Imt.purpose.view.Outputs',
-        'Imt.purpose.view.OutputChannelMain'
+        'Imt.purpose.view.OutputChannelMain',
+        'Imt.purpose.view.ValidationStatusForm'
     ],
 
     refs: [
@@ -69,17 +72,21 @@ Ext.define('Imt.purpose.controller.Purpose', {
         mainView.setLoading();
         usagePointsController.loadUsagePoint(mRID, {
             success: function (types, usagePoint, purposes) {
-                var purpose = _.find(purposes, function(p){return p.getId() == purposeId});
-                app.fireEvent('changecontentevent', Ext.widget('purpose-outputs', {
-                    itemId: 'purpose-outputs',
-                    router: router,
-                    usagePoint: usagePoint,
-                    purposes: purposes,
-                    purpose: purpose
-                }));
+                var purpose = _.find(purposes, function (p) {
+                        return p.getId() == purposeId
+                    }),
+                    widget = Ext.widget('purpose-outputs', {
+                        itemId: 'purpose-outputs',
+                        router: router,
+                        usagePoint: usagePoint,
+                        purposes: purposes,
+                        purpose: purpose
+                    });
                 if (mainView.down('purpose-actions-menu')) {
                     mainView.down('purpose-actions-menu').record = purpose;
-                }                
+                }
+                widget.down('#purpose-details-form').loadRecord(purpose);
+                app.fireEvent('changecontentevent', widget);
                 mainView.setLoading(false);
                 me.loadOutputs(mRID, purposeId);
             },
@@ -214,7 +221,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             switch (item.action) {
                 case 'validateNow':
                     me.validatePurpose(menu.record);
-                    break;               
+                    break;
             }
         }
     },
@@ -223,7 +230,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 itemId: 'purpose-validateNowConfirmationWindow',
-                confirmText: Uni.I18n.translate('general.validate', 'IMT', 'Validate'),                
+                confirmText: Uni.I18n.translate('general.validate', 'IMT', 'Validate'),
                 confirmation: function () {
                     me.onValidateNow(this, purpose);
                 }

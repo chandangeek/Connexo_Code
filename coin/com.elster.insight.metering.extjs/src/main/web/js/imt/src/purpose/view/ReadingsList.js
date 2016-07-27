@@ -28,7 +28,7 @@ Ext.define('Imt.purpose.view.ReadingsList', {
             },
             {
                 header: unit
-                    ? Uni.I18n.translate('general.value', 'MDC', 'Value ({0})', [unit])
+                    ? Uni.I18n.translate('general.value', 'MDM', 'Value ({0})', [unit])
                     : Uni.I18n.translate('general.value.empty', 'MDC', 'Value'),
                 flex: 2,
                 renderer: function (v) {

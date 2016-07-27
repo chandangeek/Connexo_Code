@@ -18,7 +18,16 @@ Ext.define('Imt.purpose.view.OutputsList', {
                 flex: 1,
                 dataIndex: 'name',
                 renderer: function (value, b, record) {
-                    return '<a href="' + me.router.getRoute('usagepoints/view/purpose/output').buildUrl({outputId: record.getId()}) + '">' + Ext.String.htmlEncode(value) + '</a>';
+                    var result = '<a href="' + me.router.getRoute('usagepoints/view/purpose/output').buildUrl({outputId: record.getId()}) + '">' + Ext.String.htmlEncode(value) + '</a>',
+                        validationInfo = record.get('validationInfo');
+
+                    if (validationInfo && validationInfo.hasSuspects) {
+                        result += '<span class="icon-warning" style="color: #eb5642; margin-left: 10px" data-qtip="'
+                            + Uni.I18n.translate('usagepoint.purpose.output.validation.hasSuspects.qtip', 'IMT', 'Output contains suspect values')
+                            + '"></span>';
+                    }
+
+                    return result;
                 }
             },
             {
