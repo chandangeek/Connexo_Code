@@ -31,17 +31,25 @@ import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionEnd;
 import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDate;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
 import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
+import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -75,10 +83,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -145,6 +155,7 @@ public class UsagePointImpl implements UsagePoint {
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     private final CustomPropertySetService customPropertySetService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
+    private final ServerDataAggregationService dataAggregationService;
     private transient UsagePointCustomPropertySetExtensionImpl customPropertySetExtension;
 
     @Inject
@@ -152,7 +163,10 @@ public class UsagePointImpl implements UsagePoint {
             Clock clock, DataModel dataModel, EventService eventService,
             Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
-            CustomPropertySetService customPropertySetService, MeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
+            CustomPropertySetService customPropertySetService,
+            MeteringService meteringService,
+            ServerMetrologyConfigurationService metrologyConfigurationService,
+            ServerDataAggregationService dataAggregationService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -162,6 +176,7 @@ public class UsagePointImpl implements UsagePoint {
         this.customPropertySetService = customPropertySetService;
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.dataAggregationService = dataAggregationService;
     }
 
     UsagePointImpl init(String mRID, ServiceCategory serviceCategory) {
@@ -642,10 +657,11 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
-                                .createConnectCommand(meter, when), when, serviceCall)))
+                        .flatMap(headEndInterface -> createCommand(headEndInterface, he -> he.sendCommand(headEndInterface.getCommandFactory()
+                                .createConnectCommand(meter, when), when, serviceCall))))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .map(CompletionOptions.class::cast)
                 .collect(Collectors.toList());
     }
 
@@ -657,10 +673,11 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
-                                .createDisconnectCommand(meter, when), when, serviceCall)))
+                        .flatMap(headEndInterface -> createCommand(headEndInterface, he -> he.sendCommand(he.getCommandFactory()
+                                .createDisconnectCommand(meter, when), when, serviceCall))))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .map(CompletionOptions.class::cast)
                 .collect(Collectors.toList());
     }
 
@@ -672,10 +689,11 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
-                                .createEnableLoadLimitCommand(meter, loadLimit), when, serviceCall)))
+                        .flatMap(headEndInterface -> createCommand(headEndInterface, he -> he.sendCommand(headEndInterface.getCommandFactory()
+                                .createEnableLoadLimitCommand(meter, loadLimit), when, serviceCall))))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .map(CompletionOptions.class::cast)
                 .collect(Collectors.toList());
     }
 
@@ -687,25 +705,89 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
-                                .createDisableLoadLimitCommand(meter), when, serviceCall)))
+                        .flatMap(headEndInterface -> createCommand(headEndInterface, he -> he.sendCommand(headEndInterface.getCommandFactory()
+                                .createDisableLoadLimitCommand(meter), when, serviceCall))))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(CompletionOptions.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    private Optional<CompletionOptions> createCommand(HeadEndInterface headEndInterface, Function<HeadEndInterface, CompletionOptions> function) {
+        try {
+            return Optional.ofNullable(function.apply(headEndInterface));
+        } catch (UnsupportedCommandException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = getEffectiveMetrologyConfiguration(when).get().getMetrologyConfiguration();
+
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+
+        metrologyConfiguration.getDeliverables()
+                .stream()
+                .filter(deliverable -> readingTypes.contains(deliverable.getReadingType()))
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+
+        List<ReadingTypeRequirement> readingTypeRequirements = requirementsCollector.getReadingTypeRequirements();
+        List<MeterActivationSet> meterActivationSets = dataAggregationService.getMeterActivationSets(this, when)
+                .collect(Collectors.toList());
+
+        List<ReadingType> configuredReadingTypes = this.getMeterActivations(when).stream()
+                .filter(meterActivation -> meterActivationSets.stream()
+                        .anyMatch(meterActivationSet -> readingTypeRequirements.stream()
+                                .anyMatch(requirement -> meterActivation.getChannelsContainer()
+                                        .getChannels()
+                                        .containsAll(meterActivationSet.getMatchingChannelsFor(requirement)))))
+                .map(ma -> getConfiguredMatchingReadingTypes(ma, readingTypeRequirements))
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!readingTypeRequirements.stream().allMatch(readingTypeRequirement -> configuredReadingTypes.stream().anyMatch(readingTypeRequirement::matches))) {
+            return Collections.emptyList();
+        }
+
+        return this.getMeterActivations(when).stream()
+                .map(meterActivation -> readData(when, meterActivation, readingTypeRequirements))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
-        return this.getMeterActivations(when)
-                .stream()
-                .map(MeterActivation::getMeter)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter, readingTypes, when, serviceCall)))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+    private Optional<CompletionOptions> readData(Instant when, MeterActivation meterActivation, List<ReadingTypeRequirement> readingTypeRequirements) {
+        List<ReadingType> configuredReadingTypes = getConfiguredMatchingReadingTypes(meterActivation, readingTypeRequirements);
+        Optional<Meter> meter = meterActivation.getMeter();
+
+        if (meter.isPresent()) {
+            if (!configuredReadingTypes.isEmpty()) {
+                return meter.get().getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter.get()
+                                , configuredReadingTypes.stream().filter(headEndInterface.getCapabilities(meter.get())
+                                        .getConfiguredReadingTypes()::contains).collect(Collectors.toList())
+                                , when));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private List<ReadingType> getConfiguredMatchingReadingTypes(MeterActivation meterActivation, List<ReadingTypeRequirement> readingTypeRequirements) {
+        Optional<Meter> meter = meterActivation.getMeter();
+
+        if (meter.isPresent()) {
+            return meter.get().getHeadEndInterface()
+                    .map(headEndInterface -> headEndInterface.getCapabilities(meter.get())
+                            .getConfiguredReadingTypes()
+                            .stream()
+                            .filter(rt -> readingTypeRequirements.stream().anyMatch(rtr -> rtr.matches(rt)))
+                            .collect(Collectors.toList())).orElse(Collections.emptyList());
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override

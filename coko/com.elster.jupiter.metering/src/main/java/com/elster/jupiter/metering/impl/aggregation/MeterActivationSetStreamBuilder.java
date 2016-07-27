@@ -26,6 +26,10 @@ class MeterActivationSetStreamBuilder {
         this.period = period;
     }
 
+    MeterActivationSetStreamBuilder(UsagePoint usagePoint, Instant when) {
+        this(usagePoint, Range.singleton(when));
+    }
+
     Stream<MeterActivationSet> build() {
         return this.getOverlappingMeterActivations()
                 .flatMap(this::switchTimestamps)

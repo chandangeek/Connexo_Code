@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.config;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReadingTypeRequirementChecker implements ExpressionNode.Visitor<Void> {
+public class ReadingTypeRequirementsCollector implements ExpressionNode.Visitor<Void> {
     private List<ReadingTypeRequirement> readingTypeRequirements = new ArrayList<>();
 
     @Override
