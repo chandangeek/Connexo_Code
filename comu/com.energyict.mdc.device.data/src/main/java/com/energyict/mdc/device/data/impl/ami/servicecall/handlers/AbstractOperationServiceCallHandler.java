@@ -103,6 +103,9 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
             case SUCCESSFUL:
                 completionOptionsCallBack.sendFinishedMessageToDestinationSpec(serviceCall);
                 break;
+            case FAILED:
+                completionOptionsCallBack.sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.ONE_OR_MORE_DEVICE_COMMANDS_FAILED);
+                break;
             case CANCELLED:
                 cancelServiceCall(serviceCall);
                 break;
