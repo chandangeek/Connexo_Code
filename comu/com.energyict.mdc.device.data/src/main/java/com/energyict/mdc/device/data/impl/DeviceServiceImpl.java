@@ -24,12 +24,14 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
+import com.energyict.mdc.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
@@ -39,6 +41,7 @@ import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
+import com.energyict.mdc.device.data.PassiveCalendar;
 import com.energyict.mdc.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
@@ -69,6 +72,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -93,17 +97,19 @@ public class DeviceServiceImpl implements ServerDeviceService {
     private final DeviceDataModelService deviceDataModelService;
     private final QueryService queryService;
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
     @Inject
-    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, NlsService nlsService) {
-        this(deviceDataModelService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN));
+    public DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, NlsService nlsService, Clock clock) {
+        this(deviceDataModelService, queryService, nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN), clock);
     }
 
-    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, Thesaurus thesaurus) {
+    DeviceServiceImpl(DeviceDataModelService deviceDataModelService, QueryService queryService, Thesaurus thesaurus, Clock clock) {
         super();
         this.deviceDataModelService = deviceDataModelService;
         this.queryService = queryService;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     @Override
@@ -120,6 +126,30 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public boolean hasDevices(ProtocolDialectConfigurationProperties configurationProperties) {
         return this.count(this.hasDevicesSqlBuilder(configurationProperties)) > 0;
+    }
+
+    @Override
+    public boolean hasDevices(AllowedCalendar allowedCalendar) {
+        if(allowedCalendar.isGhost()) {
+            return false;
+        }
+        Condition condition = where(ActiveEffectiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar)
+                .and(Where.where(ActiveEffectiveCalendarImpl.Fields.INTERVAL.fieldName()).isEffective(this.clock.instant()));
+        Finder<ActiveEffectiveCalendar> page =
+                DefaultFinder.
+                        of(ActiveEffectiveCalendar.class, condition, this.deviceDataModelService.dataModel()).
+                        paged(0, 1);
+        List<ActiveEffectiveCalendar> allActiveCalendars = page.find();
+        if(!allActiveCalendars.isEmpty()) {
+            return true;
+        }
+
+        condition = where(PassiveCalendarImpl.Fields.CALENDAR.fieldName()).isEqualTo(allowedCalendar);
+        Finder<PassiveCalendar> pagedPassive =
+                DefaultFinder.of(PassiveCalendar.class, condition, this.deviceDataModelService.dataModel())
+                .paged(0,1);
+        List<PassiveCalendar> allPassiveCalendars = pagedPassive.find();
+        return !allPassiveCalendars.isEmpty();
     }
 
     @Override

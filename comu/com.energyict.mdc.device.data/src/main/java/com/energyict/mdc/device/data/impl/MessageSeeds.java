@@ -154,6 +154,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2130, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2131, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
     COMMAND_ARGUMENT_SPEC_NOT_FOUND(2132, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
+     VETO_ALLOWED_CALENDAR_OBSOLETE(2133, Keys.VETO_ALLOWED_CALENDAR_IN_USE, "The allowed calendar {0} is still used by at least one device"),
+
     ;
 
     private final int number;
@@ -333,5 +335,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_STATUS_INFORMATION_COMTASK = "no.status.information.comtask";
         public static final String COULD_NOT_FIND_SERVICE_CALL_TYPE = "could.not.find.service.call.type";
         public static final String COMMAND_ARGUMENT_SPEC_NOT_FOUND = "command.argument.spec.not.found";
+        public static final String VETO_ALLOWED_CALENDAR_IN_USE = "allowed.calendar.in.use";
     }
 }
