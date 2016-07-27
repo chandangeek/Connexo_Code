@@ -1,6 +1,7 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyContractInfo;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -37,6 +38,7 @@ public class MetrologyConfigurationInfo {
     public IdWithNameInfo status;
     public List<MeterRoleInfo> meterRoles;
     public List<PurposeInfo> purposes;
+    public List<MetrologyContractInfo> metrologyContracts;
 
     @JsonIgnore
     public Thesaurus thesaurus;
@@ -120,7 +122,7 @@ public class MetrologyConfigurationInfo {
 
     private PurposeInfo asDetailedInfo(MetrologyContract metrologyContract, UsagePointMetrologyConfiguration metrologyConfiguration, UsagePoint usagePoint) {
         PurposeInfo info = new PurposeInfo();
-        info.id = metrologyContract.getMetrologyPurpose().getId();
+        info.id = metrologyContract.getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
         info.required = metrologyContract.isMandatory();
         info.active = info.required;

@@ -21,7 +21,6 @@ import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
@@ -40,6 +39,7 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.annotation.Priority;
@@ -51,25 +51,27 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
 import java.time.Clock;
+import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.mockito.Mock;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- */
 public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
-
-    static long firmwareComTaskId = 445632136865L;
     @Mock
     Clock clock;
     @Mock
     MeteringService meteringService;
+    @Mock
+    TimeService timeService;
     @Mock
     LocationService locationService;
     @Mock
@@ -98,7 +100,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     ServiceCallInfoFactory serviceCallInfoFactory;
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
-
     @Mock
     IssueService issueService;
     @Mock
@@ -120,6 +121,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setMeteringService(meteringService);
+        application.setTimeService(timeService);
         application.setLocationService(locationService);
         application.setRestQueryService(restQueryService);
         application.setClockService(clock);
@@ -161,49 +163,6 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         return readingType;
     }
 
-    public UsagePointMetrologyConfiguration mockMetrologyConfiguration(long id, String name) {
-        UsagePointMetrologyConfiguration mock = mock(UsagePointMetrologyConfiguration.class);
-        when(mock.getId()).thenReturn(id);
-        when(mock.getName()).thenReturn(name);
-        ServiceCategory serviceCategory = mock(ServiceCategory.class);
-        when(mock.getServiceCategory()).thenReturn(serviceCategory);
-        when(mock.getVersion()).thenReturn(1L);
-        when(mock.getDescription()).thenReturn("some description");
-
-        MeterRole role = mock(MeterRole.class);
-        when(role.getKey()).thenReturn(DefaultMeterRole.DEFAULT.getKey());
-        when(role.getDisplayName()).thenReturn(DefaultMeterRole.DEFAULT.getDefaultFormat());
-        when(mock.getMeterRoles()).thenReturn(Collections.singletonList(role));
-
-        ReadingType readingType = this.mockReadingType("13.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
-
-        MetrologyContract contract = mock(MetrologyContract.class);
-        MetrologyPurpose purpose = mock(MetrologyPurpose.class);
-        when(purpose.getId()).thenReturn(1L);
-        when(purpose.getDescription()).thenReturn(DefaultMetrologyPurpose.BILLING.getDescription().getDefaultMessage());
-        when(purpose.getName()).thenReturn(DefaultMetrologyPurpose.BILLING.getName().getDefaultMessage());
-        ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
-        when(deliverable.getId()).thenReturn(1L);
-        when(deliverable.getMetrologyConfiguration()).thenReturn(mock);
-        when(deliverable.getName()).thenReturn("testDeliveralble");
-        when(deliverable.getReadingType()).thenReturn(readingType);
-        Formula formula = mock(Formula.class);
-        when(formula.getDescription()).thenReturn("testDescription");
-        ReadingTypeRequirementNode requirementNode = mock(ReadingTypeRequirementNode.class);
-        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
-        when(requirement.getMetrologyConfiguration()).thenReturn(mock);
-        when(requirement.getReadingType()).thenReturn(readingType);
-        when(requirementNode.getReadingTypeRequirement()).thenReturn(requirement);
-        when(formula.getExpressionNode()).thenReturn(requirementNode);
-        when(deliverable.getFormula()).thenReturn(formula);
-        when(contract.getMetrologyPurpose()).thenReturn(purpose);
-        when(contract.getMetrologyConfiguration()).thenReturn(mock);
-        when(contract.getDeliverables()).thenReturn(Collections.singletonList(deliverable));
-        when(contract.isMandatory()).thenReturn(true);
-        when(mock.getContracts()).thenReturn(Collections.singletonList(contract));
-        return mock;
-    }
-
     @Provider
     @Priority(Priorities.AUTHORIZATION)
     private static class SecurityRequestFilter implements ContainerRequestFilter {
@@ -211,5 +170,87 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         public void filter(ContainerRequestContext requestContext) throws IOException {
             requestContext.setSecurityContext(securityContext);
         }
+    }
+
+    public UsagePointMetrologyConfiguration mockMetrologyConfigurationWithContract(long id, String name) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
+        when(metrologyConfiguration.getId()).thenReturn(id);
+        when(metrologyConfiguration.getName()).thenReturn(name);
+        MeterRole meterRole = mockMeterRole(DefaultMeterRole.DEFAULT);
+        when(metrologyConfiguration.getMeterRoles()).thenReturn(Collections.singletonList(meterRole));
+
+        MetrologyContract contract = mockMetrologyContract(100L, DefaultMetrologyPurpose.BILLING, metrologyConfiguration);
+
+        ReadingType regularReadingType = this.mockReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        when(regularReadingType.isRegular()).thenReturn(true);
+        when(regularReadingType.getIntervalLength()).thenReturn(Optional.of(Duration.ofMinutes(15)));
+        ReadingTypeDeliverable channelDeliverable = mockReadingTypeDeliverable(1L, "1 regular RT", metrologyConfiguration, regularReadingType);
+
+        ReadingType irregularReadingType = this.mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        when(irregularReadingType.isRegular()).thenReturn(false);
+        ReadingTypeDeliverable registerTypeDeliverable = mockReadingTypeDeliverable(2L, "2 irregular RT", metrologyConfiguration, irregularReadingType);
+
+        when(contract.getDeliverables()).thenReturn(Arrays.asList(channelDeliverable, registerTypeDeliverable));
+        return metrologyConfiguration;
+    }
+
+    private MeterRole mockMeterRole(DefaultMeterRole defaultReterRole) {
+        MeterRole meterRole = mock(MeterRole.class);
+        when(meterRole.getKey()).thenReturn(defaultReterRole.getKey());
+        when(meterRole.getDisplayName()).thenReturn(defaultReterRole.getDefaultFormat());
+        return meterRole;
+    }
+
+    private MetrologyContract mockMetrologyContract(long id, DefaultMetrologyPurpose metrologyPurpose, UsagePointMetrologyConfiguration metrologyConfiguration) {
+        MetrologyContract contract = mock(MetrologyContract.class);
+        when(contract.getId()).thenReturn(id);
+        when(contract.getVersion()).thenReturn(1L);
+        when(contract.isMandatory()).thenReturn(true);
+        MetrologyPurpose purpose = mockMetrologyPurpose(metrologyPurpose);
+        when(contract.getMetrologyPurpose()).thenReturn(purpose);
+        when(contract.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        MetrologyContract.Status status = mockMetrologyContractStatus();
+        when(contract.getStatus(any())).thenReturn(status);
+        when(metrologyConfiguration.getContracts()).thenReturn(Collections.singletonList(contract));
+        return contract;
+    }
+
+    private MetrologyPurpose mockMetrologyPurpose(DefaultMetrologyPurpose metrologyPurpose) {
+        MetrologyPurpose purpose = mock(MetrologyPurpose.class);
+        when(purpose.getId()).thenReturn(1L);
+        when(purpose.getName()).thenReturn(metrologyPurpose.getName().getDefaultMessage());
+        when(purpose.getDescription()).thenReturn(metrologyPurpose.getDescription().getDefaultMessage());
+        return purpose;
+    }
+
+    private MetrologyContract.Status mockMetrologyContractStatus() {
+        MetrologyContract.Status status = mock(MetrologyContract.Status.class);
+        when(status.isComplete()).thenReturn(false);
+        when(status.getKey()).thenReturn("INCOMPLETE");
+        when(status.getName()).thenReturn("incomplete");
+        return status;
+    }
+
+    private ReadingTypeDeliverable mockReadingTypeDeliverable(long id, String name, UsagePointMetrologyConfiguration metrologyConfiguration, ReadingType readingType) {
+        ReadingTypeDeliverable deliverable = mock(ReadingTypeDeliverable.class);
+        when(deliverable.getId()).thenReturn(id);
+        when(deliverable.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(deliverable.getName()).thenReturn(name);
+        when(deliverable.getReadingType()).thenReturn(readingType);
+        Formula formula = mockFormula(readingType, metrologyConfiguration);
+        when(deliverable.getFormula()).thenReturn(formula);
+        return deliverable;
+    }
+
+    private Formula mockFormula(ReadingType readingType, UsagePointMetrologyConfiguration metrologyConfiguration) {
+        Formula formula = mock(Formula.class);
+        when(formula.getDescription()).thenReturn("Formula Description");
+        ReadingTypeRequirementNode requirementNode = mock(ReadingTypeRequirementNode.class);
+        FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
+        when(requirement.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(requirement.getReadingType()).thenReturn(readingType);
+        when(requirementNode.getReadingTypeRequirement()).thenReturn(requirement);
+        when(formula.getExpressionNode()).thenReturn(requirementNode);
+        return formula;
     }
 }
