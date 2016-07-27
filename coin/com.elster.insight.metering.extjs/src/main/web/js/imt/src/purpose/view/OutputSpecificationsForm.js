@@ -56,14 +56,14 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
                     return formula.description;
                 }
             },
-            {
-                xtype: 'fieldcontainer',
-                itemId: 'purpose-formula-components',
-                fieldLabel: Uni.I18n.translate('form.output.section.formulaComponents', 'IMT', 'Formula components'),
-                layout: 'vbox',
-                labelAlign: 'top',
-                defaults: me.defaults
-            },
+            // {
+            //     xtype: 'fieldcontainer',
+            //     itemId: 'purpose-formula-components',
+            //     fieldLabel: Uni.I18n.translate('form.output.section.formulaComponents', 'IMT', 'Formula components'),
+            //     layout: 'vbox',
+            //     labelAlign: 'top',
+            //     defaults: me.defaults
+            // },
             {
                 xtype: 'fieldcontainer',
                 itemId: 'output-validation-title',
@@ -81,25 +81,25 @@ Ext.define('Imt.purpose.view.OutputSpecificationsForm', {
         me.callParent();
     },
 
-    loadRecord: function (record) {
-        var me = this,
-            formula = record.getFormula(),
-            formulaComponentsContainer = me.down('#purpose-formula-components'),
-            formulaComponents,
-            customProperties;
-
-        Ext.suspendLayouts();
-        formulaComponents = Imt.util.CommonFields.prepareReadingTypeRequirementFields(formula.readingTypeRequirements());
-        customProperties = Imt.util.CommonFields.prepareCustomProperties(formula.customProperties());
-        if (customProperties) {
-            formulaComponents.push(customProperties);
-        }
-
-        formulaComponentsContainer.removeAll();
-        formulaComponentsContainer.add(formulaComponents);
-        me.down('#output-validation-status-form').loadValidationInfo(record.get('validationInfo'));
-        Ext.resumeLayouts(true);
-
-        me.callParent(arguments);
-    }
+    // loadRecord: function (record) {
+    //     var me = this,
+    //         formula = record.getFormula(),
+    //         formulaComponentsContainer = me.down('#purpose-formula-components'),
+    //         formulaComponents,
+    //         customProperties;
+    //
+    //     Ext.suspendLayouts();
+    //     formulaComponents = Imt.util.CommonFields.prepareReadingTypeRequirementFields(formula.readingTypeRequirements());
+    //     customProperties = Imt.util.CommonFields.prepareCustomProperties(formula.customProperties());
+    //     if (customProperties) {
+    //         formulaComponents.push(customProperties);
+    //     }
+    //
+    //     formulaComponentsContainer.removeAll();
+    //     formulaComponentsContainer.add(formulaComponents);
+    //     me.down('#output-validation-status-form').loadValidationInfo(record.get('validationInfo'));
+    //     Ext.resumeLayouts(true);
+    //
+    //     me.callParent(arguments);
+    // }
 });
