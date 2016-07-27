@@ -88,14 +88,14 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                                 .map(DataValidationStatus::getOffendedRules)
                                 .flatMap(Collection::stream)
                                 .map(rule -> rule.getImplementation().substring(rule.getImplementation().lastIndexOf(".") + 1))
-                                .map(rule -> rule + "_" + entry.getKey().replace(DataValidationKpiMemberTypes.REGISTER.fieldName(), ""))),
+                                .map(rule -> rule.toUpperCase() + "_" + entry.getKey().replace(DataValidationKpiMemberTypes.REGISTER.fieldName(), ""))),
                 channelsSuspects.entrySet().stream()
                         .filter(entry -> entry.getValue().size() > 0)
                         .flatMap(entry -> entry.getValue().stream()
                                 .map(DataValidationStatus::getOffendedRules)
                                 .flatMap(Collection::stream)
                                 .map(rule -> rule.getImplementation().substring(rule.getImplementation().lastIndexOf(".") + 1))
-                                .map(rule -> rule + "_" + entry.getKey().replace(DataValidationKpiMemberTypes.CHANNEL.fieldName(), "")))
+                                .map(rule -> rule.toUpperCase() + "_" + entry.getKey().replace(DataValidationKpiMemberTypes.CHANNEL.fieldName(), "")))
         ).distinct().collect(Collectors.toList());
 
     }

@@ -44,6 +44,26 @@ public final class DataValidationKpiScoreImpl implements DataValidationKpiScore 
     }
 
     @Override
+    public BigDecimal getThresholdValidator() {
+        return this.getValue(MonitoredDataValidationKpiMemberTypes.THRESHOLDVALIDATOR);
+    }
+
+    @Override
+    public BigDecimal getMissingValuesValidator() {
+        return this.getValue(MonitoredDataValidationKpiMemberTypes.MISSINGVALUESVALIDATOR);
+    }
+
+    @Override
+    public BigDecimal getReadingQualitiesValidator() {
+        return this.getValue(MonitoredDataValidationKpiMemberTypes.READINGQUALITIESVALIDATOR);
+    }
+
+    @Override
+    public BigDecimal getRegisterIncreaseValidator() {
+        return this.getValue(MonitoredDataValidationKpiMemberTypes.REGISTERINCREASEVALIDATOR);
+    }
+
+    @Override
     public BigDecimal getRegisterSuspects() {
         return this.getValue(MonitoredDataValidationKpiMemberTypes.REGISTER);
     }

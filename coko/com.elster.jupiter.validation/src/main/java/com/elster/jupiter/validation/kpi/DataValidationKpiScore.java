@@ -16,4 +16,12 @@ public interface DataValidationKpiScore extends Comparable<DataValidationKpiScor
 
     Instant getTimestamp();
 
+    BigDecimal getThresholdValidator();
+
+    BigDecimal getMissingValuesValidator();
+
+    BigDecimal getReadingQualitiesValidator();
+
+    BigDecimal getRegisterIncreaseValidator();
+
 }

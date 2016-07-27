@@ -31,6 +31,34 @@ public enum MonitoredDataValidationKpiMemberTypes {
         public Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes() {
             return EnumSet.of(DataValidationKpiMemberTypes.ALLDATAVALIDATED);
         }
+    },
+
+    THRESHOLDVALIDATOR {
+        @Override
+        public Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes() {
+            return EnumSet.of(DataValidationKpiMemberTypes.THRESHOLDVALIDATOR);
+        }
+    },
+
+    MISSINGVALUESVALIDATOR {
+        @Override
+        public Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes() {
+            return EnumSet.of(DataValidationKpiMemberTypes.MISSINGVALUESVALIDATOR);
+        }
+    },
+
+    READINGQUALITIESVALIDATOR {
+        @Override
+        public Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes() {
+            return EnumSet.of(DataValidationKpiMemberTypes.READINGQUALITIESVALIDATOR);
+        }
+    },
+
+    REGISTERINCREASEVALIDATOR {
+        @Override
+        public Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes() {
+            return EnumSet.of(DataValidationKpiMemberTypes.REGISTERINCREASEVALIDATOR);
+        }
     };
 
     public abstract Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes();
