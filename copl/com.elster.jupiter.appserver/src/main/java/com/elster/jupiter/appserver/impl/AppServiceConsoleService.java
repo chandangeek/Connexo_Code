@@ -293,7 +293,7 @@ public class AppServiceConsoleService {
 
     public void become(String appServerName) {
         try (TransactionContext context = transactionService.getContext()) {
-            appService.stopAppServer();
+            this.stopAppServer();
             appService.startAsAppServer(appServerName);
             messageHandlerLauncherService.appServerStarted();
             context.commit();

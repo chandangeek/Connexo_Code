@@ -140,7 +140,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     private Thesaurus getThesaurus() {
-        return ((IAppService) appService).getThesaurus();
+        return appService.getThesaurus();
     }
 
     @Deactivate
@@ -211,8 +211,8 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     Map<SubscriberKey, Integer> futureReport() {
-        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsSnapshot = null;
-        Map<CancellableTaskExecutorService, List<Future<?>>> futuresSnapshot = null;
+        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsSnapshot;
+        Map<CancellableTaskExecutorService, List<Future<?>>> futuresSnapshot;
         synchronized (configureLock) {
             executorsSnapshot = ImmutableMap.copyOf(this.executors);
             futuresSnapshot = ImmutableMap.copyOf(this.futures);
@@ -228,7 +228,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     Map<SubscriberKey, Integer> threadReport() {
-        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsSnapshot = null;
+        Map<MessageHandlerFactory, CancellableTaskExecutorService> executorsSnapshot;
         synchronized (configureLock) {
             executorsSnapshot = ImmutableMap.copyOf(this.executors);
         }
@@ -236,7 +236,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
         return handlerFactories.entrySet().stream()
                 .map(entry -> Pair.of(entry.getKey(), executorsCopy.get(entry.getValue())))
                 .filter(pair -> pair.getLast() != null)
-                .map(pair -> Pair.of(pair.getFirst(), pair.getLast() == null ? 0 : ((CancellableTaskExecutorService) pair.getLast()).getCorePoolSize()))
+                .map(pair -> Pair.of(pair.getFirst(), pair.getLast() == null ? 0 : pair.getLast().getCorePoolSize()))
                 .filter(pair -> pair.getLast() != 0)
                 .collect(Collectors.toMap(Pair::getFirst, Pair::getLast));
     }

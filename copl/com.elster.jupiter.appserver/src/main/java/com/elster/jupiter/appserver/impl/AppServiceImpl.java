@@ -152,6 +152,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
 
     @Activate
     public void activate(BundleContext context) {
+        LOGGER.info(() -> "Activating " + this.toString() + " from thread " + Thread.currentThread().getName());
         try {
             this.context = context;
 
@@ -185,6 +186,13 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw e;
         }
+    }
+
+    @Deactivate
+    public void deactivate() {
+        LOGGER.info(() -> "Dectivating " + this.toString() + " from thread " + Thread.currentThread().getName());
+        this.context = null;
+        stopAppServer();
     }
 
     private void tryActivate(BundleContext context) {
@@ -397,12 +405,6 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
             cancellableTask.cancel(false);
             executorService.shutdownNow();
         });
-    }
-
-    @Deactivate
-    public void deactivate() {
-        this.context = null;
-        stopAppServer();
     }
 
     @Reference
