@@ -107,7 +107,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
         Optional<Location> location = device.getLocation();
-        Optional<SpatialCoordinates> geoCoordinates = device.getSpatialCoordinates();
+        Optional<SpatialCoordinates> spatialCoordinates = device.getSpatialCoordinates();
         String formattedLocation = "";
         if (location.isPresent()) {
             List<List<String>> formattedLocationMembers = location.get().format();
@@ -118,7 +118,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .collect(Collectors.joining(", "));
         }
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, new IssueRetriever(issueService), thesaurus,
-                dataLoggerSlaveDeviceInfoFactory, formattedLocation, geoCoordinates.map(coord -> coord.toString()).orElse(null), clock);
+                dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(coord -> coord.toString()).orElse(null), clock);
     }
 
     @Override

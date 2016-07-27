@@ -174,6 +174,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
         when(topologyService.findDataLoggerChannelUsagesForChannels(any(Channel.class), any(Range.class))).thenReturn(Collections.emptyList());
         when(topologyService.getSlaveChannel(any(Channel.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     @Test
@@ -2304,6 +2305,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(dates.getRetiredDate()).thenReturn(Optional.of(now.minus(2, ChronoUnit.DAYS)));
         when(device.getLifecycleDates()).thenReturn(dates);
         when(device.getLocation()).thenReturn(Optional.empty());
+        when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(dates.setReceivedDate(any(Instant.class))).thenReturn(dates);
 
         when(deviceService.findByUniqueMrid(name)).thenReturn(Optional.of(device));
