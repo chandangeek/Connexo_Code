@@ -6,11 +6,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ValuesRangeConflict;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.cps.rest.impl.SimplePropertyType;
-import com.elster.jupiter.metering.CustomPropertiesUsageChecker;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -87,31 +83,6 @@ public class CustomPropertySetInfoFactory {
         return info;
     }
 
-    public CustomPropertySetInfo getGeneralAndPropertiesInfo(RegisteredCustomPropertySet rcps, MetrologyConfiguration metrologyConfiguration) {
-        CustomPropertySetInfo info = getGeneralInfo(rcps);
-        if (rcps != null) {
-            CustomPropertySet<?, ?> cps = rcps.getCustomPropertySet();
-            info.properties = cps.getPropertySpecs()
-                    .stream()
-                    .map(spec -> {
-                        if (!spec.isRequired()) {
-                            CustomPropertiesUsageChecker checker = new CustomPropertiesUsageChecker();
-                            metrologyConfiguration.getContracts()
-                                    .stream()
-                                    .filter(MetrologyContract::isMandatory)
-                                    .forEach(contract -> contract.getDeliverables()
-                                            .stream()
-                                            .forEach(deliverable -> deliverable.getFormula().getExpressionNode().accept(checker))
-                                    );
-                            ((BasicPropertySpec) spec).setRequired(checker.getCustomPropertiesUsages().get(rcps).getName().equals(spec.getName()));
-                        }
-                        return spec;
-                    })
-                    .map(this::getPropertyInfo)
-                    .collect(Collectors.toList());
-        }
-        return info;
-    }
 
     public CustomPropertySetInfo getFullInfo(RegisteredCustomPropertySet rcps, CustomPropertySetValues customPropertySetValue) {
         CustomPropertySetInfo info = getGeneralInfo(rcps);
