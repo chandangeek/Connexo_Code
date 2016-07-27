@@ -6,11 +6,8 @@ Ext.define('Ddv.store.Validations', {
 
     proxy: {
         type: 'rest',
-        url: '/api/dvr/validationresults/devicegroups/4',
+        url: '/api/dvr/validationresults/devicegroups',
 
-        setUrl: function (params) {
-            this.url = this.urlTpl.replace('{groupId}', params.get('deviceGroup'));
-        },
         appendId: false,
         reader: {
             type: 'json',
