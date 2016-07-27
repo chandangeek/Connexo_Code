@@ -720,7 +720,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                         for (PrivilegeAssociation association : privilegesNotYetRegistered.get(privilege)) {
                             Optional<Group> group = findGroup(association.group);
                             if (group.isPresent()) {
-                                System.out.println("Granting " + privilege + " to " + association.group + "on " + association.application);
+                                System.out.println("Granting " + privilege + " to " + association.group + " on " + association.application);
                                 group.get().grant(association.application, privilege);
                             }
                         }
