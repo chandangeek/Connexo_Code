@@ -114,7 +114,8 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
         me.store.each(function (record) {
             var point = {},
                 interval = record.get('interval'),
-                validation = record.get('validation');
+                validation = record.get('validation'),
+                readingTime = record.get('readingTime');
 
             point.x = interval.start;
             point.id = point.x;
@@ -129,12 +130,12 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGraph', {
             data.unshift(point);
             !point.y && (point.y = null);
             if (!point.y) {
-                if (validation === 'SUSPECT') {
+                if (validation === 'SUSPECT' || !readingTime) {
                     missedValues.push({
                         id: interval.start,
                         from: interval.start,
                         to: interval.end,
-                        color: 'rgba(235, 86, 66, 0.3)'
+                        color: readingTime ? 'rgba(235, 86, 66, 0.3)' : 'rgba(210,210,210,1)'
                     });
                     record.set('plotBand', true);
                 }
