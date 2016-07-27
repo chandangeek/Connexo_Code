@@ -1,22 +1,15 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Location;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
-import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class DeviceSearchInfo {
     public long id;
@@ -26,7 +19,7 @@ public class DeviceSearchInfo {
     public long deviceTypeId;
     public String deviceConfigurationName;
     public long deviceConfigurationId;
-    public DeviceLifeCycleStateInfo state;
+    public String state;
     public String batch;
     public Boolean hasOpenDataCollectionIssues;
     public String serviceCategory;
@@ -43,26 +36,27 @@ public class DeviceSearchInfo {
     public String location;
 
 
-    public static DeviceSearchInfo from(Device device, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus) {
+    public static DeviceSearchInfo from(Device device, BatchRetriever batchService, GatewayRetriever gatewayRetriever,
+                                        IssueRetriever issueService, Thesaurus thesaurus, DeviceEstimationRetriever deviceEstimationRetriever, DeviceValidationRetriever deviceValidationRetriever) {
         DeviceSearchInfo searchInfo = new DeviceSearchInfo();
         searchInfo.id = device.getId();
         searchInfo.mRID = device.getmRID();
         searchInfo.serialNumber = device.getSerialNumber();
-        searchInfo.deviceTypeName = device.getDeviceType().getName();
-        searchInfo.deviceTypeId = device.getDeviceType().getId();
         searchInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
         searchInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
-        State deviceState = device.getState();
-        searchInfo.state = new DeviceLifeCycleStateInfo(thesaurus, null, deviceState);
+        searchInfo.deviceTypeName = device.getDeviceType().getName();
+        searchInfo.deviceTypeId = device.getDeviceType().getId();
+        searchInfo.state = getStateName(device.getState(), thesaurus);
         searchInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
-        searchInfo.hasOpenDataCollectionIssues = issueService.countOpenDataCollectionIssues(device.getmRID()) != 0;
+
+        searchInfo.hasOpenDataCollectionIssues = issueService.hasOpenDataCollectionIssues(device);
         device.getUsagePoint().ifPresent(usagePoint -> {
             searchInfo.usagePoint = usagePoint.getMRID();
             searchInfo.serviceCategory = usagePoint.getServiceCategory().getName();
         });
         searchInfo.yearOfCertification = device.getYearOfCertification();
-        searchInfo.estimationActive = device.forEstimation().isEstimationActive();
-        Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
+        searchInfo.estimationActive = deviceEstimationRetriever.isEstimationActive(device);
+        Optional<Device> physicalGateway = gatewayRetriever.getPhysicalGateway(device);
         if (physicalGateway.isPresent()) {
             searchInfo.masterDevicemRID = physicalGateway.get().getmRID();
         }
@@ -71,11 +65,22 @@ public class DeviceSearchInfo {
         searchInfo.installationDate = lifecycleDates.getInstalledDate().orElse(null);
         searchInfo.deactivationDate = lifecycleDates.getRemovedDate().orElse(null);
         searchInfo.decommissionDate = lifecycleDates.getRetiredDate().orElse(null);
-        searchInfo.validationActive = device.forValidation().isValidationActive();
-        searchInfo.hasOpenDataValidationIssues = DeviceInfo.getOpenDataValidationIssue(device, meteringService, issueService, issueDataValidationService).isPresent();
-        searchInfo.location = meteringService.findDeviceLocation(device.getmRID()).map(Location::toString).
-                orElse(meteringService.findDeviceGeoCoordinates(device.getmRID())
-                        .map(coordinates -> coordinates.getCoordinates().toString()).orElse(""));
+        searchInfo.validationActive = deviceValidationRetriever.isValidationActive(device);
+        searchInfo.hasOpenDataValidationIssues = issueService.hasOpenDataValidationIssues(device);
+        searchInfo.location = device.getLocation().map(Location::toString).
+                orElse(device.getSpatialCoordinates()
+                        .map(coordinates -> coordinates.toString()).orElse(""));
         return searchInfo;
+    }
+
+    private static String getStateName(State state, Thesaurus thesaurus) {
+        Optional<DefaultState> defaultState = DefaultState.from(state);
+        String name;
+        if (defaultState.isPresent()) {
+            name = thesaurus.getString(defaultState.get().getKey(), defaultState.get().getKey());
+        } else {
+            name = state.getName();
+        }
+        return name;
     }
 }

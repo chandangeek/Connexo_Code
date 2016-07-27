@@ -52,7 +52,7 @@ public enum MessageSeeds implements MessageSeed {
     METER_ACTIVATION_NOT_FOUND(235, "MeterActivationNotFound", "No meter activation is found"),
     NO_SUCH_DEVICE_LIFE_CYCLE_ACTION(236, "NoSuchDeviceLifeCycleAction", "No device life cycle action with id = {0}"),
     THIS_FIELD_IS_REQUIRED(237, "ThisFieldIsRequired", "This field is required"),
-    CIM_DATE_SHOULD_BE_AFTER_X(238, "CIMDateShouldBeAfterX", "This date should be greater than ''{0}''"),
+    CIM_DATE_SHOULD_BE_AFTER_X(238, "CIMDateShouldBeAfterX", "This date should be later than ''{0}''"),
     NO_APPSERVER(239, "NoAppServer", "There is no active application server that can handle this request"),
     NO_SUCH_MESSAGE_QUEUE(240, "NoSuchMessageQueue", "Unable to queue command: no message queue was found"),
     BAD_ACTION(241, "BadAction", "Expected action to be either 'add' or 'remove'"),
@@ -89,7 +89,14 @@ public enum MessageSeeds implements MessageSeed {
     VALUE_MAY_NOT_EXCEED_OVERFLOW_VALUE(272, "ValueMayNotExceedOverflowValue", "The value {0} may not exceed the configured overflow value {1}"),
     INVALID_TRACKING_ID(273, "InvalidTrackingId", "The tracking id is invalid for this tracking category"),
     BAD_REQUEST(274, "badRequest", "Bad request"),
-    INVALID_COORDINATES(275, "invalidCoordinates", "All coordinates fields must contain valid values");
+    INVALID_COORDINATES(275, "invalidCoordinates", "All coordinates fields must contain valid values"),
+    VERIFY_CALENDAR_TASK_IS_NOT_ACTIVE(276, "VerifyCalendarTaskNotActive", "The ''Check time of use calendar'' action can''t be executed because there is no communication task with the ''Status information - Read'' action on the device configuration of this device."),
+    UNABLE_TO_FIND_CALENDAR(277, "CannotFindCalendar", "Unable to find the given calendar in the system."),
+    NO_ALLOWED_CALENDAR_DEVICE_MESSAGE(278, "NoAllowedCalendarMessage", "Unable to find an allowed calendar command with the given information"),
+    NO_ACTIVE_CALENDAR(279, "NoActiveCalendar", "This device doesn't have an active calendar"),
+    ACTIVE_CALENDAR_IS_GHOST(280, "ActiveCalendarIsGhost", "The active calendar on this device is a ghost calendar and can not be previewed"),
+    CALENDAR_NOT_ACTIVE_ON_DEVICE(281, "CalendarNotActiveOnDevice", "The requested calendar is not an active calendar on this device"),
+    COMMAND_NOT_ALLOWED_OR_SUPPORTED(282, "CommandNotAllowedOrSupported", "The command you want to add is not supported or allowed on the device type");
     private final int number;
     private final String key;
     private final String format;

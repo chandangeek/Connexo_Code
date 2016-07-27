@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
@@ -38,6 +39,7 @@ import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -68,6 +70,7 @@ import java.util.stream.Collectors;
         methods = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE},
         ignoredUserRoles = {Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
 public class ChannelResource {
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
     private final ExceptionFactory exceptionFactory;
     private final Provider<ChannelResourceHelper> channelHelper;
     private final ResourceHelper resourceHelper;
@@ -394,7 +397,7 @@ public class ChannelResource {
             Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis - 1), Instant.ofEpochMilli(epochMillis));
             List<LoadProfileReading> channelData = channel.getChannelData(range);
             Optional<ChannelDataInfo> found = channelData.stream()
-                    .map(loadProfileReadings -> deviceDataInfoFactory.createChannelDataInfo(channel, loadProfileReadings, isValidationActive, deviceValidation))
+                    .map(oneLoadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channel, oneLoadProfileReading, isValidationActive, deviceValidation))
                     .findFirst();
             return Response.ok(found.orElse(new ChannelDataInfo())).build();
         }
@@ -453,8 +456,8 @@ public class ChannelResource {
     }
 
     private boolean isToBeConfirmed(ChannelDataInfo channelDataInfo) {
-        return ((channelDataInfo.mainValidationInfo != null && channelDataInfo.mainValidationInfo.isConfirmed) ||
-                (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.isConfirmed));
+        return (channelDataInfo.mainValidationInfo != null && channelDataInfo.mainValidationInfo.isConfirmed ||
+                channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.isConfirmed);
     }
 
     @POST
@@ -463,16 +466,17 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public List<ChannelDataInfo> previewEstimateChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, EstimateChannelDataInfo estimateChannelDataInfo) {
+    public List<ChannelDataInfo> previewEstimateChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId,
+                                                            @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName,
+                                                            EstimateChannelDataInfo estimateChannelDataInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        return previewEstimate(device, channel, estimateChannelDataInfo);
+        return previewEstimate(QualityCodeSystem.MDC, device, channel, estimateChannelDataInfo);
     }
 
-    private List<ChannelDataInfo> previewEstimate(Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
+    private List<ChannelDataInfo> previewEstimate(QualityCodeSystem system, Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
         Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
         ReadingType readingType = channel.getReadingType();
-        List<EstimationResult> results = new ArrayList<>();
         List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
                 .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
                 .collect(Collectors.toList());
@@ -486,8 +490,9 @@ public class ChannelResource {
             readingType = channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).get();
         }
 
+        List<EstimationResult> results = new ArrayList<>();
         for (Range<Instant> block : blocks) {
-            results.add(estimationHelper.previewEstimate(device, readingType, block, estimator));
+            results.add(estimationHelper.previewEstimate(system, device, readingType, block, estimator));
         }
         return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
     }
