@@ -226,7 +226,7 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
 
     private UsagePointMetrologyConfiguration mockUsagePointMetrologyConfiguration() {
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         UsagePointMetrologyConfiguration metrologyConfiguration = mock(UsagePointMetrologyConfiguration.class);
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);

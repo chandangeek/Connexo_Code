@@ -49,8 +49,8 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
         when(meteringService.findUsagePoint(any())).thenReturn(Optional.empty());
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
+        when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
@@ -81,7 +81,7 @@ public class UsagePointOutputResourceRegisterDataTest extends UsagePointDataRest
 
     @Test
     public void testGetRegisterDataNoMetrologyConfigurationOnUsagePoint() throws Exception {
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
 
         // Business method
         Response response = target("/usagepoints/MRID/purposes/1/outputs/2/registerData").queryParam("filter", buildFilter()).request().get();

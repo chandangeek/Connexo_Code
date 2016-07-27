@@ -79,7 +79,7 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
     public PagedInfoList getUsagePointPurposes(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
-        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = usagePoint.getEffectiveMetrologyConfiguration();
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration();
         List<PurposeInfo> purposeInfoList;
         if (effectiveMetrologyConfiguration.isPresent()) {
             purposeInfoList = effectiveMetrologyConfiguration.get().getMetrologyConfiguration().getContracts().stream()
@@ -137,7 +137,7 @@ public class UsagePointOutputResource {
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            ChannelsContainer channelsContainer = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get();
+            ChannelsContainer channelsContainer = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get();
             if (channelsContainer.getRange().isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
                 Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
@@ -187,7 +187,7 @@ public class UsagePointOutputResource {
         List<OutputRegisterDataInfo> outputRegisterData = new ArrayList<>();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            ChannelsContainer channelsContainer = usagePoint.getEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get();
+            ChannelsContainer channelsContainer = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get();
             if (channelsContainer.getRange().isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
                 Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();

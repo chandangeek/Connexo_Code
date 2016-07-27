@@ -35,8 +35,8 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     public void before() {
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
+        when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
@@ -86,7 +86,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
     @Test
     public void testValidatePurposeOnRequest() {
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.of(usagePoint));
-        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts().get(0);
+        MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(0);
         PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
         // Business method
         Response response = target("usagepoints/MRID/purposes/100").queryParam("upVersion", usagePoint.getVersion()).request().put(Entity.json(purposeInfo));
@@ -98,7 +98,7 @@ public class UsagePointOutputResourceTest extends UsagePointDataRestApplicationJ
 
     @Test
     public void testValidatePurposeOnRequestConcurrencyCheck() {
-        MetrologyContract metrologyContract = usagePoint.getMetrologyConfiguration().get().getContracts().get(0);
+        MetrologyContract metrologyContract = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration().getContracts().get(0);
         PurposeInfo purposeInfo = createPurposeInfo(metrologyContract);
         when(meteringService.findAndLockUsagePointByIdAndVersion(usagePoint.getId(), usagePoint.getVersion())).thenReturn(Optional.empty());
         when(meteringService.findUsagePoint(usagePoint.getId())).thenReturn(Optional.of(usagePoint));

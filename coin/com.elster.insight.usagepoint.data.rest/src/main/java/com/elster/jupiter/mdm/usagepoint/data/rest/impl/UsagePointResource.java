@@ -312,7 +312,7 @@ public class UsagePointResource {
                                                 MetrologyConfigurationInfo info) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
 
-        if (usagePoint.getMetrologyConfiguration(usagePoint.getInstallationTime()).isPresent()) {
+        if (usagePoint.getEffectiveMetrologyConfiguration(usagePoint.getInstallationTime()).isPresent()) {
             throw resourceHelper.throwUsagePointLinkedException(mrid);
         }
 
@@ -359,8 +359,8 @@ public class UsagePointResource {
     @Path("/{mrid}/metrologyconfiguration")
     public Response linkMetrologyConfigurations(@PathParam("mrid") String mrid) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
-        if (usagePoint.getMetrologyConfiguration().isPresent()) {
-            return Response.ok().entity(new MetrologyConfigurationInfo(usagePoint.getMetrologyConfiguration().get())).build();
+        if (usagePoint.getCurrentEffectiveMetrologyConfiguration().isPresent()) {
+            return Response.ok().entity(new MetrologyConfigurationInfo(usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getMetrologyConfiguration())).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST).entity(new MetrologyConfigurationInfo()).build();
         }

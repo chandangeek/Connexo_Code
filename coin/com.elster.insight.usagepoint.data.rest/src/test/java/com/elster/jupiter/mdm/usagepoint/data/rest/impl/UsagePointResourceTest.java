@@ -296,7 +296,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     public void testLinkMetrologyConfigurationToUsagePoint() {
         when(metrologyConfigurationService.findAndLockMetrologyConfiguration(1L, 1L)).thenReturn(Optional.of(usagePointMetrologyConfiguration));
         when(usagePointMetrologyConfiguration.isActive()).thenReturn(true);
-        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getEffectiveMetrologyConfiguration(any(Instant.class))).thenReturn(Optional.empty());
         Instant now = Instant.ofEpochMilli(1462876396000L);
         when(usagePoint.getInstallationTime()).thenReturn(now);
         CustomPropertySetInfo casInfo = new CustomPropertySetInfo();
@@ -432,7 +432,10 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     @Test
     public void testUsagePointMetrologyConfigurationDetails() {
         UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = mockMetrologyConfigurationWithContract(1, "MetrologyConfiguration");
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(usagePointMetrologyConfiguration));
+        EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
+        when(effectiveMetrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(usagePointMetrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMetrologyConfigurationOnUsagePoint));
+
         MetrologyContract metrologyContract = usagePointMetrologyConfiguration.getContracts().stream().findFirst().get();
         MetrologyContract.Status status = mock(MetrologyContract.Status.class);
         when(metrologyContract.getStatus(usagePoint)).thenReturn(status);

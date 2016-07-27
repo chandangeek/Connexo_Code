@@ -62,8 +62,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         UsagePointMetrologyConfiguration metrologyConfiguration = mockMetrologyConfigurationWithContract(1, "mc");
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = mock(EffectiveMetrologyConfigurationOnUsagePoint.class);
 
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
+        when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMC.getChannelsContainer(any())).thenReturn(Optional.of(channelsContainer));
@@ -89,7 +89,7 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Test
     public void testGetChannelDataNoMetrologyConfigurationOnUsagePoint() throws Exception {
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
 
         // Business method
         Response response = target("/usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", buildFilter()).request().get();

@@ -261,7 +261,7 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
     }
 
     private void mockUsagePointMetrologyConfiguration() {
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(effectiveMC));
         when(effectiveMC.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(effectiveMC.getUsagePoint()).thenReturn(usagePoint);
     }

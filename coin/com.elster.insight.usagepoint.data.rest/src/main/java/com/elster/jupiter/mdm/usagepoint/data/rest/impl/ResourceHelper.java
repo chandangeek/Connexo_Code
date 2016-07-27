@@ -62,7 +62,7 @@ public class ResourceHelper {
     }
 
     public EffectiveMetrologyConfigurationOnUsagePoint findEffectiveMetrologyConfigurationByUsagePointOrThrowException(UsagePoint usagePoint) {
-        return usagePoint.getEffectiveMetrologyConfiguration()
+        return usagePoint.getCurrentEffectiveMetrologyConfiguration()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getMRID()));
     }
 
