@@ -132,7 +132,7 @@ public class LocationSearchablePropertyTest {
         // Asserts
         assertThat(specification).isNotNull();
         assertThat(specification.isReference()).isFalse();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Long.class);
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(String.class);
     }
 
     @Test
