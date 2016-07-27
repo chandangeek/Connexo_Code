@@ -33,6 +33,4 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
     Instant getEnd();
 
     Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract);
-
-    void setMetrologyConfiguration(UsagePointMetrologyConfiguration metrologyConfiguration);
 }
