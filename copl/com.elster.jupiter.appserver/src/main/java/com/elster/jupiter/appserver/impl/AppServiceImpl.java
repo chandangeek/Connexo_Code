@@ -83,7 +83,7 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
-@Component(name = "com.elster.jupiter.appserver", service = {AppService.class, Subscriber.class, TopicHandler.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
+@Component(name = "com.elster.jupiter.appserver", service = {AppService.class, IAppService.class, Subscriber.class, TopicHandler.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
 public final class AppServiceImpl implements IAppService, Subscriber, TranslationKeyProvider, TopicHandler {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
@@ -490,7 +490,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     @Override
     public Optional<AppServer> findAppServer(String name) {
         List<AppServer> appServers = dataModel.mapper(AppServer.class).select(where("name").isEqualToIgnoreCase(name));
-        return appServers.isEmpty() ? Optional.<AppServer>empty() : Optional.of(appServers.get(0));
+        return appServers.isEmpty() ? Optional.empty() : Optional.of(appServers.get(0));
     }
 
     @Override
@@ -629,13 +629,9 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
 
     private void deleteServerQueues(AppServerImpl deletedAppServer) {
         messageService.getSubscriberSpec(deletedAppServer.messagingName(), deletedAppServer.messagingName())
-                .ifPresent(subscriberSpec -> {
-                    subscriberSpec.getDestination().delete();
-                });
+                .ifPresent(subscriberSpec -> subscriberSpec.getDestination().delete());
         messageService.getSubscriberSpec(ALL_SERVERS, deletedAppServer.messagingName())
-                .ifPresent(subscriberSpec -> {
-                    subscriberSpec.getDestination().unSubscribe(subscriberSpec.getName());
-                });
+                .ifPresent(subscriberSpec -> subscriberSpec.getDestination().unSubscribe(subscriberSpec.getName()));
     }
 
     public void stop() {

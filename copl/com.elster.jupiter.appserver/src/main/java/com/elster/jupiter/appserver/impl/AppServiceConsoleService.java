@@ -2,7 +2,6 @@ package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppServerCommand;
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
@@ -464,8 +463,8 @@ public class AppServiceConsoleService {
     }
 
     @Reference
-    public void setAppService(AppService appService) {
-        this.appService = (IAppService) appService;
+    public void setAppService(IAppService appService) {
+        this.appService = appService;
     }
 
     @Reference

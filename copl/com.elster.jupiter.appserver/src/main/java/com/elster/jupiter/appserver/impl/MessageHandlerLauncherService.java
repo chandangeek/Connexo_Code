@@ -12,6 +12,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Registration;
+
 import com.google.common.collect.ImmutableMap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -85,8 +86,8 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     @Reference
-    public void setAppService(AppService appService) {
-        this.appService = (IAppService) appService;
+    public void setAppService(IAppService appService) {
+        this.appService = appService;
         commandRegistration = this.appService.addCommandListener(this);
     }
 
