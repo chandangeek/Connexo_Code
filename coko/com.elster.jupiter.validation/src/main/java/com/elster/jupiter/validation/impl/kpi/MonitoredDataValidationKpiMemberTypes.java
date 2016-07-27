@@ -26,7 +26,7 @@ public enum MonitoredDataValidationKpiMemberTypes {
         }
     },
 
-    ALL_DATA_VALIDATED {
+    ALLDATAVALIDATED {
         @Override
         public Set<DataValidationKpiMemberTypes> monitoredKpiMemberTypes() {
             return EnumSet.of(DataValidationKpiMemberTypes.ALLDATAVALIDATED);

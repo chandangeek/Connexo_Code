@@ -50,7 +50,7 @@ public final class DataValidationKpiScoreImpl implements DataValidationKpiScore 
 
     @Override
     public BigDecimal getAllDataValidated() {
-        return this.getValue(MonitoredDataValidationKpiMemberTypes.ALL_DATA_VALIDATED);
+        return this.getValue(MonitoredDataValidationKpiMemberTypes.ALLDATAVALIDATED);
     }
 
     @Override
