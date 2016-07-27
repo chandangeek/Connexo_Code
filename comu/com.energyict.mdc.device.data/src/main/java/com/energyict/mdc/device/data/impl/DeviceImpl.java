@@ -3249,7 +3249,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements (UsagePoint usagePoint, Instant from, DeviceConfiguration config){
             List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations()
                     .stream()
-                    .filter(emc -> emc.getRange().isConnected(Range.atLeast(from)))
+                    .filter(emc -> !emc.getRange().intersection(Range.atLeast(from)).isEmpty())
                     .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                     .collect(Collectors.toList());
 
