@@ -135,6 +135,7 @@
                 <module>../com.elster.insight.usagepoint.config.rest</module>
                 <module>../com.elster.insight.usagepoint.data</module>
                 <module>../com.elster.insight.usagepoint.data.rest</module>
+                <module>../com.elster.jupiter.mdm.bpm.event</module>
             </modules>
         </profile>
 
