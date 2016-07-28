@@ -18,7 +18,9 @@ import org.apache.cxf.phase.Phase;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.net.HttpURLConnection;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * Authentication interceptor for Apache CXF. Will verify credentials and assert the user has the role as configured on the endpoint.
@@ -59,22 +61,21 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                 userName = policy.getUserName();
                 password = policy.getPassword();
                 newSession = true;
+            } else {
+                fail("Authentication required", HttpURLConnection.HTTP_UNAUTHORIZED);
             }
-        }
-        if (userName == null) {
-            userName = ANONYMOUS_USER;
         }
         try {
             Optional<User> user = userService.authenticateBase64(Base64Utility.encode((userName + ":" + password).getBytes()), request
                     .getRemoteAddr());
             if (!user.isPresent()) {
                 logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: invalid credentials");
-                throw new SecurityException("Not authorized");
+                fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
             }
             if (endPointConfiguration.getGroup().isPresent()) {
                 if (!user.get().isMemberOf(endPointConfiguration.getGroup().get())) {
                     logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: not in role");
-                    throw new SecurityException("Not authorized");
+                    fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
                 }
             }
 
@@ -84,12 +85,18 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                     httpSession.setAttribute(PASSWORD, password);
                 }
             }
-        } catch (SecurityException e) {
+        } catch (Fault e) {
             throw e;
         } catch (Exception e) {
             logInTransaction("Exception while logging in " + userName + ":", e);
-            throw new SecurityException("Not authorized");
+            fail("Not authorized", HttpURLConnection.HTTP_FORBIDDEN);
         }
+    }
+
+    private void fail(String message, int statusCode) {
+        Fault fault = new Fault(message, Logger.getGlobal());
+        fault.setStatusCode(statusCode);
+        throw fault;
     }
 
     private void logInTransaction(LogLevel logLevel, String message) {

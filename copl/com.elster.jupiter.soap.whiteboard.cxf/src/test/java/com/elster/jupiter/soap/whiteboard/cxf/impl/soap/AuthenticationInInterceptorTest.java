@@ -11,6 +11,7 @@ import com.elster.jupiter.users.UserService;
 import org.apache.cxf.common.i18n.Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 
 import javax.servlet.http.HttpServletRequest;
@@ -104,7 +105,7 @@ public class AuthenticationInInterceptorTest {
         try {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
-        } catch (SecurityException se) {
+        } catch (Fault se) {
             // This page left blank intentionally
         }
         verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: invalid credentials");
@@ -125,7 +126,7 @@ public class AuthenticationInInterceptorTest {
         try {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
-        } catch (SecurityException se) {
+        } catch (Fault se) {
             // This page left blank intentionally
         }
         verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: not in role");
@@ -159,7 +160,7 @@ public class AuthenticationInInterceptorTest {
         try {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
-        } catch (SecurityException se) {
+        } catch (Fault se) {
             // This page left blank intentionally
         }
         verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: invalid credentials");
@@ -180,7 +181,7 @@ public class AuthenticationInInterceptorTest {
         try {
             authorizationInInterceptor.handleMessage(message);
             fail("Expected security exception");
-        } catch (SecurityException se) {
+        } catch (Fault se) {
             // This page left blank intentionally
         }
         verify(endPointConfiguration).log("Exception while logging in admin:", toBeThrown);
