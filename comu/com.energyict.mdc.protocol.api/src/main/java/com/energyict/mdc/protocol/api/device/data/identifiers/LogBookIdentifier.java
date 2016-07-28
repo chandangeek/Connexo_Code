@@ -1,7 +1,9 @@
 package com.energyict.mdc.protocol.api.device.data.identifiers;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.BaseLogBook;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import java.io.Serializable;
 
@@ -19,6 +21,14 @@ public interface LogBookIdentifier<T extends BaseLogBook> extends Serializable {
      * @return the LogBook
      */
     public T getLogBook();
+
+    /**
+     * Returns the ObisCode of the LogBook referenced by this identifier.<br></br>
+     * <b>Note: </b>This is the ObisCode which is configured/overwritten in the DeviceConfiguration.
+     * If no ObisCode was overruled, then the ObisCode of the spec is returned.
+     */
+    @XmlAttribute
+    public ObisCode getLogBookObisCode();
 
 
     // The element below is only used during JSON xml (un)marshalling.

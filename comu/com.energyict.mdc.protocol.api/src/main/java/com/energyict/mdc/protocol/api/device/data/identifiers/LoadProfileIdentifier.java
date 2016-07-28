@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.api.device.data.identifiers;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.BaseLoadProfile;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -49,4 +50,6 @@ public interface LoadProfileIdentifier<T extends BaseLoadProfile> extends Serial
      * @return the DeviceIdentifier for this LoadProfileIdentifier
      */
     public DeviceIdentifier<?> getDeviceIdentifier();
+
+    ObisCode getProfileObisCode();
 }

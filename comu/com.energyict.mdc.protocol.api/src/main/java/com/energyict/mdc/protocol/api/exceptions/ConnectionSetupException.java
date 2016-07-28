@@ -1,14 +1,14 @@
 package com.energyict.mdc.protocol.api.exceptions;
 
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.ConnectionException;
-
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.protocol.api.MessageSeeds;
 
 /**
  * Wraps a connectionException into a ConnectionSetupException.
  * This exception should only be thrown when the setup of the Connection failed.
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/06/13
  * Time: 10:33
@@ -19,4 +19,7 @@ public class ConnectionSetupException extends CommunicationException {
         super(messageSeed, cause);
     }
 
+    public static ConnectionSetupException disconnectFailed(ConnectionException cause) {
+        return new ConnectionSetupException(MessageSeeds.CONNECTION_DISCONNECT_ERROR, cause);
+    }
 }

@@ -29,6 +29,8 @@ import java.util.Optional;
  */
 public interface DeviceProtocolDialect extends HasDynamicProperties {
 
+    String DEVICE_PROTOCOL_DIALECT_NAME = "DeviceProtocolDialect";
+
     /**
      * Returns the {@link CustomPropertySet} that provides the storage area
      * for the properties of a {@link DeviceProtocolDialectPropertyProvider} for this dialect

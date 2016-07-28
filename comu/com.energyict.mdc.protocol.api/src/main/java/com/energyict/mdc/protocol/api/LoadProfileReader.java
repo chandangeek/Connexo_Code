@@ -2,8 +2,8 @@ package com.energyict.mdc.protocol.api;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
-import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -15,7 +15,7 @@ import java.util.List;
  * <p>
  * Straightforward ValueObject representing a meter's LoadProfile to read.
  * </p>
- * <p/>
+ * <p>
  * The 'Date' strategy:<br>
  * <li>If the startDate is null, then we will read data from up to a month ago (current Date - 1 month)
  * <li>If the endDate is null, then we will use the current Date
@@ -154,6 +154,33 @@ public class LoadProfileReader {
 
     public LoadProfileIdentifier getLoadProfileIdentifier() {
         return loadProfileIdentifier;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+
+        LoadProfileReader that = (LoadProfileReader) other;
+
+        if (getLoadProfileId() != that.getLoadProfileId()) return false;
+        if (getProfileObisCode() != null ? !getProfileObisCode().equals(that.getProfileObisCode()) : that.getProfileObisCode() != null)
+            return false;
+        if (getMeterSerialNumber() != null ? !getMeterSerialNumber().equals(that.getMeterSerialNumber()) : that.getMeterSerialNumber() != null)
+            return false;
+        if (getStartReadingTime() != null ? !getStartReadingTime().equals(that.getStartReadingTime()) : that.getStartReadingTime() != null)
+            return false;
+        return !(getEndReadingTime() != null ? !getEndReadingTime().equals(that.getEndReadingTime()) : that.getEndReadingTime() != null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getProfileObisCode() != null ? getProfileObisCode().hashCode() : 0;
+        result = 31 * result + (getMeterSerialNumber() != null ? getMeterSerialNumber().hashCode() : 0);
+        result = 31 * result + (getStartReadingTime() != null ? getStartReadingTime().hashCode() : 0);
+        result = 31 * result + (getEndReadingTime() != null ? getEndReadingTime().hashCode() : 0);
+        result = 31 * result + ((int) (getLoadProfileId() ^ (getLoadProfileId() >>> 32)));
+        return result;
     }
 
 }

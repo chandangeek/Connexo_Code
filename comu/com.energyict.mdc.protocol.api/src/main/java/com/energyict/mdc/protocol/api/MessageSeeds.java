@@ -43,6 +43,11 @@ public enum MessageSeeds implements MessageSeed {
     COULD_NOT_READ_FIRMWARE_VERSION(127, "issue.protocol.readingOfFirmwareFailed", "Could not correctly read the firmware version"),
     COULD_NOT_READ_CALENDAR_INFO(128, "issue.protocol.readingOfCalendarFailed", "Could not correctly read calendar information"),
     READ_CALENDAR_INFO_NOT_SUPPORTED(129, "issue.protocol.readingOfCalendarNotSupported", "Read calendar information not supported by meter firmware"),
+    UNEXPECTED_PROTOCOL_ERROR(130, "issue.protocol.unexpected", "Unexpected error during protocol execution: {0}"),
+    NUMBER_OF_RETRIES_REACHED_CONNECTION_STILL_INTACT(131, "issue.protocol.timeout.connection.still.intact", "Maximum number of retries ({1}) reached: {0}. The connection is still intact though."),
+    CIPHERING_EXCEPTION(132, "issue.protocol.ciphering", "Encountered an exception related to the ciphering of data: {0}"),
+    CONNECTION_DISCONNECT_ERROR(133, "connectionDisconnectError", "Disconnect of connection failed: {0}"),
+    //TODO complete this list with the entries of 9.1, will happen when the 9.1 codebase is used
     ;
 
     private final int number;

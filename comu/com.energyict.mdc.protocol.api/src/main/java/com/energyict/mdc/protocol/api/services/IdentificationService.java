@@ -38,15 +38,15 @@ public interface IdentificationService {
 
     DeviceIdentifier createDeviceIdentifierByConnectionTaskProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
 
-    LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id);
+    LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode);
 
-    LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(BaseLoadProfile loadProfile);
+    LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(BaseLoadProfile loadProfile, ObisCode obisCode);
 
     LoadProfileIdentifier createLoadProfileIdentifierByObisCodeAndDeviceIdentifier(ObisCode loadProfileObisCode, DeviceIdentifier deviceIdentifier);
 
-    LoadProfileIdentifier createLoadProfileIdentifierForFirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier);
+    LoadProfileIdentifier createLoadProfileIdentifierForFirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier, ObisCode obisCode);
 
-    LogBookIdentifier createLogbookIdentifierByDatabaseId(long id);
+    LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode logbookObisCode);
 
     LogBookIdentifier createLogbookIdentifierByObisCodeAndDeviceIdentifier(ObisCode logbookObisCode, DeviceIdentifier deviceIdentifier);
 

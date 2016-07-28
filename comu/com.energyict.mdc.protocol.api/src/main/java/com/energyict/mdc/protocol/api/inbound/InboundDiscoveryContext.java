@@ -42,8 +42,7 @@ public interface InboundDiscoveryContext {
      * Confirms the correct receipt of previously sent {@link OfflineDeviceMessage}s
      * and returns pending messages that need to be sent.
      *
-     *
-     * @param deviceIdentifier The DeviceIdentifier that uniquely identifies the Device
+     * @param deviceIdentifier  The DeviceIdentifier that uniquely identifies the Device
      * @param confirmationCount The number of previously sent message that have been confirmed
      *                          by the device as correctly received (and executed)
      * @return The pending RtuMessages that are waiting to be sent
@@ -57,7 +56,7 @@ public interface InboundDiscoveryContext {
      * @param deviceIdentifier The object that uniquely identifies the Device
      * @return The List of SecurityProperty or null if the Device is not ready for inbound communication
      */
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties (DeviceIdentifier deviceIdentifier);
+    public List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier);
 
     /**
      * Gets the {@link TypedProperties} that have been
@@ -67,7 +66,7 @@ public interface InboundDiscoveryContext {
      * @param deviceIdentifier The object that uniquely identifies the Device
      * @return The TypedProperties or <code>null</code> if the Device is not ready for inbound communication
      */
-    public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier);
+    public TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier);
 
     /**
      * Gets the {@link TypedProperties} of the Device that relate
@@ -75,9 +74,9 @@ public interface InboundDiscoveryContext {
      *
      * @param deviceIdentifier The object that uniquely identifies the Device
      * @return The TypedProperties that relate to the Device's protocol
-     *         or <code>null</code> if the Device does not exist
+     * or <code>null</code> if the Device does not exist
      */
-    public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier);
+    public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier);
 
     public void markNotAllCollectedDataWasProcessed();
 
