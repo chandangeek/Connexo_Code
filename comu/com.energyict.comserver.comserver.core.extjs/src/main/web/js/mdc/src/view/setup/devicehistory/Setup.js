@@ -4,7 +4,9 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
-        'Mdc.view.setup.devicehistory.LifeCycle'
+        'Mdc.view.setup.devicehistory.LifeCycle',
+        'Mdc.view.setup.devicehistory.MeterActivations',
+        'Uni.view.container.EmptyGridContainer'
     ],
 
     router: null,
@@ -46,6 +48,32 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                             title: Uni.I18n.translate('general.firmware', 'MDC', 'Firmware'),
                             padding: '8 16 16 0',
                             itemId: 'device-history-firmware-tab'
+                        },
+                        {
+                            title: Uni.I18n.translate('general.meterActivations', 'MDC', 'Meter activations'),
+                            padding: '8 16 16 0',
+                            itemId: 'device-history-meter-activations-tab',
+                            items: {
+                                xtype: 'emptygridcontainer',
+                                grid: {
+                                    xtype: 'device-history-meter-activations-tab',
+                                    itemId: 'device-history-meter-activations-grid',
+                                    device: me.device,
+                                    router: me.router
+                                },
+                                emptyComponent: {
+                                    xtype: 'no-items-found-panel',
+                                    itemId: 'outputs-list-empty',
+                                    title: Uni.I18n.translate('device.history.meteractivations.empty', 'MDC', 'No meter activations'),
+                                    reasons: [
+                                        Uni.I18n.translate('device.history.meteractivations.empty.reason1', 'MDC', 'No meter activations for this device')
+                                    ]
+                                }
+                            },
+                            listeners: {
+                                activate: me.controller.showMeterActivations,
+                                scope: me.controller
+                            }
                         }
                     ]
                 }
