@@ -6,7 +6,10 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.json.JsonDeserializeException;
 import com.elster.jupiter.util.json.JsonService;
+
+import org.json.JSONException;
 
 import java.time.Clock;
 import java.util.Collections;
@@ -93,7 +96,11 @@ public class MeteringMessageHandler implements MessageHandler {
         String jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
 
         if (!"".equals(jsonContent)) {
-            return Optional.ofNullable(jsonService.deserialize(jsonContent, ProcessDefinitionInfos.class));
+            try {
+                return Optional.ofNullable(jsonService.deserialize(jsonContent, ProcessDefinitionInfos.class));
+            } catch (JsonDeserializeException e){
+                return Optional.empty();
+            }
         }
         return Optional.empty();
     }
