@@ -413,8 +413,13 @@ public class CustomPropertySetInfoFactory {
 
         @Override
         public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
-            if (infoValue != null && (infoValue instanceof Long)) {
-                return (Long) infoValue;
+            if (infoValue != null) {
+                if (infoValue instanceof Integer) {
+                    return ((Integer) infoValue).longValue();
+                }
+                if (infoValue instanceof Long) {
+                    return (Long) infoValue;
+                }
             }
             return null;
         }
