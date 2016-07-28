@@ -298,7 +298,11 @@ public class IDISProfileDataReader {
                     throw new ProtocolRuntimeException(ProtocolExceptionReference.UNEXPECTED_RESPONSE);
                 }
             } else {
-                throw new ProtocolException("DLMSAttribute for "+channelObisCode+" was not found");
+                //TODO: see https://jira.eict.vpdc/browse/COMMUNICATION-1672
+                // this will throw up an exception if in the LP capture objects (from the meter) is found an obis code
+                // which is not supported by the (same) meter - that's illogical!
+                // we might want in the future to add a new parameter to skip this check (the storage works fine)
+                throw new ProtocolException("DLMSAttribute for "+channelObisCode+" was not found! This OBIS code is in the meter load profile capture objects, but is not supported by the meter itself.");
             }
         }
         return result;
