@@ -969,9 +969,9 @@ public class UsagePointImpl implements UsagePoint {
         return this.meterActivations.stream()
                 .filter(meterActivation -> {
                     try {
-                        return meterActivation.getRange().intersection(range).isEmpty();
+                        return !meterActivation.getRange().intersection(range).isEmpty();
                     } catch (IllegalArgumentException ex) {
-                        return true;
+                        return false;
                     }
                 })
                 .collect(Collectors.toList());
