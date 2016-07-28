@@ -32,10 +32,10 @@ import java.util.Optional;
 public class ComSessionBuilderImpl implements ComSessionBuilder {
     private class UnderConstruction implements ComSessionBuilder {
 
-        private final LongCounter sentBytes = Counters.newStrictLongCounter();
-        private final LongCounter receivedBytes = Counters.newStrictLongCounter();
-        private final LongCounter sentPackets = Counters.newStrictLongCounter();
-        private final LongCounter receivedPackets = Counters.newStrictLongCounter();
+        private LongCounter sentBytes = Counters.newStrictLongCounter();
+        private LongCounter receivedBytes = Counters.newStrictLongCounter();
+        private LongCounter sentPackets = Counters.newStrictLongCounter();
+        private LongCounter receivedPackets = Counters.newStrictLongCounter();
 
         private ComSessionImpl comSession;
 
@@ -78,6 +78,30 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         public ComSessionBuilder addSentPackets(long numberOfPackets) {
             sentPackets.add(numberOfPackets);
             return parentBuilder();
+        }
+
+        @Override
+        public ComSessionBuilder resetReceivedBytes() {
+            receivedBytes = Counters.newStrictLongCounter();
+            return this;
+        }
+
+        @Override
+        public ComSessionBuilder resetReceivedPackets() {
+            receivedPackets = Counters.newStrictLongCounter();
+            return this;
+        }
+
+        @Override
+        public ComSessionBuilder resetSentBytes() {
+            sentBytes = Counters.newStrictLongCounter();
+            return this;
+        }
+
+        @Override
+        public ComSessionBuilder resetSentPackets() {
+            sentPackets = Counters.newStrictLongCounter();
+            return this;
         }
 
         @Override
@@ -242,6 +266,26 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
     @Override
     public ComSessionBuilder addSentPackets(long numberOfPackets) {
         return state.addSentPackets(numberOfPackets);
+    }
+
+    @Override
+    public ComSessionBuilder resetReceivedBytes() {
+        return state.resetReceivedBytes();
+    }
+
+    @Override
+    public ComSessionBuilder resetReceivedPackets() {
+        return state.resetReceivedPackets();
+    }
+
+    @Override
+    public ComSessionBuilder resetSentBytes() {
+        return state.resetSentBytes();
+    }
+
+    @Override
+    public ComSessionBuilder resetSentPackets() {
+        return state.resetSentPackets();
     }
 
     @Override

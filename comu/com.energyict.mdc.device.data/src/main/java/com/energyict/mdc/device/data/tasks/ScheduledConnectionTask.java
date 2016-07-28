@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.tasks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 
