@@ -33,6 +33,10 @@ Ext.define('Imt.usagepointmanagement.view.metrologyconfiguration.PurposesPreview
         me.callParent(arguments);
     },
 
+    clearFormulaComponents: function(){
+        this.down('#purpose-preview-formula-components').removeAll();
+    },
+
     addFormulaComponents: function (formula, upCustomPropertySets) {
         var me = this,
             formulaComponentsContainer = me.down('#purpose-preview-formula-components'),

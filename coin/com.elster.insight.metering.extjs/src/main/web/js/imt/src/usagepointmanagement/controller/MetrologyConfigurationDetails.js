@@ -93,6 +93,8 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
             ));
         });
 
+        me.getPage().down('purposes-preview').clearFormulaComponents();
+
         Ext.Array.each(metrologyContracts, function (metrologyContract) {
             if(metrologyContract.name == record.get('name')){
                 Ext.Array.each(metrologyContract.readingTypeDeliverables, function (readingTypeDeliverable) {
