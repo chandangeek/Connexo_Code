@@ -72,22 +72,22 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
              PreparedStatement statement = validationOverviewBuilder.prepare(connection)) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 AtomicLong idx = new AtomicLong(0);
-                while (resultSet.next()) {
+                while (resultSet.next() && getKpiScores(groupId,deviceIds.get(idx.intValue()),range).isPresent()) {
                     list.add(new ValidationOverviewImpl(
                             resultSet.getString(1),
                             resultSet.getString(2),
                             resultSet.getString(3),
                             resultSet.getString(4),
                             new DeviceValidationKpiResults(
-                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getTotalSuspects().longValue(),
-                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getChannelSuspects().longValue(),
-                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getRegisterSuspects().longValue(),
-                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getAllDataValidated().longValue(),
-                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getTimestamp(),
-                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getThresholdValidator().longValue(),
-                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getMissingValuesValidator().longValue(),
-                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getReadingQualitiesValidator().longValue(),
-                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).getRegisterIncreaseValidator().longValue()
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).get().getTotalSuspects().longValue(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).get().getChannelSuspects().longValue(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).get().getRegisterSuspects().longValue(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).get().getAllDataValidated().longValue(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).get().getTimestamp(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).get().getThresholdValidator().longValue(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).get().getMissingValuesValidator().longValue(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).get().getReadingQualitiesValidator().longValue(),
+                                    getKpiScores(groupId,deviceIds.get(idx.intValue()),range).get().getRegisterIncreaseValidator().longValue()
                             )));
                     idx.incrementAndGet();
                 }
@@ -99,8 +99,8 @@ public class DeviceDataValidationServiceImpl implements DeviceDataValidationServ
         return list;
     }
 
-   private DataValidationKpiScore  getKpiScores(long groupId, long deviceId, Range<Instant> interval){
-       return validationService.getDataValidationKpiScores(groupId,deviceId,interval)
-               .orElseThrow(() -> new IllegalArgumentException("No Score could be found for end device having ID = : " + deviceId +" belonging to the group with ID = " + groupId));
+   private Optional<DataValidationKpiScore>  getKpiScores(long groupId, long deviceId, Range<Instant> interval){
+       return validationService.getDataValidationKpiScores(groupId,deviceId,interval);
+
     }
 }
