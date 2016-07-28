@@ -1,5 +1,6 @@
 package com.elster.jupiter.cps.rest.impl;
 
+import com.elster.jupiter.properties.LongFactory;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.properties.PropertyType;
 import com.elster.jupiter.util.units.Quantity;
@@ -17,6 +18,7 @@ public enum SimplePropertyType implements PropertyType {
     TEXT(String.class),
     TIMESTAMP(Instant.class),
     QUANTITY(Quantity.class),
+    LONG(LongFactory.class);
     ;
 
     private Class typeClass;

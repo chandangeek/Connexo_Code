@@ -47,6 +47,7 @@ public class CustomPropertySetInfoFactory {
         this.propertyValueInfoService.addPropertyValueInfoConverter(new NumberPropertyValueConverter());
         this.propertyValueInfoService.addPropertyValueInfoConverter(new InstantPropertyValueConverter());
         this.propertyValueInfoService.addPropertyValueInfoConverter(new QuantityPropertyValueConverter());
+        this.propertyValueInfoService.addPropertyValueInfoConverter(new LongPropertyValueConverter());
     }
 
     private CustomPropertySetInfo getGeneralInfo(RegisteredCustomPropertySet rcps) {
@@ -388,6 +389,32 @@ public class CustomPropertySetInfoFactory {
             if (infoValue != null && infoValue instanceof String && !Checks.is((String) infoValue)
                     .emptyOrOnlyWhiteSpace()) {
                 return propertySpec.getValueFactory().fromStringValue((String) infoValue);
+            }
+            return null;
+        }
+    }
+
+    static class LongPropertyValueConverter implements PropertyValueInfoConverter {
+
+        @Override
+        public boolean canProcess(PropertySpec propertySpec) {
+            return propertySpec != null && propertySpec.getValueFactory().getValueType().equals(Long.class);
+        }
+
+        @Override
+        public PropertyType getPropertyType(PropertySpec propertySpec) {
+            return SimplePropertyType.LONG;
+        }
+
+        @Override
+        public Object convertValueToInfo(Object domainValue, PropertySpec propertySpec) {
+            return domainValue;
+        }
+
+        @Override
+        public Object convertInfoToValue(Object infoValue, PropertySpec propertySpec) {
+            if (infoValue != null && (infoValue instanceof Long)) {
+                return (Long) infoValue;
             }
             return null;
         }
