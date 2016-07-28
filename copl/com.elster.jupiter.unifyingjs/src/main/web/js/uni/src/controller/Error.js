@@ -221,7 +221,6 @@ Ext.define('Uni.controller.Error', {
             me.showError(title, message, undefined, buttons, 'concurrent-use-error-msg');
         } else {
             if (requestOptions.method === 'PUT' || requestOptions.method === 'POST') {
-                debugger;
                 buttons = [
                     {
                         xtype: 'button',
