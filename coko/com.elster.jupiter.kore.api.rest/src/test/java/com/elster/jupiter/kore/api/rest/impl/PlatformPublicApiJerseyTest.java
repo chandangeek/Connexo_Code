@@ -19,6 +19,8 @@ import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.devtools.tests.Matcher;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.kore.api.impl.EffectiveMetrologyConfigurationInfoFactory;
+import com.elster.jupiter.kore.api.impl.MeterActivationInfoFactory;
 import com.elster.jupiter.kore.api.impl.PublicRestApplication;
 import com.elster.jupiter.kore.api.impl.servicecall.UsagePointCommandCustomPropertySet;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -89,6 +91,14 @@ public class PlatformPublicApiJerseyTest extends FelixRestApplicationJerseyTest 
     MessageService messageService;
     @Mock
     ServiceCallService serviceCallService;
+    @Mock
+    EffectiveMetrologyConfigurationInfoFactory effectiveMetrologyConfigurationInfoFactory;
+    @Mock
+    MeterActivationInfoFactory meterActivationInfoFactory;
+
+
+
+
 
     //    @Mock
 //    JsonService jsonService;

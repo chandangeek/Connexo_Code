@@ -210,6 +210,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(EffectivityHelper.class).to(EffectivityHelper.class);
 
+            bind(ResourceHelper.class).to(ResourceHelper.class);
+
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(UsagePointInfoFactory.class).to(UsagePointInfoFactory.class);
             bind(UsagePointCustomPropertySetInfoFactory.class).to(UsagePointCustomPropertySetInfoFactory.class);
