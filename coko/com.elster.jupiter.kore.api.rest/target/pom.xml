@@ -6,11 +6,11 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>1.2.0${revision}</version>
+        <version>1.2.0-SPRINT-10-INT</version>
         <relativePath>../com.elster.jupiter.kore/pom.xml</relativePath>
     </parent>
     <artifactId>kore.api.rest</artifactId>
-    <version>1.0.0${revision}</version>
+    <version>1.0.0-SPRINT-10-INT</version>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.kore.api.rest</name>
     <description>Kore public REST api</description>
