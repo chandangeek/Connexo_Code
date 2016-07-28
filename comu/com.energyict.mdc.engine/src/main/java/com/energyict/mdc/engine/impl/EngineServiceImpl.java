@@ -535,18 +535,18 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         }
 
         @Override
-        public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id) {
+        public LoadProfileIdentifier createLoadProfileIdentifierByDatabaseId(long id, ObisCode obisCode) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createLoadProfileIdentifierByDatabaseId(id))
+                    .map(s -> s.createLoadProfileIdentifierByDatabaseId(id, obisCode))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(BaseLoadProfile loadProfile) {
+        public LoadProfileIdentifier createLoadProfileIdentifierForAlreadyKnownLoadProfile(BaseLoadProfile loadProfile, ObisCode obisCode) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile))
+                    .map(s -> s.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile, obisCode))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
@@ -559,18 +559,18 @@ public class EngineServiceImpl implements EngineService, TranslationKeyProvider,
         }
 
         @Override
-        public LoadProfileIdentifier createLoadProfileIdentifierForFirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier) {
+        public LoadProfileIdentifier createLoadProfileIdentifierForFirstLoadProfileOnDevice(DeviceIdentifier deviceIdentifier, ObisCode obisCode) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createLoadProfileIdentifierForFirstLoadProfileOnDevice(deviceIdentifier))
+                    .map(s -> s.createLoadProfileIdentifierForFirstLoadProfileOnDevice(deviceIdentifier, obisCode))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 
         @Override
-        public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id) {
+        public LogBookIdentifier createLogbookIdentifierByDatabaseId(long id, ObisCode obisCode) {
             return this.identificationService
                     .get()
-                    .map(s -> s.createLogbookIdentifierByDatabaseId(id))
+                    .map(s -> s.createLogbookIdentifierByDatabaseId(id, obisCode))
                     .orElseThrow(IdentificationServiceMissingException::new);
         }
 

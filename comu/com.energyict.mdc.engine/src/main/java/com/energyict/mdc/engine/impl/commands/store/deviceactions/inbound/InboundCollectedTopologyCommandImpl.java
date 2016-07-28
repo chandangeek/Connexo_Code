@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.TopologyCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -14,9 +14,9 @@ import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
-import com.energyict.mdc.protocol.api.tasks.TopologyAction;
+import com.energyict.mdc.tasks.TopologyTask;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -28,8 +28,8 @@ public class InboundCollectedTopologyCommandImpl extends TopologyCommandImpl {
 
     private final List<ServerCollectedData> collectedData;
 
-    public InboundCollectedTopologyCommandImpl(CommandRoot commandRoot, TopologyAction topologyAction, OfflineDevice offlineDevice, ComTaskExecution comTaskExecution, List<ServerCollectedData> collectedData) {
-        super(commandRoot, topologyAction, offlineDevice, comTaskExecution);
+    public InboundCollectedTopologyCommandImpl(GroupedDeviceCommand groupedDeviceCommand, TopologyTask topologyTask, ComTaskExecution comTaskExecution, List<ServerCollectedData> collectedData) {
+        super(groupedDeviceCommand, topologyTask.getTopologyAction(), comTaskExecution);
         this.collectedData = collectedData;
     }
 
@@ -87,7 +87,7 @@ public class InboundCollectedTopologyCommandImpl extends TopologyCommandImpl {
         }
     }
 
-    private void appendSlaves(PropertyDescriptionBuilder builder, List<DeviceIdentifier> slaveDeviceIdentifiers) {
+    private void appendSlaves(PropertyDescriptionBuilder builder, Collection<DeviceIdentifier> slaveDeviceIdentifiers) {
         if (slaveDeviceIdentifiers.isEmpty()) {
             builder.append("None").next();
         } else {

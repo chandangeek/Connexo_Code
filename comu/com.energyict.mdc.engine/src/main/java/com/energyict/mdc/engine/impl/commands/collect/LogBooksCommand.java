@@ -1,6 +1,11 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
+import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.tasks.LogBooksTask;
+
+import java.util.List;
 
 /**
  * The {@link ComCommand} which can perform the necessary actions to read all the logBooks from the device
@@ -10,11 +15,8 @@ import com.energyict.mdc.tasks.LogBooksTask;
  */
 public interface LogBooksCommand extends CompositeComCommand {
 
-    /**
-     * The LogBooksTask which is used for modeling this command
-     *
-     * @return the {@link com.energyict.mdc.tasks.LogBooksTask}
-     */
-    public LogBooksTask getLogBooksTask();
+    public List<LogBookReader> getLogBookReaders();
+
+    public void updateAccordingTo(LogBooksTask logBooksTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution);
 
 }

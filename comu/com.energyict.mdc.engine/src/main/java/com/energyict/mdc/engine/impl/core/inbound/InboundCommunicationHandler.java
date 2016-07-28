@@ -20,17 +20,8 @@ import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
-import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
-import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.Counters;
-import com.energyict.mdc.engine.impl.core.InboundJobExecutionDataProcessor;
-import com.energyict.mdc.engine.impl.core.InboundJobExecutionGroup;
-import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.core.*;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.UnknownInboundDeviceEvent;
@@ -97,26 +88,8 @@ import java.util.logging.Logger;
  */
 public class InboundCommunicationHandler {
 
-    public interface ServiceProvider extends JobExecution.ServiceProvider {
-
-        EmbeddedWebServerFactory embeddedWebServerFactory();
-
-        ProtocolPluggableService protocolPluggableService();
-
-        EventPublisher eventPublisher();
-
-        UserService userService();
-
-        ThreadPrincipalService threadPrincipalService();
-
-        ManagementBeanFactory managementBeanFactory();
-
-    }
-
     private static final long NANOS_IN_MILLI = 1000000L;
-
     private final ServiceProvider serviceProvider;
-
     private InboundComPort comPort;
     private ComServerDAO comServerDAO;
     private DeviceCommandExecutor deviceCommandExecutor;
@@ -134,30 +107,6 @@ public class InboundCommunicationHandler {
         this.comServerDAO = comServerDAO;
         this.deviceCommandExecutor = deviceCommandExecutor;
         this.serviceProvider = serviceProvider;
-    }
-
-    private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
-
-        @Override
-        public Thesaurus thesaurus() {
-            return serviceProvider.thesaurus();
-        }
-
-        @Override
-        public TopologyService topologyService() {
-            return serviceProvider.topologyService();
-        }
-
-        @Override
-        public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
-            return serviceProvider.engineService().findDeviceCacheByDevice(device);
-        }
-
-        @Override
-        public IdentificationService identificationService() {
-            return serviceProvider.identificationService();
-        }
-
     }
 
     /**
@@ -181,13 +130,15 @@ public class InboundCommunicationHandler {
             if (device.isPresent()) {
                 this.logger.deviceIdentified(inboundDeviceProtocol.getDeviceIdentifier(), this.getComPort());
                 this.handleKnownDevice(inboundDeviceProtocol, context, discoverResultType, device.get());
-            }
-            else {
+            } else {
                 this.handleUnknownDevice(inboundDeviceProtocol);
             }
+            this.complete();
         } catch (Exception e) {
+            this.complete();
             this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
         }
+
         this.closeContext();
     }
 
@@ -275,7 +226,7 @@ public class InboundCommunicationHandler {
      * @return the CreateInboundComSession
      */
     private CreateInboundComSession createFailedInboundComSessionDeviceCommand(ComSessionBuilder comSessionBuilder) {
-        return new CreateInboundComSession(getComPort(), this.connectionTask, comSessionBuilder, ComSession.SuccessIndicator.SetupError, serviceProvider.clock());
+        return new CreateInboundComSession(now(), getComPort(), this.connectionTask, comSessionBuilder, ComSession.SuccessIndicator.SetupError, serviceProvider.clock());
     }
 
     private void handleUnknownDevice(InboundDeviceProtocol inboundDeviceProtocol) {
@@ -314,7 +265,7 @@ public class InboundCommunicationHandler {
                 this.handOverToDeviceProtocol(singleToken);
             } else {
                 //Note that the provideResponse method is called in the storing service. Depending on the result of the storing, either success or failure is returned.
-                this.processCollectedData(inboundDeviceProtocol, singleToken, offlineDevice);
+                this.processCollectedData(inboundDeviceProtocol, singleToken, offlineDevice, false);    //TODO port COMMUNICATION-1587
             }
         }
     }
@@ -354,7 +305,7 @@ public class InboundCommunicationHandler {
         this.logger = new CompositeComPortDiscoveryLogger(this.newNormalLogger(), this.newEventLogger());
     }
 
-    private void initializeMonitoring(){
+    private void initializeMonitoring() {
         this.comPortMonitor = (InboundComPortMonitorImpl) serviceProvider.managementBeanFactory().findFor(comPort).get();
         ((ServerInboundComPortOperationalStatistics) this.comPortMonitor.getOperationalStatistics()).notifyConnection();
     }
@@ -541,14 +492,13 @@ public class InboundCommunicationHandler {
                         comServerDAO,
                         deviceCommandExecutor,
                         getContext(),
-                        this.serviceProvider,
-                        this);
+                        this.serviceProvider);
         inboundJobExecutionGroup.setToken(token);
         inboundJobExecutionGroup.setConnectionTask(this.connectionTask);
         inboundJobExecutionGroup.executeDeviceProtocol(this.deviceComTaskExecutions);
     }
 
-    protected void processCollectedData(InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice) {
+    protected void processCollectedData(InboundDeviceProtocol inboundDeviceProtocol, DeviceCommandExecutionToken token, OfflineDevice offlineDevice, boolean executePendingTaskOnInboundConnection) {
         this.publishComTaskExecutionStartedEvents();
         InboundJobExecutionDataProcessor inboundJobExecutionDataProcessor =
                 new InboundJobExecutionDataProcessor(
@@ -559,7 +509,11 @@ public class InboundCommunicationHandler {
                         inboundDeviceProtocol,
                         offlineDevice,
                         this.serviceProvider,
-                        this, logger);
+                        this,
+                        logger,
+                        executePendingTaskOnInboundConnection
+                );
+
         inboundJobExecutionDataProcessor.setToken(token);
         inboundJobExecutionDataProcessor.setConnectionTask(this.connectionTask);
         inboundJobExecutionDataProcessor.executeDeviceProtocol(this.deviceComTaskExecutions);
@@ -619,6 +573,46 @@ public class InboundCommunicationHandler {
 
     private void publish(ComServerEvent event) {
         this.serviceProvider.eventPublisher().publish(event);
+    }
+
+    public interface ServiceProvider extends JobExecution.ServiceProvider {
+
+        EmbeddedWebServerFactory embeddedWebServerFactory();
+
+        ProtocolPluggableService protocolPluggableService();
+
+        EventPublisher eventPublisher();
+
+        UserService userService();
+
+        ThreadPrincipalService threadPrincipalService();
+
+        ManagementBeanFactory managementBeanFactory();
+
+    }
+
+    private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
+
+        @Override
+        public Thesaurus thesaurus() {
+            return serviceProvider.thesaurus();
+        }
+
+        @Override
+        public TopologyService topologyService() {
+            return serviceProvider.topologyService();
+        }
+
+        @Override
+        public Optional<DeviceCache> findProtocolCacheByDevice(Device device) {
+            return serviceProvider.engineService().findDeviceCacheByDevice(device);
+        }
+
+        @Override
+        public IdentificationService identificationService() {
+            return serviceProvider.identificationService();
+        }
+
     }
 
     private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {

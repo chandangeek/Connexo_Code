@@ -1,16 +1,24 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+
 import java.time.Instant;
+import java.util.List;
 
 /**
  * The {@link RescheduleBehavior} provides functionality to deal
  * with retries on Communication or Connection level.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 22/04/13
  * Time: 11:53
  */
 public interface RescheduleBehavior {
+
+    public void reschedule(CommandRoot commandRoot);
+
+    public void rescheduleOutsideComWindow(List<ComTaskExecution> comTaskExecutions, Instant startingPoint);
 
     public enum RescheduleReason {
         /**
@@ -40,9 +48,4 @@ public interface RescheduleBehavior {
          */
         OUTSIDE_COM_WINDOW
     }
-
-    public void performRescheduling(RescheduleReason reason);
-
-    public void rescheduleOutsideWindow(Instant startingPoint);
-
 }

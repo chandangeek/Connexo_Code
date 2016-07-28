@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.logging;
 
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.ConnectionException;
 
 import java.util.ArrayList;
@@ -16,59 +17,73 @@ public class CompositeComPortConnectionLogger implements ComPortConnectionLogger
 
     private List<ComPortConnectionLogger> loggers = new ArrayList<>();
 
-    public void add (ComPortConnectionLogger logger) {
+    public void add(ComPortConnectionLogger logger) {
         this.loggers.add(logger);
     }
 
     @Override
-    public String getLoggingCategoryName () {
+    public String getLoggingCategoryName() {
         return this.getClass().getPackage().getName();
     }
 
     @Override
-    public void startingTask (String comPortThreadName, String comTaskName) {
+    public void startingTask(String comPortThreadName, String comTaskName) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.startingTask(comPortThreadName, comTaskName);
         }
     }
 
     @Override
-    public void connectionEstablished (String comPortThreadName, String comPortName) {
+    public void connectionEstablished(String comPortThreadName, String comPortName) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.connectionEstablished(comPortThreadName, comPortName);
         }
     }
 
     @Override
-    public void cannotEstablishConnection (ConnectionException e, String comPortThreadName) {
+    public void cannotEstablishConnection(ConnectionException e, String comPortThreadName) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.cannotEstablishConnection(e, comPortThreadName);
         }
     }
 
     @Override
-    public void completingTask (String comPortThreadName, String comTaskName) {
+    public void completingTask(String comPortThreadName, String comTaskName) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.completingTask(comPortThreadName, comTaskName);
         }
     }
 
     @Override
-    public void taskExecutionFailed (Throwable e, String comPortThreadName, String comTaskName) {
+    public void taskExecutionFailed(Throwable e, String comPortThreadName, String comTaskName) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.taskExecutionFailed(e, comPortThreadName, comTaskName);
         }
     }
 
     @Override
-    public void taskExecutionFailedDueToProblems (String comPortThreadName, String comTaskName) {
+    public void taskExecutionFailed(Throwable e, String comPortThreadName, String comTaskName, Device device) {
+        for (ComPortConnectionLogger logger : this.loggers) {
+            logger.taskExecutionFailed(e, comPortThreadName, comTaskName, device);
+        }
+    }
+
+    @Override
+    public void taskExecutionFailedDueToProblems(String comPortThreadName, String comTaskName, Device device) {
+        for (ComPortConnectionLogger logger : this.loggers) {
+            logger.taskExecutionFailedDueToProblems(comPortThreadName, comTaskName, device);
+        }
+    }
+
+    @Override
+    public void taskExecutionFailedDueToProblems(String comPortThreadName, String comTaskName) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.taskExecutionFailedDueToProblems(comPortThreadName, comTaskName);
         }
     }
 
     @Override
-    public void reschedulingTask (String comPortThreadName, String comTaskName) {
+    public void reschedulingTask(String comPortThreadName, String comTaskName) {
         for (ComPortConnectionLogger logger : this.loggers) {
             logger.reschedulingTask(comPortThreadName, comTaskName);
         }

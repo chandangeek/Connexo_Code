@@ -14,18 +14,9 @@ import java.util.List;
 public interface LegacyLoadProfileLogBooksCommand extends LoadProfileCommand, LogBooksCommand {
 
     /**
-     * The LoadProfilesTask which is used for modeling this command
-     *
-     * @return the {@link com.energyict.mdc.tasks.LoadProfilesTask}
+     * @return the {@link LoadProfilesTaskOptions}
      */
-    public LoadProfilesTask getLoadProfilesTask();
-
-    /**
-     * The LogBooksTask which is used for modeling this command
-     *
-     * @return the {@link com.energyict.mdc.tasks.LogBooksTask}
-     */
-    public LogBooksTask getLogBooksTask();
+    public LoadProfilesTaskOptions getLoadProfilesTaskOptions();
 
     /**
      * @return a list of {@link LoadProfileReader loadProfileReaders} which will be read from the device

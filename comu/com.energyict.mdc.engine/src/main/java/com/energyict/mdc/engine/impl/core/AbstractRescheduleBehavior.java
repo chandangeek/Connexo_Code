@@ -1,114 +1,121 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
 
+import java.sql.Date;
+import java.time.Clock;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides code reuse in RescheduleBehaviors
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 4/06/13
  * Time: 16:44
  */
 public abstract class AbstractRescheduleBehavior {
 
+    protected final Clock clock;
     private final ComServerDAO comServerDAO;
-    private final List<ComTaskExecution> successfulComTaskExecutions;
-    private final List<ComTaskExecution> failedComTaskExecutions;
-    private final List<ComTaskExecution> notExecutedComTaskExecutions;
     private final ConnectionTask connectionTask;
 
-    protected AbstractRescheduleBehavior(ComServerDAO comServerDAO,
-                                         List<ComTaskExecution> successfulComTaskExecutions,
-                                         List<ComTaskExecution> failedComTaskExecutions,
-                                         List<ComTaskExecution> notExecutedComTaskExecutions, ConnectionTask connectionTask) {
+    AbstractRescheduleBehavior(ComServerDAO comServerDAO, ConnectionTask connectionTask, Clock clock) {
         this.comServerDAO = comServerDAO;
-        this.successfulComTaskExecutions = successfulComTaskExecutions;
-        this.failedComTaskExecutions = failedComTaskExecutions;
-        this.notExecutedComTaskExecutions = notExecutedComTaskExecutions;
         this.connectionTask = connectionTask;
+        this.clock = clock;
     }
 
-    protected void retryFailedComTasks() {
-        this.comServerDAO.executionFailed(this.failedComTaskExecutions);
+    public void rescheduleOutsideComWindow(List<ComTaskExecution> comTaskExecutions, Instant startingPoint) {
+        comTaskExecutions.forEach(comTaskExecution -> this.comServerDAO.executionRescheduled(comTaskExecution, startingPoint));
     }
 
-    protected void rescheduleSuccessfulComTasks() {
-        this.comServerDAO.executionCompleted(this.successfulComTaskExecutions);
+    void rescheduleNotExecutedComTasks(List<ComTaskExecution> comTaskExecutions) {
+        getComServerDAO().executionCompleted(comTaskExecutions);
     }
 
-    protected void rescheduleNotExecutedComTasks() {
-        this.comServerDAO.executionCompleted(this.notExecutedComTaskExecutions);
-    }
-
-    protected void retryConnectionTask() {
+    void retryConnectionTask() {
         this.comServerDAO.executionFailed(this.connectionTask);
     }
 
-    protected void rescheduleSuccessfulConnectionTask(){
+    void rescheduleSuccessfulConnectionTask() {
         this.comServerDAO.executionCompleted(this.connectionTask);
     }
 
-    protected void performRescheduleNotExecutedComTasks(Instant startingPoint) {
-        notExecutedComTaskExecutions.forEach(comTaskExecution -> this.comServerDAO.executionRescheduled(comTaskExecution, startingPoint));
-    }
-
-    ConnectionTask getConnectionTask(){
+    ConnectionTask getConnectionTask() {
         return this.connectionTask;
     }
 
-    ComServerDAO getComServerDAO(){
+    ComServerDAO getComServerDAO() {
         return this.comServerDAO;
     }
 
-    List<? extends ComTaskExecution> getNotExecutedComTaskExecutions() {
-        return notExecutedComTaskExecutions;
-    }
-
-    int getNumberOfFailedComTasks(){
-        return (this.failedComTaskExecutions != null?this.failedComTaskExecutions.size():0)
-                + (this.getNotExecutedComTaskExecutions() != null?this.getNotExecutedComTaskExecutions().size():0);
-    }
-
-    public void performRescheduling(RescheduleBehavior.RescheduleReason reason) {
-        switch (reason) {
-            case CONNECTION_SETUP: {
-                performRetryForConnectionSetupError();
-                break;
-            }
-            case CONNECTION_BROKEN: {
-                performRetryForConnectionException();
-                break;
-            }
-            case COMTASKS: {
-                performRetryForCommunicationTasks();
-                break;
-            }
-            case OUTSIDE_COM_WINDOW: {
-                //TODO verify if this is still valid
-                this.performRetryForNotExecutedCommunicationTasks();
-                break;
-            }
+    public void reschedule(CommandRoot commandRoot) {
+        if (commandRoot.hasConnectionErrorOccurred() || commandRoot.hasConnectionSetupError()) {
+            rescheduleForConnectionError(commandRoot);
+        } else if (commandRoot.hasGeneralSetupErrorOccurred()) {
+            rescheduleForGeneralSetupError(commandRoot);
+        } else {
+            rescheduleForConnectionSuccess(commandRoot);
         }
     }
 
-    public void rescheduleOutsideWindow(Instant startingPoint) {
-        performRescheduleNotExecutedComTasks(startingPoint);
+    protected abstract void rescheduleForGeneralSetupError(CommandRoot commandRoot);
+
+    protected abstract void rescheduleForConnectionSuccess(CommandRoot commandRoot);
+
+    protected abstract void rescheduleForConnectionError(CommandRoot commandRoot);
+
+    protected Instant calculateNextExecutionTimestampFromNow(ComTaskExecution comTaskExecution) {
+        return calculateNextExecutionTimestampFromBaseline(clock.instant(), comTaskExecution);
     }
 
-    protected abstract void performRetryForConnectionSetupError();
+    protected Instant calculateNextExecutionTimestampFromBaseline(Instant baseLine, ComTaskExecution comTaskExecution) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(Date.from(baseLine));
+        Optional<NextExecutionSpecs> nextExecutionSpecs = comTaskExecution.getNextExecutionSpecs();
+        if (nextExecutionSpecs.isPresent()) {
+            return nextExecutionSpecs.get().getNextTimestamp(calendar).toInstant();
+        } else {
+            return calendar.getTime().toInstant();
+        }
+    }
 
-    protected abstract void performRetryForConnectionException();
+    protected Instant calculateNextRetryExecutionTimestamp(OutboundConnectionTask connectionTask) {
+        Instant failureDate = clock.instant();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(Date.from(failureDate));
+        TimeDuration baseRetryDelay = getRescheduleRetryDelay(connectionTask);
+        TimeDuration failureRetryDelay = new TimeDuration(baseRetryDelay.getCount() * connectionTask.getCurrentRetryCount(), baseRetryDelay.getTimeUnitCode());
+        failureRetryDelay.addTo(calendar);
+        return connectionTask.applyComWindowIfAny(calendar.getTime().toInstant());
+    }
 
-    protected abstract void performRetryForCommunicationTasks();
+    /**
+     * The rescheduleRetryDelay is fetched as follow:
+     * <ul>
+     * <li>First we check if this {@link ScheduledConnectionTask} has a proper {@link ScheduledConnectionTask#getRescheduleDelay()}</li>
+     * <li>Finally, when none of the above are provided, we return the default {@link ComTaskExecution#DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS}</li>
+     * </ul>
+     *
+     * @return the configured rescheduleRetryDelay
+     */
+    public TimeDuration getRescheduleRetryDelay(OutboundConnectionTask connectionTask) {
+        if (connectionTask.getRescheduleDelay() != null) {
+            return connectionTask.getRescheduleDelay();
+        }
+        return defaultRescheduleDelay();
+    }
 
-    protected abstract void performRetryForNotExecutedCommunicationTasks();
-
-    ScheduledConnectionTask getScheduledConnectionTask() {
-        return (ScheduledConnectionTask) getConnectionTask();
+    private TimeDuration defaultRescheduleDelay() {
+        return new TimeDuration(ComTaskExecution.DEFAULT_COMTASK_FAILURE_RESCHEDULE_DELAY_SECONDS, TimeDuration.TimeUnit.SECONDS);
     }
 }

@@ -1,8 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.ExecutionFailureReason;
-import com.energyict.mdc.engine.impl.core.RescheduleBehavior;
+import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.ScheduledJob;
 
 /**
@@ -14,25 +13,20 @@ import com.energyict.mdc.engine.impl.core.ScheduledJob;
  */
 public class RescheduleFailedExecution extends RescheduleExecutionDeviceCommand {
 
-    private final static String DESCRIPTION_TITLE =  "Reschedule after failure";
+    private final static String DESCRIPTION_TITLE = "Reschedule after failure";
 
-    private final Throwable failure;
-    private final RescheduleBehavior.RescheduleReason rescheduleReason;
 
-    public RescheduleFailedExecution(ScheduledJob scheduledJob, Throwable failure, ExecutionFailureReason reason) {
+    public RescheduleFailedExecution(JobExecution scheduledJob) {
         super(scheduledJob);
-        this.failure = failure;
-        this.rescheduleReason = reason.toRescheduleReason();
     }
 
     @Override
-    protected void doExecute(ComServerDAO comServerDAO, ScheduledJob scheduledJob) {
-        scheduledJob.reschedule(comServerDAO, this.failure, this.rescheduleReason);
+    protected void doExecute(ComServerDAO comServerDAO, JobExecution scheduledJob) {
+        scheduledJob.doReschedule();
     }
 
     @Override
     public String getDescriptionTitle() {
         return DESCRIPTION_TITLE;
     }
-
 }

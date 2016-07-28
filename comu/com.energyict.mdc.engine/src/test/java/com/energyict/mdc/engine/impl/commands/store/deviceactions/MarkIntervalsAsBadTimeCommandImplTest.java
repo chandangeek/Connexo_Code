@@ -6,12 +6,12 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
 import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
 import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
-import com.energyict.mdc.engine.impl.core.ExecutionContext;
+import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.issues.Issue;
@@ -21,8 +21,8 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +33,7 @@ import java.time.Duration;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
@@ -49,6 +50,8 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
 
     @Mock
     ComTaskExecution comTaskExecution;
+    @Mock
+    private OfflineDevice offlineDevice;
     @Mock
     private Device device;
 
@@ -89,34 +92,33 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
 //        when(loadProfilesTask.doMarkIntervalsAsBadTime()).thenReturn(true);
 
         when(loadProfilesTask.getMinClockDiffBeforeBadTime()).thenReturn(Optional.of(minClockDiffBeforeBadTime));
-        CommandRoot commandRoot = createCommandRoot();
-        LoadProfileCommand loadProfileCommand = spy(commandRoot.findOrCreateLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution));
-        TimeDifferenceCommand timeDifferenceCommand = commandRoot.findOrCreateTimeDifferenceCommand(loadProfileCommand, comTaskExecution);
-        ExecutionContext executionContext = this.newTestExecutionContext();
-        timeDifferenceCommand.execute(deviceProtocol, executionContext);
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
+        LoadProfileCommand loadProfileCommand = spy(groupedDeviceCommand.getLoadProfileCommand(loadProfilesTask, groupedDeviceCommand, comTaskExecution));
+        TimeDifferenceCommand timeDifferenceCommand = mock(TimeDifferenceCommand.class);
+        when(timeDifferenceCommand.getTimeDifference()).thenReturn(Optional.of(timeDifference));
+        when(loadProfileCommand.getTimeDifferenceCommand()).thenReturn(timeDifferenceCommand);
 
-        MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = commandRoot.findOrCreateMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
+        MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = groupedDeviceCommand.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
         loadProfileCommand.addCollectedDataItem(createDeviceCollectedLoadProfile());
-        markIntervalsAsBadTimeCommand.execute(deviceProtocol, executionContext);
+        markIntervalsAsBadTimeCommand.execute(deviceProtocol, newTestExecutionContext());
+        String journalMessage = markIntervalsAsBadTimeCommand.toJournalMessageDescription(LogLevel.DEBUG);
 
         // asserts
-        assertThat(markIntervalsAsBadTimeCommand.toJournalMessageDescription(LogLevel.DEBUG)).contains("minimumClockDifference: 1 minutes");
-        assertThat(loadProfileCommand.getIssues()).isNotNull()
-                .hasSize(1);
+        assertNotNull(loadProfileCommand.getIssues());
+        assertEquals("Should only contain 1 issue", 1, loadProfileCommand.getIssues().size());
         Issue issue = loadProfileCommand.getIssues().get(0);
         assertThat(issue).isInstanceOf(Warning.class);
         assertThat(issue.getDescription()).isEqualTo(MessageSeeds.INTERVALS_MARKED_AS_BAD_TIME.getKey());
 
         assertNotNull(loadProfileCommand.getCollectedData());
-        Assert.assertEquals("Should only contain 1 collectedData object", 1, loadProfileCommand.getCollectedData().size());
+        assertEquals("Should only contain 1 collectedData object", 1, loadProfileCommand.getCollectedData().size());
         DeviceLoadProfile deviceLoadProfile = (DeviceLoadProfile) loadProfileCommand.getCollectedData().get(0);
         // all intervals should be marked as BADTIME
         for (IntervalData intervalData : deviceLoadProfile.getCollectedIntervalData()) {
             assertThat(intervalData.getReadingQualityTypes()).hasSize(1);
             assertThat(intervalData.getReadingQualityTypes().toArray()[0]).isEqualTo(ProtocolReadingQualities.BADTIME.getReadingQualityType());
         }
-        String journalMessage = markIntervalsAsBadTimeCommand.toJournalMessageDescription(LogLevel.DEBUG);
-        assertThat(journalMessage).isEqualTo("Mark load profile intervals as bad time {nrOfWarnings: 1; nrOfProblems: 0; minimumClockDifference: 1 minutes; badTimeLoadProfiles: 0.0.99.98.0.255}");
+        assertEquals(ComCommandDescriptionTitle.MarkIntervalsAsBadTimeCommandImpl.getDescription() + " {nrOfWarnings: 1; nrOfProblems: 0; minimumClockDifference: 1 minutes; badTimeLoadProfiles: 0.0.99.98.0.255}", journalMessage);
     }
 
     @Test
@@ -129,25 +131,30 @@ public class MarkIntervalsAsBadTimeCommandImplTest extends CommonCommandImplTest
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
         when(loadProfilesTask.isMarkIntervalsAsBadTime()).thenReturn(true);
 
-        when(loadProfilesTask.getMinClockDiffBeforeBadTime()).thenReturn(Optional.of(minClockDiffBeforeBadTime));
-        CommandRoot commandRoot = createCommandRoot();
-        LoadProfileCommand loadProfileCommand = commandRoot.findOrCreateLoadProfileCommand(loadProfilesTask, commandRoot, comTaskExecution);
-        TimeDifferenceCommand timeDifferenceCommand = commandRoot.findOrCreateTimeDifferenceCommand(loadProfileCommand, comTaskExecution);
-        ExecutionContext executionContext = this.newTestExecutionContext();
-        timeDifferenceCommand.execute(deviceProtocol, executionContext);
+        // it is unnatural to NOT set the markIntervalsAsBadTime flag, but otherwise we can't spy the LoadProfileCommand ...
+//        when(loadProfilesTask.doMarkIntervalsAsBadTime()).thenReturn(true);
 
-        MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = commandRoot.findOrCreateMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
+        when(loadProfilesTask.getMinClockDiffBeforeBadTime()).thenReturn(Optional.of(minClockDiffBeforeBadTime));
+        GroupedDeviceCommand groupedDeviceCommand = createGroupedDeviceCommand(offlineDevice, deviceProtocol);
+        LoadProfileCommand loadProfileCommand = spy(groupedDeviceCommand.getLoadProfileCommand(loadProfilesTask, groupedDeviceCommand, comTaskExecution));
+        TimeDifferenceCommand timeDifferenceCommand = mock(TimeDifferenceCommand.class);
+        when(timeDifferenceCommand.getTimeDifference()).thenReturn(Optional.of(timeDifference));
+        when(loadProfileCommand.getTimeDifferenceCommand()).thenReturn(timeDifferenceCommand);
+
+        MarkIntervalsAsBadTimeCommand markIntervalsAsBadTimeCommand = groupedDeviceCommand.getMarkIntervalsAsBadTimeCommand(loadProfileCommand, comTaskExecution);
         loadProfileCommand.addCollectedDataItem(createDeviceCollectedLoadProfile());
-        markIntervalsAsBadTimeCommand.execute(deviceProtocol, executionContext);
+        markIntervalsAsBadTimeCommand.execute(deviceProtocol, newTestExecutionContext());
+        String journalMessage = markIntervalsAsBadTimeCommand.toJournalMessageDescription(LogLevel.INFO);
 
         // asserts
         assertNotNull(loadProfileCommand.getCollectedData());
-        Assert.assertEquals("Should only contain 1 collectedData object", 1, loadProfileCommand.getCollectedData().size());
+        assertEquals("Should only contain 1 collectedData object", 1, loadProfileCommand.getCollectedData().size());
         DeviceLoadProfile deviceLoadProfile = (DeviceLoadProfile) loadProfileCommand.getCollectedData().get(0);
         // all intervals should be marked as OK
         for (IntervalData intervalData : deviceLoadProfile.getCollectedIntervalData()) {
             assertThat(intervalData.getReadingQualityTypes()).hasSize(0);
         }
+        assertEquals(ComCommandDescriptionTitle.MarkIntervalsAsBadTimeCommandImpl.getDescription() + " {badTimeLoadProfiles: None}", journalMessage);
     }
 
 }

@@ -504,7 +504,7 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         }
 
         @Override
-        protected boolean isConnected() {
+        public boolean isConnected() {
             return true;
         }
 
@@ -549,21 +549,13 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         }
 
         @Override
-        public void outsideComWindow() {
-        }
-
-        @Override
-        public void rescheduleToNextComWindow(ComServerDAO comServerDAO) {
-        }
-
-        @Override
-        public void rescheduleToNextComWindow(ComServerDAO comServerDAO, Instant startingPoint) {
-
-        }
-
-        @Override
         public void execute() {
             //To change body of implemented methods use File | Settings | File Templates.
+        }
+
+        @Override
+        public void rescheduleToNextComWindow() {
+
         }
     }
 

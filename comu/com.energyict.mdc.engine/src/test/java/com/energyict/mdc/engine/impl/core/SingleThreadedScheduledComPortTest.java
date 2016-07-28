@@ -671,18 +671,6 @@ public class SingleThreadedScheduledComPortTest {
             }
 
             @Override
-            protected boolean execute(JobExecution.PreparedComTaskExecution preparedComTaskExecution) {
-                numberOfJobExecuteCalls++;
-                return super.execute(preparedComTaskExecution);
-            }
-
-            @Override
-            protected boolean attemptLock(ComTaskExecution comTaskExecution) {
-                numberOfComTaskLockAttemptCalls++;
-                return neverFailComTaskLockAttempt;
-            }
-
-            @Override
             protected boolean attemptLock(ScheduledConnectionTask connectionTask) {
                 numberOfConnectionTaskLockAttemptCalls++;
                 return neverFailConnectionTaskLockAttempt;

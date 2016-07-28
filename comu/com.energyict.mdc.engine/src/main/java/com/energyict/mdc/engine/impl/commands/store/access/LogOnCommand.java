@@ -4,14 +4,12 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.io.ConnectionCommunicationException;
-import com.energyict.mdc.issues.impl.ProblemImpl;
+import com.energyict.mdc.issues.Problem;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-
-import java.time.Instant;
 
 /**
  * A LogOn command performs a logical signOn with the device.
@@ -22,8 +20,8 @@ import java.time.Instant;
  */
 public class LogOnCommand extends SimpleComCommand {
 
-    public LogOnCommand(final CommandRoot commandRoot) {
-        super(commandRoot);
+    public LogOnCommand(final GroupedDeviceCommand groupedDeviceCommand) {
+        super(groupedDeviceCommand);
     }
 
     @Override
@@ -34,7 +32,8 @@ public class LogOnCommand extends SimpleComCommand {
             if (e instanceof ConnectionCommunicationException) {
                 throw e;
             } else {
-                addIssue(new ProblemImpl(getThesaurus(), Instant.now(), deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE.getKey(), e.getLocalizedMessage()), CompletionCode.InitError);
+                Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, getThesaurus(), MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getLocalizedMessage());
+                addIssue(problem, CompletionCode.InitError);
             }
         }
     }

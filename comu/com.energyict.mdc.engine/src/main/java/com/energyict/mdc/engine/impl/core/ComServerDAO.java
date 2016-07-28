@@ -283,7 +283,7 @@ public interface ComServerDAO extends InboundDAO, ServerProcess {
      * @param builder The ComSessionShadow
      * @return The newly created ComSession
      */
-    ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator);
+    ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator);
 
     /**
      * Stores the given list of Reading readings on the Meter.

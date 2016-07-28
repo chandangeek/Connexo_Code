@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskPropertyProvider;
@@ -16,11 +17,15 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
+import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLoadProfile;
 import com.energyict.mdc.engine.impl.meterdata.DeviceLogBook;
@@ -34,6 +39,7 @@ import com.energyict.mdc.protocol.api.device.data.IntervalData;
 import com.energyict.mdc.protocol.api.device.events.MeterEvent;
 import com.energyict.mdc.protocol.api.device.events.MeterProtocolEvent;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import org.joda.time.DateTime;
@@ -48,12 +54,12 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
@@ -78,6 +84,10 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     @Mock
     private DeviceLoadProfile deviceLoadProfile;
     @Mock
+    private DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
+
+    private GroupedDeviceCommand groupedDeviceCommand;
+    @Mock
     private IssueService issueService;
     @Mock
     private DeviceService deviceService;
@@ -99,6 +109,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
     @Before
     public void setup() {
+        when(deviceLoadProfile.getLoadProfileIdentifier()).thenReturn(new LoadProfileIdentifierByObisCodeAndDevice(ObisCode.fromString("0.0.99.98.0.255"), null));
         when(this.executionContextServiceProvider.clock()).thenReturn(clock);
         when(this.executionContextServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
         when(this.executionContextServiceProvider.deviceService()).thenReturn(this.deviceService);
@@ -106,6 +117,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         when(this.jobExecutionServiceProvider.connectionTaskService()).thenReturn(this.connectionTaskService);
         when(this.jobExecutionServiceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.jobExecutionServiceProvider.identificationService()).thenReturn(this.identificationService);
+        when(this.jobExecutionServiceProvider.eventPublisher()).thenReturn(mock(EventPublisher.class));
         when(this.commandRootServiceProvider.clock()).thenReturn(clock);
         when(this.commandRootServiceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.commandRootServiceProvider.identificationService()).thenReturn(this.identificationService);
@@ -118,9 +130,11 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
         when(loadProfileType.getObisCode()).thenReturn(ObisCode.fromString("1.1.1.1.1.1"));
         when(loadProfilesTask.getLoadProfileTypes()).thenReturn(Arrays.asList(loadProfileType));
-        when(loadProfileCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(loadProfileCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
         when(loadProfileCommand.getOfflineDevice()).thenReturn(device);
         when(device.getId()).thenReturn(DEVICE_ID);
+        groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, device, deviceProtocol, deviceProtocolSecurityPropertySet);
     }
 
     private void initializeDeviceLoadProfileWith(ProtocolReadingQualities readingQualityType) {
@@ -152,7 +166,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     @Test
     public void testDoExecute() throws Exception {
         initializeEndDeviceEventTypeFactory();
-        CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(loadProfileCommand, commandRoot);
+        CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(groupedDeviceCommand, loadProfileCommand);
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(mock(ComPortPool.class));
         ComServer comServer = mock(OnlineComServer.class);
@@ -220,7 +234,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
     @Test
     public void testToJournalMessageDescriptionWithErrorLevel() throws Exception {
-        CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(loadProfileCommand, commandRoot);
+        CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(groupedDeviceCommand, loadProfileCommand);
 
         // Business method
         String description = command.toJournalMessageDescription(LogLevel.INFO);
@@ -229,8 +243,41 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
     }
 
     @Test
+    public void testToJournalMessageDescriptionWhenNoEventsCreated() throws Exception {
+        CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(groupedDeviceCommand, loadProfileCommand);
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getComPortPool()).thenReturn(mock(ComPortPool.class));
+        OnlineComServer comServer = mock(OnlineComServer.class);
+        when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
+        ComPort comPort = mock(ComPort.class);
+        when(comPort.getComServer()).thenReturn(comServer);
+        ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, false, jobExecutionServiceProvider);
+
+        command.execute(deviceProtocol, executionContext);
+        String journalMessage = command.toJournalMessageDescription(LogLevel.INFO);
+        assertEquals(ComCommandDescriptionTitle.CreateMeterEventsFromStatusFlagsCommandImpl.getDescription() + " {No events created from profile load profile having OBIS code 0.0.99.98.0.255 on device with deviceIdentifier 'null'}", journalMessage);
+    }
+
+    @Test
+    public void testToJournalMessageDescriptionWhenEventsCreated() throws Exception {
+        CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(groupedDeviceCommand, loadProfileCommand);
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getComPortPool()).thenReturn(mock(ComPortPool.class));
+        OnlineComServer comServer = mock(OnlineComServer.class);
+        when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
+        ComPort comPort = mock(ComPort.class);
+        when(comPort.getComServer()).thenReturn(comServer);
+        ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, false, jobExecutionServiceProvider);
+
+        initializeDeviceLoadProfileWith(ProtocolReadingQualities.DEVICE_ERROR);
+        command.execute(deviceProtocol, executionContext);
+        String journalMessage = command.toJournalMessageDescription(LogLevel.INFO);
+        assertEquals(ComCommandDescriptionTitle.CreateMeterEventsFromStatusFlagsCommandImpl.getDescription() + " {Created 1 event(s) from profile load profile having OBIS code 0.0.99.98.0.255 on device with deviceIdentifier 'null'}", journalMessage);
+    }
+
+    @Test
     public void testToJournalMessageDescriptionWithInfoLevel() throws Exception {
-        CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(loadProfileCommand, commandRoot);
+        CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(groupedDeviceCommand, loadProfileCommand);
 
         // Business method
         String description = command.toJournalMessageDescription(LogLevel.INFO);
@@ -240,12 +287,12 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
     @Test
     public void testToJournalMessageDescriptionWithTraceLevel() throws Exception {
-        CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(loadProfileCommand, commandRoot);
+        CreateMeterEventsFromStatusFlagsCommandImpl command = new CreateMeterEventsFromStatusFlagsCommandImpl(groupedDeviceCommand, loadProfileCommand);
 
         // Business method
         String description = command.toJournalMessageDescription(LogLevel.TRACE);
 
-        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok; nrOfWarnings: 0; nrOfProblems: 0; Load profile obisCodes: 1.1.1.1.1.1; meterEvents: }");
+        assertThat(description).contains("{executionState: NOT_EXECUTED; completionCode: Ok}");
     }
 
     private Clock getFrozenClock() {
@@ -310,7 +357,7 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         }
 
         @Override
-        protected boolean isConnected() {
+        public boolean isConnected() {
             return true;
         }
 
@@ -355,22 +402,13 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         }
 
         @Override
-        public void outsideComWindow() {
-        }
-
-        @Override
-        public void rescheduleToNextComWindow(ComServerDAO comServerDAO) {
-        }
-
-        @Override
-        public void rescheduleToNextComWindow(ComServerDAO comServerDAO, Instant startingPoint) {
-
-        }
-
-        @Override
         public void execute() {
             // No actual execution in mock mode
         }
-    }
 
+        @Override
+        public void rescheduleToNextComWindow() {
+
+        }
+    }
 }

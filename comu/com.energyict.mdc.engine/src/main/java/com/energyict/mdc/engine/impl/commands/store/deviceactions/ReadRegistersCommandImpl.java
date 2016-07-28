@@ -1,12 +1,13 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.CompositeComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ReadRegistersCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -39,9 +40,10 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
      * (we use a set for uniqueness of the registers)
      */
     private List<OfflineRegister> registers = new ArrayList<>();
+    private List<CollectedRegister> collectedRegisters = new ArrayList<>();
 
-    public ReadRegistersCommandImpl(final CompositeComCommand commandOwner, final CommandRoot commandRoot) {
-        super(commandRoot);
+    public ReadRegistersCommandImpl(final GroupedDeviceCommand groupedDeviceCommand, final CompositeComCommand commandOwner) {
+        super(groupedDeviceCommand);
         this.commandOwner = commandOwner;
     }
 
@@ -79,14 +81,18 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         List<OfflineRegister> offlineRegisters = this.getOfflineRegisters();
-        List<CollectedRegister> collectedRegisters = deviceProtocol.readRegisters(offlineRegisters);
+        collectedRegisters = deviceProtocol.readRegisters(offlineRegisters);
         this.commandOwner.addListOfCollectedDataItems(convertToTextRegistersIfRequired(offlineRegisters, collectedRegisters));
+    }
+
+    public CompositeComCommand getCommandOwner() {
+        return commandOwner;
     }
 
     private List<CollectedData> convertToTextRegistersIfRequired(List<OfflineRegister> offlineRegisters, List<CollectedRegister> collectedRegisters) {
         return collectedRegisters.stream().
-                    flatMap(toCollectedRegister(offlineRegisters)).
-                    collect(Collectors.toList());
+                flatMap(toCollectedRegister(offlineRegisters)).
+                collect(Collectors.toList());
     }
 
     private Function<CollectedRegister, Stream<CollectedRegister>> toCollectedRegister(List<OfflineRegister> offlineRegisters) {
@@ -103,13 +109,11 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
             register = new DefaultDeviceRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
             register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime(), collectedRegister.getEventTime());
             register.setCollectedData(collectedRegister.getCollectedQuantity());
-        }
-        else if (collectedRegister.getCollectedQuantity() != null) {
+        } else if (collectedRegister.getCollectedQuantity() != null) {
             register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
             register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
             register.setCollectedData(collectedRegister.getCollectedQuantity().toString());
-        }
-        else {
+        } else {
             register = new DeviceTextRegister(collectedRegister.getRegisterIdentifier(), collectedRegister.getReadingType());
             register.setCollectedTimeStamps(collectedRegister.getReadTime(), collectedRegister.getFromTime(), collectedRegister.getToTime());
             register.setCollectedData(collectedRegister.getText());
@@ -128,15 +132,43 @@ public class ReadRegistersCommandImpl extends SimpleComCommand implements ReadRe
         if (this.registers.isEmpty()) {
             builder.addLabel("No registers to read");
         } else {
-            PropertyDescriptionBuilder registersToReadBuilder = builder.addListProperty("registersToRead");
-            for (OfflineRegister offlineRegister : this.registers) {
-                registersToReadBuilder = registersToReadBuilder.append(offlineRegister.getObisCode()).next();
+            if (isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
+                PropertyDescriptionBuilder registersToReadBuilder = builder.addListProperty("registers");
+                for (OfflineRegister offlineRegister : this.registers) {
+                    registersToReadBuilder.append("(");
+                    registersToReadBuilder.append(offlineRegister.getObisCode());
+                    CollectedRegister collectedRegister = getCollectedRegisterForRegister(offlineRegister);
+                    if (collectedRegister != null) {
+                        if (collectedRegister.getCollectedQuantity() != null) {
+                            registersToReadBuilder.append(" - ");
+                            registersToReadBuilder.append(collectedRegister.getCollectedQuantity());
+                        }
+                        if (collectedRegister.getText() != null && !collectedRegister.getText().isEmpty()) {
+                            registersToReadBuilder.append(" - ");
+                            registersToReadBuilder.append(getPrintableCollectedRegisterText(collectedRegister));
+                        }
+                    }
+                    registersToReadBuilder.append(")");
+                    registersToReadBuilder.next();
+                }
+            } else {
+                builder.addProperty("nrOfRegistersToRead").append(this.registers.size());
             }
         }
     }
 
-    public CompositeComCommand getCommandOwner() {
-        return commandOwner;
+    private String getPrintableCollectedRegisterText(CollectedRegister collectedRegister) {
+        return collectedRegister.getText().replaceAll("\\p{Cntrl}", ".");
+    }
+
+    private CollectedRegister getCollectedRegisterForRegister(OfflineRegister register) {
+        for (CollectedRegister collectedRegister : collectedRegisters) {
+            ObisCode registerObisCode = collectedRegister.getRegisterIdentifier().getDeviceRegisterObisCode();
+            if (registerObisCode != null && registerObisCode.equals(register.getObisCode())) {
+                return collectedRegister;
+            }
+        }
+        return null;
     }
 
     @Override

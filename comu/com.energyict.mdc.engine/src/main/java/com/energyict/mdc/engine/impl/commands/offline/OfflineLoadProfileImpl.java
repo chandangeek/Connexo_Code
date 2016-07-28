@@ -218,7 +218,7 @@ public class OfflineLoadProfileImpl implements OfflineLoadProfile {
 
     @Override
     public LoadProfileIdentifier getLoadProfileIdentifier() {
-        return this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile);
+        return this.identificationService.createLoadProfileIdentifierForAlreadyKnownLoadProfile(loadProfile, loadProfileObisCode);
     }
 
     private void setAllLoadProfileChannels(final List<OfflineLoadProfileChannel> allLoadProfileChannels) {

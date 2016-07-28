@@ -4,7 +4,7 @@ import com.energyict.mdc.engine.exceptions.ComCommandException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -18,19 +18,19 @@ import java.util.logging.Logger;
 
 /**
  * Command to initialize the logger on a {@link DeviceProtocolAdapter}.
- *
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/08/12
  * Time: 11:01
  */
 public class InitializeLoggerCommand extends SimpleComCommand {
 
-    public InitializeLoggerCommand(final CommandRoot commandRoot) {
-        super(commandRoot);
+    public InitializeLoggerCommand(final GroupedDeviceCommand groupedDeviceCommand) {
+        super(groupedDeviceCommand);
     }
 
     @Override
-    public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+    public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         if (deviceProtocol instanceof DeviceProtocolAdapter) {
             Logger logger = this.newProtocolLogger(executionContext);
             ((DeviceProtocolAdapter) deviceProtocol).initializeLogger(logger);
@@ -46,7 +46,7 @@ public class InitializeLoggerCommand extends SimpleComCommand {
      *
      * @return The Logger
      */
-    private Logger newProtocolLogger (ExecutionContext executionContext) {
+    private Logger newProtocolLogger(ExecutionContext executionContext) {
         Logger logger = Logger.getAnonymousLogger();
         logger.setLevel(Level.FINEST);
         logger.addHandler(new ExecutionContextForwardHandler(executionContext));
@@ -58,7 +58,7 @@ public class InitializeLoggerCommand extends SimpleComCommand {
         return ComCommandTypes.INIT_LOGGER_COMMAND;
     }
 
-    protected LogLevel defaultJournalingLogLevel () {
+    protected LogLevel defaultJournalingLogLevel() {
         return LogLevel.DEBUG;
     }
 
@@ -78,25 +78,24 @@ public class InitializeLoggerCommand extends SimpleComCommand {
     private final class ExecutionContextForwardHandler extends Handler {
         private ExecutionContext executionContext;
 
-        private ExecutionContextForwardHandler (ExecutionContext executionContext) {
+        private ExecutionContextForwardHandler(ExecutionContext executionContext) {
             this.executionContext = executionContext;
         }
 
         @Override
-        public void publish (LogRecord record) {
+        public void publish(LogRecord record) {
             record.setLevel(Level.FINEST);
             this.executionContext.getLogger().log(record);
         }
 
         @Override
-        public void flush () {
+        public void flush() {
             // Nothing to flush
         }
 
         @Override
-        public void close () throws SecurityException {
+        public void close() throws SecurityException {
             // Nothing to close
         }
     }
-
 }

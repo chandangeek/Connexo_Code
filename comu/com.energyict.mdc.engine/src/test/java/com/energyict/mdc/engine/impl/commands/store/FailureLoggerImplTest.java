@@ -74,7 +74,7 @@ public class FailureLoggerImplTest {
 
         ComSession.SuccessIndicator successIndicator = ComSession.SuccessIndicator.Success;
         Clock clock = Clock.systemDefaultZone();
-        ExecutionLoggerImpl failureLogger = new CreateOutboundComSession(ComServer.LogLevel.DEBUG, scheduledConnectionTask, comSessionBuilder, successIndicator, clock);
+        ExecutionLoggerImpl failureLogger = new CreateOutboundComSession(Instant.now(), ComServer.LogLevel.DEBUG, scheduledConnectionTask, comSessionBuilder, successIndicator, clock);
 
         // Business method
         failureLogger.logUnexpected(new Exception("For testing purposes only"), this.comTaskExecution);

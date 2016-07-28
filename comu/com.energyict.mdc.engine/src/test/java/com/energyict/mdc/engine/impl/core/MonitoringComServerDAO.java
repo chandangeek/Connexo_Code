@@ -302,8 +302,8 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
-        return this.actual.createComSession(builder, successIndicator);
+    public ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator) {
+        return this.actual.createComSession(builder, stopDate, successIndicator);
     }
 
     private class VerifyingComServerDAO implements ComServerDAO {
@@ -612,7 +612,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
+        public ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator) {
             return null;
         }
     }

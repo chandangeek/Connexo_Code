@@ -12,11 +12,7 @@ import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOffCommand;
 import com.energyict.mdc.engine.impl.commands.store.access.LogOnCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.AddPropertiesCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolInitializeCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolSetCacheCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolTerminateCommand;
-import com.energyict.mdc.engine.impl.commands.store.common.DeviceProtocolUpdateCacheCommand;
+import com.energyict.mdc.engine.impl.commands.store.common.*;
 import com.energyict.mdc.engine.impl.commands.store.legacy.HandHeldUnitEnablerCommand;
 import com.energyict.mdc.engine.impl.commands.store.legacy.InitializeLoggerCommand;
 import com.energyict.mdc.engine.impl.core.ComPortRelatedComChannel;
@@ -24,30 +20,27 @@ import com.energyict.mdc.engine.impl.core.ComTaskExecutionConnectionSteps;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
 import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
-import com.energyict.mdc.io.SerialComChannel;
-import com.energyict.mdc.io.ServerSerialPort;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
-import java.time.Clock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.logging.Logger;
-
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.logging.Logger;
+
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author sva
@@ -59,7 +52,8 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
     private static final long COMPORT_POOL_ID = 1;
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
-
+    @Mock
+    private DeviceProtocol deviceProtocol;
     @Mock
     private ExecutionContext.ServiceProvider serviceProvider;
     @Mock
@@ -83,13 +77,14 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
     }
 
     private ComTaskExecutionConnectionSteps createSingleDeviceComTaskExecutionSteps() {
-        return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.SIGNON, ComTaskExecutionConnectionSteps.SIGNOFF);
+        return new ComTaskExecutionConnectionSteps(ComTaskExecutionConnectionSteps.FIRST_OF_CONNECTION_SERIES, ComTaskExecutionConnectionSteps.LAST_OF_CONNECTION_SERIES);
     }
 
     @Test
     public void testCommandCreationOrder() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider));
+        CommandRootImpl commandRoot = new CommandRootImpl(this.newTestExecutionContext(), commandRootServiceProvider);
+        GroupedDeviceCommand groupedDeviceCommand = spy(new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -97,32 +92,28 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
         ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep = createSingleDeviceComTaskExecutionSteps();
         LegacySmartMeterProtocolCommandCreator commandCreator = new LegacySmartMeterProtocolCommandCreator();
         commandCreator.createCommands(
-                root,
+                groupedDeviceCommand,
                 TypedProperties.empty(),
                 ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                device,
                 Collections.<ProtocolTask>emptyList(),
                 null, comTaskExecutionConnectionStep, null, issueService);
 
-        InOrder order = Mockito.inOrder(root);
-        order.verify(root).addUniqueCommand(any(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(InitializeLoggerCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(AddPropertiesCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(LogOnCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(LogOffCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
+        InOrder order = Mockito.inOrder(groupedDeviceCommand);
+        order.verify(groupedDeviceCommand).addCommand(any(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(InitializeLoggerCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(AddPropertiesCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(LogOnCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(LogOffCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
     }
 
     @Test
     public void testCommandCreationOrderWithOptical() {
         OfflineDevice device = mock(OfflineDevice.class);
-        CommandRoot root = spy(new CommandRootImpl(device, this.newTestExecutionContext(), commandRootServiceProvider));
-
-        SerialComChannel serialComChannel = mock(SerialComChannel.class);
-        ServerSerialPort serverSerialPort = mock(ServerSerialPort.class);
-        when(serialComChannel.getSerialPort()).thenReturn(serverSerialPort);
+        CommandRootImpl commandRoot = new CommandRootImpl(this.newTestExecutionContext(), commandRootServiceProvider);
+        GroupedDeviceCommand groupedDeviceCommand = spy(new GroupedDeviceCommand(commandRoot, device, deviceProtocol, null));
         ComPortRelatedComChannel comChannel = mock(ComPortRelatedComChannel.class);
         ComTask comTask = mock(ComTask.class);
         ComTaskExecution scheduledComTask = mock(ComTaskExecution.class);
@@ -131,23 +122,22 @@ public class LegacySmartMeterProtocolCommandCreatorTest {
 
         LegacySmartMeterProtocolCommandCreator commandCreator = new LegacySmartMeterProtocolCommandCreator();
         commandCreator.createCommands(
-                root,
+                groupedDeviceCommand,
                 TypedProperties.empty(),
                 ComChannelPlaceHolder.forKnownComChannel(comChannel),
-                device,
                 Collections.<ProtocolTask>emptyList(),
                 null, comTaskExecutionConnectionStep, null, issueService);
 
-        InOrder order = Mockito.inOrder(root);
-        order.verify(root).addUniqueCommand(any(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(InitializeLoggerCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(AddPropertiesCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(HandHeldUnitEnablerCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(LogOnCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(LogOffCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
-        order.verify(root).addUniqueCommand(any(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
+        InOrder order = Mockito.inOrder(groupedDeviceCommand);
+        order.verify(groupedDeviceCommand).addCommand(any(DeviceProtocolSetCacheCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(InitializeLoggerCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(AddPropertiesCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(DeviceProtocolInitializeCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(HandHeldUnitEnablerCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(LogOnCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(LogOffCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(DeviceProtocolTerminateCommand.class), any(ComTaskExecution.class));
+        order.verify(groupedDeviceCommand).addCommand(any(DeviceProtocolUpdateCacheCommand.class), any(ComTaskExecution.class));
     }
 
     private ExecutionContext newTestExecutionContext() {

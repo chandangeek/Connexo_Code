@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.readings.Reading;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -15,6 +18,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
+import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.core.JobExecution;
@@ -25,27 +29,19 @@ import com.energyict.mdc.issues.impl.IssueServiceImpl;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.metering.readings.Reading;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -63,10 +59,10 @@ public class ProvideInboundResponseDeviceCommandImplTest {
     private static final long PROTOCOL_DIALECT_CONFIG_PROPS_ID = 6516;
 
     private final String deviceIdentifierString = "MyIdentifier";
-
+    @Mock
+    protected EventPublisherImpl eventPublisher;
     private ExecutionContext executionContext;
     private Clock clock = Clock.systemDefaultZone();
-
     @Mock
     private DeviceCommand.ServiceProvider serviceProvider;
     @Mock
@@ -81,8 +77,6 @@ public class ProvideInboundResponseDeviceCommandImplTest {
     private ExecutionContext.ServiceProvider executionContextServiceProvider;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
-    @Mock
-    protected EventPublisherImpl eventPublisher;
     @Mock
     private NlsService nlsService;
     @Mock
@@ -148,15 +142,20 @@ public class ProvideInboundResponseDeviceCommandImplTest {
         when(connectionTask.getId()).thenReturn(CONNECTION_TASK_ID);
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
         when(connectionTask.getDevice()).thenReturn(device);
+        JobExecution jobExecution = mock(JobExecution.class);
+        ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        when(jobExecution.getComServerDAO()).thenReturn(comServerDAO);
         ExecutionContext executionContext =
                 new ExecutionContext(
-                        mock(JobExecution.class),
+                        jobExecution,
                         connectionTask,
                         comPort,
                         true,
                         executionContextServiceProvider);
         executionContext.setLogger(Logger.getAnonymousLogger());
-        executionContext.start(comTaskExecution, comTask);
+        ComTaskExecutionComCommand comTaskExecutionComCommand = mock(ComTaskExecutionComCommand.class);
+        when(comTaskExecutionComCommand.getComTaskExecution()).thenReturn(comTaskExecution);
+        executionContext.start(comTaskExecutionComCommand);
         return executionContext;
     }
 

@@ -1,22 +1,19 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.MessagesCommandImpl;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.meterdata.DeviceIpAddress;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
-import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageAcknowledgement;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.MessagesTask;
 
 import java.util.ArrayList;
@@ -31,8 +28,8 @@ public class InboundCollectedMessageListCommandImpl extends MessagesCommandImpl 
 
     private final List<ServerCollectedData> collectedData;
 
-    public InboundCollectedMessageListCommandImpl(MessagesTask messagesTask, OfflineDevice device, CommandRoot commandRoot, List<ServerCollectedData> collectedData, ComTaskExecution comTaskExecution, IssueService issueService, Thesaurus thesaurus) {
-        super(messagesTask, device, commandRoot, comTaskExecution, issueService, thesaurus);
+    public InboundCollectedMessageListCommandImpl(GroupedDeviceCommand groupedDeviceCommand, MessagesTask messagesTask, ComTaskExecution comTaskExecution, List<ServerCollectedData> collectedData) {
+        super(groupedDeviceCommand, messagesTask, comTaskExecution);
         this.collectedData = collectedData;
     }
 

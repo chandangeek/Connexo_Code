@@ -385,7 +385,7 @@ public class MockComServerDAO implements ComServerDAO {
 //    }
 
     @Override
-    public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
+    public ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator) {
 //        // Not creating com sessions in mock mode
         return null;
     }

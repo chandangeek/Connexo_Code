@@ -3,26 +3,24 @@ package com.energyict.mdc.engine.impl.commands.store.access;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
-import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.events.EventPublisherImpl;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.pluggable.MeterProtocolAdapter;
 import com.energyict.mdc.protocol.pluggable.SmartMeterProtocolAdapter;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.time.Clock;
 
-import org.junit.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link DaisyChainedLogOffCommand}
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 9/10/12
  * Time: 16:37
@@ -38,24 +36,26 @@ public class DaisyChainedLogOffCommandTest extends AbstractComCommandExecuteTest
     }
 
     @Test
-    public void testCommandType(){
+    public void testCommandType() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, this.newTestExecutionContext(), this.commandRootServiceProvider);
-        DaisyChainedLogOffCommand daisyChainedLogOffCommand = new DaisyChainedLogOffCommand(commandRoot);
+        CommandRoot commandRoot = createCommandRoot();
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
+        DaisyChainedLogOffCommand daisyChainedLogOffCommand = new DaisyChainedLogOffCommand(groupedDeviceCommand);
 
         assertEquals(ComCommandTypes.DAISY_CHAINED_LOGOFF, daisyChainedLogOffCommand.getCommandType());
     }
 
     @Test
-    public void validateAdapterCallForMeterProtocol () {
+    public void validateAdapterCallForMeterProtocol() {
         ExecutionContext executionContext = this.newTestExecutionContext();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, this.commandRootServiceProvider);
-        CommandFactory.createDaisyChainedLogOffCommand(commandRoot, null);
+        CommandRoot commandRoot = createCommandRoot();
         MeterProtocolAdapter meterProtocolAdapter = mock(MeterProtocolAdapter.class);
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, meterProtocolAdapter, null);
+        CommandFactory.createDaisyChainedLogOffCommand(groupedDeviceCommand, comTaskExecution);
 
         // business method
-        commandRoot.execute(meterProtocolAdapter, executionContext);
+        groupedDeviceCommand.execute(executionContext);
 
         // validate that the connect on the adapter is called
         verify(meterProtocolAdapter).daisyChainedLogOff();
@@ -63,15 +63,16 @@ public class DaisyChainedLogOffCommandTest extends AbstractComCommandExecuteTest
     }
 
     @Test
-    public void validateAdapterCallForSmartMeterProtocol () {
+    public void validateAdapterCallForSmartMeterProtocol() {
         ExecutionContext executionContext = this.newTestExecutionContext();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, this.commandRootServiceProvider);
-        CommandFactory.createDaisyChainedLogOffCommand(commandRoot, null);
+        CommandRoot commandRoot = createCommandRoot();
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = mock(SmartMeterProtocolAdapter.class);
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, smartMeterProtocolAdapter, null);
+        CommandFactory.createDaisyChainedLogOffCommand(groupedDeviceCommand, comTaskExecution);
 
         // business method
-        commandRoot.execute(smartMeterProtocolAdapter, executionContext);
+        groupedDeviceCommand.execute(executionContext);
 
         // validate that the connect on the adapter is called
         verify(smartMeterProtocolAdapter).daisyChainedLogOff();

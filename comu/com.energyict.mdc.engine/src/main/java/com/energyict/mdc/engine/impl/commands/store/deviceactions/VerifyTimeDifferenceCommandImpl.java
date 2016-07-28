@@ -7,13 +7,12 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.exceptions.DeviceConfigurationException;
 
 import java.util.Optional;
 
@@ -36,16 +35,17 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
      */
     private TimeDuration maximumClockDifference;
 
-    public VerifyTimeDifferenceCommandImpl(BasicCheckCommand basicCheckCommand, final CommandRoot commandRoot) {
-        super(commandRoot);
+    public VerifyTimeDifferenceCommandImpl(BasicCheckCommand basicCheckCommand, final GroupedDeviceCommand groupedDeviceCommand) {
+        super(groupedDeviceCommand);
         this.basicCheckCommand = basicCheckCommand;
-        maximumClockDifference = basicCheckCommand.getBasicCheckTask().getMaximumClockDifference().orElseGet(() -> TimeDuration.millis(0));
+        maximumClockDifference = basicCheckCommand.getMaximumClockDifference().orElseGet(() -> TimeDuration.millis(0));
     }
 
     @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
+    protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
-        builder.addProperty("maximumDifference").append(this.maximumClockDifference);
+        TimeDuration maxDiffInSeconds = new TimeDuration(this.basicCheckCommand.getMaximumClockDifference().orElse(new TimeDuration(0)).getSeconds(), TimeDuration.TimeUnit.SECONDS);
+        builder.addProperty("maximumDifference").append(maxDiffInSeconds);
     }
 
     @Override

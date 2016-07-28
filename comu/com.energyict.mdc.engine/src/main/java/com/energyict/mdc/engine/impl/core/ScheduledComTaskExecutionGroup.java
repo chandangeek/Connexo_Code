@@ -4,12 +4,7 @@ import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.io.CommunicationException;
-import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionFailureException;
-import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,9 +23,6 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
 
     private ScheduledConnectionTask connectionTask;
     private List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
-    private List<ComTaskExecution> notExecutedComTaskExecutions = new ArrayList<>();
-    private List<ComTaskExecution> failedComTaskExecutions = new ArrayList<>();
-    private List<ComTaskExecution> successfulComTaskExecutions = new ArrayList<>();
 
     public ScheduledComTaskExecutionGroup(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ScheduledConnectionTask connectionTask, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
@@ -42,24 +34,8 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
         return this.connectionTask;
     }
 
-    @Override
-    public List<ComTaskExecution> getNotExecutedComTaskExecutions() {
-        return notExecutedComTaskExecutions;
-    }
-
-    @Override
-    public List<ComTaskExecution> getFailedComTaskExecutions() {
-        return failedComTaskExecutions;
-    }
-
-    @Override
-    public List<ComTaskExecution> getSuccessfulComTaskExecutions() {
-        return successfulComTaskExecutions;
-    }
-
     public void add(ComTaskExecution comTask) {
         this.comTaskExecutions.add(comTask);
-        this.notExecutedComTaskExecutions.add(comTask);
     }
 
     @Override
@@ -94,65 +70,20 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
 
     @Override
     public void execute() {
-        boolean connectionOk = false;
         try {
-            List<PreparedComTaskExecution> preparedComTaskExecutions = prepare();
-            if (establishConnectionFor(preparedComTaskExecutions)) {
-                connectionOk = true;
-                for (int i = 0; i < preparedComTaskExecutions.size(); i++) {
-                    PreparedComTaskExecution preparedComTaskExecution = preparedComTaskExecutions.get(i);
-                    if (isOtherPhysicalSlave(preparedComTaskExecution)) {
-                        resetBasicCheckFailedFlagOfExecutionContext(); // Physical slave is not interested in basic check failure of previous physical slave, so reset the flag
-                    }
-                    performPreparedComTaskExecution(preparedComTaskExecution, nextOneIsOtherPhysicalSlave(preparedComTaskExecutions, i));
-                }
+            boolean connectionEstablished = false;
+            this.createExecutionContext();
+            commandRoot = this.prepareAll(this.comTaskExecutions);
+            if (!commandRoot.hasGeneralSetupErrorOccurred()) {
+                connectionEstablished = this.establishConnectionFor(this.getComPort());
             }
-        } catch (CommunicationException e) {
-            connectionOk = false;
-            throw e;
+            commandRoot.execute(connectionEstablished);
         } finally {
-            ConnectionFailureException disconnectionFailed = null;
-            if (connectionOk) {
-                try {
-                    this.completeConnection();
-                } catch (ConnectionException ce) {
-                    disconnectionFailed = new ConnectionFailureException(MessageSeeds.CONNECTION_FAILURE, ce);
-                }
-            }
-            this.closeConnection();
-            if (disconnectionFailed != null){
-                throw disconnectionFailed;
+            try {
+                this.completeConnection();
+            } finally {
+                this.closeConnection();
             }
         }
     }
-
-    /**
-     * Forwards the establishConnection.
-     * If a setup error occurs, then we properly log the number of not executed comtasks...
-     *
-     * @param preparedComTaskExecutions the comTasks which we will execute after the connection establishment succeeds
-     *
-     * @return true if the establishment succeeded, false otherwise
-     */
-    private boolean establishConnectionFor(List<PreparedComTaskExecution> preparedComTaskExecutions){
-        try {
-            return this.establishConnection();
-        } catch (ConnectionSetupException e) {
-            int numberOfPlannedButNotExecutedTasks = (int)
-                    preparedComTaskExecutions
-                            .stream()
-                            .flatMap(each -> each.getComTaskExecution().getComTasks().stream())
-                            .count();
-            this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(numberOfPlannedButNotExecutedTasks);
-            throw e;
-        }
-    }
-
-    private List<PreparedComTaskExecution> prepare() {
-        this.createExecutionContext();
-        List<PreparedComTaskExecution> preparedComTaskExecutions = this.prepareAll(this.comTaskExecutions);
-        getExecutionContext().setCommandRoot(preparedComTaskExecutions.get(0).getCommandRoot());
-        return preparedComTaskExecutions;
-    }
-
 }

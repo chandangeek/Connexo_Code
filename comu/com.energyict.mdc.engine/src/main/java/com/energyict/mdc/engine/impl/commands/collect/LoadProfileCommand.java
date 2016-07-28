@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.collect;
 
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
@@ -60,21 +62,14 @@ public interface LoadProfileCommand extends CompositeComCommand {
     TimeDifferenceCommand getTimeDifferenceCommand();
 
     /**
-     * @return the {@link LoadProfilesTask}
+     * @return the {@link LoadProfilesTaskOptions}
      */
-    LoadProfilesTask getLoadProfilesTask();
+    public LoadProfilesTaskOptions getLoadProfilesTaskOptions();
 
     /**
      * @return the {@link OfflineDevice}
      */
     OfflineDevice getOfflineDevice();
 
-    /**
-     * Updates the loadProfileReader list with the LoadProfileTypes from the given task.
-     *
-     * @param loadProfilesTask the given task
-     * @param deviceMrid The mRID of the Device
-     */
-    void updateLoadProfileReaders(LoadProfilesTask loadProfilesTask, String deviceMrid);
-
+    public void updateAccordingTo(LoadProfilesTask loadProfilesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution);
 }

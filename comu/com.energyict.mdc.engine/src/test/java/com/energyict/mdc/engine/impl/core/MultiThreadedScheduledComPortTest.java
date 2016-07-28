@@ -1,10 +1,12 @@
 package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.data.Device;
@@ -27,7 +29,12 @@ import com.energyict.mdc.engine.impl.monitor.ServerScheduledComPortOperationalSt
 import com.energyict.mdc.engine.monitor.ScheduledComPortMonitor;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.issues.Problem;
+import com.energyict.mdc.issues.Warning;
 import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceContext;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -37,6 +44,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.ComTask;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
@@ -73,6 +81,7 @@ import static org.mockito.Mockito.*;
  * @since 2012-04-10 (12:49)
  */
 
+@Ignore //TODO port CXO-2121
 @RunWith(MockitoJUnitRunner.class)
 public class MultiThreadedScheduledComPortTest {
 
@@ -207,6 +216,14 @@ public class MultiThreadedScheduledComPortTest {
         when(this.serviceProvider.eventService()).thenReturn(this.eventService);
         when(this.serviceProvider.identificationService()).thenReturn(this.identificationService);
         when(this.serviceProvider.issueService()).thenReturn(this.issueService);
+        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class))).thenReturn(mock(Problem.class));
+        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class))).thenReturn(mock(Problem.class));
+        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(mock(Problem.class));
+        when(issueService.newProblem(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(mock(Problem.class));
+        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class))).thenReturn(mock(Warning.class));
+        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class))).thenReturn(mock(Warning.class));
+        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class))).thenReturn(mock(Warning.class));
+        when(issueService.newWarning(any(Object.class), any(Thesaurus.class), any(MessageSeed.class), any(Object.class), any(Object.class), any(Object.class))).thenReturn(mock(Warning.class));
         when(this.serviceProvider.userService()).thenReturn(this.userService);
         when(this.serviceProvider.clock()).thenReturn(this.clock);
         when(this.serviceProvider.transactionService()).thenReturn(new FakeTransactionService());
@@ -404,6 +421,9 @@ public class MultiThreadedScheduledComPortTest {
 
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
+            comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).executionStarted(mock(ComTaskExecution.class), comPort, true);
+            comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).executionCompleted(mock(ComTaskExecution.class));
+            comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).executionCompleted(this.simultaneousConnectionTask1);
             verify(this.deviceCommandExecutor, atLeastOnce()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
             verify(this.deviceCommandExecutor, atMost(NUMBER_OF_TASKS)).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
@@ -434,10 +454,17 @@ public class MultiThreadedScheduledComPortTest {
             }
             return result;
         });
-        MonitoringComServerDAO comServerDAO = new MonitoringComServerDAO(comServerDAOMock);
+        MonitoringComServerDAO comServerDAO = spy(new MonitoringComServerDAO(comServerDAOMock));
+        OfflineDevice offlineDevice1 = mock(OfflineDevice.class);
+        when(offlineDevice1.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        Optional<OfflineDevice> offlineDevice = Optional.of(offlineDevice1);
+        when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class), any(OfflineDeviceContext.class))).thenReturn(offlineDevice);
         List<DeviceCommandExecutionToken> tokens = this.mockTokens(1);
-        when(this.deviceCommandExecutor.acquireTokens(1)).thenReturn(tokens);
-        AlwaysAttemptLockMultiThreadedScheduledComPortAndCountDownOnConnectionError scheduledComPort = new AlwaysAttemptLockMultiThreadedScheduledComPortAndCountDownOnConnectionError(comPort, comServerDAO, this.deviceCommandExecutor, this.serviceProvider, stopLatch);
+        when(this.deviceCommandExecutor.tryAcquireTokens(1)).thenReturn(tokens);
+        AlwaysAttemptLockMultiThreadedScheduledComPortAndCountDownOnConnectionError scheduledComPort = new AlwaysAttemptLockMultiThreadedScheduledComPortAndCountDownOnConnectionError(comPort, comServerDAO, this.deviceCommandExecutor, serviceProvider, stopLatch);
+
+        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
 
         try {
             // Business method
@@ -449,6 +476,7 @@ public class MultiThreadedScheduledComPortTest {
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
             comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort, true);
+            comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).executionFailed(this.simultaneousConnectionTask1);
             verify(this.deviceCommandExecutor, atLeastOnce()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
             verify(this.deviceCommandExecutor, atMost(NUMBER_OF_TASKS)).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
@@ -494,6 +522,9 @@ public class MultiThreadedScheduledComPortTest {
 
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
+            comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).executionStarted(mock(ComTaskExecution.class), comPort, true);
+            comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).executionCompleted(mock(ComTaskExecution.class));
+            comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).executionCompleted(this.serialConnectionTask1);
 
             Thread.sleep(this.counterVerifierFactory.getIdleMillis());
             verify(this.deviceCommandExecutor, times(1)).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
@@ -540,8 +571,9 @@ public class MultiThreadedScheduledComPortTest {
 
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
-            comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort, true);
-            verify(this.deviceCommandExecutor).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
+            comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).executionStarted(mock(ComTaskExecution.class), comPort, true);
+            comServerDAO.verify(this.counterVerifierFactory.atMost(work.size())).executionStarted(mock(ComTaskExecution.class), comPort, true);
+            verify(this.deviceCommandExecutor, times(1)).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
             this.shutdown(scheduledComPort);
         }
@@ -684,6 +716,8 @@ public class MultiThreadedScheduledComPortTest {
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
             comServerDAO.verify(this.counterVerifierFactory.never()).executionStarted(mock(ComTaskExecution.class), comPort, true);
+            comServerDAO.verify(this.counterVerifierFactory.never()).executionCompleted(mock(ComTaskExecution.class));
+            comServerDAO.verify(this.counterVerifierFactory.never()).executionCompleted(this.simultaneousConnectionTask1);
             verify(this.deviceCommandExecutor, never()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));
         } finally {
             this.shutdown(scheduledComPort);
@@ -774,7 +808,8 @@ public class MultiThreadedScheduledComPortTest {
 
             // Asserts
             comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).findExecutableOutboundComTasks(comPort);
-            verify(this.deviceCommandExecutor, atLeastOnce()).execute(any(DeviceCommand.class), any(DeviceCommandExecutionToken.class));    // Session is completed even upon failure
+            comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).executionStarted(mock(ComTaskExecution.class), comPort, true);
+            comServerDAO.verify(this.counterVerifierFactory.atLeastOnce()).executionRescheduled(mock(ComTaskExecution.class), Instant.now());
         } finally {
             this.shutdown(scheduledComPort);
         }
@@ -871,7 +906,7 @@ public class MultiThreadedScheduledComPortTest {
             }
 
             @Override
-            boolean attemptLock(ScheduledConnectionTask connectionTask) {
+            protected boolean attemptLock(ScheduledConnectionTask connectionTask) {
                 workDeliveredLatch.countDown();
                 return true;
             }
@@ -944,12 +979,11 @@ public class MultiThreadedScheduledComPortTest {
                 return true;
             }
 
+            //TODO is this correct?
             @Override
-            public void failed(Throwable t, ExecutionFailureReason failureReason) {
-                super.failed(t, failureReason);
-                if (failureReason.equals(ExecutionFailureReason.CONNECTION_SETUP)) {
-                    connectionError.countDown();
-                }
+            public void closeConnection() {
+                super.closeConnection();
+                connectionError.countDown();
             }
         }
     }

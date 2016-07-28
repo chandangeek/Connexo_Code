@@ -1,6 +1,9 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.common.comserver.logging.DescriptionBuilderImpl;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
@@ -8,8 +11,6 @@ import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceProtocolProperty
 import com.energyict.mdc.protocol.api.device.data.CollectedDeviceInfo;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
-
-import com.elster.jupiter.properties.PropertySpec;
 
 /**
  * Provides an implementation for the {@link CollectedDeviceInfo} interface
@@ -57,5 +58,14 @@ public class DeviceProtocolProperty extends CollectedDeviceData implements Colle
     @Override
     public boolean isConfiguredIn(DataCollectionConfiguration configuration) {
         return true; // make sure this is not filtered
+    }
+
+    @Override
+    public String toString() {
+        DescriptionBuilder builder = new DescriptionBuilderImpl(() -> "DeviceProtocolProperty");
+        builder.addProperty("deviceIdentifier").append(this.deviceIdentifier);
+        builder.addProperty("property").append(propertySpec.getName());
+        builder.addProperty("value").append(propertyValue.toString());
+        return builder.toString();
     }
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.impl.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.engine.events.Category;
@@ -64,7 +65,7 @@ public class CollectedLoadProfileEventTest {
 
         LoadProfileService loadProfileService = mock(LoadProfileService.class);
 
-        LoadProfileIdentifierById loadProfileId = new LoadProfileIdentifierById(123L, loadProfileService);
+        LoadProfileIdentifierById loadProfileId = new LoadProfileIdentifierById(123L, loadProfileService, ObisCode.fromString("1.1.1.1.1.1"));
 
         CollectedLoadProfile loadProfile = mock(CollectedLoadProfile.class);
         when(loadProfile.getLoadProfileIdentifier()).thenReturn(loadProfileId);

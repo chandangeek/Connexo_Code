@@ -2,9 +2,18 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 
-import java.util.ArrayList;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <ul>
@@ -43,63 +52,96 @@ import java.util.List;
  * </ul>
  * </li>
  * </ul>
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/06/13
  * Time: 11:09
  */
 public class RescheduleBehaviorForMinimizeConnections extends AbstractRescheduleBehavior implements RescheduleBehavior {
 
-    private List<ComTaskExecution> allComTaskExecutions = new ArrayList<>();
-
-    private int maxConnectionTryAttempts = -1;
-
-    protected RescheduleBehaviorForMinimizeConnections(ComServerDAO comServerDAO, List<ComTaskExecution> successfulComTaskExecutions, List<ComTaskExecution> failedComTaskExecutions, List<ComTaskExecution> notExecutedComTaskExecutions, ConnectionTask connectionTask) {
-        super(comServerDAO, successfulComTaskExecutions, failedComTaskExecutions, notExecutedComTaskExecutions, connectionTask);
-        this.allComTaskExecutions.addAll(successfulComTaskExecutions);
-        this.allComTaskExecutions.addAll(failedComTaskExecutions);
-        this.allComTaskExecutions.addAll(notExecutedComTaskExecutions);
+    RescheduleBehaviorForMinimizeConnections(ComServerDAO comServerDAO, ConnectionTask connectionTask, Clock clock) {
+        super(comServerDAO, connectionTask, clock);
     }
 
     @Override
-    public void performRescheduling(RescheduleReason reason) {
-        this.getScheduledConnectionTask().setMaxNumberOfTries(this.getMaxConnectionTryAttempts());
-        super.performRescheduling(reason);
-    }
-
-    protected void performRetryForConnectionSetupError() {
+    protected void rescheduleForGeneralSetupError(CommandRoot commandRoot) {
         retryConnectionTask();
-    }
-
-    protected void performRetryForConnectionException() {
-        rescheduleSuccessfulComTasks();
-        retryFailedComTasks();
-        retryConnectionTask();
-    }
-
-    protected void performRetryForCommunicationTasks() {
-        if(getNumberOfFailedComTasks() > 0){
-            retryConnectionTask();
-        } else {
-            rescheduleSuccessfulConnectionTask();
+        Instant connectionTaskRetryNextExecution = calculateNextRetryExecutionTimestamp((OutboundConnectionTask) getConnectionTask());
+        for (ComTaskExecution comTaskExecution : commandRoot.getScheduledButNotPreparedComTaskExecutions()) {
+            rescheduleComTaskExecutionAccordingToConnectionRetry(connectionTaskRetryNextExecution, comTaskExecution);
         }
-        rescheduleSuccessfulComTasks();
-        retryFailedComTasks();
-        performRetryForNotExecutedCommunicationTasks();
     }
 
-    protected void performRetryForNotExecutedCommunicationTasks() {
-        this.rescheduleNotExecutedComTasks();
+    private void rescheduleComTaskExecutionAccordingToConnectionRetry(Instant connectionTaskRetryNextExecution, ComTaskExecution comTaskExecution) {
+        if (((OutboundConnectionTask) getConnectionTask()).getCurrentRetryCount() == 0) {
+            Instant nextExecutionTimeStamp = calculateNextExecutionTimestampFromBaseline(clock.instant(), comTaskExecution);
+            getComServerDAO().executionRescheduled(comTaskExecution, nextExecutionTimeStamp);
+        } else {
+            getComServerDAO().executionRescheduled(comTaskExecution, connectionTaskRetryNextExecution);
+        }
     }
 
-    private int getMaxConnectionTryAttempts() {
-        if (this.maxConnectionTryAttempts == -1) {
-            for (ComTaskExecution comTaskExecution : allComTaskExecutions) {
-                if (this.maxConnectionTryAttempts < comTaskExecution.getMaxNumberOfTries()) {
-                    this.maxConnectionTryAttempts = comTaskExecution.getMaxNumberOfTries();
+    @Override
+    protected void rescheduleForConnectionSuccess(CommandRoot commandRoot) {
+        Set<ComTaskExecution> notExecutedComTasks = new HashSet<>();
+        Set<ComTaskExecution> failedComTasks = new HashSet<>();
+        for (GroupedDeviceCommand groupedDeviceCommand : commandRoot) {
+            for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : groupedDeviceCommand) {
+                switch (comTaskExecutionComCommand.getExecutionState()) {
+                    case SUCCESSFULLY_EXECUTED:
+                        getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
+                        break;
+                    case NOT_EXECUTED: // intentional fallthrough
+                    case FAILED: {
+                        if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
+                            notExecutedComTasks.add(comTaskExecutionComCommand.getComTaskExecution());
+                        } else {
+                            failedComTasks.add(comTaskExecutionComCommand.getComTaskExecution());
+                        }
+                    }
+                    break;
                 }
             }
         }
-        return this.maxConnectionTryAttempts;
+        if (notExecutedComTasks.size() > 0 || failedComTasks.size() > 0) {
+            retryConnectionTask();
+            // reschedule all not executed tasks to the next date of the connection
+            Instant nextExecutionTimestamp = ((ScheduledConnectionTask) getConnectionTask()).getNextExecutionTimestamp();
+            for (ComTaskExecution notExecutedComTask : notExecutedComTasks) {
+                getComServerDAO().executionRescheduled(notExecutedComTask, nextExecutionTimestamp);
+            }
+            for (ComTaskExecution failedComTask : failedComTasks) {
+                getComServerDAO().executionFailed(failedComTask);
+            }
+        } else {
+            rescheduleSuccessfulConnectionTask();
+        }
+    }
+
+    @Override
+    protected void rescheduleForConnectionError(CommandRoot commandRoot) {
+        Instant nextConnectionRetryDate = null;
+        retryConnectionTask();
+        if (getConnectionTask() instanceof ScheduledConnectionTask) {
+            nextConnectionRetryDate = ((ScheduledConnectionTask) getConnectionTask()).getNextExecutionTimestamp();
+        }
+        for (GroupedDeviceCommand groupedDeviceCommand : commandRoot) {
+            for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : groupedDeviceCommand) {
+                switch (comTaskExecutionComCommand.getExecutionState()) {
+                    case SUCCESSFULLY_EXECUTED:
+                        getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
+                        break;
+                    case NOT_EXECUTED: // intentional fallthrough
+                    case FAILED: {
+                        if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
+                            getComServerDAO().executionRescheduled(comTaskExecutionComCommand.getComTaskExecution(), nextConnectionRetryDate);
+                        } else {
+                            getComServerDAO().executionFailed(comTaskExecutionComCommand.getComTaskExecution());
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
 }

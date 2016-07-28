@@ -5,6 +5,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.io.ConnectionCommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 
 import java.util.List;
@@ -44,10 +45,22 @@ public abstract class ScheduledJobExecutor {
     public void acquireTokenAndPerformSingleJob(ScheduledJob scheduledJob) {
         try {
             List<DeviceCommandExecutionToken> deviceCommandExecutionTokens = this.deviceCommandExecutor.acquireTokens(1);
-            scheduledJob.setToken(deviceCommandExecutionTokens.get(0));
+            updateTokens(scheduledJob, deviceCommandExecutionTokens);
             this.execute(scheduledJob);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    private void updateTokens(ScheduledJob scheduledJob, List<DeviceCommandExecutionToken> deviceCommandExecutionTokens) {
+        for (int i = 0; i < deviceCommandExecutionTokens.size(); i++) {
+            DeviceCommandExecutionToken token = deviceCommandExecutionTokens.get(i);
+            if (i == 0) {
+                scheduledJob.setToken(token);
+            } else {
+                // just to be safe, free the tokens if you have any left ...
+                this.deviceCommandExecutor.free(token);
+            }
         }
     }
 
@@ -71,20 +84,17 @@ public abstract class ScheduledJobExecutor {
             case ATTEMPT_LOCK_SUCCESS: {
                 try {
                     job.execute();
-                    job.completed();
-                } catch (ConnectionSetupException t) {
+                } catch (Throwable t) {
                     logIfDebuggingIsEnabled(t);
-                    job.failed(t, ExecutionFailureReason.CONNECTION_SETUP);
-                } catch (Exception t) {
-                    logIfDebuggingIsEnabled(t);
-                    job.failed(t, ExecutionFailureReason.CONNECTION_BROKEN);
+                } finally {
+                    job.reschedule();
                 }
-                break;
             }
+            break;
             case JOB_OUTSIDE_COM_WINDOW: {
-                job.outsideComWindow();
-                break;
+                job.rescheduleToNextComWindow();
             }
+            break;
             case ATTEMPT_LOCK_FAILED:   // intentional fall through
             case NOT_PENDING_ANYMORE:   // intentional fall through
             default:
@@ -94,8 +104,17 @@ public abstract class ScheduledJobExecutor {
 
     private void logIfDebuggingIsEnabled(Throwable t) {
         if (REQUIRED_DEBUG_LEVEL.compareTo(logLevel) <= 0) {
-            t.printStackTrace(System.err);
+            if (!(t instanceof ConnectionSetupException || t instanceof ConnectionCommunicationException)) {
+                t.printStackTrace(System.err);
+            }
         }
+    }
+
+    public enum ValidationReturnStatus {
+        ATTEMPT_LOCK_SUCCESS,
+        ATTEMPT_LOCK_FAILED,
+        JOB_OUTSIDE_COM_WINDOW,
+        NOT_PENDING_ANYMORE
     }
 
     private class ValidationTransaction implements Transaction<ValidationReturnStatus> {
@@ -124,13 +143,6 @@ public abstract class ScheduledJobExecutor {
                 }
             }
         }
-    }
-
-    public enum ValidationReturnStatus {
-        ATTEMPT_LOCK_SUCCESS,
-        ATTEMPT_LOCK_FAILED,
-        JOB_OUTSIDE_COM_WINDOW,
-        NOT_PENDING_ANYMORE
     }
 
 }

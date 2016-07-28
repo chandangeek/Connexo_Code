@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.AbstractComCommandExecuteTest;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.core.CommandFactory;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -29,8 +30,9 @@ public class DeviceProtocolSetCacheCommandTest extends AbstractComCommandExecute
     @Test
     public void comCommandTypeTest() {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, this.newTestExecutionContext(), this.commandRootServiceProvider);
-        DeviceProtocolSetCacheCommand setCacheCommand = new DeviceProtocolSetCacheCommand(offlineDevice, commandRoot);
+        CommandRoot commandRoot = createCommandRoot();
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
+        DeviceProtocolSetCacheCommand setCacheCommand = new DeviceProtocolSetCacheCommand(groupedDeviceCommand);
 
         assertEquals(ComCommandTypes.DEVICE_PROTOCOL_SET_CACHE_COMMAND, setCacheCommand.getCommandType());
     }
@@ -39,12 +41,13 @@ public class DeviceProtocolSetCacheCommandTest extends AbstractComCommandExecute
     public void validateSetCacheTest() {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
-        ExecutionContext executionContext = this.newTestExecutionContext();
-        CommandRoot commandRoot = new CommandRootImpl(offlineDevice, executionContext, this.commandRootServiceProvider);
-        CommandFactory.createSetDeviceCacheCommand(commandRoot, null, offlineDevice);
+        ExecutionContext executionContext = newTestExecutionContext();
+        CommandRoot commandRoot = new CommandRootImpl(executionContext, commandRootServiceProvider);
+        GroupedDeviceCommand groupedDeviceCommand = new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null);
+        CommandFactory.createSetDeviceCacheCommand(groupedDeviceCommand, comTaskExecution, offlineDevice);
 
         // business method
-        commandRoot.execute(deviceProtocol, executionContext);
+        groupedDeviceCommand.execute(executionContext);
 
         // verify that the deviceProtocol.terminate gets called
         verify(deviceProtocol).setDeviceCache(any(DeviceProtocolCache.class));

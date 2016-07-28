@@ -5,6 +5,7 @@ import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.collect.ForceClockCommand;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -20,8 +21,8 @@ public class ForceClockCommandImpl extends SimpleComCommand implements ForceCloc
 
     private Date timeSet;
 
-    public ForceClockCommandImpl(final CommandRoot commandRoot) {
-        super(commandRoot);
+    public ForceClockCommandImpl(final GroupedDeviceCommand groupedDeviceCommand) {
+        super(groupedDeviceCommand);
     }
 
     public void doExecute (final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {

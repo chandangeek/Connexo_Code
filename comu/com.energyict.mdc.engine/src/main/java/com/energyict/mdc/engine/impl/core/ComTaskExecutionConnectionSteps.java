@@ -14,10 +14,10 @@ package com.energyict.mdc.engine.impl.core;
  */
 public class ComTaskExecutionConnectionSteps {
 
-    public static final int SIGNON = 0b0000_0000_0000_0001;
-    public static final int DAISYCHAIN_LOGON = 0b0000_0000_0000_0010;
-    public static final int DAISYCHAIN_LOGOFF = 0b0000_0000_0000_0100;
-    public static final int SIGNOFF = 0b0000_0000_0000_1000;
+    public static final int FIRST_OF_CONNECTION_SERIES = 0b0000_0000_0000_0001;
+    public static final int FIRST_OF_SAME_CONNECTION_BUT_NOT_FIRST_DEVICE = 0b0000_0000_0000_0010;
+    public static final int LAST_OF_SAME_CONNECTION_BUT_NOT_LAST_DEVICE = 0b0000_0000_0000_0100;
+    public static final int LAST_OF_CONNECTION_SERIES = 0b0000_0000_0000_1000;
 
     private int flags;
 
@@ -26,19 +26,19 @@ public class ComTaskExecutionConnectionSteps {
     }
 
     public boolean isLogOnRequired() {
-        return isSet(SIGNON);
+        return isSet(FIRST_OF_CONNECTION_SERIES);
     }
 
     public boolean isDaisyChainedLogOnRequired() {
-        return isSet(DAISYCHAIN_LOGON) && !isSet(SIGNON);
+        return isSet(FIRST_OF_SAME_CONNECTION_BUT_NOT_FIRST_DEVICE) && !isSet(FIRST_OF_CONNECTION_SERIES);
     }
 
     public boolean isDaisyChainedLogOffRequired() {
-        return isSet(DAISYCHAIN_LOGOFF) && !isSet(SIGNOFF);
+        return isSet(LAST_OF_SAME_CONNECTION_BUT_NOT_LAST_DEVICE) && !isSet(LAST_OF_CONNECTION_SERIES);
     }
 
     public boolean isLogOffRequired() {
-        return isSet(SIGNOFF);
+        return isSet(LAST_OF_CONNECTION_SERIES);
     }
 
     public void addFlag(int flag) {
@@ -46,22 +46,22 @@ public class ComTaskExecutionConnectionSteps {
     }
 
     public ComTaskExecutionConnectionSteps signOn() {
-        addFlag(SIGNON);
+        addFlag(FIRST_OF_CONNECTION_SERIES);
         return this;
     }
 
     public ComTaskExecutionConnectionSteps signOff() {
-        addFlag(SIGNOFF);
+        addFlag(LAST_OF_CONNECTION_SERIES);
         return this;
     }
 
     public ComTaskExecutionConnectionSteps logOn() {
-        addFlag(DAISYCHAIN_LOGON);
+        addFlag(FIRST_OF_SAME_CONNECTION_BUT_NOT_FIRST_DEVICE);
         return this;
     }
 
     public ComTaskExecutionConnectionSteps logOff() {
-        addFlag(DAISYCHAIN_LOGOFF);
+        addFlag(LAST_OF_SAME_CONNECTION_BUT_NOT_LAST_DEVICE);
         return this;
     }
 

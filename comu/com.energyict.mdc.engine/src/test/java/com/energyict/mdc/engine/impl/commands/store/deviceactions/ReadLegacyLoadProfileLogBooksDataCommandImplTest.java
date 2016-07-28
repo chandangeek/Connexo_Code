@@ -2,12 +2,16 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
+import com.energyict.mdc.engine.impl.commands.collect.LoadProfilesTaskOptions;
 import com.energyict.mdc.engine.impl.commands.store.common.CommonCommandImplTests;
+import com.energyict.mdc.engine.impl.commands.store.core.ComCommandDescriptionTitle;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.LogBookReader;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.util.Arrays;
 
@@ -22,13 +26,17 @@ import static org.mockito.Mockito.when;
  */
 public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonCommandImplTests {
 
+    @Mock
+    private OfflineDevice offlineDevice;
+
     @Test
     public void toStringNullPointerWithNothingTest() {
         LegacyLoadProfileLogBooksCommand legacyLoadProfileLogBooksDataCommand = mock(LegacyLoadProfileLogBooksCommand.class);
         ReadLegacyLoadProfileLogBooksDataCommandImpl readLegacyLoadProfileLogBooksDataCommand
-                = new ReadLegacyLoadProfileLogBooksDataCommandImpl(legacyLoadProfileLogBooksDataCommand, createCommandRoot());
+                = new ReadLegacyLoadProfileLogBooksDataCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), legacyLoadProfileLogBooksDataCommand);
 
-        assertThat(readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{logBookObisCodes: none; loadProfileObisCodes: none}");
+        String journalMessage = readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR);
+        assertThat(journalMessage).isEqualTo(ComCommandDescriptionTitle.ReadLegacyLoadProfileLogBooksDataCommandImpl.getDescription() + " {collectedProfiles: ; collectedLogBooks: }");
     }
 
     @Test
@@ -39,11 +47,13 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonComm
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
         LegacyLoadProfileLogBooksCommand legacyLoadProfileLogBooksDataCommand = mock(LegacyLoadProfileLogBooksCommand.class);
         when(legacyLoadProfileLogBooksDataCommand.getLogBookReaders()).thenReturn(Arrays.asList(logBookReader));
-        when(legacyLoadProfileLogBooksDataCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(legacyLoadProfileLogBooksDataCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
         ReadLegacyLoadProfileLogBooksDataCommandImpl readLegacyLoadProfileLogBooksDataCommand
-                = new ReadLegacyLoadProfileLogBooksDataCommandImpl(legacyLoadProfileLogBooksDataCommand, createCommandRoot());
+                = new ReadLegacyLoadProfileLogBooksDataCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), legacyLoadProfileLogBooksDataCommand);
 
-        assertThat(readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{logBookObisCodes: " + logbookObisCode + "; loadProfileObisCodes: none}");
+        String journalMessage = readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR);
+        assertThat(journalMessage).isEqualTo(ComCommandDescriptionTitle.ReadLegacyLoadProfileLogBooksDataCommandImpl.getDescription() + " {collectedProfiles: ; collectedLogBooks: (1.0.98.99.1.255)}");
     }
 
     @Test
@@ -54,12 +64,12 @@ public class ReadLegacyLoadProfileLogBooksDataCommandImplTest extends CommonComm
         LoadProfilesTask loadProfilesTask = mock(LoadProfilesTask.class);
         when(loadProfilesTask.getLoadProfileTypes()).thenReturn(Arrays.asList(loadProfileType));
         LegacyLoadProfileLogBooksCommand legacyLoadProfileLogBooksDataCommand = mock(LegacyLoadProfileLogBooksCommand.class);
-        when(legacyLoadProfileLogBooksDataCommand.getLoadProfilesTask()).thenReturn(loadProfilesTask);
+        LoadProfilesTaskOptions loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        when(legacyLoadProfileLogBooksDataCommand.getLoadProfilesTaskOptions()).thenReturn(loadProfilesTaskOptions);
         ReadLegacyLoadProfileLogBooksDataCommandImpl readLegacyLoadProfileLogBooksDataCommand
-                = new ReadLegacyLoadProfileLogBooksDataCommandImpl(legacyLoadProfileLogBooksDataCommand, createCommandRoot());
+                = new ReadLegacyLoadProfileLogBooksDataCommandImpl(createGroupedDeviceCommand(offlineDevice, deviceProtocol), legacyLoadProfileLogBooksDataCommand);
 
-        assertThat(readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR)).contains("{logBookObisCodes: none; loadProfileObisCodes: " + loadProfileObisCode + "; markAsBadTime: false; createEventsFromStatusFlag: false}");
-
+        String journalMessage = readLegacyLoadProfileLogBooksDataCommand.toJournalMessageDescription(LogLevel.ERROR);
+        assertThat(journalMessage).isEqualTo(ComCommandDescriptionTitle.ReadLegacyLoadProfileLogBooksDataCommandImpl.getDescription() + " {collectedProfiles: ; collectedLogBooks: }");
     }
-
 }

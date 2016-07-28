@@ -5,14 +5,9 @@ import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.BasicCheckCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
-import com.energyict.mdc.engine.impl.commands.collect.VerifySerialNumberCommand;
-import com.energyict.mdc.engine.impl.commands.collect.VerifyTimeDifferenceCommand;
+import com.energyict.mdc.engine.impl.commands.collect.*;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.tasks.BasicCheckTask;
 
@@ -26,10 +21,7 @@ import java.util.Optional;
  */
 public class BasicCheckCommandImpl extends CompositeComCommandImpl implements BasicCheckCommand {
 
-    /**
-     * The {@link BasicCheckTask} which is used for modeling the actions in this command
-     */
-    private final BasicCheckTask basicCheckTask;
+    private Optional<TimeDuration> maximumClockDifference;
 
     /**
      * The used {@link TimeDifferenceCommand}
@@ -46,22 +38,40 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
      */
     private VerifySerialNumberCommand verifySerialNumberCommand;
 
-    public BasicCheckCommandImpl(final BasicCheckTask basicCheckTask, CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
-        super(commandRoot);
+    public BasicCheckCommandImpl(final BasicCheckTask basicCheckTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        super(groupedDeviceCommand);
         if (basicCheckTask == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "basicCheckTask", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
-        if (commandRoot == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
-        }
-        this.basicCheckTask = basicCheckTask;
 
-        if (this.basicCheckTask.verifyClockDifference()) {
-            this.timeDifferenceCommand = commandRoot.findOrCreateTimeDifferenceCommand(this, comTaskExecution);
-            this.verifyTimeDifferenceCommand = commandRoot.findOrCreateVerifyTimeDifferenceCommand(this, this, comTaskExecution);
+        if (basicCheckTask.verifyClockDifference()) {
+            this.maximumClockDifference = basicCheckTask.getMaximumClockDifference();
+            this.timeDifferenceCommand = groupedDeviceCommand.getTimeDifferenceCommand(this, comTaskExecution);
+            this.verifyTimeDifferenceCommand = groupedDeviceCommand.getVerifyTimeDifferenceCommand(this, comTaskExecution);
         }
-        if (this.basicCheckTask.verifySerialNumber()) {
-            this.verifySerialNumberCommand = commandRoot.findOrCreateVerifySerialNumberCommand(this, comTaskExecution);
+        if (basicCheckTask.verifySerialNumber()) {
+            this.verifySerialNumberCommand = groupedDeviceCommand.getVerifySerialNumberCommand(this, comTaskExecution);
+        }
+    }
+
+    @Override
+    public void updateAccordingTo(BasicCheckTask basicCheckTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        if (basicCheckTask.verifySerialNumber() && this.verifySerialNumberCommand == null) {
+            this.verifySerialNumberCommand = groupedDeviceCommand.getVerifySerialNumberCommand(this, comTaskExecution);
+        }
+
+        if (basicCheckTask.verifyClockDifference()) {
+            if (this.verifyTimeDifferenceCommand == null) { // If not existing, then add it
+                this.maximumClockDifference = basicCheckTask.getMaximumClockDifference();
+                this.timeDifferenceCommand = groupedDeviceCommand.getTimeDifferenceCommand(this, comTaskExecution);
+                this.verifyTimeDifferenceCommand = groupedDeviceCommand.getVerifyTimeDifferenceCommand(this, comTaskExecution);
+            } else { // Else update the existing one
+                if (basicCheckTask.getMaximumClockDifference().isPresent()) {
+                    if (!this.getMaximumClockDifference().isPresent() || basicCheckTask.getMaximumClockDifference().get().getMilliSeconds() < this.getMaximumClockDifference().get().getMilliSeconds()) {
+                        this.maximumClockDifference = basicCheckTask.getMaximumClockDifference();
+                    }
+                }
+            }
         }
     }
 
@@ -79,23 +89,32 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
     }
 
     @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
+    protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
         super.toJournalMessageDescription(builder, serverLogLevel);
-        builder.addProperty("readClockDifference").append(this.basicCheckTask.verifyClockDifference());
-        if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
-            this.basicCheckTask.getMaximumClockDifference().ifPresent(cd -> builder.addProperty("readClockDifferenceMaximum(s)").append(cd.getSeconds()));
-        }
-        if (this.basicCheckTask.verifySerialNumber()) {
+        if (this.verifySerialNumberCommand != null) {
             builder.addLabel("check serial number");
         }
+
         if (this.verifyTimeDifferenceCommand != null) {
-            builder.addProperty("getTimeDifference").append(this.verifyTimeDifferenceCommand.getTimeDifference().map(TimeDuration::toString).orElse(""));
+            builder.addLabel("check time difference");
+            if (this.isJournalingLevelEnabled(serverLogLevel, LogLevel.DEBUG)) {
+                if (getMaximumClockDifference().isPresent()) {
+                    TimeDuration maxDiffInSeconds = new TimeDuration(getMaximumClockDifference().orElse(new TimeDuration(0)).getSeconds(), TimeDuration.TimeUnit.SECONDS);
+                    builder.addProperty("maximumClockDifference").append(maxDiffInSeconds);
+                }
+            }
+
+            if (this.verifyTimeDifferenceCommand != null
+                    && this.verifyTimeDifferenceCommand.getTimeDifference() != null && this.verifyTimeDifferenceCommand.getTimeDifference().isPresent()) {
+                TimeDuration diffInSeconds = new TimeDuration(this.verifyTimeDifferenceCommand.getTimeDifference().orElse(new TimeDuration(0)).getSeconds(), TimeDuration.TimeUnit.SECONDS);
+                builder.addProperty("timeDifference").append(diffInSeconds);
+            }
         }
     }
 
     @Override
-    public BasicCheckTask getBasicCheckTask() {
-        return basicCheckTask;
+    public Optional<TimeDuration> getMaximumClockDifference() {
+        return maximumClockDifference;
     }
 
     @Override
@@ -123,5 +142,4 @@ public class BasicCheckCommandImpl extends CompositeComCommandImpl implements Ba
     public Optional<TimeDuration> getTimeDifference() {
         return getTimeDifferenceCommand().getTimeDifference();
     }
-
 }

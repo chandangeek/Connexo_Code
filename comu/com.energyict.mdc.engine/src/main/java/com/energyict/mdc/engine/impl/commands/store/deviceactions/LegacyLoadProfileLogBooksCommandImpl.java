@@ -1,31 +1,18 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
-import com.energyict.mdc.engine.impl.commands.collect.LegacyLoadProfileLogBooksCommand;
-import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
-import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ReadLegacyLoadProfileLogBooksDataCommand;
-import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
-import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
+import com.energyict.mdc.engine.impl.commands.collect.*;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
-import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLogBook;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 import com.energyict.mdc.tasks.LogBooksTask;
 
@@ -40,15 +27,7 @@ import java.util.Map;
  */
 public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImpl implements LegacyLoadProfileLogBooksCommand {
 
-    /**
-     * The {@link LoadProfilesTask} which is used for modeling the actions
-     */
-    private final LoadProfilesTask loadProfilesTask;
-
-    /**
-     * The {@link LogBooksTask} which is used for modeling the actions
-     */
-    private final LogBooksTask logBooksTask;
+    private final LoadProfilesTaskOptions loadProfilesTaskOptions;
 
     /**
      * The used {@link OfflineDevice} which contains relevant information for this ComCommand
@@ -87,46 +66,45 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
      */
     private CreateMeterEventsFromStatusFlagsCommand createMeterEventsFromStatusFlagsCommand;
 
-    public LegacyLoadProfileLogBooksCommandImpl(LoadProfilesTask loadProfilesTask, LogBooksTask logBooksTask, OfflineDevice device, CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
-        super(commandRoot);
+    public LegacyLoadProfileLogBooksCommandImpl(GroupedDeviceCommand groupedDeviceCommand, LoadProfilesTask loadProfilesTask, LogBooksTask logBooksTask, ComTaskExecution comTaskExecution) {
+        super(groupedDeviceCommand);
+        if (groupedDeviceCommand == null) {
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "groupedDeviceCommand", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+        }
         if ((loadProfilesTask == null) && (logBooksTask == null)) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "loadProfilesTask, logBooksTask", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
-        if (device == null) {
+        if (groupedDeviceCommand.getOfflineDevice() == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
-        if (commandRoot == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
-        }
-        this.loadProfilesTask = loadProfilesTask;
-        this.logBooksTask = logBooksTask;
-        this.device = device;
+        this.loadProfilesTaskOptions = loadProfilesTask != null ? new LoadProfilesTaskOptions(loadProfilesTask) : new LoadProfilesTaskOptions();
+        this.device = groupedDeviceCommand.getOfflineDevice();
 
-        if (this.loadProfilesTask != null) {
+        if (loadProfilesTask != null) {
             /**
              * It is important that the VerifyLoadProfilesCommand is first added to the command list.
              * The Execute method will chronologically execute all the commands so this one should be first
              */
-            this.verifyLoadProfilesCommand = getCommandRoot().findOrCreateVerifyLoadProfileCommand(this, comTaskExecution);
+            this.verifyLoadProfilesCommand = getGroupedDeviceCommand().getVerifyLoadProfileCommand(this, comTaskExecution);
 
-            this.readLegacyLoadProfileLogBooksDataCommand = getCommandRoot().findOrCreateReadLegacyLoadProfileLogBooksDataCommand(this, comTaskExecution);
+            this.readLegacyLoadProfileLogBooksDataCommand = getGroupedDeviceCommand().getReadLegacyLoadProfileLogBooksDataCommand(this, comTaskExecution);
 
-            if (this.loadProfilesTask.isMarkIntervalsAsBadTime()) {
-                this.timeDifferenceCommand = getCommandRoot().findOrCreateTimeDifferenceCommand(this, comTaskExecution);
-                this.markIntervalsAsBadTimeCommand = getCommandRoot().findOrCreateMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
+            if (this.loadProfilesTaskOptions.isMarkIntervalsAsBadTime()) {
+                this.timeDifferenceCommand = getGroupedDeviceCommand().getTimeDifferenceCommand(this, comTaskExecution);
+                this.markIntervalsAsBadTimeCommand = getGroupedDeviceCommand().getMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
             }
 
-            if (this.loadProfilesTask.createMeterEventsFromStatusFlags()) {
-                this.createMeterEventsFromStatusFlagsCommand = getCommandRoot().findOrCreateCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
+            if (this.loadProfilesTaskOptions.isCreateMeterEventsFromStatusFlags()) {
+                this.createMeterEventsFromStatusFlagsCommand = getGroupedDeviceCommand().getCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
             }
-            createLoadProfileReaders(comTaskExecution.getDevice().getmRID());
+            LoadProfileCommandHelper.createLoadProfileReaders(getCommandRoot().getServiceProvider(), loadProfileReaderMap, loadProfilesTask, device, comTaskExecution);
         }
 
-        if (this.logBooksTask != null) {
-            if (this.readLegacyLoadProfileLogBooksDataCommand == null) {
-                this.readLegacyLoadProfileLogBooksDataCommand = getCommandRoot().findOrCreateReadLegacyLoadProfileLogBooksDataCommand(this, comTaskExecution);
+        if (logBooksTask != null) {
+            if (readLegacyLoadProfileLogBooksDataCommand == null) {
+                this.readLegacyLoadProfileLogBooksDataCommand = getGroupedDeviceCommand().getReadLegacyLoadProfileLogBooksDataCommand(this, comTaskExecution);
             }
-            createLogBookReaders(this.device, comTaskExecution.getDevice().getmRID());
+            this.logBookReaders.addAll(LogBookCommandHelper.createLogBookReaders(getCommandRoot().getServiceProvider(), logBooksTask, device, comTaskExecution));
         }
     }
 
@@ -135,159 +113,12 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
         return "Executed load profile and logbook protocol tasks";
     }
 
-    @Override
-    protected void toJournalMessageDescription(DescriptionBuilder builder, LogLevel serverLogLevel) {
-        super.toJournalMessageDescription(builder, serverLogLevel);
-        if (this.logBooksTask != null) {
-            PropertyDescriptionBuilder logbookObisCodesBuilder = builder.addListProperty("logbookObisCodes");
-            this.logBookObisCodes(logbookObisCodesBuilder);
-            this.loadProfileObisCodes(builder);
-        }
-    }
-
-    private void logBookObisCodes(PropertyDescriptionBuilder builder) {
-        if (!logBookReaders.isEmpty()) {
-            this.doLogBookObisCodes(builder);
-        } else {
-            builder.append("none");
-        }
-    }
-
-    private void doLogBookObisCodes(PropertyDescriptionBuilder builder) {
-        for (LogBookReader logBookReader : logBookReaders) {
-            builder = builder.append(logBookReader.getLogBookObisCode()).next();
-        }
-    }
-
-    private void loadProfileObisCodes(DescriptionBuilder builder) {
-        if (loadProfilesTask != null &&
-                !loadProfilesTask.getLoadProfileTypes().isEmpty()) {
-            this.doLoadProfileObisCodes(builder.addListProperty("loadProfileObisCodes"));
-            builder.addProperty("markAsBadTime").append(this.loadProfilesTask.isMarkIntervalsAsBadTime());
-            builder.addProperty("createEventsFromStatusFlag").append(this.loadProfilesTask.createMeterEventsFromStatusFlags());
-        } else {
-            builder.addProperty("loadProfileObisCodes").append("none");
-        }
-    }
-
-    private void doLoadProfileObisCodes(PropertyDescriptionBuilder builder) {
-        for (LoadProfileType loadProfileType : loadProfilesTask.getLoadProfileTypes()) {
-            builder = builder.append(loadProfileType.getObisCode());
-        }
-    }
-
     /**
      * @return the ComCommandTypes of this command
      */
     @Override
     public ComCommandType getCommandType() {
         return ComCommandTypes.LEGACY_LOAD_PROFILE_LOGBOOKS_COMMAND;
-    }
-
-    /**
-     * Create LoadProfileReaders for this LoadProfileCommand, based on the {@link LoadProfileType}s specified in the {@link #loadProfilesTask}.
-     * If no types are specified, then a {@link LoadProfileReader} for all
-     * of the {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile}s of the device will be created.
-     *
-     * @param deviceMrid The mMRID of the device
-     */
-    protected void createLoadProfileReaders(String deviceMrid) {
-        createLoadProfileReadersForLoadProfilesTask(this.loadProfilesTask, deviceMrid);
-    }
-
-    private void createLoadProfileReadersForLoadProfilesTask(LoadProfilesTask localLoadProfilesTask, String deviceMrid) {
-        List<OfflineLoadProfile> listOfAllLoadProfiles = this.device.getAllOfflineLoadProfilesForMRID(deviceMrid);
-        if (localLoadProfilesTask.getLoadProfileTypes().isEmpty()) {
-            listOfAllLoadProfiles.forEach(this::addLoadProfileToReaderList);
-        } else {  // Read out the specified load profile types
-            for (LoadProfileType lpt : localLoadProfilesTask.getLoadProfileTypes()) {
-                listOfAllLoadProfiles
-                        .stream()
-                        .filter(loadProfile -> lpt.getId() == loadProfile.getLoadProfileTypeId())
-                        .forEach(this::addLoadProfileToReaderList);
-            }
-        }
-    }
-
-    /**
-     * Add the given {@link com.energyict.mdc.protocol.api.device.BaseLoadProfile} to the {@link #loadProfileReaderMap readerMap}
-     *
-     * @param loadProfile the loadProfile to add
-     */
-    protected void addLoadProfileToReaderList(final OfflineLoadProfile loadProfile) {
-        LoadProfileReader loadProfileReader =
-                new LoadProfileReader(
-                        this.getClock(),
-                        loadProfile.getObisCode(),
-                        loadProfile.getLastReading().orElse(null),
-                        null,
-                        loadProfile.getLoadProfileId(),
-                        loadProfile.getDeviceIdentifier(),
-                createChannelInfos(loadProfile), loadProfile.getMasterSerialNumber(), loadProfile.getLoadProfileIdentifier());
-        this.loadProfileReaderMap.put(loadProfileReader, loadProfile);
-    }
-
-    /**
-     * Create a <CODE>List</CODE> of <CODE>ChannelInfos</CODE> for the given <CODE>LoadProfile</CODE>.
-     * If the channel has the {@link OfflineLoadProfileChannel#isStoreData()} boolean checked, then we can add it.
-     * If it is not checked then it is not required for the protocol read the channel.
-     *
-     * @param offlineLoadProfile the given <CODE>LoadProfile</CODE>
-     * @return the new List
-     */
-    protected List<ChannelInfo> createChannelInfos(final OfflineLoadProfile offlineLoadProfile) {
-        List<ChannelInfo> channelInfos = new ArrayList<>();
-        for (OfflineLoadProfileChannel lpChannel : offlineLoadProfile.getAllChannels()) {
-            if (lpChannel.isStoreData()) {
-                channelInfos.add(new ChannelInfo(channelInfos.size(), lpChannel.getObisCode().toString(),
-                        lpChannel.getUnit(), getMasterDeviceIdentifier(lpChannel, offlineLoadProfile),
-                        lpChannel.getReadingType()));
-            }
-        }
-        return channelInfos;
-    }
-
-    /**
-     * In case no serialNumber is provided, we take the identifier of the loadProfile (which will most likely be the MRID)
-     *
-     * @param lpChannel the offlineLoadProfileChannel
-     * @param offlineLoadProfile the offlineLoadProfile
-     * @return the masterIdentifier
-     */
-    private String getMasterDeviceIdentifier(OfflineLoadProfileChannel lpChannel, OfflineLoadProfile offlineLoadProfile) {
-        return lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().isEmpty()? offlineLoadProfile.getDeviceIdentifier().getIdentifier() : lpChannel.getMasterSerialNumber();
-    }
-
-    /**
-     * Create {@link LogBookReader}q for this LogBooksCommand, based on the {@link LogBookType}s specified in the {@link #logBooksTask}.
-     * If no types are specified, then a {@link LogBookReader} for all
-     * of the {@link com.energyict.mdc.protocol.api.device.BaseLogBook}s of the device will be created.
-     *
-     * @param device the <i>Master</i> Device for which LoadProfileReaders should be created
-     * @param deviceMrid
-     */
-    protected void createLogBookReaders(final OfflineDevice device, String deviceMrid) {
-        List<OfflineLogBook> listOfAllLogBooks = device.getAllOfflineLogBooksForMRID(deviceMrid);
-        if (this.logBooksTask.getLogBookTypes().isEmpty()) {
-            listOfAllLogBooks.forEach(this::addLogBookToReaderList);
-        } else {
-            for (LogBookType logBookType : this.logBooksTask.getLogBookTypes()) {
-                listOfAllLogBooks
-                        .stream()
-                        .filter(logBook -> logBookType.getId() == logBook.getLogBookTypeId())
-                        .forEach(this::addLogBookToReaderList);
-            }
-        }
-    }
-
-    /**
-     * Add the given {@link com.energyict.mdc.protocol.api.device.BaseLogBook} to the {@link #logBookReaders list}
-     *
-     * @param logBook the logBook to add
-     */
-    protected void addLogBookToReaderList(final OfflineLogBook logBook) {
-        LogBookReader logBookReader = new LogBookReader(this.getClock(), logBook.getObisCode(), logBook.getLastLogBook(), logBook.getLogBookIdentifier(), logBook.getDeviceIdentifier(), logBook.getMasterSerialNumber());
-        this.logBookReaders.add(logBookReader);
     }
 
     @Override
@@ -337,23 +168,42 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     }
 
     @Override
-    public LoadProfilesTask getLoadProfilesTask() {
-        return loadProfilesTask;
-    }
-
-    @Override
     public OfflineDevice getOfflineDevice() {
         return device;
     }
 
     @Override
-    public void updateLoadProfileReaders(LoadProfilesTask loadProfilesTask, String deviceMrid) {
-        createLoadProfileReadersForLoadProfilesTask(loadProfilesTask, deviceMrid);
+    public void updateAccordingTo(LoadProfilesTask loadProfilesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        if (loadProfilesTask != null) {
+            this.loadProfilesTaskOptions.setFailIfLoadProfileConfigurationMisMatch(this.loadProfilesTaskOptions.isFailIfLoadProfileConfigurationMisMatch() | loadProfilesTask.failIfLoadProfileConfigurationMisMatch());
+            if (loadProfilesTask.isMarkIntervalsAsBadTime()) {
+                if (!this.loadProfilesTaskOptions.isMarkIntervalsAsBadTime()) {
+                    this.loadProfilesTaskOptions.setMarkIntervalsAsBadTime(true);
+                    this.loadProfilesTaskOptions.setMinClockDiffBeforeBadTime(loadProfilesTask.getMinClockDiffBeforeBadTime());
+                    this.timeDifferenceCommand = getGroupedDeviceCommand().getTimeDifferenceCommand(this, comTaskExecution);
+                    this.markIntervalsAsBadTimeCommand = getGroupedDeviceCommand().getMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
+                } else {
+                    if (this.loadProfilesTaskOptions.getMinClockDiffBeforeBadTime().orElse(new TimeDuration(0)).getMilliSeconds() > loadProfilesTask.getMinClockDiffBeforeBadTime().orElse(new TimeDuration(0)).getMilliSeconds()) {
+                        this.loadProfilesTaskOptions.setMinClockDiffBeforeBadTime(loadProfilesTask.getMinClockDiffBeforeBadTime()); // Set the most strict of the 2 timing
+                    }
+                }
+            }
+
+            if (!this.loadProfilesTaskOptions.isCreateMeterEventsFromStatusFlags() && loadProfilesTask.createMeterEventsFromStatusFlags()) {
+                this.loadProfilesTaskOptions.setCreateMeterEventsFromStatusFlags(true);
+                this.createMeterEventsFromStatusFlagsCommand = getGroupedDeviceCommand().getCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
+            }
+
+            LoadProfileCommandHelper.createLoadProfileReaders(getCommandRoot().getServiceProvider(), loadProfileReaderMap, loadProfilesTask, device, comTaskExecution);
+        }
     }
 
     @Override
-    public LogBooksTask getLogBooksTask() {
-        return logBooksTask;
+    public void updateAccordingTo(LogBooksTask logBooksTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        List<LogBookReader> newLogBookReaders = LogBookCommandHelper.createLogBookReaders(getCommandRoot().getServiceProvider(), logBooksTask, this.device, comTaskExecution);
+        newLogBookReaders.stream().filter(newLogBookReader -> LogBookCommandHelper.canWeAddIt(this.logBookReaders, newLogBookReader)).forEach(newLogBookReader -> {
+            this.logBookReaders.add(newLogBookReader);
+        });
     }
 
     @Override
@@ -364,6 +214,11 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
     @Override
     public TimeDifferenceCommand getTimeDifferenceCommand() {
         return timeDifferenceCommand;
+    }
+
+    @Override
+    public LoadProfilesTaskOptions getLoadProfilesTaskOptions() {
+        return loadProfilesTaskOptions;
     }
 
     public ReadLegacyLoadProfileLogBooksDataCommand getReadLegacyLoadProfileLogBooksDataCommand() {
@@ -380,4 +235,19 @@ public class LegacyLoadProfileLogBooksCommandImpl extends CompositeComCommandImp
         return createMeterEventsFromStatusFlagsCommand;
     }
 
+    @Override
+    public List<CollectedData> getCollectedData() {
+        List<CollectedData> collectedData = super.getCollectedData();
+
+        boolean failIfLoadProfileConfigurationMisMatch = loadProfilesTaskOptions.isFailIfLoadProfileConfigurationMisMatch();
+        if (!failIfLoadProfileConfigurationMisMatch) {
+            for (CollectedData data : collectedData) {
+                if (data instanceof CollectedLoadProfile) {
+                    //((CollectedLoadProfile) data).setAllowIncompleteLoadProfileData(true);  //TODO port EISERVERSG-4162
+                }
+            }
+        }
+
+        return collectedData;
+    }
 }

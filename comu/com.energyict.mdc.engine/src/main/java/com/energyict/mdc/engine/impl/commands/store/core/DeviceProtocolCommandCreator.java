@@ -26,43 +26,42 @@ public class DeviceProtocolCommandCreator implements CommandCreator {
 
     @Override
     public void createCommands(
-            CommandRoot root,
+            GroupedDeviceCommand groupedDeviceCommand,
             TypedProperties protocolDialectProperties,
             ComChannelPlaceHolder comChannel,
-            OfflineDevice offlineDevice,
-            List<? extends ProtocolTask> protocolTasks,
+            List<ProtocolTask> protocolTasks,
             DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet,
             ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep,
-            ComTaskExecution comTaskExecution, IssueService issueService) {
+            ComTaskExecution comTaskExecution,
+            IssueService issueService) {
 
         if (comTaskExecutionConnectionStep.isLogOnRequired()) {
-            doSetupNewDevice(root, protocolDialectProperties, comChannel, offlineDevice, deviceProtocolSecurityPropertySet, comTaskExecution);
-            CommandFactory.createLogOnCommand(root, comTaskExecution);
+            doSetupNewDevice(groupedDeviceCommand, protocolDialectProperties, comChannel, groupedDeviceCommand.getOfflineDevice(), deviceProtocolSecurityPropertySet, comTaskExecution);
+            CommandFactory.createLogOnCommand(groupedDeviceCommand, comTaskExecution);
         } else if (comTaskExecutionConnectionStep.isDaisyChainedLogOnRequired()) {
-            doSetupNewDevice(root, protocolDialectProperties, comChannel, offlineDevice, deviceProtocolSecurityPropertySet, comTaskExecution);
-            CommandFactory.createDaisyChainedLogOnCommand(root, comTaskExecution);
+            doSetupNewDevice(groupedDeviceCommand, protocolDialectProperties, comChannel, groupedDeviceCommand.getOfflineDevice(), deviceProtocolSecurityPropertySet, comTaskExecution);
+            CommandFactory.createDaisyChainedLogOnCommand(groupedDeviceCommand, comTaskExecution);
         }
 
-        CommandFactory.createCommandsFromTask(root, comTaskExecution, protocolTasks);
+        CommandFactory.createCommandsFromTask(groupedDeviceCommand, comTaskExecution, protocolTasks);
 
         if (comTaskExecutionConnectionStep.isDaisyChainedLogOffRequired()) {
-            CommandFactory.createDaisyChainedLogOffCommand(root, comTaskExecution);
-            doTearDown(root, offlineDevice, comTaskExecution);
+            CommandFactory.createDaisyChainedLogOffCommand(groupedDeviceCommand, comTaskExecution);
+            doTearDown(groupedDeviceCommand, groupedDeviceCommand.getOfflineDevice(), comTaskExecution);
         } else if (comTaskExecutionConnectionStep.isLogOffRequired()) {
-            CommandFactory.createLogOffCommand(root, comTaskExecution);
-            doTearDown(root, offlineDevice, comTaskExecution);
+            CommandFactory.createLogOffCommand(groupedDeviceCommand, comTaskExecution);
+            doTearDown(groupedDeviceCommand, groupedDeviceCommand.getOfflineDevice(), comTaskExecution);
         }
     }
 
-    private void doSetupNewDevice(CommandRoot root, TypedProperties protocolDialectProperties, ComChannelPlaceHolder comChannel, OfflineDevice offlineDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, ComTaskExecution comTaskExecution) {
-        CommandFactory.initializeCommandRootForNextSecurityGroupOfCommands(root);
-        CommandFactory.createAddProperties(root, comTaskExecution, offlineDevice.getAllProperties(), protocolDialectProperties, deviceProtocolSecurityPropertySet);
-        CommandFactory.createSetDeviceCacheCommand(root, comTaskExecution, offlineDevice);
-        CommandFactory.createDeviceProtocolInitialization(root,comTaskExecution, offlineDevice, comChannel);
+    private void doSetupNewDevice(GroupedDeviceCommand groupedDeviceCommand, TypedProperties protocolDialectProperties, ComChannelPlaceHolder comChannel, OfflineDevice offlineDevice, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, ComTaskExecution comTaskExecution) {
+        CommandFactory.createSetDeviceCacheCommand(groupedDeviceCommand, comTaskExecution, offlineDevice);
+        CommandFactory.createAddProperties(groupedDeviceCommand, comTaskExecution, offlineDevice.getAllProperties(), protocolDialectProperties, deviceProtocolSecurityPropertySet);
+        CommandFactory.createDeviceProtocolInitialization(groupedDeviceCommand,comTaskExecution, offlineDevice, comChannel);
     }
 
-    private void doTearDown(CommandRoot root, OfflineDevice offlineDevice, ComTaskExecution comTaskExecution) {
-        CommandFactory.createDeviceProtocolTerminate(root, comTaskExecution);
-        CommandFactory.createUpdateDeviceCacheCommand(root, comTaskExecution, offlineDevice);
+    private void doTearDown(GroupedDeviceCommand groupedDeviceCommand, OfflineDevice offlineDevice, ComTaskExecution comTaskExecution) {
+        CommandFactory.createDeviceProtocolTerminate(groupedDeviceCommand, comTaskExecution);
+        CommandFactory.createUpdateDeviceCacheCommand(groupedDeviceCommand, comTaskExecution, offlineDevice);
     }
 }

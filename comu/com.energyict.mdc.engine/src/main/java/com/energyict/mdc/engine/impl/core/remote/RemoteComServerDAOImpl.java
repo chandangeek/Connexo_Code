@@ -338,8 +338,8 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ComSession createComSession(ComSessionBuilder builder, ComSession.SuccessIndicator successIndicator) {
-        return builder.endSession(serviceProvider.clock().instant(), successIndicator).create();
+    public ComSession createComSession(ComSessionBuilder builder, Instant stopDate, ComSession.SuccessIndicator successIndicator) {
+        return builder.endSession(stopDate, successIndicator).create();
     }
 
     @Override

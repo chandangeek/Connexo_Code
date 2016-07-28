@@ -1,33 +1,25 @@
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
-import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
-import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
-import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
-import com.energyict.mdc.engine.impl.commands.collect.CreateMeterEventsFromStatusFlagsCommand;
-import com.energyict.mdc.engine.impl.commands.collect.LoadProfileCommand;
-import com.energyict.mdc.engine.impl.commands.collect.MarkIntervalsAsBadTimeCommand;
-import com.energyict.mdc.engine.impl.commands.collect.ReadLoadProfileDataCommand;
-import com.energyict.mdc.engine.impl.commands.collect.RegularLoadProfileCommand;
-import com.energyict.mdc.engine.impl.commands.collect.TimeDifferenceCommand;
-import com.energyict.mdc.engine.impl.commands.collect.VerifyLoadProfilesCommand;
+import com.energyict.mdc.engine.impl.commands.collect.*;
 import com.energyict.mdc.engine.impl.commands.store.core.CompositeComCommandImpl;
-import com.energyict.mdc.engine.impl.logging.LogLevel;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
-import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.tasks.LoadProfilesTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation of the RegularLoadProfileCommand interface.
@@ -37,10 +29,7 @@ import java.util.List;
  */
 public class LoadProfileCommandImpl extends CompositeComCommandImpl implements RegularLoadProfileCommand {
 
-    /**
-     * The LoadProfilesTask which is used for modeling the actions.
-     */
-    private final LoadProfilesTask loadProfilesTask;
+    private final LoadProfilesTaskOptions loadProfilesTaskOptions;
 
     /**
      * The used OfflineDevice which contains relevant information for this ComCommand.
@@ -48,9 +37,10 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     private final OfflineDevice device;
 
     /**
-     * Summary of loadProfileReaders.
+     * Mapping between the {@link LoadProfileReader LoadProfileReaders} which are used to collect LoadProfileData from the devices and the
+     * {@link LoadProfile} from EIServer
      */
-    private List<LoadProfileReader> loadProfileReaders = new ArrayList<>();
+    private Map<LoadProfileReader, OfflineLoadProfile> loadProfileReaderMap = new HashMap<>();
 
     /**
      * The command that will be used to verify the LoadProfile configuration (if necessary).
@@ -77,39 +67,39 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
      */
     private CreateMeterEventsFromStatusFlagsCommand createMeterEventsFromStatusFlagsCommand;
 
-    public LoadProfileCommandImpl(final LoadProfilesTask loadProfilesTask, final OfflineDevice device, final CommandRoot commandRoot, ComTaskExecution comTaskExecution) {
-        super(commandRoot);
+    public LoadProfileCommandImpl(final GroupedDeviceCommand groupedDeviceCommand, final LoadProfilesTask loadProfilesTask, ComTaskExecution comTaskExecution) {
+        super(groupedDeviceCommand);
+        if (groupedDeviceCommand == null) {
+            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
+        }
         if (loadProfilesTask == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "loadProfilesTask", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
-        if (device == null) {
+        if (groupedDeviceCommand.getOfflineDevice() == null) {
             throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "device", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
         }
-        if (commandRoot == null) {
-            throw CodingException.methodArgumentCanNotBeNull(getClass(), "constructor", "commandRoot", MessageSeeds.METHOD_ARGUMENT_CAN_NOT_BE_NULL);
-        }
-        this.loadProfilesTask = loadProfilesTask;
-        this.device = device;
+        this.loadProfilesTaskOptions = new LoadProfilesTaskOptions(loadProfilesTask);
+        this.device = groupedDeviceCommand.getOfflineDevice();
 
         /**
          * It is important that the VerifyLoadProfilesCommand is first added to the command list.
          * The Execute method will chronologically execute all the commands so this one should be first
          */
 
-        this.verifyLoadProfilesCommand = getCommandRoot().findOrCreateVerifyLoadProfileCommand(this, comTaskExecution);
+        this.verifyLoadProfilesCommand = getGroupedDeviceCommand().getVerifyLoadProfileCommand(this, comTaskExecution);
 
-        this.readLoadProfileDataCommand = getCommandRoot().findOrCreateReadLoadProfileDataCommand(this, comTaskExecution);
+        this.readLoadProfileDataCommand = getGroupedDeviceCommand().getReadLoadProfileDataCommand(this, comTaskExecution);
 
-        if (this.loadProfilesTask.isMarkIntervalsAsBadTime()) {
-            this.timeDifferenceCommand = getCommandRoot().findOrCreateTimeDifferenceCommand(this, comTaskExecution);
-            this.markIntervalsAsBadTimeCommand = getCommandRoot().findOrCreateMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
+        if (this.loadProfilesTaskOptions.isMarkIntervalsAsBadTime()) {
+            this.timeDifferenceCommand = getGroupedDeviceCommand().getTimeDifferenceCommand(this, comTaskExecution);
+            this.markIntervalsAsBadTimeCommand = getGroupedDeviceCommand().getMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
         }
 
-        if (this.loadProfilesTask.createMeterEventsFromStatusFlags()) {
-            this.createMeterEventsFromStatusFlagsCommand = getCommandRoot().findOrCreateCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
+        if (this.loadProfilesTaskOptions.isCreateMeterEventsFromStatusFlags()) {
+            this.createMeterEventsFromStatusFlagsCommand = getGroupedDeviceCommand().getCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
         }
 
-        createLoadProfileReaders(comTaskExecution.getDevice().getmRID());
+        LoadProfileCommandHelper.createLoadProfileReaders(getCommandRoot().getServiceProvider(), loadProfileReaderMap, loadProfilesTask, device, comTaskExecution);
     }
 
     @Override
@@ -118,105 +108,17 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     @Override
-    protected void toJournalMessageDescription (DescriptionBuilder builder, LogLevel serverLogLevel) {
-        super.toJournalMessageDescription(builder, serverLogLevel);
-        if (!loadProfilesTask.getLoadProfileTypes().isEmpty()) {
-            PropertyDescriptionBuilder loadProfileObisCodesBuilder = builder.addListProperty("loadProfileObisCodes");
-            this.appendLoadProfileObisCodes(loadProfileObisCodesBuilder);
-            builder.addProperty("markAsBadTime").append(this.loadProfilesTask.isMarkIntervalsAsBadTime());
-            builder.addProperty("createEventsFromStatusFlag").append(this.loadProfilesTask.createMeterEventsFromStatusFlags());
-        }
-    }
-
-    private void appendLoadProfileObisCodes (PropertyDescriptionBuilder builder) {
-        for (LoadProfileType loadProfileType : this.loadProfilesTask.getLoadProfileTypes()) {
-            builder = builder.append(loadProfileType.getObisCode()).next();
-        }
-    }
-
-    @Override
     public ComCommandType getCommandType() {
         return ComCommandTypes.LOAD_PROFILE_COMMAND;
     }
 
     /**
-     * Creates LoadProfileReaders for this LoadProfileCommand, based on the LoadProfileTypes specified in the {@link #loadProfilesTask}.
-     * If no types are specified, then a LoadProfileReader for all
-     * of the BaseLoadProfiles of the device will be created.
-     */
-    protected void createLoadProfileReaders(String deviceMrid) {
-        createLoadProfileReadersForLoadProfilesTask(this.loadProfilesTask, deviceMrid);
-    }
-
-    private void createLoadProfileReadersForLoadProfilesTask(LoadProfilesTask localLoadProfilesTask, String deviceMrid) {
-        List<OfflineLoadProfile> listOfAllLoadProfiles = this.device.getAllOfflineLoadProfilesForMRID(deviceMrid);
-        if (localLoadProfilesTask.getLoadProfileTypes().isEmpty()) {
-            for (OfflineLoadProfile loadProfile : listOfAllLoadProfiles) {
-                addLoadProfileToReaderList(loadProfile);
-            }
-        } else {  // Read out the specified load profile types
-            for (LoadProfileType lpt : localLoadProfilesTask.getLoadProfileTypes()) {
-                for (OfflineLoadProfile loadProfile : listOfAllLoadProfiles) {
-                    if (lpt.getId() == loadProfile.getLoadProfileTypeId()) {
-                        addLoadProfileToReaderList(loadProfile);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Adds the given BaseLoadProfile to the {@link #loadProfileReaders readerMap}.
+     * Get a list of all the {@link LoadProfileReader LoadProfileReaders} for this Command
      *
-     * @param offlineLoadProfile the loadProfile to add
+     * @return the requested list
      */
-    protected void addLoadProfileToReaderList(final OfflineLoadProfile offlineLoadProfile) {
-        LoadProfileReader loadProfileReader =
-                new LoadProfileReader(
-                        this.getClock(),
-                        offlineLoadProfile.getObisCode(),
-                        offlineLoadProfile.getLastReading().orElse(null),
-                        null,
-                        offlineLoadProfile.getLoadProfileId(),
-                        offlineLoadProfile.getDeviceIdentifier(),
-                        createChannelInfos(offlineLoadProfile), offlineLoadProfile.getMasterSerialNumber(),
-                        offlineLoadProfile.getLoadProfileIdentifier());
-        this.loadProfileReaders.add(loadProfileReader);
-    }
-
-    /**
-     * Create a <CODE>List</CODE> of <CODE>ChannelInfos</CODE> for the given <CODE>LoadProfile</CODE>.
-     * If the channel has the BaseChannel#isStoreData() boolean checked, then we can add it.
-     * If it is not checked then it is not required for the protocol read the channel.
-     *
-     * @param offlineLoadProfile the given <CODE>LoadProfile</CODE>
-     * @return the new List
-     */
-    protected List<ChannelInfo> createChannelInfos(final OfflineLoadProfile offlineLoadProfile) {
-        List<ChannelInfo> channelInfos = new ArrayList<>();
-        for (OfflineLoadProfileChannel lpChannel : offlineLoadProfile.getAllChannels()) {
-            if (lpChannel.isStoreData()) {
-                channelInfos.add(
-                        new ChannelInfo(
-                                channelInfos.size(),
-                                lpChannel.getObisCode().toString(),
-                                lpChannel.getUnit(),
-                                getMasterDeviceIdentifier(lpChannel, offlineLoadProfile),
-                                lpChannel.getReadingType()));
-            }
-        }
-        return channelInfos;
-    }
-
-    /**
-     * In case no serialNumber is provided, we take the identifier of the loadProfile (which will most likely be the MRID)
-     *
-     * @param lpChannel the offlineLoadProfileChannel
-     * @param offlineLoadProfile the offlineLoadProfile
-     * @return the masterIdentifier
-     */
-    private String getMasterDeviceIdentifier(OfflineLoadProfileChannel lpChannel, OfflineLoadProfile offlineLoadProfile) {
-        return lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().isEmpty()? offlineLoadProfile.getDeviceIdentifier().getIdentifier() : lpChannel.getMasterSerialNumber();
+    public List<LoadProfileReader> getLoadProfileReaders() {
+        return new ArrayList<>(getLoadProfileReaderMap().keySet());
     }
 
     /**
@@ -227,32 +129,30 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
      * @return the requested interval in seconds
      */
     public int findLoadProfileIntervalForLoadProfileReader(final LoadProfileReader loadProfileReader) {
-        if (getLoadProfileReaders().contains(loadProfileReader)) {
-            return this.device.getAllOfflineLoadProfiles().stream()
-                    .filter(offlineLoadProfile -> offlineLoadProfile.getObisCode().equals(loadProfileReader.getProfileObisCode()))
-                    .findFirst().get().getInterval().getSeconds();
+        if (getLoadProfileReaderMap().containsKey(loadProfileReader)) {
+            return getLoadProfileReaderMap().get(loadProfileReader).getInterval().getSeconds();
         }
         return LoadProfileCommand.INVALID_LOAD_PROFILE_INTERVAL;
     }
 
     /**
-     * Removes all given LoadProfileReader loadProfileReaders from the {@link #loadProfileReaders}.
+     * Removes all given LoadProfileReader loadProfileReaders
      *
      * @param readersToRemove the list of LoadProfileReader loadProfileReaders to remove
      */
     public void removeIncorrectLoadProfileReaders(final List<LoadProfileReader> readersToRemove) {
         for (LoadProfileReader loadProfileReader : readersToRemove) {
-            getLoadProfileReaders().remove(loadProfileReader);
+            getLoadProfileReaderMap().remove(loadProfileReader);
         }
     }
 
-    public List<LoadProfileReader> getLoadProfileReaders() {
-        return loadProfileReaders;
+    protected Map<LoadProfileReader, OfflineLoadProfile> getLoadProfileReaderMap() {
+        return loadProfileReaderMap;
     }
 
     @Override
-    public LoadProfilesTask getLoadProfilesTask() {
-        return loadProfilesTask;
+    public LoadProfilesTaskOptions getLoadProfilesTaskOptions() {
+        return loadProfilesTaskOptions;
     }
 
     @Override
@@ -261,8 +161,72 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     }
 
     @Override
-    public void updateLoadProfileReaders(LoadProfilesTask loadProfilesTask, String deviceMrid) {
-        this.createLoadProfileReadersForLoadProfilesTask(loadProfilesTask, deviceMrid);
+    //TODO: maybe split this list > keep a separate list containing for which of the loadProfiles markAsBasTime and/or createMeterEvents should be done?
+    public void updateAccordingTo(LoadProfilesTask loadProfilesTask, GroupedDeviceCommand groupedDeviceCommand, ComTaskExecution comTaskExecution) {
+        this.loadProfilesTaskOptions.setFailIfLoadProfileConfigurationMisMatch(this.loadProfilesTaskOptions.isFailIfLoadProfileConfigurationMisMatch() | loadProfilesTask.failIfLoadProfileConfigurationMisMatch());
+        if (loadProfilesTask.isMarkIntervalsAsBadTime()) {
+            if (!this.loadProfilesTaskOptions.isMarkIntervalsAsBadTime()) {
+                this.loadProfilesTaskOptions.setMarkIntervalsAsBadTime(true);
+                this.loadProfilesTaskOptions.setMinClockDiffBeforeBadTime(loadProfilesTask.getMinClockDiffBeforeBadTime());
+                this.timeDifferenceCommand = getGroupedDeviceCommand().getTimeDifferenceCommand(this, comTaskExecution);
+                this.markIntervalsAsBadTimeCommand = getGroupedDeviceCommand().getMarkIntervalsAsBadTimeCommand(this, comTaskExecution);
+            } else {
+                if (this.loadProfilesTaskOptions.getMinClockDiffBeforeBadTime().orElse(new TimeDuration(0)).getMilliSeconds() > loadProfilesTask.getMinClockDiffBeforeBadTime().orElse(new TimeDuration(0)).getMilliSeconds()) {
+                    this.loadProfilesTaskOptions.setMinClockDiffBeforeBadTime(loadProfilesTask.getMinClockDiffBeforeBadTime()); // Set the most strict of the 2 timing
+                }
+            }
+        }
+
+        if (!this.loadProfilesTaskOptions.isCreateMeterEventsFromStatusFlags() && loadProfilesTask.createMeterEventsFromStatusFlags()) {
+            this.loadProfilesTaskOptions.setCreateMeterEventsFromStatusFlags(true);
+            this.createMeterEventsFromStatusFlagsCommand = getGroupedDeviceCommand().getCreateMeterEventsFromStatusFlagsCommand(this, comTaskExecution);
+        }
+
+        LoadProfileCommandHelper.createLoadProfileReaders(getCommandRoot().getServiceProvider(), loadProfileReaderMap, loadProfilesTask, device, comTaskExecution);
+    }
+
+    @Override
+    public List<Issue> getIssues() {
+        List<Issue> issues = super.getOwnIssuesIgnoringChildren();  // These are all issues present in the collected data
+        for (ComCommand child : this) {
+            addAllNewIssues(issues, child);
+        }
+        return issues;
+    }
+
+    private void addAllNewIssues(List<Issue> issues, ComCommand child) {
+        for (Issue issue : child.getIssues()) {
+            if (!issues.contains(issue)) {
+                issues.add(issue);
+            }
+        }
+    }
+
+    @Override
+    public List<CollectedData> getCollectedData() {
+        List<CollectedData> collectedData = super.getCollectedData();
+        collectedData.addAll(getVerifyLoadProfilesCommand().getCollectedData());
+        collectedData.addAll(getReadLoadProfileDataCommand().getCollectedData());
+        if (getTimeDifferenceCommand() != null) {
+            collectedData.addAll(getTimeDifferenceCommand().getCollectedData());
+        }
+        if (getMarkIntervalsAsBadTimeCommand() != null) {
+            collectedData.addAll(getMarkIntervalsAsBadTimeCommand().getCollectedData());
+        }
+        if (getCreateMeterEventsFromStatusFlagsCommand() != null) {
+            collectedData.addAll(getCreateMeterEventsFromStatusFlagsCommand().getCollectedData());
+        }
+
+        boolean failIfLoadProfileConfigurationMisMatch = loadProfilesTaskOptions.isFailIfLoadProfileConfigurationMisMatch();
+        if (!failIfLoadProfileConfigurationMisMatch) {
+            for (CollectedData data : collectedData) {
+                if (data instanceof CollectedLoadProfile) {
+                    //((CollectedLoadProfile) data).setAllowIncompleteLoadProfileData(true); TODO port EISERVERSG-4162
+                }
+            }
+        }
+
+        return collectedData;
     }
 
     public VerifyLoadProfilesCommand getVerifyLoadProfilesCommand() {
@@ -284,23 +248,4 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
     public CreateMeterEventsFromStatusFlagsCommand getCreateMeterEventsFromStatusFlagsCommand() {
         return createMeterEventsFromStatusFlagsCommand;
     }
-
-    @Override
-    public List<Issue> getIssues() {
-        List<Issue> issues = super.getIssues();
-        if(getVerifyLoadProfilesCommand() != null) {
-            issues.addAll(getVerifyLoadProfilesCommand().getIssues());
-        }
-        if(getReadLoadProfileDataCommand() != null) {
-            issues.addAll(getReadLoadProfileDataCommand().getIssues());
-        }
-        if(getCreateMeterEventsFromStatusFlagsCommand() != null) {
-            issues.addAll(getCreateMeterEventsFromStatusFlagsCommand().getIssues());
-        }
-        if(getMarkIntervalsAsBadTimeCommand() != null ) {
-            issues.addAll(getMarkIntervalsAsBadTimeCommand().getIssues());
-        }
-        return issues;
-    }
-
 }

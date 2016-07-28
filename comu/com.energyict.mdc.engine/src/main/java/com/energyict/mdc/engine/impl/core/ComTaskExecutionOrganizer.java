@@ -47,7 +47,7 @@ public final class ComTaskExecutionOrganizer {
         this.topologyService = topologyService;
     }
 
-    public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<? extends ComTaskExecution> comTaskExecutions) {
+    public List<DeviceOrganizedComTaskExecution> defineComTaskExecutionOrders(List<ComTaskExecution> comTaskExecutions) {
         Map<Device, DeviceOrganizedComTaskExecution> result = new LinkedHashMap<>();
         Map<DeviceKey, List<ComTaskExecution>> tasksPerDevice = groupComTaskExecutionsByDevice(comTaskExecutions);
         makeSureBasicCheckIsInBeginningOfExecutions(tasksPerDevice);

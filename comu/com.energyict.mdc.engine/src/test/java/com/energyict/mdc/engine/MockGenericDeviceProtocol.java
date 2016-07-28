@@ -4,28 +4,16 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.CommandRootImpl;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.*;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
-import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
-import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
-import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
-import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
-import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
-import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
-import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
+import com.energyict.mdc.protocol.api.device.data.*;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -34,20 +22,11 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.mockito.Mockito.mock;
+import java.util.*;
 
 /**
  * Dummy DeviceProtocol for PluggableClassTestUsages
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 3/07/12
  * Time: 15:16
@@ -82,18 +61,13 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs () {
+    public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
     }
 
     @Override
     public String getSerialNumber() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setTime(Date timeToSet) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -109,6 +83,11 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     @Override
     public Date getTime() {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public void setTime(Date timeToSet) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -152,13 +131,13 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     }
 
     @Override
-    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        //To change body of implemented methods use File | Settings | File Templates.
+    public DeviceProtocolCache getDeviceCache() {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
-    public DeviceProtocolCache getDeviceCache() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
@@ -202,7 +181,7 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
     }
 
     @Override
-    public String format (PropertySpec propertySpec, Object messageAttribute) {
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
         return null;
     }
 
@@ -211,7 +190,19 @@ public class MockGenericDeviceProtocol implements GenericDeviceProtocol {
      */
     @Override
     public CommandRoot organizeComCommands(CommandRoot commandRoot) {
-        return ((CommandRootImpl) commandRoot).shallowCloneFor(offlineDevice, mock(CommandRoot.ServiceProvider.class), EnumSet.of(ComCommandTypes.READ_REGISTERS_COMMAND));
+        CommandRoot resultRoot = new CommandRootImpl(commandRoot.getExecutionContext(), commandRoot.getServiceProvider());
+        for (GroupedDeviceCommand groupedDeviceCommand : commandRoot) {
+            GroupedDeviceCommand command = resultRoot.getOrCreateGroupedDeviceCommand(groupedDeviceCommand.getOfflineDevice(), groupedDeviceCommand.getDeviceProtocol(), groupedDeviceCommand
+                    .getDeviceProtocolSecurityPropertySet());
+            for (ComTaskExecutionComCommand comTaskExecutionComCommand : groupedDeviceCommand) {
+                for (ComCommand comCommand : comTaskExecutionComCommand) {
+                    if (!comCommand.getCommandType().equals(ComCommandTypes.READ_REGISTERS_COMMAND)) {
+                        command.addCommand(comCommand, comTaskExecutionComCommand.getComTaskExecution());
+                    }
+                }
+            }
+        }
+        return resultRoot;
     }
 
     @Override

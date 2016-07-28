@@ -1,10 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
-
-import java.time.Instant;
-import java.util.List;
 
 /**
  * Models a job that is scheduled to be executed,
@@ -21,13 +17,13 @@ public interface ScheduledJob {
      *
      * @return <code>true</code> iff the lock succeeds
      */
-    public boolean attemptLock ();
+    public boolean attemptLock();
 
     /**
      * Unlocks this job, basically undoing the effect
      * of the attemptLock method providing that that was successful.
      */
-    public void unlock ();
+    public void unlock();
 
     /**
      * Tests if this ScheduledJob is still {@link com.energyict.mdc.device.data.tasks.TaskStatus#Pending}.
@@ -39,7 +35,7 @@ public interface ScheduledJob {
      *
      * @return A flag that indicates if this ScheduledJob is still pending
      */
-    public boolean isStillPending ();
+    public boolean isStillPending();
 
     /**
      * Tests if the current system timestamp is within the {@link com.energyict.mdc.common.ComWindow}
@@ -48,7 +44,7 @@ public interface ScheduledJob {
      *
      * @return A flag that indicates if the current system timestamp is within the ConnectionTask's ComWindow
      */
-    public boolean isWithinComWindow ();
+    public boolean isWithinComWindow();
 
     /**
      * Executes this ScheduledJob on the precondition that
@@ -56,7 +52,7 @@ public interface ScheduledJob {
      *
      * @see #attemptLock()
      */
-    public void execute ();
+    public void execute();
 
     /**
      * Releases the {@link DeviceCommandExecutionToken}
@@ -64,7 +60,7 @@ public interface ScheduledJob {
      * by a {@link com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor}
      * to execute this ScheduledJob.
      */
-    public void releaseToken ();
+    public void releaseToken();
 
     /**
      * Returns the {@link DeviceCommandExecutionToken}
@@ -74,54 +70,7 @@ public interface ScheduledJob {
      *
      * @return The DeviceCommandExecutionToken
      */
-    public DeviceCommandExecutionToken getToken ();
-
-    /**
-     * Notifies the ScheduledJob that its execution is considered complete.
-     */
-    public void completed();
-
-    /**
-     * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s
-     * after the succesful execution of this Job.
-     *
-     * @param comServerDAO The ComServerDAO
-     */
-    public void reschedule(ComServerDAO comServerDAO);
-
-    /**
-     * Notifies the ScheduledJob that its execution is outside
-     * the {@link com.energyict.mdc.common.ComWindow}
-     * of the related {@link com.energyict.mdc.device.data.tasks.ConnectionTask}.
-     */
-    public void outsideComWindow();
-
-    /**
-     * Notifies the ScheduledJob that its execution is considered a failure.
-     *
-     * @param reason The ExecutionFailureReason
-     */
-    public void failed(Throwable t, ExecutionFailureReason reason);
-
-    /**
-     * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s
-     * (including the ones that did not execute) after a failure
-     * while executing this job.
-     *
-     * @param comServerDAO The ComServerDAO
-     * @param t The failure
-     * @param rescheduleReason the reason for rescheduling
-     */
-    public void reschedule(ComServerDAO comServerDAO, Throwable t, RescheduleBehavior.RescheduleReason rescheduleReason);
-
-    /**
-     * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s of this Job
-     * to the next occurrence of the {@link com.energyict.mdc.common.ComWindow}
-     * because the current system timestamp is not or no longer within that window.
-     */
-    public void rescheduleToNextComWindow (ComServerDAO comServerDAO);
-
-    public void rescheduleToNextComWindow (ComServerDAO comServerDAO, Instant startingPoint);
+    public DeviceCommandExecutionToken getToken();
 
     /**
      * Adds the token for this ScheduledJob.
@@ -131,11 +80,15 @@ public interface ScheduledJob {
     public void setToken(DeviceCommandExecutionToken deviceCommandExecutionToken);
 
     /**
-     * Gets the List of {@link ComTaskExecution}s that will
-     * be executed by this ScheduledJob.
-     *
-     * @return The List of ComTaskExecution
+     * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s
+     * after the execution of this Job.
      */
-    public List<ComTaskExecution> getComTaskExecutions();
+    public void reschedule();
 
+    /**
+     * Performs rescheduling of all {@link com.energyict.mdc.tasks.ComTask}s of this Job
+     * to the next occurrence of the {@link com.energyict.mdc.common.ComWindow}
+     * because the current system timestamp is not or no longer within that window.
+     */
+    public void rescheduleToNextComWindow();
 }

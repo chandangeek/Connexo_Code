@@ -3,7 +3,7 @@ package com.energyict.mdc.engine.impl.commands.store.common;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
-import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.core.SimpleComCommand;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -12,7 +12,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 
 /**
  * Sets the specific Typed Properties to a {@link DeviceProtocol}
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 8/08/12
  * Time: 15:20
@@ -23,15 +23,15 @@ public class AddPropertiesCommand extends SimpleComCommand {
     private final TypedProperties protocolDialectProperties;
     private final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet;
 
-    public AddPropertiesCommand(CommandRoot commandRoot, TypedProperties deviceProperties, TypedProperties protocolDialectProperties, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        super(commandRoot);
+    public AddPropertiesCommand(GroupedDeviceCommand groupedDeviceCommand, TypedProperties deviceProperties, TypedProperties protocolDialectProperties, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
+        super(groupedDeviceCommand);
         this.deviceProperties = deviceProperties;
         this.protocolDialectProperties = protocolDialectProperties;
         this.deviceProtocolSecurityPropertySet = deviceProtocolSecurityPropertySet;
     }
 
     @Override
-    public void doExecute (DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
+    public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         /*
        Do not change the order in which these three actions are called:
 
@@ -61,7 +61,7 @@ public class AddPropertiesCommand extends SimpleComCommand {
         return "Load the device protocol properties";
     }
 
-    protected LogLevel defaultJournalingLogLevel () {
+    protected LogLevel defaultJournalingLogLevel() {
         return LogLevel.DEBUG;
     }
 

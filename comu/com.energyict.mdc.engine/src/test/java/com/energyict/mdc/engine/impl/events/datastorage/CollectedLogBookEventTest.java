@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.identifiers.LogBookIdentifierById;
 import com.energyict.mdc.engine.events.Category;
@@ -62,7 +63,7 @@ public class CollectedLogBookEventTest {
 
         LogBookService logBookService = mock(LogBookService.class);
 
-        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, logBookService);
+        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, logBookService, ObisCode.fromString("1.1.1.1.1.1"));
 
         CollectedLogBook logBook = mock(CollectedLogBook.class);
         when(logBook.getLogBookIdentifier()).thenReturn(logBookId);
@@ -85,7 +86,7 @@ public class CollectedLogBookEventTest {
 
         LogBookService logBookService = mock(LogBookService.class);
 
-        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, logBookService);
+        LogBookIdentifierById logBookId = new LogBookIdentifierById(625L, logBookService, ObisCode.fromString("1.1.1.1.1.1"));
 
         CollectedLogBook logBook = mock(CollectedLogBook.class);
         when(logBook.getLogBookIdentifier()).thenReturn(logBookId);
