@@ -59,6 +59,8 @@ Ext.define('Mdc.usagepointmanagement.view.ChannelDataGrid', {
                 store: me.store,
                 dock: 'top',
                 isFullTotalCount: true,
+                noBottomPaging: false,
+                usesExactCount: true,
                 displayMsg: Uni.I18n.translate('usagePointChannelData.pagingtoolbartop.displayMsg', 'MDC', '{2} readings'),
                 emptyMsg: Uni.I18n.translate('usagePointChannelData.pagingtoolbartop.emptyMsg', 'MDC', 'There are no readings to display')
             }
