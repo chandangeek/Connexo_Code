@@ -3,7 +3,6 @@ package com.energyict.mdc.device.config.cps;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationException;
 import com.elster.jupiter.metering.Meter;
@@ -12,6 +11,7 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointPropertySet;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
@@ -77,7 +77,8 @@ public class DemoUsagePointMeterActivationValidatorTest {
     private UsagePointRequirement usagePointRequirement;
     @Mock
     private UsagePointMetrologyConfiguration metrologyConfiguration;
-
+    @Mock
+    private EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationOnUsagePoint;
 
     @Before
     public void initialize() {
@@ -92,7 +93,8 @@ public class DemoUsagePointMeterActivationValidatorTest {
         when(usagePointPropertySet.getValues()).thenReturn(customPropertySetValues);
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
         when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfiguration));
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(metrologyConfigurationOnUsagePoint));
+        when(metrologyConfigurationOnUsagePoint.getMetrologyConfiguration()).thenReturn(metrologyConfiguration);
         when(metrologyConfiguration.getUsagePointRequirements()).thenReturn(Collections.singletonList(usagePointRequirement));
 
         SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
