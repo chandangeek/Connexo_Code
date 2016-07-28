@@ -43,7 +43,7 @@ public class DestinationSpecInfoFactory {
     }
 
     public DestinationSpecInfo withAppServers(DestinationSpec destinationSpec) {
-        DestinationSpecInfo info = from(destinationSpec);
+        DestinationSpecInfo info = withStats(destinationSpec);
         info.subscriberSpecInfos = destinationSpec.getSubscribers()
                 .stream()
                 .filter(not(SubscriberSpec::isSystemManaged))

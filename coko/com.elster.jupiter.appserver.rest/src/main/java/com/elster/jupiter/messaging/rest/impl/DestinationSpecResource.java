@@ -61,7 +61,7 @@ public class DestinationSpecResource {
 
     private Function<? super DestinationSpec, ? extends DestinationSpecInfo> mapToInfo(@QueryParam("state") boolean withState) {
         return withState
-                ? destinationSpecInfoFactory::withStats
+                ? destinationSpecInfoFactory::withAppServers
                 : destinationSpecInfoFactory::from;
     }
 
@@ -72,9 +72,6 @@ public class DestinationSpecResource {
     public DestinationSpecInfo getAppServer(@PathParam("destionationSpecName") String destinationSpecName, @QueryParam("state") boolean withState) {
         DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
         DestinationSpecInfo destinationSpecInfo = mapToInfo(withState).apply(destinationSpec);
-        if (withState) {
-            destinationSpecInfoFactory.withAppServers(destinationSpec);
-        }
         return destinationSpecInfo;
     }
 
