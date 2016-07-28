@@ -122,7 +122,7 @@ public class MeterReadingEventHandlerTest {
         byte [] payload = new byte[1];
         when(message.getPayload()).thenReturn(payload);
         Map<String, String> messageProperties = new HashMap<>();
-        messageProperties.put("failedTaskIDs","1");
+        messageProperties.put("deviceIdentifier","1");
         messageProperties.put("timestamp","1");
         when(jsonService.deserialize(eq(payload), any())).thenReturn(messageProperties);
         when(deviceService.findDeviceById(anyInt())).thenReturn(Optional.of(device));
