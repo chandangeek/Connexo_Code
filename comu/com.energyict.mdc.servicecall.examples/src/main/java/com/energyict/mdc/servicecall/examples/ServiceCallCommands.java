@@ -47,14 +47,14 @@ import java.util.Scanner;
                 "osgi.command.function=createServiceCallDemoData"
         }, immediate = true)
 public class ServiceCallCommands {
-    public static final String HANDLER_NAME = "yearUpdater";
-    public static final String HANDLER_VERSION_NAME = "v1.0";
-    public static final String GROUP_HANDLER_NAME = "yearGroupUpdater";
-    public static final String GROUP_HANDLER_VERSION_NAME = "v1.0";
-    public static final String CAPTAIN_HOOK_HANDLER_NAME = "captainHook";
-    public static final String CAPTAIN_HOOK_HANDLER_VERSION_NAME = "v1.0";
-    public static final String NULL_POINTER_HANDLER_NAME = "NullPointer";
-    public static final String NULL_POINTER_HANDLER_VERSION_NAME = "v1.0";
+    private static final String HANDLER_NAME = "yearUpdater";
+    private static final String HANDLER_VERSION_NAME = "v1.0";
+    private static final String GROUP_HANDLER_NAME = "yearGroupUpdater";
+    private static final String GROUP_HANDLER_VERSION_NAME = "v1.0";
+    private static final String CAPTAIN_HOOK_HANDLER_NAME = "captainHook";
+    private static final String CAPTAIN_HOOK_HANDLER_VERSION_NAME = "v1.0";
+    private static final String NULL_POINTER_HANDLER_NAME = "NullPointer";
+    private static final String NULL_POINTER_HANDLER_VERSION_NAME = "v1.0";
     private volatile ServiceCallService serviceCallService;
     private volatile CustomPropertySetService customPropertySetService;
     private volatile DeviceService deviceService;
@@ -356,7 +356,7 @@ public class ServiceCallCommands {
 
     private ServiceCallLifeCycle getSimpleLifecycle() {
         return serviceCallService.getServiceCallLifeCycle("Simple")
-                .orElseGet(() -> createSimpleLifecycle());
+                .orElseGet(this::createSimpleLifecycle);
     }
 
     private void createServiceCallTypes(ServiceCallLifeCycle simpleLifecycle) {
@@ -439,7 +439,7 @@ public class ServiceCallCommands {
             name = DisconnectRequestCustomPropertySet.class.getSimpleName();
         }
 
-        if (!name.equals("")) {
+        if (!"".equals(name)) {
             final String finalName = name;
             return customPropertySetService.findActiveCustomPropertySets(ServiceCall.class)
                     .stream()
@@ -484,10 +484,10 @@ public class ServiceCallCommands {
         ServiceCallBuilder serviceCallBuilder = getServiceCallBuilder(serviceCallIds, parent, optionalServiceCallType);
         try (TransactionContext context = transactionService.getContext()) {
             if (serviceCallBuilder != null) {
-                if (!externalRef.equals("")) {
+                if (!"".equals(externalRef)) {
                     serviceCallBuilder.externalReference(externalRef);
                 }
-                if (!origin.equals("")) {
+                if (!"".equals(origin)) {
                     serviceCallBuilder.origin(origin);
                 }
                 addTargetObject(object, serviceCallBuilder);
@@ -501,14 +501,14 @@ public class ServiceCallCommands {
     }
 
     private void addTargetObject(String object, ServiceCallBuilder serviceCallBuilder) {
-        if (!object.equals("")) {
+        if (!"".equals(object)) {
             if (object.startsWith("UP")) {
                 Optional<UsagePoint> usagePoint = meteringService.findUsagePoint(object);
-                usagePoint.ifPresent(up -> serviceCallBuilder.targetObject(up));
+                usagePoint.ifPresent(serviceCallBuilder::targetObject);
             }
             if (object.startsWith("SP")) {
                 Optional<Device> device = deviceService.findByUniqueMrid(object);
-                device.ifPresent(d -> serviceCallBuilder.targetObject(d));
+                device.ifPresent(serviceCallBuilder::targetObject);
             }
         }
     }
@@ -518,13 +518,13 @@ public class ServiceCallCommands {
         if(attributes.length < 2) {
             return;
         }
-        if(attributes[0].equals("DR")) {
+        if("DR".equals(attributes[0])) {
             DisconnectRequestDomainExtension extension = new DisconnectRequestDomainExtension();
             extension.setReason(attributes[1]);
             extension.setAttempts(BigDecimal.valueOf(Long.parseLong(attributes[2])));
             extension.setEnddate(Instant.ofEpochMilli(Long.parseLong(attributes[3])));
             serviceCallBuilder.extendedWith(extension);
-        } else if (attributes[0].equals("BC")) {
+        } else if ("BC".equals(attributes[0])) {
             BillingCycleDomainExtension extension = new BillingCycleDomainExtension();
             extension.setBillingCycle(attributes[1]);
             serviceCallBuilder.extendedWith(extension);
@@ -532,7 +532,7 @@ public class ServiceCallCommands {
     }
 
     private ServiceCallBuilder getServiceCallBuilder(List<Long> serviceCallIds, String parent, Optional<ServiceCallType> optionalServiceCallType) {
-        if(parent.equals("")) {
+        if("".equals(parent)) {
            if(optionalServiceCallType.isPresent()) {
                return optionalServiceCallType.get().newServiceCall();
            }
