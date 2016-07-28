@@ -102,7 +102,7 @@ public class ValidationResultsResource {
                     amountOfSuspectsList.add(0L);
                     amountOfSuspectsList.add(Long.parseLong(value.substring(value.lastIndexOf(":") + 1, value.lastIndexOf("}"))));
                 } else if (value.contains("BETWEEN")) {
-                    Arrays.asList(value.substring(1, value.length() - 1).split(",")).stream().forEach(amount -> amountOfSuspectsList.add(Long.parseLong(amount)));
+                    Arrays.asList(value.substring(value.lastIndexOf(":") + 2, value.lastIndexOf("]")).split(",")).stream().forEach(amount -> amountOfSuspectsList.add(Long.parseLong(amount)));
                 }
             }
             if (filters.getJSONObject(i).get("property").equals("validator")) {
