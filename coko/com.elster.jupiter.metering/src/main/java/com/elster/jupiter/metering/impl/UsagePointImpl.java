@@ -957,6 +957,7 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public List<MeterActivation> getMeterActivations(Instant when) {
         return this.meterActivations.stream()
+                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
                 .filter(meterActivation -> meterActivation.isEffectiveAt(when))
                 .collect(Collectors.toList());
     }
