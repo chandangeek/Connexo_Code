@@ -221,12 +221,13 @@ Ext.define('Uni.controller.Error', {
             me.showError(title, message, undefined, buttons, 'concurrent-use-error-msg');
         } else {
             if (requestOptions.method === 'PUT' || requestOptions.method === 'POST') {
+                debugger;
                 buttons = [
                     {
                         xtype: 'button',
                         text: Uni.I18n.translate('general.tryAgain', 'UNI', 'Try again'),
                         itemId: 'try-again-button',
-                        privileges: !((requestOptions.dontTryAgain || (requestOptions.operation && requestOptions.operation.dontTryAgain)) && !responseText.version),
+                        privileges: !(requestOptions.dontTryAgain || (requestOptions.operation && requestOptions.operation.dontTryAgain) || !responseText.version),
                         ui: 'remove',
                         handler: function (button) {
                             if (!Ext.isEmpty(responseText.version)) {
