@@ -320,8 +320,13 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         throw DeviceProtocolAdapterCodingExceptions.unsupportedMethod(MessageSeeds.UNSUPPORTED_METHOD, this.getClass(), "getLoadProfileData");
     }
 
-    @Override public List<CollectedData> getLoadProfileLogBooksData(final List<LoadProfileReader> loadProfiles, final List<LogBookReader> logBookReaders) {
+    @Override
+    public List<CollectedData> getLoadProfileLogBooksData(final List<LoadProfileReader> loadProfiles, final List<LogBookReader> logBookReaders) {
         return this.meterProtocolLoadProfileAdapter.getLoadProfileLogBookData(loadProfiles, logBookReaders);
+    }
+
+    public LogBookReader getValidLogBook(List<LogBookReader> logBookReaders) {
+        return this.meterProtocolLoadProfileAdapter.getValidLogBook(logBookReaders);
     }
 
     @Override
@@ -579,7 +584,7 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         return meterProtocol.getClass();
     }
 
-    protected MeterProtocol getMeterProtocol() {
+    public MeterProtocol getMeterProtocol() {
         return meterProtocol;
     }
 

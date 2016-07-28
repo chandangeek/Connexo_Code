@@ -550,7 +550,7 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
         return super.getSupportedConnectionTypes();
     }
 
-    protected SmartMeterProtocol getSmartMeterProtocol() {
+    public SmartMeterProtocol getSmartMeterProtocol() {
         return meterProtocol;
     }
 

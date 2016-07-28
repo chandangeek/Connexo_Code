@@ -1,13 +1,9 @@
 package com.energyict.mdc.protocol.pluggable;
 
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolAdapter;
-import com.energyict.mdc.protocol.api.DeviceProtocolCache;
-import com.energyict.mdc.protocol.api.LoadProfileReader;
-import com.energyict.mdc.protocol.api.LogBookReader;
-import com.energyict.mdc.protocol.api.device.data.CollectedData;
-
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedData;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 
 import java.util.List;
 
@@ -27,5 +23,9 @@ public interface MeterProtocolAdapter extends DeviceProtocol, DeviceProtocolAdap
     DeviceProtocolCache getDeviceCache();
 
     void setDeviceCache(DeviceProtocolCache deviceProtocolCache);
+
+    MeterProtocol getMeterProtocol();
+
+    LogBookReader getValidLogBook(List<LogBookReader> logBookReaders);
 
 }

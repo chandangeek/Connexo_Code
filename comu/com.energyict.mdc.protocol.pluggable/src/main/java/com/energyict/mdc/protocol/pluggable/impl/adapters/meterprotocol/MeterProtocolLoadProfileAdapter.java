@@ -169,7 +169,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         return collectedData;
     }
 
-    private LogBookReader getValidLogBook(List<LogBookReader> logBookReaders) {
+    public LogBookReader getValidLogBook(List<LogBookReader> logBookReaders) {
         LogBookReader validLogBook = null;
         for (LogBookReader logBookReader : logBookReaders) {
             if (logBookReader.getLogBookObisCode().equals(LogBookFactory.GENERIC_LOGBOOK_TYPE_OBISCODE)) {
