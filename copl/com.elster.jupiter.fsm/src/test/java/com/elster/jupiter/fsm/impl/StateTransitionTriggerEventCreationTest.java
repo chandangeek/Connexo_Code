@@ -10,8 +10,9 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -48,19 +49,21 @@ public class StateTransitionTriggerEventCreationTest {
     public void newInstanceCopiesAllProperties() {
         CustomStateTransitionEventTypeImpl eventType = new CustomStateTransitionEventTypeImpl(this.dataModel, this.thesaurus, this.stateMachineService);
         String expectedSourceId = "Test1";
+        String expectedSourceType = "newInstanceCopiesAllProperties";
         Map<String, Object> expectedProperties = new HashMap<>();
         expectedProperties.put("firstName", "Rudi");
         expectedProperties.put("lastName", "Vankeirsbilck");
 
         // Business method
         String expectedSourceCurrentStateName = "Current";
-        StateTransitionTriggerEvent triggerEvent = eventType.newInstance(this.stateMachine, expectedSourceId, expectedSourceCurrentStateName, Instant.now(), expectedProperties);
+        StateTransitionTriggerEvent triggerEvent = eventType.newInstance(this.stateMachine, expectedSourceId, expectedSourceType, expectedSourceCurrentStateName, Instant.now(), expectedProperties);
 
         // Asserts
         assertThat(triggerEvent).isNotNull();
         assertThat(triggerEvent.getType()).isEqualTo(eventType);
         assertThat(triggerEvent.getFiniteStateMachine()).isEqualTo(this.stateMachine);
         assertThat(triggerEvent.getSourceId()).isEqualTo(expectedSourceId);
+        assertThat(triggerEvent.getSourceType()).isEqualTo(expectedSourceType);
         assertThat(triggerEvent.getSourceCurrentStateName()).isEqualTo(expectedSourceCurrentStateName);
         Map<String, Object> actualProperties = triggerEvent.getProperties();
         assertThat(actualProperties).isNotEmpty();
@@ -72,16 +75,18 @@ public class StateTransitionTriggerEventCreationTest {
     public void newInstanceWithoutProperties() {
         CustomStateTransitionEventTypeImpl eventType = new CustomStateTransitionEventTypeImpl(this.dataModel, this.thesaurus, this.stateMachineService);
         String expectedSourceId = "Test2";
+        String expectedSourceType = "newInstanceWithoutProperties";
 
         // Business method
         String expectedSourceCurrentStateName = "Current";
-        StateTransitionTriggerEvent triggerEvent = eventType.newInstance(this.stateMachine, expectedSourceId, expectedSourceCurrentStateName, Instant.now(), new HashMap<>());
+        StateTransitionTriggerEvent triggerEvent = eventType.newInstance(this.stateMachine, expectedSourceId, expectedSourceType, expectedSourceCurrentStateName, Instant.now(), new HashMap<>());
 
         // Asserts
         assertThat(triggerEvent).isNotNull();
         assertThat(triggerEvent.getType()).isEqualTo(eventType);
         assertThat(triggerEvent.getFiniteStateMachine()).isEqualTo(this.stateMachine);
         assertThat(triggerEvent.getSourceId()).isEqualTo(expectedSourceId);
+        assertThat(triggerEvent.getSourceType()).isEqualTo(expectedSourceType);
         assertThat(triggerEvent.getSourceCurrentStateName()).isEqualTo(expectedSourceCurrentStateName);
         Map<String, Object> actualProperties = triggerEvent.getProperties();
         assertThat(actualProperties).isEmpty();

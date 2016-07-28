@@ -16,9 +16,9 @@ import java.util.Map;
 @ProviderType
 public interface StateTransitionChangeEvent {
 
-    public State getOldState();
+    State getOldState();
 
-    public State getNewState();
+    State getNewState();
 
     /**
      * Gets the String that uniquely identifies the source of this event.
@@ -26,14 +26,22 @@ public interface StateTransitionChangeEvent {
      * @return The unique identifier of the source of this event
      * @see StateTransitionTriggerEvent#getSourceId()
      */
-    public String getSourceId();
+    String getSourceId();
+
+    /**
+     * Gets the String that uniquely identifies the type of the source of this event.
+     *
+     * @return The unique identifier of the type of the source of this event
+     * @see StateTransitionTriggerEvent#getSourceId()
+     */
+    String getSourceType();
 
     /**
      * The point in time when the state change is effective.
      *
      * @return The point in time when the state change is effective
      */
-    public Instant getEffectiveTimestamp();
+    Instant getEffectiveTimestamp();
 
     /**
      * Gets properties that were provided by the {@link StateTransitionTriggerEvent}
@@ -42,6 +50,6 @@ public interface StateTransitionChangeEvent {
      * @return The properties
      * @see StateTransitionTriggerEvent#getProperties()
      */
-    public Map<String, Object> getProperties();
+    Map<String, Object> getProperties();
 
 }

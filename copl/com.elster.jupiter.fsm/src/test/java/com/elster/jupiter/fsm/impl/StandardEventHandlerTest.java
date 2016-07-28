@@ -6,20 +6,22 @@ import com.elster.jupiter.fsm.CurrentStateExtractor;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StandardStateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
+
+import org.osgi.service.event.Event;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.osgi.service.event.Event;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -123,7 +125,7 @@ public class StandardEventHandlerTest {
         when(currentStateExtractor.extractFrom(this.localEvent, stateMachine)).thenReturn(Optional.empty());
         StandardEventHandler handler = this.testEventHandlerWithExtractors(currentStateExtractor);
         when(this.stateMachineService.findFiniteStateMachinesUsing(this.standardStateTransitionEventType))
-            .thenReturn(Arrays.asList(stateMachine));
+            .thenReturn(Collections.singletonList(stateMachine));
 
         // Business method
         handler.handle(this.localEvent);
@@ -138,13 +140,14 @@ public class StandardEventHandlerTest {
         CurrentStateExtractor currentStateExtractor1 = mock(CurrentStateExtractor.class);
         CurrentStateExtractor.CurrentState currentState = new CurrentStateExtractor.CurrentState();
         currentState.sourceId = "mRID";
+        currentState.sourceType = "handlerUsesAllExtractors";
         currentState.name = "handlerUsesAllExtractors";
         when(currentStateExtractor1.extractFrom(this.localEvent, stateMachine)).thenReturn(Optional.of(currentState));
         CurrentStateExtractor currentStateExtractor2 = mock(CurrentStateExtractor.class);
         when(currentStateExtractor2.extractFrom(this.localEvent, stateMachine)).thenReturn(Optional.empty());
         StandardEventHandler handler = this.testEventHandlerWithExtractors(currentStateExtractor1, currentStateExtractor2);
         when(this.stateMachineService.findFiniteStateMachinesUsing(this.standardStateTransitionEventType))
-            .thenReturn(Arrays.asList(stateMachine));
+            .thenReturn(Collections.singletonList(stateMachine));
 
         // Business method
         handler.handle(this.localEvent);
@@ -161,7 +164,7 @@ public class StandardEventHandlerTest {
         when(currentStateExtractor.extractFrom(this.localEvent, stateMachine)).thenReturn(Optional.empty());
         StandardEventHandler handler = this.testEventHandlerWithExtractors(currentStateExtractor);
         when(this.stateMachineService.findFiniteStateMachinesUsing(this.standardStateTransitionEventType))
-            .thenReturn(Arrays.asList(stateMachine));
+            .thenReturn(Collections.singletonList(stateMachine));
 
         // Business method
         handler.handle(this.localEvent);
@@ -172,15 +175,17 @@ public class StandardEventHandlerTest {
 
     @Test
     public void handlerPublishesExtractedInformation() {
+        String expectedSourceType = "handlerPublishesExtractedInformation";
         FiniteStateMachine stateMachine = mock(FiniteStateMachine.class);
         CurrentStateExtractor currentStateExtractor = mock(CurrentStateExtractor.class);
         CurrentStateExtractor.CurrentState currentState = new CurrentStateExtractor.CurrentState();
         currentState.sourceId = "mRID";
+        currentState.sourceType = expectedSourceType;
         currentState.name = "handlerUsesAllExtractors";
         when(currentStateExtractor.extractFrom(this.localEvent, stateMachine)).thenReturn(Optional.of(currentState));
         StandardEventHandler handler = this.testEventHandlerWithExtractors(currentStateExtractor);
         when(this.stateMachineService.findFiniteStateMachinesUsing(this.standardStateTransitionEventType))
-            .thenReturn(Arrays.asList(stateMachine));
+            .thenReturn(Collections.singletonList(stateMachine));
 
         // Business method
         handler.handle(this.localEvent);
@@ -192,6 +197,7 @@ public class StandardEventHandlerTest {
         assertThat(triggerEvent).isNotNull();
         assertThat(triggerEvent.getSourceCurrentStateName()).isEqualTo(currentState.name);
         assertThat(triggerEvent.getSourceId()).isEqualTo(currentState.sourceId);
+        assertThat(triggerEvent.getSourceType()).isEqualTo(currentState.sourceType);
         assertThat(triggerEvent.getFiniteStateMachine()).isEqualTo(stateMachine);
         assertThat(triggerEvent.getType()).isEqualTo(this.standardStateTransitionEventType);
         Map<String, Object> triggerEventProperties = triggerEvent.getProperties();

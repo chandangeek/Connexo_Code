@@ -1,5 +1,7 @@
 package com.elster.jupiter.fsm;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.Map;
 
@@ -10,6 +12,7 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (14:49)
  */
+@ProviderType
 public interface StateTransitionTriggerEvent {
 
     /**
@@ -17,16 +20,23 @@ public interface StateTransitionTriggerEvent {
      *
      * @return The FiniteStateMachine
      */
-    public FiniteStateMachine getFiniteStateMachine();
+    FiniteStateMachine getFiniteStateMachine();
 
-    public StateTransitionEventType getType();
+    StateTransitionEventType getType();
 
     /**
      * Gets the String that uniquely identifies the source of this event.
      *
      * @return The unique identifier of the source of this event
      */
-    public String getSourceId();
+    String getSourceId();
+
+    /**
+     * Gets the String that uniquely identifies the type of the source of this event.
+     *
+     * @return The unique identifier of the type of the source of this event
+     */
+    String getSourceType();
 
     /**
      * Gets the name of the current state of the source of this event.
@@ -34,17 +44,17 @@ public interface StateTransitionTriggerEvent {
      * @return The current state name
      * @see State#getName()
      */
-    public String getSourceCurrentStateName();
+    String getSourceCurrentStateName();
 
     /**
      * The point in time when the resulting state change should be effective.
      *
      * @return The point in time when the resulting state change should be effective
      */
-    public Instant getEffectiveTimestamp();
+    Instant getEffectiveTimestamp();
 
-    public Map<String, Object> getProperties();
+    Map<String, Object> getProperties();
 
-    public void publish();
+    void publish();
 
 }
