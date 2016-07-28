@@ -966,7 +966,13 @@ public class UsagePointImpl implements UsagePoint {
             throw new IllegalArgumentException("Range can't be null");
         }
         return this.meterActivations.stream()
-                .filter(meterActivation -> !meterActivation.getRange().intersection(range).isEmpty())
+                .filter(meterActivation -> {
+                    try {
+                        return meterActivation.getRange().intersection(range).isEmpty();
+                    } catch (IllegalArgumentException ex) {
+                        return true;
+                    }
+                })
                 .collect(Collectors.toList());
     }
 
