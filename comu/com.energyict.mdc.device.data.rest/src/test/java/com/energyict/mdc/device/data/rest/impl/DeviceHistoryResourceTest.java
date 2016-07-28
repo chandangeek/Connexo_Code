@@ -1,8 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
@@ -10,18 +14,23 @@ import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent.Type;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
-import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
+import com.google.common.collect.ImmutableMap;
+import com.jayway.jsonpath.JsonModel;
+
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -30,6 +39,10 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Mock
     Device device;
+    @Mock
+    MeterActivation meterActivation;
+    @Mock
+    UsagePoint usagePoint;
 
     Instant deviceCreationDate = Instant.now();
 
@@ -52,6 +65,22 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getDeviceType()).thenReturn(deviceType);
         DeviceLifeCycle initialDeviceLifeCycle = mockDeviceLifeCycle(1L, "Standard life cycle");
         when(deviceType.getDeviceLifeCycle(deviceCreationDate)).thenReturn(Optional.of(initialDeviceLifeCycle));
+        Instant start = Instant.ofEpochMilli(1410774620100L);
+        when(device.getMeterActivationsMostRecentFirst()).thenReturn(Collections.singletonList(meterActivation));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(1L);
+        when(deviceConfiguration.getName()).thenReturn("DeviceConfig");
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device.getHistory(any(Instant.class))).thenReturn(Optional.of(device));
+        when(usagePoint.getId()).thenReturn(1L);
+        when(usagePoint.getMRID()).thenReturn("UsagePoint");
+        when(meterActivation.getId()).thenReturn(1L);
+        when(meterActivation.getVersion()).thenReturn(1L);
+        when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(meterActivation.isCurrent()).thenReturn(true);
+        when(meterActivation.getStart()).thenReturn(start);
+        when(meterActivation.getEnd()).thenReturn(Instant.ofEpochMilli(1410774820100L));
+        when(meterActivation.getMultipliers()).thenReturn(ImmutableMap.of(mock(MultiplierType.class), BigDecimal.TEN));
     }
 
     @Test
@@ -109,6 +138,23 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
 
         assertThat(model.<Number> get("$.total")).isEqualTo(0);
         assertThat(model.<List<?>> get("$.deviceLifeCycleChanges")).hasSize(0);
+    }
+
+    @Test
+    public void testMeterActivationsHistory() {
+        String json = target("/devices/DeviceMRID/history/meteractivations").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number> get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.meterActivations[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<Number>get("$.meterActivations[0].start")).isEqualTo(1410774620100L);
+        assertThat(jsonModel.<Number>get("$.meterActivations[0].end")).isEqualTo(1410774820100L);
+        assertThat(jsonModel.<Number>get("$.meterActivations[0].multiplier")).isEqualTo(10);
+        assertThat(jsonModel.<Number>get("$.meterActivations[0].version")).isEqualTo(1);
+        assertThat(jsonModel.<Boolean>get("$.meterActivations[0].active")).isEqualTo(true);
+        assertThat(jsonModel.<Number>get("$.meterActivations[0].usagePoint.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.meterActivations[0].usagePoint.name")).isEqualTo("UsagePoint");
+        assertThat(jsonModel.<Number>get("$.meterActivations[0].deviceConfiguration.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.meterActivations[0].deviceConfiguration.name")).isEqualTo("DeviceConfig");
     }
 
     private State mockState(long id, String name) {

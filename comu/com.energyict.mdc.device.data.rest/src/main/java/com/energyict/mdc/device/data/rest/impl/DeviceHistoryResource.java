@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -14,6 +15,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DeviceHistoryResource {
 
@@ -46,5 +49,18 @@ public class DeviceHistoryResource {
     public Response getFirmwareHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         return Response.ok(deviceFirmwareHistoryInfoFactory.createDeviceFirmwareHistoryInfos(device)).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/meteractivations")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public PagedInfoList getMeterActivationsHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<MeterActivationInfo> meterActivationInfoList = device.getMeterActivationsMostRecentFirst().stream()
+                .map(meterActivation -> new MeterActivationInfo(meterActivation, device))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("meterActivations", meterActivationInfoList, queryParameters);
     }
 }
