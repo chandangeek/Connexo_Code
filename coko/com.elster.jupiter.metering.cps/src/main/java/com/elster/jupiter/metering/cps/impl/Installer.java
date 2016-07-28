@@ -6,7 +6,6 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModelUpgrader;
@@ -80,7 +79,6 @@ class Installer implements FullInstaller {
                 .getName(), this::addElectricitySets);
 //        customPropertySetService.findActiveCustomPropertySet(UsagePointDecentProdDomExt.class.getName())
 //                .ifPresent(this::addElectricitySets);
-        assign(UsagePointAntennaDomExt.class.getName(), this::addElectricitySets);
 
         gas = meteringService.getServiceCategory(ServiceKind.GAS).get();
 //        customPropertySetService.findActiveCustomPropertySet(UsagePointOneDomainExtension.class.getName())
