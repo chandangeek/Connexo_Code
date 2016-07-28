@@ -44,11 +44,15 @@ Ext.define('Mdc.view.setup.devicehistory.MeterActivations', {
                 dataIndex: 'deviceConfiguration',
                 renderer: function(value) {
                     if (value) {
-                        var url = router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({
-                            deviceTypeId: me.device.get('deviceTypeId'),
-                            deviceConfigurationId: value.id
-                        });
-                        return '<a href="' + url + '">' + value.name + '</a>';
+                        if (Mdc.privileges.DeviceType.canView()) {
+                            var url = router.getRoute('administration/devicetypes/view/deviceconfigurations/view').buildUrl({
+                                deviceTypeId: me.device.get('deviceTypeId'),
+                                deviceConfigurationId: value.id
+                            });
+                            return '<a href="' + url + '">' + value.name + '</a>';
+                        } else {
+                            return value.name;
+                        }
                     } else {
                         return '-';
                     }
@@ -65,11 +69,19 @@ Ext.define('Mdc.view.setup.devicehistory.MeterActivations', {
                 dataIndex: 'usagePoint',
                 flex: 1,
                 renderer: function(value) {
+                    var appName = 'Insight',
+                        url;
                     if (value) {
-                        var url = router.getRoute('usagepoints/usagepoint').buildUrl({
-                            usagePointId: value.name
-                        });
-                        return '<a href="' + url + '">' + value.name + '</a>';
+                        if (Uni.store.Apps.checkApp(appName)) {
+                            if (Mdc.privileges.UsagePoint.canViewInInsight()) {
+                                url = Ext.String.format('{0}/usagepoints/{1}', Uni.store.Apps.getAppUrl(appName), encodeURIComponent(value.name));
+                                return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.name));
+                            }
+                        } else if (Mdc.privileges.UsagePoint.canView()) {
+                            url = me.router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: value.name});
+                            return Ext.String.format('<a href="{0}">{1}</a>', url, Ext.String.htmlEncode(value.name));
+                        }
+                        return value.name;
                     } else {
                         return '-';
                     }
