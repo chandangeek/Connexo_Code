@@ -44,12 +44,14 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
 
     @Override
     public void calculateAndStore() {
-//        dataValidationKpi.updateMembers();
+        dataValidationKpi.updateMembers();
         ZonedDateTime end = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L).plusDays(1);
         ZonedDateTime start = end.minusMonths(1);
-        Range<Instant> range = Range.openClosed(start.toInstant(), end.toInstant());
+
         long dayCount = ChronoUnit.DAYS.between(start,end);
         ZonedDateTime currentZonedDateTime = clock.instant().atZone(ZoneId.systemDefault()).with(LocalTime.MIDNIGHT).with(ChronoField.MILLI_OF_DAY, 0L);
+        Range<Instant> range = Range.closedOpen(currentZonedDateTime.minus(Period.ofDays(1)).toInstant(), currentZonedDateTime.toInstant());
+        currentZonedDateTime = currentZonedDateTime.plus(Period.ofDays(1));
         for (int i = 0 ; i <= dayCount; ++i) {
             Instant localTimeStamp = currentZonedDateTime.minusDays(i).toInstant();
             Map<String, List<DataValidationStatus>> registerSuspects = dataValidationReportService.getRegisterSuspects(dataValidationKpi.getDeviceGroup(), range);
