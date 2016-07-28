@@ -68,6 +68,7 @@ Ext.define('Imt.util.CommonFields', {
 
     prepareCustomProperties: function(properties, upCustomPropertySets) {
         var attributes = '',
+            valueRegExp = /(-?\d*)\:-?\d*\:.*/,
             propertyValue;
         properties.each(function (cps) {
             attributes += cps.get('name');
@@ -80,14 +81,14 @@ Ext.define('Imt.util.CommonFields', {
                                 console.log(property.getPropertyValue().get('displayValue'));
                                 console.log(property.getPropertyValue());
                                 if(property.getPropertyValue().get('value') && property.getPropertyValue().get('value').displayValue){
-                                    propertyValue = property.getPropertyValue().get('value').id + ' '
+                                    propertyValue = property.getPropertyValue().get('value').id.replace(valueRegExp, '$1') + ' '
                                         + property.getPropertyValue().get('value').displayValue;
                                 } else if (property.getPropertyValue().get('value')){
                                     propertyValue = property.getPropertyValue().get('value');
                                 } else {
                                     propertyValue = '-'
                                 }
-                                attributes += ' ' + propertyValue;
+                                attributes += ': ' + propertyValue;
                             }
                         });
 

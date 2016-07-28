@@ -36,6 +36,7 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
     showUsagePointMetrologyConfiguration: function (mRID) {
         var me = this,
+            resultSet,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             router = me.getController('Uni.controller.history.Router'),
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View');
@@ -59,8 +60,10 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
 
     showPreview: function (selectionModel, record) {
         var me = this,
-            formula,
-            metrologyContracts = me.usagePoint.get('metrologyConfiguration').metrologyContracts;
+            model = Ext.create('Imt.metrologyconfiguration.model.Formula'),
+            reader = model.getProxy().getReader(),
+            metrologyContracts = me.usagePoint.get('metrologyConfiguration').metrologyContracts,
+            resultSet;
 
         Ext.suspendLayouts();
         me.getPage().down('purposes-preview').setTitle(Ext.String.htmlEncode(record.get('name')));
@@ -93,12 +96,8 @@ Ext.define('Imt.usagepointmanagement.controller.MetrologyConfigurationDetails', 
         Ext.Array.each(metrologyContracts, function (metrologyContract) {
             if(metrologyContract.name == record.get('name')){
                 Ext.Array.each(metrologyContract.readingTypeDeliverables, function (readingTypeDeliverable) {
-
-                    formula = Ext.create('Imt.metrologyconfiguration.model.Formula',readingTypeDeliverable.formula);
-                    formula.readingTypeRequirements().loadData(readingTypeDeliverable.formula.readingTypeRequirements);
-                    formula.customProperties().loadData(readingTypeDeliverable.formula.customProperties);
-
-                    me.getPage().down('purposes-preview').addFormulaComponents(formula, me.usagePoint.customPropertySets());
+                    resultSet = reader.readRecords(readingTypeDeliverable.formula); // Making record with associated data
+                    me.getPage().down('purposes-preview').addFormulaComponents(resultSet.records[0], me.usagePoint.customPropertySets());
                 });
             }
         });
