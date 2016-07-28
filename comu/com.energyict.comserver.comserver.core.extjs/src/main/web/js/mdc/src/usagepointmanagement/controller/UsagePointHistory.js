@@ -10,7 +10,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
     models: [
         'Mdc.usagepointmanagement.model.UsagePointHistoryDevice',
         'Mdc.usagepointmanagement.model.UsagePoint',
-        'Mdc.usagepointmanagement.model.MetrologyConfigurationVersion'
+        'Mdc.usagepointmanagement.model.MetrologyConfigurationVersion',
+        'Mdc.model.MeterActivation'
     ],
 
     stores: [
