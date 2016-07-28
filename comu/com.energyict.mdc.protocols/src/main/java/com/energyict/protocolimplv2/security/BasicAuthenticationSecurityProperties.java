@@ -38,7 +38,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         USER_NAME(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER) {
             @Override
             public String javaName() {
-                return "userName";
+                return "user";
             }
 
             @Override
@@ -74,12 +74,12 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
     @Size(max = Table.MAX_STRING_LENGTH)
     private String password;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String userName;
+    private String user;
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         this.password = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.PASSWORD.javaName());
-        this.userName = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey());
+        this.user = (String) getTypedPropertyValue(propertyValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey());
     }
 
     @Override
@@ -87,7 +87,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         if (!is(this.password).empty()) {
             setTypedPropertyValueTo(propertySetValues, DeviceSecurityProperty.PASSWORD.javaName(), this.password);
         }
-        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey(), this.userName);
+        this.setPropertyIfNotNull(propertySetValues, SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.getKey(), this.user);
     }
 
     @Override
