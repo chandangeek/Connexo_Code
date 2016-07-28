@@ -59,7 +59,7 @@ public class DeviceHistoryResource {
     public PagedInfoList getMeterActivationsHistory(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<MeterActivationInfo> meterActivationInfoList = device.getMeterActivationsMostRecentFirst().stream()
-                .map(MeterActivationInfo::new)
+                .map(meterActivation -> new MeterActivationInfo(meterActivation, device))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("meterActivations", meterActivationInfoList, queryParameters);
     }

@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -65,6 +67,11 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceType.getDeviceLifeCycle(deviceCreationDate)).thenReturn(Optional.of(initialDeviceLifeCycle));
         Instant start = Instant.ofEpochMilli(1410774620100L);
         when(device.getMeterActivationsMostRecentFirst()).thenReturn(Collections.singletonList(meterActivation));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(1L);
+        when(deviceConfiguration.getName()).thenReturn("DeviceConfig");
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device.getHistory(any(Instant.class))).thenReturn(Optional.of(device));
         when(usagePoint.getId()).thenReturn(1L);
         when(usagePoint.getMRID()).thenReturn("UsagePoint");
         when(meterActivation.getId()).thenReturn(1L);
@@ -146,6 +153,8 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Boolean>get("$.meterActivations[0].active")).isEqualTo(true);
         assertThat(jsonModel.<Number>get("$.meterActivations[0].usagePoint.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.meterActivations[0].usagePoint.name")).isEqualTo("UsagePoint");
+        assertThat(jsonModel.<Number>get("$.meterActivations[0].deviceConfiguration.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.meterActivations[0].deviceConfiguration.name")).isEqualTo("DeviceConfig");
     }
 
     private State mockState(long id, String name) {
