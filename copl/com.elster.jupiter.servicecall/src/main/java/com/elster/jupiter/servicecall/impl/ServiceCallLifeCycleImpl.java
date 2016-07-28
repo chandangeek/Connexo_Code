@@ -21,14 +21,13 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.util.Optional;
 
-import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 import static com.elster.jupiter.util.streams.Predicates.on;
 
 /**
  * Created by bvn on 2/4/16.
  */
-public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
+class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
 
     private final Thesaurus thesaurus;
 
@@ -48,6 +47,7 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
 
     }
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private String name;
     private Reference<FiniteStateMachine> finiteStateMachine = Reference.empty();
@@ -56,7 +56,7 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
     private final Clock clock;
 
     @Inject
-    public ServiceCallLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
+    ServiceCallLifeCycleImpl(DataModel dataModel, Thesaurus thesaurus, Clock clock) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.thesaurus = thesaurus;
@@ -112,10 +112,7 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
     }
     @Override
     public void triggerTransition(ServiceCall serviceCall, DefaultState to) {
-
         DefaultState from = serviceCall.getState();
-//        finiteStateMachine.get().getTransitions().get(0).getEventType()
-
         CustomStateTransitionEventType eventType = decorate(finiteStateMachine.get().getTransitions()
                 .stream())
                 .filter(stateTransition -> to.matches(stateTransition.getTo()))
@@ -125,14 +122,15 @@ public class ServiceCallLifeCycleImpl implements IServiceCallLifeCycle {
                 .findAny()
                 .orElseThrow(() -> new NoTransitionException(thesaurus, MessageSeeds.NO_TRANSITION, from.getKey(), to.getKey()));
 
-        eventType.newInstance(
+        eventType
+            .newInstance(
                 finiteStateMachine.get(),
                 String.valueOf(serviceCall.getId()),
+                ServiceCall.class.getName(),
                 from.getKey(),
                 clock.instant(),
                 ImmutableMap.of(ServiceCall.class.getName(), serviceCall))
-                .publish();
-
+            .publish();
     }
 
     @Override

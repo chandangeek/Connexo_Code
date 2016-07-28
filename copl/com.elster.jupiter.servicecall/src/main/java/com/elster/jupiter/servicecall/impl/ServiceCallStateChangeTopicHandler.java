@@ -39,8 +39,10 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
         StateTransitionChangeEvent event = (StateTransitionChangeEvent) localEvent.getSource();
         ServiceCallImpl serviceCall = (ServiceCallImpl) event.getProperties().get(ServiceCall.class.getName());
         if (serviceCall != null) {
-            handle(serviceCall, DefaultState.from(event.getOldState()).get(), DefaultState.from(event.getNewState())
-                    .get());
+            handle(
+                serviceCall,
+                DefaultState.from(event.getOldState()).get(),
+                DefaultState.from(event.getNewState()).get());
         }
     }
 
