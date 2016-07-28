@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfileChannel;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.mdc.protocol.api.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
 import org.joda.time.DateTimeConstants;
@@ -300,7 +301,7 @@ public class ProfileBuilder {
     }
 
     public void addCollectedData(List<CollectedData> collectedData, OfflineDevice offlineDevice) {
-        CollectedLoadProfile loadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(this.identificationService.createLoadProfileIdentifierForFirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier()));
+        CollectedLoadProfile loadProfile = this.getCollectedDataFactory().createCollectedLoadProfile(this.identificationService.createLoadProfileIdentifierForFirstLoadProfileOnDevice(this.packetBuilder.getDeviceIdentifier(), DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE));
         loadProfile.setCollectedData(this.profileData.getIntervalDatas(), getChannelInfos(offlineDevice));
         loadProfile.setDoStoreOlderValues(this.profileData.shouldStoreOlderValues());
         collectedData.add(loadProfile);

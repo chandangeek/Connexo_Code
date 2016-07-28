@@ -354,6 +354,11 @@ public class LegacyPartialLoadProfileMessageBuilder extends AbstractMessageBuild
             public DeviceIdentifier<?> getDeviceIdentifier() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper deviceidentifier ...");
             }
+
+            @Override
+            public ObisCode getProfileObisCode() {
+                return null;
+            }
         });
     }
 

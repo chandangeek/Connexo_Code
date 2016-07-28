@@ -354,6 +354,11 @@ public class LegacyLoadProfileRegisterMessageBuilder extends AbstractMessageBuil
             public DeviceIdentifier<?> getDeviceIdentifier() {
                 throw new IllegalArgumentException("This placeholder identifier can not provide you with a proper deviceidentifier ...");
             }
+
+            @Override
+            public ObisCode getProfileObisCode() {
+                return null;
+            }
         });
     }
 
