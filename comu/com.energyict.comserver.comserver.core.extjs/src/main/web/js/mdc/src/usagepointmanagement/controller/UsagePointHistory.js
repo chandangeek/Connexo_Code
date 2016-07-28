@@ -267,6 +267,9 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                                     pageMainContent.setLoading(false);
                                     window.location.replace(router.getRoute('error').buildUrl())
                                 }
+                            },
+                            failure: function () {
+                                window.location.replace(router.getRoute('error').buildUrl())
                             }
                         });
                     }
@@ -331,6 +334,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
             if (btn.action == 'add') {
 
                 usagePointWithVersionModel.save({
+                    backUrl: router.getRoute('usagepoints/usagepoint/history').buildUrl(),
+                    dontTryAgain: true,
                     success: function () {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.version.added', 'MDC', "Metrology configuration version added"));
                         router.getRoute('usagepoints/usagepoint/history').forward();
@@ -353,6 +358,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                 Ext.Ajax.request({
                     url: url,
                     method: 'PUT',
+                    backUrl: router.getRoute('usagepoints/usagepoint/history').buildUrl(),
+                    dontTryAgain: true,
                     jsonData: Ext.encode(usagePointWithVersionModel.getData()),
                     success: function () {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('usagePointManagement.version.saved', 'MDC', 'Metrology configuration version saved'));
