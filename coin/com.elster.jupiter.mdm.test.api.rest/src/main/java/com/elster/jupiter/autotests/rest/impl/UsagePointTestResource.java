@@ -35,19 +35,72 @@ public class UsagePointTestResource {
     public Response delete(@PathParam("mRID") String mRID, UsagePointInfo usagePointInfo) throws SQLException {
         if (this.meteringService.findUsagePoint(mRID).isPresent()) {
             UsagePoint usagePoint = this.meteringService.findUsagePoint(mRID).get();
-            if (usagePoint.getCurrentMeterActivations().size() != 0) {
+
+            if (usagePoint.getEffectiveMetrologyConfiguration().isPresent()) {
                 DataModel dataModel = ormService.getDataModel("MTR").get();
                 Connection connection = dataModel.getConnection(true);
-                usagePoint.getCurrentMeterActivations().stream().forEach(meterActivation -> {
+                long id = usagePoint.getId();
+                try {
+                    connection.createStatement()
+                            .execute(
+                                    "DELETE FROM MTR_CHANNEL " +
+                                            "WHERE CHANNEL_CONTAINER IN (" +
+                                            "SELECT ID FROM MTR_CHANNEL_CONTAINER " +
+                                            "WHERE EFFECTIVE_CONTRACT IN (" +
+                                            "SELECT ID FROM MTR_EFFECTIVE_CONTRACT " +
+                                            "WHERE EFFECTIVE_CONF = " + id + "))"
+                            );
+                    connection.createStatement()
+                            .execute(
+                                    "DELETE FROM MTR_CHANNEL_CONTAINER " +
+                                            "WHERE EFFECTIVE_CONTRACT IN (" +
+                                            "SELECT ID FROM MTR_EFFECTIVE_CONTRACT " +
+                                            "WHERE EFFECTIVE_CONF = " + id + ")"
+                            );
+                    connection.createStatement()
+                            .execute(
+                                    "DELETE FROM MTR_EFFECTIVE_CONTRACT " +
+                                            "WHERE EFFECTIVE_CONF = " + id
+                            );
+                    connection.createStatement()
+                            .execute(
+                                    "DELETE FROM MTR_USAGEPOINTMTRCONFIG " +
+                                            "WHERE USAGEPOINT = " + id
+                            );
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (usagePoint.getMeterActivations().size() != 0) {
+
+                DataModel dataModel = ormService.getDataModel("MTR").get();
+                Connection connection = dataModel.getConnection(true);
+                usagePoint.getMeterActivations().stream().forEach(meterActivation -> {
                     try {
                         connection.createStatement()
-                                .execute("UPDATE MTR_METERACTIVATION SET USAGEPOINTID =  NULL WHERE USAGEPOINTID = " + usagePoint
-                                        .getId());
+                                .execute("DELETE FROM MTR_READINGQUALITY  WHERE CHANNELID IN" +
+                                        " ( SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN" +
+                                        " ( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
+                                        meterActivation.getId() +
+                                        " ))");
+                        connection.createStatement()
+                                .execute("DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN " +
+                                        "( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
+                                        meterActivation.getId() +
+                                        ")");
+                        connection.createStatement()
+                                .execute("DELETE FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
+                                        meterActivation.getId());
+                        connection.createStatement()
+                                .execute("DELETE FROM MTR_METERACTIVATION WHERE ID = " +
+                                        meterActivation.getId());
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
                 });
             }
+
             usagePoint.delete();
             return Response.status(Response.Status.OK).build();
         }
@@ -55,3 +108,4 @@ public class UsagePointTestResource {
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 }
+
