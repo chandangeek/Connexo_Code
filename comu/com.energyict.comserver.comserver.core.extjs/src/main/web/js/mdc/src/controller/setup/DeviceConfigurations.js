@@ -837,7 +837,12 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     currentDeviceConfigurationId = device.get('deviceConfigurationId');
 
                 form.loadRecord(device);
-                deviceConfigurationsStore.clearFilter();
+                deviceConfigurationsStore.clearFilter(false);
+                deviceConfigurationsStore.addFilter([
+                    function(record) {
+                        return record.get('id')!==currentDeviceConfigurationId && !record.get('dataloggerEnabled');
+                    }
+                ]);
                 deviceConfigurationsStore.getProxy().pageParam = undefined;
                 deviceConfigurationsStore.getProxy().startParam = undefined;
                 deviceConfigurationsStore.getProxy().limitParam = undefined;
@@ -850,17 +855,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 ]));
 
                 deviceConfigurationsStore.load(function () {
-                    // Since using filterBy() doesn't seem to work, I have to remove them:
-                    this.removeAt(this.findExact('id', currentDeviceConfigurationId));
-                    var ids2Remove = [];
-                    this.each(function(record) {
-                        if (record.get('dataloggerEnabled')) {
-                            ids2Remove.push(record.get('id'));
-                        }
-                    });
-                    while (ids2Remove.length > 0) {
-                        this.removeAt(this.findExact('id', ids2Remove.pop()));
-                    }
                     me.getNoDeviceConfigurationsLabel().setVisible(!this.count());
                     me.getNewDeviceConfigurationCombo().setVisible(this.count());
                     if (this.count() === 1) {

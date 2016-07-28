@@ -535,20 +535,15 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         configStore.getProxy().setUrl({deviceType: me.deviceType});
 
                         wizard.setLoading(true);
+                        configStore.clearFilter(false);
+                        configStore.addFilter([
+                            function(record) {
+                                return record.get('id')!==me.deviceConfigId && !record.get('dataloggerEnabled');
+                            }
+                        ]);
                         configStore.load(function (operation, success) {
                             var deviceConfig = this.getById(me.deviceConfigId);
                             currentConfigField.setValue(deviceConfig.get('name'));
-                            // Since using filterBy() doesn't seem to work, I have to remove them:
-                            this.removeAt(this.findExact('id', me.deviceConfigId));
-                            var ids2Remove = [];
-                            this.each(function(record) {
-                                if (record.get('dataloggerEnabled')) {
-                                    ids2Remove.push(record.get('id'));
-                                }
-                            });
-                            while (ids2Remove.length > 0) {
-                                this.removeAt(this.findExact('id', ids2Remove.pop()));
-                            }
                             if (success && (configStore.getCount() < 1)) {
                                 wizard.down('#nextButton').disable();
                                 nextCmp.down('#new-device-config-selection').hide();
