@@ -39,6 +39,7 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -51,6 +52,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -169,6 +171,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -2073,6 +2076,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         requestedAction.accept(comTaskExecution.get());
     }
 
+    @Override
+    public Optional<Device> getHistory(Instant when) {
+        if (when.isAfter(this.modTime)) {
+            return Optional.of(this);
+        }
+        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class).at(when).find(ImmutableMap.of("id", this.getId()));
+        return journalEntries.stream()
+                .map(JournalEntry::get)
+                .findFirst();
+    }
+
     private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> comTaskExecutionBuilder = newAdHocComTaskExecution(enablement);
         if (enablement.hasPartialConnectionTask()) {
@@ -3244,12 +3258,18 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from, DeviceConfiguration config) {
-        List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
+
+        private Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements (UsagePoint usagePoint, Instant from, DeviceConfiguration config){
+            List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations()
+                    .stream()
+                    .filter(emc -> !emc.getRange().intersection(Range.atLeast(from)).isEmpty())
+                    .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                    .collect(Collectors.toList());
+
         if (effectiveMetrologyConfigurations.isEmpty()) {
             return Collections.emptyMap();
         }
-        List<ReadingType> supportedReadingTypes = getDeviceCapabilities(config);
+            List<ReadingType> supportedReadingTypes = getDeviceCapabilities(config);
         Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = new HashMap<>();
         for (MetrologyConfiguration metrologyConfiguration : effectiveMetrologyConfigurations) {
             List<ReadingTypeRequirement> unsatisfied = metrologyConfiguration.getMandatoryReadingTypeRequirements()
@@ -3263,8 +3283,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return unsatisfiedRequirements;
     }
 
-    private List<ReadingType> getDeviceCapabilities(DeviceConfiguration config) {
-        return deviceConfigurationService.getReadingTypesRelatedToConfiguration(config);
+        private List<ReadingType> getDeviceCapabilities (DeviceConfiguration config){
+            return deviceConfigurationService.getReadingTypesRelatedToConfiguration(config);
     }
 
     private DateTimeFormatter getLongDateFormatForCurrentUser() {

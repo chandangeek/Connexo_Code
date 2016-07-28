@@ -98,6 +98,7 @@ public enum TableSpecs {
             table.map(DeviceImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
+            table.setJournalTableName("DDC_DEVICEJRNL");
             table.column("NAME").varChar().notNull().map(DeviceFields.NAME.fieldName()).add();
             table.column("SERIALNUMBER").varChar().map(DeviceFields.SERIALNUMBER.fieldName()).add();
             table.column("TIMEZONE").varChar().map(DeviceFields.TIMEZONE.fieldName()).add();
