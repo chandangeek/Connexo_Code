@@ -52,6 +52,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -170,6 +171,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -2072,6 +2074,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
 
         requestedAction.accept(comTaskExecution.get());
+    }
+
+    @Override
+    public Optional<Device> getHistory(Instant when) {
+        if (when.isAfter(this.modTime)) {
+            return Optional.of(this);
+        }
+        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class).at(when).find(ImmutableMap.of("id", this.getId()));
+        return journalEntries.stream()
+                .map(JournalEntry::get)
+                .findFirst();
     }
 
     private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {

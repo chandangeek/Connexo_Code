@@ -480,6 +480,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     void runStatusInformationTask(Consumer<ComTaskExecution> requestedAction);
 
+    Optional<Device> getHistory(Instant when);
+
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */
