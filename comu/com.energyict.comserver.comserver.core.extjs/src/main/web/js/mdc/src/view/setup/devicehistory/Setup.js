@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.devicehistory.LifeCycle',
         'Mdc.view.setup.devicehistory.MeterActivations',
-        'Uni.view.container.EmptyGridContainer'
+        'Uni.view.container.EmptyGridContainer',
+        'Uni.util.FormEmptyMessage'
     ],
 
     router: null,
@@ -50,7 +51,7 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                             itemId: 'device-history-firmware-tab'
                         },
                         {
-                            title: Uni.I18n.translate('general.meterActivations', 'MDC', 'Meter activations'),
+                            title: Uni.I18n.translate('general.meterActivation', 'MDC', 'Meter activation'),
                             padding: '8 16 16 0',
                             itemId: 'device-history-meter-activations-tab',
                             items: {
@@ -62,11 +63,12 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                                     router: me.router
                                 },
                                 emptyComponent: {
-                                    xtype: 'no-items-found-panel',
-                                    itemId: 'outputs-list-empty',
-                                    title: Uni.I18n.translate('device.history.meteractivations.empty', 'MDC', 'No meter activations'),
-                                    reasons: [
-                                        Uni.I18n.translate('device.history.meteractivations.empty.reason1', 'MDC', 'No meter activations for this device')
+                                    xtype: 'form',
+                                    items: [
+                                        {
+                                            xtype: 'uni-form-empty-message',
+                                            text: Uni.I18n.translate('general.device.noMeterActivations', 'MDC', 'No meter activations for this device')
+                                        }
                                     ]
                                 }
                             },
