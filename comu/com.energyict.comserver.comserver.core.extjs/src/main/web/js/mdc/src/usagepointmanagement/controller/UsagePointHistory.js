@@ -269,6 +269,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
                                 }
                             },
                             failure: function () {
+                                pageMainContent.setLoading(false);
                                 window.location.replace(router.getRoute('error').buildUrl())
                             }
                         });
