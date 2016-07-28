@@ -302,7 +302,7 @@ public class IDISProfileDataReader {
                 // this will throw up an exception if in the LP capture objects (from the meter) is found an obis code
                 // which is not supported by the (same) meter - that's illogical!
                 // we might want in the future to add a new parameter to skip this check (the storage works fine)
-                throw new ProtocolException("DLMSAttribute for "+channelObisCode+" was not found! This OBIS code is in the meter load profile capture objects, but is not supported by the meter itself.");
+                throw new ProtocolException("The OBIS code "+channelObisCode+" found in the meter load profile capture objects list, is NOT supported by the meter itself. Please reprogram the meter with a valid set of capture objects.");
             }
         }
         return result;
