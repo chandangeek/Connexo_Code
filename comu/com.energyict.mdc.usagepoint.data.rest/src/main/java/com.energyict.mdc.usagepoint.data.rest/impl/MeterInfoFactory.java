@@ -51,6 +51,8 @@ public class MeterInfoFactory {
     public List<MeterInfo> getDevicesHistory(UsagePoint usagePoint) {
         MACollector maCollector = usagePoint.getMeterActivations()
                 .stream()
+                .filter(ma -> !ma.getMeter().get().getState().get().getName().equals("dlc.default.removed"))
+                .filter(ma -> !ma.getMeter().get().getState().get().getName().equals("dlc.default.decomissioned"))
                 .map(this::asInfo)
                 .collect(Collector.of(MACollector::new, MACollector::add, (c1, c2) -> c1));
         Collections.reverse(maCollector.getMeterInfos());
