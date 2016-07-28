@@ -150,7 +150,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
     @Test
     public void testGetChannel() {
         EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(mc));
 
         //Business method
         String json = target("/usagepoints/testUP/channels/1").request().get(String.class);
@@ -178,7 +178,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
     @Ignore("not finished yet")
     public void testGetChannelData() throws UnsupportedEncodingException {
         EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
-        when(usagePoint.getEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
+        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(mc));
         when(mc.getUsagePoint()).thenReturn(usagePoint);
         ValidationEvaluator validationEvaluator = mock(ValidationEvaluator.class);
         when(validationService.getEvaluator(any(), any())).thenReturn(validationEvaluator);
