@@ -12,7 +12,8 @@ public enum MessageSeeds implements MessageSeed {
     READING_TYPE_NOT_FOUND(4, "reading.type.not.found", "Reading type not found"),
     YOU_CANNOT_REMOVE_ACTIVE_METROLOGY_CONFIGURATION(5, "you.cannot.remove.active.metrology.configuration", "You can not remove active metrology configuration"),
     METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_TITLE(6, "failed.to.save.metrology.config.version.body", "Failed to save metrology configuration version of ''{0}''."),
-    METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_BODY(7, "failed.to.save.metrology.config.version.title", "This version of metrology configuration on ''{0}'' has been modified since the page was last updated.");
+    METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_BODY(7, "failed.to.save.metrology.config.version.title", "This version of metrology configuration on ''{0}'' has been modified since the page was last updated."),
+    NO_METROLOGY_CONFIG_VERSION_WITH_START(8, "no.metrology.config.found", "No metrology configuration version were found with start ''{0}''");
 
 
     private final int number;

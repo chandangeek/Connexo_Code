@@ -312,7 +312,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
     public Response updateMetrologyConfigurationVersions(UsagePointInfo info, @QueryParam("delete") boolean delete) {
-        UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointForMetrologyConfigSave(info);
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findMetrologyConfiguration(info.metrologyConfigurationVersion.metrologyConfiguration.id);
         Instant start = Instant.ofEpochMilli(info.metrologyConfigurationVersion.start);
         Instant end = info.metrologyConfigurationVersion.end != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.end) : null;
@@ -336,8 +336,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public EffectiveMetrologyConfigurationOnUsagePointInfo getMetrologyConfigurationVersion(@PathParam("mRID") String mRID, @PathParam("start") Long start) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
-        return metrologyConfigurationInfoFactory.asInfo(usagePoint.getEffectiveMetrologyConfigurationByStart(Instant.ofEpochMilli(start))
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)));
+        return metrologyConfigurationInfoFactory.asInfo(resourceHelper.getMetrologyConfigVersionOrThrowException(usagePoint, Instant.ofEpochMilli(start)));
     }
 
     @PUT
@@ -346,7 +345,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response updateMetrologyConfigurationVersion(UsagePointInfo info, @PathParam("mRID") String mRID, @PathParam("start") Long start) {
-        UsagePoint usagePoint = resourceHelper.findAndLockUsagePoint(info);
+        UsagePoint usagePoint = resourceHelper.findAndLockUsagePointForMetrologyConfigSave(info);
         EffectiveMetrologyConfigurationOnUsagePoint version = usagePoint.getEffectiveMetrologyConfigurationByStart(Instant.ofEpochMilli(start))
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         Instant startTime = info.metrologyConfigurationVersion.start != null ? Instant.ofEpochMilli(info.metrologyConfigurationVersion.start) : null;

@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -16,6 +17,7 @@ import com.elster.jupiter.rest.util.IdWithNameInfo;
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -89,10 +91,21 @@ public class ResourceHelper {
     public UsagePoint findAndLockUsagePoint(UsagePointInfo info) {
         return getLockedUsagePoint(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
+                        .withActualVersion(() -> getCurrentUsagePointVersion(info.mRID))
+                        .supplier());
+    }
+
+    public UsagePoint findAndLockUsagePointForMetrologyConfigSave(UsagePointInfo info) {
+        return getLockedUsagePoint(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
                         .withMessageTitle(MessageSeeds.METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_TITLE, info.mRID)
                         .withMessageBody(MessageSeeds.METROLOGY_CONFIG_VERSION_CONCURRENCY_ERROR_ON_USAGE_POINT_BODY, info.mRID)
                         .withActualVersion(() -> getCurrentUsagePointVersion(info.mRID))
                         .supplier());
+    }
+
+    public EffectiveMetrologyConfigurationOnUsagePoint getMetrologyConfigVersionOrThrowException(UsagePoint usagePoint, Instant start) {
+        return usagePoint.getEffectiveMetrologyConfigurationByStart(start).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGY_CONFIG_VERSION_WITH_START, start));
     }
 
     public Long getCurrentUsagePointVersion(String mRID) {
