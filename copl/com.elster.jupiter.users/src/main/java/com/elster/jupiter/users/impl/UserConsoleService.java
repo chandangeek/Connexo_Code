@@ -7,6 +7,7 @@ import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -16,7 +17,7 @@ import java.security.Principal;
  * Created by albertv on 12/16/2014.
  */
 
-@Component(name = "com.elster.jupiter.users.console",service = {UserConsoleService.class}, property = {"name=" + "USR" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=addUser","osgi.command.function=addApacheUserDirectory","osgi.command.function=addActiveUserDirectory"}, immediate = true)
+@Component(name = "com.elster.jupiter.users.console", service = {UserConsoleService.class}, property = {"name=" + "USR" + ".console", "osgi.command.scope=jupiter", "osgi.command.function=addUser", "osgi.command.function=addApacheUserDirectory", "osgi.command.function=addActiveUserDirectory"}, immediate = true)
 
 public class UserConsoleService {
 
@@ -25,32 +26,33 @@ public class UserConsoleService {
     private volatile ThreadPrincipalService threadPrincipalService;
 
 
-    public void addUser(String name,String pass){
+    public void addUser(String name, String pass) {
 
-         try ( TransactionContext context = transactionService.getContext()){
+        this.threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
 
-             UserDirectory userDirectory = userService.findDefaultUserDirectory();
-             User user = userDirectory.newUser(name, "", false,true);
-             user.setPassword(pass);
-             user.update();
-             context.commit();
-         }
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+            User user = userDirectory.newUser(name, "", false, true);
+            user.setPassword(pass);
+            user.update();
+            context.commit();
+        }
 
     }
 
     public void addUser() {
-        System.out.println("Please add username and password!\n   Exemple: addUser \"username\" \"password\"" );
+        System.out.println("Please add username and password!\n   Exemple: addUser \"username\" \"password\"");
     }
 
-    public void addApacheUserDirectory(String domain, String dirUser,String password, String url, String baseUser, String baseGroup,String security,String backupUrl){
-        createApacheDirectory(domain,dirUser,password,url,baseUser,baseGroup,security,backupUrl);
+    public void addApacheUserDirectory(String domain, String dirUser, String password, String url, String baseUser, String baseGroup, String security, String backupUrl) {
+        createApacheDirectory(domain, dirUser, password, url, baseUser, baseGroup, security, backupUrl);
     }
 
-    public void addActiveUserDirectory(String domain, String dirUser,String password, String url, String baseUser, String baseGroup,String security,String backupUrl){
-        createActiveDirectory(domain,dirUser,password,url,baseUser,baseGroup,security,backupUrl);
+    public void addActiveUserDirectory(String domain, String dirUser, String password, String url, String baseUser, String baseGroup, String security, String backupUrl) {
+        createActiveDirectory(domain, dirUser, password, url, baseUser, baseGroup, security, backupUrl);
     }
 
-    public void createActiveDirectory(String domain, String dirUser,String password, String url, String baseUser, String baseGroup, String security, String backupUrl){
+    public void createActiveDirectory(String domain, String dirUser, String password, String url, String baseUser, String baseGroup, String security, String backupUrl) {
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory activeDirectory = userService.createActiveDirectory(domain);
             activeDirectory.setDefault(false);
@@ -67,7 +69,7 @@ public class UserConsoleService {
         }
     }
 
-    public void createApacheDirectory(String domain, String dirUser,String password, String url, String baseUser, String baseGroup,String security,String backupUrl){
+    public void createApacheDirectory(String domain, String dirUser, String password, String url, String baseUser, String baseGroup, String security, String backupUrl) {
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory activeDirectory = userService.createApacheDirectory(domain);
             activeDirectory.setDefault(false);
@@ -85,13 +87,13 @@ public class UserConsoleService {
 
     }
 
-    public void addApacheUserDirectory(){
+    public void addApacheUserDirectory() {
         System.out.println("Please add domain, dirUser, password, url, baseUser, baseGroup, security, backupUrl!\n  " +
                 " Exemple: addApacheUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\" \"SSL\" \"backupURL\"");
 
     }
 
-    public void addActiveUserDirectory(){
+    public void addActiveUserDirectory() {
         System.out.println("Please add domain, dirUser, password, url, baseUser, baseGroup, security, backupUrl!\n  " +
                 " Exemple: addActiveUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\" \"NONE\" \"backupURL\"");
     }
@@ -105,6 +107,7 @@ public class UserConsoleService {
             }
         };
     }
+
     @Reference
     public void setUserService(UserService userService) {
 
