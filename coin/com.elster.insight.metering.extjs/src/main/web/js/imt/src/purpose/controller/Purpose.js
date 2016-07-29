@@ -13,7 +13,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.store.Outputs',
         'Imt.purpose.store.Readings',
         'Uni.store.DataIntervalAndZoomLevels',
-        'Imt.purpose.store.RegisterReadings'
+        'Imt.purpose.store.RegisterReadings',
+        'Imt.usagepointmanagement.store.UsagePointTypes'
     ],
 
     models: [
@@ -21,7 +22,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
         'Imt.purpose.model.Reading',
         'Imt.usagepointmanagement.model.ValidationInfo',
         'Imt.usagepointmanagement.model.SuspectReason',
-        'Imt.usagepointmanagement.model.Purpose'
+        'Imt.usagepointmanagement.model.Purpose',
+        'Imt.usagepointmanagement.model.UsagePoint'
     ],
 
     views: [
@@ -64,32 +66,45 @@ Ext.define('Imt.purpose.controller.Purpose', {
     showOutputs: function (mRID, purposeId) {
         var me = this,
             app = me.getApplication(),
-            router = me.getController('Uni.controller.history.Router'),
-            usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
+            router = me.getController('Uni.controller.history.Router'),            
+            purposesStore = me.getStore('Imt.usagepointmanagement.store.Purposes'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
         mainView.setLoading();
-        usagePointsController.loadUsagePoint(mRID, {
-            success: function (types, usagePoint, purposes) {
-                var purpose = _.find(purposes, function (p) {
-                        return p.getId() == purposeId
-                    }),
-                    widget = Ext.widget('purpose-outputs', {
-                        itemId: 'purpose-outputs',
-                        router: router,
-                        usagePoint: usagePoint,
-                        purposes: purposes,
-                        purpose: purpose
-                    });
-                widget.down('#purpose-details-form').loadRecord(purpose);
-                app.fireEvent('changecontentevent', widget);
-                if (mainView.down('purpose-actions-menu')) {
-                    mainView.down('purpose-actions-menu').record = purpose;
-                }
-                mainView.setLoading(false);
-                me.loadOutputs(mRID, purposeId);
-            },
-            failure: function () {
+        
+        me.getStore('Imt.usagepointmanagement.store.UsagePointTypes').load(function(usagePointTypes, op, success) {
+            if (success) {
+                me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
+                    success: function (usagePoint) {
+                        app.fireEvent('usagePointLoaded', usagePoint);
+                        purposesStore.getProxy().extraParams = {
+                            mRID: mRID,
+                            withValidationTasks: true
+                        };
+                        purposesStore.load(function(purposes) {
+                            usagePoint.set('purposes', purposes);
+                            app.fireEvent('purposes-loaded', purposes);
+                            var purpose = _.find(purposes, function (p) {
+                                    return p.getId() == purposeId
+                                }),
+                                widget = Ext.widget('purpose-outputs', {
+                                    itemId: 'purpose-outputs',
+                                    router: router,
+                                    usagePoint: usagePoint,
+                                    purposes: purposes,
+                                    purpose: purpose
+                                });
+                            widget.down('#purpose-details-form').loadRecord(purpose);
+                            app.fireEvent('changecontentevent', widget);
+                            if (mainView.down('purpose-actions-menu')) {
+                                mainView.down('purpose-actions-menu').record = purpose;
+                            }
+                            mainView.setLoading(false);
+                            me.loadOutputs(mRID, purposeId);
+                        });
+                    }                    
+                });
+            } else {
                 mainView.setLoading(false);
             }
         });

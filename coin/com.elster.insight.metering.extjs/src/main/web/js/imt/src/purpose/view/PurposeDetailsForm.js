@@ -84,14 +84,14 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                                         result += '<table>';
                                         Ext.Array.each(value, function (item) {
                                             var url = me.router.getRoute('administration/validationtasks/validationtask').buildUrl({
-                                                taskId: item.lastValidationOccurence.task.id
+                                                taskId: item.id
                                             });
                                             result += '<tr>';
                                             result += '<td>';
-                                            result += '<a href="' + url + '">' + item.lastValidationOccurence.task.name + '</a>';
+                                            result += '<a href="' + url + '">' + item.name + '</a>';
                                             result += '</td>';
-                                            result += '<td>';
-                                            result += item.lastValidationOccurence.trigger;
+                                            result += '<td>';                                            
+                                            result += item.trigger;                                           
                                             result += '</td>';
                                             result += '</tr>';
                                         });
