@@ -5,7 +5,6 @@ Ext.define('Mdc.view.setup.devicehistory.MeterActivations', {
         'Mdc.store.device.MeterActivations'
     ],
     store: 'Mdc.store.device.MeterActivations',
-    maxHeight: 355,
     initComponent: function () {
         var me = this,
             router = me.router;

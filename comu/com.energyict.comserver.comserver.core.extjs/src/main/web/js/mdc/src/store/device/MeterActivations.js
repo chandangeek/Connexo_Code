@@ -4,9 +4,6 @@ Ext.define('Mdc.store.device.MeterActivations', {
         'Mdc.model.MeterActivation'
     ],
     model: 'Mdc.model.MeterActivation',
-    pageParam: false,
-    startParam: false,
-    limitParam: false,
     pageSize: undefined,
     proxy: {
         type: 'rest',
@@ -14,6 +11,9 @@ Ext.define('Mdc.store.device.MeterActivations', {
         reader: {
             type: 'json',
             root: 'meterActivations'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });
