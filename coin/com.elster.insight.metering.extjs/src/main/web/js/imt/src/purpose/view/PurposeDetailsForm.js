@@ -90,8 +90,10 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
                                             result += '<td>';
                                             result += '<a href="' + url + '">' + item.name + '</a>';
                                             result += '</td>';
-                                            result += '<td>';                                            
-                                            result += item.trigger;                                           
+                                            result += '<td>';
+                                            if (item.trigger) {
+                                                result += item.trigger;
+                                            }
                                             result += '</td>';
                                             result += '</tr>';
                                         });
