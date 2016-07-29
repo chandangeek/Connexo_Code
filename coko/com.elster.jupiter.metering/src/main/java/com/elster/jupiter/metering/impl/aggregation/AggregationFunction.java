@@ -98,7 +98,6 @@ enum AggregationFunction {
     };
 
 
-
     static AggregationFunction from(com.elster.jupiter.metering.config.Function function) {
         switch (function) {
             case AVG: {

@@ -62,8 +62,8 @@ public class ReadingQualityFromExpressionNode implements ServerExpressionNode.Vi
     @Override
     public String visitOperation(OperationNode operationNode) {
         return this.findAll(Arrays.asList(
-                        operationNode.getLeftOperand(),
-                        operationNode.getRightOperand()));
+                operationNode.getLeftOperand(),
+                operationNode.getRightOperand()));
     }
 
     @Override

@@ -246,7 +246,8 @@ public class DataAggregationServiceImpl implements DataAggregationService {
                 .forEach(each -> each.appendDefinitionTo(sqlBuilder));
     }
 
-    private Map<ReadingType, List<CalculatedReadingRecord>> execute(SqlBuilder sqlBuilder, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws SQLException {
+    private Map<ReadingType, List<CalculatedReadingRecord>> execute(SqlBuilder sqlBuilder, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws
+            SQLException {
         try (Connection connection = this.getDataModel().getConnection(true)) {
             try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                 return this.execute(statement, deliverablesPerMeterActivation);
@@ -266,7 +267,8 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         return this.meteringService.getThesaurus();
     }
 
-    private Map<ReadingType, List<CalculatedReadingRecord>> execute(PreparedStatement statement, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws SQLException {
+    private Map<ReadingType, List<CalculatedReadingRecord>> execute(PreparedStatement statement, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws
+            SQLException {
         try (ResultSet resultSet = statement.executeQuery()) {
             return this.getDataModel().getInstance(CalculatedReadingRecordFactory.class).consume(resultSet, deliverablesPerMeterActivation);
         }

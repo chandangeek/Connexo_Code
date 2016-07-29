@@ -61,30 +61,30 @@ public class UsagePointConnectionStateImplIT {
     @Transactional
     public void testConnectionState() {
 
-            ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
-            DataModel dataModel = meteringService.getDataModel();
-            ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
-            assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
+        ServerMeteringService meteringService = inMemoryBootstrapModule.getMeteringService();
+        DataModel dataModel = meteringService.getDataModel();
+        ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
+        assertThat(dataModel.mapper(UsagePoint.class).find()).hasSize(1);
 
-            //get connection state
-            ConnectionState connectionState =  usagePoint.getConnectionState();
-            assertThat(connectionState.equals(ConnectionState.UNDER_CONSTRUCTION)).isTrue();
+        //get connection state
+        ConnectionState connectionState = usagePoint.getConnectionState();
+        assertThat(connectionState.equals(ConnectionState.UNDER_CONSTRUCTION)).isTrue();
 
-            //add connection state valid from 1 january 2014
-            usagePoint.setConnectionState(ConnectionState.CONNECTED, JANUARY_2014);
+        //add connection state valid from 1 january 2014
+        usagePoint.setConnectionState(ConnectionState.CONNECTED, JANUARY_2014);
 
-            //get connection state
-            connectionState =  usagePoint.getConnectionState();
-            assertThat(connectionState.equals(ConnectionState.CONNECTED)).isTrue();
+        //get connection state
+        connectionState = usagePoint.getConnectionState();
+        assertThat(connectionState.equals(ConnectionState.CONNECTED)).isTrue();
 
-            //add connection state valid from 1 february 2014 (this closes the previous detail on this date)
-            usagePoint.setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED, FEBRUARY_2014);
+        //add connection state valid from 1 february 2014 (this closes the previous detail on this date)
+        usagePoint.setConnectionState(ConnectionState.LOGICALLY_DISCONNECTED, FEBRUARY_2014);
 
 
-            //get connection state
-            connectionState =  usagePoint.getConnectionState();
-            assertThat(connectionState.equals(ConnectionState.LOGICALLY_DISCONNECTED)).isTrue();
+        //get connection state
+        connectionState = usagePoint.getConnectionState();
+        assertThat(connectionState.equals(ConnectionState.LOGICALLY_DISCONNECTED)).isTrue();
     }
 }
 

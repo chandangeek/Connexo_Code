@@ -22,7 +22,6 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.impl.config.MetrologyConfigurationInstaller;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
 import com.elster.jupiter.metering.impl.upgraders.GasDayOptionsCreator;
@@ -175,11 +174,6 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
         doTry(
                 "Create Reading Type templates",
                 this::createReadingTypeTemplates,
-                logger
-        );
-        doTry(
-                "Create Metrology Configurations",
-                this::createMetrologyConfigurations,
                 logger
         );
         doTry(
@@ -456,10 +450,6 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     private void createReadingTypeTemplates() {
         new ReadingTypeTemplateInstaller(metrologyConfigurationService).install();
-    }
-
-    private void createMetrologyConfigurations() {
-        new MetrologyConfigurationInstaller(metrologyConfigurationService, meteringService).install();
     }
 
     private void createEndDeviceControlTypes(Logger logger) {

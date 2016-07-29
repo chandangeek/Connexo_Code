@@ -155,7 +155,7 @@ public class ReadingEstimateIT {
         Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().get(0);
         ReadingType readingType = meteringService.getReadingType(readingTypeCode).get();
         CimChannel cimChannel = channel.getCimChannel(readingType).get();
-        assertQualities(cimChannel, existDate, new ReadingQualityType[] {
+        assertQualities(cimChannel, existDate, new ReadingQualityType[]{
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT),
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ZEROUSAGE)
         }, new ReadingQualityType[0]);
@@ -188,16 +188,16 @@ public class ReadingEstimateIT {
             reading3.addQuality("2.8.3"); // estimated by rule 3
             cimChannel.estimateReadings(QualityCodeSystem.MDC, ImmutableList.of(reading1, reading2, reading3));
             // existDate qualities
-            assertQualities(cimChannel, existDate, new ReadingQualityType[] {
+            assertQualities(cimChannel, existDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ZEROUSAGE),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED)
             });
             // newDate qualities
-            assertQualities(cimChannel, newDate, new ReadingQualityType[] {
+            assertQualities(cimChannel, newDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000),
@@ -205,9 +205,9 @@ public class ReadingEstimateIT {
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD)
             });
             // otherDate qualities
-            assertQualities(cimChannel, otherDate, new ReadingQualityType[] {
+            assertQualities(cimChannel, otherDate, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 3)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD)
             });
             Optional<BaseReadingRecord> channelReading = channel.getReading(existDate);
@@ -240,7 +240,7 @@ public class ReadingEstimateIT {
         Channel channel = meter.getCurrentMeterActivation().get().getChannelsContainer().getChannels().get(0);
         CimChannel bulkCimChannel = channel.getCimChannel(readingType).get();
         CimChannel deltaCimChannel = channel.getCimChannel(channel.getMainReadingType()).get();
-        assertQualities(bulkCimChannel, dateA, new ReadingQualityType[] {
+        assertQualities(bulkCimChannel, dateA, new ReadingQualityType[]{
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.SUSPECT),
                 ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ZEROUSAGE)
         }, new ReadingQualityType[0]);
@@ -270,33 +270,33 @@ public class ReadingEstimateIT {
             bulkCimChannel.estimateReadings(QualityCodeSystem.MDC, ImmutableList.of(reading1, reading2));
 
             // bulk channel, date A
-            assertQualities(bulkCimChannel, dateA, new ReadingQualityType[] {
+            assertQualities(bulkCimChannel, dateA, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ZEROUSAGE)
             });
             // bulk channel, date B
-            assertQualities(bulkCimChannel, dateB, new ReadingQualityType[] {
+            assertQualities(bulkCimChannel, dateB, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2)
             }, new ReadingQualityType[0]);
             // delta channel, date A
-            assertQualities(deltaCimChannel, dateA, new ReadingQualityType[] {
+            assertQualities(deltaCimChannel, dateA, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 1)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.KNOWNMISSINGREAD)
             });
             // delta channel, date B
-            assertQualities(deltaCimChannel, dateB, new ReadingQualityType[] {
+            assertQualities(deltaCimChannel, dateB, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeIndex.ADDED),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALIDATION, 1000),
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.KNOWNMISSINGREAD)
             });
             // delta channel, date C
-            assertQualities(deltaCimChannel, dateC, new ReadingQualityType[] {
+            assertQualities(deltaCimChannel, dateC, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.ESTIMATED, 2)
-            }, new ReadingQualityType[] {
+            }, new ReadingQualityType[]{
                     ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeIndex.ADDED),
                     ReadingQualityType.of(QualityCodeSystem.MDC, QualityCodeCategory.VALIDATION, 2000)
             });
