@@ -2,6 +2,7 @@ package com.elster.jupiter.autotests.rest.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.rest.util.Transactional;
@@ -36,10 +37,10 @@ public class UsagePointTestResource {
         if (this.meteringService.findUsagePoint(mRID).isPresent()) {
             UsagePoint usagePoint = this.meteringService.findUsagePoint(mRID).get();
 
-            if (usagePoint.getEffectiveMetrologyConfiguration().isPresent()) {
+            for (EffectiveMetrologyConfigurationOnUsagePoint configurationOnUsagePoint : usagePoint.getEffectiveMetrologyConfigurations()) {
                 DataModel dataModel = ormService.getDataModel("MTR").get();
                 Connection connection = dataModel.getConnection(true);
-                long id = usagePoint.getId();
+                long id = configurationOnUsagePoint.getId();
                 try {
                     connection.createStatement()
                             .execute(
