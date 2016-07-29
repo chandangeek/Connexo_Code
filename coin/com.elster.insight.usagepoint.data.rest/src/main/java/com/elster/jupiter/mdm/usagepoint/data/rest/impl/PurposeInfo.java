@@ -1,7 +1,6 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ public class PurposeInfo {
     public List<MeterRoleInfo> meterRoles;
     public Long version;
     public UsagePointValidationStatusInfo validationInfo;
-    public List<DataValidationTaskInfo> dataValidationTasks;
+    public List<DataValidationTaskShortInfo> dataValidationTasks;
 
     public PurposeInfo() {
     }

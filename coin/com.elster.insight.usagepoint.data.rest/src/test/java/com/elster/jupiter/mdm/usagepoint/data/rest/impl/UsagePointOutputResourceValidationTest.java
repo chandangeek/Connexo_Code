@@ -192,13 +192,10 @@ public class UsagePointOutputResourceValidationTest extends UsagePointDataRestAp
 
     @Test
     public void testDataValidationTaskInfoOnMetrologyContract() {
-        String json = target("/usagepoints/UP/purposes").request().get(String.class);
+        String json = target("/usagepoints/UP/purposes").queryParam("withValidationTasks", true).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.purposes[0].dataValidationTasks[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.purposes[0].dataValidationTasks[0].name")).isEqualTo("Validation Task");
-        assertThat(jsonModel.<Number>get("$.purposes[0].dataValidationTasks[0].metrologyContract.id")).isEqualTo(1);
-        assertThat(jsonModel.<Number>get("$.purposes[0].dataValidationTasks[0].schedule.count")).isEqualTo(5);
-        assertThat(jsonModel.<String>get("$.purposes[0].dataValidationTasks[0].schedule.timeUnit")).isEqualTo("days");
     }
 
     @Test

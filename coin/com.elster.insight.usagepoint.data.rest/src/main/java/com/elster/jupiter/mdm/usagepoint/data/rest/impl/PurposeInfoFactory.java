@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.nls.Thesaurus;
@@ -29,7 +28,7 @@ public class PurposeInfoFactory {
         this.timeService = timeService;
     }
 
-    private PurposeInfo asInfo(MetrologyContract metrologyContract, UsagePoint usagePoint) {
+    public PurposeInfo asInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract, boolean withValidationTasks) {
         PurposeInfo purposeInfo = new PurposeInfo();
         purposeInfo.id = metrologyContract.getId();
         purposeInfo.name = metrologyContract.getMetrologyPurpose().getName();
@@ -37,23 +36,21 @@ public class PurposeInfoFactory {
         purposeInfo.active = purposeInfo.required;
         purposeInfo.version = metrologyContract.getVersion();
         IdWithNameInfo status = new IdWithNameInfo();
-        MetrologyContract.Status metrologyContractStatus = metrologyContract.getStatus(usagePoint);
+        MetrologyContract.Status metrologyContractStatus = metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint());
         status.id = metrologyContractStatus.isComplete() ? "complete" : "incomplete";
         status.name = metrologyContractStatus.getName();
         purposeInfo.status = status;
-        return purposeInfo;
-    }
-
-    public PurposeInfo asInfo(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
-        PurposeInfo purposeInfo = asInfo(metrologyContract, effectiveMetrologyConfiguration.getUsagePoint());
         effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).ifPresent(channelsContainer ->
                 purposeInfo.validationInfo = validationStatusFactory.getValidationStatusInfo(effectiveMetrologyConfiguration, metrologyContract, channelsContainer.getChannels()));
-        purposeInfo.dataValidationTasks = validationService.findValidationTasksQuery()
-                .select(where("metrologyContract").isEqualTo(metrologyContract))
-                .stream()
-                .map(validationTask -> new DataValidationTaskInfo(validationTask, thesaurus, timeService))
-                .sorted(Comparator.comparing(info -> info.name))
-                .collect(Collectors.toList());
+        if (withValidationTasks) {
+            purposeInfo.dataValidationTasks = validationService.findValidationTasksQuery()
+                    .select(where("metrologyContract").isEqualTo(metrologyContract))
+                    .stream()
+                    .map(validationTask -> new DataValidationTaskInfo(validationTask, thesaurus, timeService))
+                    .map(DataValidationTaskShortInfo::new)
+                    .sorted(Comparator.comparing(info -> info.name))
+                    .collect(Collectors.toList());
+        }
         return purposeInfo;
     }
 }
