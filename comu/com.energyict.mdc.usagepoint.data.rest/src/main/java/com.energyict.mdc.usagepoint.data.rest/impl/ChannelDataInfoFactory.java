@@ -19,10 +19,7 @@ public class ChannelDataInfoFactory {
                 .filter(entry -> entry.getKey().contains(readingRecord.getTimeStamp()))
                 .findAny()
                 .map(Map.Entry::getValue);
-        if (lastChecked.isPresent()) {
-            // if last checked value is here, this means than source channel was also found
-            channelDataInfo.readingTime = readingRecord.getTimeStamp();
-        }
+        channelDataInfo.readingTime = readingRecord.getTimeStamp();
         channelDataInfo.validationResult = readingRecord.getValidationStatus(lastChecked.orElse(Instant.MIN));
         channelDataInfo.dataValidated = !readingRecord.getTimeStamp().isAfter(lastChecked.orElse(Instant.MIN));
         channelDataInfo.validationAction = ValidationAction.FAIL;
