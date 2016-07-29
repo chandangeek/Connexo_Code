@@ -565,11 +565,11 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     private void basicCheckEffectiveMetrologyConfiguration(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
-        Range range = end == null ? Range.atLeast(start) : Range.closedOpen(start, end);
-        List<MeterActivation> meterActivations = this.getMeterActivations(range);
         if (end != null && (end.isBefore(start) || end.equals(start))) {
             throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
         }
+        Range range = end == null ? Range.atLeast(start) : Range.closedOpen(start, end);
+        List<MeterActivation> meterActivations = this.getMeterActivations(range);
         List<Pair<MeterRole, Meter>> pairs = new ArrayList<>();
         metrologyConfiguration.getMeterRoles().stream().forEach(meterRole -> {
             meterActivations
