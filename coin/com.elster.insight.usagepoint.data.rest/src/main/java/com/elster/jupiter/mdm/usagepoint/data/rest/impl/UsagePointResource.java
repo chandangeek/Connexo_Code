@@ -628,16 +628,15 @@ public class UsagePointResource {
         Range<Instant> upToNow = Range.atMost(now);
         if (interval.isConnected(upToNow)) {
             interval = interval.intersection(upToNow);
-        } else {
-            throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
+            if (!interval.isEmpty()) {
+                List<ChannelDataValidationSummaryInfo> result = usagePointDataService
+                        .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
+                        .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
+                        .collect(Collectors.toList());
+                return PagedInfoList.fromCompleteList("outputs", result, queryParameters);
+            }
         }
-
-        List<ChannelDataValidationSummaryInfo> result = usagePointDataService
-                .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
-                .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
-                .collect(Collectors.toList());
-
-        return PagedInfoList.fromCompleteList("outputs", result, queryParameters);
+        throw exceptionFactory.newException(MessageSeeds.RELATIVEPERIOD_IS_IN_THE_FUTURE, periodId);
     }
 
     @GET
@@ -685,14 +684,14 @@ public class UsagePointResource {
     private long getIntervalLengthDifference(RelativePeriod relativePeriod, TemporalAmount targetIntervalLength, ZonedDateTime referenceTime) {
         Range<ZonedDateTime> interval = relativePeriod.getOpenClosedZonedInterval(referenceTime);
         ZonedDateTime relativePeriodStart = interval.lowerEndpoint();
-        if (relativePeriodStart.isAfter(referenceTime)) {
-            // period starts in the future, this is not what we need,
-            // return max interval length to move such relative period to the bottom of the list
-            return Long.MAX_VALUE;
+        if (referenceTime.isAfter(relativePeriodStart)) {
+            long relativePeriodLength = getIntervalLength(interval.intersection(Range.atMost(referenceTime)));
+            long targetLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodStart.plus(targetIntervalLength)));
+            return Math.abs(targetLength - relativePeriodLength);
         }
-        long relativePeriodLength = getIntervalLength(interval.intersection(Range.openClosed(relativePeriodStart, referenceTime)));
-        long targetLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodStart.plus(targetIntervalLength)));
-        return Math.abs(targetLength - relativePeriodLength);
+        // period starts in the future, this is not what we need,
+        // return max interval length to move such relative period to the bottom of the list
+        return Long.MAX_VALUE;
     }
 
     private long getIntervalLength(Range<ZonedDateTime> interval) {
