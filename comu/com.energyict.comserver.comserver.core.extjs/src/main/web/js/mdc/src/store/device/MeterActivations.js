@@ -7,6 +7,7 @@ Ext.define('Mdc.store.device.MeterActivations', {
     pageParam: false,
     startParam: false,
     limitParam: false,
+    pageSize: undefined,
     proxy: {
         type: 'rest',
         url: '/api/ddr/devices/{mRID}/history/meteractivations',
