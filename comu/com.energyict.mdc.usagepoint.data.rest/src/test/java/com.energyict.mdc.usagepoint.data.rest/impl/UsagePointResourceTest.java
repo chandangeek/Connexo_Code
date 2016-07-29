@@ -29,6 +29,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -67,11 +68,12 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
     @Mock
     private DeviceType deviceType;
     @Mock
-    private State deviceState;
-    @Mock
     private MeterInfoFactory meterInfoFactory;
+    @Mock
+    private State deviceState;
 
     private ReadingType readingType;
+    ;
 
     @Before
     public void before() {
@@ -82,10 +84,11 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
         when(meterActivation.getStart()).thenReturn(Instant.ofEpochMilli(1410774620100L));
         when(meterActivation.getEnd()).thenReturn(null);
         when(meter.getMRID()).thenReturn("testD");
-        when(deviceState.getName()).thenReturn("Decommissioned");
+        when(deviceState.getName()).thenReturn(DefaultState.ACTIVE.getKey());
         when(device.getSerialNumber()).thenReturn("123");
         when(device.getDeviceType()).thenReturn(deviceType);
         when(device.getState()).thenReturn(deviceState);
+        when(meter.getState()).thenReturn(Optional.of(deviceState));
         when(deviceType.getId()).thenReturn(1L);
         when(deviceType.getName()).thenReturn("testDT");
         when(deviceService.findByUniqueMrid("testD")).thenReturn(Optional.of(device));
@@ -94,11 +97,15 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
 
     @Test
     public void testDevicesHistory() {
+
+        // Business method
         String json = target("/usagepoints/testUP/history/devices").request().get(String.class);
+
+        // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<String>get("$.devices[0].mRID")).isEqualTo("testD");
         assertThat(jsonModel.<String>get("$.devices[0].serialNumber")).isEqualTo("123");
-        assertThat(jsonModel.<String>get("$.devices[0].state")).isEqualTo("Decommissioned");
+        assertThat(jsonModel.<String>get("$.devices[0].state")).isEqualTo(DefaultState.ACTIVE.getKey());
         assertThat(jsonModel.<Number>get("$.devices[0].start")).isEqualTo(1410774620100L);
         assertThat(jsonModel.<Boolean>get("$.devices[0].active")).isEqualTo(true);
         assertThat(jsonModel.<Number>get("$.devices[0].deviceType.id")).isEqualTo(1);
@@ -150,7 +157,7 @@ public class UsagePointResourceTest extends UsagePointApplicationJerseyTest {
     @Test
     public void testGetChannel() {
         EffectiveMetrologyConfigurationOnUsagePoint mc = mockEffectiveMetrologyConfiguration();
-        when(usagePoint.getEffectiveMetrologyConfiguration(any())).thenReturn(Optional.of(mc));
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.of(mc));
 
         //Business method
         String json = target("/usagepoints/testUP/channels/1").request().get(String.class);

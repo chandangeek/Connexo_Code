@@ -1,5 +1,6 @@
 package com.energyict.mdc.usagepoint.data.rest.impl;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
@@ -51,8 +52,11 @@ public class MeterInfoFactory {
     public List<MeterInfo> getDevicesHistory(UsagePoint usagePoint) {
         MACollector maCollector = usagePoint.getMeterActivations()
                 .stream()
-                .filter(ma -> !ma.getMeter().get().getState().get().getName().equals("dlc.default.removed"))
-                .filter(ma -> !ma.getMeter().get().getState().get().getName().equals("dlc.default.decomissioned"))
+                .filter(ma -> {
+                    State state = ma.getMeter().get().getState().get();
+                    return !state.getName().equals(DefaultState.DECOMMISSIONED.getKey()) &&
+                            !state.getName().equals(DefaultState.REMOVED.getKey());
+                })
                 .map(this::asInfo)
                 .collect(Collector.of(MACollector::new, MACollector::add, (c1, c2) -> c1));
         Collections.reverse(maCollector.getMeterInfos());
