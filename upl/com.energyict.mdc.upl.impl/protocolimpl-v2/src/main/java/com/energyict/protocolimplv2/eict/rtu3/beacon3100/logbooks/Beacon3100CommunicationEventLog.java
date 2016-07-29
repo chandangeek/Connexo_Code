@@ -10,24 +10,22 @@ import java.util.TimeZone;
 /**
  * Copyrights EnergyICT
  */
+public class Beacon3100CommunicationEventLog extends Beacon3100AbstractEventLog {
 
-public class Beacon3100VoltageEventLog extends Beacon3100AbstractEventLog {
-
-    public Beacon3100VoltageEventLog(DataContainer dc, TimeZone timeZone) {
+    public Beacon3100CommunicationEventLog(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);
     }
 
     @Override
     protected String getLogBookName() {
-        return "Voltage event log";
+        return "Communication log";
     }
-
     @Override
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int dlmsCode, int deviceCode, String message) {
         int eiCode = MeterEvent.OTHER;
         String eventDescription = null;
 
-        if (deviceCode == EVENT_LOG_CLEARED_DEVICECODE) {
+        if (deviceCode == EVENT_LOG_CLEARED_DEVICECODE){
             eiCode = MeterEvent.EVENT_LOG_CLEARED;
             eventDescription = getLogBookName() + " cleared";
         } else {

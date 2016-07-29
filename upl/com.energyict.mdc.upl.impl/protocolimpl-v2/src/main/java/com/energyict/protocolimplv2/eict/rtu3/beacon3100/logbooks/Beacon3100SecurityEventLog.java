@@ -3,23 +3,21 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 import com.energyict.dlms.DataContainer;
 import com.energyict.protocol.MeterEvent;
 
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
  */
 
-public class Beacon3100VoltageEventLog extends Beacon3100AbstractEventLog {
+public class Beacon3100SecurityEventLog extends Beacon3100AbstractEventLog {
 
-    public Beacon3100VoltageEventLog(DataContainer dc, TimeZone timeZone) {
+    public Beacon3100SecurityEventLog(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);
     }
 
     @Override
     protected String getLogBookName() {
-        return "Voltage event log";
+        return "Security event log";
     }
 
     @Override
@@ -27,7 +25,7 @@ public class Beacon3100VoltageEventLog extends Beacon3100AbstractEventLog {
         int eiCode = MeterEvent.OTHER;
         String eventDescription = null;
 
-        if (deviceCode == EVENT_LOG_CLEARED_DEVICECODE) {
+        if (deviceCode == EVENT_LOG_CLEARED_DEVICECODE){
             eiCode = MeterEvent.EVENT_LOG_CLEARED;
             eventDescription = getLogBookName() + " cleared";
         } else {
