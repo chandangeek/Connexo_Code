@@ -98,10 +98,6 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                                         usagePoint: me.usagePoint,
                                         title: Uni.I18n.translate('general.metrologyConfiguration', 'IMT', 'Metrology configuration'),
                                         router: me.router
-                                    },
-                                    {
-                                        itemId: 'usage-point-validation-configuration',
-                                        title: Uni.I18n.translate('general.validationConfiguration', 'IMT', 'Validation configuration')
                                     }
                                 ]
                             }
