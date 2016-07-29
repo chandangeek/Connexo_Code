@@ -54,7 +54,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -390,16 +389,15 @@ public class ChannelResource {
             @PathParam("channelid") long channelId,
             @PathParam("epochMillis") long epochMillis) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-
-        Range<Instant> range = Ranges.openClosed(Instant.ofEpochMilli(epochMillis - 1), Instant.ofEpochMilli(epochMillis));
+        Instant to = Instant.ofEpochMilli(epochMillis);
+        Instant from = to.minus(channel.getInterval().asTemporalAmount());
+        Range<Instant> range = Ranges.openClosed(from, to);
         List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
-        Optional<VeeReadingInfo> found = channelTimeLine.stream()
+        Optional<VeeReadingInfo> veeReadingInfo = channelTimeLine.stream()
                 .map(channelRangePair -> {
                             Channel channelWithData = channelRangePair.getFirst();
-                    Instant to = Instant.ofEpochMilli(epochMillis);
-                    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(to, channelWithData.getDevice().getZone());
-                    Instant from = zonedDateTime.minus(channelWithData.getInterval().asTemporalAmount()).toInstant();
-                    Optional<LoadProfileReading> loadProfileReading = channelWithData.getChannelData(Range.openClosed(from, to)).stream().findAny();
+
+                    Optional<LoadProfileReading> loadProfileReading = channelWithData.getChannelData(range).stream().findAny();
                     if (loadProfileReading.isPresent()) {
                         DeviceValidation deviceValidation = channelWithData.getDevice().forValidation();
 
@@ -420,15 +418,15 @@ public class ChannelResource {
                                     .orElse(null);// There can be only one channel (or no channel at all if the channel has no dta for this interval)
                             return validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, dataValidationStatus.get(), deviceValidation, channelReading, isValidationActive);
                         } else {
-                            return null;
+                            return new VeeReadingInfo();
 
                         }
                     } else {
-                        return null;
+                        return new VeeReadingInfo();
                     }
                         }
-                ).findFirst();
-        return Response.ok(found.orElse(new VeeReadingInfo())).build();
+                ).findAny();
+        return Response.ok(veeReadingInfo.orElse(new VeeReadingInfo())).build();
     }
 
     private boolean hasSuspects(ChannelDataInfo info) {

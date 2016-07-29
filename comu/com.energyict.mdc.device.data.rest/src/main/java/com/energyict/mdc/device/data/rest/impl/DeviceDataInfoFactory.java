@@ -81,8 +81,7 @@ public class DeviceDataInfoFactory {
             readingQualityRecords = new ArrayList<>();
         }
 
-        channelIntervalInfo.readingQualities = readingQualityRecords
-                .stream()
+        channelIntervalInfo.readingQualities = readingQualityRecords.stream()
                 .filter(ReadingQualityRecord::isActual)
                 .distinct()
                 .filter(record -> record.getType().system().isPresent())
