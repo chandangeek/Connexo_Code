@@ -92,10 +92,10 @@ public class DataValidationTaskResource {
     }
 
     @POST
-    @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @Transactional
     public Response createDataValidationTask(DataValidationTaskInfo info,
                                              @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
         DataValidationTaskBuilder builder = validationService.newTaskBuilder()
@@ -130,8 +130,7 @@ public class DataValidationTaskResource {
         return PagedInfoList.fromCompleteList("dataValidationTasks", infos, queryParameters);
     }
 
-    @DELETE
-    @Transactional
+    @DELETE @Transactional
     @Path("/{dataValidationTaskId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
@@ -140,7 +139,7 @@ public class DataValidationTaskResource {
                                              DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
         findAndLockDataValidationTask(info, getQualityCodeSystemForApplication(applicationName)).delete();
-        return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.ok().build();
     }
 
     @GET
