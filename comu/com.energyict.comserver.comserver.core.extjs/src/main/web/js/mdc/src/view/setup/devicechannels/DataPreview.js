@@ -214,29 +214,31 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         insightQualityField.setValue('');
         thirdPartyQualityField.setValue('');
 
-        Ext.Array.forEach(dataQualities, function (readingQuality) {
-            if (readingQuality.cimCode.startsWith('1.')) {
-                showDeviceQuality |= true;
-                field = deviceQualityField;
-            } else if (readingQuality.cimCode.startsWith('2.')) {
-                showMultiSenseQuality |= true;
-                field = multiSenseQualityField;
-            } else if (readingQuality.cimCode.startsWith('3.')) {
-                showInsightQuality |= true;
-                field = insightQualityField;
-            } else if (readingQuality.cimCode.startsWith('4.') || readingQuality.cimCode.startsWith('5.')) {
-                show3rdPartyQuality |= true;
-                field = thirdPartyQualityField;
-            }
-            if (!Ext.isEmpty(field)) {
-                field.setValue(field.getValue()
-                    + (Ext.isEmpty(field.getValue()) ? '' : '<br>')
-                    + '<span style="display:inline-block; float: left; margin-right:7px;" >' + readingQuality.indexName + ' (' + readingQuality.cimCode + ')' + '</span>'
-                    + '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
-                    + me.getTooltip(readingQuality.systemName, readingQuality.categoryName, readingQuality.indexName) + '"></span>'
-                );
-            }
-        });
+        if (!Ext.isEmpty(dataQualities)) {
+            Ext.Array.forEach(dataQualities, function (readingQuality) {
+                if (readingQuality.cimCode.startsWith('1.')) {
+                    showDeviceQuality |= true;
+                    field = deviceQualityField;
+                } else if (readingQuality.cimCode.startsWith('2.')) {
+                    showMultiSenseQuality |= true;
+                    field = multiSenseQualityField;
+                } else if (readingQuality.cimCode.startsWith('3.')) {
+                    showInsightQuality |= true;
+                    field = insightQualityField;
+                } else if (readingQuality.cimCode.startsWith('4.') || readingQuality.cimCode.startsWith('5.')) {
+                    show3rdPartyQuality |= true;
+                    field = thirdPartyQualityField;
+                }
+                if (!Ext.isEmpty(field)) {
+                    field.setValue(field.getValue()
+                        + (Ext.isEmpty(field.getValue()) ? '' : '<br>')
+                        + '<span style="display:inline-block; float: left; margin-right:7px;" >' + readingQuality.indexName + ' (' + readingQuality.cimCode + ')' + '</span>'
+                        + '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                        + me.getTooltip(readingQuality.systemName, readingQuality.categoryName, readingQuality.indexName) + '"></span>'
+                    );
+                }
+            });
+        }
 
         showDeviceQuality ? deviceQualityField.show() : deviceQualityField.hide();
         showMultiSenseQuality ? multiSenseQualityField.show() : multiSenseQualityField.hide();
