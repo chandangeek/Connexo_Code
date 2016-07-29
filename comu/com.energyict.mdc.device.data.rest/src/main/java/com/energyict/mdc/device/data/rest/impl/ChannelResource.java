@@ -357,7 +357,7 @@ public class ChannelResource {
         DeviceValidation deviceValidation = channel.getDevice().forValidation();
         boolean isValidationActive = deviceValidation.isValidationActive();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
-            Range<Instant> range = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
+            Range<Instant> range = Ranges.closedOpen(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
 
             // Always do it via the topologyService, if for some reason the performance is slow, check if you can optimize it for
             // devices which are not dataloggers
@@ -391,7 +391,7 @@ public class ChannelResource {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         Instant to = Instant.ofEpochMilli(epochMillis);
         Instant from = to.minus(channel.getInterval().asTemporalAmount());
-        Range<Instant> range = Ranges.openClosed(from, to);
+        Range<Instant> range = Ranges.closedOpen(from, to);
         List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
         Optional<VeeReadingInfo> veeReadingInfo = channelTimeLine.stream()
                 .map(channelRangePair -> {
