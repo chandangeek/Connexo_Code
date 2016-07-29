@@ -38,8 +38,8 @@ Ext.define('Uni.property.view.property.Quantity', {
 
     setValue: function (value) {
         var me = this,
-            valueRegExp = /(\d*)\:\d*\:.*/,
-            unitRegExp = /\d*(\:\d*\:.*)/;
+            valueRegExp = /(-?\d*)\:-?\d*\:.*/,
+            unitRegExp = /-?\d*(\:-?\d*\:.*)/;
 
         if (Ext.isObject(value) && Ext.isString(value.id)) {
             value = value.id
@@ -56,7 +56,7 @@ Ext.define('Uni.property.view.property.Quantity', {
 
     getValue: function () {
         var me = this,
-            unitRegExp = /\d*(\:\d*\:.*)/,
+            unitRegExp = /-?\d*(\:-?\d*\:.*)/,
             value = me.down('numberfield').getValue();
 
         return !Ext.isEmpty(value) ? me.down('combobox').getValue().replace(unitRegExp, value + '$1') : null;
@@ -101,8 +101,8 @@ Ext.define('Uni.property.view.property.Quantity', {
 
     getValueAsDisplayString: function (value) {
         var me = this,
-            valueRegExp = /(\d*)\:\d*\:.*/,
-            unitRegExp = /\d*(\:\d*\:.*)/,
+            valueRegExp = /(-?\d*)\:-?\d*\:.*/,
+            unitRegExp = /-?\d*(\:-?\d*\:.*)/,
             possibleValues = me.getProperty().getPossibleValues();
 
         if (!Ext.isEmpty(value) && Ext.isString(value)) {
