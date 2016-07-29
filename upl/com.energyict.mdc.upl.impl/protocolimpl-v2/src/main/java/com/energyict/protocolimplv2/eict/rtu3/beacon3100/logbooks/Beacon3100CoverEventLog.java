@@ -23,7 +23,8 @@ public class Beacon3100CoverEventLog extends Beacon3100AbstractEventLog {
 
     @Override
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int dlmsCode, int deviceCode, String message) {
-        int eiCode = MeterEvent.OTHER;
+        /*int eiCode = MeterEvent.OTHER;*/
+        int eiCode = dlmsCode;
         String eventDescription = null;
 
         if (deviceCode == EVENT_LOG_CLEARED_DEVICECODE){

@@ -24,10 +24,11 @@ public class Beacon3100StandardEventLog extends Beacon3100AbstractEventLog {
     @Override
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int dlmsCode, int deviceCode, String message) {
         /*int eiCode = MeterEvent.OTHER;*/
+        int eiCode = dlmsCode;
         String eventDescription = null;
 
         if (deviceCode == EVENT_LOG_CLEARED_DEVICECODE){
-            /*eiCode = MeterEvent.EVENT_LOG_CLEARED;*/
+            eiCode = MeterEvent.EVENT_LOG_CLEARED;
             eventDescription = getLogBookName() + " cleared";
         } else {
             eventDescription = getEventInfo(dlmsCode, deviceCode);
@@ -36,6 +37,6 @@ public class Beacon3100StandardEventLog extends Beacon3100AbstractEventLog {
                 eventDescription = getDefaultEventDescription(dlmsCode, deviceCode, message);
             }
         }
-        meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), dlmsCode, deviceCode, "Event: "+eventDescription+" - "+message));
+        meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), eiCode, deviceCode, "Event: "+eventDescription+" - "+message));
     }
 }
