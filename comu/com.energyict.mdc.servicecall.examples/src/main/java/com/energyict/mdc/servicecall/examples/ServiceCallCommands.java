@@ -47,8 +47,8 @@ import java.util.Scanner;
                 "osgi.command.function=createServiceCallDemoData"
         }, immediate = true)
 public class ServiceCallCommands {
-    private static final String HANDLER_NAME = "yearUpdater";
-    private static final String HANDLER_VERSION_NAME = "v1.0";
+    static final String HANDLER_NAME = "yearUpdater";
+    static final String HANDLER_VERSION_NAME = "v1.0";
     private static final String GROUP_HANDLER_NAME = "yearGroupUpdater";
     private static final String GROUP_HANDLER_VERSION_NAME = "v1.0";
     private static final String CAPTAIN_HOOK_HANDLER_NAME = "captainHook";

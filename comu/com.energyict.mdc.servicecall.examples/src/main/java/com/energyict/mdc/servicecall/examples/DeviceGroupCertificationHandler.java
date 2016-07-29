@@ -1,6 +1,5 @@
 package com.energyict.mdc.servicecall.examples;
 
-import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
         property = "name=DeviceGroupCertificationHandler")
 public class DeviceGroupCertificationHandler implements ServiceCallHandler {
 
-    private volatile CustomPropertySetService customPropertySetService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile ServiceCallService serviceCallService;
     private volatile DeviceService deviceService;
@@ -48,11 +46,6 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
-    }
-
-    @Reference
-    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
-        this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
@@ -140,15 +133,14 @@ public class DeviceGroupCertificationHandler implements ServiceCallHandler {
         }
     }
 
-    protected Map<DefaultState, Long> countStates(ServiceCall parentServiceCall) {
+    private Map<DefaultState, Long> countStates(ServiceCall parentServiceCall) {
         return parentServiceCall.findChildren()
                 .stream()
                 .collect(Collectors.groupingBy(ServiceCall::getState, Collectors.counting()));
     }
 
-    protected void createChildren(ServiceCall serviceCall) {
-        DeviceGroupCertificationDomainExtension extensionFor = serviceCall.getExtensionFor(new DeviceGroupCertificationCustomPropertySet())
-                .get();
+    private void createChildren(ServiceCall serviceCall) {
+        DeviceGroupCertificationDomainExtension extensionFor = serviceCall.getExtensionFor(new DeviceGroupCertificationCustomPropertySet()).get();
 
         Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(extensionFor.getDeviceGroupId());
 
