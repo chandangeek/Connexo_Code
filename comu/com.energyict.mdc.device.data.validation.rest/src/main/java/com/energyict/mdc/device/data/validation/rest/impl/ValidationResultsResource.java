@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -23,11 +22,17 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 @Path("/validationresults")
 public class ValidationResultsResource {
@@ -126,6 +131,10 @@ public class ValidationResultsResource {
                                         validator.getDeviceValidationKpiResults()
                                                 .isRegisterIncreaseValidator() && Validator.fromAbbreviation(Validator.REGISTERINCREASEVALIDATOR.getElementAbbreviation())))
                         .map(ValidationSummaryInfo::new)).distinct().collect(Collectors.toList());
+        data = data.stream()
+                .sorted((f1, f2) -> Long.compare(f2.lastSuspect.toEpochMilli(), f1.lastSuspect.toEpochMilli()))
+                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparing(p -> p.mrid))),
+                        ArrayList::new));
         Validator.refreshValidatorValues();
         return PagedInfoList.fromPagedList("summary", data, queryParameters);
     }
