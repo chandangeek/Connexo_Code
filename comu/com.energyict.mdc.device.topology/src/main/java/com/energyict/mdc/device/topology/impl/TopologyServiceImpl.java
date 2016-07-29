@@ -457,7 +457,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     /**
-     * Constructs a timeLine based on the given dataLoggerDataSource and the slave resources which were potentially presentin the requested range
+     * Constructs a timeLine based on the given dataLoggerDataSource and the slave resources which were potentially present in the requested range
      *
      * @param dataLoggerDataSource the Data source (channel or register) of the datalogger (or just a  plain device)
      * @param range the range in where we need to construct the timeline
@@ -467,7 +467,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
      * @param <T> the generic type of a Channel/Register
      */
     private <T> void constructTimeLine(T dataLoggerDataSource, Range<Instant> range, List<DataLoggerChannelUsage> dataLoggerChannelUsages, List<Pair<T, Range<Instant>>> timeLine, Function<DataLoggerChannelUsage, Optional<T>> slaveItem) {
-        dataLoggerChannelUsages.forEach(dataLoggerChannelUsage -> {
+        dataLoggerChannelUsages.stream().filter(dataLoggerChannelUsage1 -> !dataLoggerChannelUsage1.getRange().isEmpty()).forEach(dataLoggerChannelUsage -> {
             Optional<Pair<T, Range<Instant>>> lastListItem = getLastListItem(timeLine);
             // if we don't have a consecutive 'range', then add a timeLine entry for the original 'dataLoggerDataSource
             if (lastListItem.isPresent() && (!lastListItem.get().getLast().lowerEndpoint().equals(dataLoggerChannelUsage.getRange().upperEndpoint()))) {
@@ -497,7 +497,11 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             lowerEndPoint = requestedRange.lowerEndpoint();
         }
         if (slaveRange.hasUpperBound()) {
-            upperEndPoint = slaveRange.upperEndpoint();
+            if (requestedRange.hasUpperBound() && slaveRange.upperEndpoint().isAfter(requestedRange.upperEndpoint())) {
+                upperEndPoint = requestedRange.upperEndpoint();
+            } else {
+                upperEndPoint = slaveRange.upperEndpoint();
+            }
         } else if (requestedRange.hasUpperBound()) {
             upperEndPoint = requestedRange.upperEndpoint();
         }
