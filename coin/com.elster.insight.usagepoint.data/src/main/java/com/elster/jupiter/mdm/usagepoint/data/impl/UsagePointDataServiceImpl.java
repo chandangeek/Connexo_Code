@@ -27,7 +27,9 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.ImmutableSet;
@@ -54,6 +56,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(
         name = "UsagePointDataServiceImpl",
@@ -259,7 +263,12 @@ public class UsagePointDataServiceImpl implements UsagePointDataService, Message
         ChannelsContainer container = effectiveMetrologyConfiguration.getChannelsContainer(contract)
                 .orElseThrow(() -> new LocalizedException(thesaurus, MessageSeeds.METROLOGYPURPOSE_IS_NOT_LINKED_TO_USAGEPOINT,
                         contract.getMetrologyPurpose().getId(), effectiveMetrologyConfiguration.getUsagePoint().getMRID()) {});
-        Optional<Range<Instant>> optionalIntervalWithData = container.intersection(interval);
+        Optional<Range<Instant>> optionalIntervalWithData = Optional.of(container)
+                .map(Effectivity::getInterval)
+                .map(Interval::toOpenClosedRange)
+                .filter(interval::isConnected)
+                .map(interval::intersection)
+                .filter(not(Range::isEmpty));
         return contract.getDeliverables().stream().collect(Collectors.toMap(
                 Function.identity(),
                 deliverable -> optionalIntervalWithData

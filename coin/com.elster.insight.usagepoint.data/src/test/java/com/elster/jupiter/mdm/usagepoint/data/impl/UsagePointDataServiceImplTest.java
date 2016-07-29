@@ -26,6 +26,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.ImmutableList;
@@ -140,7 +141,7 @@ public class UsagePointDataServiceImplTest {
         when(effectiveMetrologyConfiguration.getUsagePoint()).thenReturn(usagePoint);
         when(effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract)).thenReturn(Optional.of(channelsContainer));
         when(channelsContainer.getChannel(readingType)).thenReturn(Optional.of(channel));
-        when(channelsContainer.intersection(captor.capture())).thenAnswer(invocation -> Optional.of(captor.getValue()));
+        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.all()));
 
         usagePointDataService = new UsagePointDataServiceImpl(clock, ormService, meteringService, validationService,
                 nlsService, customPropertySetService, usagePointConfigurationService);
@@ -215,7 +216,7 @@ public class UsagePointDataServiceImplTest {
     @Test
     public void testGetValidationSummaryForPeriodStartingBeforeChannelsContainerStart() {
         Range<Instant> actualRange = Range.openClosed(FIRST_DATE, NOW);
-        when(channelsContainer.intersection(NOMINAL_RANGE)).thenReturn(Optional.of(actualRange));
+        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(FIRST_DATE)));
         summaries = usagePointDataService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
         assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
         assertThat(summaries.values().stream()
@@ -233,7 +234,19 @@ public class UsagePointDataServiceImplTest {
 
     @Test
     public void testGetValidationSummaryForPeriodEndingBeforeChannelsContainerStart() {
-        when(channelsContainer.intersection(NOMINAL_RANGE)).thenReturn(Optional.empty());
+        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.atLeast(NOW)));
+        summaries = usagePointDataService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
+        assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
+        assertThat(summaries.values().stream()
+                .peek(summary -> assertThat(summary.getValues()).isEmpty())
+                .peek(summary -> assertThat(summary.getSum()).isZero())
+                .peek(summary -> assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE))
+                .count()).isEqualTo(2);
+    }
+
+    @Test
+    public void testGetValidationSummaryForPeriodStartingBeforeChannelsContainerEnd() {
+        when(channelsContainer.getInterval()).thenReturn(Interval.of(Range.closedOpen(FIRST_DATE.minusSeconds(1), FIRST_DATE.minusNanos(1))));
         summaries = usagePointDataService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, NOMINAL_RANGE);
         assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
         assertThat(summaries.values().stream()
