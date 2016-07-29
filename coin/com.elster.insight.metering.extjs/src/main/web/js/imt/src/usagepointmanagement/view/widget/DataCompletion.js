@@ -77,6 +77,7 @@ Ext.define('Imt.usagepointmanagement.view.widget.DataCompletion', {
                         margin: '0 10 0 0',
                         listeners: {
                             change: function (combo, newvalue) {
+                                me.setPurpose(purposesStore.getById(newvalue));
                                 store.getProxy().extraParams = {
                                     usagePointMRID: me.usagePoint.get('mRID'),
                                     purposeId: newvalue,
