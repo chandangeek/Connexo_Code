@@ -61,14 +61,14 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
             List<String> ruleValidators = aggregateRuleValidators(registerSuspects, channelsSuspects);
             dataValidationKpi.getDataValidationKpiChildren().stream().forEach(kpi -> kpi.getChildKpi().getMembers().stream()
                     .forEach(member -> {
-                        if (registerSuspects.get(member.getName()) != null && (registerSuspects.get(member.getName()).size() > 0)) {
+                        if (registerSuspects.get(member.getName()) != null) {
                             member.score(localTimeStamp, new BigDecimal(registerSuspects.get(member.getName()).size()));
                         }
-                        if (channelsSuspects.get(member.getName()) != null && (channelsSuspects.get(member.getName()).size() > 0)) {
+                        if (channelsSuspects.get(member.getName()) != null) {
                             member.score(localTimeStamp, new BigDecimal(channelsSuspects.get(member.getName()).size()));
                         }
                         if (totalSuspects.get(member.getName()) != null && (totalSuspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
-                            member.score(localTimeStamp, totalSuspects.get(member.getName()));
+                            member.score(localTimeStamp, totalSuspects.get(member.getName()) == null ? BigDecimal.ZERO : totalSuspects.get(member.getName()));
                         }
                         if(allDataValidated.get(member.getName()) != null){
                             member.score(localTimeStamp, allDataValidated.get(member.getName()) ? BigDecimal.ONE : BigDecimal.ZERO);
