@@ -470,8 +470,10 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         dataLoggerChannelUsages.stream().filter(dataLoggerChannelUsage1 -> !dataLoggerChannelUsage1.getRange().isEmpty()).forEach(dataLoggerChannelUsage -> {
             Optional<Pair<T, Range<Instant>>> lastListItem = getLastListItem(timeLine);
             // if we don't have a consecutive 'range', then add a timeLine entry for the original 'dataLoggerDataSource
-            if (lastListItem.isPresent() && (!lastListItem.get().getLast().lowerEndpoint().equals(dataLoggerChannelUsage.getRange().upperEndpoint()))) {
-                timeLine.add(Pair.of(dataLoggerDataSource, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
+            if (lastListItem.isPresent()) {
+                if ((!lastListItem.get().getLast().lowerEndpoint().equals(dataLoggerChannelUsage.getRange().upperEndpoint()))) {
+                    timeLine.add(Pair.of(dataLoggerDataSource, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
+                }
             } else { // we need to add the first item
                 if (!range.hasUpperBound() && dataLoggerChannelUsage.getRange().hasUpperBound()) {
                     timeLine.add(Pair.of(dataLoggerDataSource, Range.atLeast(dataLoggerChannelUsage.getRange().upperEndpoint())));
