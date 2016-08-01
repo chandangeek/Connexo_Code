@@ -122,6 +122,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
             prevNextListLink = me.makeLinkToOutputs(router),
+            outputModel,
             dependenciesCounter,
             displayPage,
             purpose,
@@ -131,6 +132,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
         if (!tab) {
             window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
         } else {
+            outputModel = me.getModel('Imt.purpose.model.Output');
             dependenciesCounter = 3;
             displayPage = function () {
                 dependenciesCounter--;
@@ -169,7 +171,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 outputs = records;
                 displayPage();
             });
-            me.getModel('Imt.purpose.model.Output').load(outputId, {
+            outputModel.getProxy().getProxy().extraParams = {mRID: mRID, purposeId: purposeId};
+            outputModel.load(outputId, {
                 success: function (record) {
                     output = record;
                     displayPage();

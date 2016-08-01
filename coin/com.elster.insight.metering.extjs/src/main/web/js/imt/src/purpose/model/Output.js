@@ -28,7 +28,7 @@ Ext.define('Imt.purpose.model.Output', {
 
     proxy: {
         type: 'rest',
-        url: '/api/ucr/metrologyconfigurations/outputs',
+        url: '/api/udr/usagepoints/{mRID}/purposes/{purposeId}/outputs',
         reader: 'json',
         pageParam: false,
         startParam: false,
