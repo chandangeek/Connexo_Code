@@ -39,7 +39,7 @@ Ext.define('Ddv.view.validations.Preview', {
                             itemId: 'deviceConfiguration-validations-preview'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('validations.allDataValidated', 'DDV', 'All Data Validated'),
+                            fieldLabel: Uni.I18n.translate('validations.allDataValidated', 'DDV', 'All data validated'),
                             name: 'allDataValidated',
                             itemId: 'allDataValidated-validations-preview',
                             renderer: function (value) {
