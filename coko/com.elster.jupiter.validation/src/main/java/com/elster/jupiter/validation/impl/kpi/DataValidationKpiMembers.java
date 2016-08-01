@@ -45,12 +45,14 @@ public class DataValidationKpiMembers {
                 .collect(Collectors.toMap(s -> s, s -> this.kpiMembers.get(s)
                         .getScores(interval)
                         .stream()
-                        .map(el -> el.getScore())
+                        .map(KpiEntry::getScore)
                         .parallel()
                         .anyMatch(a -> a.longValue() == 1) ? BigDecimal.ONE : BigDecimal.ZERO));
         suspectMap.putAll(dataValidationStatusMap);
         suspectMap.putAll(validatorsMap);
-        if (suspectMap.entrySet().stream().allMatch(a -> a.getValue() == BigDecimal.ZERO)) {
+        if (suspectMap.entrySet().stream()
+                .filter(element -> !element.getKey().equals(MonitoredDataValidationKpiMemberTypes.ALLDATAVALIDATED))
+                .allMatch(a -> a.getValue().compareTo(BigDecimal.ZERO) == 0)) {
             return Optional.empty();
         } else {
             Instant timestamp = kpiMembers.entrySet().stream().filter(member -> member.getKey().equals(MonitoredDataValidationKpiMemberTypes.SUSPECT))

@@ -78,7 +78,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     private Reference<RecurrentTask> dataValidationKpiTask = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Reference<EndDeviceGroup> deviceGroup = ValueReference.absent();
-    @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}" , groups={Save.Create.class, Save.Update.class})
     private transient TemporalAmount frequency;
     private RecurrentTaskSaveStrategy recurrentTaskSaveStrategy = new CreateRecurrentTask(childrenKpis, dataValidationKpiTask, KpiType.VALIDATION);
 

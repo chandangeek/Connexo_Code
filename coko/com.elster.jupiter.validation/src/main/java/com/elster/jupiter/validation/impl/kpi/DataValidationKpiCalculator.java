@@ -67,8 +67,8 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
                         if (channelsSuspects.get(member.getName()) != null) {
                             member.score(localTimeStamp, new BigDecimal(channelsSuspects.get(member.getName()).size()));
                         }
-                        if (totalSuspects.get(member.getName()) != null && (totalSuspects.get(member.getName()).compareTo(new BigDecimal(0)) == 1)) {
-                            member.score(localTimeStamp, totalSuspects.get(member.getName()) == null ? BigDecimal.ZERO : totalSuspects.get(member.getName()));
+                        if (totalSuspects.get(member.getName()) != null) {
+                            member.score(localTimeStamp, totalSuspects.get(member.getName()));
                         }
                         if(allDataValidated.get(member.getName()) != null){
                             member.score(localTimeStamp, allDataValidated.get(member.getName()) ? BigDecimal.ONE : BigDecimal.ZERO);
@@ -85,14 +85,12 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
     private List<String> aggregateRuleValidators(Map<String, List<DataValidationStatus>> registerSuspects, Map<String, List<DataValidationStatus>> channelsSuspects) {
         return Stream.concat(
                 registerSuspects.entrySet().stream()
-                        .filter(entry -> entry.getValue().size() > 0)
                         .flatMap(entry -> entry.getValue().stream()
                                 .map(DataValidationStatus::getOffendedRules)
                                 .flatMap(Collection::stream)
                                 .map(rule -> rule.getImplementation().substring(rule.getImplementation().lastIndexOf(".") + 1))
                                 .map(rule -> rule.toUpperCase() + "_" + entry.getKey().replace(DataValidationKpiMemberTypes.REGISTER.fieldName(), ""))),
                 channelsSuspects.entrySet().stream()
-                        .filter(entry -> entry.getValue().size() > 0)
                         .flatMap(entry -> entry.getValue().stream()
                                 .map(DataValidationStatus::getOffendedRules)
                                 .flatMap(Collection::stream)
@@ -106,11 +104,9 @@ public class DataValidationKpiCalculator implements DataManagementKpiCalculator 
         return Stream.concat(
                 registerSuspects.keySet()
                         .stream()
-                        .filter(register -> registerSuspects.get(register).size() > 0)
                         .map(s -> s.replace(DataValidationKpiMemberTypes.REGISTER.fieldName(), "")),
                 channelsSuspects.keySet()
                         .stream()
-                        .filter(channel -> channelsSuspects.get(channel).size() > 0)
                         .map(s -> s.replace(DataValidationKpiMemberTypes.CHANNEL.fieldName(), "")))
                 .distinct()
                 .map(suspect -> DataValidationKpiMemberTypes.SUSPECT.fieldName() + suspect)
