@@ -44,18 +44,18 @@ Ext.define('Mdc.view.setup.dataloggerslaves.LinkWizardStep4', {
         me.callParent(arguments);
     },
 
-    initialize: function(minimalArrivalDateInMillis, arrivalDateToSuggest) {
+    initialize: function(minimalLinkingDateInMillis, linkingDateToSuggest) {
         var me = this;
         if (me.rendered) {
-            me.doConfigureArrivalDate(minimalArrivalDateInMillis, arrivalDateToSuggest);
+            me.doConfigureLinkingDate(minimalLinkingDateInMillis, linkingDateToSuggest);
         } else {
             me.on('afterrender', function() {
-                me.doConfigureArrivalDate(minimalArrivalDateInMillis, arrivalDateToSuggest);
+                me.doConfigureLinkingDate(minimalLinkingDateInMillis, linkingDateToSuggest);
             }, me, {single:true});
         }
     },
 
-    doConfigureArrivalDate: function(minimalLinkingDateInMillis, linkingDateToSuggest) {
+    doConfigureLinkingDate: function(minimalLinkingDateInMillis, linkingDateToSuggest) {
         var me = this;
 
         me.down('#mdc-step4-linking-date').setMinValue(minimalLinkingDateInMillis);
