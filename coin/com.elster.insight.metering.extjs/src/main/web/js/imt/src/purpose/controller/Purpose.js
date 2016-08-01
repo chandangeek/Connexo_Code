@@ -121,52 +121,58 @@ Ext.define('Imt.purpose.controller.Purpose', {
             router = me.getController('Uni.controller.history.Router'),
             usagePointsController = me.getController('Imt.usagepointmanagement.controller.View'),
             mainView = Ext.ComponentQuery.query('#contentPanel')[0],
-            prevNextListLink = me.makeLinkToOutputs(router);
+            prevNextListLink = me.makeLinkToOutputs(router),
+            dependenciesCounter,
+            displayPage,
+            purpose,
+            outputs,
+            output;
 
         if (!tab) {
             window.location.replace(router.getRoute('usagepoints/view/purpose/output').buildUrl({tab: 'readings'}));
         } else {
-            mainView.setLoading();
-            usagePointsController.loadUsagePoint(mRID, {
-                success: function (types, usagePoint, purposes) {
-                    me.loadOutputs(mRID, purposeId, function (outputs) {
-                        app.fireEvent('outputs-loaded', outputs);
-                        var output = _.find(outputs, function (o) {
-                            return o.getId() == outputId
-                        });
-
-                        //me.getModel('Imt.purpose.model.Output').load(outputId, {
-                        //    success: function (output) {
-                        var purpose = _.find(purposes, function (p) {
-                            return p.getId() == purposeId
-                        });
-                        app.fireEvent('output-loaded', output);
-                        var widget = Ext.widget('output-channel-main', {
-                            itemId: 'output-channel-main',
-                            router: router,
-                            usagePoint: usagePoint,
-                            purposes: purposes,
-                            purpose: purpose,
-                            outputs: outputs,
-                            output: output,
-                            interval: me.getInterval(output),
-                            prevNextListLink: prevNextListLink,
-                            controller: me,
-                            tab: tab
-                        });
-                        app.fireEvent('changecontentevent', widget);
-                        mainView.setLoading(false);
-                        widget.down('output-specifications-form').loadRecord(output);
-
-                        //},
-                        //failure: function () {
-                        //    mainView.setLoading(false);
-                        //}
-                        //});
-                    });
-                },
-                failure: function () {
+            dependenciesCounter = 3;
+            displayPage = function () {
+                dependenciesCounter--;
+                if (!dependenciesCounter) {
                     mainView.setLoading(false);
+                    app.fireEvent('outputs-loaded', outputs);
+                    app.fireEvent('output-loaded', output);
+                    app.fireEvent('changecontentevent', Ext.widget('output-channel-main', {
+                        itemId: 'output-channel-main',
+                        router: router,
+                        usagePoint: usagePoint,
+                        purposes: purposes,
+                        purpose: purpose,
+                        outputs: outputs,
+                        output: output,
+                        interval: me.getInterval(output),
+                        prevNextListLink: prevNextListLink,
+                        controller: me,
+                        tab: tab
+                    }));
+                    widget.down('output-specifications-form').loadRecord(output);
+                }
+            };
+
+            mainView.setLoading();
+
+            usagePointsController.loadUsagePoint(mRID, {
+                success: function (types, usagePoint, records) {
+                    purpose = _.find(records, function (p) {
+                        return p.getId() == purposeId
+                    });
+                    displayPage();
+                }
+            });
+            me.loadOutputs(mRID, purposeId, function (records) {
+                outputs = records;
+                displayPage();
+            });
+            me.getModel('Imt.purpose.model.Output').load(outputId, {
+                success: function (record) {
+                    output = record;
+                    displayPage();
                 }
             });
         }
