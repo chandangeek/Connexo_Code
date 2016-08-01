@@ -22,7 +22,7 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_COMPORT_POOL_REQUIRED(1007, Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED, "A connection task requires a communication port pool"),
     FIELD_TOO_LONG(1011, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     VETO_COMPORTPOOL_DELETION(1012, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by at least one device"),
-    VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUse", "Device group {0} is still in use by a data collection KPI"),
+    VETO_DEVICEGROUP_DELETION(1013, "deviceGroupXstillInUseCollection", "Device group {0} is still in use by a data collection KPI"),
     FIELD_IS_REQUIRED(1014, Keys.FIELD_REQUIRED, "This field is required"),
     CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS(1015, Keys.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_IN_PAST_WHEN_DATA_EXISTS, "You can not configure a multiplier in the past when your device already has data"),
     CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION(1016, Keys.CANNOT_CONFIGURE_DEVICE_MULTIPLIER_START_DATE_OUT_CURRENT_METERACTIVATION, "You can not configure a multiplier with a start date outside of the current meter activation"),
@@ -143,8 +143,6 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_CHANNEL_OBISCODE(2119, Keys.DUPLICATE_CHANNEL_OBISCODE, "The OBIS code must be unique for all the channels of your load profile"),
     OVERFLOW_INCREASED(2120, Keys.OVERFLOW_INCREASED, "The overflow value should not exceed the value of the configuration"),
     VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE(2121, Keys.VETO_CANNOT_CHANGE_OBISCODE_CONFIG_ALREADY_OVERRIDDEN_DEVICE, "You can not change the OBIS code, you already have devices with an overridden value for this OBIS code: {0}"),
-    VAL_KPI_DEVICEGROUP_DELETION(3001, "deviceGroupXstillInUse", "Device group {0} is still in use by a data validation KPI"),
-    KPIS_DEVICEGROUP_DELETION(3001, "deviceGroupXstillInUse", "Device group {0} is still in use by: data validation KPI, data collection KPI"),
     UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT(2122, Keys.UNSATISFIED_READING_TYPE_REQUIREMENTS_OF_USAGE_POINT, "This device doesn’t have the following reading types that are specified in the metrology configurations of the selected usage point: {0}"),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE(2123, "usagePointAlreadyLinkedToAnotherDeviceX", "The usage point is already linked to device {0} starting from {1}"),
     USAGE_POINT_ALREADY_LINKED_TO_ANOTHER_DEVICE_UNTIL(2124, "usagePointAlreadyLinkedToAnotherDeviceXUntil", "The usage point is already linked to device {0} starting from {1} until {2}"),
@@ -156,8 +154,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER(2130, Keys.DEVICE_MESSAGE_REVOKE_PICKED_UP_BY_COMSERVER, "A communication server is currently executing this command, therefore it cannot be revoked"),
     COULD_NOT_FIND_SERVICE_CALL_TYPE(2131, Keys.COULD_NOT_FIND_SERVICE_CALL_TYPE, "Could not find service call type {0} having version {1}"),
     COMMAND_ARGUMENT_SPEC_NOT_FOUND(2132, Keys.COMMAND_ARGUMENT_SPEC_NOT_FOUND, "Could not find the command argument spec {0} for command {1}"),
-    ;
-
+    VAL_KPI_DEVICEGROUP_DELETION(2133, "deviceGroupXstillInUseValidation", "Device group {0} is still in use by a data validation KPI"),
+    KPIS_DEVICEGROUP_DELETION(2134, "deviceGroupXstillInUseMultiple", "Device group {0} is still in use by: data validation KPI, data collection KPI");
     private final int number;
     private final String key;
     private final String defaultFormat;
