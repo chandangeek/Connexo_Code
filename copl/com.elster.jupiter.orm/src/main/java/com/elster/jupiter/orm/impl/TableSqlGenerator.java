@@ -3,6 +3,7 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TableSqlGenerator {
 	private final TableImpl<?> table;
@@ -41,11 +42,15 @@ public class TableSqlGenerator {
     }
 
     String getSelectFromClause(String alias, String... hints) {
-		return getSelectFromClause(table.getRealColumns(),alias, hints);
+		return getSelectFromClause(this.getRealColumns(), alias, hints);
 	}
 
+	private List<ColumnImpl> getRealColumns() {
+	    return this.table.getRealColumns().collect(Collectors.toList());
+    }
+
     String getSelectFromJournalClause(String alias) {
-        return getSelectFromJournalClause(table.getRealColumns(),alias);
+        return getSelectFromJournalClause(this.getRealColumns(),alias);
     }
 
     private String getSelectFromClause(List<? extends Column> columns, String alias, String... hints) {
@@ -95,14 +100,14 @@ public class TableSqlGenerator {
 		sb.append(table.getQualifiedName());
 		sb.append(" (");
 		String separator = "";
-		for (Column each : table.getRealColumns()) {
+		for (Column each : this.getRealColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";
 		}
 		sb.append(") values(");
 		separator = "";
-		for (Column each : table.getRealColumns()) {
+		for (Column each : this.getRealColumns()) {
 			sb.append(separator);
 			if (useNextVal && each.isAutoIncrement()) {
 				sb.append(each.getQualifiedSequenceName());
@@ -133,7 +138,7 @@ public class TableSqlGenerator {
 		sb.append(table.getQualifiedName(table.getJournalTableName()));
 		sb.append(" (");
 		String separator = "";
-		for (Column each : table.getRealColumns()) {
+		for (Column each : this.getRealColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";
@@ -142,7 +147,7 @@ public class TableSqlGenerator {
 		sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
 		sb.append(") ( select ");
 		separator = "";
-		for (Column each : table.getRealColumns()) {
+		for (Column each : this.getRealColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";

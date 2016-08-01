@@ -20,6 +20,7 @@ import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -275,22 +276,15 @@ public class TableImpl<T> implements Table<T> {
     }
 
     ColumnImpl[] getVersionColumns() {
-        List<Column> result = realColumns.stream().filter(ColumnImpl::isVersion).collect(Collectors.toList());
-        return result.toArray(new ColumnImpl[result.size()]);
+        return this.getRealColumns().filter(ColumnImpl::isVersion).toArray(ColumnImpl[]::new);
     }
 
     List<ColumnImpl> getColumnsThatMandateRefreshAfterInsert() {
-        return realColumns.stream().filter(ColumnImpl::mandatesRefreshAfterInsert).collect(Collectors.toList());
+        return this.getRealColumns().filter(ColumnImpl::mandatesRefreshAfterInsert).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getUpdateValueColumns() {
-        List<ColumnImpl> result = new ArrayList<>();
-        for (ColumnImpl column : realColumns) {
-            if (column.hasUpdateValue()) {
-                result.add(column);
-            }
-        }
-        return result;
+        return this.getRealColumns().filter(ColumnImpl::hasUpdateValue).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getStandardColumns() {
@@ -298,7 +292,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
     List<ColumnImpl> getAutoUpdateColumns() {
-        return realColumns.stream().filter(column -> column.hasAutoValue(true)).collect(Collectors.toList());
+        return this.getRealColumns().filter(column -> column.hasAutoValue(true)).collect(Collectors.toList());
     }
 
     @Override
@@ -424,12 +418,10 @@ public class TableImpl<T> implements Table<T> {
     }
 
     public ColumnImpl getColumnForField(String name) {
-        for (ColumnImpl column : realColumns) {
-            if (name.equals(column.getFieldName())) {
-                return column;
-            }
-        }
-        return null;
+        return this.getRealColumns()
+                .filter(name::equals)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -763,13 +755,7 @@ public class TableImpl<T> implements Table<T> {
         getForeignKeyConstraints().forEach(ForeignKeyConstraintImpl::prepare);
         buildReferenceConstraints();
         buildReverseMappedConstraints();
-        realColumns = new ArrayList<>();
-        for (ColumnImpl column : getColumns(Version.latest())) {
-            if (!column.isVirtual()) {
-                checkMapped(column);
-                realColumns.add(column);
-            }
-        }
+        this.getRealColumns().forEach(this::checkMapped);
         cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
     }
 
@@ -934,8 +920,15 @@ public class TableImpl<T> implements Table<T> {
                 .collect(Collectors.toList());
     }
 
-    public List<ColumnImpl> getRealColumns() {
-        return realColumns;
+    public Stream<ColumnImpl> getRealColumns() {
+        if (this.realColumns == null) {
+            this.realColumns =
+                    this.getColumns(Version.latest())
+                            .stream()
+                            .filter(Predicates.not(ColumnImpl::isVirtual))
+                            .collect(Collectors.toList());
+        }
+        return realColumns.stream();
     }
 
     Optional<IndexImpl> getIndex(String name) {
@@ -1111,7 +1104,7 @@ public class TableImpl<T> implements Table<T> {
         return set;
     }
 
-    public String previousJournalTableName(Version version) {
+    String previousJournalTableName(Version version) {
         return journalNameHistory.subRangeMap(Range.lessThan(version))
                 .asMapOfRanges()
                 .entrySet()
@@ -1121,7 +1114,7 @@ public class TableImpl<T> implements Table<T> {
                 .orElse(null);
     }
 
-    public Set<String> getJournalTableNames() {
+    Set<String> getJournalTableNames() {
         return journalNameHistory.asMapOfRanges()
                 .values()
                 .stream()
