@@ -126,6 +126,7 @@ public class UsagePointResource {
             ChannelsContainer channelsContainer = channel.getChannelsContainer();
             if (channelsContainer.getRange().isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
+                effectiveInterval = Range.openClosed(effectiveInterval.lowerEndpoint(), effectiveInterval.upperEndpoint());
                 TemporalAmount intervalLength = channel.getIntervalLength().get();
                 Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval).stream()
                         .collect(Collectors.toMap(Function.identity(), timeStamp -> new IntervalReadingWithValidationStatus(timeStamp, intervalLength)));
