@@ -614,7 +614,9 @@ public enum TableSpecs {
             Table<DeviceMessageAttribute> table = dataModel.addTable(name(), DeviceMessageAttribute.class);
             table.map(DeviceMessageAttributeImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns().forEach(column -> column.upTo(version(10, 2)));
+            table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 2));
+            table.addModTimeColumn("MODTIME", "modTime").since(version(10, 2));
+            table.addUserNameColumn("USERNAME", "userName").since(version(10, 2));
             Column deviceMessage = table.column("DEVICEMESSAGE").number().conversion(NUMBER2LONG).notNull().add();
             Column name = table.column("NAME").varChar().map("name").notNull().add();
             table.column("VALUE").varChar().map("stringValue").notNull().add();

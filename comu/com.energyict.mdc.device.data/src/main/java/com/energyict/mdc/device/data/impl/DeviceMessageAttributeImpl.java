@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 
 /**
  * Copyrights EnergyICT
@@ -32,6 +33,12 @@ class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribu
     private Object value;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String stringValue = ""; // the string representation of the value
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     @Inject
     protected DeviceMessageAttributeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
