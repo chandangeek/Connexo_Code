@@ -173,7 +173,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             required: true,
                             maxWidth: 400,
                             editable: false,
-                            value: new Date(),
+                            value: new Date(new Date().setHours(0,0,0,0)), // today midnight
                             fieldLabel: Uni.I18n.translate('deviceAdd.shipmentDate', 'MDC', 'Shipment date'),
                             format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                         },
