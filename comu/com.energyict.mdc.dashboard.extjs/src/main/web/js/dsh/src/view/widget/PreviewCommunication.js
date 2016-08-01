@@ -128,15 +128,15 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
-                    name: 'currentState',
+                    fieldLabel: Uni.I18n.translate('general.lastResult', 'DSH', 'Last result'),
+                    name: 'latestResult',
                     renderer: function (val) {
                         return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
-                    name: 'latestResult',
+                    fieldLabel: Uni.I18n.translate('general.status', 'DSH', 'Status'),
+                    name: 'currentState',
                     renderer: function (val) {
                         return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
                     }
@@ -149,15 +149,15 @@ Ext.define('Dsh.view.widget.PreviewCommunication', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished successfully on'),
-                    name: 'successfulFinishTime',
+                    fieldLabel: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
+                    name: 'nextCommunication',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
-                    name: 'nextCommunication',
+                    fieldLabel: Uni.I18n.translate('communication.widget.details.finishedOn', 'DSH', 'Finished successfully on'),
+                    name: 'successfulFinishTime',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }

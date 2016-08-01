@@ -33,17 +33,8 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 }
             },
             {
-                itemId: 'currentState',
-                text: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
-                dataIndex: 'currentState',
-                flex: 1,
-                renderer: function (val) {
-                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
-                }
-            },
-            {
                 itemId: 'latestResult',
-                text: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
+                text: Uni.I18n.translate('general.lastResult', 'DSH', 'Last result'),
                 dataIndex: 'latestResult',
                 flex: 1,
                 renderer: function (val) {
@@ -51,18 +42,27 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 }
             },
             {
-                itemId: 'nextCommunication',
-                text: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
-                dataIndex: 'nextCommunication',
+                itemId: 'currentState',
+                text: Uni.I18n.translate('general.status', 'DSH', 'Status'),
+                dataIndex: 'currentState',
+                flex: 1,
+                renderer: function (val) {
+                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
+                }
+            },
+            {
+                itemId: 'startTime',
+                text: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
+                dataIndex: 'startTime',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 },
                 flex: 2
             },
             {
-                itemId: 'startTime',
-                text: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
-                dataIndex: 'startTime',
+                itemId: 'nextCommunication',
+                text: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
+                dataIndex: 'nextCommunication',
                 renderer: function (value) {
                     return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 },

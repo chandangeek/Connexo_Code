@@ -18,7 +18,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'currentStates',
-            emptyText: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
+            emptyText: Uni.I18n.translate('general.Status', 'DSH', 'Status'),
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'taskStatus',
@@ -28,7 +28,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'latestStates',
-            emptyText: Uni.I18n.translate('general.latestStatus', 'DSH', 'Latest status'),
+            emptyText: Uni.I18n.translate('general.lastResult', 'DSH', 'Last result'),
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'successIndicator',
@@ -38,7 +38,7 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         {
             type: 'combobox',
             dataIndex: 'latestResults',
-            emptyText: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
+            emptyText: Uni.I18n.translate('general.lastConnection', 'DSH', 'Last connection'),
             multiSelect: true,
             displayField: 'localizedValue',
             valueField: 'successIndicator',

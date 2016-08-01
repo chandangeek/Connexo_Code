@@ -113,38 +113,38 @@ Ext.define('Dsh.view.widget.connection.PreviewCommunication', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
-                    name: 'currentState',
+                    fieldLabel: Uni.I18n.translate('general.lastResult', 'DSH', 'Last result'),
+                    name: 'result',
                     renderer: function (val) {
-                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
+                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.result', 'DSH', 'Result'),
-                    name: 'result',
+                    fieldLabel: Uni.I18n.translate('general.status', 'DSH', 'Status'),
+                    name: 'currentState',
                     renderer: function (val) {
-                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
+                        return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                     name: 'startTime',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.finishedOn', 'DSH', 'Finished on'),
                     name: 'stopTime',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }
                 },
                 {
                     fieldLabel: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
                     name: 'nextCommunication',
                     renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeLong(value) : '';
+                        return value ? Uni.DateTime.formatDateTimeLong(value) : '-';
                     }
                 }
             ]

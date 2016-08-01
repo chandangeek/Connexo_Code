@@ -36,38 +36,38 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 }
             },
             {
-                itemId: 'currentState',
-                text: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
-                dataIndex: 'currentState',
-                flex: 1,
-                renderer: function (val) {
-                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
-                }
-            },
-            {
                 itemId: 'Result',
-                text: Uni.I18n.translate('general.result', 'DSH', 'Result'),
+                text: Uni.I18n.translate('general.lastResult', 'DSH', 'Last result'),
                 dataIndex: 'result',
                 flex: 1,
                 renderer: function (val) {
-                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '';
+                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
                 }
             },
             {
-                itemId: 'nextCommunication',
-                text: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
-                dataIndex: 'nextCommunication',
-                renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
-                },
-                flex: 2
+                itemId: 'currentState',
+                text: Uni.I18n.translate('general.status', 'DSH', 'Status'),
+                dataIndex: 'currentState',
+                flex: 1,
+                renderer: function (val) {
+                    return val.displayValue ? Ext.String.htmlEncode(val.displayValue) : '-';
+                }
             },
             {
                 itemId: 'startTime',
                 text: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                 dataIndex: 'startTime',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                },
+                flex: 2
+            },
+            {
+                itemId: 'nextCommunication',
+                text: Uni.I18n.translate('general.nextCommunication', 'DSH', 'Next communication'),
+                dataIndex: 'nextCommunication',
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 },
                 flex: 2
             },
@@ -76,7 +76,7 @@ Ext.define('Dsh.view.widget.connection.CommunicationsList', {
                 text: Uni.I18n.translate('general.finishedOn', 'DSH', 'Finished on'),
                 dataIndex: 'stopTime',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 },
                 flex: 2
             },

@@ -31,64 +31,106 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             },
             {
                 itemId: 'connectionMethod',
-                text: Uni.I18n.translate('general.connectionMethod', 'DSH', 'Connection method'),
+                text: Uni.I18n.translate('general.connection', 'DSH', 'Connection'),
                 dataIndex: 'connectionMethod',
                 flex: 1,
                 renderer: function (val) {
-                    return val ? Ext.String.htmlEncode(val.name) : ''
-                }
-            },
-            {
-                itemId: 'currentState',
-                text: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
-                dataIndex: 'currentState',
-                flex: 1,
-                renderer: function (val) {
-                    return val ? Ext.String.htmlEncode(val.displayValue) : ''
-                }
-            },
-            {
-                itemId: 'latestStatus',
-                text: Uni.I18n.translate('general.latestStatus', 'DSH', 'Latest status'),
-                dataIndex: 'latestStatus',
-                flex: 1,
-                renderer: function (val) {
-                    return val ? Ext.String.htmlEncode(val.displayValue) : ''
+                    return val ? Ext.String.htmlEncode(val.name) : '-'
                 }
             },
             {
                 itemId: 'latestResult',
-                text: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
+                text: Uni.I18n.translate('general.lastConnection', 'DSH', 'Last connection'),
                 dataIndex: 'latestResult',
                 name: 'latestResult',
                 flex: 1,
-                renderer: function (val) {
-                    return val ? Ext.String.htmlEncode(val.displayValue) : ''
+                renderer: function (value, metaData) {
+                    var lastResultId = value.id,
+                        tooltipText = '';
 
+                    if (lastResultId === 'Success') {
+                        tooltipText += Uni.I18n.translate('connection.widget.tooltip.success', 'DSH', 'No communication tasks have passed. Successful connection.');
+                    } else if (lastResultId === 'Broken') {
+                        tooltipText += Uni.I18n.translate('connection.widget.tooltip.broken', 'DSH', 'Connection broken in the middle. Some communication tasks may have passed.');
+                    } else if (lastResultId === 'SetupError') {
+                        tooltipText += Uni.I18n.translate('connection.widget.tooltip.setupError', 'DSH', 'No connection could be made.')
+                    }
+                    if (value.retries) {
+                        tooltipText += ' (';
+                        tooltipText += Uni.I18n.translatePlural('connection.widget.details.retries', value.retries, 'DSH',
+                            'No retries', '1 retry', '{0} retries'
+                        );
+                        tooltipText += ')';
+                    }
+                    if (!Ext.isEmpty(tooltipText)) {
+                        metaData.tdAttr = 'data-qtip="' + tooltipText + '"';
+                    } else {
+                        metaData.tdAttr = 'data-qtip=""';
+                    }
+                    return value ? Ext.String.htmlEncode(value.displayValue) : '-'
                 }
             },
             {
                 dataIndex: 'taskCount',
                 itemId: 'taskCount',
-                renderer: function (val,metaData) {
+                renderer: function (value, metaData) {
                     metaData.tdCls = 'communication-tasks-status';
-                    var template = '';
-                    if (val.numberOfSuccessfulTasks || val.numberOfFailedTasks || val.numberOfIncompleteTasks) {
-                        template += '<tpl><span class="icon-checkmark"></span>' + (val.numberOfSuccessfulTasks ? val.numberOfSuccessfulTasks : '0') + '</tpl>';
-                        template += '<tpl><span class="icon-cross"></span>' + (val.numberOfFailedTasks ? val.numberOfFailedTasks : '0') + '</tpl>';
-                        template += '<tpl><span  class="icon-stop2"></span>' + (val.numberOfIncompleteTasks ? val.numberOfIncompleteTasks : '0') + '</tpl>';
+                    var valueText = '',
+                        tooltipText = '';
+
+                    tooltipText += Uni.I18n.translatePlural(
+                        'connection.widget.details.comTasksSuccessful', value.numberOfSuccessfulTasks ? value.numberOfSuccessfulTasks : 0, 'DSH',
+                        'No communication tasks successful', '1 communication task successful', '{0} communication tasks successful'
+                    );
+                    tooltipText += '<br>';
+                    tooltipText += Uni.I18n.translatePlural(
+                        'connection.widget.details.comTasksFailed', value.numberOfFailedTasks ? value.numberOfFailedTasks : 0, 'DSH',
+                        'No communication tasks failed', '1 communication task failed', '{0} communication tasks failed'
+                    );
+                    tooltipText += '<br>';
+                    tooltipText += Uni.I18n.translatePlural(
+                        'connection.widget.details.comTasksNotCompleted', value.numberOfIncompleteTasks ? value.numberOfIncompleteTasks : 0, 'DSH',
+                        'No communication tasks not completed', '1 communication task not completed', '{0} communication tasks not completed'
+                    );
+                    if (!Ext.isEmpty(tooltipText)) {
+                        metaData.tdAttr = 'data-qtip="' + tooltipText + '"';
+                    } else {
+                        metaData.tdAttr = 'data-qtip=""';
                     }
-                    return template;
+                    if (value.numberOfSuccessfulTasks || value.numberOfFailedTasks || value.numberOfIncompleteTasks) {
+                        valueText += '<tpl><span class="icon-checkmark"></span>' + (value.numberOfSuccessfulTasks ? value.numberOfSuccessfulTasks : '0') + '</tpl>';
+                        valueText += '<tpl><span class="icon-cross"></span>' + (value.numberOfFailedTasks ? value.numberOfFailedTasks : '0') + '</tpl>';
+                        valueText += '<tpl><span  class="icon-stop2"></span>' + (value.numberOfIncompleteTasks ? value.numberOfIncompleteTasks : '0') + '</tpl>';
+                    }
+                    return valueText;
                 },
-                header: Uni.I18n.translate('connection.widget.details.commTasks', 'DSH', 'Communication tasks'),
+                header: Uni.I18n.translate('connection.widget.details.lastCommTasks', 'DSH', 'Last communication tasks'),
                 flex: 2
+            },
+            {
+                itemId: 'latestStatus',
+                text: Uni.I18n.translate('general.lastResult', 'DSH', 'Last result'),
+                dataIndex: 'latestStatus',
+                flex: 1,
+                renderer: function (value) {
+                    return value ? Ext.String.htmlEncode(value.displayValue) : '-'
+                }
+            },
+            {
+                itemId: 'currentState',
+                text: Uni.I18n.translate('general.status', 'DSH', 'Status'),
+                dataIndex: 'currentState',
+                flex: 1,
+                renderer: function (val) {
+                    return val ? Ext.String.htmlEncode(val.displayValue) : '-'
+                }
             },
             {
                 itemId: 'startDateTime',
                 text: Uni.I18n.translate('general.startedOn', 'DSH', 'Started on'),
                 dataIndex: 'startDateTime',
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                 },
                 flex: 1
             },
@@ -102,7 +144,6 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             }
         ]
     },
-
 
     dockedItems: [
         {
@@ -136,53 +177,5 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             deferLoading: true,
             itemsPerPageMsg: Uni.I18n.translate('connection.widget.details.itemsPerPage', 'DSH', 'Connections per page')
         }
-    ],
-
-    addTooltip: function () {
-        var me = this,
-            view = me.getView(),
-            tip = Ext.create('Ext.tip.ToolTip', {
-                target: view.el,
-                delegate: 'img.ct-result',
-                trackMouse: true,
-                renderTo: Ext.getBody(),
-                listeners: {
-                    beforeshow: function updateTipBody(tip) {
-                        var res,
-                            rowEl = Ext.get(tip.triggerElement).up('tr'),
-                            taskCount = view.getRecord(rowEl).get('taskCount'),
-                            failed = taskCount.numberOfFailedTasks + ' ' + Uni.I18n.translate('connection.widget.details.comTasksFailed', 'DSH', 'communication tasks failed'),
-                            success = taskCount.numberOfSuccessfulTasks + ' ' + Uni.I18n.translate('connection.widget.details.comTasksSuccessful', 'DSH', 'communication tasks successful'),
-                            notCompleted = taskCount.numberOfIncompleteTasks + ' ' + Uni.I18n.translate('connection.widget.details.comTasksNotCompleted', 'DSH', 'communication tasks not completed');
-                        (tip.triggerElement.className.search('ct-success') !== -1) && (res = success);
-                        (tip.triggerElement.className.search('ct-failure') !== -1) && (res = failed);
-                        (tip.triggerElement.className.search('ct-incomplete') !== -1) && (res = notCompleted);
-                        tip.update(res);
-                    }
-                }
-            }),
-            ResultTip = Ext.create('Ext.tip.ToolTip', {
-                target: view.el,
-                delegate: 'td.x-grid-cell-headerId-latestResult',
-                trackMouse: true,
-                renderTo: Ext.getBody(),
-                listeners: {
-                    show: function () {
-                        var rowEl = Ext.get(ResultTip.triggerElement).up('tr'),
-                            latestResult = view.getRecord(rowEl).get('latestResult');
-                        if (latestResult.retries) {
-                            ResultTip.update(latestResult.retries + ' ' + Uni.I18n.translate('connection.widget.details.retries', 'DSH', 'retries'));
-                        } else {
-                            ResultTip.hide()
-                        }
-                    }
-                }
-            });
-    },
-
-    initComponent: function () {
-        var me = this;
-        me.on('afterrender', me.addTooltip);
-        me.callParent(arguments);
-    }
+    ]
 });

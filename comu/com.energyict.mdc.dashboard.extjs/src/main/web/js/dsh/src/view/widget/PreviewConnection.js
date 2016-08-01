@@ -68,7 +68,7 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('general.connectionMethod', 'DSH', 'Connection method'),
+                    fieldLabel: Uni.I18n.translate('general.connection', 'DSH', 'Connection'),
                     name: 'connectionMethod',
                     renderer: function (val) {
                         return val ? Ext.String.htmlEncode(val.name) : '-'
@@ -116,28 +116,14 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
             },
             items: [
                 {
-                    fieldLabel: Uni.I18n.translate('general.currentState', 'DSH', 'Current state'),
-                    name: 'currentState',
-                    renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
-                    }
-                },
-                {
-                    fieldLabel: Uni.I18n.translate('general.latestStatus', 'DSH', 'Latest status'),
-                    name: 'latestStatus',
-                    renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
-                    }
-                },
-                {
-                    fieldLabel: Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'),
+                    fieldLabel: Uni.I18n.translate('general.lastConnection', 'DSH', 'Last connection'),
                     name: 'latestResult',
                     renderer: function (val) {
                         return val ? Ext.String.htmlEncode(val.displayValue) : '-'
                     }
                 },
                 {
-                    fieldLabel: Uni.I18n.translate('connection.widget.details.commTasks', 'DSH', 'Communication tasks'),
+                    fieldLabel: Uni.I18n.translate('connection.widget.details.lastCommTasks', 'DSH', 'Last communication tasks'),
                     name: 'taskCount',
                     height: 60,
                     cls: 'communication-tasks-status',
@@ -153,6 +139,20 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
                                 '<tpl><span class="icon-stop2"></span>' + notCompleted + '</tpl>'
                                 ;
                         }
+                    }
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('general.lastResult', 'DSH', 'Last result'),
+                    name: 'latestStatus',
+                    renderer: function (val) {
+                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
+                    }
+                },
+                {
+                    fieldLabel: Uni.I18n.translate('general.status', 'DSH', 'Status'),
+                    name: 'currentState',
+                    renderer: function (val) {
+                        return val ? Ext.String.htmlEncode(val.displayValue) : '-'
                     }
                 },
                 {

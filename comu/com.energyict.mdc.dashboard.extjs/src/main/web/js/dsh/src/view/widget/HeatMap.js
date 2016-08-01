@@ -99,7 +99,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
             Ext.each(store.getAt(0).data.data, function (item) {
                 ycat.push(item.displayName);
             });
-            me.setXAxis(ycat, Uni.I18n.translate('general.latestResult', 'DSH', 'Latest result'));
+            me.setXAxis(ycat, Uni.I18n.translate('general.lastResult', 'DSH', 'Last result'));
             me.setYAxis(xcat, xTitle);
             me.setChartData(me.storeToHighchartData(store));
         }
@@ -117,7 +117,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 {
                     xtype: 'container',
                     itemId: 'title',
-                    html: '<h2>' + Uni.I18n.translate('overview.widget.connections.heatmap.combineLabel', 'DSH', 'Combine latest result and') + '&nbsp;</h2>'
+                    html: '<h2>' + Uni.I18n.translate('overview.widget.connections.heatmap.combineLabel', 'DSH', 'Combine last result and') + '&nbsp;</h2>'
                 },
                 {
                     xtype: 'combobox',
@@ -136,7 +136,7 @@ Ext.define('Dsh.view.widget.HeatMap', {
                 {
                     xtype: 'container',
                     itemId: 'title',
-                    html: '<h2>' + Uni.I18n.translate('overview.widget.communications.heatmap.combineLabel', 'DSH', 'Combine latest result and device type') + '</h2>'
+                    html: '<h2>' + Uni.I18n.translate('overview.widget.communications.heatmap.combineLabel', 'DSH', 'Combine last result and device type') + '</h2>'
                 }
             ];
         }
