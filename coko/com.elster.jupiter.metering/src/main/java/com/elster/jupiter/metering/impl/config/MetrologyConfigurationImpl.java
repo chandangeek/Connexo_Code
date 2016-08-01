@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -174,8 +173,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     private void checkLinkedUsagePoints() {
-        if (!metrologyConfigurationService.getDataModel().query(UsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
-                .select(Where.where("metrologyConfigurations.metrologyConfiguration").isEqualTo(this), Order.NOORDER, false, null, 1, 1).isEmpty()) {
+        if (!metrologyConfigurationService.getDataModel().query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
+                .select(Where.where("metrologyConfiguration").isEqualTo(this), Order.NOORDER, false, null, 1, 1).isEmpty()) {
             throw new CannotDeactivateMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
         }
     }
