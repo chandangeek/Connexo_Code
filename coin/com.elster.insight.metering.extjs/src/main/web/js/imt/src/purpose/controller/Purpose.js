@@ -125,6 +125,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
             outputModel,
             dependenciesCounter,
             displayPage,
+            purposes,
             purpose,
             outputs,
             output;
@@ -164,6 +165,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
 
             usagePointsController.loadUsagePoint(mRID, {
                 success: function (types, usagePoint, records) {
+                    purposes = records;
                     purpose = _.find(records, function (p) {
                         return p.getId() == purposeId
                     });
