@@ -75,7 +75,10 @@ public enum TableSpecs {
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("ESTUE").varChar(SHORT_DESCRIPTION_LENGTH).map("stringValue").add();
             table.setJournalTableName("EST_ESTIMATIONRULEPROPSJRNL");
-            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
+
+            table.addCreateTimeColumn("CREATETIME", "createTime").since(version(10, 2));
+            table.addModTimeColumn("MODTIME", "modTime").since(version(10, 2));
+            table.addUserNameColumn("USERNAME", "userName").since(version(10, 2));
             table.primaryKey("EST_PK_ESTRULEPROPS").on(ruleIdColumn, nameColumn).add();
             table.foreignKey("EST_FK_RULEPROPS").references("EST_ESTIMATIONRULE").onDelete(RESTRICT).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();
         }

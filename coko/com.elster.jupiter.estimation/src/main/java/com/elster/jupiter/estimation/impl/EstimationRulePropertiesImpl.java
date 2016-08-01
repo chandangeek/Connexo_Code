@@ -19,8 +19,6 @@ class EstimationRulePropertiesImpl implements EstimationRuleProperties {
 
     private Reference<EstimationRule> rule = ValueReference.absent();
     @SuppressWarnings("unused") // Managed by ORM
-    private long version;
-    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
     @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
