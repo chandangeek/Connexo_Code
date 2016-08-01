@@ -54,8 +54,7 @@ public class MeterInfoFactory {
                 .stream()
                 .filter(ma -> {
                     State state = ma.getMeter().get().getState().get();
-                    return !state.getName().equals(DefaultState.DECOMMISSIONED.getKey()) &&
-                            !state.getName().equals(DefaultState.REMOVED.getKey());
+                    return !state.getName().equals(DefaultState.REMOVED.getKey());
                 })
                 .map(this::asInfo)
                 .collect(Collector.of(MACollector::new, MACollector::add, (c1, c2) -> c1));
