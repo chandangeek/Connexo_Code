@@ -89,30 +89,32 @@ public class ValidationResultsResource {
         List<Long> deviceGroups = new ArrayList<>();
         List<Long> amountOfSuspectsList = new ArrayList<>();
 
-        JSONArray filters = new JSONArray(uriInfo.getQueryParameters().getFirst("filter"));
-        for (int i = 0; i < filters.length(); i++) {
-            if (filters.getJSONObject(i).get("property").equals("from")) {
-                from = Instant.ofEpochMilli((Long) filters.getJSONObject(i).get("value"));
-            }
-            if (filters.getJSONObject(i).get("property").equals("to")) {
-                to = Instant.ofEpochMilli((Long) filters.getJSONObject(i).get("value"));
-            }
-            if (filters.getJSONObject(i).get("property").equals("deviceGroups")) {
-                List<String> groups = Stream.of(filters.getJSONObject(i).get("value")).map(Object::toString).collect(Collectors.toList());
-                Arrays.asList(groups.get(0).substring(1, groups.get(0).length() - 1).split(",")).stream().forEach(value -> deviceGroups.add(Long.parseLong(value)));
-            }
-            if (filters.getJSONObject(i).get("property").equals("amountOfSuspects")) {
-                String value = filters.getJSONObject(i).get("value").toString();
-                if (value.contains("==")) {
-                    amountOfSuspectsList.add(0L);
-                    amountOfSuspectsList.add(Long.parseLong(value.substring(value.lastIndexOf(":") + 1, value.lastIndexOf("}"))));
-                } else if (value.contains("BETWEEN")) {
-                    Arrays.asList(value.substring(value.lastIndexOf(":") + 2, value.lastIndexOf("]")).split(",")).stream().forEach(amount -> amountOfSuspectsList.add(Long.parseLong(amount)));
+        if(uriInfo.getQueryParameters().getFirst("filter") != null) {
+            JSONArray filters = new JSONArray(uriInfo.getQueryParameters().getFirst("filter"));
+            for (int i = 0; i < filters.length(); i++) {
+                if (filters.getJSONObject(i).get("property").equals("from")) {
+                    from = Instant.ofEpochMilli((Long) filters.getJSONObject(i).get("value"));
                 }
-            }
-            if (filters.getJSONObject(i).get("property").equals("validator")) {
-                List<String> validatorList = Stream.of(filters.getJSONObject(i).get("value")).map(Object::toString).collect(Collectors.toList());
-                Arrays.asList(validatorList.get(0).substring(1, validatorList.get(0).length() - 1).replace("\"", "").split(",")).stream().forEach(value -> Validator.stringToEnum.put(value, true));
+                if (filters.getJSONObject(i).get("property").equals("to")) {
+                    to = Instant.ofEpochMilli((Long) filters.getJSONObject(i).get("value"));
+                }
+                if (filters.getJSONObject(i).get("property").equals("deviceGroups")) {
+                    List<String> groups = Stream.of(filters.getJSONObject(i).get("value")).map(Object::toString).collect(Collectors.toList());
+                    Arrays.asList(groups.get(0).substring(1, groups.get(0).length() - 1).split(",")).stream().forEach(value -> deviceGroups.add(Long.parseLong(value)));
+                }
+                if (filters.getJSONObject(i).get("property").equals("amountOfSuspects")) {
+                    String value = filters.getJSONObject(i).get("value").toString();
+                    if (value.contains("==")) {
+                        amountOfSuspectsList.add(0L);
+                        amountOfSuspectsList.add(Long.parseLong(value.substring(value.lastIndexOf(":") + 1, value.lastIndexOf("}"))));
+                    } else if (value.contains("BETWEEN")) {
+                        Arrays.asList(value.substring(value.lastIndexOf(":") + 2, value.lastIndexOf("]")).split(",")).stream().forEach(amount -> amountOfSuspectsList.add(Long.parseLong(amount)));
+                    }
+                }
+                if (filters.getJSONObject(i).get("property").equals("validator")) {
+                    List<String> validatorList = Stream.of(filters.getJSONObject(i).get("value")).map(Object::toString).collect(Collectors.toList());
+                    Arrays.asList(validatorList.get(0).substring(1, validatorList.get(0).length() - 1).replace("\"", "").split(",")).stream().forEach(value -> Validator.stringToEnum.put(value, true));
+                }
             }
         }
 
