@@ -23,14 +23,14 @@ import java.util.Map;
  * @since 2015-03-05 (10:05)
  */
 @Unique(message = MessageSeeds.Keys.UNIQUE_EVENT_TYPE_SYMBOL, groups = { Save.Create.class, Save.Update.class })
-public class CustomStateTransitionEventTypeImpl extends StateTransitionEventTypeImpl implements CustomStateTransitionEventType {
+class CustomStateTransitionEventTypeImpl extends StateTransitionEventTypeImpl implements CustomStateTransitionEventType {
 
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String symbol;
 
     @Inject
-    public CustomStateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFiniteStateMachineService stateMachineService) {
+    CustomStateTransitionEventTypeImpl(DataModel dataModel, Thesaurus thesaurus, ServerFiniteStateMachineService stateMachineService) {
         super(dataModel, thesaurus, stateMachineService);
     }
 
@@ -41,8 +41,10 @@ public class CustomStateTransitionEventTypeImpl extends StateTransitionEventType
     }
 
     @Override
-    public StateTransitionTriggerEvent newInstance(FiniteStateMachine finiteStateMachine, String sourceId, String sourceCurrentStateName, Instant effectiveTimestamp, Map<String, Object> properties) {
-        return this.getDataModel().getInstance(StateTransitionTriggerEventImpl.class).initialize(this, finiteStateMachine, sourceId, effectiveTimestamp, properties, sourceCurrentStateName);
+    public StateTransitionTriggerEvent newInstance(FiniteStateMachine finiteStateMachine, String sourceId, String sourceType, String sourceCurrentStateName, Instant effectiveTimestamp, Map<String, Object> properties) {
+        return this.getDataModel()
+                .getInstance(StateTransitionTriggerEventImpl.class)
+                .initialize(this, finiteStateMachine, sourceId, sourceType, effectiveTimestamp, properties, sourceCurrentStateName);
     }
 
     @Override

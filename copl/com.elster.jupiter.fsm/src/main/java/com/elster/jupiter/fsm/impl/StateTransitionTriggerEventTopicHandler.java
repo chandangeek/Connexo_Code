@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
+
 import com.github.oxo42.stateless4j.StateConfiguration;
 import com.github.oxo42.stateless4j.StateMachine;
 import com.github.oxo42.stateless4j.StateMachineConfig;
@@ -107,7 +108,7 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
     }
 
     private void publishChange(ActualState currentState, ActualState newState, StateTransitionTriggerEvent triggerEvent) {
-        StateTransitionChangeEventImpl changeEvent = new StateTransitionChangeEventImpl(this.eventService, currentState.state, newState.state, triggerEvent.getSourceId(), triggerEvent.getEffectiveTimestamp(), triggerEvent.getProperties());
+        StateTransitionChangeEventImpl changeEvent = new StateTransitionChangeEventImpl(this.eventService, currentState.state, newState.state, triggerEvent.getSourceId(), triggerEvent.getSourceType(), triggerEvent.getEffectiveTimestamp(), triggerEvent.getProperties());
         changeEvent.publish();
     }
 
@@ -141,12 +142,13 @@ public class StateTransitionTriggerEventTopicHandler implements TopicHandler {
                     .getDeploymentId() + " and processId: " + processReference.getStateChangeBusinessProcess().getProcessId());
         }
 
-        protected void startOnEntry(ProcessReference processReference) {
+        void startOnEntry(ProcessReference processReference) {
             this.logStart(processReference);
             processReference.getStateChangeBusinessProcess().executeOnEntry(this.sourceId, this.state);
         }
 
-        protected void startOnExit(ProcessReference processReference) {
+
+        void startOnExit(ProcessReference processReference) {
             this.logStart(processReference);
             processReference.getStateChangeBusinessProcess().executeOnExit(this.sourceId, this.state);
         }

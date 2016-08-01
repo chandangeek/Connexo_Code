@@ -1,7 +1,8 @@
 package com.elster.jupiter.fsm;
 
-import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.events.LocalEvent;
+
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Optional;
 
@@ -14,11 +15,16 @@ import java.util.Optional;
 @ConsumerType
 public interface CurrentStateExtractor {
 
-    public class CurrentState {
+    class CurrentState {
         /**
          * The unique identifier of the object for which state information is provided.
          */
         public String sourceId;
+
+        /**
+         * The unique identifier of the type of the object for which state information is provided.
+         */
+        public String sourceType;
 
         /**
          * The name of the current state.
@@ -41,6 +47,6 @@ public interface CurrentStateExtractor {
      * @param finiteStateMachine The FiniteStateMachine to which the event's source object should be related
      * @return The CurrentState
      */
-    public Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine);
+    Optional<CurrentState> extractFrom(LocalEvent event, FiniteStateMachine finiteStateMachine);
 
 }

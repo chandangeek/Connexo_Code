@@ -11,6 +11,7 @@ import com.elster.jupiter.fsm.StateTransitionTriggerEvent;
 import com.elster.jupiter.orm.CacheClearedEvent;
 import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.util.streams.Functions;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -126,6 +127,7 @@ public class StandardEventHandler implements Subscriber {
                         eventType,
                         stateMachine,
                         cs.sourceId,
+                        cs.sourceType,
                         Instant.now(),
                         propertiesOf(event),
                         cs.name);

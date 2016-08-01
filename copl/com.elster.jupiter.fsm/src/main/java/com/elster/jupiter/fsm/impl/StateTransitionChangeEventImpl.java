@@ -14,21 +14,23 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-04 (13:34)
  */
-public class StateTransitionChangeEventImpl implements StateTransitionChangeEvent {
+class StateTransitionChangeEventImpl implements StateTransitionChangeEvent {
 
     private final EventService eventService;
     private final State from;
     private final State to;
     private final String sourceId;
+    private final String sourceType;
     private final Instant effectiveTimestamp;
     private final Map<String, Object> properties;
 
-    public StateTransitionChangeEventImpl(EventService eventService, State from, State to, String sourceId, Instant effectiveTimestamp, Map<String, Object> properties) {
+    StateTransitionChangeEventImpl(EventService eventService, State from, State to, String sourceId, String sourceType, Instant effectiveTimestamp, Map<String, Object> properties) {
         super();
         this.eventService = eventService;
         this.from = from;
         this.to = to;
         this.sourceId = sourceId;
+        this.sourceType = sourceType;
         this.effectiveTimestamp = effectiveTimestamp;
         this.properties = new HashMap<>(properties);
     }
@@ -46,6 +48,11 @@ public class StateTransitionChangeEventImpl implements StateTransitionChangeEven
     @Override
     public String getSourceId() {
         return sourceId;
+    }
+
+    @Override
+    public String getSourceType() {
+        return sourceType;
     }
 
     @Override
