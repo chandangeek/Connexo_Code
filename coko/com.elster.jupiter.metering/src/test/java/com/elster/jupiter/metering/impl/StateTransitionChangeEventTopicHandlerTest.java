@@ -59,6 +59,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
     public void initializeMocks() {
         when(this.localEvent.getSource()).thenReturn(this.event);
         when(this.event.getSourceId()).thenReturn(MISSING_END_DEVICE_MRID);
+        when(this.event.getSourceType()).thenReturn(EndDevice.class.getName());
         when(this.event.getNewState()).thenReturn(this.state);
         when(this.meteringService.findEndDevice(MISSING_END_DEVICE_MRID)).thenReturn(Optional.<EndDevice>empty());
         when(this.meteringService.findEndDevice(END_DEVICE_MRID)).thenReturn(Optional.of(this.endDevice));
@@ -66,6 +67,17 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
         when(this.meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
         when(endDeviceQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(endDevice));
+    }
+
+    @Test
+    public void handlerIgnoreNonDeviceEvents() {
+        when(this.event.getSourceType()).thenReturn("Please Ignore Me");
+
+        // Business method
+        this.getTestInstance().handle(this.localEvent);
+
+        // Asserts
+        verify(this.endDeviceQuery, never()).select(any(Condition.class));
     }
 
     @Test
