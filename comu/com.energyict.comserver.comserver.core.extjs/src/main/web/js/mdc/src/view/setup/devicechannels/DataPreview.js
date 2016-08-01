@@ -15,10 +15,10 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     frame: false,
     mentionDataLoggerSlave: false,
 
-    updateForm: function (record) {
+    updateForm: function(record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
-            title =  Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+            title = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
                 [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
                 false),
             mainValidationInfo,
@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             router = me.router;
 
         me.setLoading();
-        record.refresh(router.arguments.mRID, router.arguments.channelId, function(){
+        record.getDetailedInformation(router.arguments.mRID, router.arguments.channelId, function(detailRecord){
             Ext.suspendLayouts();
             me.down('#general-panel').setTitle(title);
             me.down('#values-panel').setTitle(title);
@@ -85,7 +85,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     }
                 });
             } else {
-                me.setDataQuality(record.get('readingQualities'));
+                me.setDataQuality(detailRecord.get('readingQualities'));
                 me.down('#readingDataValidated').setValue(record.get('dataValidated'));
                 var dataLoggerSlaveField = me.down('#mdc-channel-data-preview-data-logger-slave');
                 if (dataLoggerSlaveField) {
@@ -94,7 +94,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             }
 
             Ext.resumeLayouts(true);
-            me.down('#values-panel').loadRecord(record);
+            detailRecord.set('value', record.get('value'));
+            detailRecord.set('collectedValue', record.get('collectedValue'));
+            me.down('#values-panel').loadRecord(detailRecord);
             me.setLoading(false);
         });
     },

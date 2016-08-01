@@ -37,11 +37,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
     initComponent: function () {
         var me = this,
             readingType = me.channelRecord.get('readingType'),
-            unitOfCollectedValues = readingType && readingType.names
-                ? readingType.names.unitOfMeasure : undefined,
+            unitOfCollectedValues = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined,
             calculatedReadingType = me.channelRecord.get('calculatedReadingType'),
-            unitOfCalculatedValues = calculatedReadingType && calculatedReadingType.names
-                ? calculatedReadingType.names.unitOfMeasure : undefined;
+            unitOfCalculatedValues = calculatedReadingType && calculatedReadingType.names ? calculatedReadingType.names.unitOfMeasure : undefined;
 
         me.columns = [
             {
@@ -59,12 +57,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
 
                     if (readingQualitiesPresent) {
                         Ext.Array.forEach(record.get('readingQualities'), function (readingQualityName) {
-                            // Strange behaviour detected:
-                            // When scrolling the grid completely down a reading quality *object* is added to the first grid item
-                            // Therefor we add this extra condition:
-                            if (typeof(readingQualityName) === 'string') {
-                                tooltipContent += (readingQualityName + '<br>');
-                            }
+                            tooltipContent += (readingQualityName + '<br>');
                         });
                         if (tooltipContent.length > 0) {
                             tooltipContent += '<br>';
