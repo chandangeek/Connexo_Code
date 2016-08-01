@@ -391,7 +391,7 @@ public class ChannelResource {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         Instant to = Instant.ofEpochMilli(epochMillis);
         Instant from = to.minus(channel.getInterval().asTemporalAmount());
-        Range<Instant> range = Ranges.closedOpen(from, to);
+        Range<Instant> range = Ranges.openClosed(from, to);
         List<Pair<Channel, Range<Instant>>> channelTimeLine = topologyService.getDataLoggerChannelTimeLine(channel, range);
         Optional<VeeReadingInfo> veeReadingInfo = channelTimeLine.stream()
                 .map(channelRangePair -> {

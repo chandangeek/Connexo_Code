@@ -272,7 +272,6 @@ public class DeviceResource {
         newDevice.setSerialNumber(serialNumber);
         newDevice.setYearOfCertification(yearOfCertification);
         newDevice.save();
-        newDevice.getLifecycleDates().setReceivedDate(shipmentDate).save();
         return newDevice;
     }
 
