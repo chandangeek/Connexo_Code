@@ -1,9 +1,9 @@
 package com.elster.jupiter.autotests.rest.impl;
 
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.rest.util.Transactional;
 
@@ -16,6 +16,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
 
 @Path("/usagepoints")
 public class UsagePointTestResource {
@@ -34,68 +36,65 @@ public class UsagePointTestResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response delete(@PathParam("mRID") String mRID, UsagePointInfo usagePointInfo) throws SQLException {
-        if (this.meteringService.findUsagePoint(mRID).isPresent()) {
-            UsagePoint usagePoint = this.meteringService.findUsagePoint(mRID).get();
-
-            for (EffectiveMetrologyConfigurationOnUsagePoint configurationOnUsagePoint : usagePoint.getEffectiveMetrologyConfigurations()) {
-                DataModel dataModel = ormService.getDataModel("MTR").get();
-                Connection connection = dataModel.getConnection(true);
-                long id = configurationOnUsagePoint.getId();
-                try {
-                    connection.createStatement()
-                            .execute(
-                                    "DELETE FROM MTR_CHANNEL " +
-                                            "WHERE CHANNEL_CONTAINER IN (" +
-                                            "SELECT ID FROM MTR_CHANNEL_CONTAINER " +
-                                            "WHERE EFFECTIVE_CONTRACT IN (" +
-                                            "SELECT ID FROM MTR_EFFECTIVE_CONTRACT " +
-                                            "WHERE EFFECTIVE_CONF = " + id + "))"
-                            );
-                    connection.createStatement()
-                            .execute(
-                                    "DELETE FROM MTR_CHANNEL_CONTAINER " +
-                                            "WHERE EFFECTIVE_CONTRACT IN (" +
-                                            "SELECT ID FROM MTR_EFFECTIVE_CONTRACT " +
-                                            "WHERE EFFECTIVE_CONF = " + id + ")"
-                            );
-                    connection.createStatement()
-                            .execute(
-                                    "DELETE FROM MTR_EFFECTIVE_CONTRACT " +
-                                            "WHERE EFFECTIVE_CONF = " + id
-                            );
-                    connection.createStatement()
-                            .execute(
-                                    "DELETE FROM MTR_USAGEPOINTMTRCONFIG " +
-                                            "WHERE USAGEPOINT = " + id
-                            );
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            if (usagePoint.getMeterActivations().size() != 0) {
-
-                DataModel dataModel = ormService.getDataModel("MTR").get();
-                Connection connection = dataModel.getConnection(true);
-                usagePoint.getMeterActivations().stream().forEach(meterActivation -> {
+        Optional<UsagePoint> usagePointOptional = meteringService.findUsagePoint(mRID);
+        if (usagePointOptional.isPresent()) {
+            UsagePoint usagePoint = usagePointOptional.get();
+            List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
+            List<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations();
+            if (!effectiveMetrologyConfigurations.isEmpty()) {
+                Connection connection = ormService.getDataModel("MTR").get().getConnection(true);
+                for (EffectiveMetrologyConfigurationOnUsagePoint configurationOnUsagePoint : effectiveMetrologyConfigurations) {
+                    long id = configurationOnUsagePoint.getId();
                     try {
                         connection.createStatement()
-                                .execute("DELETE FROM MTR_READINGQUALITY  WHERE CHANNELID IN" +
+                                .execute(
+                                        "DELETE FROM MTR_READINGQUALITY WHERE CHANNELID IN (" +
+                                                "SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
+                                                "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
+                                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF = " + id + ")))"
+                                );
+                        connection.createStatement()
+                                .execute(
+                                        "DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
+                                                "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
+                                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF = " + id + "))"
+                                );
+                        connection.createStatement()
+                                .execute(
+                                        "DELETE FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
+                                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF = " + id + ")"
+                                );
+                        connection.createStatement()
+                                .execute(
+                                        "DELETE FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF = " + id
+                                );
+                        connection.createStatement()
+                                .execute(
+                                        "DELETE FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " + id
+                                );
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            if (!meterActivations.isEmpty()) {
+                Connection connection = ormService.getDataModel("MTR").get().getConnection(true);
+                meterActivations.forEach(meterActivation -> {
+                    try {
+                        long id = meterActivation.getId();
+                        connection.createStatement()
+                                .execute("DELETE FROM MTR_READINGQUALITY WHERE CHANNELID IN" +
                                         " ( SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN" +
                                         " ( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
-                                        meterActivation.getId() +
-                                        " ))");
+                                        id + "))");
                         connection.createStatement()
                                 .execute("DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN " +
                                         "( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
-                                        meterActivation.getId() +
-                                        ")");
+                                        id + ")");
                         connection.createStatement()
-                                .execute("DELETE FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
-                                        meterActivation.getId());
+                                .execute("DELETE FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " + id);
                         connection.createStatement()
-                                .execute("DELETE FROM MTR_METERACTIVATION WHERE ID = " +
-                                        meterActivation.getId());
+                                .execute("DELETE FROM MTR_METERACTIVATION WHERE ID = " + id);
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
