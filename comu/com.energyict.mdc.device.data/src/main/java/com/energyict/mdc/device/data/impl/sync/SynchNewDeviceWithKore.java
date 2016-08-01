@@ -26,6 +26,7 @@ public class SynchNewDeviceWithKore extends AbstractSyncDeviceWithKoreMeter {
         this.setDevice(device);
 
         createKoreMeterConfiguration(false);
+        getDevice().getLifecycleDates().setReceivedDate(getStart());
         // create a new MeterActivation
         MeterActivation activation = this.activateMeter(getStart());
         // add Kore Channels for all MDC Channels and registers
