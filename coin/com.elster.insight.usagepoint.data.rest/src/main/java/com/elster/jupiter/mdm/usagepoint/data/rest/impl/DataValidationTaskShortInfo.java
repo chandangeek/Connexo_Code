@@ -8,6 +8,9 @@ public class DataValidationTaskShortInfo {
     public String name;
     public String trigger;
 
+    public DataValidationTaskShortInfo() {
+    }
+
     public DataValidationTaskShortInfo(DataValidationTaskInfo dataValidationTaskInfo) {
         id = dataValidationTaskInfo.getId();
         name = dataValidationTaskInfo.getName();
