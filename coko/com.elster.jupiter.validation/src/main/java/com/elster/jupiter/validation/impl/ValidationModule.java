@@ -1,6 +1,8 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.OrmService;
