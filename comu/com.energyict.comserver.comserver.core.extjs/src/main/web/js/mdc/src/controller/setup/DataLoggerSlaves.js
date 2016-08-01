@@ -390,7 +390,9 @@ Ext.define('Mdc.controller.setup.DataLoggerSlaves', {
                             slaveDeviceModel.deviceConfigurationId = formRecord.get('deviceConfigurationId');
                             slaveDeviceModel.yearOfCertification = formRecord.get('yearOfCertification');
                             slaveDeviceModel.batch = formRecord.get('batch');
-                            slaveDeviceModel.shipmentDate = wizard.down('#deviceAdd #deviceAddShipmentDate').getValue().getTime();
+                            var slaveShipmentDateWithoutSeconds = wizard.down('#deviceAdd #deviceAddShipmentDate').getValue().getTime();
+                            slaveShipmentDateWithoutSeconds = slaveShipmentDateWithoutSeconds - (slaveShipmentDateWithoutSeconds % 60000);
+                            slaveDeviceModel.shipmentDate = slaveShipmentDateWithoutSeconds;
                             me.wizardInformation.minimalLinkingDates = [];
                             me.wizardInformation.minimalLinkingDates.push(me.wizardInformation.dataLogger.get('shipmentDate'));
                             me.wizardInformation.minimalLinkingDates.push(slaveDeviceModel.shipmentDate);
