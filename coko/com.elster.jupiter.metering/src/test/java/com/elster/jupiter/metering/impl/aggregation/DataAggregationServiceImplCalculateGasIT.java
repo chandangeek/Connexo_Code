@@ -50,6 +50,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -90,6 +91,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
@@ -107,18 +109,20 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataAggregationServiceImplCalculateGasIT {
 
-    private static final String FIFTEEN_MINS_BULK_GAS_VOLUME_M3_MRID = "0.0.2.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0";
-    private static final String FIFTEEN_MINS_BULK_GAS_VOLUME_KMH_MRID = "0.0.2.1.1.7.58.0.0.0.0.0.0.0.0.3.72.0";
-    private static final String MONTHLY_BULK_GAS_VOLUME_M3_MRID = "13.0.0.1.1.7.58.0.0.0.0.0.0.0.0.0.42.0";
-    private static final String MONTHLY_BULK_GAS_VOLUME_KWH_MRID = "13.0.0.1.1.7.58.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String FIFTEEN_MINS_GAS_VOLUME_M3_MRID = "0.0.2.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0";
+    private static final String FIFTEEN_MINS_GAS_VOLUME_KWH_MRID = "0.0.2.4.1.7.58.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MONTHLY_GAS_VOLUME_M3_MRID = "13.0.0.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0";
+    private static final String MONTHLY_GAS_VOLUME_KWH_MRID = "13.0.0.4.1.7.58.0.0.0.0.0.0.0.0.3.72.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
     private static BundleContext bundleContext;
-    private static ReadingType fifteenMinutesBulkGasCubicMeter;
-    private static ReadingType fifteenMinutesBulkGas_kWh;
-    private static ReadingType monthlyBulkGasCubicMeter;
-    private static ReadingType monthlyBulkGas_kWh;
+    private static ReadingType fifteenMinutesGasCubicMeter;
+    private static ReadingType fifteenMinutesGas_kWh;
+    private static ReadingType monthlyGasCubicMeter;
+    private static ReadingType monthlyGas_kWh;
     private static ServiceCategory GAS;
+    private static SearchService searchService;
+    private static SearchDomain searchDomain;
     private static MetrologyPurpose METROLOGY_PURPOSE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static Instant feb1st2016 = Instant.ofEpochMilli(1454281200000L);
@@ -149,7 +153,7 @@ public class DataAggregationServiceImplCalculateGasIT {
             bind(LicenseService.class).to(LicenseServiceImpl.class).in(Scopes.SINGLETON);
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(SearchService.class).toInstance(searchService);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
@@ -171,6 +175,9 @@ public class DataAggregationServiceImplCalculateGasIT {
     }
 
     private static void setupServices() {
+        searchDomain = mock(SearchDomain.class);
+        searchService = mock(SearchService.class);
+        when(searchService.findDomain(anyString())).thenReturn(Optional.of(searchDomain));
         when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
         try {
             injector = Guice.createInjector(
@@ -179,10 +186,10 @@ public class DataAggregationServiceImplCalculateGasIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new MeteringModule(
-                            FIFTEEN_MINS_BULK_GAS_VOLUME_M3_MRID,
-                            FIFTEEN_MINS_BULK_GAS_VOLUME_KMH_MRID,
-                            MONTHLY_BULK_GAS_VOLUME_M3_MRID,
-                            MONTHLY_BULK_GAS_VOLUME_KWH_MRID
+                            FIFTEEN_MINS_GAS_VOLUME_M3_MRID,
+                            FIFTEEN_MINS_GAS_VOLUME_KWH_MRID,
+                            MONTHLY_GAS_VOLUME_M3_MRID,
+                            MONTHLY_GAS_VOLUME_KWH_MRID
                     ),
                     new BasicPropertiesModule(),
                     new TimeModule(),
@@ -239,10 +246,10 @@ public class DataAggregationServiceImplCalculateGasIT {
 
     private static void setupReadingTypes() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            fifteenMinutesBulkGasCubicMeter = getMeteringService().getReadingType(FIFTEEN_MINS_BULK_GAS_VOLUME_M3_MRID).get();
-            fifteenMinutesBulkGas_kWh = getMeteringService().getReadingType(FIFTEEN_MINS_BULK_GAS_VOLUME_KMH_MRID).get();
-            monthlyBulkGasCubicMeter = getMeteringService().getReadingType(MONTHLY_BULK_GAS_VOLUME_M3_MRID).get();
-            monthlyBulkGas_kWh = getMeteringService().getReadingType(MONTHLY_BULK_GAS_VOLUME_KWH_MRID).get();
+            fifteenMinutesGasCubicMeter = getMeteringService().getReadingType(FIFTEEN_MINS_GAS_VOLUME_M3_MRID).get();
+            fifteenMinutesGas_kWh = getMeteringService().getReadingType(FIFTEEN_MINS_GAS_VOLUME_KWH_MRID).get();
+            monthlyGasCubicMeter = getMeteringService().getReadingType(MONTHLY_GAS_VOLUME_M3_MRID).get();
+            monthlyGas_kWh = getMeteringService().getReadingType(MONTHLY_GAS_VOLUME_KWH_MRID).get();
             ctx.commit();
         }
     }
@@ -327,12 +334,12 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("C", defaultMeterRole).withReadingType(fifteenMinutesBulkGasCubicMeter);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("C", defaultMeterRole).withReadingType(fifteenMinutesGasCubicMeter);
         this.consumptionRequirementId = consumption.getId();
         System.out.println("simple15Mins::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesBulkGas_kWh, Formula.Mode.EXPERT);
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", fifteenMinutesGas_kWh, Formula.Mode.EXPERT);
         ReadingTypeDeliverable netConsumption =
                 builder.build(
                         builder.multiply(
@@ -377,7 +384,7 @@ public class DataAggregationServiceImplCalculateGasIT {
             verify(clauseAwareSqlBuilder).select();
             // Assert that the overall select statement selects the target reading type
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
-            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(FIFTEEN_MINS_BULK_GAS_VOLUME_KMH_MRID) + "'.*");
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(FIFTEEN_MINS_GAS_VOLUME_KWH_MRID) + "'.*");
             // Assert that the overall select statement selects the value and the timestamp from the with clause for the deliverable
             assertThat(overallSelectWithoutNewlines).matches(".*rod" + consumptionDeliverableId + "_1\\.value, rod" + consumptionDeliverableId + "_1\\.localdate, rod" + consumptionDeliverableId + "_1\\.timestamp.*");
         }
@@ -411,12 +418,12 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("C", defaultMeterRole).withReadingType(fifteenMinutesBulkGas_kWh);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("C", defaultMeterRole).withReadingType(fifteenMinutesGas_kWh);
         this.consumptionRequirementId = consumption.getId();
         System.out.println("monthlyValuesFrom15minValues::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
 
         // Setup configuration deliverables
-        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyBulkGas_kWh, Formula.Mode.AUTO);
+        ReadingTypeDeliverableBuilder builder = this.configuration.newReadingTypeDeliverable("consumption", monthlyGas_kWh, Formula.Mode.AUTO);
         ReadingTypeDeliverable netConsumption = builder.build(builder.requirement(consumption));
 
         this.consumptionDeliverableId = netConsumption.getId();
@@ -454,7 +461,7 @@ public class DataAggregationServiceImplCalculateGasIT {
             verify(clauseAwareSqlBuilder).select();
             String overallSelectWithoutNewlines = this.selectClauseBuilder.getText().replace("\n", " ");
             // Assert that the overall select statement selects the target reading type
-            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(MONTHLY_BULK_GAS_VOLUME_KWH_MRID) + "'.*");
+            assertThat(overallSelectWithoutNewlines).matches(".*'" + this.mRID2GrepPattern(MONTHLY_GAS_VOLUME_KWH_MRID) + "'.*");
             // Assert that the overall select statement truncates to monthly level and takes the gas day start options into account.
             assertThat(overallSelectWithoutNewlines).matches(".*\\(TRUNC\\(rod" + consumptionDeliverableId + "_1.localdate - INTERVAL '17' HOUR, 'MONTH'\\) \\+ INTERVAL '17' HOUR\\).*");
             assertThat(overallSelectWithoutNewlines).matches(".*GROUP BY \\(TRUNC\\(rod" + consumptionDeliverableId + "_1.localdate - INTERVAL '17' HOUR, 'MONTH'\\) \\+ INTERVAL '17' HOUR\\).*");
@@ -483,12 +490,12 @@ public class DataAggregationServiceImplCalculateGasIT {
 
     private void activateMeterWith15min_m3_Channel(MeterRole meterRole) {
         MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, jan1st2016);
-        meterActivation.getChannelsContainer().createChannel(fifteenMinutesBulkGasCubicMeter);
+        meterActivation.getChannelsContainer().createChannel(fifteenMinutesGasCubicMeter);
     }
 
     private void activateMeterWith15min_kWh_Channel(MeterRole meterRole) {
         MeterActivation meterActivation = this.usagePoint.activate(this.meter, meterRole, jan1st2016);
-        meterActivation.getChannelsContainer().createChannel(fifteenMinutesBulkGas_kWh);
+        meterActivation.getChannelsContainer().createChannel(fifteenMinutesGas_kWh);
     }
 
     private String mRID2GrepPattern(String mRID) {

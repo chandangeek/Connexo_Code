@@ -138,9 +138,8 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         virtualFactory.nextMeterActivationSet(meterActivationSet, period);
         deliverablesPerMeterActivation.put(meterActivationSet, new ArrayList<>());
         contract
-                .getDeliverables()
-                .stream()
-                .forEach(deliverable -> this.prepare(usagePoint, meterActivationSet, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
+            .getDeliverables()
+            .forEach(deliverable -> this.prepare(usagePoint, meterActivationSet, deliverable, period, virtualFactory, deliverablesPerMeterActivation));
     }
 
     /**

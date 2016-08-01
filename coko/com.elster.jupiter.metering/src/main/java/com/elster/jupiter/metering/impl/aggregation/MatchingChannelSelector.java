@@ -35,6 +35,9 @@ class MatchingChannelSelector {
     MatchingChannelSelector(List<Channel> matchingChannels, Formula.Mode mode) {
         super();
         this.mode = mode;
+        if (matchingChannels.isEmpty()) {
+            Loggers.ANALYSIS.severe(() -> "No matching channels to start the search for preferred channel. Must be running against a meter that was activated on the usage point that does not fulfill the requirements of the usage point's metrology configuration.");
+        }
         this.matchingChannels = Collections.unmodifiableList(matchingChannels);
     }
 

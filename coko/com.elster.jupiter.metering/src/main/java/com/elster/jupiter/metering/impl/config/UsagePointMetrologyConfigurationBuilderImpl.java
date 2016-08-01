@@ -5,14 +5,12 @@ import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfigurationBuilder;
 import com.elster.jupiter.orm.DataModel;
 
-public class UsagePointMetrologyConfigurationBuilderImpl implements UsagePointMetrologyConfigurationBuilder {
+class UsagePointMetrologyConfigurationBuilderImpl implements UsagePointMetrologyConfigurationBuilder {
 
-    private DataModel dataModel;
     private UsagePointMetrologyConfigurationImpl underConstruction;
 
-    public UsagePointMetrologyConfigurationBuilderImpl(DataModel dataModel) {
-        this.dataModel = dataModel;
-        this.underConstruction = this.dataModel.getInstance(UsagePointMetrologyConfigurationImpl.class);
+    UsagePointMetrologyConfigurationBuilderImpl(DataModel dataModel) {
+        this.underConstruction = dataModel.getInstance(UsagePointMetrologyConfigurationImpl.class);
     }
 
     void init(String metrologyConfigurationName, ServiceCategory serviceCategory) {
