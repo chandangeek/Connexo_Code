@@ -11,6 +11,7 @@
 
     <groupId>com.energyict</groupId>
     <artifactId>mdc.parent</artifactId>
+    <name>[MDC] mdc.parent</name>
     <version>1.2.0${revision}</version>
     <inceptionYear>2013</inceptionYear>
     <packaging>pom</packaging>
