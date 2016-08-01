@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Objects;
 
-abstract class AbstractGroup {
+public abstract class AbstractGroup {
 
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
