@@ -76,7 +76,13 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-10 (13:35)
  */
-@Component(name = "com.elster.jupiter.cps", service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, TranslationKeyProvider.class}, property = "name=" + CustomPropertySetService.COMPONENT_NAME)
+@Component(name = "com.elster.jupiter.cps",
+        service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, TranslationKeyProvider.class},
+        property = {
+            "name=" + CustomPropertySetService.COMPONENT_NAME,
+            "osgi.command.scope=cps",
+            "osgi.command.function=status"
+        })
 public class CustomPropertySetServiceImpl implements ServerCustomPropertySetService, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(CustomPropertySetServiceImpl.class.getName());
@@ -740,6 +746,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         sqlBuilder.add(sqlFragment);
         sqlBuilder.append(") cps");
         return sqlBuilder;
+    }
+
+    @SuppressWarnings("unused") // published as a gogo command
+    public void status() {
+        List<RegisteredCustomPropertySetImpl> registeredCustomPropertySets = this.dataModel.mapper(RegisteredCustomPropertySetImpl.class).find();
+        new Status(registeredCustomPropertySets, this.activePropertySets).show();
     }
 
     private class NonVersionedValuesEntityCustomConditionMatcherImpl<DD, TT extends PersistentDomainExtension<DD>> implements NonVersionedValuesEntityCustomConditionMatcher<DD, TT> {

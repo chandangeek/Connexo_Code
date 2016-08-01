@@ -122,6 +122,10 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
         return systemDefined;
     }
 
+    String getLogicalId() {
+        return logicalId;
+    }
+
     @Override
     public CustomPropertySet getCustomPropertySet() {
         /* this method is intended to be used by client code
