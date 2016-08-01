@@ -176,7 +176,7 @@ Ext.define('Imt.purpose.controller.Purpose', {
                 outputs = records;
                 displayPage();
             });
-            outputModel.getProxy().getProxy().extraParams = {mRID: mRID, purposeId: purposeId};
+            outputModel.getProxy().extraParams = {mRID: mRID, purposeId: purposeId};
             outputModel.load(outputId, {
                 success: function (record) {
                     output = record;
