@@ -135,12 +135,14 @@ Ext.define('Imt.purpose.controller.Purpose', {
             outputModel = me.getModel('Imt.purpose.model.Output');
             dependenciesCounter = 3;
             displayPage = function () {
+                var widget;
+
                 dependenciesCounter--;
                 if (!dependenciesCounter) {
                     mainView.setLoading(false);
                     app.fireEvent('outputs-loaded', outputs);
                     app.fireEvent('output-loaded', output);
-                    app.fireEvent('changecontentevent', Ext.widget('output-channel-main', {
+                    widget = Ext.widget('output-channel-main', {
                         itemId: 'output-channel-main',
                         router: router,
                         usagePoint: usagePoint,
@@ -152,7 +154,8 @@ Ext.define('Imt.purpose.controller.Purpose', {
                         prevNextListLink: prevNextListLink,
                         controller: me,
                         tab: tab
-                    }));
+                    });
+                    app.fireEvent('changecontentevent', widget);
                     widget.down('output-specifications-form').loadRecord(output);
                 }
             };
