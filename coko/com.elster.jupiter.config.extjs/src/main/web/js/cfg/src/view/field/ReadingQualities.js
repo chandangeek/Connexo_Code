@@ -6,12 +6,12 @@ Ext.define('Cfg.view.field.ReadingQualities', {
     usedInInsight: false,
 
     renderer : function(value, field) {
+        var validationRules = value.validationRules ? value.validationRules : value;
         field.show();
         if (value.isConfirmed) {
             return this.getConfirmed(value.confirmedInApps);
         } else if (!Ext.isEmpty(validationRules)) {
-            var validationRules = value.validationRules ? value.validationRules : value,
-                valueToRender = this.getValidationRules(validationRules);
+            var valueToRender = this.getValidationRules(validationRules);
             if (Ext.isEmpty(valueToRender)) {
                 field.hide();
             }
