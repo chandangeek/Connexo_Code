@@ -90,7 +90,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
 
         // Data on the slave channels having a dat
         this.dataLoggerChannelUsages.stream().forEach((usage) -> transferChannelDataToDataLogger(usage, closingDate));
-        this.getOrigin().activate(closingDate);   //current Meter Activation is stopped and a new one is started
+//        this.getOrigin().activate(closingDate);   //current Meter Activation is stopped and a new one is started
         super.terminate(closingDate);
     }
 

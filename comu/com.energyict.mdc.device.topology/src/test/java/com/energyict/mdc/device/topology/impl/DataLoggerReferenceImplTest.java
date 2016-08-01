@@ -513,6 +513,8 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
         inMemoryPersistence.getTopologyService().setDataLogger(slave, dataLogger, startLink, channelMapping, registerMapping);
 
+        assertThat(dataLogger.getMeterActivationsMostRecentFirst()).hasSize(1);
+
         List<DataLoggerReferenceImpl> dataLoggerReferences = inMemoryPersistence.getTopologyService().dataModel().query(DataLoggerReferenceImpl.class).select(Condition.TRUE);
         assertThat(dataLoggerReferences).hasSize(1);
         assertThat(dataLoggerReferences.get(0).getRange().lowerEndpoint()).isEqualTo(startLink);
@@ -576,7 +578,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger)).isEmpty();
 
         List<MeterActivation> meterActivations = slaves.get(0).getMeterActivationsMostRecentFirst();
-        assertThat(meterActivations).hasSize(2); // A new MeterActivation was started
+        assertThat(meterActivations).hasSize(1);
         assertThat(meterActivations.get(0).getChannelsContainer().getChannels()).hasSize(3); // The new MeterActivation has channels
         assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(0).hasData()).isFalse();
         assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(1).hasData()).isFalse();
@@ -626,16 +628,11 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger)).isEmpty();
 
         List<MeterActivation> meterActivations = slave.getMeterActivationsMostRecentFirst();
-        assertThat(meterActivations).hasSize(2); // A new MeterActivation was started
+        assertThat(meterActivations).hasSize(1);
         assertThat(meterActivations.get(0).isEffectiveAt(endLink)).isTrue();
-        assertThat(meterActivations.get(1).getRange().upperEndpoint()).isEqualTo(endLink);
-        assertThat(meterActivations.get(0).getChannelsContainer().getChannels()).hasSize(3); // The new MeterActivation has channels
-        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(0).hasData()).isFalse();  // No data on new MeterActivation
-        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(1).hasData()).isFalse();
-        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(2).hasData()).isFalse();
-        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(0).hasData()).isTrue();  // Still data on previous MeterActivation
-        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(1).hasData()).isTrue();
-        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(2).hasData()).isTrue();
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(0).hasData()).isTrue();  // Still data on previous MeterActivation
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(1).hasData()).isTrue();
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(2).hasData()).isTrue();
     }
 
     @Test
@@ -685,20 +682,15 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         assertThat(inMemoryPersistence.getTopologyService().findDataLoggerSlaves(dataLogger)).isEmpty();
 
         List<MeterActivation> meterActivations = slave.getMeterActivationsMostRecentFirst();
-        assertThat(meterActivations).hasSize(2); // A new MeterActivation was started
+        assertThat(meterActivations).hasSize(1); // No new MeterActivation was started
         assertThat(meterActivations.get(0).isEffectiveAt(endLink)).isTrue();
-        assertThat(meterActivations.get(1).getRange().upperEndpoint()).isEqualTo(endLink);
-        assertThat(meterActivations.get(0).getChannelsContainer().getChannels()).hasSize(3); // The new MeterActivation has channels
-        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(0).hasData()).isFalse();  // No data on new MeterActivation
-        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(1).hasData()).isFalse();
-        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(2).hasData()).isFalse();
-        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(0).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR1.stream()
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(0).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR1.stream()
                 .filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp()))
                 .count()).intValue());  // Still data on previous MeterActivation
-        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(1).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR2.stream()
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(1).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR2.stream()
                 .filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
-        assertThat(meterActivations.get(1).getChannelsContainer().getChannels().get(2).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR3.stream()
+        assertThat(meterActivations.get(0).getChannelsContainer().getChannels().get(2).getReadings(Range.openClosed(startLink, endLink))).hasSize(new Long(readingsDataLoggerR3.stream()
                 .filter((reading) -> Range.openClosed(startLink, endLink).contains(reading.getTimeStamp()))
                 .count()).intValue());
 
