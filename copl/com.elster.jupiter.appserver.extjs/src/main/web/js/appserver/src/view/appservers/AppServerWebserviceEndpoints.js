@@ -89,7 +89,7 @@ Ext.define('Apr.view.appservers.AppServerWebserviceEndpoints', {
                     },
                     previewComponent: {
                         xtype: 'webservice-preview',
-                        itemId: 'pnl-import-service-preview',
+                        itemId: 'pnl-web-service-preview',
                         router: me.router,
                     }
 
