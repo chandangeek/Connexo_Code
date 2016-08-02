@@ -2,6 +2,7 @@ Ext.define('Wss.view.PreviewForm', {
     extend: 'Ext.panel.Panel',
     frame: false,
     alias: 'widget.webservices-preview-form',
+    itemId: 'webservices-preview-form',
     layout: {
         type: 'column'
     },
