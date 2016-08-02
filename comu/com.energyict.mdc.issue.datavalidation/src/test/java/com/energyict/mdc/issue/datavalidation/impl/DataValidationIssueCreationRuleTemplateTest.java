@@ -135,7 +135,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
                 .code();
         readingType = inMemoryPersistence.getService(MeteringService.class).createReadingType(readingTypeCode, "RT");
         meter = createMeter(deviceConfiguration, "Device #1");
-        channel = meter.activate(fixedTime).createChannel(readingType);
+        channel = meter.activate(fixedTime).getChannelsContainer().createChannel(readingType);
 
         createRuleForDeviceConfiguration("Rule #1", deviceConfiguration);
         assertThat(issueCreationService.reReadRules()).as("Drools compilation of the rule: there are errors").isTrue();
@@ -196,7 +196,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
     public void testFilterByDeviceConfiguration() {
         DeviceConfiguration altDeviceConfiguration = createDeviceConfiguration(deviceType, "Alternative");
         Meter meter = createMeter(altDeviceConfiguration, "Device #2");
-        Channel channel = meter.activate(fixedTime).createChannel(readingType);
+        Channel channel = meter.activate(fixedTime).getChannelsContainer().createChannel(readingType);
 
         Instant now = Instant.now();
         Message message = mockCannotEstimateDataMessage(now, now, channel, readingType);
@@ -266,7 +266,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         block.addIntervalReading(IntervalReadingImpl.of(fixedTime, BigDecimal.valueOf(50L)));
         block.addIntervalReading(IntervalReadingImpl.of(fixedTime.plus(1, ChronoUnit.MINUTES), BigDecimal.valueOf(50L)));
         reading.addIntervalBlock(block);
-        meter.store(reading);
+        meter.store(QualityCodeSystem.MDC, reading);
 
         Message message;
         //create issue

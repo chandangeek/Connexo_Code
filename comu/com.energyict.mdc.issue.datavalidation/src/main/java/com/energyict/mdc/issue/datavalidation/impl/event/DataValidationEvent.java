@@ -83,7 +83,7 @@ public abstract class DataValidationEvent implements IssueEvent {
     }
 
     private Optional<Meter> findMeter() {
-        return findChannel().map(channel -> channel.getMeterActivation().getMeter()).orElse(Optional.empty());
+        return findChannel().flatMap(channel -> channel.getChannelsContainer().getMeter());
     }
 
     private Device getDevice() {
