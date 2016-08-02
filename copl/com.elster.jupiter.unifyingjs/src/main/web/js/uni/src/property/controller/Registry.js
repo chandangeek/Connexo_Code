@@ -71,6 +71,7 @@ Ext.define('Uni.property.controller.Registry', {
         LOGBOOK: 'Uni.property.view.property.Reference',
         LOADPROFILETYPE: 'Uni.property.view.property.Reference',
         FIRMWAREVERSION: 'Uni.property.view.property.Reference',
+        READINGTYPE: 'Uni.property.view.property.Reference',
         REGISTER: 'Uni.property.view.property.Reference',
         LOADPROFILE: 'Uni.property.view.property.Reference',
         EAN13: 'Uni.property.view.property.Text',
