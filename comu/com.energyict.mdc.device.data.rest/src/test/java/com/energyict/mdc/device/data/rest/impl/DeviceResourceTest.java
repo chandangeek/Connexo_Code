@@ -32,6 +32,7 @@ import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.LocationTemplate;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
@@ -2299,7 +2300,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getState()).thenReturn(state);
         Instant now = Instant.now();
         CIMLifecycleDates dates = mock(CIMLifecycleDates.class);
-        when(dates.getReceivedDate()).thenReturn(Optional.of(now.minus(5, ChronoUnit.DAYS)));
+        Instant shipmentDate = now.minus(5, ChronoUnit.DAYS);
+        when(dates.getReceivedDate()).thenReturn(Optional.of(shipmentDate));
         when(dates.getInstalledDate()).thenReturn(Optional.of(now.minus(4, ChronoUnit.DAYS)));
         when(dates.getRemovedDate()).thenReturn(Optional.of(now.minus(3, ChronoUnit.DAYS)));
         when(dates.getRetiredDate()).thenReturn(Optional.of(now.minus(2, ChronoUnit.DAYS)));
@@ -2307,7 +2309,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getLocation()).thenReturn(Optional.empty());
         when(device.getSpatialCoordinates()).thenReturn(Optional.empty());
         when(dates.setReceivedDate(any(Instant.class))).thenReturn(dates);
-
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getStart()).thenReturn(shipmentDate);
+        doReturn(Optional.of(meterActivation)).when(device).getCurrentMeterActivation();
         when(deviceService.findByUniqueMrid(name)).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(name), anyLong())).thenReturn(Optional.of(device));
         if (gateway != null) {
@@ -2751,7 +2755,9 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.getDeviceType()).thenReturn(deviceType);
         when(batchService.findBatch(device)).thenReturn(Optional.empty());
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.empty());
-        when(device.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        when(meterActivation.getStart()).thenReturn(shipmentDate);
+        doReturn(Optional.of(meterActivation)).when(device).getCurrentMeterActivation();
         CIMLifecycleDates cimLifecycleDates = mock(CIMLifecycleDates.class);
         when(cimLifecycleDates.setReceivedDate(any(Instant.class))).thenReturn(cimLifecycleDates);
         when(device.getLifecycleDates()).thenReturn(cimLifecycleDates);

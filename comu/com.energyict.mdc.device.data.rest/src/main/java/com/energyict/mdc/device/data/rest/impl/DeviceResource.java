@@ -272,6 +272,7 @@ public class DeviceResource {
         newDevice.setSerialNumber(serialNumber);
         newDevice.setYearOfCertification(yearOfCertification);
         newDevice.save();
+        newDevice.getCurrentMeterActivation().ifPresent(meterActivation -> newDevice.getLifecycleDates().setReceivedDate(meterActivation.getStart()).save());
         return newDevice;
     }
 
