@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimators.impl;
 
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -20,6 +21,8 @@ public class DefaultEstimatorFactoryTest {
     private NlsService nlsService;
     @Mock
     private PropertySpecService propertySpecService;
+    @Mock
+    private KpiService kpiService;
     @Mock
     private ValidationService validationService;
     @Mock
