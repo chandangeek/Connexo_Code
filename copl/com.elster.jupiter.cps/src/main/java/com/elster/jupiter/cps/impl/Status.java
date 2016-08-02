@@ -15,6 +15,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Show the status of the registered versus active {@link com.elster.jupiter.cps.CustomPropertySet}s.
@@ -26,6 +28,7 @@ class Status {
 
     private final List<RegisteredCustomPropertySetImpl> registeredCustomPropertySets;
     private final Collection<CustomPropertySet> publishedCustomPropertySets;
+    private Formatter formatter;
 
     Status(List<RegisteredCustomPropertySetImpl> registeredCustomPropertySets, Collection<CustomPropertySet> publishedCustomPropertySets) {
         this.registeredCustomPropertySets = ImmutableList.copyOf(registeredCustomPropertySets);
@@ -33,35 +36,41 @@ class Status {
     }
 
     void show() {
-        try {
-            Formatter formatter = new Formatter();
-            formatter.printHeader();
-            this.registeredCustomPropertySets
-                    .stream()
-                    .sorted(new RegisteredCustomPropertySetComparator())
-                    .forEach(formatter::print);
-            formatter.printFooter();
-            this.printPublishedButNotRegistered();
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-        }
+        this.formatter = new Formatter();
+        this.formatter.printHeader();
+        this.registeredCustomPropertySets
+                .stream()
+                .sorted(new RegisteredCustomPropertySetComparator())
+                .forEach(this.formatter::print);
+        this.formatter.printFooter();
+        this.printPublishedButNotRegistered();
     }
 
     private void printPublishedButNotRegistered() {
-        System.out.println("Published on whiteboard but not registered (most likely failed with " + UnderlyingSQLFailedException.class.getSimpleName());
-        this.publishedCustomPropertySets
-                .stream()
-                .map(this::printIfNotRegistered);
+        System.out.println("Published on whiteboard but not registered (most likely failed with " + UnderlyingSQLFailedException.class.getSimpleName() + ")");
+        if (this.sortedPublishedCustomPropertySets().noneMatch(this::printIfNotRegistered)) {
+            System.out.println("None");
+        }
+    }
+
+    private Stream<CustomPropertySet> sortedPublishedCustomPropertySets() {
+        return this.publishedCustomPropertySets.stream().sorted(new CustomPropertySetComparator());
     }
 
     private Boolean printIfNotRegistered(CustomPropertySet published) {
-        this.registeredCustomPropertySets
+        Optional<String> registeredId = this.registeredCustomPropertySets
                 .stream()
                 .filter(RegisteredCustomPropertySetImpl::isActive)
                 .map(RegisteredCustomPropertySetImpl::getCustomPropertySet)
                 .map(CustomPropertySet::getId)
-                .filter(id -> published.getId().equals(id));
-        return null;
+                .filter(id -> published.getId().equals(id))
+                .findFirst();
+        if (!registeredId.isPresent()) {
+            this.formatter.printUnregistered(published);
+            return Boolean.FALSE;
+        } else {
+            return Boolean.TRUE;
+        }
     }
 
     private class Formatter {
@@ -97,7 +106,7 @@ class Status {
         }
 
         void printFooter() {
-            System.out.println("* " + Strings.repeat("*" , this.idColumnWidth + 2) + "**" + Strings.repeat("*", ACTIVE.length()) + "***" + Strings.repeat("*", this.tableNameColumnWidth + 2));
+            System.out.println(Strings.repeat("*" , this.idColumnWidth + 3) + Strings.repeat("*", ACTIVE.length() + 2) + Strings.repeat("*", this.tableNameColumnWidth + 5));
         }
 
         void print(RegisteredCustomPropertySet registeredCustomPropertySet) {
@@ -127,6 +136,20 @@ class Status {
             rowBuilder.append(" *");
             return rowBuilder.toString();
         }
+
+        void printUnregistered(CustomPropertySet customPropertySet) {
+            System.out.println(this.toUnregisteredRow(customPropertySet));
+        }
+
+        private String toUnregisteredRow(CustomPropertySet customPropertySet) {
+            return "* " +
+                    Strings.padEnd(customPropertySet.getId() + " ", this.idColumnWidth, ' ') +
+                    " * " +
+                    Strings.padEnd("N", ACTIVE.length(), ' ') +
+                    " * " +
+                    Strings.padEnd(customPropertySet.getPersistenceSupport().tableName(), this.tableNameColumnWidth, ' ') +
+                    " *";
+        }
     }
 
     private class RegisteredCustomPropertySetComparator implements Comparator<RegisteredCustomPropertySetImpl> {
@@ -145,6 +168,13 @@ class Status {
                     return o1.getLogicalId().compareTo(o2.getLogicalId());
                 }
             }
+        }
+    }
+
+    private class CustomPropertySetComparator implements Comparator<CustomPropertySet> {
+        @Override
+        public int compare(CustomPropertySet o1, CustomPropertySet o2) {
+            return o1.getId().compareTo(o2.getId());
         }
     }
 

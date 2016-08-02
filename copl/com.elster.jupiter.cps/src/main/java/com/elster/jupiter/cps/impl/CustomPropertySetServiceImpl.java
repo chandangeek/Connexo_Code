@@ -23,11 +23,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -316,8 +318,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 } else {
                     this.registerCustomPropertySet(customPropertySet, systemDefined);
                 }
-            } catch (Exception e) {
+            } catch (UnderlyingSQLFailedException | CommitException | IllegalArgumentException | IllegalStateException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw e;
             }
         } else {
             this.publishedPropertySets.put(customPropertySet, systemDefined);
@@ -373,7 +376,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .stream()
                 .collect(Collectors.toMap(Function.identity(), version -> CustomPropertySetInstaller.class));
 
-        upgradeService.register(InstallIdentifier.identifier(persistenceSupport.application(), persistenceSupport.componentName()), dataModel, CustomPropertySetInstaller.class, versionClassMap);
+        upgradeService.register(
+                InstallIdentifier.identifier(persistenceSupport.application(), persistenceSupport.componentName()),
+                dataModel,
+                CustomPropertySetInstaller.class,
+                versionClassMap);
         return dataModel;
     }
 
