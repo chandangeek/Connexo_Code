@@ -8,8 +8,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
-import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -73,7 +71,6 @@ public class DeviceDataModule extends AbstractModule {
         bind(LogBookService.class).to(LogBookServiceImpl.class).in(Scopes.SINGLETON);
         bind(IdentificationService.class).to(IdentificationServiceImpl.class).in(Scopes.SINGLETON);
         bind(DataCollectionKpiService.class).to(DataCollectionKpiServiceImpl.class).in(Scopes.SINGLETON);
-        bind(DataValidationKpiService.class).to(DataValidationKpiServiceImpl.class).in(Scopes.SINGLETON);
         bind(BatchService.class).to(BatchServiceImpl.class).in(Scopes.SINGLETON);
         bind(DeviceMessageService.class).to(DeviceMessageServiceImpl.class).in(Scopes.SINGLETON);
         bind(EndDeviceCommandFactory.class).to(EndDeviceCommandFactoryImpl.class).in(Scopes.SINGLETON);
