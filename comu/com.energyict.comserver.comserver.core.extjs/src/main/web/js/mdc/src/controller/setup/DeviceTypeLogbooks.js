@@ -25,13 +25,8 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
             },
             'device-type-logbooks grid': {
                 select: me.loadGridItemDetail
-            },
-            //'device-type-logbooks grid uni-actioncolumn': {
-            //    menuclick : me.deleteLogbookType
-            //},
-            //'device-type-logbook-action-menu menuitem[action=deleteLogBookType]': {
-            //    click: me.deleteLogbookType
-            //}
+            }
+
         });
         me.store = me.getStore('Mdc.store.LogbookTypesOfDeviceType');
     },
