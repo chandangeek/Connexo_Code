@@ -3,7 +3,7 @@ package com.energyict.mdc.device.topology.impl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -312,6 +312,13 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         }
     }
 
+    private List<PhysicalGatewayReference> getPhysicalGateWayReferencesFrom(Device slave, Instant when) {
+        DataMapper<PhysicalGatewayReference> mapper = this.dataModel.mapper(PhysicalGatewayReference.class);
+        return mapper.select(where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave)
+                        .and(where("interval.end").isGreaterThan(when.toEpochMilli())),
+                Order.ascending("interval.start"));
+    }
+
     @Override
     public Map<Device, Device> getPhycicalGateways(List<Device> deviceList) {
         if (deviceList.isEmpty()) {
@@ -348,12 +355,59 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             throw DataLoggerLinkException.slaveWasAlreadyLinkedToOtherDatalogger(thesaurus, slave, existingGatewayReference.get().getGateway(), linkDate);
         }
         validateUniqueKeyConstraintForDataloggerReference(dataLogger, linkDate, slave);
-        final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, linkDate);
-        slaveDataLoggerChannelMap.forEach((slaveChannel, dataLoggerChannel) -> this.addChannelDataLoggerUsage(dataLoggerReference, slaveChannel, dataLoggerChannel));
-        slaveDataLoggerRegisterMap.forEach((slaveRegister, dataLoggerRegister) -> this.addRegisterDataLoggerUsage(dataLoggerReference, slaveRegister, dataLoggerRegister));
-        Save.CREATE.validate(this.dataModel, dataLoggerReference);
-        dataLoggerReference.transferChannelDataToSlave(this);
-        this.dataModel.persist(dataLoggerReference);
+
+        List<MeterActivation> dataLoggerMeterActivations = dataLogger.getMeterActivations(Range.atLeast(linkDate));
+        Collections.reverse(dataLoggerMeterActivations);
+        List<MeterActivation> slaveMeterActivations = slave.getMeterActivations(Range.atLeast(linkDate));
+        Collections.reverse(slaveMeterActivations);
+
+        createNecessaryDataLoggerReferences(slave, dataLogger, slaveDataLoggerChannelMap, slaveDataLoggerRegisterMap, linkDate, dataLoggerMeterActivations, slaveMeterActivations);
+    }
+
+    private void createNecessaryDataLoggerReferences(Device slave, Device dataLogger, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap, Instant linkDate, List<MeterActivation> dataLoggerMeterActivations, List<MeterActivation> slaveMeterActivations) {
+        Instant start = linkDate;
+        Instant end = null;
+        for (MeterActivation slaveMeterActivation : slaveMeterActivations) {
+            List<MeterActivation> overLappingDataLoggerMeterActivations = getOverLappingDataLoggerMeterActivations(slaveMeterActivation, dataLoggerMeterActivations);
+            for (MeterActivation dataLoggerMeterActivation : overLappingDataLoggerMeterActivations) {
+                findOrCreateNewDataLoggerReference(slave, dataLogger, slaveDataLoggerChannelMap, slaveDataLoggerRegisterMap, start, slaveMeterActivation, dataLoggerMeterActivation);
+
+                if (slaveMeterActivation.getEnd() != null) {
+                    end = slaveMeterActivation.getEnd();
+                }
+                if (dataLoggerMeterActivation.getEnd() != null) {
+                    if (end == null || end.isAfter(dataLoggerMeterActivation.getEnd())) {
+                        end = dataLoggerMeterActivation.getEnd();
+                    }
+                }
+                if (end != null) {
+                    start = end;
+                    clearDataLogger(slave, end);
+                    end = null;
+                }
+            }
+        }
+    }
+
+    private DataLoggerReference findOrCreateNewDataLoggerReference(Device slave, Device dataLogger, Map<Channel, Channel> slaveDataLoggerChannelMap, Map<Register, Register> slaveDataLoggerRegisterMap, Instant start, MeterActivation slaveMeterActivation, MeterActivation dataLoggerMeterActivation) {
+        Optional<DataLoggerReference> existingDataLoggerReference = findDataloggerReference(slave, start);
+        if (!existingDataLoggerReference.isPresent()) {
+            final DataLoggerReferenceImpl dataLoggerReference = this.newDataLoggerReference(slave, dataLogger, start);
+            slaveDataLoggerChannelMap.forEach((slaveChannel, dataLoggerChannel) -> this.addChannelDataLoggerUsage(dataLoggerReference, slaveChannel, dataLoggerChannel, dataLoggerMeterActivation, slaveMeterActivation));
+            slaveDataLoggerRegisterMap.forEach((slaveRegister, dataLoggerRegister) -> this.addRegisterDataLoggerUsage(dataLoggerReference, slaveRegister, dataLoggerRegister, dataLoggerMeterActivation, slaveMeterActivation));
+            Save.CREATE.validate(this.dataModel, dataLoggerReference);
+            dataLoggerReference.transferChannelDataToSlave(this); // todo check if we can do this for a selective range
+            this.dataModel.persist(dataLoggerReference);
+            return dataLoggerReference;
+        } else {
+            return existingDataLoggerReference.get();
+        }
+    }
+
+    private List<MeterActivation> getOverLappingDataLoggerMeterActivations(MeterActivation slaveMeterActivation, List<MeterActivation> dataLoggerMeterActivations) {
+        return dataLoggerMeterActivations.stream()
+                .filter(dataLoggerMeterActivation -> slaveMeterActivation.getRange().isConnected(dataLoggerMeterActivation.getRange()))
+                .collect(Collectors.toList());
     }
 
     private void validateUniqueKeyConstraintForDataloggerReference(Device dataLogger, Instant linkingDate, Device slave) {
@@ -407,8 +461,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     Optional<Channel> getChannel(Device device, com.elster.jupiter.metering.Channel channel) {
-        ReadingType readingType = channel.getMainReadingType();
-        return device.getChannels().stream().filter((mdcChannel) -> mdcChannel.getCalculatedReadingType(clock.instant()).orElse(mdcChannel.getReadingType()) == readingType).findFirst();
+        return device.getChannels().stream().filter(mdcChannel -> channel.getReadingTypes().contains(mdcChannel.getReadingType())).findFirst();
     }
 
     @Override
@@ -418,8 +471,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     Optional<Register> getRegister(Device device, com.elster.jupiter.metering.Channel channel) {
-        ReadingType readingType = channel.getMainReadingType();
-        return device.getRegisters().stream().filter((mdcChannel) -> mdcChannel.getCalculatedReadingType(clock.instant()).orElse(mdcChannel.getReadingType()) == readingType).findFirst();
+        return device.getRegisters().stream().filter(mdcRegister -> channel.getReadingTypes().contains(mdcRegister.getReadingType())).findFirst();
     }
 
     @Override
@@ -616,11 +668,19 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     public void clearDataLogger(Device slave, Instant when) {
         Instant unlinkTimeStamp = generalizeDataloggerLinkingDate(when);
-        getPhysicalGatewayReference(slave, unlinkTimeStamp).map(dataloggerReference -> {
-            terminateTemporal(dataloggerReference, unlinkTimeStamp);
+        List<PhysicalGatewayReference> physicalGatewayReferences = getPhysicalGateWayReferencesFrom(slave, when);
+        if (!physicalGatewayReferences.isEmpty()) {
+            terminateTemporal(physicalGatewayReferences.get(0), unlinkTimeStamp);
             this.slaveTopologyChanged(slave, Optional.empty());
-            return true;
-        }).orElseThrow(() -> DataLoggerLinkException.slaveWasNotLinkedAt(thesaurus, slave, unlinkTimeStamp));
+            if (physicalGatewayReferences.size() > 1) {
+                for (int i = 1; i < physicalGatewayReferences.size(); i++) {
+                    PhysicalGatewayReference gatewayReference = physicalGatewayReferences.get(i);
+                    terminateTemporal(gatewayReference, gatewayReference.getRange().lowerEndpoint());
+                }
+            }
+        } else {
+            throw DataLoggerLinkException.slaveWasNotLinkedAt(thesaurus, slave, unlinkTimeStamp);
+        }
     }
 
     /**
@@ -634,26 +694,34 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         return when.truncatedTo(ChronoUnit.MINUTES);
     }
 
-    private void addChannelDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Channel slave, Channel dataLogger) {
-        com.elster.jupiter.metering.Channel channelForSlave = getMeteringChannel(slave);
-        com.elster.jupiter.metering.Channel channelForDataLogger = getMeteringChannel(dataLogger);
+    private void addChannelDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Channel slave, Channel dataLogger, MeterActivation dataLoggerMeterActivation, MeterActivation slaveMeterActivation) {
+        com.elster.jupiter.metering.Channel channelForSlave = getMeteringChannel(slave, slaveMeterActivation);
+        com.elster.jupiter.metering.Channel channelForDataLogger = getMeteringChannel(dataLogger, dataLoggerMeterActivation);
         dataLoggerReference.addDataLoggerChannelUsage(channelForSlave, channelForDataLogger);
     }
 
-    private void addRegisterDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Register slave, Register dataLogger) {
-        com.elster.jupiter.metering.Channel channelForSlave = getMeteringChannel(slave);
-        com.elster.jupiter.metering.Channel channelForDataLogger = getMeteringChannel(dataLogger);
+    private void addRegisterDataLoggerUsage(DataLoggerReferenceImpl dataLoggerReference, Register slave, Register dataLogger, MeterActivation dataLoggerMeterActivation, MeterActivation slaveMeterActivation) {
+        com.elster.jupiter.metering.Channel channelForSlave = getMeteringChannel(slave, slaveMeterActivation);
+        com.elster.jupiter.metering.Channel channelForDataLogger = getMeteringChannel(dataLogger, dataLoggerMeterActivation);
         dataLoggerReference.addDataLoggerChannelUsage(channelForSlave, channelForDataLogger);
     }
 
     com.elster.jupiter.metering.Channel getMeteringChannel(final com.energyict.mdc.device.data.Channel channel) {
-        return channel.getDevice().getCurrentMeterActivation().get().getChannelsContainer().getChannels().stream().filter((x) -> x.getReadingTypes().contains(channel.getReadingType()))
+        return getMeteringChannel(channel, channel.getDevice().getCurrentMeterActivation().get());
+    }
+
+    com.elster.jupiter.metering.Channel getMeteringChannel(final com.energyict.mdc.device.data.Channel channel, final MeterActivation meterActivation) {
+        return meterActivation.getChannelsContainer().getChannels().stream().filter((x) -> x.getReadingTypes().contains(channel.getReadingType()))
                 .findFirst()
                 .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, channel.getReadingType()));
     }
 
     com.elster.jupiter.metering.Channel getMeteringChannel(final Register register) {
-        return register.getDevice().getCurrentMeterActivation().get().getChannelsContainer().getChannels().stream().filter((x) -> x.getReadingTypes().contains(register.getReadingType()))
+        return getMeteringChannel(register, register.getDevice().getCurrentMeterActivation().get());
+    }
+
+    com.elster.jupiter.metering.Channel getMeteringChannel(final Register register, final MeterActivation meterActivation) {
+        return meterActivation.getChannelsContainer().getChannels().stream().filter((x) -> x.getReadingTypes().contains(register.getReadingType()))
                 .findFirst()
                 .orElseThrow(() -> DataLoggerLinkException.noPhysicalChannelForReadingType(this.thesaurus, register.getReadingType()));
     }

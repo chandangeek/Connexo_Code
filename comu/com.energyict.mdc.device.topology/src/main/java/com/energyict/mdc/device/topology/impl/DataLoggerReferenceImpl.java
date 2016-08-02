@@ -136,14 +136,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
 
     private void transferChannelDataToDataLogger(DataLoggerChannelUsage channelUsage, Instant start) {
         // Make sure we are using the current Meter Activation channels instances
-        Channel slaveChannel = getOrigin().getCurrentMeterActivation()
-                .get()
-                .getChannelsContainer()
-                .getChannels()
-                .stream()
-                .filter((each) -> each.getId() == channelUsage.getSlaveChannel().getId())
-                .findFirst()
-                .get();
+        Channel slaveChannel = channelUsage.getSlaveChannel();
         Channel dataloggerChannel = channelUsage.getDataLoggerChannel();
         if (slaveChannel.hasData()) {
             ReadingType dataLoggerCollectedReadingType;
