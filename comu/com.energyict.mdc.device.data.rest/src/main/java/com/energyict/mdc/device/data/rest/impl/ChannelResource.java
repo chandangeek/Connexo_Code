@@ -56,7 +56,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -145,7 +144,11 @@ public class ChannelResource {
     public PagedInfoList getChannelCustomProperties(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel, this.clock.instant());
-        return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Arrays.asList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
+        return PagedInfoList
+                .fromCompleteList(
+                        "customproperties",
+                        customPropertySetInfo != null ? Collections.singletonList(customPropertySetInfo) : new ArrayList<>(),
+                        queryParameters);
     }
 
     @GET
@@ -415,10 +418,6 @@ public class ChannelResource {
                 (info.bulkValidationInfo != null && ValidationStatus.SUSPECT.equals(info.bulkValidationInfo.validationResult));
     }
 
-    private boolean hasMissingData(ChannelDataInfo info) {
-        return info.value == null;
-    }
-
     @PUT
     @Transactional
     @Path("/{channelid}/data")
@@ -538,9 +537,9 @@ public class ChannelResource {
         }
 
         for (Range<Instant> block : blocks) {
-            EstimationResult estimationResult = estimationHelper.previewEstimate(device, readingType, block, estimator);
-            if (estimationResult.remainingToBeEstimated().size() > 0) {
-                return Response.status(400).build();
+            EstimationResult estimationResult = estimationHelper.previewEstimate(QualityCodeSystem.MDC, device, readingType, block, estimator);
+            if (!estimationResult.remainingToBeEstimated().isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
             }
             ChannelDataInfo channelDataInfo = new ChannelDataInfo();
             for (EstimationBlock estimated : estimationResult.estimated()) {
