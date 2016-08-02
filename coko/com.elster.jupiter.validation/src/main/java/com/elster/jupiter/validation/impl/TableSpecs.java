@@ -235,6 +235,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<DataValidationKpi> table = dataModel.addTable(name(), DataValidationKpi.class);
             table.map(DataValidationKpiImpl.class);
+            table.since(version(10, 2));
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column endDeviceGroup = table.column("ENDDEVICEGROUP").number().notNull().add();
@@ -259,6 +260,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<DataValidationKpiChild> table = dataModel.addTable(name(), DataValidationKpiChild.class);
             table.map(DataValidationKpiChildImpl.class);
+            table.since(version(10, 2));
             Column dataValidationKpiColumn = table.column("DATAVALIDATIONKPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column childKpiColumn = table.column("CHILDKPI").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.primaryKey("VAl_PK_DATAVALKPICHILDREN").on(dataValidationKpiColumn, childKpiColumn).add();
