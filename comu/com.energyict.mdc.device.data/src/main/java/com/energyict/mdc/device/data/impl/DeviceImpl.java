@@ -1438,9 +1438,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         Range<Instant> channelContainerInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
                         while (channelContainerInterval.contains(requestStart.toInstant())) {
                             ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
-                            LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                            value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
-                            loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
+                            if (requestedInterval.contains(readingTimestamp.toInstant())) {
+                                LoadProfileReadingImpl value = new LoadProfileReadingImpl();
+                                value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
+                                loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
+                            }
                             requestStart = readingTimestamp;
                         }
                     }
@@ -1722,6 +1724,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return this.getListMeterAspect(this::getSortedMeterActivations);
     }
 
+    @Override
+    public List<MeterActivation> getMeterActivations(Range<Instant> range) {
+        return getSortedMeterActivations(meter.get(), range);
+    }
+
     /**
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * where the most recent activations are returned first.
@@ -1822,10 +1829,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      */
     private List<MeterActivation> getSortedMeterActivations(Meter meter, Range<Instant> interval) {
         List<MeterActivation> overlapping = new ArrayList<>();
-        meter.getMeterActivations()
-                .stream()
-                .filter(activation -> activation.overlaps(interval))
-                .forEach(overlapping::add);
+        overlapping.addAll(meter.getMeterActivations(interval));
         Collections.reverse(overlapping);
         return overlapping;
     }

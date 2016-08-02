@@ -287,6 +287,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<MeterActivation> getMeterActivationsMostRecentFirst();
 
     /**
+     * Provides a list of all meteractivations which were effective for the given range.
+     *
+     * @param range the range of meteractivations to request
+     * @return a (potentially empty) list of effective meterActivations based on the given range
+     */
+    List<MeterActivation> getMeterActivations(Range<Instant> range);
+
+    /**
      * Gets the Unique mRID of the device.
      */
     String getmRID();
