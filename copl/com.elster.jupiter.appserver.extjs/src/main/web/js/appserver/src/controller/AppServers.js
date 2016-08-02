@@ -951,7 +951,7 @@ Ext.define('Apr.controller.AppServers', {
             webServiceName = record.get('name'),
             previewForm = page.down('webservice-preview-form');
 
-        preview.setTitle(webServiceName);
+        preview.setTitle(Ext.htmlEncode(webServiceName));
         previewForm.updateWebservicePreview(record);
         if (preview.down('apr-webservices-action-menu')) {
             preview.down('apr-webservices-action-menu').record = record;
