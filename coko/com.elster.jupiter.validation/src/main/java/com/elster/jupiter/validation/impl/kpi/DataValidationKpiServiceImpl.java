@@ -58,9 +58,6 @@ public class DataValidationKpiServiceImpl implements DataValidationKpiService{
                 .fieldName(), group);
     }
 
-
-
-
     private class DataValidationKpiBuilderImpl implements DataValidationKpiBuilder {
 
         private final DataValidationKpiImpl underConstruction;
