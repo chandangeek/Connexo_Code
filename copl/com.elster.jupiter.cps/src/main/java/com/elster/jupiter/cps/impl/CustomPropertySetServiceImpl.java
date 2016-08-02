@@ -29,6 +29,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -55,6 +56,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -94,6 +96,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile boolean installed = false;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile SearchService searchService;
     private volatile UpgradeService upgradeService;
 
@@ -117,11 +120,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     // For testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService, SearchService searchService, UpgradeService upgradeService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, ThreadPrincipalService threadPrincipalService, UserService userService, SearchService searchService, UpgradeService upgradeService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setTransactionService(transactionService);
+        this.setThreadPrincipalService(threadPrincipalService);
         this.setUserService(userService);
         this.setSearchService(searchService);
         this.setUpgradeService(upgradeService);
@@ -153,6 +157,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -309,7 +318,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     private void addCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         if (this.installed) {
+            boolean noPrincipalYet = this.threadPrincipalService.getPrincipal() == null;
             try {
+                if (noPrincipalYet) {
+                    this.threadPrincipalService.set(this.getPrincipal());
+                }
                 if (!transactionService.isInTransaction()) {
                     try (TransactionContext ctx = transactionService.getContext()) {
                         this.registerCustomPropertySet(customPropertySet, systemDefined);
@@ -321,10 +334,18 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             } catch (UnderlyingSQLFailedException | CommitException | IllegalArgumentException | IllegalStateException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 throw e;
+            } finally {
+                if (noPrincipalYet) {
+                    this.threadPrincipalService.clear();
+                }
             }
         } else {
             this.publishedPropertySets.put(customPropertySet, systemDefined);
         }
+    }
+
+    private Principal getPrincipal() {
+        return () -> "Custom Property Set Service";
     }
 
     private void registerCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
@@ -344,7 +365,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                             registeredCustomPropertySet.get()));
         } else {
             // First time registration
-            DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet, true);
+            DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet);
             RegisteredCustomPropertySetImpl newRegisteredCustomPropertySet = this.createRegisteredCustomPropertySet(customPropertySet, systemDefined);
             this.activePropertySets.put(
                     customPropertySet.getId(),
@@ -357,7 +378,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.searchService.register(new CustomPropertySetSearchDomainExtension(this, this.activePropertySets.get(customPropertySet.getId())));
     }
 
-    private DataModel registerAndInstallOrReuseDataModel(CustomPropertySet customPropertySet, boolean executeDdl) {
+    private DataModel registerAndInstallOrReuseDataModel(CustomPropertySet customPropertySet) {
         return this.ormService
                 .getDataModels()
                 .stream()
@@ -377,7 +398,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .collect(Collectors.toMap(Function.identity(), version -> CustomPropertySetInstaller.class));
 
         upgradeService.register(
-                InstallIdentifier.identifier(persistenceSupport.application(), persistenceSupport.componentName()),
+                InstallIdentifier.identifier(
+                        persistenceSupport.application(),
+                        persistenceSupport.componentName()),
                 dataModel,
                 CustomPropertySetInstaller.class,
                 versionClassMap);
@@ -860,16 +883,18 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         }
 
         @SuppressWarnings("unchecked")
-        void initializeUnderConstruction() {
+        private void initializeUnderConstruction() {
             this.underConstruction =
                     this.dataModel.addTable(
                             this.tableNameFor(this.customPropertySet),
                             this.customPropertySet.getPersistenceSupport().persistenceClass());
             this.underConstruction.map(this.customPropertySet.getPersistenceSupport().persistenceClass());
+            this.underConstruction.setJournalTableName(this.customPropertySet().getPersistenceSupport().journalTableName());
         }
 
         private void addColumns() {
             this.addPrimaryKeyColumns();
+            this.underConstruction.addAuditColumns();
             this.customPropertySet.getPersistenceSupport().addCustomPropertyColumnsTo(this.underConstruction, this.customPrimaryKeyColumns);
         }
 
@@ -896,18 +921,18 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             PersistenceSupport persistenceSupport = customPropertySet.getPersistenceSupport();
             Column domainReference =
                     table
-                            .column(persistenceSupport.domainColumnName())
-                            .notNull()
-                            .number()
-                            .conversion(ColumnConversion.NUMBER2LONG)
-                            .skipOnUpdate()
-                            .add();
+                        .column(persistenceSupport.domainColumnName())
+                        .notNull()
+                        .number()
+                        .conversion(ColumnConversion.NUMBER2LONG)
+                        .skipOnUpdate()
+                        .add();
             table
-                    .foreignKey(persistenceSupport.domainForeignKeyName())
-                    .on(domainReference)
-                    .references(customPropertySet.getDomainClass())
-                    .map(persistenceSupport.domainFieldName())
-                    .add();
+                .foreignKey(persistenceSupport.domainForeignKeyName())
+                .on(domainReference)
+                .references(customPropertySet.getDomainClass())
+                .map(persistenceSupport.domainFieldName())
+                .add();
             return domainReference;
         }
 
@@ -927,11 +952,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                     .skipOnUpdate()
                     .add();
             table
-                    .foreignKey(this.customPropertySetForeignKeyName(customPropertySet))
-                    .on(cps)
-                    .references(RegisteredCustomPropertySet.class)
-                    .map(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName())
-                    .add();
+                .foreignKey(this.customPropertySetForeignKeyName(customPropertySet))
+                .on(cps)
+                .references(RegisteredCustomPropertySet.class)
+                .map(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName())
+                .add();
             return cps;
         }
 
@@ -974,12 +999,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             super.addPrimaryKeyColumns();
             List<Column> intervalColumns = this.underConstruction().addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
             this.effectivityStartColumn = intervalColumns.get(0);
-        }
-
-        @Override
-        void initializeUnderConstruction() {
-            super.initializeUnderConstruction();
-            this.underConstruction().setJournalTableName(this.customPropertySet().getPersistenceSupport().tableName() + "JRNL");
         }
 
         @Override

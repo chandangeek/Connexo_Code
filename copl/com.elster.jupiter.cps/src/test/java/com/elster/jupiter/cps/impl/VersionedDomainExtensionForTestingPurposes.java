@@ -1,5 +1,6 @@
 package com.elster.jupiter.cps.impl;
 
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -19,7 +20,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-12 (10:23)
  */
-public class VersionedDomainExtensionForTestingPurposes implements PersistentDomainExtension<TestDomain> {
+public class VersionedDomainExtensionForTestingPurposes extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<TestDomain> {
 
     public enum FieldNames {
         DOMAIN("testDomain", "testDomain"),
@@ -46,10 +47,6 @@ public class VersionedDomainExtensionForTestingPurposes implements PersistentDom
 
     @SuppressWarnings("unused")
     private Reference<TestDomain> testDomain = Reference.empty();
-    @SuppressWarnings("unused")
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-    @SuppressWarnings("unused")
-    private Interval interval;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "CannotBeNull")
     private ServiceCategoryForTestingPurposes serviceCategory = ServiceCategoryForTestingPurposes.ELECTRICITY;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "CannotBeNull")
@@ -66,8 +63,8 @@ public class VersionedDomainExtensionForTestingPurposes implements PersistentDom
     public VersionedDomainExtensionForTestingPurposes(TestDomain testDomain, RegisteredCustomPropertySet registeredCustomPropertySet, Interval interval) {
         this();
         this.testDomain.set(testDomain);
-        this.registeredCustomPropertySet.set(registeredCustomPropertySet);
-        this.interval = interval;
+        this.setRegisteredCustomPropertySet(registeredCustomPropertySet);
+        this.setInterval(interval);
     }
 
     public ServiceCategoryForTestingPurposes getServiceCategory() {
@@ -95,11 +92,11 @@ public class VersionedDomainExtensionForTestingPurposes implements PersistentDom
     }
 
     public Interval getInterval() {
-        return interval;
+        return super.getInterval();
     }
 
     public void setInterval(Interval interval) {
-        this.interval = interval;
+        super.setInterval(interval);
     }
 
     @Override

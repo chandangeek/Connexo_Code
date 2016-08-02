@@ -39,6 +39,7 @@ import com.google.common.collect.Range;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -245,6 +246,36 @@ public class CustomPropertySetServiceImplTest {
     public void getLayerDoesNotReturnNull() {
         // Business method @ assert
         assertThat(this.testInstance().getLayer()).isNotNull();
+    }
+
+    @Test
+    public void addCustomPropertySet_SetsAndClearsPrincipal() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.customPropertySet.getId()).thenReturn("addCustomPropertySet_SetsAndClearsPrincipal");
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+
+        // Business method
+        service.addCustomPropertySet(this.customPropertySet);
+
+        // Asserts
+        verify(this.threadPrincipalService).set(any(Principal.class));
+        verify(this.threadPrincipalService).clear();
+    }
+
+    @Test
+    public void addSystemCustomPropertySet_SetsAndClearsPrincipal() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.customPropertySet.getId()).thenReturn("addSystemCustomPropertySet_SetsAndClearsPrincipal");
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+
+        // Business method
+        service.addSystemCustomPropertySet(this.customPropertySet);
+
+        // Asserts
+        verify(this.threadPrincipalService).set(any(Principal.class));
+        verify(this.threadPrincipalService).clear();
     }
 
     @Test
@@ -1009,6 +1040,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setNlsService(this.nlsService);
         testInstance.setUserService(this.userService);
         testInstance.setTransactionService(this.transactionService);
+        testInstance.setThreadPrincipalService(this.threadPrincipalService);
         testInstance.setSearchService(searchService);
         testInstance.setUpgradeService(upgradeService);
         testInstance.activate();

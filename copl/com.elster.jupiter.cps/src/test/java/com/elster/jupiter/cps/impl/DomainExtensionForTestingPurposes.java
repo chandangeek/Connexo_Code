@@ -1,5 +1,6 @@
 package com.elster.jupiter.cps.impl;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -18,7 +19,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-12 (10:23)
  */
-public class DomainExtensionForTestingPurposes implements PersistentDomainExtension<TestDomain> {
+public class DomainExtensionForTestingPurposes extends AbstractPersistentDomainExtension implements PersistentDomainExtension<TestDomain> {
 
     public enum FieldNames {
         DOMAIN("testDomain", "testDomain"),
@@ -44,7 +45,6 @@ public class DomainExtensionForTestingPurposes implements PersistentDomainExtens
     }
 
     private Reference<TestDomain> testDomain = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "CannotBeNull")
     private ServiceCategoryForTestingPurposes serviceCategory = ServiceCategoryForTestingPurposes.ELECTRICITY;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "CannotBeNull")
@@ -66,11 +66,11 @@ public class DomainExtensionForTestingPurposes implements PersistentDomainExtens
     // For testing purposes
     public DomainExtensionForTestingPurposes(TestDomain testDomain, RegisteredCustomPropertySet registeredCustomPropertySet) {
         this(testDomain);
-        this.registeredCustomPropertySet.set(registeredCustomPropertySet);
+        this.setRegisteredCustomPropertySet(registeredCustomPropertySet);
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public ServiceCategoryForTestingPurposes getServiceCategory() {

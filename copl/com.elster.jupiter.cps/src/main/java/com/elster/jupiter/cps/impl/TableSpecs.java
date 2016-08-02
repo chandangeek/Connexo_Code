@@ -6,6 +6,8 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
+import static com.elster.jupiter.orm.Version.version;
+
 public enum TableSpecs {
 
     CPS_REGISTERED_CUSTOMPROPSET {
@@ -14,6 +16,8 @@ public enum TableSpecs {
             Table<RegisteredCustomPropertySet> table = dataModel.addTable(name(), RegisteredCustomPropertySet.class);
             table.map(RegisteredCustomPropertySetImpl.class);
             Column id = table.addAutoIdColumn();
+            table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
+            table.setJournalTableName("CPS_REG_CUSTOMPROPSET_JRNL").since(version(10, 2));
             Column logicalId = table
                     .column("LOGICALID")
                     .varChar()
