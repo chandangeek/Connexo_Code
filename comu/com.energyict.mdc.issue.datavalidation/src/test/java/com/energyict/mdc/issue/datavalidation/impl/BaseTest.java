@@ -37,6 +37,7 @@ import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.servicecall.impl.ServiceCallModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -168,7 +169,8 @@ public abstract class BaseTest {
                 new SchedulingModule(),
                 new ProtocolApiModule(),
                 new IssueDataValidationModule(),
-                new CalendarModule()
+                new CalendarModule(),
+                new ServiceCallModule()
         );
 
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
