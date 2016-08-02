@@ -107,7 +107,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
         state.addHandler();
         startupFinishedListeners.add(new ReportingFinishedListener());
         if (differences) {
-            startupFinishedListeners.add(new StartDiffCheckListenerOnFullModel());
+            startupFinishedListeners.add(new StartDiffCheckListener());
         }
     }
 
@@ -214,17 +214,20 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
         checked.add(installIdentifier);
         checkLists.poll(test(this::matchApplication).with(installIdentifier))
                 .map(upgradeCheckList -> (Runnable) () -> {
-                    if (!expected(upgradeCheckList, installIdentifier)) {
-                        //TODO end startup, but first CXO-2089 needs to be addressed, for now just log a warning
-                        logger.severe("Unexpected component installed : " + installIdentifier);
-                        if (this.differences && this.complete) {
-                            TODO: add listener that checks differences for this model only
-                            startupFinishedListeners.add(new StartDiffCheckListenerOnFullModel());
+                        if (!expected(upgradeCheckList, installIdentifier)) {
+                            //TODO end startup, but first CXO-2089 needs to be addressed, for now just log a warning
+                            this.unexpectedComponentInstalled(installIdentifier);
                         }
-                    }
-                }).orElse(() -> {
-            logger.severe("Unexpected component installed : " + installIdentifier);
-        }).run();
+                    })
+                .orElse(() -> this.unexpectedComponentInstalled(installIdentifier))
+                .run();
+    }
+
+    private void unexpectedComponentInstalled(InstallIdentifier installIdentifier) {
+        logger.severe("Unexpected component installed : " + installIdentifier);
+        if (this.differences && this.complete) {
+            startupFinishedListeners.add(new StartDiffCheckListener());
+        }
     }
 
     @Override
@@ -237,11 +240,12 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
     }
 
     private void verifyComplete() {
-        complete = checkLists.getServices()
-                .stream()
-                .map(UpgradeCheckList::componentsToInstall)
-                .flatMap(Collection::stream)
-                .allMatch(checked::contains);
+        complete = checkLists
+                        .getServices()
+                        .stream()
+                        .map(UpgradeCheckList::componentsToInstall)
+                        .flatMap(Collection::stream)
+                        .allMatch(checked::contains);
         if (complete) {
             startupFinishedListeners.forEach(StartupFinishedListener::onStartupComplete);
             startupFinishedListeners.clear();
@@ -432,14 +436,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
         }
     }
 
-    private class StartDiffCheckListenerOnFullModel implements StartupFinishedListener {
-        @Override
-        public void onStartupComplete() {
-            ormService.getDataModelDifferences(logger).findDifferences();
-        }
-    }
-
-    private class StartDiffCheckListenerOnOneModel implements StartupFinishedListener {
+    private class StartDiffCheckListener implements StartupFinishedListener {
         @Override
         public void onStartupComplete() {
             ormService.getDataModelDifferences(logger).findDifferences();

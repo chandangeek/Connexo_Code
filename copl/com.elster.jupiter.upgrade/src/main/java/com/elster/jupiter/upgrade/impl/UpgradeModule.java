@@ -25,7 +25,6 @@ public class UpgradeModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(UpgradeService.class).to(UpgradeServiceImpl.class);
-
     }
 
     public static class FakeUpgradeService implements UpgradeService {

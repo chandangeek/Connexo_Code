@@ -17,4 +17,5 @@ public interface UpgradeService {
     void addStartupFinishedListener(StartupFinishedListener startupFinishedListener);
 
     DataModel newNonOrmDataModel();
+
 }
