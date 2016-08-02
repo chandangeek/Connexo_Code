@@ -23,13 +23,11 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
-import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -66,6 +64,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -164,6 +163,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Reference(name = "ZZZ", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @SuppressWarnings("unused")
     public void registerCustomPropertySetSearchEnabler(CustomPropertySetSearchEnabler enabler) {
         List<CustomPropertySetSearchEnabler> enablers = this.searchEnablers.get(enabler.getDomainClass());
         if (enablers == null) {
@@ -173,6 +173,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         enablers.add(enabler);
     }
 
+    @SuppressWarnings("unused")
     public void unregisterCustomPropertySetSearchEnabler(CustomPropertySetSearchEnabler enabler) {
         List<CustomPropertySetSearchEnabler> enablers = this.searchEnablers.get(enabler.getDomainClass());
         if (enablers != null) {
@@ -306,15 +307,17 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     private void addCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         if (this.installed) {
-            if (!transactionService.isInTransaction()) {
-                try (TransactionContext ctx = transactionService.getContext()) {
+            try {
+                if (!transactionService.isInTransaction()) {
+                    try (TransactionContext ctx = transactionService.getContext()) {
+                        this.registerCustomPropertySet(customPropertySet, systemDefined);
+                        ctx.commit();
+                    }
+                } else {
                     this.registerCustomPropertySet(customPropertySet, systemDefined);
-                    ctx.commit();
-                } catch (UnderlyingSQLFailedException | CommitException ex) {
-                    ex.printStackTrace();
                 }
-            } else {
-                this.registerCustomPropertySet(customPropertySet, systemDefined);
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
         } else {
             this.publishedPropertySets.put(customPropertySet, systemDefined);
@@ -328,7 +331,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                         .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId());
         if (registeredCustomPropertySet.isPresent()) {
             // Registered in a previous platform session, likely the system was restarted / redeployed
-            DataModel dataModel = this.registerAndInstallDataModel(customPropertySet, false);
+            DataModel dataModel = this.registerAndInstallDataModel(customPropertySet);
             this.activePropertySets.put(
                     customPropertySet.getId(),
                     new ActiveCustomPropertySet(
@@ -357,10 +360,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .stream()
                 .filter(dataModel -> dataModel.getName().equals(customPropertySet.getPersistenceSupport().componentName()))
                 .findAny()
-                .orElseGet(() -> this.registerAndInstallDataModel(customPropertySet, executeDdl));
+                .orElseGet(() -> this.registerAndInstallDataModel(customPropertySet));
     }
 
-    private DataModel registerAndInstallDataModel(CustomPropertySet customPropertySet, boolean executeDdl) {
+    private DataModel registerAndInstallDataModel(CustomPropertySet customPropertySet) {
         DataModel dataModel = this.newDataModelFor(customPropertySet);
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
@@ -374,7 +377,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         return dataModel;
     }
 
-    static class CustomPropertySetInstaller implements FullInstaller, Upgrader {
+    private static class CustomPropertySetInstaller implements FullInstaller, Upgrader {
 
         private final DataModel dataModel;
 
@@ -751,7 +754,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @SuppressWarnings("unused") // published as a gogo command
     public void status() {
         List<RegisteredCustomPropertySetImpl> registeredCustomPropertySets = this.dataModel.mapper(RegisteredCustomPropertySetImpl.class).find();
-        new Status(registeredCustomPropertySets, this.activePropertySets).show();
+        new Status(registeredCustomPropertySets, this.publishedPropertySets.keySet()).show();
     }
 
     private class NonVersionedValuesEntityCustomConditionMatcherImpl<DD, TT extends PersistentDomainExtension<DD>> implements NonVersionedValuesEntityCustomConditionMatcher<DD, TT> {
