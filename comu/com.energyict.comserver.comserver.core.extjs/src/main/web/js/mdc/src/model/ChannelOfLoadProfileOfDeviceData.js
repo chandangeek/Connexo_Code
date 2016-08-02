@@ -15,8 +15,9 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'confirmed', type: 'auto'},
         {name: 'dataValidated', type: 'auto'},
         {name: 'multiplier', type: 'auto'},
+        {name: 'slaveChannel', type: 'auto', defaultValue: null},
         'plotband',
-        'readingQualities',
+        {name: 'readingQualities', type: 'auto', defaultValue: null},
         {
             name: 'interval_end',
             persist: false,
@@ -34,10 +35,10 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 if (mainValidationInfo && mainValidationInfo.valueModificationFlag && data.reportedDateTime) {
                     result = {
                         flag: mainValidationInfo.valueModificationFlag,
-                        date: data.reportedDateTime
+                        date: data.reportedDateTime,
+                        app: mainValidationInfo.editedInApp
                     }
                 }
-
                 return result;
             }
         },
@@ -61,10 +62,10 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                 if (bulkValidationInfo && bulkValidationInfo.valueModificationFlag && data.reportedDateTime) {
                     result = {
                         flag: bulkValidationInfo.valueModificationFlag,
-                        date: data.reportedDateTime
+                        date: data.reportedDateTime,
+                        app: bulkValidationInfo.editedInApp
                     }
                 }
-
                 return result;
             }
         },
@@ -91,7 +92,6 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                         result.delta.suspect ? result.delta['informative'] = false : result.delta['informative'] = true;
                     }
                 }
-
                 if (bulk) {
                     bulk.validationResult == 'validationStatus.notValidated' ? result.bulk.notValidated = true : result.bulk.notValidated = false
 
@@ -103,28 +103,23 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                         result.bulk.suspect ? result.bulk.informative = false : result.bulk.informative = true;
                     }
                 }
-
                 return result;
             }
         }
     ],
 
-    refresh: function(device, channel, callback) {
+    getDetailedInformation: function(deviceId, channelId, callback) {
         var me = this;
-
         Ext.Ajax.request({
-            url: '/api/ddr/devices/{device}/channels/{channel}/data/{reading}/validation'
-                .replace('{device}', device)
-                .replace('{channel}', channel)
-                .replace('{reading}', me.get('interval').end),
+            url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data/{2}/validation', deviceId, channelId, me.get('interval').end),
             success: function(response) {
-                var data = Ext.decode(response.responseText);
-                //Ext.apply(me.raw, data)
-                me.beginEdit();
-                me.set(data);
-                me.endEdit(true);
+                var detailRecord = Ext.create(Mdc.model.ChannelOfLoadProfileOfDeviceData),
+                    data = Ext.decode(response.responseText);
 
-                callback ? callback() : null;
+                detailRecord.set(data);
+                if (Ext.isFunction(callback)) {
+                    callback(detailRecord);
+                }
             }
         })
     }

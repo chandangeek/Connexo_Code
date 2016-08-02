@@ -33,6 +33,7 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'messages-categories-grid',
+                            itemId: 'mdc-command-categories-grid',
                             deviceTypeId: me.deviceTypeId,
                             deviceConfigId: me.deviceConfigId
                         },
@@ -41,7 +42,8 @@ Ext.define('Mdc.view.setup.messages.MessagesOverview', {
                             text: Uni.I18n.translate('commands.CategoriesGrid.empty', 'MDC', 'Device protocol did not specify any commands')
                         },
                         previewComponent: {
-                            xtype: 'messages-grid'
+                            xtype: 'messages-grid',
+                            itemId: 'mdc-commands-grid'
                         }
                     }
                 ]

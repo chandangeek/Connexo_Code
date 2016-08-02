@@ -92,8 +92,8 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                 '#tou-allowed-radio-field': {
                     change: this.disableEnableCheckboxes
                 },
-                '#device-type-tou-tab-panel': {
-                    tabChange: this.updateCounter
+            '#device-type-tou-tab-panel': {
+                tabChange: this.updateCounter
                 }
             }
         )

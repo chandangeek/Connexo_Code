@@ -195,8 +195,19 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
                                 router.getRoute().forward();
                             },
-                            failure: function () {
+                            failure: function (record, operation) {
                                 record.reject();
+                                if (operation.response.status === 409) {
+                                    return
+                                }
+                                var title = Uni.I18n.translate('devicemessages.revoke.failurex', 'MDC', "Failed to revoke '{0}'", [record.get('command').name]),
+                                    json = Ext.decode(operation.response.responseText),
+                                    message = '';
+
+                                if (json && json.errors) {
+                                    message = json.errors[0].msg;
+                                }
+                                me.getApplication().getController('Uni.controller.Error').showError(title, message);
                             }
                         });
                     }
@@ -204,11 +215,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             });
     },
 
-
     changeReleaseDate: function (record, device) {
         var me = this,
             title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'",[record.get('command').name]),
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            responseText;
 
         Ext.widget('device-command-change-release-date', {
             title: title,
@@ -224,7 +235,9 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                                 router.getRoute().forward();
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.changeReleaseDate.success', 'MDC', 'Release date changed'));
                             },
-                            failure: function () {
+                            failure: function (record, operation) {
+                                responseText = Ext.decode(operation.response.responseText, true);
+                                me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate('deviceCommand.changeReleaseDateFailed', 'MDC', "'Change release date' failed"), responseText.errors[0].msg);
                                 record.reject();
                             }
                         });
@@ -369,10 +382,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 propertyHeader.hide();
             }
             if (!command.get('willBePickedUpByComTask')) {
-                combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'))
+                combo.markInvalid(Uni.I18n.translate('deviceCommand.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'))
             }
             else if (!command.get('willBePickedUpByPlannedComTask')) {
-                combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute.'))
+                combo.markInvalid(Uni.I18n.translate('deviceCommand.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute.'))
             }
         }
     },

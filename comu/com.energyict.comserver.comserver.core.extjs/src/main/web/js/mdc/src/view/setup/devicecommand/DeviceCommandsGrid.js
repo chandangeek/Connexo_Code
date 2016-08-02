@@ -57,7 +57,7 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created By'),
+                header: Uni.I18n.translate('deviceCommands.view.cmdCreatedBy', 'MDC', 'Created by'),
                 dataIndex: 'user',
                 renderer: function (val) {
                     return val ? Ext.String.htmlEncode(val) : '-'
@@ -123,8 +123,8 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandsGrid', {
                             rowEl = Ext.get(tip.triggerElement).up('tr'),
                             willBePickedUpByComTask = view.getRecord(rowEl).get('willBePickedUpByComTask'),
                             willBePickedUpByPlannedComTask = view.getRecord(rowEl).get('willBePickedUpByPlannedComTask');
-                        !willBePickedUpByPlannedComTask && (res = Uni.I18n.translate('deviceCommands.view.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute'));
-                        !willBePickedUpByComTask && (res = Uni.I18n.translate('deviceCommands.view.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device'));
+                        !willBePickedUpByPlannedComTask && (res = Uni.I18n.translate('deviceCommand.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute.'));
+                        !willBePickedUpByComTask && (res = Uni.I18n.translate('deviceCommand.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'));
                         tip.update(res);
                     }
                 }

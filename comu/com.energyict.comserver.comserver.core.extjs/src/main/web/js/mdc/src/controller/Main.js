@@ -6,6 +6,7 @@ Ext.define('Mdc.controller.Main', {
         'Uni.store.MenuItems',
         'Mdc.dynamicprivileges.DeviceState',
         'Mdc.dynamicprivileges.Stores',
+        'Uni.property.controller.Registry',
         'Mdc.dynamicprivileges.DeviceTypeCapability'
     ],
 
@@ -95,7 +96,9 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.ChangeDeviceLifeCycle',
         'Mdc.controller.setup.DeviceTransitionExecute',
         'Mdc.controller.setup.DeviceAttributes',
+        'Mdc.controller.setup.DataLoggerSlaves',
         'Mdc.usagepointmanagement.controller.UsagePoint',
+        'Mdc.usagepointmanagement.controller.ViewChannelsList',
         'Mdc.controller.setup.DeviceConflictingMapping',
         'Mdc.devicetypecustomattributes.controller.AttributeSets',
         'Mdc.customattributesonvaluesobjects.controller.CustomAttributeSetVersions',
@@ -109,7 +112,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.timeofuseondevice.controller.TimeOfUse',
         'Mdc.filemanagement.controller.FileManagement',
         'Mdc.metrologyconfiguration.controller.ListView',
-        'Mdc.metrologyconfiguration.controller.AddView'
+        'Mdc.metrologyconfiguration.controller.AddView',
+        'Mdc.usagepointmanagement.controller.UsagePointHistory'
     ],
 
     stores: [
@@ -132,6 +136,7 @@ Ext.define('Mdc.controller.Main', {
         var me = this;
             //historian = me.getController('Mdc.controller.history.Setup'); // Forces route registration.
 
+        Uni.property.controller.Registry.addProperty('USAGEPOINT', 'Mdc.property.UsagePoint');
         if (Mdc.privileges.Device.canViewDevices()) {
             var devicesMenuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.devices', 'MDC', 'Devices'),

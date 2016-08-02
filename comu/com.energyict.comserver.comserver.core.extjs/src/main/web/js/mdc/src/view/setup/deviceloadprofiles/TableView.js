@@ -5,7 +5,6 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.TableView', {
     requires: [
         'Uni.util.FormEmptyMessage',
         'Mdc.view.setup.deviceloadprofiles.DataGrid',
-        'Mdc.view.setup.deviceloadprofiles.DataPreview',
         'Mdc.view.setup.devicechannels.DataPreview'
     ],
 
