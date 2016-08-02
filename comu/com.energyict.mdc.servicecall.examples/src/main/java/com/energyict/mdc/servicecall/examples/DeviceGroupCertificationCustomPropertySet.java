@@ -121,8 +121,8 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
     }
 
     private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, DeviceGroupCertificationDomainExtension> {
-        private final String TABLE_NAME = "SCS_CPS_DEVGRP_CER";
-        private final String FK = "FK_SCS_CPS_DEVGRP_CER";
+        private final String TABLE_NAME = "SC3_CPS_DEVGRP_CER";
+        private final String FK = "FK_SC3_CPS_DEVGRP_CER";
 
         @Override
         public String application() {

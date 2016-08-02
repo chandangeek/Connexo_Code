@@ -1,5 +1,6 @@
 package com.energyict.mdc.servicecall.examples;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -10,7 +11,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 
 import javax.validation.constraints.Size;
 
-public class BillingCycleDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class BillingCycleDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
         BILLING_CYCLE("billingCycle", "b_cycle");
@@ -33,7 +34,6 @@ public class BillingCycleDomainExtension implements PersistentDomainExtension<Se
     }
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
     private String billingCycle;
@@ -43,7 +43,7 @@ public class BillingCycleDomainExtension implements PersistentDomainExtension<Se
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public String getBillingCycle() {
