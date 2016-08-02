@@ -32,24 +32,35 @@ import java.util.Set;
         immediate = true)
 public class DeviceCertificationCustomPropertySet implements CustomPropertySet<ServiceCall, DeviceCertificationDomainExtension> {
 
+    static final String COMPONENT_NAME = "SC4";
+
     public DeviceCertificationCustomPropertySet() {
     }
 
     @Inject
     public DeviceCertificationCustomPropertySet(CustomPropertySetService customPropertySetService) {
+        this();
         customPropertySetService.addCustomPropertySet(this);
     }
 
-    public volatile PropertySpecService propertySpecService;
+    private volatile PropertySpecService propertySpecService;
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference
+    @SuppressWarnings("unused") // For OSGi framework
+    public void setCheckList(ServiceCallExampleCheckList checkList) {
+        // Ensure that this component waits for the check list to be activated
     }
 
     @Override
@@ -92,15 +103,17 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
         return Arrays.asList(
                 this.propertySpecService
                         .longSpec()
-                        .named(DeviceCertificationDomainExtension.FieldNames.DEVICE_ID.javaName(), DeviceCertificationDomainExtension.FieldNames.DEVICE_ID
-                                .javaName())
+                        .named(
+                            DeviceCertificationDomainExtension.FieldNames.DEVICE_ID.javaName(),
+                            DeviceCertificationDomainExtension.FieldNames.DEVICE_ID.javaName())
                         .describedAs("Device id")
                         .setDefaultValue(-1L)
                         .finish(),
                 this.propertySpecService
                         .longSpec()
-                        .named(DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName(), DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION
-                                .javaName())
+                        .named(
+                            DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName(),
+                            DeviceCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName())
                         .describedAs("Year of certification")
                         .setDefaultValue(-1L)
                         .finish());
@@ -112,12 +125,12 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
 
         @Override
         public String application() {
-            return "MultiSense";
+            return ServiceCallExampleCheckList.APPLICATION_NAME;
         }
 
         @Override
         public String componentName() {
-            return "SC4";
+            return COMPONENT_NAME;
         }
 
         @Override

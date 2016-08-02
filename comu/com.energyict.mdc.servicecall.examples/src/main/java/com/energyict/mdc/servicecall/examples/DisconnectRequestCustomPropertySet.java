@@ -15,7 +15,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -32,30 +31,37 @@ import java.util.Set;
         immediate = true)
 public class DisconnectRequestCustomPropertySet implements CustomPropertySet<ServiceCall, DisconnectRequestDomainExtension> {
 
+    static final String COMPONENT_NAME = "SC2";
+
+    @SuppressWarnings("unused") // For OSGi framework
     public DisconnectRequestCustomPropertySet() {
     }
 
     @Inject
     public DisconnectRequestCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+        this();
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
 
-    public volatile PropertySpecService propertySpecService;
+    private volatile PropertySpecService propertySpecService;
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
     }
 
-    @Activate
-    public void activate() {
-        System.out.println("DisconnectRequestCustomPropertySet activating");
+    @Reference
+    @SuppressWarnings("unused") // For OSGi framework
+    public void setCheckList(ServiceCallExampleCheckList checkList) {
+        // Ensure that this component waits for the check list to be activated
     }
 
     @Override
@@ -98,22 +104,25 @@ public class DisconnectRequestCustomPropertySet implements CustomPropertySet<Ser
         return Arrays.asList(
                 this.propertySpecService
                         .stringSpec()
-                        .named(DisconnectRequestDomainExtension.FieldNames.REASON.javaName(), DisconnectRequestDomainExtension.FieldNames.REASON
-                                .javaName())
+                        .named(
+                            DisconnectRequestDomainExtension.FieldNames.REASON.javaName(),
+                            DisconnectRequestDomainExtension.FieldNames.REASON.javaName())
                         .describedAs("Reason")
                         .setDefaultValue("no reason given")
                         .finish(),
                 this.propertySpecService
                         .bigDecimalSpec()
-                        .named(DisconnectRequestDomainExtension.FieldNames.ATTEMPTS.javaName(), DisconnectRequestDomainExtension.FieldNames.ATTEMPTS
-                                .javaName())
+                        .named(
+                            DisconnectRequestDomainExtension.FieldNames.ATTEMPTS.javaName(),
+                            DisconnectRequestDomainExtension.FieldNames.ATTEMPTS.javaName())
                         .describedAs("Attempts")
                         .setDefaultValue(BigDecimal.ZERO)
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
-                        .named(DisconnectRequestDomainExtension.FieldNames.ENDDATE.javaName(), DisconnectRequestDomainExtension.FieldNames.ENDDATE
-                                .javaName())
+                        .named(
+                            DisconnectRequestDomainExtension.FieldNames.ENDDATE.javaName(),
+                            DisconnectRequestDomainExtension.FieldNames.ENDDATE.javaName())
                         .describedAs("End date")
                         .finish());
     }
@@ -124,12 +133,12 @@ public class DisconnectRequestCustomPropertySet implements CustomPropertySet<Ser
 
         @Override
         public String application() {
-            return "MultiSense";
+            return ServiceCallExampleCheckList.APPLICATION_NAME;
         }
 
         @Override
         public String componentName() {
-            return "SC2";
+            return COMPONENT_NAME;
         }
 
         @Override
@@ -165,24 +174,25 @@ public class DisconnectRequestCustomPropertySet implements CustomPropertySet<Ser
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(DisconnectRequestDomainExtension.FieldNames.REASON.databaseName())
-                    .varChar()
-                    .map(DisconnectRequestDomainExtension.FieldNames.REASON.javaName())
-                    .notNull()
-                    .add();
+                .column(DisconnectRequestDomainExtension.FieldNames.REASON.databaseName())
+                .varChar()
+                .map(DisconnectRequestDomainExtension.FieldNames.REASON.javaName())
+                .notNull()
+                .add();
             table
-                    .column(DisconnectRequestDomainExtension.FieldNames.ATTEMPTS.databaseName())
-                    .number()
-                    .map(DisconnectRequestDomainExtension.FieldNames.ATTEMPTS.javaName())
-                    .notNull()
-                    .add();
+                .column(DisconnectRequestDomainExtension.FieldNames.ATTEMPTS.databaseName())
+                .number()
+                .map(DisconnectRequestDomainExtension.FieldNames.ATTEMPTS.javaName())
+                .notNull()
+                .add();
             table
-                    .column(DisconnectRequestDomainExtension.FieldNames.ENDDATE.databaseName())
-                    .number()
-                    .conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map(DisconnectRequestDomainExtension.FieldNames.ENDDATE.javaName())
-                    .notNull()
-                    .add();
+                .column(DisconnectRequestDomainExtension.FieldNames.ENDDATE.databaseName())
+                .number()
+                .conversion(ColumnConversion.NUMBER2INSTANT)
+                .map(DisconnectRequestDomainExtension.FieldNames.ENDDATE.javaName())
+                .notNull()
+                .add();
         }
     }
+
 }

@@ -32,24 +32,36 @@ import java.util.Set;
         immediate = true)
 public class DeviceGroupCertificationCustomPropertySet implements CustomPropertySet<ServiceCall, DeviceGroupCertificationDomainExtension> {
 
+    static final String COMPONENT_NAME = "SC3";
+
+    @SuppressWarnings("unused") // For OSGi framework
     public DeviceGroupCertificationCustomPropertySet() {
     }
 
     @Inject
     public DeviceGroupCertificationCustomPropertySet(CustomPropertySetService customPropertySetService) {
+        this();
         customPropertySetService.addCustomPropertySet(this);
     }
 
-    public volatile PropertySpecService propertySpecService;
+    private volatile PropertySpecService propertySpecService;
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
+    }
+
+    @Reference
+    @SuppressWarnings("unused") // For OSGi framework
+    public void setCheckList(ServiceCallExampleCheckList checkList) {
+        // Ensure that this component waits for the check list to be activated
     }
 
     @Override
@@ -92,15 +104,17 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
         return Arrays.asList(
                 this.propertySpecService
                         .longSpec()
-                        .named(DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID.javaName(), DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID
-                                .javaName())
+                        .named(
+                            DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID.javaName(),
+                            DeviceGroupCertificationDomainExtension.FieldNames.DEVICE_GROUP_ID.javaName())
                         .describedAs("Device group id")
                         .setDefaultValue(-1L)
                         .finish(),
                 this.propertySpecService
                         .longSpec()
-                        .named(DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName(), DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION
-                                .javaName())
+                        .named(
+                            DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName(),
+                            DeviceGroupCertificationDomainExtension.FieldNames.YEAR_OF_CERTIFICATION.javaName())
                         .describedAs("Year of certification")
                         .setDefaultValue(-1L)
                         .finish());
@@ -112,12 +126,12 @@ public class DeviceGroupCertificationCustomPropertySet implements CustomProperty
 
         @Override
         public String application() {
-            return "MultiSense";
+            return ServiceCallExampleCheckList.APPLICATION_NAME;
         }
 
         @Override
         public String componentName() {
-            return "SC3";
+            return COMPONENT_NAME;
         }
 
         @Override

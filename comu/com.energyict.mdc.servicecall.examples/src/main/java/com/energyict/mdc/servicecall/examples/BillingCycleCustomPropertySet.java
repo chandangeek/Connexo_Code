@@ -13,7 +13,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -28,30 +27,36 @@ import java.util.Set;
         immediate = true)
 public class BillingCycleCustomPropertySet implements CustomPropertySet<ServiceCall, BillingCycleDomainExtension> {
 
+    static final String COMPONENT_NAME = "SC1";
+
     public BillingCycleCustomPropertySet() {
     }
 
     @Inject
     public BillingCycleCustomPropertySet(PropertySpecService propertySpecService, CustomPropertySetService customPropertySetService) {
+        this();
         this.propertySpecService = propertySpecService;
         customPropertySetService.addCustomPropertySet(this);
     }
 
-    public volatile PropertySpecService propertySpecService;
+    private volatile PropertySpecService propertySpecService;
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
     }
 
-    @Activate
-    public void activate() {
-        System.out.println("BillingCycleCustomPropertySet activating");
+    @Reference
+    @SuppressWarnings("unused") // For OSGi framework
+    public void setCheckList(ServiceCallExampleCheckList checkList) {
+        // Ensure that this component waits for the check list to be activated
     }
 
     @Override
@@ -107,12 +112,12 @@ public class BillingCycleCustomPropertySet implements CustomPropertySet<ServiceC
 
         @Override
         public String application() {
-            return "MultiSense";
+            return ServiceCallExampleCheckList.APPLICATION_NAME;
         }
 
         @Override
         public String componentName() {
-            return "SC1";
+            return COMPONENT_NAME;
         }
 
         @Override
@@ -148,11 +153,12 @@ public class BillingCycleCustomPropertySet implements CustomPropertySet<ServiceC
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                    .column(BillingCycleDomainExtension.FieldNames.BILLING_CYCLE.databaseName())
-                    .varChar()
-                    .map(BillingCycleDomainExtension.FieldNames.BILLING_CYCLE.javaName())
-                    .notNull()
-                    .add();
+                .column(BillingCycleDomainExtension.FieldNames.BILLING_CYCLE.databaseName())
+                .varChar()
+                .map(BillingCycleDomainExtension.FieldNames.BILLING_CYCLE.javaName())
+                .notNull()
+                .add();
         }
     }
+
 }
