@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.impl.UsagePointConfigModule;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
@@ -66,6 +67,7 @@ public class UsagePointDataInMemoryBootstrapModule {
                 new MeteringModule(),
                 new CustomPropertySetsModule(),
                 new UsagePointConfigModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new MeteringGroupsModule(),
                 new UsagePointDataModule(),
