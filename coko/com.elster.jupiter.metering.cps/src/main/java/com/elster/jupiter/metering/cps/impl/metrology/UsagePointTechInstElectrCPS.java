@@ -31,8 +31,8 @@ public class UsagePointTechInstElectrCPS implements CustomPropertySet<UsagePoint
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "MIS_CPS_MTR_USAGEPOINT_T_INS";
-    private static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_MTR_USAGEPOINT_T_INS";
+    public static final String TABLE_NAME = "MIS_CPS_USAGEPOINT_TECH";
+    private static final String FK_CPS_DEVICE_LICENSE = "FK_CPS_USAGEPOINT_TECHINS";
     public static final String COMPONENT_NAME = "MIS";
 
     public UsagePointTechInstElectrCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {

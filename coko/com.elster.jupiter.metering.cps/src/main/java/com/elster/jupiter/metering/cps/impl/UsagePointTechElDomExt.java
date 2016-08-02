@@ -1,17 +1,17 @@
 package com.elster.jupiter.metering.cps.impl;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.units.Quantity;
 
 import javax.validation.constraints.Size;
 
-public class UsagePointTechElDomExt implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointTechElDomExt extends AbstractPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
     public enum FieldNames {
         DOMAIN("usagePoint", "usage_point"),
         CROSS_SECTIONAL_AREA("crossSectionalArea", "cross_sectional_area"),
@@ -36,8 +36,6 @@ public class UsagePointTechElDomExt implements PersistentDomainExtension<UsagePo
     }
 
     private Reference<UsagePoint> usagePoint = Reference.empty();
-    @IsPresent
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String crossSectionalArea;
@@ -50,7 +48,7 @@ public class UsagePointTechElDomExt implements PersistentDomainExtension<UsagePo
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public String getCrossSectionalArea() {

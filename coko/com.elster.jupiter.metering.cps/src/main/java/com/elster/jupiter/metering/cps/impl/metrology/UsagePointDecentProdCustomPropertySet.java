@@ -34,8 +34,8 @@ public class UsagePointDecentProdCustomPropertySet implements CustomPropertySet<
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "DEC_CPS_MTR_USAGEPOINT_DEC";
-    private static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_MTR_USAGEPOINT_DEC";
+    public static final String TABLE_NAME = "DEC_CPS_USAGEPOINT_DECPROD";
+    private static final String FK_CPS_DEVICE_DECENTRALIZED_PRODUCTION = "FK_CPS_USAGEPOINT_DECPROD";
     public static final String COMPONENT_NAME = "DEC";
 
     public UsagePointDecentProdCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {

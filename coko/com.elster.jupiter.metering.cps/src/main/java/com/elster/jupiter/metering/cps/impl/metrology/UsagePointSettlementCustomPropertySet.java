@@ -29,8 +29,8 @@ public class UsagePointSettlementCustomPropertySet implements CustomPropertySet<
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_SETTL";
-    private static final String FK_CPS_DEVICE_SETTLEMENT = "MTC_CPS_MTR_USAGEPOINT_SETTL";
+    public static final String TABLE_NAME = "STL_CPS_USAGEPOINT_SETLMNT";
+    private static final String FK_CPS_DEVICE_SETTLEMENT = "STL_CPS_USAGEPOINT_STLMNT";
     public static final String COMPONENT_NAME = "STL";
 
     public UsagePointSettlementCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {

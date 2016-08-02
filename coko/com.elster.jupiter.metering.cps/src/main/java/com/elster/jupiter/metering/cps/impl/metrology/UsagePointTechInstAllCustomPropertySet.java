@@ -27,8 +27,8 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "IST_CPS_MTR_USAGEPOINT_TECH";
-    private static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_TECH";
+    public static final String TABLE_NAME = "IST_CPS_USAGEPOINT_TECH";
+    private static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_USAGEPOINT_TECHIST";
     public static final String COMPONENT_NAME = "IST";
 
     public UsagePointTechInstAllCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
