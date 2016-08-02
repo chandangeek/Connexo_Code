@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointGeneralDomainExtension> {
+class UsagePointGeneralCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointGeneralDomainExtension> {
 
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
@@ -31,12 +31,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
     private static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_USAGEPOINT_GENER";
     public static final String COMPONENT_NAME = "GEN";
 
-    public UsagePointGeneralCustomPropertySet() {
-        super();
-    }
-
-    public UsagePointGeneralCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
+    UsagePointGeneralCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -117,7 +112,7 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
 
         @Override
         public String application() {
-            return "Example";
+            return InsightServiceCategoryCustomPropertySetsCheckList.APPLICATION_NAME;
         }
 
         UsagePointGeneralPersistenceSupport() {

@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.cps.impl;
 
-public enum UsagePointTechnicalSeeds {
+enum UsagePointTechnicalSeeds {
 
     TABLE_NAME {
         @Override

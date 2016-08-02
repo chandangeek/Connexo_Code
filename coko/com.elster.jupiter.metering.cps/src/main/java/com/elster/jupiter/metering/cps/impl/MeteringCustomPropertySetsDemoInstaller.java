@@ -52,8 +52,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -78,68 +76,52 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
 
     private volatile MeteringService meteringService;
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile TransactionService transactionService;
-    private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile NlsService nlsService;
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
     private MetrologyConfigurationService metrologyConfigurationService;
     private volatile UpgradeService upgradeService;
 
-//    private List<CustomPropertySet> customPropertySets;
-//    private Map<String, CustomPropertySet> customPropertySetsMap;
-
-    private ServiceCategory electricity;
-    private ServiceCategory gas;
-    private ServiceCategory water;
-    private ServiceCategory internet;
-    private ServiceCategory thermal;
-
     @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Reference
-    public void setmetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+    @SuppressWarnings("unused") // Used by OSGi framework
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
     @Reference
+    @SuppressWarnings("unused") // Used by OSGi framework
     public void setNlsService(NlsService nlsService) {
-        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference
+    @SuppressWarnings("unused") // Used by OSGi framework
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
     @Reference
+    @SuppressWarnings("unused") // Used by OSGi framework
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         this.customPropertySetService = customPropertySetService;
     }
 
     @Reference
+    @SuppressWarnings("unused") // Used by OSGi framework
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
 
     @Reference
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    @Reference
+    @SuppressWarnings("unused") // Used by OSGi framework
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
     }
 
     @Activate
+    @SuppressWarnings("unused") // Used by OSGi framework
     public void activate() {
         DataModel dataModel = upgradeService.newNonOrmDataModel();
-        InstallIdentifier identifier = InstallIdentifier.identifier("Example", "CPM");
+        InstallIdentifier identifier = InstallIdentifier.identifier(InsightServiceCategoryCustomPropertySetsCheckList.APPLICATION_NAME, "CPM");
         if (upgradeService.isInstalled(identifier, Version.version(1, 0))) {
             this.registerCustomPropertySets();
         }
@@ -158,18 +140,19 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
     }
 
     @Deactivate
+    @SuppressWarnings("unused") // Used by OSGi framework
     public void deactivate() {
         Map<String, CustomPropertySet> customPropertySets = this.getMeteringCustomPropertySets();
-        customPropertySets.values().stream().forEach(customPropertySetService::removeCustomPropertySet);
+        customPropertySets.values().forEach(customPropertySetService::removeCustomPropertySet);
     }
 
     Map<String, CustomPropertySet>  registerCustomPropertySets() {
         Map<String, CustomPropertySet>  customPropertySets = this.getMeteringCustomPropertySets();
-        customPropertySets.values().stream().forEach(customPropertySetService::addCustomPropertySet);
+        customPropertySets.values().forEach(customPropertySetService::addCustomPropertySet);
         return customPropertySets;
     }
 
-    Map<String, CustomPropertySet> getMeteringCustomPropertySets() {
+    private Map<String, CustomPropertySet> getMeteringCustomPropertySets() {
         Map<String, CustomPropertySet> customPropertySetsMap = new HashMap<>();
         customPropertySetsMap.put(UsagePointContrElectrDomExt.class.getName(), new UsagePointContrElectrCPS(propertySpecService, thesaurus));
         customPropertySetsMap.put(UsagePointGeneralDomainExtension.class.getName(), new UsagePointGeneralCustomPropertySet(propertySpecService, thesaurus));
@@ -185,24 +168,6 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         customPropertySetsMap.put(UsagePointAntennaDomExt.class.getName(), new UsagePointAntennaCPS(propertySpecService, thesaurus));
 
         return customPropertySetsMap;
-//        return Arrays.asList(
-////                new UsagePointOneCustomPropertySet(propertySpecService, thesaurus),
-////                new UsagePointVersionedCustomPropertySet(propertySpecService, thesaurus),
-////                new UsagePointTwoCustomPropertySet(propertySpecService, thesaurus));
-//                new UsagePointContrElectrCPS(propertySpecService, thesaurus),
-//                new UsagePointGeneralCustomPropertySet(propertySpecService, thesaurus),
-//                new UsagePointTechElCPS(propertySpecService, thesaurus),
-//                new UsagePointTechnicalWGTCustomPropertySet(propertySpecService, thesaurus),
-//                new UsagePointContCustomPropertySet(propertySpecService, thesaurus),
-//                new UsagePointDecentProdCustomPropertySet(propertySpecService, thesaurus),
-//                //  new UsagePointMeterGnrCustomPropertySet(propertySpecService, thesaurus),
-//                //  new UsagePointMeterTechInfAllCPS(propertySpecService, thesaurus),
-//                // new UsagePointMeterTechInfGTWCustomPropertySet(propertySpecService, thesaurus),
-//                new UsagePointMetrologyGeneralCPS(propertySpecService, thesaurus),
-//                new UsagePointSettlementCustomPropertySet(propertySpecService, thesaurus),
-//                new UsagePointTechInstAllCustomPropertySet(propertySpecService, thesaurus),
-//                new UsagePointTechInstEGCustomPropertySet(propertySpecService, thesaurus),
-//                new UsagePointTechInstElectrCPS(propertySpecService, thesaurus));
     }
 
     @Override
@@ -226,7 +191,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         return Arrays.asList(MessageSeeds.values());
     }
 
-    public void unmeasuredAntennaInstallation() {
+    void unmeasuredAntennaInstallation() {
         if (metrologyConfigurationService.findMetrologyConfiguration("Unmeasured antenna installation").isPresent()) {
             return;
         }
@@ -264,7 +229,7 @@ public class MeteringCustomPropertySetsDemoInstaller implements TranslationKeyPr
         contractBilling.addDeliverable(builder.build(builder.multiply(compositionCPS, monthlyConstant)));
     }
 
-    public void residentialPrepay() {
+    void residentialPrepay() {
         if (metrologyConfigurationService.findMetrologyConfiguration("Residential prepay").isPresent()) {
             return;
         }

@@ -29,8 +29,9 @@ import java.util.Set;
 
 class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTechElDomExt> {
 
+    public static final String COMPONENT_NAME = "TE1";
     public static final String TABLE_NAME = "TE1_CPS_TECH_EL";
-    private static final String FK_CPS_DEVICE_ONE = "FK_CPS_TECH_EL";
+    private static final String FK_CPS_DEVICE_ONE = "FK_TE1_TECH_EL";
 
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
@@ -47,8 +48,7 @@ class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTec
 
     @Override
     public String getName() {
-        return this.getThesaurus().
-                getFormat(TranslationKeys.CPS_TECHNICAL_ELECTRICITY_SIMPLE_NAME).format();
+        return this.getThesaurus().getFormat(TranslationKeys.CPS_TECHNICAL_ELECTRICITY_SIMPLE_NAME).format();
     }
 
     @Override
@@ -120,7 +120,7 @@ class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTec
 
         @Override
         public String application() {
-            return "Example";
+            return InsightServiceCategoryCustomPropertySetsCheckList.APPLICATION_NAME;
         }
 
         UsagePointTechnicalElectricityPersistenceSupport(Thesaurus thesaurus) {
@@ -129,7 +129,7 @@ class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTec
 
         @Override
         public String componentName() {
-            return "TE1";
+            return COMPONENT_NAME;
         }
 
         @Override

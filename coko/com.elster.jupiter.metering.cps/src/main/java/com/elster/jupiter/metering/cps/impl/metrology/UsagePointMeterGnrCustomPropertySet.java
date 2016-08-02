@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.cps.impl.InsightServiceCategoryCustomPropertySetsCheckList;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
@@ -112,7 +113,7 @@ public class UsagePointMeterGnrCustomPropertySet implements CustomPropertySet<Us
 
         @Override
         public String application() {
-            return "Example";
+            return InsightServiceCategoryCustomPropertySetsCheckList.APPLICATION_NAME;
         }
 
         UsagePointMtrGeneralPersistSupp(Thesaurus thesaurus) {

@@ -99,7 +99,7 @@ class UsagePointContrElectrCPS implements CustomPropertySet<UsagePoint, UsagePoi
 
         @Override
         public String application() {
-            return "Example";
+            return InsightServiceCategoryCustomPropertySetsCheckList.APPLICATION_NAME;
         }
 
         UsagePointContractualPerSupp(Thesaurus thesaurus) {

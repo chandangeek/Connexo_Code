@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.cps.impl.InsightServiceCategoryCustomPropertySetsCheckList;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
@@ -29,15 +30,10 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
     public Thesaurus thesaurus;
 
     public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_GENERAL";
-    public static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_MTR_USAGEPOINT_GENERAL";
+    private static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_MTR_USAGEPOINT_GENERAL";
     public static final String COMPONENT_NAME = "GNR";
 
-    public UsagePointMetrologyGeneralCPS() {
-        super();
-    }
-
     public UsagePointMetrologyGeneralCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -108,7 +104,7 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
 
         @Override
         public String application() {
-            return "Example";
+            return InsightServiceCategoryCustomPropertySetsCheckList.APPLICATION_NAME;
         }
 
         UsagePointMetrologyGeneralPersSupp(Thesaurus thesaurus) {

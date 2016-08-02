@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.cps.impl.InsightServiceCategoryCustomPropertySetsCheckList;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
@@ -14,7 +15,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import java.util.Arrays;
@@ -30,25 +30,16 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
     public Thesaurus thesaurus;
 
     public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_T_IN";
-    public static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_IN";
+    private static final String FK_CPS_DEVICE_METER_TECH_INFORM = "FK_CPS_MTR_USAGEPOINT_T_IN";
     public static final String COMPONENT_NAME = "TEC";
 
-    public UsagePointMeterTechInfAllCPS() {
-        super();
-    }
-
     public UsagePointMeterTechInfAllCPS(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
 
     public Thesaurus getThesaurus() {
         return this.thesaurus;
-    }
-
-    @Activate
-    public void activate() {
     }
 
     @Override
@@ -112,12 +103,12 @@ public class UsagePointMeterTechInfAllCPS implements CustomPropertySet<UsagePoin
     private static class UsagePointMeterTechInfAllPersSupp implements PersistenceSupport<UsagePoint, UsagePointMeterTechInfAllDomExt> {
         @Override
         public String application() {
-            return "Example";
+            return InsightServiceCategoryCustomPropertySetsCheckList.APPLICATION_NAME;
         }
 
         private Thesaurus thesaurus;
 
-        public UsagePointMeterTechInfAllPersSupp(Thesaurus thesaurus) {
+        UsagePointMeterTechInfAllPersSupp(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

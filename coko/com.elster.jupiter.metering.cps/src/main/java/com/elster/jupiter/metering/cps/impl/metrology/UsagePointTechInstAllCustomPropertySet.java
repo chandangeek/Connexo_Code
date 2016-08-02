@@ -5,6 +5,7 @@ import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.cps.impl.InsightServiceCategoryCustomPropertySetsCheckList;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
@@ -27,15 +28,10 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
     public Thesaurus thesaurus;
 
     public static final String TABLE_NAME = "IST_CPS_MTR_USAGEPOINT_TECH";
-    public static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_TECH";
+    private static final String FK_CPS_DEVICE_TECHNICAL_INSTALLATION = "FK_CPS_MTR_USAGEPOINT_TECH";
     public static final String COMPONENT_NAME = "IST";
 
-    public UsagePointTechInstAllCustomPropertySet() {
-        super();
-    }
-
     public UsagePointTechInstAllCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -95,7 +91,7 @@ public class UsagePointTechInstAllCustomPropertySet implements CustomPropertySet
 
         @Override
         public String application() {
-            return "Example";
+            return InsightServiceCategoryCustomPropertySetsCheckList.APPLICATION_NAME;
         }
 
         UsagePointTechInstAllPersSupp(Thesaurus thesaurus) {

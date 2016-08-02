@@ -8,9 +8,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.FullInstaller;
 
 import javax.inject.Inject;
@@ -28,8 +26,6 @@ class Installer implements FullInstaller {
 
     private final MeteringService meteringService;
     private final CustomPropertySetService customPropertySetService;
-    private final PropertySpecService propertySpecService;
-    private final Thesaurus thesaurus;
     private final MeteringCustomPropertySetsDemoInstaller meteringCustomPropertySetsDemoInstaller;
 
     private Map<String, CustomPropertySet> customPropertySetsMap;
@@ -40,11 +36,9 @@ class Installer implements FullInstaller {
     private ServiceCategory thermal;
 
     @Inject
-    Installer(MeteringService meteringService, CustomPropertySetService customPropertySetService, PropertySpecService propertySpecService, Thesaurus thesaurus, MeteringCustomPropertySetsDemoInstaller meteringCustomPropertySetsDemoInstaller) {
+    Installer(MeteringService meteringService, CustomPropertySetService customPropertySetService, MeteringCustomPropertySetsDemoInstaller meteringCustomPropertySetsDemoInstaller) {
         this.meteringService = meteringService;
         this.customPropertySetService = customPropertySetService;
-        this.propertySpecService = propertySpecService;
-        this.thesaurus = thesaurus;
         this.meteringCustomPropertySetsDemoInstaller = meteringCustomPropertySetsDemoInstaller;
     }
 
@@ -52,64 +46,23 @@ class Installer implements FullInstaller {
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         customPropertySetsMap = meteringCustomPropertySetsDemoInstaller.registerCustomPropertySets();
         assign(UsagePointGeneralDomainExtension.class.getName(), this::addAllSets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointMetrologyGeneralDomExt.class.getName())
-//                .ifPresent(this::addAllSets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterGnrDomainExtension.class.getName())
-//                .ifPresent(this::addAllSets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointContDomainExtension.class.getName())
-//                .ifPresent(this::addAllSets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInfAllDomExt.class.getName())
-//                .ifPresent(this::addAllSets);
 
         electricity = meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointOneDomainExtension.class.getName())
-//                .ifPresent(this::addElectricitySets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointTwoDomainExtension.class.getName())
-//                .ifPresent(this::addElectricitySets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointVersionedDomainExtension.class.getName())
-//                .ifPresent(this::addElectricitySets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointContrElectrDomExt.class.getName())
-//                .ifPresent(this::addElectricitySets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointTechElDomExt.class.getName())
-//                .ifPresent(this::addElectricitySets);
         assign(UsagePointTechElDomExt.class.getName(), this::addElectricitySets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointSettlementDomExt.class.getName())
-//                .ifPresent(this::addElectricitySets);
 
-        assign(UsagePointTechInstElectrDE.class
-                .getName(), this::addElectricitySets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointDecentProdDomExt.class.getName())
-//                .ifPresent(this::addElectricitySets);
+        assign(UsagePointTechInstElectrDE.class.getName(), this::addElectricitySets);
         assign(UsagePointAntennaDomExt.class.getName(), this::addElectricitySets);
 
         gas = meteringService.getServiceCategory(ServiceKind.GAS).get();
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointOneDomainExtension.class.getName())
-//                .ifPresent(this::addGasSets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointVersionedDomainExtension.class.getName())
-//                .ifPresent(this::addGasSets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointSettlementDomExt.class.getName())
-//                .ifPresent(this::addGasSets);
         assign(UsagePointTechnicalWGTDomExt.class.getName(), this::addGasSets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInfGTWDomExt.class.getName())
-//                .ifPresent(this::addGasSets);
 
         water = meteringService.getServiceCategory(ServiceKind.WATER).get();
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointOneDomainExtension.class.getName())
-//                .ifPresent(this::addWaterSets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointTwoDomainExtension.class.getName())
-//                .ifPresent(this::addWaterSets);
         assign(UsagePointTechnicalWGTDomExt.class.getName(), this::addWaterSets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInfGTWDomExt.class.getName())
-//                .ifPresent(this::addWaterSets);
 
         internet = meteringService.getServiceCategory(ServiceKind.INTERNET).get();
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointTwoDomainExtension.class.getName())
-//                .ifPresent(this::addInternetSets);
 
         thermal = meteringService.getServiceCategory(ServiceKind.HEAT).get();
         assign(UsagePointTechnicalWGTDomExt.class.getName(), this::addThermalSets);
-//        customPropertySetService.findActiveCustomPropertySet(UsagePointMeterTechInfGTWDomExt.class.getName())
-//                .ifPresent(this::addThermalSets);
 
         meteringCustomPropertySetsDemoInstaller.unmeasuredAntennaInstallation();
         meteringCustomPropertySetsDemoInstaller.residentialPrepay();
@@ -120,17 +73,16 @@ class Installer implements FullInstaller {
         if (customPropertySet != null) {
             action.accept(customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId())
                     .orElseGet(() -> {
-                                customPropertySetService.addCustomPropertySet(customPropertySet);
-                                return customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId())
-                                        .get();
-                            }
+                            customPropertySetService.addCustomPropertySet(customPropertySet);
+                            return customPropertySetService.findActiveCustomPropertySet(customPropertySet.getId()).get();
+                        }
                     ));
 
         }
     }
 
     private void addAllSets(RegisteredCustomPropertySet registeredCustomPropertySet) {
-        EnumSet.allOf(ServiceKind.class).stream().forEach(serviceKind ->
+        EnumSet.allOf(ServiceKind.class).forEach(serviceKind ->
                 meteringService.getServiceCategory(serviceKind).get()
                         .addCustomPropertySet(registeredCustomPropertySet));
     }

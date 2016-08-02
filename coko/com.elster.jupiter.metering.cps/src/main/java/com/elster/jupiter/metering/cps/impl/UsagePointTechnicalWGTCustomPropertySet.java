@@ -22,17 +22,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechnicalWGTDomExt> {
+class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySet<UsagePoint, UsagePointTechnicalWGTDomExt> {
 
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public UsagePointTechnicalWGTCustomPropertySet() {
-        super();
-    }
-
-    public UsagePointTechnicalWGTCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        this();
+    UsagePointTechnicalWGTCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
@@ -110,7 +105,7 @@ public class UsagePointTechnicalWGTCustomPropertySet implements CustomPropertySe
 
         @Override
         public String application() {
-            return "Example";
+            return InsightServiceCategoryCustomPropertySetsCheckList.APPLICATION_NAME;
         }
 
         UsagePointTechnicalWGTPersistenceSupport() {
