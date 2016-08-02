@@ -32,7 +32,7 @@ public class MeterInfo {
     public long retiredDate;
     public List meterActivations;
     public String url;
-    public WatsGoingOnMeterStatusInfo watsGoingOnMeterStatus;
+    public WhatsGoingOnMeterStatusInfo watsGoingOnMeterStatus;
 
     public MeterInfo() {
     }
@@ -55,7 +55,7 @@ public class MeterInfo {
         	this.eMail2 = meter.getElectronicAddress().getEmail2();
         }
         this.amrSystemName = meter.getAmrSystem().getName();
-        this.watsGoingOnMeterStatus = new WatsGoingOnMeterStatusInfo();
+        this.watsGoingOnMeterStatus = new WhatsGoingOnMeterStatusInfo();
         this.version = meter.getVersion();
         LifecycleDates lcd = meter.getLifecycleDates();
         if (lcd != null) {
