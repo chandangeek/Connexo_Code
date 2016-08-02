@@ -20,17 +20,21 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
     init: function () {
         var me = this;
         me.control({
+            'device-type-logbooks grid actioncolumn': {
+                removeLogbook: me.removeLogbook,
+            },
             'device-type-logbooks grid': {
                 select: me.loadGridItemDetail
-            },
-            'device-type-logbooks grid uni-actioncolumn': {
-                menuclick : me.deleteLogbookType
-            },
-            'device-type-logbook-action-menu menuitem[action=deleteLogBookType]': {
-                click: me.deleteLogbookType
             }
+
         });
         me.store = me.getStore('Mdc.store.LogbookTypesOfDeviceType');
+    },
+
+    removeLogbook: function (record) {
+        var me = this;
+        me.removeLogbookType(record);
+
     },
 
     loadGridItemDetail: function (grid, record) {
@@ -51,6 +55,49 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
         preloader.destroy();
     },
 
+    removeLogbookType: function (record) {
+        var self = this,
+            logbooksView = self.getDeviceTypeLogbooks(),
+            grid = logbooksView.down('grid'),
+            //record = grid.getSelectionModel().getLastSelected(),
+            url = '/api/dtc/devicetypes/' + logbooksView.deviceTypeId + '/logbooktypes/' + record.data.id;
+        Ext.create('Uni.view.window.Confirmation').show({
+            msg: Uni.I18n.translate('deviceTypeLogbook.deleteConfirmation.msg','MDC', 'The logbook type will no longer be available on this device type.'),
+            title: Uni.I18n.translate('deviceTypeLogbook.removeLogbook','MDC',"Remove logbook type '{0}'?", [record.data.name]),
+            config: {
+            },
+            fn: function (state) {
+                if (state === 'confirm') {
+                    Ext.Ajax.request({
+                        url: url,
+                        method: 'DELETE',
+                        jsonData: _.pick(record.getRecordData(), 'id', 'version', 'name', 'parent', 'deviceProtocolPluggableClass'),
+                        success: function () {
+                            self.getApplication().fireEvent('acknowledge', 'Logbook type removed');
+                            grid.getStore().load({
+                                    callback: function () {
+                                        var gridView = grid.getView(),
+                                            selectionModel = gridView.getSelectionModel();
+                                        logbooksView.down('pagingtoolbarbottom').resetPaging();
+                                        logbooksView.down('pagingtoolbartop').resetPaging();
+
+                                        //     if (grid.getStore().getCount() > 0) {
+                                        grid.getStore().load({
+                                            callback: function () {
+                                                selectionModel.select(0);
+                                                grid.fireEvent('itemclick', gridView, selectionModel.getLastSelected());
+                                            }
+                                        });
+                                        //    }
+                                    }
+                                }
+                            );
+                        }
+                    });
+                }
+            }
+        });
+    },
     deleteLogbookType: function () {
         var self = this,
             logbooksView = self.getDeviceTypeLogbooks(),

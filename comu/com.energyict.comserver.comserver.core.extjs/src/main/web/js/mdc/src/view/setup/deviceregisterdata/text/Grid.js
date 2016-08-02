@@ -3,7 +3,10 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
     alias: 'widget.deviceregisterreportgrid-text',
     itemId: 'deviceregisterreportgrid',
     store: 'TextRegisterData',
-
+    requires: [
+        'Uni.grid.column.Action',
+        'Uni.grid.column.Edited'
+    ],
     initComponent: function () {
         var me = this;
 
@@ -38,6 +41,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Grid', {
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
                 menu: {
                     xtype: 'deviceregisterdataactionmenu'
+                },
+                isDisabled: function(grid, rowIndex, colIndex, clickedItem, record) {
+                    return !Ext.isEmpty(record.get('slaveRegister'));
                 }
             }
         ];

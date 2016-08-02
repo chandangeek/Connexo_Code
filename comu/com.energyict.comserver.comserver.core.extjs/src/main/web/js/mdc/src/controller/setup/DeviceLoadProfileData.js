@@ -328,7 +328,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfileData', {
         me.getPage().doLayout();
     },
 
-    arrayHasNonEmptyItems: function(readingQualitiesArray, channels) {
+    arrayHasNonEmptyItems: function (readingQualitiesArray, channels) {
         var hasNonEmptyItems = false;
         Ext.Array.each(channels, function (channel) {
             if (!Ext.isEmpty(readingQualitiesArray[channel.id])) {

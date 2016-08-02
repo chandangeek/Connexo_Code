@@ -12,7 +12,7 @@ Ext.define('Mdc.privileges.Device', {
     viewDeviceData:['privilege.administrate.deviceData','privilege.view.device'],
     viewDevice:['privilege.administrate.device','privilege.view.device'],
     viewDevices: ['privilege.administrate.deviceData','privilege.view.device','privilege.view.masterData'],
-    deviceOperator: ['privilege.view.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
+    deviceOperator: ['privilege.view.device','privilege.administrate.device','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
     administrateDevice:['privilege.administrate.device'],
     flagDevice:['privilege.administrate.deviceData','privilege.administrate.deviceCommunication','privilege.operate.deviceCommunication'],
     administrateDeviceData:['privilege.administrate.deviceData'],

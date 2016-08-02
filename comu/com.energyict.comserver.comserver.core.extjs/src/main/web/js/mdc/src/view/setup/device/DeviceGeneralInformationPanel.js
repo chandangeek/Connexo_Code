@@ -3,9 +3,10 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
     alias: 'widget.deviceGeneralInformationPanel',
     overflowY: 'auto',
     itemId: 'devicegeneralinformationpanel',
-    title: Uni.I18n.translate('deviceGeneralInformation.generalInformationTitle', 'MDC', 'General information'),
+    title: Uni.I18n.translate('deviceGeneralInformation.title', 'MDC', 'Device summary'),
     ui: 'tile',
     router: null,
+    dataLoggerSlave: undefined,
 
     requires: [
       'Mdc.view.setup.device.DeviceAttributesForm'
@@ -18,19 +19,26 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
             {
                 xtype: 'deviceAttributesForm',
                 itemId: 'deviceGeneralInformationForm',
-                router: me.router
-            },
-            {
-                xtype: 'button',
-                margin: '0 0 0 65',
-                text: Uni.I18n.translate('deviceGeneralInformation.viewmorelinktext', 'MDC', 'View more'),
-                ui: 'link',
-                itemId: 'view-more-general-information-link',
-                handler: function() {
-                    me.router.getRoute('devices/device/attributes').forward();
-                }
+                router: me.router,
+                dataLoggerSlave: me.dataLoggerSlave
             }
         ];
+
+        me.bbar = {
+            xtype: 'container',
+            itemId: 'mdc-device-summary-bbar',
+            items: [
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('deviceGeneralInformation.manageLinkText', 'MDC', 'Manage device attributes'),
+                    ui: 'link',
+                    itemId: 'view-more-general-information-link',
+                    handler: function() {
+                        me.router.getRoute('devices/device/attributes').forward();
+                    }
+                }
+            ]
+        };
 
         me.callParent(arguments);
     }
