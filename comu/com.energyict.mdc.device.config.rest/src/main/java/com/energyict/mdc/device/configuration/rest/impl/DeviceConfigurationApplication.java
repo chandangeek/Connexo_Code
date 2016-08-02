@@ -5,6 +5,7 @@ import com.elster.jupiter.calendar.rest.CalendarInfoFactory;
 import com.elster.jupiter.calendar.rest.impl.CalendarInfoFactoryImpl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
@@ -73,6 +74,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
     private volatile ValidationService validationService;
+    private volatile KpiService kpiService;
     private volatile EstimationService estimationService;
     private volatile DeviceService deviceService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -124,6 +126,11 @@ public class DeviceConfigurationApplication extends Application implements Messa
     @Reference
     public void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    public void setKpiService(KpiService kpiService) {
+        this.kpiService = kpiService;
     }
 
     @Reference
@@ -277,6 +284,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(calendarInfoFactory).to(CalendarInfoFactory.class);
             bind(calendarService).to(CalendarService.class);
             bind(engineConfigurationService).to(EngineConfigurationService.class);
+            bind(kpiService).to(KpiService.class);
             bind(validationService).to(ValidationService.class);
             bind(estimationService).to(EstimationService.class);
             bind(deviceService).to(DeviceService.class);
