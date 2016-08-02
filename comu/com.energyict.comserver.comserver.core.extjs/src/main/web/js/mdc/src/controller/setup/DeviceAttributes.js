@@ -64,7 +64,6 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
             editView = me.getDeviceCustomAttributesEditView();
 
         editView.setLoading();
-
         form.updateRecord();
         form.getRecord().save({
             backUrl: me.getLandingUrl(),
@@ -98,7 +97,8 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
             editPage = me.getDeviceAttributesEditPage(),
             editForm = me.getDeviceAttributesEditForm(),
             attributesRecord = editForm.getRecord(),
-            updatedRecord;
+            updatedRecord,
+            mRID;
 
         editPage.setLoading(true);
         updatedRecord = me.getUpdatedRecord(attributesRecord);
@@ -107,7 +107,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
             backUrl: me.getLandingUrl(),
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
-                me.goToAttributesLanding();
+                me.goToAttributesLanding(record.get('mrid').displayValue);
             },
             failure: function (record, operation) {
                 if (operation && operation.response && operation.response.status === 400) {
@@ -162,6 +162,10 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
 
     goToAttributesLanding: function () {
         this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward();
+    },
+
+    goToAttributesLanding: function(mRID) {
+        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward({mRID: mRID})
     },
 
     getLandingUrl: function () {
