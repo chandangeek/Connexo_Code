@@ -11,6 +11,7 @@ import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
@@ -74,6 +75,8 @@ public class StandardCsvDataFormatterTest {
     public TestRule timeZone = Using.timeZoneOfMcMurdo();
     @Mock
     private DataExportService dataExportService;
+    @Mock
+    private KpiService kpiService;
     @Mock
     private ValidationService validationService;
     @Mock
