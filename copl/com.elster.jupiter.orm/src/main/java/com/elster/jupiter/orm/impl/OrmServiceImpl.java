@@ -165,18 +165,20 @@ public final class OrmServiceImpl implements OrmService {
         this.fileSystem = fileSystem;
     }
 
-    private DataModel createDataModel() {
+    private DataModel createDataModel(boolean register) {
         DataModelImpl result = newDataModel(OrmService.COMPONENTNAME, "Object Relational Mapper");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(result);
         }
-        result.register();
+        if (register) {
+            result.register();
+        }
         return result;
     }
 
     @Activate
     public void activate() {
-        createDataModel();
+        createDataModel(false);
         createExistingTableDataModel();
     }
 
@@ -273,7 +275,7 @@ public final class OrmServiceImpl implements OrmService {
                 .findFirst();
     }
 
-    public DataModelImpl getUpgradeDataModel(DataModel model) {
+    DataModelImpl getUpgradeDataModel(DataModel model) {
         DataModelImpl existingDataModel = newDataModel("UPG", "Upgrade  of " + model.getName());
         DataModel existingTablesDataModel = getExistingTablesDataModel();
 

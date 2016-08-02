@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DataMapperWriter<T> {
     private final DataMapperImpl<T> dataMapper;
@@ -91,7 +92,7 @@ public class DataMapperWriter<T> {
         }
     }
 
-    public boolean needsRefreshAfterBatchInsert() {
+    private boolean needsRefreshAfterBatchInsert() {
         return getTable().hasAutoIncrementColumns() && !getTable().hasChildren();
     }
 
@@ -324,7 +325,7 @@ public class DataMapperWriter<T> {
     }
 
     private List<ColumnImpl> getColumns() {
-        return getTable().getRealColumns();
+        return getTable().getRealColumns().collect(Collectors.toList());
     }
 
     private int bindPrimaryKey(PreparedStatement statement, int index, Object target) throws SQLException {

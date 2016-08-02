@@ -8,4 +8,7 @@ import java.util.List;
  */
 public interface TemporalList<T extends Effectivity> extends TemporalAspect<T> {
 	List<T> effective(Instant when);
+	default void clear() {
+        all().forEach(this::remove);
+    }
 }

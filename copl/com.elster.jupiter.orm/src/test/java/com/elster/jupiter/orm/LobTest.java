@@ -1,8 +1,7 @@
 package com.elster.jupiter.orm;
 
-import com.elster.jupiter.bootstrap.oracle.impl.OracleBootstrapModule;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.orm.schema.oracle.OracleSchemaInfo;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -33,6 +32,7 @@ import java.util.logging.Logger;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -50,8 +50,8 @@ public class LobTest {
     private static final int LOB_LENGTH = 100000;
 
     private static Injector injector;
-//    private static InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
-    private static OracleBootstrapModule bootstrapModule = new OracleBootstrapModule();
+    private static InMemoryBootstrapModule bootstrapModule = new InMemoryBootstrapModule();
+//    private static OracleBootstrapModule bootstrapModule = new OracleBootstrapModule();
     private static BundleContext bundleContext;
     private static Principal principal;
     private static FileSystem fileSystem;
@@ -62,9 +62,9 @@ public class LobTest {
         bundleContext = mock(BundleContext.class);
         principal = mock(Principal.class);
 // Uncomment to work with OracleBootstrapModule
-    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVRD");
-    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("RVK_DATA_AGGREGATION");
-    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("zorro");
+//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcurl")).thenReturn("jdbc:oracle:thin:@doraps003.eict.vpdc:7137:DEVRD");
+//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcuser")).thenReturn("RVK_DATA_AGGREGATION");
+//    	when(bundleContext.getProperty("com.elster.jupiter.datasource.jdbcpassword")).thenReturn("zorro");
     	Module module = new AbstractModule() {
     		@Override
     		public void configure() {
@@ -78,9 +78,9 @@ public class LobTest {
         			new ThreadSecurityModule(principal),
         			new PubSubModule(),
         			new TransactionModule(false),
-//        			new OrmModule());
+        			new OrmModule());
 // Uncomment to work with OracleBootstrapModule
-        			new OrmModule(new OracleSchemaInfo()));
+//        			new OrmModule(new OracleSchemaInfo()));
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
         	injector.getInstance(OrmService.class);
         	ctx.commit();
@@ -98,9 +98,9 @@ public class LobTest {
 
     private static void dropTables() throws SQLException {
 // Uncomment to work with OracleBootstrapModule
-        OrmService service = injector.getInstance(OrmService.class);
-        DataModel dataModel = findOrCreateDataModel(service);
-        dropTables(dataModel);
+//        OrmService service = injector.getInstance(OrmService.class);
+//        DataModel dataModel = findOrCreateDataModel(service);
+//        dropTables(dataModel);
     }
 
     private static void dropTables(DataModel dataModel) throws SQLException {
@@ -194,7 +194,7 @@ public class LobTest {
     }
 
     // Ignore when working with InMemoryBootstrapModule because H2 does not have support for updating BLOB columns
-//    @Ignore
+    @Ignore
     @Test
     public void testUpdateInitialNullValue() throws SQLException, IOException {
         OrmService service = injector.getInstance(OrmService.class);
@@ -217,7 +217,7 @@ public class LobTest {
     }
 
     // Ignore when working with InMemoryBootstrapModule because H2 does not have support for updating BLOB columns
-//    @Ignore
+    @Ignore
     @Test
     public void testUpdate() throws IOException {
     	OrmService service = injector.getInstance(OrmService.class);

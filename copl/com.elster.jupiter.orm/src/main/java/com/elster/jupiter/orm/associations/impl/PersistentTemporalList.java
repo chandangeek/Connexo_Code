@@ -35,6 +35,11 @@ public class PersistentTemporalList<T extends Effectivity> extends AbstractPersi
 	}
 
 	@Override
+	public void clear() {
+		all().forEach(super::remove);
+	}
+
+	@Override
 	public List<T> effective(Instant when) {
 		if (effectiveDate == null || !effectiveDate.equals(when)) {
 			setCache(when,allEffective(when));

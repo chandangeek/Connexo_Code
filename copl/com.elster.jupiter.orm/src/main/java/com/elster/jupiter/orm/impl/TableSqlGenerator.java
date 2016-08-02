@@ -1,40 +1,38 @@
 package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class TableSqlGenerator {
 	private final TableImpl<?> table;
-	
+
 	TableSqlGenerator(TableImpl<?> table) {
-		this.table = table;		
+		this.table = table;
 	}
-	
-	void appendColumns(StringBuilder sb , String separator , String alias) {
-		appendColumns(sb,separator,alias,table.getRealColumns());		
-	}
-	
-	void appendColumns(StringBuilder sb, String separator , String alias , List<? extends Column> columns) {
+
+	private void appendColumns(StringBuilder sb, String separator, String alias, List<? extends Column> columns) {
 		if (alias == null) {
 			alias = "";
-		}			
+		}
 		for (Column each : columns) {
 			sb.append(separator);
 			sb.append(each.getName(alias));
 			separator = ", ";
-		}		
+		}
 	}
-	
+
 	public void appendTable(StringBuilder sb, String separator , String alias) {
 		sb.append(separator);
 		sb.append(table.getQualifiedName());
 		if (alias != null ) {
 			sb.append(" ");
 			sb.append(alias);
-		}			
+		}
 	}
 
-    public void appendJournalTable(StringBuilder sb, String separator , String alias) {
+    private void appendJournalTable(StringBuilder sb, String separator, String alias) {
         sb.append(separator);
         sb.append(table.getJournalTableName());
         if (alias != null ) {
@@ -44,14 +42,18 @@ public class TableSqlGenerator {
     }
 
     String getSelectFromClause(String alias, String... hints) {
-		return getSelectFromClause(table.getRealColumns(),alias, hints);
+		return getSelectFromClause(this.getRealColumns(), alias, hints);
 	}
 
-    String getSelectFromJournalClause(String alias) {
-        return getSelectFromJournalClause(table.getRealColumns(),alias);
+	private List<ColumnImpl> getRealColumns() {
+	    return this.table.getRealColumns().collect(Collectors.toList());
     }
 
-    String getSelectFromClause(List<? extends Column> columns , String alias, String ... hints) {
+    String getSelectFromJournalClause(String alias) {
+        return getSelectFromJournalClause(this.getRealColumns(),alias);
+    }
+
+    private String getSelectFromClause(List<? extends Column> columns, String alias, String... hints) {
 		StringBuilder sb = new StringBuilder("select");
 		if (hints.length > 0) {
 			sb.append("/*+ ");
@@ -59,22 +61,22 @@ public class TableSqlGenerator {
 				sb.append(hint);
 				sb.append(" ");
 			}
-			sb.append("*/"); 
+			sb.append("*/");
 		}
-		appendColumns(sb, " " , alias , columns);		
+		appendColumns(sb, " " , alias , columns);
 		sb.append(" from ");
 		appendTable(sb," ",alias);
 		return sb.toString();
 	}
 
-    String getSelectFromJournalClause(List<? extends Column> columns , String alias) {
+    private String getSelectFromJournalClause(List<? extends Column> columns, String alias) {
         StringBuilder sb = new StringBuilder("select ");
-        if (alias != null && alias.length() > 0) {
+        if (alias != null && !alias.isEmpty()) {
         	sb.append(alias);
         	sb.append(".");
         }
         sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
-        appendColumns(sb, "," , alias , columns);        
+        appendColumns(sb, "," , alias , columns);
         sb.append(" from ");
         appendJournalTable(sb," ",alias);
         return sb.toString();
@@ -92,20 +94,20 @@ public class TableSqlGenerator {
 		}
 		return sb.toString();
 	}
-	
+
 	String insertSql(boolean useNextVal) {
 		StringBuilder sb = new StringBuilder("insert into ");
 		sb.append(table.getQualifiedName());
 		sb.append(" (");
 		String separator = "";
-		for (Column each : table.getRealColumns()) {
+		for (Column each : this.getRealColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";
 		}
 		sb.append(") values(");
 		separator = "";
-		for (Column each : table.getRealColumns()) {		
+		for (Column each : this.getRealColumns()) {
 			sb.append(separator);
 			if (useNextVal && each.isAutoIncrement()) {
 				sb.append(each.getQualifiedSequenceName());
@@ -120,7 +122,7 @@ public class TableSqlGenerator {
 		sb.append(")");
 		return sb.toString();
 	}
-	
+
 	private void addPrimaryKey(StringBuilder sb) {
 		String separator = "";
 		for (Column each : table.getPrimaryKeyColumns()) {
@@ -130,13 +132,13 @@ public class TableSqlGenerator {
 			separator = " and ";
 		}
 	}
-	
+
 	String journalSql() {
 		StringBuilder sb = new StringBuilder("insert into ");
 		sb.append(table.getQualifiedName(table.getJournalTableName()));
 		sb.append(" (");
 		String separator = "";
-		for (Column each : table.getRealColumns()) {
+		for (Column each : this.getRealColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";
@@ -145,7 +147,7 @@ public class TableSqlGenerator {
 		sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
 		sb.append(") ( select ");
 		separator = "";
-		for (Column each : table.getRealColumns()) {
+		for (Column each : this.getRealColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
 			separator = ", ";
@@ -160,7 +162,7 @@ public class TableSqlGenerator {
 		sb.append(")");
 		return sb.toString();
 	}
-	
+
 	String deleteSql() {
 		StringBuilder sb = new StringBuilder("delete from ");
 		sb.append(table.getQualifiedName());
@@ -168,7 +170,7 @@ public class TableSqlGenerator {
 		addPrimaryKey(sb);
 		return sb.toString();
 	}
-	
+
 	String updateSql(List<ColumnImpl> columns) {
 		StringBuilder sb = new StringBuilder("update ");
 		sb.append(table.getQualifiedName());
@@ -179,7 +181,7 @@ public class TableSqlGenerator {
 			sb.append(each.getName());
 			sb.append(" = ?");
 			separator = ", ";
-		}	
+		}
 		for (Column each : table.getAutoUpdateColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
@@ -189,10 +191,10 @@ public class TableSqlGenerator {
 		for (Column each : table.getUpdateValueColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
-			sb.append(" = ");			
+			sb.append(" = ");
 			sb.append(each.getUpdateValue());
 			separator = ", ";
-		}	
+		}
 		for (Column each : table.getVersionColumns()) {
 			sb.append(separator);
 			sb.append(each.getName());
@@ -200,7 +202,7 @@ public class TableSqlGenerator {
 			sb.append(each.getName());
 			sb.append(" + 1");
 			separator = ", ";
-		}		
+		}
 		sb.append(" where ");
 		addPrimaryKey(sb);
 		for (Column each : table.getVersionColumns()) {
@@ -210,6 +212,6 @@ public class TableSqlGenerator {
 		}
 		return sb.toString();
 	}
-	
-	
+
+
 }
