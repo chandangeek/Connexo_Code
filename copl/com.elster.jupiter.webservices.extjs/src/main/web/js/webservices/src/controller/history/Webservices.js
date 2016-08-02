@@ -31,7 +31,7 @@ Ext.define('Wss.controller.history.Webservices', {
                             action: 'showEndpointOverview',
                             callback: function (route) {
                                 this.getApplication().on('endpointload', function (name) {
-                                    route.setTitle(Ext.String.htmlEncode(name));
+                                    route.setTitle(name);
                                     return true;
                                 }, {single: true});
                                 return this;
@@ -52,7 +52,7 @@ Ext.define('Wss.controller.history.Webservices', {
                                     action: 'showEditPage',
                                     callback: function (route) {
                                         this.getApplication().on('endpointload', function (name) {
-                                            route.setTitle(Ext.String.format(Uni.I18n.translate('endPointAdd.editTitle', 'WSS', 'Edit \'{0}\''),Ext.String.htmlEncode(name)));
+                                            route.setTitle(Ext.String.format(Uni.I18n.translate('endPointAdd.editTitle', 'WSS', 'Edit \'{0}\''),name));
                                             return true;
                                         }, {single: true});
                                         return this;
