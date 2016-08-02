@@ -181,7 +181,7 @@ public class UsagePointDataServiceImplTest {
     }
 
     @Test
-    public void testGetValidationSummaryForEmptyPeriod() {
+    public void testGetValidationSummaryForPeriodWithoutData() {
         Range<Instant> interval = Range.openClosed(NOW, NOW.plusNanos(1));
         summary = usagePointDataService.getValidationSummary(channel, interval);
         assertThat(summary.getValues()).isEmpty();
@@ -241,6 +241,17 @@ public class UsagePointDataServiceImplTest {
                 .peek(summary -> assertThat(summary.getValues()).isEmpty())
                 .peek(summary -> assertThat(summary.getSum()).isZero())
                 .peek(summary -> assertThat(summary.getTargetInterval()).isEqualTo(NOMINAL_RANGE))
+                .count()).isEqualTo(2);
+    }
+
+    @Test
+    public void testGetValidationSummaryForEmptyPeriod() {
+        summaries = usagePointDataService.getValidationSummary(effectiveMetrologyConfiguration, metrologyContract, Range.openClosed(NOW, NOW));
+        assertThat(summaries.keySet()).containsExactly(deliverable1, deliverable2);
+        assertThat(summaries.values().stream()
+                .peek(summary -> assertThat(summary.getValues()).isEmpty())
+                .peek(summary -> assertThat(summary.getSum()).isZero())
+                .peek(summary -> assertThat(summary.getTargetInterval()).isEqualTo(Range.openClosed(NOW, NOW)))
                 .count()).isEqualTo(2);
     }
 
