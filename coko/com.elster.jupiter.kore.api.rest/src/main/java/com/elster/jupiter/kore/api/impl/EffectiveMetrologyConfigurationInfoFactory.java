@@ -75,7 +75,7 @@ public class EffectiveMetrologyConfigurationInfoFactory extends SelectableFieldF
                 .asLink(metrology.getMetrologyConfiguration(), Relation.REF_RELATION, uriInfo));
         map.put("purposes", (metrologyInfo, metrology, uriInfo) -> metrologyInfo.purposes = metrology.getMetrologyConfiguration()
                 .getContracts().stream().map(c -> metrologyConfigurationPurposeInfoFactory.get().asInfo(
-                        c.getMetrologyPurpose().getId()
+                        c.getId()
                         , c.getMetrologyPurpose().getName()
                         , c.isMandatory()
                         , c.getStatus(metrology.getUsagePoint()).getKey())).collect(Collectors.toList()));
