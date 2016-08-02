@@ -26,6 +26,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
@@ -49,6 +50,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.time.TemporalAmountComparator;
 
 import com.google.common.collect.Range;
@@ -91,6 +93,8 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Path("/usagepoints")
 public class UsagePointResource {
@@ -627,8 +631,17 @@ public class UsagePointResource {
                 .getOpenClosedInterval(ZonedDateTime.ofInstant(now, clock.getZone()));
         Range<Instant> upToNow = Range.atMost(now);
         if (interval.isConnected(upToNow)) {
-            interval = interval.intersection(upToNow);
+            interval = interval.intersection(upToNow); // find out interval in past, or else throw an exception
             if (!interval.isEmpty()) {
+                interval = usagePoint.getMeterActivations().stream()
+                        .map(Effectivity::getInterval)
+                        .map(Interval::toOpenClosedRange)
+                        .filter(interval::isConnected)
+                        .map(interval::intersection)
+                        .filter(not(Range::isEmpty))
+                        // TODO: fix this if MeterActivations over a gap are supported; if so, RangeSet is needed instead of Range::span
+                        .reduce(Range::span) // find out interval with data
+                        .orElse(Range.openClosed(now, now)); // or else an empty interval to get empty summary
                 List<ChannelDataValidationSummaryInfo> result = usagePointDataService
                         .getValidationSummary(effectiveMC, metrologyContract, interval).entrySet().stream()
                         .map(channelEntry -> validationSummaryInfoFactory.from(channelEntry.getKey(), channelEntry.getValue()))
@@ -655,7 +668,7 @@ public class UsagePointResource {
                 .filter(ReadingType::isRegular)
                 .map(ReadingType::getIntervalLength)
                 .flatMap(Functions.asStream())
-                .max(temporalAmountComparator::compare)
+                .max(temporalAmountComparator)
                 .orElse(Period.ofYears(1));//return max period to cover the use-case with registers when there is no intervalLength
         List<IdWithNameInfo> infos = getRelativePeriodsDefaultOnTop(max).stream()
                 .map(rp -> new IdWithNameInfo(rp.getId(), rp.getName()))

@@ -3,12 +3,14 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummary;
 import com.elster.jupiter.mdm.usagepoint.data.ChannelDataValidationSummaryFlag;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -17,6 +19,7 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -54,6 +57,8 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
     @Mock
     private UsagePointMetrologyConfiguration metrologyConfiguration;
     @Mock
+    private MeterActivation meterActivation;
+    @Mock
     private EffectiveMetrologyConfigurationOnUsagePoint effectiveMC;
     @Mock
     private MetrologyContract metrologyContract;
@@ -67,6 +72,8 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         when(meteringService.findUsagePoint(anyString())).thenReturn(Optional.empty());
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getMRID()).thenReturn("MRID");
+        when(usagePoint.getMeterActivations()).thenReturn(Collections.singletonList(meterActivation));
+        when(meterActivation.getInterval()).thenReturn(Interval.of(Range.all()));
         when(clock.instant()).thenReturn(NOW.toInstant());
         when(clock.getZone()).thenReturn(NOW.getZone());
 
@@ -216,6 +223,8 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
     public void testGetValidationSummaryForYesterday() throws IOException {
         mockUsagePointMetrologyConfiguration();
         mockMetrologyContract(5);
+        Instant meterActivated = NOW.minusDays(1).withHour(4).toInstant();
+        when(meterActivation.getInterval()).thenReturn(Interval.of(Range.closedOpen(meterActivated, NOW.toInstant())));
         when(usagePointDataService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), any()))
                 .thenReturn(ImmutableMap.of(
                         readingTypeDeliverable1, summary1
@@ -229,13 +238,44 @@ public class UsagePointResourceGetValidationSummaryTest extends UsagePointDataRe
         Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
 
         // Asserts
-        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, YESTERDAY.getOpenClosedInterval(NOW));
+        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, Range.openClosed(meterActivated, NOW.withMinute(0).toInstant()));
         verifyNoMoreInteractions(usagePointDataService);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(3);
         assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("DekabrJanvahrIFevral");
+        assertThat(jsonModel.<List<Number>>get("$.outputs[*].total")).containsExactly(0);
+        assertThat(jsonModel.<List<List<ChannelDataValidationSummaryFlagInfo>>>get("$.outputs[*].statistics"))
+                .isEqualTo(Collections.singletonList(Collections.emptyList()));
+    }
+
+    @Test
+    public void testGetValidationSummaryButMeterIsNotActivated() throws IOException {
+        mockUsagePointMetrologyConfiguration();
+        mockMetrologyContract(5);
+        Range<Instant> emptyInterval = Range.openClosed(NOW.toInstant(), NOW.toInstant());
+        when(usagePoint.getMeterActivations()).thenReturn(Collections.emptyList());
+        when(usagePointDataService.getValidationSummary(eq(effectiveMC), eq(metrologyContract), eq(emptyInterval)))
+                .thenReturn(ImmutableMap.of(
+                        readingTypeDeliverable1, summary1
+                ));
+        when(readingTypeDeliverable1.getId()).thenReturn(4L);
+        when(readingTypeDeliverable1.getName()).thenReturn("Lalalala");
+        when(summary1.getSum()).thenReturn(0);
+        when(summary1.getValues()).thenReturn(Collections.emptyMap());
+
+        // Business method
+        Response response = target("usagepoints/MRID/validationSummary").queryParam("purposeId", 5).queryParam("periodId", 6).request().get();
+
+        // Asserts
+        verify(usagePointDataService).getValidationSummary(effectiveMC, metrologyContract, emptyInterval);
+        verifyNoMoreInteractions(usagePointDataService);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream)response.getEntity());
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<Number>>get("$.outputs[*].id")).containsExactly(4);
+        assertThat(jsonModel.<List<String>>get("$.outputs[*].name")).containsExactly("Lalalala");
         assertThat(jsonModel.<List<Number>>get("$.outputs[*].total")).containsExactly(0);
         assertThat(jsonModel.<List<List<ChannelDataValidationSummaryFlagInfo>>>get("$.outputs[*].statistics"))
                 .isEqualTo(Collections.singletonList(Collections.emptyList()));
