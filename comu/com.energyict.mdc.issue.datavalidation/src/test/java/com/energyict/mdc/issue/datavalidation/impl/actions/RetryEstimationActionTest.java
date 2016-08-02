@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -77,7 +78,7 @@ public class RetryEstimationActionTest extends BaseTest {
         when(meterActivation.getReadingTypes()).thenReturn(Arrays.asList(readingType));
 
         EstimationReport estimationReport = mock(EstimationReport.class);
-        EstimationService estimationService = mock(EstimationService.class);
+        EstimationService estimationService = mock(EstimationService.class, RETURNS_DEEP_STUBS);
         when(estimationService.previewEstimate(any(QualityCodeSystem.class), any(MeterActivation.class), any(Range.class))).thenReturn(estimationReport);
 
         IssueDataValidation issue = mock(IssueDataValidation.class);
