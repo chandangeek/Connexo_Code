@@ -55,7 +55,24 @@ public class UsagePointTestResource {
                         );
                 connection.createStatement()
                         .execute(
+                                "DELETE FROM VAL_CH_VALIDATION WHERE CHANNELID IN (" +
+                                        "SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
+                                        "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
+                                        "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                        "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                        usagePointId + "))))"
+                        );
+                connection.createStatement()
+                        .execute(
                                 "DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
+                                        "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
+                                        "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                        "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                        usagePointId + ")))"
+                        );
+                connection.createStatement()
+                        .execute(
+                                "DELETE FROM VAL_MA_VALIDATION WHERE CHANNEL_CONTAINER IN (" +
                                         "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
                                         "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
                                         "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
@@ -92,7 +109,16 @@ public class UsagePointTestResource {
                                         " ( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
                                         meterActivationId + "))");
                         connection.createStatement()
+                                .execute("DELETE FROM VAL_CH_VALIDATION WHERE CHANNELID IN" +
+                                        " ( SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN" +
+                                        " ( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
+                                        meterActivationId + "))");
+                        connection.createStatement()
                                 .execute("DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN " +
+                                        "( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
+                                        meterActivationId + ")");
+                        connection.createStatement()
+                                .execute("DELETE FROM VAL_MA_VALIDATION WHERE CHANNEL_CONTAINER IN " +
                                         "( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
                                         meterActivationId + ")");
                         connection.createStatement()
