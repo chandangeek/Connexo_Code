@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.ami.eventhandler;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -28,6 +29,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -46,6 +49,8 @@ public class MeterReadingEventHandlerTest {
 
     @Mock
     private Device device;
+    @Mock
+    private Meter meter;
     @Mock
     private ServiceCall serviceCall;
     @Mock
@@ -79,41 +84,44 @@ public class MeterReadingEventHandlerTest {
         when(serviceCallService.findServiceCalls(eq(device), any())).thenReturn(Collections.singleton(serviceCall));
         when(serviceCallService.getServiceCallFinder(any())).thenReturn(finder);
         when(finder.find()).thenReturn(Collections.singletonList(serviceCall));
+        when(deviceService.findDeviceById(anyInt())).thenReturn(Optional.of(device));
+        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(meteringService.findMeter(anyLong())).thenReturn(Optional.of(meter));
+        when(meter.getMRID()).thenReturn("meterMrid");
     }
 
-//    @Test
-//    public void testOnDemandReadSuccess() throws Exception {
-//        MeterReadingEventHandler handler = new MeterReadingEventHandler(jsonService, deviceService, serviceCallService, meteringService);
-//        Message message = mock(Message.class);
-//        byte [] payload = new byte[1];
-//        when(message.getPayload()).thenReturn(payload);
-//        Map<String, String> messageProperties = new HashMap<>();
-//        messageProperties.put("event.topic","com/elster/jupiter/metering/meterreading/CREATED");
-//        messageProperties.put("meterId","1");
-//        messageProperties.put("timestamp","1");
-//        when(jsonService.deserialize(eq(payload), any())).thenReturn(messageProperties);
-//        when(deviceService.findDeviceById(anyInt())).thenReturn(Optional.of(device));
-//
-//        Message message = mock(Message.class);
-//        byte [] payload = new byte[1];
-//        when(message.getPayload()).thenReturn(payload);
-//        Map<String, String> messageProperties = new HashMap<>();
-//        messageProperties.put("deviceIdentifier","1");
-//        messageProperties.put("timestamp","1");
-//        when(jsonService.deserialize(eq(payload), any())).thenReturn(messageProperties);
-//        when(deviceService.findDeviceById(anyInt())).thenReturn(Optional.of(device));
-//
-//        when(serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)).thenReturn(true);
-//        when(serviceCall.canTransitionTo(DefaultState.FAILED)).thenReturn(true);
-//
-//        // Business method
-//        handler.process(message);
-//
-//
-//
-//        // Asserts
-//        verify(serviceCall, times(1)).requestTransition(DefaultState.SUCCESSFUL);
-//    }
+    @Test
+    public void testOnDemandReadSuccess() throws Exception {
+        MeterReadingEventHandler handler = new MeterReadingEventHandler(jsonService, deviceService, serviceCallService, meteringService);
+        Message messageSuccess = mock(Message.class);
+        byte[] payload = new byte[1];
+        when(messageSuccess.getPayload()).thenReturn(payload);
+        Map<String, String> messagePropertiesSuccess = new HashMap<>();
+        messagePropertiesSuccess.put("event.topics", "com/elster/jupiter/metering/meterreading/CREATED");
+        messagePropertiesSuccess.put("meterId", "1");
+        messagePropertiesSuccess.put("timestamp", "1");
+        when(jsonService.deserialize(eq(payload), any())).thenReturn(messagePropertiesSuccess);
+
+        // Business method
+        handler.process(messageSuccess);
+
+        Message messageComplete = mock(Message.class);
+        byte[] payloadComplete = new byte[1];
+        when(messageComplete.getPayload()).thenReturn(payloadComplete);
+        Map<String, String> messagePropertiesComplete = new HashMap<>();
+        messagePropertiesComplete.put("deviceIdentifier", "1");
+        messagePropertiesComplete.put("timestamp", "1");
+        when(jsonService.deserialize(eq(payloadComplete), any())).thenReturn(messagePropertiesComplete);
+        when(deviceService.findDeviceById(anyInt())).thenReturn(Optional.of(device));
+
+        when(serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)).thenReturn(true);
+        when(serviceCall.canTransitionTo(DefaultState.FAILED)).thenReturn(true);
+
+        // Business method
+        handler.process(messageComplete);
+        // Asserts
+        verify(serviceCall, times(1)).requestTransition(DefaultState.SUCCESSFUL);
+    }
 
     @Test
     public void testOnDemandReadFail() throws Exception {
@@ -124,7 +132,6 @@ public class MeterReadingEventHandlerTest {
         Map<String, String> messageProperties = new HashMap<>();
         messageProperties.put("deviceIdentifier","1");
         messageProperties.put("timestamp","1");
-        messageProperties.put("deviceIdentifier", "1");
         when(jsonService.deserialize(eq(payload), any())).thenReturn(messageProperties);
         when(deviceService.findDeviceById(anyInt())).thenReturn(Optional.of(device));
 
