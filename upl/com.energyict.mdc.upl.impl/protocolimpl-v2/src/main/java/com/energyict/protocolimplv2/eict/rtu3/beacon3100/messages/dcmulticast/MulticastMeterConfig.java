@@ -36,12 +36,23 @@ public class MulticastMeterConfig {
         this.multicastSecurity = multicastSecurity;
     }
 
+    /**
+        Meter_Config ::= STRUCTURE
+        {
+            Device_Identifier:   octet-string,   // Device identifier (EUI-64)
+            Meter_Serial:        octet-string,   // Meter serial
+            Unicast_Security:    Key_Set         // Unicast security configuration
+        }
+     * @return
+     */
     public Structure toStructure() {
         final Structure result = new Structure();
         result.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(getDeviceIdentifier(), "")));
         result.addDataType(OctetString.fromString(getMeterSerialNumber()));
         result.addDataType(getUnicastSecurity().toDataType());
-        result.addDataType(getMulticastSecurity().toDataType());
+
+        // Olivier: The multicast keys are not required. // https://jira.eict.vpdc/browse/G3INTDC-994?focusedCommentId=125395&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-125395
+        //result.addDataType(getMulticastSecurity().toDataType());
         return result;
     }
 
