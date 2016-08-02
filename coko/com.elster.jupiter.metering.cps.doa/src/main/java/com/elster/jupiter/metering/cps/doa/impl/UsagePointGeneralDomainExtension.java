@@ -44,6 +44,18 @@ class UsagePointGeneralDomainExtension implements PersistentDomainExtension<Usag
             public String javaName() {
                 return "meteringPointType";
             }
+        },
+
+        ADDED_FOR_AUDIT_TRAIL_TESTING_PURPOSES {
+            @Override
+            public String databaseName() {
+                return "BE_MARKET_TYPE";
+            }
+
+            @Override
+            public String javaName() {
+                return "belgiumMarketType";
+            }
         };
 
         public abstract String javaName();
@@ -66,6 +78,8 @@ class UsagePointGeneralDomainExtension implements PersistentDomainExtension<Usag
     @NotNull(message = "{CannotBeNull}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String meteringPointType;
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
+    private String belgiumMarketType;
 
     UsagePointGeneralDomainExtension() {
         super();
@@ -95,12 +109,21 @@ class UsagePointGeneralDomainExtension implements PersistentDomainExtension<Usag
         this.meteringPointType = meteringPointType;
     }
 
+    private String getBelgiumMarketType() {
+        return belgiumMarketType;
+    }
+
+    private void setBelgiumMarketType(String belgiumMarketType) {
+        this.belgiumMarketType = belgiumMarketType;
+    }
+
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
         this.setPrepay((Boolean) propertyValues.getProperty(Fields.PREPAY.javaName()));
         this.setMarketCodeSector((String) propertyValues.getProperty(Fields.MARKET_CODE_SECTOR.javaName()));
         this.setMeteringPointType((String) propertyValues.getProperty(Fields.METERING_POINT_TYPE.javaName()));
+        this.setBelgiumMarketType((String) propertyValues.getProperty(Fields.ADDED_FOR_AUDIT_TRAIL_TESTING_PURPOSES.javaName()));
     }
 
     @Override
@@ -108,6 +131,7 @@ class UsagePointGeneralDomainExtension implements PersistentDomainExtension<Usag
         propertySetValues.setProperty(Fields.PREPAY.javaName(), this.getPrepay());
         propertySetValues.setProperty(Fields.MARKET_CODE_SECTOR.javaName(), this.getMarketCodeSector());
         propertySetValues.setProperty(Fields.METERING_POINT_TYPE.javaName(), this.getMeteringPointType());
+        propertySetValues.setProperty(Fields.ADDED_FOR_AUDIT_TRAIL_TESTING_PURPOSES.javaName(), this.getBelgiumMarketType());
     }
 
     @Override

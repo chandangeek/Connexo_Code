@@ -109,11 +109,19 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
                 .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .markRequired()
                 .finish();
+        PropertySpec addedForAuditTrailTestingSpec = propertySpecService
+                .stringSpec()
+                .named(UsagePointGeneralDomainExtension.Fields.ADDED_FOR_AUDIT_TRAIL_TESTING_PURPOSES.javaName(), "Belgium market type")
+                .describedAs("For audit trail testing purposes only")
+                .addValues("E17", "E18", "E19", "E20")
+                .markExhaustive(PropertySelectionMode.COMBOBOX)
+                .finish();
 
         return Arrays.asList(
                 prepaySpec,
                 marketCodeSectorSpec,
-                meteringPointTypeSpec);
+                meteringPointTypeSpec,
+                addedForAuditTrailTestingSpec);
     }
 
     private class UsagePointGeneralPersistenceSupport implements PersistenceSupport<UsagePoint, UsagePointGeneralDomainExtension> {
@@ -174,6 +182,10 @@ public class UsagePointGeneralCustomPropertySet implements CustomPropertySet<Usa
                     .varChar()
                     .map(UsagePointGeneralDomainExtension.Fields.METERING_POINT_TYPE.javaName())
                     .notNull()
+                    .add();
+            table.column(UsagePointGeneralDomainExtension.Fields.ADDED_FOR_AUDIT_TRAIL_TESTING_PURPOSES.databaseName())
+                    .varChar()
+                    .map(UsagePointGeneralDomainExtension.Fields.ADDED_FOR_AUDIT_TRAIL_TESTING_PURPOSES.javaName())
                     .add();
         }
 
