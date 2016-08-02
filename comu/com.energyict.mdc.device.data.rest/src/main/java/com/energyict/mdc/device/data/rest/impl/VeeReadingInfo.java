@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.validation.rest.ValidationRuleInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleInfo;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -46,8 +47,14 @@ class VeeReadingValueInfo {
     @XmlJavaTypeAdapter(ReadingModificationFlagAdapter.class)
     public ReadingModificationFlag valueModificationFlag;
 
+    @JsonProperty("editedInApp")
+    public IdWithNameInfo editedInApp;
+
     @JsonProperty("isConfirmed")
     public Boolean isConfirmed;
+
+    @JsonProperty("confirmedInApps")
+    public Set<IdWithNameInfo> confirmedInApps;
 
     public VeeReadingValueInfo() {
     }

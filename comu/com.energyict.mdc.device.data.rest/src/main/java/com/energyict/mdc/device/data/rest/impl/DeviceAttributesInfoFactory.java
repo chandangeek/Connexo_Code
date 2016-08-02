@@ -2,11 +2,9 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.LocationService;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.LocationBuilder;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.LocationTemplate;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -264,14 +262,6 @@ public class DeviceAttributesInfoFactory {
         if (DeviceAttribute.MULTIPLIER.isEditableForState(state) && info.multiplier != null) {
             device.setMultiplier(info.multiplier.displayValue);
         }
-        if (DeviceAttribute.USAGE_POINT.isEditableForState(state)) {
-            if (info.usagePoint != null) {
-                meteringService
-                        .findUsagePoint(info.usagePoint.attributeId)
-                        .ifPresent(device::setUsagePoint);
-            }
-        }
-
         if (DeviceAttribute.MRID.isEditableForState(state) && !Objects.equals(info.mrid.displayValue, device.getmRID())) {
             device.setmRID(info.mrid.displayValue);
         }
