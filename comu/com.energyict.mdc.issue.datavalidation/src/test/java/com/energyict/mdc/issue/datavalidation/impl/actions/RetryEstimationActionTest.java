@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datavalidation.impl.actions;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationService;
@@ -7,6 +8,8 @@ import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.ChannelsContainer;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
@@ -21,12 +24,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,11 +58,18 @@ public class RetryEstimationActionTest extends BaseTest {
         List<NotEstimatedBlock> nonEstimatedBlocks = new ArrayList<>();
         NotEstimatedBlock nonEstimatedBlock = mock(NotEstimatedBlock.class);
         Channel channel = mock(Channel.class);
+        ChannelsContainer channelsContainer = mock(ChannelsContainer.class);
+        MeterActivation meterActivation = mock(MeterActivation.class);
+        Optional<? extends MeterActivation> meterActivationOptional = Optional.of(meterActivation);
+        Meter meter = mock(Meter.class);
+
         when(nonEstimatedBlock.getChannel()).thenReturn(channel);
         nonEstimatedBlocks.add(nonEstimatedBlock);
 
-        MeterActivation meterActivation = mock(MeterActivation.class);
-        when(channel.getMeterActivation()).thenReturn(meterActivation);
+        when(channel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getMeter()).thenReturn(Optional.of(meter));
+        doReturn(meterActivationOptional).when(meter).getCurrentMeterActivation();
+
         when(nonEstimatedBlock.getStartTime()).thenReturn(Instant.ofEpochMilli(intervalStart));
         when(nonEstimatedBlock.getEndTime()).thenReturn(Instant.ofEpochMilli(intervalEnd));
 
@@ -66,7 +78,7 @@ public class RetryEstimationActionTest extends BaseTest {
 
         EstimationReport estimationReport = mock(EstimationReport.class);
         EstimationService estimationService = mock(EstimationService.class);
-        when(estimationService.previewEstimate(any(MeterActivation.class), any(Range.class))).thenReturn(estimationReport);
+        when(estimationService.previewEstimate(QualityCodeSystem.MDC, any(MeterActivation.class), any(Range.class))).thenReturn(estimationReport);
 
         IssueDataValidation issue = mock(IssueDataValidation.class);
         IssueStatus issueStatus = mock(IssueStatus.class);

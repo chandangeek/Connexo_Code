@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datavalidation.impl.actions;
 
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationReport;
 import com.elster.jupiter.estimation.EstimationService;
@@ -11,6 +12,8 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
@@ -26,6 +29,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class RetryEstimationAction extends AbstractIssueAction {
 
@@ -83,18 +87,26 @@ public class RetryEstimationAction extends AbstractIssueAction {
         List<EstimationBlock> nonEstimatedBlocks = new ArrayList<>();
         dviIssue.getNotEstimatedBlocks().stream().forEach(block -> {
             Channel channel = block.getChannel();
-            EstimationReport estimationReport = estimationService.previewEstimate(channel.getMeterActivation(), Range.openClosed(block.getStartTime(), block.getEndTime()));
+            Optional<Meter> meter = channel.getChannelsContainer().getMeter();
+            if (meter.isPresent()) {
+                Optional<? extends MeterActivation> meterActivation = meter.get().getCurrentMeterActivation();
+                if (meterActivation.isPresent()) {
+                    EstimationReport estimationReport = estimationService.previewEstimate(QualityCodeSystem.MDC,
+                            meterActivation.get(),
+                            Range.openClosed(block.getStartTime(), block.getEndTime()));
 
-            List<BaseReading> editedBulkReadings = new ArrayList<>();
-            estimationReport.getResults().entrySet().forEach(result -> {
-                nonEstimatedBlocks.addAll(result.getValue().remainingToBeEstimated());
-                result.getValue().estimated()
-                        .forEach(estimated -> estimated.estimatables()
-                                .forEach(value -> {
-                                    editedBulkReadings.add(IntervalReadingImpl.of(value.getTimestamp(), value.getEstimation()));
-                                }));
-            });
-            channel.editReadings(editedBulkReadings);
+                    List<BaseReading> editedBulkReadings = new ArrayList<>();
+                    estimationReport.getResults().entrySet().forEach(result -> {
+                        nonEstimatedBlocks.addAll(result.getValue().remainingToBeEstimated());
+                        result.getValue().estimated()
+                                .forEach(estimated -> estimated.estimatables()
+                                        .forEach(value -> {
+                                            editedBulkReadings.add(IntervalReadingImpl.of(value.getTimestamp(), value.getEstimation()));
+                                        }));
+                    });
+                    channel.editReadings(QualityCodeSystem.MDC, editedBulkReadings);
+                }
+            }
         });
 
         return (nonEstimatedBlocks.size() == 0);
