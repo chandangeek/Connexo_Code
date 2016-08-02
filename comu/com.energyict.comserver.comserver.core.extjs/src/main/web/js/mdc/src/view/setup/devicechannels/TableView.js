@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.devicechannels.TableView', {
 
     channel: null,
     router: null,
+    mentionDataLoggerSlave: false,
 
     emptyComponent: {
         xtype: 'uni-form-empty-message',
@@ -29,6 +30,7 @@ Ext.define('Mdc.view.setup.devicechannels.TableView', {
             xtype: 'deviceLoadProfileChannelDataPreview',
             channelRecord: this.channel,
             router: me.router,
+            mentionDataLoggerSlave: me.mentionDataLoggerSlave,
             hidden: true
         };
 

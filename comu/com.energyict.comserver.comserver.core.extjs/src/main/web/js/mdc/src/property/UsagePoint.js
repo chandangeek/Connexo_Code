@@ -41,11 +41,11 @@ Ext.define('Mdc.property.UsagePoint', {
                         me.el.last().setVisible(me.getStore().getTotalCount() > me.pageSize);
                     }
                 },
-                createPagingToolbar: function() {
+                createPagingToolbar: function () {
                     var list = this;
                     return Ext.widget('container', {
                         id: list.id + '-paging-toolbar',
-                        bindStore: function(store) {
+                        bindStore: function (store) {
                             if (store) {
                                 store.on('load', list.refresh.bind(list));
                             }

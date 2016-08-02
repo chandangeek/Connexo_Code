@@ -128,7 +128,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                         fieldLabel: Uni.I18n.translate('timeofuse.activateCalendar', 'MDC', 'Activate calendar'),
                         itemId: 'activate-calendar-container',
                         required: Mdc.dynamicprivileges.DeviceState.activationDateSupported(),
-                        hidden: !Mdc.dynamicprivileges.DeviceState.activationDateSupported() ,
+                        hidden: !Mdc.dynamicprivileges.DeviceState.activationDateSupported(),
                         layout: 'hbox',
                         items: [
                             {
@@ -207,7 +207,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                         xtype: 'combo',
                         fieldLabel: Uni.I18n.translate('general.type', 'MDC', 'Type'),
                         required: Mdc.dynamicprivileges.DeviceState.typeSupported(),
-                        hidden: !Mdc.dynamicprivileges.DeviceState.typeSupported() ,
+                        hidden: !Mdc.dynamicprivileges.DeviceState.typeSupported(),
                         displayField: 'localizedValue',
                         valueField: 'calendarType',
                         allowBlank: !Mdc.dynamicprivileges.DeviceState.typeSupported(),
@@ -220,7 +220,7 @@ Ext.define('Mdc.timeofuseondevice.view.SendCalendarForm', {
                         xtype: 'combo',
                         fieldLabel: Uni.I18n.translate('timeOfUse.contract', 'MDC', 'Contract'),
                         required: Mdc.dynamicprivileges.DeviceState.contractSupported(),
-                        hidden: !Mdc.dynamicprivileges.DeviceState.contractSupported() ,
+                        hidden: !Mdc.dynamicprivileges.DeviceState.contractSupported(),
                         displayField: 'localizedValue',
                         valueField: 'contract',
                         itemId: 'contractCombo',

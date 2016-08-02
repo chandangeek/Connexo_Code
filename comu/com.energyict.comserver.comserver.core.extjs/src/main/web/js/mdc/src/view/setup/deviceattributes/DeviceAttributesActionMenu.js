@@ -13,7 +13,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesActionMenu', {
             {
                 itemId: 'deviceDeviceAttributesShowEdit',
                 privileges: Mdc.privileges.Device.editDeviceAttributes,
-                text: Uni.I18n.translate('generalattribute.edit', 'MDC', "Edit 'General'"),
+                text: Uni.I18n.translate('deviceAttributes.edit', 'MDC', 'Edit device attributes'),
                 handler: function() {
                     me.router.getRoute('devices/device/attributes/edit').forward();
                 }

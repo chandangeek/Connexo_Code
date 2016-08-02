@@ -23,6 +23,8 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
         {name: 'lastChecked', dateFormat: 'time', type: 'date'},
         {name: 'validationInfo', type: 'auto'},
         {name: 'loadProfileId', type: 'auto'},
+        {name: 'loadProfileName', type: 'string'},
+        {name: 'dataloggerSlavemRID', type: 'string'},
         {
             name: 'validationInfo_validationActive',
             persist: false,
@@ -82,6 +84,16 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
                 if (data.lastReading && data.lastValueTimestamp) {
                     var date = new Date(data.lastValueTimestamp);
                     return Uni.DateTime.formatDateLong(date) + ' - ' + Uni.DateTime.formatTimeShort(date)
+                }
+                return '-';
+            }
+        },
+        {
+            name: 'extendedChannelName',
+            persist: false,
+            mapping: function(data) {
+                if (data.readingType) {
+                    return data.readingType.fullAliasName + ' - ' + data.loadProfileName;
                 }
                 return '-';
             }

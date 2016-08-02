@@ -13,18 +13,31 @@ Ext.define('Mdc.model.Channel', {
             name: 'measurementType',
             persist: false
         },
-        {name: 'readingType', mapping: 'measurementType.readingType'},
+        {   name: 'readingType',
+            persist: false,
+            mapping: 'measurementType.readingType'
+        },
         'collectedReadingType',
         'calculatedReadingType',
         'multipliedCalculatedReadingType',
         'possibleCalculatedReadingTypes',
         'useMultiplier',
+        {name: 'loadProfileId', type: 'number', useNull: true},
+        {name: 'loadProfileName', type: 'string', useNull: true},
         {name: 'nbrOfFractionDigits', type: 'int'},
         {
             name: 'registerTypeName',
             type: 'string',
             persist: false,
             mapping: 'measurementType.readingType.fullAliasName'
+        },
+        {
+            name: 'extendedChannelName',
+            type: 'string',
+            persist: false,
+            convert: function extendedChannelName(valueAsReadByReader, record){
+                return record.get('readingType').fullAliasName + ' - ' + record.get('loadProfileName');
+            }
         }
     ],
     idProperty: 'id',

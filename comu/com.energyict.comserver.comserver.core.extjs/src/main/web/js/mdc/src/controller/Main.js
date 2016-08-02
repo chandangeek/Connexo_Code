@@ -96,6 +96,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.ChangeDeviceLifeCycle',
         'Mdc.controller.setup.DeviceTransitionExecute',
         'Mdc.controller.setup.DeviceAttributes',
+        'Mdc.controller.setup.DataLoggerSlaves',
         'Mdc.usagepointmanagement.controller.UsagePoint',
         'Mdc.controller.setup.DeviceConflictingMapping',
         'Mdc.devicetypecustomattributes.controller.AttributeSets',

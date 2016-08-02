@@ -379,10 +379,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 propertyHeader.hide();
             }
             if (!command.get('willBePickedUpByComTask')) {
-                combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'))
+                combo.markInvalid(Uni.I18n.translate('deviceCommand.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'))
             }
             else if (!command.get('willBePickedUpByPlannedComTask')) {
-                combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute.'))
+                combo.markInvalid(Uni.I18n.translate('deviceCommand.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute.'))
             }
         }
     },
