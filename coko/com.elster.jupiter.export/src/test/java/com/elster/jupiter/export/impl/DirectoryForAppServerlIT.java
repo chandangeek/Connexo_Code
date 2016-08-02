@@ -19,6 +19,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -159,6 +160,7 @@ public class DirectoryForAppServerlIT {
                     new BasicPropertiesModule(),
                     new MailModule(),
                     new BpmModule(),
+                    new KpiModule(),
                     new ValidationModule(),
                     new DataVaultModule(),
                     new FtpModule(),
