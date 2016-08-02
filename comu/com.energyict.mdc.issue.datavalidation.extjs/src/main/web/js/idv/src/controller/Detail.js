@@ -4,17 +4,20 @@ Ext.define('Idv.controller.Detail', {
     stores: [
         'Isu.store.IssueActions',
         'Isu.store.Clipboard',
-        'Idv.store.NonEstimatedDataStore'
+        'Idv.store.NonEstimatedDataStore',
+        'Mdc.store.Estimators'
     ],
 
     models: [
-        'Idv.model.Issue'
+        'Idv.model.Issue',
+        'Idv.model.DeviceChannelDataSaveEstimate'
     ],
 
     views: [
         'Idv.view.Detail',
         'Idv.view.NonEstimatedDataGrid',
-        'Uni.view.notifications.NoItemsFoundPanel'
+        'Uni.view.notifications.NoItemsFoundPanel',
+        'Mdc.view.setup.devicechannels.ReadingEstimationWindow'
     ],
 
     refs: [
@@ -29,22 +32,30 @@ Ext.define('Idv.controller.Detail', {
         {
             ref: 'commentsPanel',
             selector: 'data-validation-issue-detail #data-validation-issue-comments'
+        },
+        {
+            ref: 'readingEstimationWindow',
+            selector: '#reading-estimation-window'
+        },
+        {
+            ref: 'noEstimatedDataGrid',
+            selector: '#validation-no-estimated-data-grid'
         }
     ],
 
     init: function () {
         this.control({
             'data-validation-issue-detail #data-validation-issue-comments #issue-comments-add-comment-button': {
-                click: this.showCommentForm
+                click: this.showCommentFormValidation
             },
             'data-validation-issue-detail #data-validation-issue-comments #empty-message-add-comment-button': {
-                click: this.showCommentForm
+                click: this.showCommentFormValidation
             },
             'data-validation-issue-detail #data-validation-issue-comments #issue-comment-cancel-adding-button': {
                 click: this.hideCommentForm
             },
             'data-validation-issue-detail #data-validation-issue-comments #issue-comment-save-button': {
-                click: this.addComment
+                click: this.addCommentValidation
             },
             'data-validation-issue-detail #data-validation-issue-comments #issue-add-comment-area': {
                 change: this.validateCommentForm
@@ -72,7 +83,118 @@ Ext.define('Idv.controller.Detail', {
                             }
                         );
                     }
+                },
+                estimateValues: this.estimateValue
+            },
+            '#reading-estimation-window #estimate-reading-button': {
+                click: this.estimateReading
+            }
+        });
+    },
+
+    estimateValue: function (record) {
+        var me = this,
+            bothSuspected = false;
+
+        me.getStore('Mdc.store.Estimators').load(function () {
+            me.getPage().setLoading(false);
+            Ext.widget('reading-estimation-window', {
+                itemId: 'reading-estimation-window',
+                record: record,
+                bothSuspected: bothSuspected
+            }).show();
+        });
+    },
+
+    estimateReading: function () {
+        var me = this,
+            propertyForm = me.getReadingEstimationWindow().down('#property-form'),
+            model = Ext.create('Idv.model.DeviceChannelDataSaveEstimate'),
+            estimateBulk = false,
+            record = me.getReadingEstimationWindow().record,
+            intervalsArray = [];
+
+        !me.getReadingEstimationWindow().down('#form-errors').isHidden() && me.getReadingEstimationWindow().down('#form-errors').hide();
+        !me.getReadingEstimationWindow().down('#error-label').isHidden() && me.getReadingEstimationWindow().down('#error-label').hide();
+        propertyForm.clearInvalid();
+
+        if (propertyForm.getRecord()) {
+            propertyForm.updateRecord();
+            model.set('estimatorImpl', me.getReadingEstimationWindow().down('#estimator-field').getValue());
+            model.propertiesStore = propertyForm.getRecord().properties();
+        }
+        if (!me.getReadingEstimationWindow().down('#value-to-estimate-radio-group').isHidden()) {
+            estimateBulk = me.getReadingEstimationWindow().down('#value-to-estimate-radio-group').getValue().isBulk;
+        } else {
+            if (!Ext.isArray(record)) {
+                estimateBulk = record.get('readingType') && (record.get('readingType').isCumulative);
+            } else {
+                Ext.Array.findBy(record, function (item) {
+                    estimateBulk = item.get('readingType') && (item.get('readingType').isCumulative);
+                    return estimateBulk;
+                });
+            }
+        }
+        if (!Ext.isArray(record)) {
+            intervalsArray.push({
+                start: record.get('startTime'),
+                end: record.get('endTime')
+            });
+        } else {
+            Ext.Array.each(record, function (item) {
+                intervalsArray.push({
+                    start: record.get('startTime'),
+                    end: record.get('endTime')
+                });
+            });
+        }
+        model.set('estimateBulk', estimateBulk);
+        model.set('intervals', intervalsArray);
+        me.saveChannelDataEstimateModel(model, record);
+    },
+
+    saveChannelDataEstimateModel: function (record, readings) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
+        record.getProxy().setUrl({
+                mRID: me.getDetailForm().getRecord().get('device').serialNumber,
+                channelId: readings.get('channelId')
+            }
+        );
+        me.getReadingEstimationWindow().setLoading();
+        Ext.Ajax.suspendEvent('requestexception');
+        record.save({
+            callback: function (rec, operation, success) {
+                Ext.Ajax.resumeEvent('requestexception');
+                var responseText = Ext.decode(operation.response.responseText, true);
+                Ext.suspendLayouts();
+
+                if (success) {
+                    me.getReadingEstimationWindow().destroy();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.estimateSucceeded', 'IDV', 'Estimate values succeeded'));
+                    me.refreshGrid(me.getPage());
+                } else {
+                    me.getReadingEstimationWindow().setLoading(false);
+                    if (responseText) {
+                        if (responseText.message) {
+                            me.getReadingEstimationWindow().down('#error-label').show();
+                            me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' + responseText.message + '</div>', false);
+                        } else if (responseText.errors) {
+                            me.getReadingEstimationWindow().down('#form-errors').show();
+                            me.getReadingEstimationWindow().down('#property-form').markInvalid(responseText.errors);
+                        }
+                    }
+                    else {
+                        me.getReadingEstimationWindow().down('#error-label').show();
+                        me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #EB5642">' +
+                            Uni.I18n.translate('devicechannels.saveEstimationErrorMessage', 'IDV', 'Could not estimate with {0}',
+                                me.getReadingEstimationWindow().down('#estimator-field').getRawValue().toLowerCase()) + '</div>', false);
+
+                    }
+
                 }
+                Ext.resumeLayouts(true);
             }
         });
     }
