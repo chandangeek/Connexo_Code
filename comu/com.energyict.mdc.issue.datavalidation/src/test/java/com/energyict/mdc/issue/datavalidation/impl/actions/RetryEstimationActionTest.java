@@ -78,7 +78,7 @@ public class RetryEstimationActionTest extends BaseTest {
 
         EstimationReport estimationReport = mock(EstimationReport.class);
         EstimationService estimationService = mock(EstimationService.class);
-        when(estimationService.previewEstimate(QualityCodeSystem.MDC, any(MeterActivation.class), any(Range.class))).thenReturn(estimationReport);
+        when(estimationService.previewEstimate(any(QualityCodeSystem.class), any(MeterActivation.class), any(Range.class))).thenReturn(estimationReport);
 
         IssueDataValidation issue = mock(IssueDataValidation.class);
         IssueStatus issueStatus = mock(IssueStatus.class);
