@@ -145,7 +145,7 @@ public class UsagePointResource {
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Path("/{mRID}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public UsagePointInfo getUsagePoint(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
+    public UsagePointInfo getUsagePoint(@PathParam("mRID") String mRID) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         return new UsagePointInfo(usagePoint, clock);
     }
@@ -202,7 +202,8 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/meteractivations/{activationId}/channels/{channelId}/intervalreadings")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public ReadingInfos getIntervalReadings(@PathParam("mRID") String mRID, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
+    public ReadingInfos getIntervalReadings(@PathParam("mRID") String mRID, @PathParam("activationId") long activationId, @PathParam("channelId") long channelId,
+                                            @QueryParam("from") long from, @QueryParam("to") long to) {
         if (from == 0 || to == 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
@@ -226,7 +227,7 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public ReadingTypeInfos getReadingTypes(@PathParam("mRID") String mRID, @Context SecurityContext securityContext) {
+    public ReadingTypeInfos getReadingTypes(@PathParam("mRID") String mRID) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         return new ReadingTypeInfos(collectReadingTypes(usagePoint));
     }
@@ -243,7 +244,8 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
     @Path("/{mRID}/readingtypes/{rtMrid}/readings")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public ReadingInfos getReadingTypeReadings(@PathParam("mRID") String mRID, @PathParam("rtMrid") String rtMrid, @QueryParam("from") long from, @QueryParam("to") long to, @Context SecurityContext securityContext) {
+    public ReadingInfos getReadingTypeReadings(@PathParam("mRID") String mRID, @PathParam("rtMrid") String rtMrid,
+                                               @QueryParam("from") long from, @QueryParam("to") long to) {
         if (from == 0 || to == 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
@@ -255,7 +257,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT})
     @Path("/{mRID}/servicecalls")
-    public Response cancelServiceCallsFor(@PathParam("mRID") String mRID, ServiceCallInfo serviceCallInfo, @Context SecurityContext securityContext) {
+    public Response cancelServiceCallsFor(@PathParam("mRID") String mRID, ServiceCallInfo serviceCallInfo) {
         UsagePoint usagePoint = fetchUsagePoint(mRID);
         if (serviceCallInfo.state == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -415,7 +417,6 @@ public class UsagePointResource {
         return meteringService.findUsagePoint(mRID)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_USAGE_POINT_FOR_MRID, mRID));
     }
-
 
     private static class HasReadingType implements Predicate<MeterActivation> {
 
