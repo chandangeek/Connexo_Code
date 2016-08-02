@@ -69,6 +69,7 @@ import com.elster.jupiter.util.time.ExecutionTimerService;
 import com.elster.jupiter.util.time.impl.ExecutionTimerServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -186,6 +187,7 @@ public class InMemoryIntegrationPersistence {
     private BatchService batchService;
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
+    private DataValidationKpiService dataValidationKpiService;
     private FiniteStateMachineService finiteStateMachineService;
     private ServiceCallService serviceCallService;
     private Injector injector;
@@ -320,6 +322,7 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(SearchService.class).register(deviceSearchDomain);
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
+            this.dataValidationKpiService = injector.getInstance(DataValidationKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.serviceCallService = injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class);
@@ -596,6 +599,10 @@ public class InMemoryIntegrationPersistence {
 
     public DataCollectionKpiService getDataCollectionKpiService() {
         return dataCollectionKpiService;
+    }
+
+    public DataValidationKpiService getDataValidationKpiService() {
+        return dataValidationKpiService;
     }
 
 }
