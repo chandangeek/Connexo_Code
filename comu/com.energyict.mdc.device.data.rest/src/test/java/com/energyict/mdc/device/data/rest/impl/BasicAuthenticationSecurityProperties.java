@@ -23,7 +23,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
 
     public enum ActualFields {
         PASSWORD("password"){},
-        USER_NAME("userName");
+        USER_NAME("usrName");
 
         private final String name;
 
@@ -59,12 +59,12 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
     @Size(max = Table.MAX_STRING_LENGTH)
     private String password;
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String userName;
+    private String usrName; // Avoid clash with userName field that holds audit information
 
     @Override
     protected void copyActualPropertiesFrom(CustomPropertySetValues propertyValues) {
         this.password = (String) propertyValues.getProperty(ActualFields.PASSWORD.javaName());
-        this.userName = (String) propertyValues.getProperty(ActualFields.USER_NAME.javaName());
+        this.usrName = (String) propertyValues.getProperty(ActualFields.USER_NAME.javaName());
     }
 
     @Override
@@ -72,7 +72,7 @@ public class BasicAuthenticationSecurityProperties extends CommonBaseDeviceSecur
         if (!is(this.password).empty()) {
             propertySetValues.setProperty(ActualFields.PASSWORD.javaName(), this.password);
         }
-        this.setPropertyIfNotNull(propertySetValues, ActualFields.USER_NAME.javaName(), this.userName);
+        this.setPropertyIfNotNull(propertySetValues, ActualFields.USER_NAME.javaName(), this.usrName);
     }
 
     @Override
