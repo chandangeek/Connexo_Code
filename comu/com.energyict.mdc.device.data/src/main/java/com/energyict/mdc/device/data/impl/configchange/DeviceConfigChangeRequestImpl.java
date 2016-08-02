@@ -8,7 +8,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,16 +37,8 @@ public final class DeviceConfigChangeRequestImpl implements DeviceConfigChangeRe
     private Reference<DeviceConfiguration> destinationDeviceConfiguration = ValueReference.absent();
     private List<DeviceConfigChangeInAction> deviceConfigChangeInActions = new ArrayList<>();
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
-
-    @SuppressWarnings("unused")
-    private String userName;
-    @SuppressWarnings("unused")
-    private long version;
-    @SuppressWarnings("unused")
-    private Instant createTime;
-    @SuppressWarnings("unused")
-    private Instant modTime;
 
     @Inject
     public DeviceConfigChangeRequestImpl(DataModel dataModel) {
