@@ -1,5 +1,6 @@
 package com.energyict.mdc.servicecall.examples;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -9,7 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 /**
  * Created by bvn on 2/15/16.
  */
-public class DeviceCertificationDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class DeviceCertificationDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
@@ -34,7 +35,6 @@ public class DeviceCertificationDomainExtension implements PersistentDomainExten
     }
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     private long deviceId;
     private long yearOfCertification;
@@ -44,7 +44,7 @@ public class DeviceCertificationDomainExtension implements PersistentDomainExten
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public long getDeviceId() {

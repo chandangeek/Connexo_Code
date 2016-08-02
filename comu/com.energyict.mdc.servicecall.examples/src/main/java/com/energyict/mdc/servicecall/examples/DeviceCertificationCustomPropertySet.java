@@ -107,7 +107,7 @@ public class DeviceCertificationCustomPropertySet implements CustomPropertySet<S
     }
 
     private class MyPersistenceSupport implements PersistenceSupport<ServiceCall, DeviceCertificationDomainExtension> {
-        private final String TABLE_NAME = "SCS_CPS_DEV_CER";
+        private final String TABLE_NAME = "SC4_CPS_DEV_CER";
         private final String FK = "FK_SCS_CPS_DEV_CER";
 
         @Override
