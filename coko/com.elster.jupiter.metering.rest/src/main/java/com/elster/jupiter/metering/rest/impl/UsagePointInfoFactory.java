@@ -1,6 +1,6 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
@@ -13,14 +13,12 @@ import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Factory class to create Info objects. This class will register on the InfoFactoryWhiteboard and is used by DynamicSearch.
@@ -32,17 +30,21 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile MeteringService meteringService;
-    private volatile License license;
+    private volatile LicenseService licenseService;
 
     public UsagePointInfoFactory() {
     }
 
     @Inject
-    public UsagePointInfoFactory(Clock clock, NlsService nlsService, MeteringService meteringService) {
+    public UsagePointInfoFactory(Clock clock,
+                                 NlsService nlsService,
+                                 MeteringService meteringService,
+                                 LicenseService licenseService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
+        this.setLicenseService(licenseService);
     }
 
     @Reference
@@ -61,11 +63,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .join(nlsService.getThesaurus(MeteringApplication.COMPONENT_NAME, Layer.DOMAIN));
     }
 
-    @Reference(
-            target = "(com.elster.jupiter.license.application.key=INS)",
-            cardinality = ReferenceCardinality.OPTIONAL)
-    public void setLicense(License license) {
-        this.license = license;
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
     }
 
     @Override
@@ -96,7 +96,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     @Override
     public Class getDomainClass() {
-        if (Optional.ofNullable(this.license).isPresent()) {
+        if (licenseService.getLicenseForApplication("INS").isPresent()) {
             return EmptyDomain.class;
         }
         return UsagePoint.class;

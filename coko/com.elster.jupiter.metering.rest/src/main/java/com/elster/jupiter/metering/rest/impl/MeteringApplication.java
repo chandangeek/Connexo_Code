@@ -7,6 +7,7 @@ import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
@@ -56,6 +57,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     private volatile Clock clock;
     private volatile NlsService nlsService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile LicenseService licenseService;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -99,6 +101,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer()).join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN));
+    }
+
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
     }
 
     @Reference
@@ -183,6 +190,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(serviceCallService).to(ServiceCallService.class);
             bind(MetrologyConfigurationInfoFactory.class).to(MetrologyConfigurationInfoFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(licenseService).to(LicenseService.class);
         }
     }
 }

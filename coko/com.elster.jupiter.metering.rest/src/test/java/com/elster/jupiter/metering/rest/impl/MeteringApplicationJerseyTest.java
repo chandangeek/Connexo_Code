@@ -12,6 +12,7 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -53,6 +54,8 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
     private ServiceCallService serviceCallService;
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
+    @Mock
+    LicenseService licenseService;
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -82,6 +85,7 @@ public class MeteringApplicationJerseyTest extends FelixRestApplicationJerseyTes
         app.setNlsService(nlsService);
         app.setServiceCallService(serviceCallService);
         app.setMetrologyConfigurationService(metrologyConfigurationService);
+        app.setLicenseService(licenseService);
         return app;
     }
 
