@@ -36,7 +36,6 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 
@@ -370,7 +369,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                 .ifPresent(metrologyConfiguration -> metrologyConfiguration.getMeterRoles()
                         .forEach(meterRole -> mandatoryMeterRoles.put(meterRole, new MeterRoleInfo(meterRole))));
-                });
 
         Map<MeterRole, MeterActivation> meterRoleToMeterInfoMapping = usagePoint.getMeterActivations(usagePoint.getInstallationTime())
                 .stream()
