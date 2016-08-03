@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.rest.impl;
 
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
@@ -9,13 +10,17 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.elster.jupiter.validation.rest.kpi.rest.DataValidationKpiInfoFactory;
+import com.elster.jupiter.validation.rest.kpi.rest.KpiResource;
 import com.elster.jupiter.validation.security.Privileges;
 
 import com.google.common.collect.ImmutableSet;
@@ -46,6 +51,8 @@ public class ValidationApplication extends Application implements TranslationKey
     private volatile RestQueryService restQueryService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile DataValidationKpiService dataValidationKpiService;
+    private volatile KpiService kpiService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -55,7 +62,8 @@ public class ValidationApplication extends Application implements TranslationKey
         return ImmutableSet.<Class<?>> of(
                 ValidationResource.class,
                 DataValidationTaskResource.class,
-                DeviceGroupAndMetrologyContractResource.class);
+                DeviceGroupAndMetrologyContractResource.class,
+                KpiResource.class);
     }
 
     @Override
@@ -74,6 +82,16 @@ public class ValidationApplication extends Application implements TranslationKey
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setDataValidationKpiService(DataValidationKpiService dataValidationKpiService){
+        this.dataValidationKpiService = dataValidationKpiService;
+    }
+
+    @Reference
+    public void setKpiService(KpiService kpiService){
+        this.kpiService = kpiService;
     }
 
     @Reference
@@ -115,7 +133,11 @@ public class ValidationApplication extends Application implements TranslationKey
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(DataValidationKpiInfoFactory.class).to(DataValidationKpiInfoFactory.class);
+            bind(dataValidationKpiService).to(DataValidationKpiService.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(timeService).to(TimeService.class);
+            bind(kpiService).to(KpiService.class);
         }
     }
 

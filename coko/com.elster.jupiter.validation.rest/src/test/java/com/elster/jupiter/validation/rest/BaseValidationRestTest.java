@@ -1,6 +1,7 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -11,6 +12,7 @@ import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.validation.rest.impl.ValidationApplication;
 
 import javax.ws.rs.core.Application;
@@ -32,6 +34,8 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     @Mock
     private MeteringGroupsService meteringGroupsService;
     @Mock
+    private DataValidationKpiService dataValidationKpiService;
+    @Mock
     private MetrologyConfigurationService metrologyConfigurationService;
     @Mock
     protected EndDeviceGroup endDeviceGroup;
@@ -43,6 +47,8 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
     protected RestQueryService restQueryService;
     @Mock
     protected DataValidationTask dataValidationTask;
+    @Mock
+    protected KpiService kpiService;
 
     protected DataValidationTaskBuilder builder = initBuilderStub();
     protected PropertyUtils propertyUtils;
@@ -82,6 +88,8 @@ public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
         app.setRestQueryService(restQueryService);
         app.setTransactionService(transactionService);
         app.setMeteringGroupsService(meteringGroupsService);
+        app.setDataValidationKpiService(dataValidationKpiService);
+        app.setKpiService(kpiService);
         app.setMetrologyConfigurationService(metrologyConfigurationService);
         app.setNlsService(nlsService);
         app.setTimeService(timeService);
