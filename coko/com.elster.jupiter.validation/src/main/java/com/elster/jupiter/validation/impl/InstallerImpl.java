@@ -17,6 +17,7 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.kpi.DataValidationKpiCalculatorHandlerFactory;
 import com.elster.jupiter.validation.security.Privileges;
 
 import javax.inject.Inject;
@@ -30,6 +31,8 @@ import java.util.logging.Logger;
 public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     public static final String DESTINATION_NAME = ValidationServiceImpl.DESTINATION_NAME;
     public static final String SUBSCRIBER_NAME = ValidationServiceImpl.SUBSCRIBER_NAME;
+    private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
+    private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -60,7 +63,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
         );
         doTry(
                 "Create validation queue",
-                this::createDestinationAndSubscriber,
+                this::createMessageHandlers,
                 logger
         );
         doTry(
@@ -100,13 +103,25 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
             eventType.install(eventService);
         }
     }
+    private void createMessageHandlers() {
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        this.createMessageHandler(defaultQueueTableSpec, DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION, DataValidationKpiCalculatorHandlerFactory.TASK_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, DESTINATION_NAME, SUBSCRIBER_NAME);
+    }
 
-    private void createDestinationAndSubscriber() {
-        QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
-        destinationSpec = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 60);
-        destinationSpec.save();
-        destinationSpec.activate();
-        destinationSpec.subscribe(SUBSCRIBER_NAME);
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, String subscriberName) {
+        Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
+        if (!destinationSpecOptional.isPresent()) {
+            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS);
+            queue.activate();
+            queue.subscribe(subscriberName);
+        } else {
+            boolean notSubscribedYet = !destinationSpecOptional.get().getSubscribers().stream().anyMatch(spec -> spec.getName().equals(subscriberName));
+            if (notSubscribedYet) {
+                destinationSpecOptional.get().activate();
+                destinationSpecOptional.get().subscribe(subscriberName);
+            }
+        }
     }
 
     private Translation toTranslation(final SimpleNlsKey nlsKey, final Locale locale, final String translation) {

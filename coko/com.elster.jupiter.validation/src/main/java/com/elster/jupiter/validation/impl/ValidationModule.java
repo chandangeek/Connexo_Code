@@ -5,6 +5,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -21,5 +24,6 @@ public class ValidationModule extends AbstractModule {
         requireBinding(MeteringGroupsService.class);
 
         bind(ValidationService.class).to(ValidationServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DataValidationKpiService.class).to(DataValidationKpiServiceImpl.class).in(Scopes.SINGLETON);
     }
 }

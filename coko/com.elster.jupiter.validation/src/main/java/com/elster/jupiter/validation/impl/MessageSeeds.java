@@ -32,7 +32,9 @@ public enum MessageSeeds implements MessageSeed {
     VALIDATOR_PROPERTY_INVALID_VALUE(1006, Constants.VALIDATOR_PROPERTY_INVALID_VALUE_KEY, "This value is not valid for this property", Level.SEVERE),
     VALIDATOR_REQUIRED_PROPERTY_MISSING(1007, Constants.VALIDATOR_REQUIRED_PROPERTY_MISSING_KEY, "This field is required", Level.SEVERE),
 
-    OVERLAPPED_VALIDATION_RULE_SET_VERSION(1008, Constants.OVERLAPPED_PERIOD, "Validation rule set version start date overlapped", Level.SEVERE);
+    OVERLAPPED_VALIDATION_RULE_SET_VERSION(1008, Constants.OVERLAPPED_PERIOD, "Validation rule set version start date overlapped", Level.SEVERE),
+    CAN_NOT_CHANGE_FREQUENCY(2001, Constants.CAN_NOT_CHANGE_FREQUENCY_KEY, "The frequency can not be changed", Level.SEVERE),
+    DEVICE_GROUP_MUST_BE_UNIQUE(2002, Constants.DEVICE_GROUP_MUST_BE_UNIQUE, "There is already a KPI for this device group", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -100,5 +102,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String USAGE_POINT_TASK_VALIDATED_SUCCESFULLY = "UsagePointTaskValidatedSuccesfully";
         public static final String OVERLAPPED_PERIOD = "OverlappedPeriod";
         public static final String DEVICE_GROUP_STILL_IN_USE = "DeviceGroupStillInUse";
+        public static final String CAN_NOT_CHANGE_FREQUENCY_KEY = "CanNotChangeFrequency";
+        public static final String DEVICE_GROUP_MUST_BE_UNIQUE = "DeviceGroupMustBeUnique";
     }
 }

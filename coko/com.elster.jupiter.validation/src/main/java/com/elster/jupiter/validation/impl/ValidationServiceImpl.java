@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Channel;
@@ -25,8 +26,8 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -41,6 +42,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.validation.DataValidationAssociationProvider;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
@@ -55,10 +57,18 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
 import com.elster.jupiter.validation.ValidatorNotFoundException;
+import com.elster.jupiter.validation.impl.kpi.DataValidationKpiServiceImpl;
+import com.elster.jupiter.validation.impl.kpi.DataValidationReportServiceImpl;
+import com.elster.jupiter.validation.kpi.DataValidationKpi;
+import com.elster.jupiter.validation.kpi.DataValidationKpiScore;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
+import com.elster.jupiter.validation.kpi.DataValidationReportService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -70,8 +80,8 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -106,16 +116,23 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     private volatile QueryService queryService;
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
+    private List<DataValidationAssociationProvider> dataValidationAssociationProviders = new CopyOnWriteArrayList<>();
+
+    private volatile KpiService kpiService;
 
     private final List<ValidatorFactory> validatorFactories = new CopyOnWriteArrayList<>();
     private final List<ValidationRuleSetResolver> ruleSetResolvers = new CopyOnWriteArrayList<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
+    private DataValidationKpiService dataValidationKpiService;
+    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private DataValidationReportService dataValidationReportService;
 
     public ValidationServiceImpl() {
     }
 
     @Inject
-    ValidationServiceImpl(Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService, OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, UpgradeService upgradeService) {
+    ValidationServiceImpl(BundleContext bundleContext, Clock clock, MessageService messageService, EventService eventService, TaskService taskService, MeteringService meteringService, MeteringGroupsService meteringGroupsService,
+                          OrmService ormService, QueryService queryService, NlsService nlsService, UserService userService, Publisher publisher, UpgradeService upgradeService, KpiService kpiService) {
         this.clock = clock;
         this.messageService = messageService;
         setMessageService(messageService);
@@ -127,8 +144,9 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
+        this.setKpiService(kpiService);
         setUpgradeService(upgradeService);
-        activate();
+        activate(bundleContext);
 
         // subscribe manually when not using OSGI
         ValidationEventHandler handler = new ValidationEventHandler();
@@ -137,7 +155,9 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext context) {
+        this.dataValidationKpiService = new DataValidationKpiServiceImpl(this);
+        this.dataValidationReportService = new DataValidationReportServiceImpl(this);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -150,12 +170,18 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 bind(ValidationService.class).toInstance(ValidationServiceImpl.this);
                 bind(ValidatorCreator.class).toInstance(new DefaultValidatorCreator());
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(KpiService.class).toInstance(kpiService);
+                bind(MessageService.class).toInstance(messageService);
+                bind(DataValidationKpiService.class).toInstance(dataValidationKpiService);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
+                bind(DataValidationReportService.class).toInstance(dataValidationReportService);
                 bind(DestinationSpec.class).toProvider(ValidationServiceImpl.this::getDestination);
                 bind(MessageService.class).toInstance(messageService);
             }
         });
+        this.registerDataValidationKpiService(context);
+        this.registerDataValidationReportService(context);
         upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, ImmutableMap.of(
                 Version.version(10, 2), UpgraderV10_2.class
         ));
@@ -171,6 +197,11 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+    }
+
+    @Reference
+    public void setKpiService(KpiService kpiService) {
+        this.kpiService = kpiService;
     }
 
     @Reference
@@ -718,6 +749,42 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
         return dataModel.mapper(DataValidationOccurrence.class).lock(occurrence.getId());
     }
 
+
+    @Override
+    public Optional<DataValidationKpiScore> getDataValidationKpiScores(long endDeviceGroupId, long deviceId, Range<Instant> interval) {
+        Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
+        Optional<DataValidationKpiScore> score = Optional.empty();
+        if (found.isPresent()) {
+            Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(found.get());
+            if (dataValidationKpi.isPresent()) {
+                score = dataValidationKpi.get().getDataValidationKpiScores(deviceId, interval);
+            }
+        }
+        return score;
+    }
+
+    @Override
+    public List<Long> getDevicesWithSuspects(long endDeviceGroupId) {
+        List<Long> devices = new ArrayList<>();
+        Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
+        if (endDeviceGroup.isPresent()) {
+            Optional<DataValidationKpi> dataValidationKpi = dataValidationKpiService.findDataValidationKpi(endDeviceGroup.get());
+            if (dataValidationKpi.isPresent()) {
+                devices = dataValidationKpi.get()
+                        .getDataValidationKpiChildren()
+                        .stream()
+                        .map(child -> child.getChildKpi().getMembers())
+                        .flatMap(List::stream)
+                        .map(member -> member.getName().substring(member.getName().indexOf("_") + 1))
+                        .map(id -> Long.parseLong(id))
+                        .distinct().sorted().collect(Collectors.toList());
+            }
+        }
+        return devices;
+    }
+
+
+    @Deprecated
     @Override
     public Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit) {
         SqlBuilder sqlBuilder = new SqlBuilder();
@@ -742,7 +809,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 sqlBuilder.append("  LEFT JOIN MTR_CHANNEL mc ON mrq.CHANNELID = mc.id");
                 sqlBuilder.append("  LEFT JOIN MTR_CHANNEL_CONTAINER cc ON mc.CHANNEL_CONTAINER = cc.id");
                 sqlBuilder.append("  LEFT JOIN MTR_METERACTIVATION ma ON cc.METER_ACTIVATION = ma.id");
-                sqlBuilder.append(" WHERE (mrq.type = '3.5.258' OR mrq.type = '3.5.259')");
+                sqlBuilder.append(" WHERE (mrq.type = '2.5.258' OR mrq.type = '2.5.259')");
                 sqlBuilder.append("   AND mrq.actual='Y' AND MA.meterid = med.id)");
 
                 if (start.isPresent() && limit.isPresent()) {
@@ -788,7 +855,41 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public DataModel dataModel() {
+        return dataModel;
+    }
+
+    @Override
+    public KpiService kpiService() {
+        return kpiService;
+    }
+
+
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
+    }
+
+    private void registerDataValidationKpiService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(DataValidationKpiService.class, this.dataValidationKpiService, null));
+    }
+
+    private void registerDataValidationReportService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(DataValidationReportService.class, this.dataValidationReportService, null));
+    }
+
+    @Reference(name = "ZDataValidation", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addDataValidationAssociationProvider(DataValidationAssociationProvider provider) {
+        dataValidationAssociationProviders.add(provider);
+    }
+
+    @SuppressWarnings("unused")
+    public void removeDataValidationAssociationProvider(DataValidationAssociationProvider provider) {
+        dataValidationAssociationProviders.remove(provider);
+    }
+
+    @Override
+    public List<DataValidationAssociationProvider> getDataValidationAssociatinProviders() {
+        return this.dataValidationAssociationProviders;
     }
 }

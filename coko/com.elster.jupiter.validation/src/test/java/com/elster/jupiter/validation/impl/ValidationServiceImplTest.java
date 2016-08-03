@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
@@ -57,6 +58,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import org.osgi.framework.BundleContext;
 
 import javax.inject.Provider;
 import java.lang.reflect.Field;
@@ -214,6 +216,10 @@ public class ValidationServiceImplTest {
     @Mock
     private Query<DataValidationTask> dataValidationTaskQuery;
     @Mock
+    private KpiService kpiService;
+    @Mock
+    private BundleContext bundleContext;
+    @Mock
     private UpgradeService upgradeService;
 
     @Before
@@ -246,7 +252,7 @@ public class ValidationServiceImplTest {
         when(meterActivation.getChannelsContainer()).thenReturn(channelsContainer);
         doReturn(fetcher).when(cimChannel1).findReadingQualities();
 
-        validationService = new ValidationServiceImpl(clock, messageService, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class), upgradeService);
+        validationService = new ValidationServiceImpl(bundleContext, clock, messageService, eventService, taskService, meteringService, meteringGroupsService, ormService, queryService, nlsService, mock(UserService.class), mock(Publisher.class), upgradeService, kpiService);
         validationService.addValidationRuleSetResolver(validationRuleSetResolver);
 
         DataValidationTaskImpl newDataValidationTask = new DataValidationTaskImpl(dataModel, taskService, validationService, thesaurus, () -> destinationSpec);
