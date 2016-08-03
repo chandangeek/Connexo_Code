@@ -25,7 +25,6 @@ public enum TableSpecs {
             Column deviceGroupColumn = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
 
             table.primaryKey("FAV_PK_FAVDEVICEGROUP").on(userColumn, deviceGroupColumn).add();
-            table.foreignKey("FAV_FK_FAVDEVICEGROUP_USER").on(userColumn).references("USR", "USR_USER").map("user").upTo(Version.version(10, 2)).add();
             table.foreignKey("FAV_FK_FAVDEVICEGROUP_USER").on(userColumn).references(User.class).map("user").onDelete(DeleteRule.CASCADE).since(Version.version(10, 2)).add();
             table.foreignKey("FAV_FK_FAVDEVICEGROUP_GROUP").on(deviceGroupColumn).references(EndDeviceGroup.class).map("endDeviceGroup").onDelete(DeleteRule.CASCADE).add();
         }
@@ -36,13 +35,13 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<LabelCategory> table = dataModel.addTable(name(), LabelCategory.class);
             table.map(LabelCategoryImpl.class);
-    
+
             Column name = table.column("NAME").varChar().notNull().map("name").add();
-    
+
             table.primaryKey("FAV_PK_LABELCATEGORY").on(name).add();
         }
     },
-    
+
     FAV_DEVICELABEL {
         @Override
         void addTo(DataModel dataModel) {
@@ -57,7 +56,6 @@ public enum TableSpecs {
             table.column("LABELCOMMENT").type("CLOB").map("comment").conversion(ColumnConversion.CLOB2STRING).add();
 
             table.primaryKey("FAV_PK_DEVICELABEL").on(userColumn, deviceColumn, categoryColumn).add();
-            table.foreignKey("FAV_FK_DEVICELABEL_USER").on(userColumn).references("USR", "USR_USER").map("user").upTo(Version.version(10, 2)).add();
             table.foreignKey("FAV_FK_DEVICELABEL_USER").on(userColumn).references(User.class).map("user").onDelete(DeleteRule.CASCADE).since(Version.version(10, 2)).add();
             table.foreignKey("FAV_FK_DEVICELABEL_DEVICE").on(deviceColumn).references(Device.class).map("device").onDelete(DeleteRule.CASCADE).add();
             table.foreignKey("FAV_FK_DEVICELABEL_CATEGORY").on(categoryColumn).references(TableSpecs.FAV_LABELCATEGORY.name()).map("labelCategory").add();
