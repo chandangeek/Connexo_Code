@@ -188,7 +188,7 @@
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>parties</artifactId>
-                <version>2.1.0${revision}</version>
+                <version>3.0.0${revision}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -327,6 +327,7 @@
                 <module>../com.elster.jupiter.webservices.inbound.rest.demo</module>
                 <module>../com.elster.jupiter.webservices.outbound.rest.demo</module>
                 <module>../com.elster.jupiter.webservices.outbound.client.demo</module>
+                <module>../com.elster.jupiter.webservices.demo</module>
             </modules>
         </profile>
     </profiles>
