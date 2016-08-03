@@ -85,6 +85,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -92,7 +93,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
-import static com.elster.jupiter.util.streams.Functions.first;
 
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
 public class UsagePointImpl implements UsagePoint {
@@ -377,17 +377,20 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void delete() {
         this.removeMetrologyConfigurationCustomPropertySetValues();
-        metrologyConfiguration.all()
-                .stream()
-                .map(EffectiveMetrologyConfigurationOnUsagePointImpl.class::cast)
-                .forEach(
-                        first(EffectiveMetrologyConfigurationOnUsagePointImpl::prepareDelete)
-                        .andThen(metrologyConfiguration::remove)
-                );
+        this.removeMetrologyConfigurations();
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+    }
+
+    private void removeMetrologyConfigurations() {
+        Iterator<EffectiveMetrologyConfigurationOnUsagePoint> iterator = this.metrologyConfigurations.iterator();
+        while (iterator.hasNext()) {
+            EffectiveMetrologyConfigurationOnUsagePointImpl mc = (EffectiveMetrologyConfigurationOnUsagePointImpl) iterator.next();
+            mc.prepareDelete();
+            iterator.remove();
+        }
     }
 
     private void removeDetail() {

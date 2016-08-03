@@ -783,9 +783,9 @@ public enum TableSpecs {
             table.setJournalTableName("MTR_USAGEPOINTMTRCONFIG_JRNL");
             Column id = table.addAutoIdColumn();
             Column usagePoint = table.column("USAGEPOINT").number().notNull().add();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
+            table.addIntervalColumns("interval");
             table.addAuditColumns();
             table.primaryKey("PK_MTR_UPMTRCONFIG").on(id).add();
             table.foreignKey("FK_MTR_UPMTRCONFIG_UP")
