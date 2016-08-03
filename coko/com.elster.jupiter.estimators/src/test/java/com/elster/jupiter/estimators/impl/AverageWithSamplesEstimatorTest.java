@@ -16,6 +16,7 @@ import com.elster.jupiter.estimation.EstimationRuleProperties;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.estimation.NoneAdvanceReadingsSettings;
 import com.elster.jupiter.estimation.ReadingTypeAdvanceReadingsSettings;
+import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -93,6 +94,8 @@ public class AverageWithSamplesEstimatorTest {
     private Thesaurus thesaurus;
     @Mock
     private PropertySpecService propertySpecService;
+    @Mock
+    private KpiService kpiService;
     @Mock
     private ValidationService validationService;
     @Mock

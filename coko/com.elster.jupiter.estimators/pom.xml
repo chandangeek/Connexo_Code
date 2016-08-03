@@ -105,6 +105,11 @@
             <artifactId>metering.groups</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>kpi</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
