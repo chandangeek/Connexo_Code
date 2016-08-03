@@ -1,14 +1,14 @@
 package com.energyict.mdc.engine.impl;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
-
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.fsm.CurrentStateExtractor;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.StandardEventPredicate;
 import com.elster.jupiter.fsm.State;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -112,6 +112,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
                 if (state.getFiniteStateMachine().getId() == finiteStateMachine.getId()) {
                     CurrentState currentState = new CurrentState();
                     currentState.sourceId = String.valueOf(device.get().getId());
+                    currentState.sourceType = Device.class.getName();
                     currentState.name = state.getName();
                     return Optional.of(currentState);
                 }
