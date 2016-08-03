@@ -1,5 +1,6 @@
 package com.elster.jupiter.kore.api.impl.servicecall;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -14,7 +15,7 @@ import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-public class UsagePointCommandDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class UsagePointCommandDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
