@@ -76,6 +76,7 @@ Ext.define('Uni.view.search.field.Numeric', {
         me.dockedItems = [
             {
                 xtype: 'toolbar',
+                itemId: 'criteria-toolbar',
                 padding: '0 5 5 5',
                 dock: 'bottom',
                 style: {
