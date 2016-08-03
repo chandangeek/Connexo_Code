@@ -20,7 +20,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.FormatKey;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -87,12 +86,12 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceLifeCycleServiceImplTest {
 
-    public static final long DEVICE_LIFE_CYCLE_ID = 1L;
-    public static final long EVENT_TYPE_ID = 11L;
-    public static final long STATE_ID = 97L;
-    public static final long DEVICE_ID = 111L;
-    public static final String DEVICE_MRID = "MasterResourceId";
-    public static final long STANDARD_SECONDS_IN_DAY = 86400L;
+    private static final long DEVICE_LIFE_CYCLE_ID = 1L;
+    private static final long EVENT_TYPE_ID = 11L;
+    private static final long STATE_ID = 97L;
+    private static final long DEVICE_ID = 111L;
+    private static final String DEVICE_MRID = "MasterResourceId";
+    private static final long STANDARD_SECONDS_IN_DAY = 86400L;
 
     @Mock
     private NlsService nlsService;
@@ -159,18 +158,18 @@ public class DeviceLifeCycleServiceImplTest {
         StateTimeline stateTimeline = mock(StateTimeline.class);
         StateTimeSlice timeSlice = mock(StateTimeSlice.class);
         when(timeSlice.getPeriod()).thenReturn(Range.atLeast(Instant.EPOCH));
-        when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
+        when(stateTimeline.getSlices()).thenReturn(Collections.singletonList(timeSlice));
         when(this.device.getStateTimeline()).thenReturn(stateTimeline);
         when(this.stateTransition.getEventType()).thenReturn(this.eventType);
         when(this.user.getName()).thenReturn(DeviceLifeCycleServiceImplTest.class.getSimpleName());
-        when(user.getLocale()).thenReturn(Optional.<Locale>empty());
+        when(user.getLocale()).thenReturn(Optional.empty());
         when(this.threadPrincipleService.getPrincipal()).thenReturn(this.user);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(anyString())).thenReturn(Optional.of(this.privilege));
-        when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), any(Instant.class), anyMap())).thenReturn(this.event);
+        when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), anyString(), any(Instant.class), anyMap())).thenReturn(this.event);
         when(this.eventType.getId()).thenReturn(EVENT_TYPE_ID);
         for (MicroCheck microCheck : MicroCheck.values()) {
             ServerMicroCheck serverMicroCheck = mock(ServerMicroCheck.class);
-            when(serverMicroCheck.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
+            when(serverMicroCheck.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
             when(this.microCheckFactory.from(microCheck)).thenReturn(serverMicroCheck);
         }
         for (MicroAction microAction : MicroAction.values()) {
@@ -178,7 +177,7 @@ public class DeviceLifeCycleServiceImplTest {
             when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
         }
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
-        when(userPreferencesService.getPreferenceByKey(any(User.class), any(FormatKey.class))).thenReturn(Optional.<UserPreference>empty());
+        when(userPreferencesService.getPreferenceByKey(any(User.class), any(FormatKey.class))).thenReturn(Optional.empty());
     }
 
     @Test
@@ -344,9 +343,9 @@ public class DeviceLifeCycleServiceImplTest {
         MicroCheck microCheck1 = MicroCheck.ALL_ISSUES_AND_ALARMS_ARE_CLOSED;
         MicroCheck microCheck2 = MicroCheck.AT_LEAST_ONE_SCHEDULED_COMMUNICATION_TASK_AVAILABLE;
         ServerMicroCheck serverMicroCheck1 = mock(ServerMicroCheck.class);
-        when(serverMicroCheck1.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
+        when(serverMicroCheck1.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         ServerMicroCheck serverMicroCheck2 = mock(ServerMicroCheck.class);
-        when(serverMicroCheck2.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
+        when(serverMicroCheck2.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         when(this.microCheckFactory.from(microCheck1)).thenReturn(serverMicroCheck1);
         when(this.microCheckFactory.from(microCheck2)).thenReturn(serverMicroCheck2);
         when(this.action.getChecks()).thenReturn(new HashSet<>(Arrays.asList(microCheck1, microCheck2)));
@@ -374,9 +373,9 @@ public class DeviceLifeCycleServiceImplTest {
         MicroCheck microCheck3 = MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID;
         MicroCheck microCheck4 = MicroCheck.DEFAULT_CONNECTION_AVAILABLE;
         ServerMicroCheck serverMicroCheck1 = mock(ServerMicroCheck.class);
-        when(serverMicroCheck1.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
+        when(serverMicroCheck1.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         ServerMicroCheck serverMicroCheck2 = mock(ServerMicroCheck.class);
-        when(serverMicroCheck2.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.<DeviceLifeCycleActionViolation>empty());
+        when(serverMicroCheck2.evaluate(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
         ServerMicroCheck failingServerMicroCheck1 = mock(ServerMicroCheck.class);
         DeviceLifeCycleActionViolation violation1 = mock(DeviceLifeCycleActionViolation.class);
         when(violation1.getCheck()).thenReturn(microCheck3);
@@ -432,14 +431,14 @@ public class DeviceLifeCycleServiceImplTest {
         service.execute(this.action, this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
-        verify(this.eventType).newInstance(eq(this.finiteStateMachine), eq(String.valueOf(DEVICE_ID)), anyString(), any(Instant.class), anyMap());
+        verify(this.eventType).newInstance(eq(this.finiteStateMachine), eq(String.valueOf(DEVICE_ID)), anyString(), anyString(), any(Instant.class), anyMap());
     }
 
     @Test
     public void executeForwardsPropertiesToActions() {
         Instant now = Instant.now();
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
-        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.ENABLE_VALIDATION)));
+        when(this.action.getActions()).thenReturn(new HashSet<>(Collections.singletonList(MicroAction.ENABLE_VALIDATION)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         PropertySpec validationStartDatePropertySpec = mock(PropertySpec.class);
@@ -450,7 +449,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(validationStartDate.getValue()).thenReturn(now);
         ServerMicroAction enableValidation = mock(ServerMicroAction.class);
         when(this.microActionFactory.from(MicroAction.ENABLE_VALIDATION)).thenReturn(enableValidation);
-        List<ExecutableActionProperty> expectedProperties = Arrays.asList(validationStartDate);
+        List<ExecutableActionProperty> expectedProperties = Collections.singletonList(validationStartDate);
 
         // Business method
         service.execute(this.action, this.device, now, expectedProperties);
@@ -462,7 +461,7 @@ public class DeviceLifeCycleServiceImplTest {
     @Test(expected = RequiredMicroActionPropertiesException.class)
     public void executeWithMissingRequiredProperties() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
-        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.ENABLE_VALIDATION)));
+        when(this.action.getActions()).thenReturn(new HashSet<>(Collections.singletonList(MicroAction.ENABLE_VALIDATION)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         PropertySpec validationStartDatePropertySpec = mock(PropertySpec.class);
@@ -472,7 +471,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(validationStartDate.getPropertySpec()).thenReturn(validationStartDatePropertySpec);
         when(validationStartDate.getValue()).thenReturn(Instant.now());
         ServerMicroAction enableValidation = mock(ServerMicroAction.class);
-        when(enableValidation.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Arrays.asList(validationStartDatePropertySpec));
+        when(enableValidation.getPropertySpecs(any(PropertySpecService.class))).thenReturn(Collections.singletonList(validationStartDatePropertySpec));
         when(this.microActionFactory.from(MicroAction.ENABLE_VALIDATION)).thenReturn(enableValidation);
 
         // Business method
@@ -484,7 +483,7 @@ public class DeviceLifeCycleServiceImplTest {
     @Test(expected = EffectiveTimestampNotInRangeException.class)
     public void executeWithEffectiveTimestampTooFarInThePast() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
-        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
+        when(this.action.getActions()).thenReturn(new HashSet<>(Collections.singletonList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
@@ -496,7 +495,7 @@ public class DeviceLifeCycleServiceImplTest {
         StateTimeSlice timeSlice = mock(StateTimeSlice.class);
         Instant timeSliceStart = effectiveTimeStamp.minus(8, ChronoUnit.DAYS);
         when(timeSlice.getPeriod()).thenReturn(Range.atLeast(timeSliceStart));
-        when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
+        when(stateTimeline.getSlices()).thenReturn(Collections.singletonList(timeSlice));
         when(this.device.getStateTimeline()).thenReturn(stateTimeline);
 
         // Business method
@@ -508,7 +507,7 @@ public class DeviceLifeCycleServiceImplTest {
     @Test(expected = EffectiveTimestampNotInRangeException.class)
     public void executeWithEffectiveTimestampTooFarInTheFuture() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
-        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
+        when(this.action.getActions()).thenReturn(new HashSet<>(Collections.singletonList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
@@ -526,7 +525,7 @@ public class DeviceLifeCycleServiceImplTest {
     @Test(expected = EffectiveTimestampNotAfterLastStateChangeException.class)
     public void executeWithEffectiveTimestampBeforeLastStateChange() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
-        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
+        when(this.action.getActions()).thenReturn(new HashSet<>(Collections.singletonList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
@@ -537,7 +536,7 @@ public class DeviceLifeCycleServiceImplTest {
         StateTimeSlice timeSlice = mock(StateTimeSlice.class);
         Instant timeSliceStart = Instant.ofEpochMilli(60000L);
         when(timeSlice.getPeriod()).thenReturn(Range.atLeast(timeSliceStart));
-        when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
+        when(stateTimeline.getSlices()).thenReturn(Collections.singletonList(timeSlice));
         when(this.device.getStateTimeline()).thenReturn(stateTimeline);
 
         // Business method
@@ -549,7 +548,7 @@ public class DeviceLifeCycleServiceImplTest {
     @Test(expected = EffectiveTimestampNotAfterLastStateChangeException.class)
     public void executeWithEffectiveTimestampExactlyOnLastStateChange() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
-        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
+        when(this.action.getActions()).thenReturn(new HashSet<>(Collections.singletonList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
@@ -560,7 +559,7 @@ public class DeviceLifeCycleServiceImplTest {
         StateTimeSlice timeSlice = mock(StateTimeSlice.class);
         Instant timeSliceStart = Instant.ofEpochMilli(60000L);
         when(timeSlice.getPeriod()).thenReturn(Range.atLeast(timeSliceStart));
-        when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
+        when(stateTimeline.getSlices()).thenReturn(Collections.singletonList(timeSlice));
         when(this.device.getStateTimeline()).thenReturn(stateTimeline);
 
         // Business method
@@ -572,7 +571,7 @@ public class DeviceLifeCycleServiceImplTest {
     @Test(expected = EffectiveTimestampNotInRangeException.class)
     public void executeWithEffectiveTimestampAfterLastStateChangeButNotInRange() {
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
-        when(this.action.getActions()).thenReturn(new HashSet<>(Arrays.asList(MicroAction.SET_LAST_READING)));
+        when(this.action.getActions()).thenReturn(new HashSet<>(Collections.singletonList(MicroAction.SET_LAST_READING)));
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
         ServerMicroAction setLastReading = mock(ServerMicroAction.class);
@@ -582,7 +581,7 @@ public class DeviceLifeCycleServiceImplTest {
         StateTimeline stateTimeline = mock(StateTimeline.class);
         StateTimeSlice timeSlice = mock(StateTimeSlice.class);
         when(timeSlice.getPeriod()).thenReturn(Range.atLeast(lastStateChange));
-        when(stateTimeline.getSlices()).thenReturn(Arrays.asList(timeSlice));
+        when(stateTimeline.getSlices()).thenReturn(Collections.singletonList(timeSlice));
         when(this.device.getStateTimeline()).thenReturn(stateTimeline);
 
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(lastStateChange.plus(1, ChronoUnit.DAYS));
@@ -708,7 +707,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.user.hasPrivilege("MDC", allowed)).thenReturn(true);
         AuthorizedBusinessProcessAction action = mock(AuthorizedBusinessProcessAction.class);
         when(action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
-        List<AuthorizedAction> actions = Arrays.asList(action);
+        List<AuthorizedAction> actions = Collections.singletonList(action);
         when(this.lifeCycle.getAuthorizedActions(any(State.class))).thenReturn(actions);
 
         // Business method
@@ -838,11 +837,11 @@ public class DeviceLifeCycleServiceImplTest {
     public static class NoTranslation implements NlsMessageFormat {
         private final String defaultFormat;
 
-        public NoTranslation(TranslationKey translationKey) {
+        NoTranslation(TranslationKey translationKey) {
             this.defaultFormat = translationKey.getKey();
         }
 
-        public NoTranslation(MessageSeed messageSeed) {
+        NoTranslation(MessageSeed messageSeed) {
             this.defaultFormat = messageSeed.getKey();
         }
 
@@ -860,9 +859,9 @@ public class DeviceLifeCycleServiceImplTest {
 
     public static class TranslationArgumentsOnly implements NlsMessageFormat {
 
-        public TranslationArgumentsOnly(TranslationKey translationKey) {}
+        TranslationArgumentsOnly(TranslationKey translationKey) {}
 
-        public TranslationArgumentsOnly(MessageSeed messageSeed) {}
+        TranslationArgumentsOnly(MessageSeed messageSeed) {}
 
         @Override
         public String format(Object... args) {
