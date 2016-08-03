@@ -200,6 +200,7 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
         actionTypesStore.load(function () {
             me.down('#no-actions-displayfield').setVisible(!actionTypesStore.count());
             me.down('#actionType').setVisible(actionTypesStore.count());
+            me.down('#actionOperation').setDisabled(!actionTypesStore.count());
             me.setLoading(false);
         });
         Ext.resumeLayouts(true);
