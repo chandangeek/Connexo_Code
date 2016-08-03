@@ -60,6 +60,7 @@ public class DataLoggerReferenceImpl extends AbstractPhysicalGatewayReferenceImp
         return this;
     }
 
+    @Override
     public boolean addDataLoggerChannelUsage(Channel slaveChannel, Channel dataLoggerChannel) {
         return dataLoggerChannelUsages.add(new DataLoggerChannelUsageImpl().createFor(this, slaveChannel, dataLoggerChannel));
     }

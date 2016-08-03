@@ -524,21 +524,21 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             // if we don't have a consecutive 'range', then add a timeLine entry for the original 'dataLoggerDataSource
             if (lastListItem.isPresent()) {
                 if ((!lastListItem.get().getLast().lowerEndpoint().equals(dataLoggerChannelUsage.getRange().upperEndpoint()))) {
-                    timeLine.add(Pair.of(dataLoggerDataSource, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
+                    timeLine.add(Pair.of(dataLoggerDataSource, Range.openClosed(dataLoggerChannelUsage.getRange().upperEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
                 }
             } else { // we need to add the first item
                 if (!range.hasUpperBound() && dataLoggerChannelUsage.getRange().hasUpperBound()) {
                     timeLine.add(Pair.of(dataLoggerDataSource, Range.atLeast(dataLoggerChannelUsage.getRange().upperEndpoint())));
                 } else if (range.hasUpperBound() && dataLoggerChannelUsage.getRange().hasUpperBound() && range.upperEndpoint()
                         .isAfter(dataLoggerChannelUsage.getRange().upperEndpoint())) { // the end of the range is larger then the last linked slave
-                    timeLine.add(Pair.of(dataLoggerDataSource, Range.closedOpen(dataLoggerChannelUsage.getRange().upperEndpoint(), range.upperEndpoint())));
+                    timeLine.add(Pair.of(dataLoggerDataSource, Range.openClosed(dataLoggerChannelUsage.getRange().upperEndpoint(), range.upperEndpoint())));
                 }
             }
             slaveItem.apply(dataLoggerChannelUsage).ifPresent(slaveChannel -> timeLine.add(Pair.of(slaveChannel, getLowerBoundClippedRange(dataLoggerChannelUsage.getRange(), range))));
         });
         Optional<Pair<T, Range<Instant>>> lastListItem = getLastListItem(timeLine);
         if (lastListItem.isPresent() && range.lowerEndpoint().isBefore(lastListItem.get().getLast().lowerEndpoint())) {
-            timeLine.add(Pair.of(dataLoggerDataSource, Range.closedOpen(range.lowerEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
+            timeLine.add(Pair.of(dataLoggerDataSource, Range.openClosed(range.lowerEndpoint(), lastListItem.get().getLast().lowerEndpoint())));
         }
     }
 
@@ -560,7 +560,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             upperEndPoint = requestedRange.upperEndpoint();
         }
         if (upperEndPoint != null) {
-            return Range.closedOpen(lowerEndPoint, upperEndPoint);
+            return Range.openClosed(lowerEndPoint, upperEndPoint);
         } else {
             return Range.atLeast(lowerEndPoint);
         }
