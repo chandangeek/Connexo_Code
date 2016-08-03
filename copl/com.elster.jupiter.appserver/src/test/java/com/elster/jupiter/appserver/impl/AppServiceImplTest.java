@@ -26,6 +26,7 @@ import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.tasks.TaskService;
@@ -67,10 +68,13 @@ import org.mockito.stubbing.Answer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -278,6 +282,47 @@ public class AppServiceImplTest {
             arrivalLatch.await(); // wait until receive() blocks
 
             verify(subscriberSpec).receive();
+        } finally {
+            subscriberSpec.cancel(); // unblock the receive();
+        }
+    }
+
+    @Test
+    public void testActivateActiveAppServerDeploysWebServices() throws InterruptedException, SQLException {
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
+        when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
+        when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
+        EndPointConfiguration endPoint = mock(EndPointConfiguration.class);
+        when(endPoint.isActive()).thenReturn(true);
+        when(appServer.supportedEndPoints()).thenReturn(Collections.singletonList(endPoint));
+
+        try {
+            appService.activate(context);
+
+            arrivalLatch.await(); // wait until receive() blocks
+
+            verify(webServicesService, times(1)).publishEndPoint(anyObject());
+        } finally {
+            subscriberSpec.cancel(); // unblock the receive();
+        }
+    }
+
+    @Test
+    public void testActivateInactiveAppServerDoesNotDeployWebServices() throws InterruptedException, SQLException {
+        when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
+        when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));
+        when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.of(subscriberSpec));
+        when(appServer.isActive()).thenReturn(false);
+        EndPointConfiguration endPoint = mock(EndPointConfiguration.class);
+        when(endPoint.isActive()).thenReturn(true);
+        when(appServer.supportedEndPoints()).thenReturn(Collections.singletonList(endPoint));
+
+        try {
+            appService.activate(context);
+
+            arrivalLatch.await(); // wait until receive() blocks
+
+            verify(webServicesService, never()).publishEndPoint(anyObject());
         } finally {
             subscriberSpec.cancel(); // unblock the receive();
         }

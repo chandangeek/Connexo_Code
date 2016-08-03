@@ -273,14 +273,14 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     }
 
     private void launchWebServices() {
-        Optional<AppServer> appServer = this.getAppServer();
-        if (appServer.isPresent()) {
-            appServer.get()
-                    .supportedEndPoints()
-                    .stream()
-                    .filter(EndPointConfiguration::isActive)
-                    .forEach(webServicesService::publishEndPoint);
-        }
+        this.getAppServer().ifPresent(aps -> {
+            if (aps.isActive()) {
+                aps.supportedEndPoints()
+                        .stream()
+                        .filter(EndPointConfiguration::isActive)
+                        .forEach(webServicesService::publishEndPoint);
+            }
+        });
     }
 
     private void serveImportSchedule(ImportSchedule importSchedule) {
