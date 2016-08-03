@@ -1,5 +1,9 @@
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.fsm.CurrentStateExtractor;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.State;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -9,18 +13,12 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.impl.events.DeviceTopologyChangedEvent;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 
-import com.elster.jupiter.events.*;
-import com.elster.jupiter.fsm.CurrentStateExtractor;
-import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.State;
-
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -78,7 +76,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(this.state.getFiniteStateMachine()).thenReturn(this.finiteStateMachine);
         when(this.state.getName()).thenReturn(STATE_NAME);
         when(this.finiteStateMachine.getInitialState()).thenReturn(this.state);
-        when(this.finiteStateMachine.getStates()).thenReturn(Arrays.asList(this.state));
+        when(this.finiteStateMachine.getStates()).thenReturn(Collections.singletonList(this.state));
         when(this.finiteStateMachine.getState(anyString())).thenReturn(Optional.empty());
         when(this.finiteStateMachine.getState(STATE_NAME)).thenReturn(Optional.of(this.state));
         when(this.otherFiniteStateMachine.getId()).thenReturn(FINITE_STATE_MACHINE_ID + 1);
@@ -86,7 +84,7 @@ public class DeviceLifeCycleEventSupportTest {
         when(this.otherState.getFiniteStateMachine()).thenReturn(this.otherFiniteStateMachine);
         when(this.otherState.getName()).thenReturn(STATE_NAME);
         when(this.otherFiniteStateMachine.getInitialState()).thenReturn(this.otherState);
-        when(this.otherFiniteStateMachine.getStates()).thenReturn(Arrays.asList(this.otherState));
+        when(this.otherFiniteStateMachine.getStates()).thenReturn(Collections.singletonList(this.otherState));
         when(this.otherFiniteStateMachine.getState(anyString())).thenReturn(Optional.empty());
         when(this.otherFiniteStateMachine.getState(STATE_NAME)).thenReturn(Optional.of(this.otherState));
         when(this.device.getId()).thenReturn(DEVICE_ID);
@@ -163,12 +161,13 @@ public class DeviceLifeCycleEventSupportTest {
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(DEVICE_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
     @Test
     public void extractFromDeviceConnectionFailureEventWithDeletedDevice() {
-        when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.<Device>empty());
+        when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
         when(eventType.getTopic()).thenReturn(EventType.DEVICE_CONNECTION_FAILURE.topic());
         LocalEvent localEvent = mock(LocalEvent.class);
@@ -235,12 +234,13 @@ public class DeviceLifeCycleEventSupportTest {
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(DEVICE_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
     @Test
     public void extractFromDeviceConnectionCompletionEventWithDeletedDevice() {
-        when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.<Device>empty());
+        when(this.deviceService.findDeviceById(anyLong())).thenReturn(Optional.empty());
         com.elster.jupiter.events.EventType eventType = mock(com.elster.jupiter.events.EventType.class);
         when(eventType.getTopic()).thenReturn(EventType.DEVICE_CONNECTION_COMPLETION.topic());
         LocalEvent localEvent = mock(LocalEvent.class);
@@ -303,6 +303,7 @@ public class DeviceLifeCycleEventSupportTest {
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(DEVICE_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
