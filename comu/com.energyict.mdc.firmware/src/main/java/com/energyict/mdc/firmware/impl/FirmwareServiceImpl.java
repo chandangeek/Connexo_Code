@@ -329,6 +329,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
+    public List<FirmwareCampaign> findFirmwareCampaigns(DeviceType deviceType) {
+        return this.dataModel.mapper(FirmwareCampaign.class).find(FirmwareCampaignImpl.Fields.DEVICE_TYPE.fieldName(), deviceType);
+    }
+
+    @Override
     public FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup) {
         return dataModel.getInstance(FirmwareCampaignImpl.class).init(deviceType, endDeviceGroup);
     }

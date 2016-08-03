@@ -5,8 +5,8 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     FWC_FIRMWAREVERSION {
@@ -33,7 +34,13 @@ public enum TableSpecs {
             table.column("FIRMWAREFILE").blob().map(FirmwareVersionImpl.Fields.FIRMWAREFILE.fieldName()).add();
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWARE").on(idColumn).add();
-            table.foreignKey("FWC_FK_DEVICETYPE").on(deviceTypeColumn).map(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName()).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
+            table
+                .foreignKey("FWC_FK_DEVICETYPE")
+                .on(deviceTypeColumn)
+                .references(DeviceType.class)
+                .map(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName())
+                .onDelete(DeleteRule.CASCADE)
+                .add();
             table.unique("FWC_UK_VERSIONTYPE").on(firmwareVersion, firmwareType, deviceTypeColumn).add();
         }
     },
@@ -47,9 +54,15 @@ public enum TableSpecs {
             table.column("INSTALL").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.INSTALL.fieldName()).add();
             table.column("ACTIVATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.ACTIVATE.fieldName()).add();
             table.column("ACTIVATEONDATE").type("char(1)").conversion(ColumnConversion.CHAR2BOOLEAN).map(FirmwareManagementOptionsImpl.Fields.ACTIVATEONDATE.fieldName()).add();
+            table.setJournalTableName("FWC_FIRMWAREMNGMNTOPTIONSJRNL").since(version(10, 2));
             table.addAuditColumns();
             table.primaryKey("FWC_PK_FIRMWAREMGTOPTIONS").on(deviceTypeColumn).add();
-            table.foreignKey("FWC_OPTIONS_FK_DEVICETYPE").on(deviceTypeColumn).map(FirmwareManagementOptionsImpl.Fields.DEVICETYPE.fieldName()).references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").onDelete(DeleteRule.CASCADE).add();
+            table
+                .foreignKey("FWC_OPTIONS_FK_DEVICETYPE")
+                .on(deviceTypeColumn)
+                .references(DeviceType.class)
+                .map(FirmwareManagementOptionsImpl.Fields.DEVICETYPE.fieldName())
+                .add();
         }
     },
 
@@ -63,10 +76,22 @@ public enum TableSpecs {
             Column firmwareVersionColumn = table.column("FIRMWAREVERSION").number().notNull().add();
             table.column("LASTCHECKED").number().map("lastChecked").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.addIntervalColumns("interval");
-            table.addAuditColumns();
+            table.addAuditColumns().forEach(column -> column.upTo(version(10, 2)));
             table.primaryKey("FWC_PK_ACTIVATEDVERSION").on(idColumn).add();
-            table.foreignKey("FWC_ACTIVATED_FK_DEVICE").on(deviceColumn).map("device").references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").onDelete(DeleteRule.CASCADE).add();
-            table.foreignKey("FWC_ACTIVATED_FK_FIRMWARE").references(FWC_FIRMWAREVERSION.name()).on(firmwareVersionColumn).map("firmwareVersion").onDelete(DeleteRule.CASCADE).add();
+            table
+                .foreignKey("FWC_ACTIVATED_FK_DEVICE")
+                .on(deviceColumn)
+                .map("device")
+                .references(Device.class)
+                .onDelete(DeleteRule.CASCADE)
+                .add();
+            table
+                .foreignKey("FWC_ACTIVATED_FK_FIRMWARE")
+                .on(firmwareVersionColumn)
+                .references(FWC_FIRMWAREVERSION.name())
+                .map("firmwareVersion")
+                .onDelete(DeleteRule.CASCADE)
+                .add();
         }
     },
 
@@ -81,10 +106,22 @@ public enum TableSpecs {
             table.column("LASTCHECKED").number().map("lastChecked").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("ACTIVATEDATE").number().map("activateDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.addIntervalColumns("interval");
-            table.addAuditColumns();
+            table.addAuditColumns().forEach(column -> column.upTo(version(10, 2)));
             table.primaryKey("FWC_PK_PASSIVEFIRMWAREVERSION").on(idColumn).add();
-            table.foreignKey("FWC_PASSIVE_FK_DEVICE").on(deviceColumn).map("device").references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE").onDelete(DeleteRule.CASCADE).add();
-            table.foreignKey("FWC_PASSIVE_FK_FIRMWARE").references(FWC_FIRMWAREVERSION.name()).on(firmwareVersionColumn).map("firmwareVersion").onDelete(DeleteRule.CASCADE).add();
+            table
+                .foreignKey("FWC_PASSIVE_FK_DEVICE")
+                .on(deviceColumn)
+                .references(Device.class)
+                .map("device")
+                .onDelete(DeleteRule.CASCADE)
+                .add();
+            table
+                .foreignKey("FWC_PASSIVE_FK_FIRMWARE")
+                .on(firmwareVersionColumn)
+                .references(FWC_FIRMWAREVERSION.name())
+                .map("firmwareVersion")
+                .onDelete(DeleteRule.CASCADE)
+                .add();
         }
     },
 
@@ -106,14 +143,14 @@ public enum TableSpecs {
             table.column("COMWINDOWEND").number().conversion(ColumnConversion.NUMBER2INT).map(FirmwareCampaignImpl.Fields.COMWINDOW_END.fieldName()).add();
             table.column("NROFDEVICES").number().map(FirmwareCampaignImpl.Fields.NROFDEVICES.fieldName()).conversion(ColumnConversion.NUMBER2INT).add();
 
+            table.setJournalTableName("FWC_CAMPAIGNJRNL").since(version(10, 2));
             table.addAuditColumns();
 
             table.unique("UQ_FWC_CAMPAIGN_NAME").on(name).add();
             table.foreignKey("FK_FWC_CAMPAIGN_TO_D_TYPE")
                     .on(deviceType)
-                    .references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE")
+                    .references(DeviceType.class)
                     .map(FirmwareCampaignImpl.Fields.DEVICE_TYPE.fieldName())
-                    .onDelete(DeleteRule.CASCADE)
                     .add();
             table.primaryKey("PK_FWC_CAMPAIGN").on(idColumn).add();
         }
@@ -142,7 +179,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_FWC_DEVICE_TO_DEVICE")
                     .on(device)
-                    .references(DeviceDataServices.COMPONENT_NAME, "DDC_DEVICE")
+                    .references(Device.class)
                     .map(DeviceInFirmwareCampaignImpl.Fields.DEVICE.fieldName())
                     .onDelete(DeleteRule.CASCADE)
                     .add();
@@ -160,11 +197,13 @@ public enum TableSpecs {
             Column key = table.column("KEY").varChar(NAME_LENGTH).map(FirmwareCampaignPropertyImpl.Fields.KEY.fieldName()).notNull().add();
             table.column("VALUE").varChar(DESCRIPTION_LENGTH).map(FirmwareCampaignPropertyImpl.Fields.VALUE.fieldName()).notNull().add();
 
+            table.setJournalTableName("FWC_CAMPAIGN_PROPSJRNL").since(version(10, 2));
+            table.addAuditColumns();
+
             table.foreignKey("FK_FWC_PROPS_TO_CAMPAIGN")
                     .on(campaign)
                     .references(FWC_CAMPAIGN.name())
                     .map(FirmwareCampaignPropertyImpl.Fields.CAMPAIGN.fieldName())
-                    .onDelete(DeleteRule.CASCADE)
                     .reverseMap(FirmwareCampaignImpl.Fields.PROPERTIES.fieldName())
                     .composition()
                     .add();

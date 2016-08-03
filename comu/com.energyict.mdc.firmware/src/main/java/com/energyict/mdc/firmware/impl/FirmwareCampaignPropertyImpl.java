@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
-public class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
+class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
 
     public enum Fields {
         CAMPAIGN ("campaign"),

@@ -126,6 +126,7 @@ public class InMemoryPersistence {
                 new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new DeviceLifeCycleConfigurationModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new TimeModule(),
@@ -146,7 +147,6 @@ public class InMemoryPersistence {
                 new MasterDataModule(),
                 new DeviceDataModule(),
                 new FirmwareModule(),
-                new KpiModule(),
                 new CalendarModule());
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {

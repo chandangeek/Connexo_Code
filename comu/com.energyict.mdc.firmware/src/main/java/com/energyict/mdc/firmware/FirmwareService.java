@@ -64,6 +64,7 @@ public interface FirmwareService {
     Optional<FirmwareCampaign> getFirmwareCampaignById(long id);
     Optional<FirmwareCampaign> findAndLockFirmwareCampaignByIdAndVersion(long id, long version);
     Finder<FirmwareCampaign> getFirmwareCampaigns();
+    List<FirmwareCampaign> findFirmwareCampaigns(DeviceType deviceType);
     FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup);
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);
     DevicesInFirmwareCampaignFilter filterForDevicesInFirmwareCampaign();
