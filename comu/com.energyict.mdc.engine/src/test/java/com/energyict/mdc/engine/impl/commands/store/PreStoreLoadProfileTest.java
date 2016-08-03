@@ -80,6 +80,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
     final Unit wattHours = Unit.get("Wh");
     private final ObisCode obisCodeActiveImport = ObisCode.fromString("1.0.1.8.0.255");
     private final ObisCode obisCodeActiveExport = ObisCode.fromString("1.0.2.8.0.255");
+    private final TimeDuration loadProfileInterval = TimeDuration.minutes(15);
 
     Date verificationTimeStamp = new DateTime(2015, 1, 1, 0, 0, 0, 0, DateTimeZone.UTC).toDate();
     Date currentTimeStamp = new DateTime(2014, 1, 13, 10, 0, 0, 0, DateTimeZone.UTC).toDate();
@@ -137,7 +138,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         RegisterType registerType1 = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours))
                 .get()).get();
         LoadProfileType loadProfileType = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("MyLoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Arrays.asList(registerType, registerType1));
+                .newLoadProfileType("MyLoadProfileType", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Arrays.asList(registerType, registerType1));
         loadProfileType.save();
         return loadProfileType;
     }
@@ -625,10 +626,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         RegisterType slave2RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours))
                 .get()).get();
         LoadProfileType loadProfileTypeSlave1 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave1", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Collections.singletonList(slave1RegisterType));
+                .newLoadProfileType("loadProfileTypeSlave1", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave1RegisterType));
         loadProfileTypeSlave1.save();
         LoadProfileType loadProfileTypeSlave2 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave2", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Collections.singletonList(slave2RegisterType));
+                .newLoadProfileType("loadProfileTypeSlave2", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave2RegisterType));
         loadProfileTypeSlave2.save();
 
         Device slave1 = this.slaveDeviceCreator
@@ -714,10 +715,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         RegisterType slave2RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours))
                 .get()).get();
         LoadProfileType loadProfileTypeSlave1 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave1", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Collections.singletonList(slave1RegisterType));
+                .newLoadProfileType("loadProfileTypeSlave1", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave1RegisterType));
         loadProfileTypeSlave1.save();
         LoadProfileType loadProfileTypeSlave2 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave2", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Collections.singletonList(slave2RegisterType));
+                .newLoadProfileType("loadProfileTypeSlave2", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave2RegisterType));
         loadProfileTypeSlave2.save();
 
         Device slave1 = this.slaveDeviceCreator
@@ -812,10 +813,10 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         RegisterType slave2RegisterType = getMasterDataService().findRegisterTypeByReadingType(getMeteringService().getReadingType(getMdcReadingTypeUtilService().getReadingTypeMridFrom(obisCodeActiveExport, kiloWattHours))
                 .get()).get();
         LoadProfileType loadProfileTypeSlave1 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave1", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Collections.singletonList(slave1RegisterType));
+                .newLoadProfileType("loadProfileTypeSlave1", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave1RegisterType));
         loadProfileTypeSlave1.save();
         LoadProfileType loadProfileTypeSlave2 = getInjector().getInstance(MasterDataService.class)
-                .newLoadProfileType("loadProfileTypeSlave2", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.minutes(15), Collections.singletonList(slave2RegisterType));
+                .newLoadProfileType("loadProfileTypeSlave2", ObisCode.fromString("1.0.99.1.0.255"), loadProfileInterval, Collections.singletonList(slave2RegisterType));
         loadProfileTypeSlave2.save();
 
         Device slave1 = this.slaveDeviceCreator
