@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Unique(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
-public final class RelativePeriodCategoryImpl extends EntityImpl implements RelativePeriodCategory {
+final class RelativePeriodCategoryImpl extends EntityImpl implements RelativePeriodCategory {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
@@ -23,7 +23,7 @@ public final class RelativePeriodCategoryImpl extends EntityImpl implements Rela
     private List<RelativePeriodCategoryUsage> relativePeriodCategoryUsages = new ArrayList<>();
 
     @Inject
-    public RelativePeriodCategoryImpl(DataModel dataModel, EventService eventService) {
+    RelativePeriodCategoryImpl(DataModel dataModel, EventService eventService) {
         super(dataModel, eventService);
     }
 

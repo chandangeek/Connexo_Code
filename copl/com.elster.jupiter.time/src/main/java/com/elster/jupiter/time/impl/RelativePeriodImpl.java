@@ -12,6 +12,7 @@ import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -26,7 +27,7 @@ import java.util.List;
 @Unique(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 @ValidateCategoryUsage(fields = "category", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
 @ValidateRelativeDateRange(fields = "to", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALID_DATE_RANGE + "}")
-public final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
+final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
@@ -38,7 +39,7 @@ public final class RelativePeriodImpl extends EntityImpl implements RelativePeri
     private transient boolean isCreatedByInstaller = false;
 
     @Inject
-    public RelativePeriodImpl(DataModel dataModel, EventService eventService) {
+    RelativePeriodImpl(DataModel dataModel, EventService eventService) {
         super(dataModel, eventService);
     }
 
@@ -137,7 +138,7 @@ public final class RelativePeriodImpl extends EntityImpl implements RelativePeri
         DiffList<RelativePeriodCategoryUsage> entryDiff = ArrayDiffList.fromOriginal(relativePeriodCategoryUsages);
         entryDiff.clear();
         List<RelativePeriodCategoryUsage> newCategories = new ArrayList<>();
-        categories.stream().forEach(category -> newCategories.add(new RelativePeriodCategoryUsage(this, category)));
+        categories.stream().forEach(category -> newCategories.add(new RelativePeriodCategoryUsageImpl(this, category)));
         entryDiff.addAll(newCategories);
         for (RelativePeriodCategoryUsage usage : entryDiff.getRemovals()) {
             removeRelativePeriodCategory(usage.getRelativePeriodCategory());
@@ -157,7 +158,7 @@ public final class RelativePeriodImpl extends EntityImpl implements RelativePeri
 
     @Override
     public void addRelativePeriodCategory(RelativePeriodCategory relativePeriodCategory) {
-        this.relativePeriodCategoryUsages.add(new RelativePeriodCategoryUsage(this, relativePeriodCategory));
+        this.relativePeriodCategoryUsages.add(new RelativePeriodCategoryUsageImpl(this, relativePeriodCategory));
     }
 
     @Override
@@ -187,4 +188,11 @@ public final class RelativePeriodImpl extends EntityImpl implements RelativePeri
     EventType deleted() {
         return EventType.RELATIVE_PERIOD_DELETED;
     }
+
+    @Override
+    protected void doDelete() {
+        this.relativePeriodCategoryUsages.clear();
+        super.doDelete();
+    }
+
 }
