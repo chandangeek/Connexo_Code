@@ -22,7 +22,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.store.measurementunits.Capacity',
         'Imt.usagepointmanagement.store.measurementunits.EstimationLoad',
         'Imt.usagepointmanagement.store.Purposes',
-        'Imt.usagepointmanagement.store.DataCompletion'
+        'Imt.usagepointmanagement.store.DataCompletion',
+        'Imt.usagepointmanagement.store.Periods'
     ],
 
     models: [
