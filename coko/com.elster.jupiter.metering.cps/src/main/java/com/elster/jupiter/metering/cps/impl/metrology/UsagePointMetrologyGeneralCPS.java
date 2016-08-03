@@ -28,8 +28,8 @@ public class UsagePointMetrologyGeneralCPS implements CustomPropertySet<UsagePoi
     public PropertySpecService propertySpecService;
     public Thesaurus thesaurus;
 
-    public static final String TABLE_NAME = "MTC_CPS_MTR_USAGEPOINT_GENERAL";
-    public static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_MTR_USAGEPOINT_GENERAL";
+    public static final String TABLE_NAME = "GNR_CPS_USAGEPOINT_GNRL";
+    public static final String FK_CPS_DEVICE_GENERAL = "FK_CPS_USAGEPOINT_GNRL";
     public static final String COMPONENT_NAME = "GNR";
 
     public UsagePointMetrologyGeneralCPS() {

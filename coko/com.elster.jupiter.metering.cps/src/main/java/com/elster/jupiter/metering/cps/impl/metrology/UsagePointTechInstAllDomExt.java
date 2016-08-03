@@ -1,17 +1,17 @@
 package com.elster.jupiter.metering.cps.impl.metrology;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.validation.constraints.Size;
 
-public class UsagePointTechInstAllDomExt implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointTechInstAllDomExt extends AbstractPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
     public enum Fields {
         DOMAIN {
             @Override
@@ -34,8 +34,6 @@ public class UsagePointTechInstAllDomExt implements PersistentDomainExtension<Us
     }
 
     Reference<UsagePoint> usagePoint = ValueReference.absent();
-    @IsPresent
-    Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String substation;
@@ -45,7 +43,7 @@ public class UsagePointTechInstAllDomExt implements PersistentDomainExtension<Us
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public String getSubstation() {

@@ -1,11 +1,11 @@
 package com.elster.jupiter.metering.cps.impl;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
@@ -13,7 +13,7 @@ import com.elster.jupiter.util.time.Interval;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class UsagePointGeneralDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointGeneralDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
     public enum Fields {
         DOMAIN {
             @Override
@@ -51,8 +51,6 @@ public class UsagePointGeneralDomainExtension implements PersistentDomainExtensi
     }
 
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
-    @IsPresent
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @NotNull(message = "{CannotBeNull}")
     private Boolean prepay;
@@ -70,7 +68,7 @@ public class UsagePointGeneralDomainExtension implements PersistentDomainExtensi
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public Boolean getPrepay() {
