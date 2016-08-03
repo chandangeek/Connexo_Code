@@ -2,6 +2,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
+import javax.inject.Inject;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 
@@ -11,11 +12,15 @@ import javax.ws.rs.core.FeatureContext;
  * not be used due to a Jersey bug (https://java.net/jira/browse/JERSEY-3074): we need to split output writing ourselves
  * because Jersey does not offer a hook to catch output before it gets compressed.
  */
-public class GzipFeature implements Feature {
+public class GZIPFeature implements Feature {
 
     private EndPointConfiguration endPointConfiguration;
 
-    public GzipFeature init(EndPointConfiguration endPointConfiguration) {
+    @Inject
+    public GZIPFeature() {
+    }
+
+    public GZIPFeature init(EndPointConfiguration endPointConfiguration) {
         this.endPointConfiguration = endPointConfiguration;
         return this;
     }

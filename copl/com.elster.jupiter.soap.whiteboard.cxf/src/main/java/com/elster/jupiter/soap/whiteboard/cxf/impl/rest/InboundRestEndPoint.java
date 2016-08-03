@@ -36,6 +36,9 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     private final String logDirectory;
     private final TransactionService transactionService;
     private final HttpService httpService;
+    private final Provider<AccessLogFeature> accessLogFeatureProvider;
+    private final Provider<GZIPFeature> gzipFeatureProvider;
+    private final Provider<TracingFeature> tracingFeatureProvider;
 
     private InboundRestEndPointProvider endPointProvider;
     private InboundEndPointConfiguration endPointConfiguration;
@@ -43,15 +46,12 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     private Application application;
 
     private String alias;
-    private final Provider<AccessLogFeature> accessLogFeatureProvider;
-    private final Provider<GzipFeature> gzipFeatureProvider;
-    private final Provider<TracingFeature> tracingFeatureProvider;
     private TracingFeature tracingFeature;
 
     @Inject
     public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService,
                                HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider,
-                               Provider<AccessLogFeature> accessLogFeatureProvider, Provider<GzipFeature> gzipFeatureProvider,
+                               Provider<AccessLogFeature> accessLogFeatureProvider, Provider<GZIPFeature> gzipFeatureProvider,
                                Provider<TracingFeature> tracingFeatureProvider) {
         this.logDirectory = logDirectory;
         this.transactionService = transactionService;
@@ -83,13 +83,11 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         secureConfig.register(RolesAllowedDynamicFeature.class);
         secureConfig.register(JsonMappingExceptionMapper.class);
         secureConfig.register(new TransactionWrapper(transactionService));
-//        secureConfig.register(urlRewriteFilter);
         tracingFeature = tracingFeatureProvider.get().init(logDirectory, endPointConfiguration);
         secureConfig.register(tracingFeature);
 
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
-//            HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container, threadPrincipalService), this);
             HttpContext httpContext = EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())
                     ? basicAuthenticationProvider.get().init(endPointConfiguration)
                     : new NoAuthentication();

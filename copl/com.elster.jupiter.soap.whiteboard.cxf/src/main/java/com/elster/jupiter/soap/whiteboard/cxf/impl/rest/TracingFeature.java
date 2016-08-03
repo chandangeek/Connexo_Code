@@ -3,6 +3,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl.rest;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 
+import com.google.inject.Inject;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.glassfish.jersey.filter.LoggingFilter;
 
@@ -25,6 +26,10 @@ public class TracingFeature implements Feature {
     private FileHandler fileHandler;
     private String logDirectory;
     private EndPointConfiguration endPointConfiguration;
+
+    @Inject
+    public TracingFeature() {
+    }
 
     public TracingFeature init(String logDirectory, EndPointConfiguration endPointConfiguration) {
         this.logDirectory = logDirectory;
