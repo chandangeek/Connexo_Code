@@ -208,6 +208,7 @@ public class OracleIntegrationPersistence {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new FiniteStateMachineModule(),
@@ -217,7 +218,6 @@ public class OracleIntegrationPersistence {
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TaskModule(),
-                new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
                 new SchedulingModule());

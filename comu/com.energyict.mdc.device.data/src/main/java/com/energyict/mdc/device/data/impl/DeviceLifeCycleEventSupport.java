@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+
 import org.osgi.service.component.annotations.Component;
 
 import java.util.EnumSet;
@@ -136,6 +137,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
             if (state.getFiniteStateMachine().getId() == finiteStateMachine.getId()) {
                 CurrentState currentState = new CurrentState();
                 currentState.sourceId = device.getmRID();
+                currentState.sourceType = Device.class.getName();
                 currentState.name = state.getName();
                 return Optional.of(currentState);
             }

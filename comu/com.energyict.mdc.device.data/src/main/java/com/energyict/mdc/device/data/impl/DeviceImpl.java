@@ -253,7 +253,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Provider<ScheduledComTaskExecutionImpl> scheduledComTaskExecutionProvider;
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     private final Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
-    private final Reference<DeviceEstimation> deviceEstimation = ValueReference.absent();
+    private final Reference<ServerDeviceEstimation> deviceEstimation = ValueReference.absent();
     @SuppressWarnings("unused")
     private long id;
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
@@ -680,12 +680,14 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         closeCurrentMeterActivation();
         this.obsoleteKoreDevice();
         this.clearPassiveCalendar();
+        this.deleteEstimation();
+        this.readingTypeObisCodeUsages.clear();
         this.getDataMapper().remove(this);
     }
 
     private void removeCustomProperties() {
         this.getDeviceType().getCustomPropertySets().forEach(this::removeCustomPropertiesFor);
-        this.getRegisters().stream()
+        this.getRegisters()
                 .forEach(register ->
                         this.getDeviceType()
                                 .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
@@ -3125,11 +3127,21 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public DeviceEstimation forEstimation() {
-        return deviceEstimation.orElseGet(() -> {
-            DeviceEstimation deviceEstimation = dataModel.getInstance(DeviceEstimationImpl.class).init(this, false);
-            this.deviceEstimation.set(deviceEstimation);
-            return deviceEstimation;
-        });
+        return this.ensureEstimationLoaded();
+    }
+
+    private ServerDeviceEstimation ensureEstimationLoaded() {
+        return deviceEstimation.orElseGet(this::loadAndSetDeviceEstimation);
+    }
+
+    private ServerDeviceEstimation loadAndSetDeviceEstimation() {
+        ServerDeviceEstimation deviceEstimation = dataModel.getInstance(DeviceEstimationImpl.class).init(this, false);
+        this.deviceEstimation.set(deviceEstimation);
+        return deviceEstimation;
+    }
+
+    private void deleteEstimation() {
+        this.ensureEstimationLoaded().delete();
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 
 import javax.inject.Inject;
@@ -17,14 +16,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class DeviceEstimationImpl implements DeviceEstimation {
-    
+class DeviceEstimationImpl implements ServerDeviceEstimation {
+
     public enum Fields {
         DEVICE("device"),
         ACTIVE("active"),
         ESTRULESETACTIVATIONS("estimationRuleSetActivations")
         ;
-        
+
         private final String javaFieldName;
 
         Fields(String javaFieldName) {
@@ -35,34 +34,35 @@ public class DeviceEstimationImpl implements DeviceEstimation {
             return javaFieldName;
         }
     }
-    
+
     private Reference<Device> device = ValueReference.absent();
     private boolean active = false;
     private List<DeviceEstimationRuleSetActivation> estimationRuleSetActivations = new ArrayList<>();
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
-    
+
     private final DataModel dataModel;
     private final EstimationService estimationService;
 
     @Inject
-    public DeviceEstimationImpl(DataModel dataModel, EstimationService estimationService) {
+    DeviceEstimationImpl(DataModel dataModel, EstimationService estimationService) {
         this.dataModel = dataModel;
         this.estimationService = estimationService;
     }
-    
-    DeviceEstimation init(Device device, boolean active) {
+
+    ServerDeviceEstimation init(Device device, boolean active) {
         this.device.set(device);
         this.active = active;
         return this;
     }
-    
+
     @Override
     public boolean isEstimationActive() {
         return active;
@@ -80,7 +80,7 @@ public class DeviceEstimationImpl implements DeviceEstimation {
             saveAndTouchParent();
         }
     }
-    
+
     @Override
     public void deactivateEstimation() {
         if (active) {
@@ -88,11 +88,11 @@ public class DeviceEstimationImpl implements DeviceEstimation {
             saveAndTouchParent();
         }
     }
-    
+
     @Override
     public List<DeviceEstimationRuleSetActivation> getEstimationRuleSetActivations() {
         List<EstimationRuleSet> ruleSetsOnDeviceConfig = device.get().getDeviceConfiguration().getEstimationRuleSets();
-        
+
         List<DeviceEstimationRuleSetActivation> returnList = ruleSetsOnDeviceConfig.stream()
                 .map(r -> Pair.of(r, findEstimationRuleSetActivation(r)))
                 .map(p -> p.getLast().orElseGet(() -> dataModel.getInstance(DeviceEstimationRuleSetActivationImpl.class).init(p.getFirst(), true, this)))//not saved intentionally
@@ -105,24 +105,24 @@ public class DeviceEstimationImpl implements DeviceEstimation {
         if (removed) {
             save();//don't touch parent because nothing has been changed, just the lists were synchronized
         }
-        
+
         return returnList;
     }
-    
+
     @Override
     public void activateEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
         applyEstimationRuleSet(estimationRuleSet, true);
     }
-    
+
     @Override
     public void deactivateEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
         applyEstimationRuleSet(estimationRuleSet, false);
     }
-    
+
     public EstimationService getEstimationService() {
         return estimationService;
     }
-    
+
     private void applyEstimationRuleSet(EstimationRuleSet estimationRuleSet, boolean active) {
         Optional<DeviceEstimationRuleSetActivation> ruleSetActivation = findEstimationRuleSetActivation(estimationRuleSet);
         if (ruleSetActivation.isPresent()) {
@@ -135,21 +135,34 @@ public class DeviceEstimationImpl implements DeviceEstimation {
             saveAndTouchParent();
         }
     }
-    
+
     private Optional<DeviceEstimationRuleSetActivation> findEstimationRuleSetActivation(EstimationRuleSet estimationRuleSet) {
         return estimationRuleSetActivations.stream().filter(er -> er.getEstimationRuleSet().getId() == estimationRuleSet.getId()).findAny();
     }
-    
+
     private void save() {
-        if (createTime != null) {
+        if (this.isPersistent()) {
             dataModel.update(this);
         } else {
             dataModel.persist(this);
         }
     }
-    
+
+    private boolean isPersistent() {
+        return createTime != null;
+    }
+
     private void saveAndTouchParent() {
         save();
         dataModel.touch(device.get());
     }
+
+    @Override
+    public void delete() {
+        this.estimationRuleSetActivations.clear();
+        if (isPersistent()) {
+            this.dataModel.remove(this);
+        }
+    }
+
 }

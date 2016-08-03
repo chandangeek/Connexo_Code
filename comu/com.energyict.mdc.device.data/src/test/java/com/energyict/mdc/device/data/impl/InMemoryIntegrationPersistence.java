@@ -67,6 +67,7 @@ import com.elster.jupiter.util.time.ExecutionTimerService;
 import com.elster.jupiter.util.time.impl.ExecutionTimerServiceImpl;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -188,6 +189,7 @@ public class InMemoryIntegrationPersistence {
     private BatchService batchService;
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
+    private DataValidationKpiService dataValidationKpiService;
     private FiniteStateMachineService finiteStateMachineService;
     private CalendarService calendarService;
     private ServiceCallService serviceCallService;
@@ -263,6 +265,7 @@ public class InMemoryIntegrationPersistence {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new TimeModule(),
@@ -272,7 +275,6 @@ public class InMemoryIntegrationPersistence {
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TaskModule(),
-                new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
                 new SchedulingModule(),
@@ -319,6 +321,7 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(SearchService.class).register(deviceSearchDomain);
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
+            this.dataValidationKpiService = injector.getInstance(DataValidationKpiService.class);
             this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             this.calendarService = injector.getInstance(CalendarService.class);
             initHeadEndInterface();
@@ -338,9 +341,9 @@ public class InMemoryIntegrationPersistence {
     }
 
     private void initializePrivileges() {
-        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources().stream()
+        new com.energyict.mdc.device.config.impl.Installer(dataModel, eventService, userService).getModuleResources()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
-        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), serviceCallService, customPropertySetService).getModuleResources().stream()
+        new Installer(dataModel, userService, eventService, injector.getInstance(MessageService.class), serviceCallService, customPropertySetService).getModuleResources()
                 .forEach(definition -> this.userService.saveResourceWithPrivileges(definition.getComponentName(), definition.getName(), definition.getDescription(), definition.getPrivilegeNames().stream().toArray(String[]::new)));
     }
 
@@ -608,6 +611,10 @@ public class InMemoryIntegrationPersistence {
 
     public DataCollectionKpiService getDataCollectionKpiService() {
         return dataCollectionKpiService;
+    }
+
+    public DataValidationKpiService getDataValidationKpiService(){
+        return dataValidationKpiService;
     }
 
 }

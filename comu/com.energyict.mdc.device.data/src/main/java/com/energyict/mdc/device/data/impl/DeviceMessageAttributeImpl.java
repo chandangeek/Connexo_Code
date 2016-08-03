@@ -23,7 +23,7 @@ import java.time.Instant;
  * Date: 10/29/14
  * Time: 2:59 PM
  */
-public class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribute> implements DeviceMessageAttribute {
+class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessageAttribute> implements DeviceMessageAttribute {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DEVICE_MESSAGE_IS_REQUIRED + "}")
     private Reference<DeviceMessage<Device>> deviceMessage = ValueReference.absent();
@@ -33,10 +33,12 @@ public class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessage
     private Object value;
     @Size(max= Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String stringValue = ""; // the string representation of the value
-    private String userName;
-    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     @Inject
     protected DeviceMessageAttributeImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
