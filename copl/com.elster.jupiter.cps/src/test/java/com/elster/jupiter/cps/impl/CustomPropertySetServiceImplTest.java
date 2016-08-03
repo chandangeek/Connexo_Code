@@ -459,6 +459,7 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setTransactionService(this.transactionService);
         testInstance.setUpgradeService(upgradeService);
         testInstance.setSearchService(searchService);
+        testInstance.setThreadPrincipalService(threadPrincipalService);
         when(this.customPropertySet.getId()).thenReturn("addCustomPropertySetsWhileActivating-nonversioned");
         when(this.versionedCustomPropertySet.getId()).thenReturn("addCustomPropertySetsWhileActivating-versioned");
         when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
