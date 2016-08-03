@@ -678,7 +678,7 @@ public enum IntervalLength {
         if (!period.hasUpperBound()) {
             throw new IllegalArgumentException("Cannot generate timeseries when end is not known");
         }
-        Stream.Builder<Instant> builder = Stream.<Instant>builder();
+        Stream.Builder<Instant> builder = Stream.builder();
         Instant current = period.lowerEndpoint();
         if (period.lowerBoundType().equals(BoundType.OPEN)) {
             current = this.addTo(current, zoneId);

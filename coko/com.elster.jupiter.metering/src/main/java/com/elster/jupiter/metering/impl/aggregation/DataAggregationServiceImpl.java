@@ -85,7 +85,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         this.getMeterActivationSets(usagePoint, clippedPeriod)
                 .forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
         if (deliverablesPerMeterActivation.isEmpty()) {
-            return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap());
+            return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap(), this.meteringService);
         } else {
             try {
                 return this.postProcess(
@@ -255,7 +255,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
     }
 
     private CalculatedMetrologyContractData postProcess(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
-        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, calculatedReadingRecords);
+        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, calculatedReadingRecords, this.meteringService);
     }
 
     private DataModel getDataModel() {

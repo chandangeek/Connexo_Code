@@ -84,6 +84,7 @@ final class TruncatedTimelineSqlBuilderFactory {
             this.sqlBuilder.append(this.intervalLength.toOracleTruncFormatModel());
             this.sqlBuilder.append("')");
         }
+
         void appendTruncateExpression() {
             this.sqlBuilder.append(this.sqlName);
         }
@@ -129,10 +130,11 @@ final class TruncatedTimelineSqlBuilderFactory {
         };
 
         abstract void appendValueTo(IntervalOperation operation, GasDayOptions gasDayOptions, SqlBuilder sqlBuilder);
-        void appendUnitTo(GasDayOptions gasDayOptions, SqlBuilder sqlBuilder) {
+        void appendUnitTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(this.name());
         }
     }
+
     private static class GasRelatedTruncatedTimelineSqlBuilder extends TruncatedTimelineSqlBuilderImpl {
         final GasDayOptions gasDayOptions;
 
@@ -166,7 +168,7 @@ final class TruncatedTimelineSqlBuilderFactory {
             this.sqlBuilder.append("INTERVAL '");
             field.appendValueTo(operation, this.gasDayOptions, this.sqlBuilder);
             this.sqlBuilder.append("' ");
-            field.appendUnitTo(this.gasDayOptions, this.sqlBuilder);
+            field.appendUnitTo(this.sqlBuilder);
         }
 
         @Override
