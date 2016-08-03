@@ -166,6 +166,15 @@ public class IntervalLengthAdditionTest {
     }
 
     @Test
+    public void testOneDayOnLastDayOfMonth() {
+        // Business method
+        Instant instant = IntervalLength.DAY1.addTo(Instant.ofEpochMilli(1472594400000L), testZoneId());  // In Europe/Brussels: 2016-08-31 00:00:00
+
+        // Asserts
+        assertThat(instant).isEqualTo(Instant.ofEpochMilli(1472680800000L));  // In Europe/Brussels: 2016-09-01 00:00:00
+    }
+
+    @Test
     public void testOneWeek() {
         // Business method
         Instant instant = IntervalLength.WEEK1.addTo(Instant.ofEpochMilli(1459807200000L), testZoneId());  // In Europe/Brussels: 2016-04-05 00:00:00
@@ -175,12 +184,39 @@ public class IntervalLengthAdditionTest {
     }
 
     @Test
+    public void testOneWeekInLastWeekOfYear() {
+        // Business method
+        Instant instant = IntervalLength.WEEK1.addTo(Instant.ofEpochMilli(1451343600000L), testZoneId());  // In Europe/Brussels: 2015-12-29 00:00:00
+
+        // Asserts
+        assertThat(instant).isEqualTo(Instant.ofEpochMilli(1451948400000L));  // In Europe/Brussels: 2016-01-05 00:00:00
+    }
+
+    @Test
     public void testOneMonth() {
         // Business method
         Instant instant = IntervalLength.MONTH1.addTo(Instant.ofEpochMilli(1459807200000L), testZoneId());  // In Europe/Brussels: 2016-04-05 00:00:00
 
         // Asserts
         assertThat(instant).isEqualTo(Instant.ofEpochMilli(1462399200000L));  // In Europe/Brussels: 2016-05-05 00:00:00
+    }
+
+    @Test
+    public void testOneMonthFromDecember() {
+        // Business method
+        Instant instant = IntervalLength.MONTH1.addTo(Instant.ofEpochMilli(1450134000000L), testZoneId());  // In Europe/Brussels: 2015-12-15 00:00:00
+
+        // Asserts
+        assertThat(instant).isEqualTo(Instant.ofEpochMilli(1452812400000L));  // In Europe/Brussels: 2016-01-15 00:00:00
+    }
+
+    @Test
+    public void testOneMonthOnLastDayOfYear() {
+        // Business method
+        Instant instant = IntervalLength.MONTH1.addTo(Instant.ofEpochMilli(1451516400000L), testZoneId());  // In Europe/Brussels: 2015-12-31 00:00:00
+
+        // Asserts
+        assertThat(instant).isEqualTo(Instant.ofEpochMilli(1454194800000L));  // In Europe/Brussels: 2016-01-31 00:00:00
     }
 
     @Test
