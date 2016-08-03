@@ -13,7 +13,7 @@ public class SubscriberExecutionSpecInfo {
 
     private SubscriberExecutionSpecInfo(SubscriberExecutionSpec subscriberExecutionSpec) {
         this.numberOfThreads = subscriberExecutionSpec.getThreadCount();
-        this.active = subscriberExecutionSpec.isActive();
+        this.active = subscriberExecutionSpec.isActive() && subscriberExecutionSpec.getAppServer().isActive();
         this.appServerName = subscriberExecutionSpec.getAppServer().getName();
     }
 
