@@ -5,10 +5,14 @@ Ext.define('Apr.model.Subscriber', {
         'subscriber', 'displayName', 'destination',
         {
             name: 'numberOfThreads',
-            type: 'int'
+            type: 'int',
+
+            persist: false
         },
         {
             name: 'active',
+
+            persist: false,
             type: 'string',
             mapping:  function (value) {
                 if (value === 0){
@@ -17,6 +21,10 @@ Ext.define('Apr.model.Subscriber', {
                     return Uni.I18n.translate('general.active', 'APR', 'Active');
                 }
             }
+        },
+        {
+            name: 'version',
+            persist: false
         }
     ]
 });

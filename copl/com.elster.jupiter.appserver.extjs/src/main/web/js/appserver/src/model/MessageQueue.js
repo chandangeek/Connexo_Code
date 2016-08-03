@@ -27,7 +27,9 @@ Ext.define('Apr.model.MessageQueue', {
                 }
             }
         },
-        'subscriberSpecInfos'
+        {
+            name: 'subscriberSpecInfos'
+        }
     ],
     hasMany: {
         model: 'Apr.model.Subscriber',
