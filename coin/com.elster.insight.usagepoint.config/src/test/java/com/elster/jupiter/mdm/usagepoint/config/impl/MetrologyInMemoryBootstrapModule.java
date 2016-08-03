@@ -9,6 +9,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
@@ -80,6 +81,7 @@ public class MetrologyInMemoryBootstrapModule {
                 new PubSubModule(),
                 new TransactionModule(printSql),
                 new NlsModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new MeteringGroupsModule(),
                 new TaskModule(),
