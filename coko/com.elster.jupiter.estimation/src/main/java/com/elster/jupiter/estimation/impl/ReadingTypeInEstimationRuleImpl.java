@@ -9,12 +9,21 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.Objects;
 
-public class ReadingTypeInEstimationRuleImpl implements ReadingTypeInEstimationRule {
+class ReadingTypeInEstimationRuleImpl implements ReadingTypeInEstimationRule {
 
 //    @ValidReadingType(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NO_SUCH_READINGTYPE + "}")
     private String readingTypeMRID;
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     private ReadingType readingType;
     private Reference<EstimationRule> rule = ValueReference.absent();

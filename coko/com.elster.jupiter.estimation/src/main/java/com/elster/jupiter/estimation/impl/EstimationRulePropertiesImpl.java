@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.PropertySpec;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Objects;
 
 class EstimationRulePropertiesImpl implements EstimationRuleProperties {
@@ -17,6 +18,12 @@ class EstimationRulePropertiesImpl implements EstimationRuleProperties {
     private transient PropertySpec propertySpec;
 
     private Reference<EstimationRule> rule = ValueReference.absent();
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     @Inject
     EstimationRulePropertiesImpl() {
