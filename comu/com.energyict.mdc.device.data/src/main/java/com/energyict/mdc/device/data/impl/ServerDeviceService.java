@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.config.AllowedCalendar;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -40,6 +41,15 @@ public interface ServerDeviceService extends DeviceService {
      * @return <code>true</code> iff there is at least one Device with overruling properties
      */
     boolean hasDevices(ProtocolDialectConfigurationProperties configurationProperties);
+
+    /**
+     * Tests if there are {@link Device}s that uses the given {@link AllowedCalendar}.
+     *
+     * @param allowedCalendar The AllowedCalendar
+     * @return <code>true</code> iff there is at least one Device that uses the AllowedCalendar
+     */
+    boolean hasDevices(AllowedCalendar allowedCalendar);
+
 
     /**
      * Counts the number of {@link Device}s that rely on the value
