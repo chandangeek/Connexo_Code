@@ -11,6 +11,7 @@ import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
+import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
@@ -58,6 +59,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class IssueDataValidationServiceImpl implements IssueDataValidationService, TranslationKeyProvider, MessageSeedProvider, IssueProvider {
 
     private volatile IssueService issueService;
+    private volatile IssueActionService issueActionService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
     private volatile MessageService messageService;
@@ -91,6 +93,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(IssueService.class).toInstance(issueService);
+                bind(IssueActionService.class).toInstance(issueActionService);
                 bind(IssueDataValidationService.class).toInstance(IssueDataValidationServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
@@ -170,9 +173,14 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         }
     }
 
+    public DataModel getDataModel() {
+        return this.dataModel;
+    }
+
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+        this.issueActionService = issueService.getIssueActionService();
     }
 
     @Reference

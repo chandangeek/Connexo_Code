@@ -78,7 +78,7 @@ import static org.mockito.Mockito.when;
 public class DataValidationIssueCreationRuleTemplateTest {
 
     private static final Instant fixedTime = LocalDateTime.of(2015, 6, 16, 0, 0).toInstant(ZoneOffset.UTC);
-    protected static InMemoryIntegrationPersistence inMemoryPersistence;
+    static InMemoryIntegrationPersistence inMemoryPersistence;
     @Rule
     public TestRule transactionalRule = new TransactionalRule(DataValidationIssueCreationRuleTemplateTest.getTransactionService());
 
@@ -110,7 +110,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
         inMemoryPersistence.cleanUpDataBase();
     }
 
-    public static TransactionService getTransactionService() {
+    static TransactionService getTransactionService() {
         return inMemoryPersistence.getTransactionService();
     }
 
@@ -327,8 +327,7 @@ public class DataValidationIssueCreationRuleTemplateTest {
 
     private DeviceType createDeviceType() {
         DeviceConfigurationService deviceConfigurationService = inMemoryPersistence.getService(DeviceConfigurationService.class);
-        DeviceType deviceType = deviceConfigurationService.newDeviceType("DeviceType", mock(DeviceProtocolPluggableClass.class, Mockito.RETURNS_DEEP_STUBS));
-        return deviceType;
+        return deviceConfigurationService.newDeviceType("DeviceType", mock(DeviceProtocolPluggableClass.class, Mockito.RETURNS_DEEP_STUBS));
     }
 
     private DeviceConfiguration createDeviceConfiguration(DeviceType deviceType, String name) {
