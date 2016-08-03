@@ -212,7 +212,7 @@ public class UsagePointResource {
 
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
         validateGeoCoordinates(validationBuilder, "extendedGeoCoordinates", info.extendedGeoCoordinates);
-        validateLocation(validationBuilder, "location", info.extendedLocation);
+        validateLocation(validationBuilder, info.extendedLocation);
         validationBuilder.validate();
 
         usagePoint.setSpatialCoordinates(usagePointInfoFactory.getGeoCoordinates(info));
@@ -225,7 +225,7 @@ public class UsagePointResource {
         info.techInfo.getUsagePointDetailBuilder(usagePoint, clock).create();
 
         UsagePointCustomPropertySetExtension extension = usagePoint.forCustomProperties();
-        info.customPropertySets.stream()
+        info.customPropertySets
                 .forEach(customPropertySetInfo -> {
                     UsagePointPropertySet propertySet = extension.getPropertySet(customPropertySetInfo.id);
                     propertySet.setValues(customPropertySetInfoFactory
@@ -404,7 +404,7 @@ public class UsagePointResource {
     public Response createUsagePoint(UsagePointInfo info, @QueryParam("validate") boolean validate, @QueryParam("step") long step, @QueryParam("customPropertySetId") long customPropertySetId) {
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
         validateGeoCoordinates(validationBuilder, "extendedGeoCoordinates", info.extendedGeoCoordinates);
-        validateLocation(validationBuilder, "location", info.extendedLocation);
+        validateLocation(validationBuilder, info.extendedLocation);
 
         validationBuilder.notEmpty(info.mRID, "mRID")
                 .notEmpty(info.serviceCategory, "serviceCategory")
@@ -460,7 +460,7 @@ public class UsagePointResource {
 
     private void validateGeoCoordinates(RestValidationBuilder validationBuilder, String fieldName, CoordinatesInfo geoCoordinates) {
         String spatialCoordinates = geoCoordinates.spatialCoordinates;
-        if (spatialCoordinates == null || spatialCoordinates.length() == 0 || !spatialCoordinates.contains(":")) {
+        if (Checks.is(spatialCoordinates).empty() || !spatialCoordinates.contains(":")) {
             return;
         }
         String[] parts = spatialCoordinates.split(":");
@@ -473,8 +473,7 @@ public class UsagePointResource {
             return;
         }
 
-        if (Arrays.asList(parts)
-                .stream()
+        if (Stream.of(parts)
                 .anyMatch(element -> element.split(",").length > 2
                         || element.split(".").length > 2)) {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_COORDINATES, fieldName));
@@ -496,11 +495,11 @@ public class UsagePointResource {
         }
     }
 
-    private void validateLocation(RestValidationBuilder validationBuilder, String fieldName, LocationInfo editLocation) {
+    private void validateLocation(RestValidationBuilder validationBuilder, LocationInfo editLocation) {
         if (editLocation.properties != null) {
             List<PropertyInfo> propertyInfos = Arrays.asList(editLocation.properties);
             for (PropertyInfo propertyInfo : propertyInfos) {
-                if (propertyInfo.required && ((propertyInfo.propertyValueInfo.value == null) || (propertyInfo.propertyValueInfo.value.toString().length() == 0))) {
+                if (propertyInfo.required && ((propertyInfo.propertyValueInfo.value == null) || (propertyInfo.propertyValueInfo.value.toString().isEmpty()))) {
                     validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, "properties." + propertyInfo.key));
                 }
             }
@@ -552,7 +551,6 @@ public class UsagePointResource {
                 DefaultState.WAITING);
 
         serviceCallService.findServiceCalls(usagePoint, states)
-                .stream()
                 .forEach(serviceCall -> serviceCallInfos.add(serviceCallInfoFactory.summarized(serviceCall)));
 
         return PagedInfoList.fromCompleteList("serviceCalls", serviceCallInfos, queryParameters);
@@ -563,7 +561,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("{mRID}/runningservicecalls/{id}")
     public Response cancelServiceCall(@PathParam("mRID") String mrid, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
-        if (info.state.id.equals("sclc.default.cancelled")) {
+        if ("sclc.default.cancelled".equals(info.state.id)) {
             serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
             return Response.status(Response.Status.ACCEPTED).build();
         }
@@ -715,7 +713,7 @@ public class UsagePointResource {
     public UsagePointOutputResource getUsagePointOutputResource() {
         return usagePointOutputResourceProvider.get();
     }
-        
+
     @GET
     @Path("/{mRID}/deliverables")
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
