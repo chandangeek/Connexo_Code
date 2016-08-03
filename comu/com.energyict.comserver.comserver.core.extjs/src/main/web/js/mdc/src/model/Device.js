@@ -3,7 +3,8 @@ Ext.define('Mdc.model.Device', {
     requires: [
         'Mdc.model.DeviceLabel',
         'Mdc.model.DeviceConnection',
-        'Mdc.model.DeviceCommunication'
+        'Mdc.model.DeviceCommunication',
+        'Mdc.model.DataLoggerSlaveDevice'
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
@@ -22,16 +23,24 @@ Ext.define('Mdc.model.Device', {
         {name: 'nbrOfDataCollectionIssues', type: 'number', useNull: true},
         {name: 'openDataValidationIssue', type: 'number', useNull: true},
         {name: 'gatewayType', type: 'string', useNull: true},
-        {name: 'creationTime', dateFormat: 'time', type: 'date', useNull: true},
+        {name: 'creationTime', type: 'number', useNull: true},
+        {name: 'linkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
+        {name: 'unlinkingTimeStamp', type: 'number', useNull: true}, // Only for a data logger slave device
+        {name: 'dataloggermRID', type: 'string', useNull: true}, // Only for a data logger slave device
         {name: 'isDirectlyAddressed', type: 'boolean'},
         {name: 'isGateway', type: 'boolean'},
+        {name: 'isDataLogger', type: 'boolean'},
+        {name: 'isDataLoggerSlave', type: 'boolean'},
         {name: 'hasLoadProfiles', type: 'boolean'},
         {name: 'hasLogBooks', type: 'boolean'},
         {name: 'hasRegisters', type: 'boolean'},
+        {name: 'hasValidationRules', type: 'boolean'},
+        {name: 'hasEstimationRules', type: 'boolean'},
         {name: 'usagePoint', type: 'string', useNull: true},
         {name: 'serviceCategory', type: 'string', useNull: true},
         {name: 'version', type: 'number', useNull: true},
-        {name: 'estimationStatus', defaultValue: null}
+        {name: 'estimationStatus', defaultValue: null},
+        {name: 'dataLoggerSlaveDevices', type: 'auto', defaultValue: null}
     ],
 
     associations: [
@@ -71,6 +80,13 @@ Ext.define('Mdc.model.Device', {
             storeConfig: {
                 pageSize: 5
             }
+        },
+        {
+            name: 'dataLoggerSlaveDevices',
+            type: 'hasMany',
+            model: 'Mdc.model.DataLoggerSlaveDevice',
+            associationKey: 'dataLoggerSlaveDevices',
+            foreignKey: 'dataLoggerSlaveDevices'
         }
     ],
 

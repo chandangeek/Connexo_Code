@@ -42,9 +42,26 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                                     flex:2
                                 },
                                 {
-                                    xtype: 'uni-actioncolumn',
+                                    xtype: 'actioncolumn',
                                     privileges: Mdc.privileges.DeviceType.admin,
-                                    items: 'Mdc.view.setup.devicetype.ActionMenu'
+                                    align: 'center',
+                                    items: [{
+                                        iconCls: 'uni-icon-delete',
+                                        tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
+                                        handler: function (grid, rowIndex, colIndex, item, e, record) {
+                                            var store = grid.getStore(),
+                                                gridPanel = grid.up(),
+                                                emptyMsg = gridPanel.up().down('displayfield');
+
+                                            this.fireEvent('removeLogbook', record);
+                                            if (!store.getCount()) {
+                                                Ext.suspendLayouts();
+                                                gridPanel.hide();
+                                                emptyMsg.show();
+                                                Ext.resumeLayouts(true);
+                                            }
+                                        }
+                                    }]
                                 }
                             ]
                         },
@@ -112,17 +129,17 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                         name: 'details',
                         frame: true,
                         hidden: true,
-                        tools: [
-                            {
-                                xtype: 'button',
-                                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                                iconCls: 'x-uni-action-iconD',
-                                privileges: Mdc.privileges.DeviceType.admin,
-                                menu: {
-                                    xtype: 'device-type-logbook-action-menu'
-                                }
-                            }
-                        ],
+                        //tools: [
+                        //    {
+                        //        xtype: 'button',
+                        //        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        //        iconCls: 'x-uni-action-iconD',
+                        //        privileges: Mdc.privileges.DeviceType.admin,
+                        //        menu: {
+                        //            xtype: 'device-type-logbook-action-menu'
+                        //        }
+                        //    }
+                        //],
                         items: [
                             {
                                 xtype: 'form',
