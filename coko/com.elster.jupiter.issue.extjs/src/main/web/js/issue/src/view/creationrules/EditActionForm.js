@@ -55,6 +55,15 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
                 }
             },
             {
+                xtype: 'displayfield',
+                itemId: 'no-actions-displayfield',
+                fieldLabel: Uni.I18n.translate('general.action', 'ISU', 'Action'),
+                value: Uni.I18n.translate('issueCreationRules.actions.noActionsDefined', 'ISU', 'No actions defined'),
+                fieldStyle: 'color: #eb5642',
+                required: true,
+                hidden: true
+            },
+            {
                 itemId: 'property-form',
                 xtype: 'property-form',
                 defaults: {
@@ -174,6 +183,7 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
             actionTypesStoreProxy = actionTypesStore.getProxy(),
             rule = Ext.getStore('Isu.store.Clipboard').get('issuesCreationRuleState');
 
+        Ext.suspendLayouts();
         me.down('[name=type]').reset();
         me.down('property-form').loadRecord(Ext.create('Isu.model.Action'));
         me.setLoading();
@@ -188,8 +198,11 @@ Ext.define('Isu.view.creationrules.EditActionForm', {
             actionTypesStoreProxy.setExtraParam('reason', rule.getReason().getId());
         } catch (e) {}
         actionTypesStore.load(function () {
+            me.down('#no-actions-displayfield').setVisible(!actionTypesStore.count());
+            me.down('#actionType').setVisible(actionTypesStore.count());
             me.setLoading(false);
         });
+        Ext.resumeLayouts(true);
     },
 
     onActionChange:  function (combo, newValue) {
