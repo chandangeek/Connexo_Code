@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.cps;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -12,7 +13,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
-public class RegisterTypeFiveDomainExtension implements PersistentDomainExtension<RegisterSpec> {
+public class RegisterTypeFiveDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<RegisterSpec> {
 
     public enum FieldNames {
         DOMAIN("registerSpec", "registerSpec"),
@@ -39,7 +40,6 @@ public class RegisterTypeFiveDomainExtension implements PersistentDomainExtensio
     }
 
     private Reference<RegisterSpec> registerSpec = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
     private BigDecimal device;
@@ -54,7 +54,7 @@ public class RegisterTypeFiveDomainExtension implements PersistentDomainExtensio
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public BigDecimal getDevice() {

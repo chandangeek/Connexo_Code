@@ -1,17 +1,17 @@
 package com.energyict.mdc.device.config.cps;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
-
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.data.Device;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
-public class DeviceTypeTwoDomainExtension implements PersistentDomainExtension<Device> {
+public class DeviceTypeTwoDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<Device> {
 
     public enum FieldNames {
         DOMAIN("device", "device"),
@@ -37,7 +37,6 @@ public class DeviceTypeTwoDomainExtension implements PersistentDomainExtension<D
     }
 
     private Reference<Device> device = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
     private BigDecimal testNumberTwo;
@@ -50,7 +49,7 @@ public class DeviceTypeTwoDomainExtension implements PersistentDomainExtension<D
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public boolean getTestBoolean() {

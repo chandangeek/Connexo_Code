@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.cps;
 
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -13,7 +14,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
-public class LoadProfileOneVersionedDomainExtension implements PersistentDomainExtension<ChannelSpec> {
+public class LoadProfileOneVersionedDomainExtension extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ChannelSpec> {
 
     public enum FieldNames {
         DOMAIN("channelSpec", "channelSpec"),
@@ -40,11 +41,9 @@ public class LoadProfileOneVersionedDomainExtension implements PersistentDomainE
     }
 
     private Reference<ChannelSpec> channelSpec = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "CannotBeNull")
     private BigDecimal device;
-    private Interval interval;
     @NotNull(groups = {Save.Create.class, Save.Update.class})
     private BigDecimal testEnumNumberA;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
@@ -56,7 +55,7 @@ public class LoadProfileOneVersionedDomainExtension implements PersistentDomainE
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public BigDecimal getDevice() {
@@ -68,11 +67,11 @@ public class LoadProfileOneVersionedDomainExtension implements PersistentDomainE
     }
 
     public Interval getInterval() {
-        return interval;
+        return super.getInterval();
     }
 
     public void setInterval(Interval interval) {
-        this.interval = interval;
+        super.setInterval(interval);
     }
 
     public boolean getTestBoolean() {

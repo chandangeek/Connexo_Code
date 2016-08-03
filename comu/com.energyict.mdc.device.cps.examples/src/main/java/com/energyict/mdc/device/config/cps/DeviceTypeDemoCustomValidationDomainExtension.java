@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.cps;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -8,11 +9,9 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.device.data.Device;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 
-public class DeviceTypeDemoCustomValidationDomainExtension implements PersistentDomainExtension<Device> {
+public class DeviceTypeDemoCustomValidationDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<Device> {
 
     public enum FieldNames {
         DOMAIN("device", "device"),
@@ -36,7 +35,6 @@ public class DeviceTypeDemoCustomValidationDomainExtension implements Persistent
     }
 
     private Reference<Device> device = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "FieldTooLong")
     private String meterMechanism;
@@ -46,7 +44,7 @@ public class DeviceTypeDemoCustomValidationDomainExtension implements Persistent
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public String getMeterMechanism() {
