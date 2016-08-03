@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.sync;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -44,8 +45,8 @@ public class SynchDeviceWithKoreForUsagePointChange extends AbstractSyncDeviceWi
     private final UserPreferencesService userPreferencesService;
     private final ThreadPrincipalService threadPrincipalService;
 
-    public SynchDeviceWithKoreForUsagePointChange(ServerDevice device, Instant start, UsagePoint usagePoint, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, UserPreferencesService userPreferencesService, ThreadPrincipalService threadPrincipalService) {
-        super(meteringService, readingTypeUtilService, (start == null ? device.getKoreHelper().getCurrentMeterActivation().get().getStart() : start));
+    public SynchDeviceWithKoreForUsagePointChange(ServerDevice device, Instant start, UsagePoint usagePoint, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, UserPreferencesService userPreferencesService, ThreadPrincipalService threadPrincipalService, EventService eventService) {
+        super(meteringService, readingTypeUtilService, eventService, (start == null ? device.getKoreHelper().getCurrentMeterActivation().get().getStart() : start));
         this.device = device;
         this.usagePoint = usagePoint;
         this.deviceConfigurationService = deviceConfigurationService;

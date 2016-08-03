@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.sync;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -31,8 +32,8 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
     private Function<Void, Meter.MeterConfigurationBuilder> meterConfigurationBuilderProvider;
 
     @Inject
-    public KoreMeterConfigurationUpdater(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock) {
-        super(meteringService, readingTypeUtilService, null);
+    public KoreMeterConfigurationUpdater(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, EventService eventService) {
+        super(meteringService, readingTypeUtilService, eventService, null);
         this.clock = clock;
     }
 

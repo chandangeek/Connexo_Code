@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.sync;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterConfiguration;
@@ -11,6 +12,7 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.ServerDevice;
 import com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -37,14 +39,16 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
 
     private final MeteringService meteringService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
+    private final EventService eventService;
 
     private Instant start;
     private ServerDevice device;
     private MultiplierType multiplierType;
 
-    AbstractSyncDeviceWithKoreMeter(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Instant start) {
+    AbstractSyncDeviceWithKoreMeter(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService, Instant start) {
         this.meteringService = meteringService;
         this.readingTypeUtilService = readingTypeUtilService;
+        this.eventService = eventService;
         this.start = generalizeDatesToMinutes(start);
         this.multiplierType = getDefaultMultiplierType();
     }
@@ -204,6 +208,11 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
         multiplier.ifPresent(m -> newMeterActivation.setMultiplier(multiplierType, m));
         // We need channels on the newMeterActivation;
         this.addKoreChannelsIfNecessary(newMeterActivation);
+        device.getKoreHelper().setCurrentMeterActivation(Optional.of(newMeterActivation));
+
+        // we need to create new channelReferences if applicable
+        this.eventService.postEvent(EventType.RESTARTED_METERACTIVATION.topic(), device);
+
         return newMeterActivation;
     }
 

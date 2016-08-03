@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.sync;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -19,8 +20,8 @@ public class SyncDeviceWithKoreForSimpleUpdate extends AbstractSyncDeviceWithKor
     private Optional<Location> location = Optional.empty();
     private Optional<SpatialCoordinates> spatialCoordinates = Optional.empty();
 
-    public SyncDeviceWithKoreForSimpleUpdate(DeviceImpl device, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(meteringService, readingTypeUtilService, null);
+    public SyncDeviceWithKoreForSimpleUpdate(DeviceImpl device, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService) {
+        super(meteringService, readingTypeUtilService, eventService, null);
         this.device = device;
     }
 

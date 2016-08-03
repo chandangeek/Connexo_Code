@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.sync;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
@@ -16,8 +17,8 @@ public class SynchNewDeviceWithKore extends AbstractSyncDeviceWithKoreMeter {
 
     private DeviceImpl device;
 
-    public SynchNewDeviceWithKore(DeviceImpl device, Optional<Instant> startDate, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock) {
-        super(meteringService, readingTypeUtilService, device.getCreateTime() == null ? clock.instant() : startDate.isPresent() ? startDate.get() : device.getCreateTime());
+    public SynchNewDeviceWithKore(DeviceImpl device, Optional<Instant> startDate, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, EventService eventService) {
+        super(meteringService, readingTypeUtilService, eventService, device.getCreateTime() == null ? clock.instant() : startDate.isPresent() ? startDate.get() : device.getCreateTime());
         this.device = device;
     }
 

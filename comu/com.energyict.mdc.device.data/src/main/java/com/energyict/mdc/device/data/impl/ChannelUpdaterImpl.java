@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
@@ -18,6 +19,7 @@ import java.time.Clock;
 public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
 
     private final Channel channel;
+    private final EventService eventService;
     private final MeteringService meteringService;
     private final MdcReadingTypeUtilService readingTypeUtilService;
     private final Clock clock;
@@ -26,11 +28,12 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
     private BigDecimal overruledOverflowValue;
     private ObisCode overruledObisCode;
 
-    ChannelUpdaterImpl(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, Channel channel) {
+    ChannelUpdaterImpl(MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, Channel channel, EventService eventService) {
         this.meteringService = meteringService;
         this.readingTypeUtilService = readingTypeUtilService;
         this.clock = clock;
         this.channel = channel;
+        this.eventService = eventService;
     }
 
     public ReadingType getReadingType() {
@@ -71,7 +74,7 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
      public void update() {
          DeviceImpl device = (DeviceImpl) channel.getDevice();
          if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null){
-             device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock).withChannelUpdater(this));
+             device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock, eventService).withChannelUpdater(this));
              device.executeSyncs();
          }
          if (this.overruledObisCode != null){

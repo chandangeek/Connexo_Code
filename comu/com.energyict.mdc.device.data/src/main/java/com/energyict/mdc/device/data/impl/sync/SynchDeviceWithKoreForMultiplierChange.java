@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.sync;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.energyict.mdc.device.data.impl.DeviceImpl;
@@ -18,8 +19,8 @@ public class SynchDeviceWithKoreForMultiplierChange extends AbstractSyncDeviceWi
     private ServerDevice device;
     private BigDecimal multiplier;
 
-    public SynchDeviceWithKoreForMultiplierChange(ServerDevice device, Instant start, BigDecimal multiplier, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService) {
-        super(meteringService, readingTypeUtilService, start);
+    public SynchDeviceWithKoreForMultiplierChange(ServerDevice device, Instant start, BigDecimal multiplier, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, EventService eventService) {
+        super(meteringService, readingTypeUtilService, eventService, start);
         this.device = device;
         this.multiplier = multiplier;
     }

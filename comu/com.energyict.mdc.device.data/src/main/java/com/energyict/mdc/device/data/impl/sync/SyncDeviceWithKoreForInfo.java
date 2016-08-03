@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.sync;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -26,8 +27,8 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
     @IsPresent
     private Optional<Instant> initialMeterActivationStartDate = Optional.empty();
 
-    public SyncDeviceWithKoreForInfo(DeviceImpl device, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock) {
-        super(meteringService, readingTypeUtilService, null);
+    public SyncDeviceWithKoreForInfo(DeviceImpl device, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, EventService eventService) {
+        super(meteringService, readingTypeUtilService, eventService, null);
         this.device = device;
         this.clock = clock;
     }
