@@ -38,9 +38,13 @@ public class IssueDataCollectionImpl implements IssueDataCollection {
 
     private long id;//do we need this id ? we have a reference to base issue instead...
     // Audit fields
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
 
     private final DataModel dataModel;

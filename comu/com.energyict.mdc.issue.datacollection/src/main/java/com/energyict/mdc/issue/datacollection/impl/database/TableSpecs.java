@@ -34,13 +34,11 @@ import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_FK_TO_COM_TASK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_FK_TO_CONNECTION_TASK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_FK_TO_ISSUE;
-import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_JRNL_TABLE_NAME;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_HISTORY_PK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_FK_TO_COM_SESSION;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_FK_TO_COM_TASK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_FK_TO_CONNECTION_TASK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_FK_TO_ISSUE;
-import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_JRNL_TABLE_NAME;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_OPEN_PK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_ISSUE_PK;
 import static com.energyict.mdc.issue.datacollection.impl.database.DatabaseConst.IDC_LAST_TRY;
@@ -52,7 +50,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<HistoricalIssueDataCollection> table = dataModel.addTable(name(), HistoricalIssueDataCollection.class);
             table.map(HistoricalIssueDataCollectionImpl.class);
-            table.setJournalTableName(IDC_ISSUE_HISTORY_JRNL_TABLE_NAME);
+            table.setJournalTableName("IDC_ISSUE_HISTORY_JRNL").upTo(version(10, 2));
             Column idColumn = table.column(IDC_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
 
             TableSpecs.TableBuilder.buildIssueTable(table, idColumn, "ISU_ISSUE_HISTORY", IDC_ISSUE_HISTORY_PK,
@@ -69,7 +67,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<OpenIssueDataCollection> table = dataModel.addTable(name(), OpenIssueDataCollection.class);
             table.map(OpenIssueDataCollectionImpl.class);
-            table.setJournalTableName(IDC_ISSUE_OPEN_JRNL_TABLE_NAME);
+            table.setJournalTableName("IDC_ISSUE_OPEN_JRNL").upTo(version(10, 2));
             Column idColumn = table.column(IDC_ID).map("id").number().conversion(NUMBER2LONG).notNull().add();
 
             TableSpecs.TableBuilder.buildIssueTable(table, idColumn, "ISU_ISSUE_OPEN", IDC_ISSUE_OPEN_PK,
