@@ -365,7 +365,7 @@ public class ChannelResource {
             List<ChannelDataInfo> infos = channelTimeLine.stream()
                     .flatMap(channelRangePair -> {
                         Channel channelWithData = channelRangePair.getFirst();
-                        List<LoadProfileReading> loadProfileReadings = channelWithData.getChannelData(channelRangePair.getLast());
+                        List<LoadProfileReading> loadProfileReadings = channelWithData.getChannelData(Interval.of(channelRangePair.getLast()).toOpenClosedRange());
                         return loadProfileReadings.stream()
                                 .map(loadProfileReading -> deviceDataInfoFactory.createChannelDataInfo(channelWithData, loadProfileReading, isValidationActive, deviceValidation, channel.equals(channelWithData) ? null : channelWithData
                                         .getDevice()));
