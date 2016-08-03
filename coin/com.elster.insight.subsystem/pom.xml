@@ -58,6 +58,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.usagepoint.data.rest</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.bpm.event</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
