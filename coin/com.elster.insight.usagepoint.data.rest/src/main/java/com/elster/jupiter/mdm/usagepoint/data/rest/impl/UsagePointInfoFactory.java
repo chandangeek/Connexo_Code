@@ -6,6 +6,7 @@ import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfoFactory;
 import com.elster.jupiter.metering.ElectricityDetail;
 import com.elster.jupiter.metering.GasDetail;
@@ -42,7 +43,6 @@ import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
 
 import javax.inject.Inject;
 import java.net.URL;
@@ -72,6 +72,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile License license;
     private volatile MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory;
+    private volatile LicenseService licenseService;
 
     public UsagePointInfoFactory() {
     }
@@ -85,7 +86,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                                  IssueService issueService,
                                  ThreadPrincipalService threadPrincipalService,
                                  LocationService locationService,
-                                 MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory) {
+                                 MetrologyConfigurationInfoFactory metrologyConfigurationInfoFactory,
+                                 LicenseService licenseService) {
         this();
         this.setClock(clock);
         this.setNlsService(nlsService);
@@ -95,6 +97,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.setServiceCallService(serviceCallService);
         this.setBpmService(bpmService);
         this.setIssueService(issueService);
+        this.setLicenseService(licenseService);
         this.metrologyConfigurationInfoFactory = metrologyConfigurationInfoFactory;
         activate();
     }
@@ -144,11 +147,9 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         this.locationService = locationService;
     }
 
-    @Reference(
-            target = "(com.elster.jupiter.license.application.key=INS)",
-            cardinality = ReferenceCardinality.OPTIONAL)
-    public void setLicense(License license) {
-        this.license = license;
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
     }
 
 
@@ -250,7 +251,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
 
     @Override
     public Class getDomainClass() {
-        if (!Optional.ofNullable(this.license).isPresent()) {
+        if (!licenseService.getLicenseForApplication("INS").isPresent()) {
             return EmptyDomain.class;
         }
         return UsagePoint.class;

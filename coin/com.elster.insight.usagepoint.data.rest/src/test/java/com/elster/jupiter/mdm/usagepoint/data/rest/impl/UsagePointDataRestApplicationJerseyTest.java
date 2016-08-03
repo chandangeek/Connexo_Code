@@ -16,6 +16,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
 import com.elster.jupiter.metering.LocationService;
@@ -101,6 +102,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     @Mock
     MetrologyConfigurationService metrologyConfigurationService;
     @Mock
+    LicenseService licenseService;
+    @Mock
     IssueService issueService;
     @Mock
     BpmService bpmService;
@@ -138,6 +141,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setServiceCallInfoFactory(serviceCallInfoFactory);
         application.setMetrologyConfigurationService(metrologyConfigurationService);
         application.setThreadPrincipalService(threadPrincipalService);
+        application.setLicenseService(licenseService);
         return application;
     }
 

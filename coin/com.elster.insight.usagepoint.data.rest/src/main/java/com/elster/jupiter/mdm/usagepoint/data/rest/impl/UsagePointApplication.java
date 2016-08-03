@@ -7,6 +7,7 @@ import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyConfigurationInfoFactory;
 import com.elster.jupiter.mdm.usagepoint.data.UsagePointDataService;
@@ -77,6 +78,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile DataAggregationService dataAggregationService;
     private volatile TimeService timeService;
+    private volatile LicenseService licenseService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -104,6 +106,11 @@ public class UsagePointApplication extends Application implements TranslationKey
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
                 .join(nlsService.getThesaurus(ValidationService.COMPONENTNAME, Layer.REST))
                 .join(nlsService.getThesaurus(UsagePointDataService.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    @Reference
+    public void setLicenseService(LicenseService licenseService) {
+        this.licenseService = licenseService;
     }
 
     @Override
@@ -256,6 +263,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(issueService).to(IssueService.class);
             bind(bpmService).to(BpmService.class);
+            bind(licenseService).to(LicenseService.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
