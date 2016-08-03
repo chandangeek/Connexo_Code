@@ -12,6 +12,7 @@ Ext.define('Cfg.controller.Main', {
         'Cfg.controller.history.EventType',
         'Cfg.controller.history.ValidationTask',
         'Cfg.controller.history.DataValidationKpis',
+        'Cfg.controller.DataValidationKpi',
         'Cfg.controller.Administration',
         'Cfg.controller.Validation',
         'Cfg.controller.EventType',
