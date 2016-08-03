@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.ami.servicecall;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-public class OnDemandReadServiceCallDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class OnDemandReadServiceCallDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
