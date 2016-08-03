@@ -101,7 +101,7 @@ class MeterActivationSetImpl implements MeterActivationSet {
                 return meterActivation.get().getMeter().get().getReadingQualities(range);
             }
         }
-        return new ArrayList();
+        return new ArrayList<>();
     }
 
     public boolean contains(Instant instant) {

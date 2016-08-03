@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -71,7 +72,6 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.Interval;
 
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -600,14 +600,10 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         }
     }
 
-    private static class AntennaDetails implements PersistentDomainExtension<UsagePoint> {
-        private Interval interval;
+    private static class AntennaDetails extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
         @SuppressWarnings("unused")
         @IsPresent
         private Reference<UsagePoint> usagePoint = ValueReference.absent();
-        @SuppressWarnings("unused")
-        @IsPresent
-        private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
         private BigDecimal antennaPower = BigDecimal.ZERO;
         private BigDecimal numberOfAntennas = BigDecimal.ONE;
 

@@ -36,6 +36,15 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
 
     private long id;
 
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
+
     @Inject
     public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
         super();
@@ -116,6 +125,10 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
                 .toString();
     }
 
+    public void prepareDelete() {
+        effectiveContracts.clear();
+    }
+
     @Override
     public Instant getStart() {
         return getRange().lowerEndpoint();
@@ -131,5 +144,4 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     public long getId() {
         return id;
     }
-
 }

@@ -161,6 +161,7 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
 
     @Override
     public void delete() {
+        persistedAttributes.clear();
         this.dataModel.mapper(ReadingTypeTemplate.class).remove(this);
     }
 
@@ -186,6 +187,9 @@ public class ReadingTypeTemplateImpl implements ReadingTypeTemplate, Persistence
             if (!this.attributes.isEmpty()) {
                 this.template.allAttributes.removeAll(this.attributes);
                 this.template.allAttributes.addAll(this.attributes);
+                this.template.persistedAttributes.stream()
+                        .map(ReadingTypeTemplateAttributeImpl.class::cast)
+                        .forEach(ReadingTypeTemplateAttributeImpl::prepareDelete);
                 this.template.persistedAttributes.removeAll(this.attributes);
                 ListIterator<ReadingTypeTemplateAttributeImpl> attrItr = this.attributes.listIterator();
                 while (attrItr.hasNext()) {

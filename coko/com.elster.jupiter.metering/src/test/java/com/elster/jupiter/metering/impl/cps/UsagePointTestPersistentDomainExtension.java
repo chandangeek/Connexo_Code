@@ -1,25 +1,21 @@
 package com.elster.jupiter.metering.impl.cps;
 
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
 
-public class UsagePointTestPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
+public class UsagePointTestPersistentDomainExtension extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<UsagePoint> {
 
     @IsPresent
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
-    @IsPresent
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
     @NotEmpty
     private String name;
     private boolean enhancedSupport;
-    private Interval interval;
 
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {

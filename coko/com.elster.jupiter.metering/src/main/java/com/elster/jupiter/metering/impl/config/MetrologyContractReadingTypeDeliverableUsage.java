@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.validation.ConstraintValidatorContext;
+import java.time.Instant;
 
 @SelfValid
 public class MetrologyContractReadingTypeDeliverableUsage implements SelfObjectValidator {
@@ -31,6 +32,15 @@ public class MetrologyContractReadingTypeDeliverableUsage implements SelfObjectV
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingTypeDeliverable> deliverable = ValueReference.absent();
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     MetrologyContractReadingTypeDeliverableUsage init(MetrologyContract metrologyContract, ReadingTypeDeliverable deliverable) {
         this.metrologyContract.set(metrologyContract);

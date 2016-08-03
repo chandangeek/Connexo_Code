@@ -16,7 +16,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +28,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
     private final Map<String, String> templateMap = templateMap();
     private volatile DataModel dataModel;
-    private String locationTemplate;
+    private String[] templateMembers;
 
     // For OSGi purposes
     public SearchLocationServiceImpl() {
@@ -59,7 +58,6 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 .put("#enum", "establishmentNumber")
                 .put("#addtl", "addressDetail")
                 .put("#zip", "zipCode")
-                .put("#locale", "locale")
                 .build();
     }
 
@@ -80,33 +78,23 @@ public class SearchLocationServiceImpl implements SearchLocationService {
     }
 
     private void ensureLocationTemplateInitialized() {
-        if (this.locationTemplate == null) {
-            this.locationTemplate = getAddressTemplate();
-        }
-    }
-
-    @Override
-    public Map<Long, String> findLocations(String locationPart) {
-        Map<Long, String> result = new HashMap<>();
-
+        String locationTemplate = getAddressTemplate();
         if (locationTemplate != null) {
 
             locationTemplate = locationTemplate.replace("\\r", "").replace("\\n", "")
                     .replace("\r", "").replace("\n", "")
                     .replace("\r\n", "").replace("\n\r", "");
-            String[] templateMembers = locationTemplate.split(",");
+            templateMembers = locationTemplate.split(",");
+        }
+    }
 
+    @Override
+    public Map<Long, String> findLocations(String inputLocation) {
+        Map<Long, String> result = new LinkedHashMap<>();
+
+        if (templateMembers != null) {
             SqlBuilder locationBuilder = new SqlBuilder();
-            locationBuilder.append("select * from (");
-            locationBuilder.append(" select min(LOCATIONID) LOCATIONID, COUNTRYCODE, COUNTRYNAME, ADMINISTRATIVEAREA, LOCALITY,");
-            locationBuilder.append("    SUBLOCALITY, STREETTYPE, STREETNAME, STREETNUMBER, ");
-            locationBuilder.append("    ESTABLISHMENTTYPE, ESTABLISHMENTNAME, ESTABLISHMENTNUMBER, ADDRESSDETAIL, ZIPCODE ");
-            locationBuilder.append(" from MTR_LOCATIONMEMBER ");
-            locationBuilder.append(this.getWhereClause(locationPart));
-            locationBuilder.append(" group by COUNTRYCODE, COUNTRYNAME, ADMINISTRATIVEAREA, LOCALITY, SUBLOCALITY, STREETTYPE, ");
-            locationBuilder.append("    STREETNAME, STREETNUMBER, ESTABLISHMENTTYPE, ESTABLISHMENTNAME, ESTABLISHMENTNUMBER, ");
-            locationBuilder.append("    ADDRESSDETAIL, ZIPCODE");
-            locationBuilder.append(") WHERE ROWNUM <=5");
+            locationBuilder.append(this.getQueryClause(inputLocation));
 
             try (Connection connection = dataModel.getConnection(false);
                  PreparedStatement statement = locationBuilder.prepare(connection)) {
@@ -143,52 +131,83 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                         (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    private String getWhereClause(String locationPart) {
-        if ((locationPart == null) || (locationPart.isEmpty())) {
-            return "";
+    private String getQueryClause(String inputLocation) {
+        if (inputLocation == null) {
+            inputLocation = "";
         }
 
-        String[] mapLocationPart = locationPart.split(",");
-        String[] mapTemplate = locationTemplate.split(",");
-        List<String> resultClause = new ArrayList<>();
+        String[] mapInputLocations = inputLocation.split("\\s+|,\\s*|;\\s*|\\.\\s*");
 
-        //mapTemplate = Arrays.copyOfRange(mapTemplate, 1, mapTemplate.length);
 
-        for (int i = 0; i < mapLocationPart.length; i++) {
-            String part = mapLocationPart[i].trim();
-            String item = mapTemplate[i];
+        String selectClause = "MTR_LOCATIONMEMBER";
+        String orderByClauses = "";
+        String maxClauses = "";
+        Integer i = 0;
+        for (int j = 0; j < mapInputLocations.length; j++) {
+            String whenClause = "";
+            String mapInputLocation = mapInputLocations[i].replace("'", "''");
 
-            if (item.startsWith("#")) {
-                item = item.substring(1);
-            }
-            if (item.endsWith("#")) {
-                item = item.substring(0, item.length() - 1);
-            }
+            for (int k = 0; k < templateMembers.length; k++) {
+                String templateMember = templateMap.get(templateMembers[k]);
 
-            if ((i == mapLocationPart.length - 1) && (!locationPart.endsWith(","))) {
-                if (!part.isEmpty()) {
-                    resultClause.add(String.format("upper%s LIKE UPPER('%%%s%%')", templateMap.get("#" + item), part));
-                }
-            } else {
-                if (!part.isEmpty()) {
-                    resultClause.add(String.format("upper%s = UPPER('%s')", templateMap.get("#" + item), part));
+                if (templateMember != null) {
+                    whenClause += String.format(" WHEN UPPER%s = UPPER('%s') THEN %s ", templateMember, mapInputLocation, i * 3 + 1);
+                    whenClause += String.format(" WHEN UPPER%s LIKE UPPER('%s')||'%%' THEN %s ", templateMember, mapInputLocation, i * 3 + 2);
+                    whenClause += String.format(" WHEN UPPER%s LIKE '%%'|| UPPER('%s') ||'%%' THEN %s ", templateMember, mapInputLocation, i * 3 + 3);
+                    i++;
                 }
             }
+
+            selectClause = String.format(" SELECT MTR_LOCATIONMEMBER.*,  ( CASE %s ELSE 0 END ) as rank%s FROM (%s) MTR_LOCATIONMEMBER WHERE (%s) LIKE '%%' || UPPER('%s') || '%%' ",
+                    whenClause, j,
+                    selectClause,
+                    templateMap.entrySet().stream().map(entry -> "UPPER" + entry.getValue()).collect(Collectors.joining(" ||' '|| ")),
+                    mapInputLocation);
+
+            orderByClauses += (orderByClauses.length() == 0) ? " ORDER BY " : ", ";
+
+            orderByClauses += String.format(" rank%s ASC", j);
+            maxClauses += String.format(" max(rank%s) rank%s, ", j, j);
         }
 
-        String result = resultClause.stream().map(Object::toString).collect(Collectors.joining(" AND "));
-        if (!result.isEmpty()) {
-            return String.format(" WHERE %s", result);
-        }
-        return "";
+        selectClause = "SELECT * from " +
+                "   (SELECT max(locationid) locationid, " + maxClauses + " COUNTRYNAME," +
+                "                COUNTRYCODE," +
+                "                ADMINISTRATIVEAREA," +
+                "                LOCALITY," +
+                "                SUBLOCALITY," +
+                "                STREETTYPE," +
+                "                STREETNAME," +
+                "                STREETNUMBER," +
+                "                ESTABLISHMENTTYPE," +
+                "                ESTABLISHMENTNAME," +
+                "                ESTABLISHMENTNUMBER," +
+                "                ADDRESSDETAIL," +
+                "                ZIPCODE" +
+                " FROM (" + selectClause + ")" +
+                " GROUP BY COUNTRYNAME," +
+                "               COUNTRYCODE," +
+                "                ADMINISTRATIVEAREA," +
+                "                LOCALITY," +
+                "                SUBLOCALITY," +
+                "                STREETTYPE," +
+                "                STREETNAME," +
+                "                STREETNUMBER," +
+                "                ESTABLISHMENTTYPE," +
+                "                ESTABLISHMENTNAME," +
+                "                ESTABLISHMENTNUMBER," +
+                "                ADDRESSDETAIL," +
+                "                ZIPCODE" + orderByClauses +
+                "   ) WHERE rownum <=5 ";
+
+        return selectClause;
     }
 
     private String getAddressTemplate() {
         String template = "";
-        String mandatoryFields = "";
         SqlBuilder locationBuilder = new SqlBuilder();
 
-        locationBuilder.append("select LOCATIONTEMPLATE, MANDATORYFIELDS ");
+        locationBuilder.append(" select LOCATIONTEMPLATE, MANDATORYFIELDS ");
         locationBuilder.append(" from MTR_LOCATION_TEMPLATE ");
 
         try (Connection connection = dataModel.getConnection(false);
@@ -197,7 +216,6 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
                 while (resultSet.next()) {
                     template = resultSet.getString("LOCATIONTEMPLATE");
-                    mandatoryFields = resultSet.getString("MANDATORYFIELDS");
                 }
             }
         } catch (Exception e) {

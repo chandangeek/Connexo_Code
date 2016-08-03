@@ -180,12 +180,7 @@ public class DataAggregationCommands {
                     .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
                     .map(UsagePointMetrologyConfiguration.class::cast)
                     .orElseThrow(() -> new NoSuchElementException("No such metrology configuration"));
-            if (configuration instanceof UsagePointMetrologyConfiguration) {
-                UsagePointMetrologyConfiguration usagePointMetrologyConfiguration = (UsagePointMetrologyConfiguration) configuration;
-                usagePoint.apply(usagePointMetrologyConfiguration);
-            } else {
-                throw new NoSuchElementException("No such metrology configuration");
-            }
+            usagePoint.apply(configuration);
             context.commit();
         }
     }

@@ -136,6 +136,7 @@ public class DeviceLifeCycleEventSupportTest {
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(METER_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -186,6 +187,7 @@ public class DeviceLifeCycleEventSupportTest {
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(METER_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -236,6 +238,7 @@ public class DeviceLifeCycleEventSupportTest {
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(METER_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -289,6 +292,7 @@ public class DeviceLifeCycleEventSupportTest {
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(METER_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 
@@ -369,6 +373,7 @@ public class DeviceLifeCycleEventSupportTest {
         assertThat(extracted.isPresent()).isTrue();
         CurrentStateExtractor.CurrentState currentState = extracted.get();
         assertThat(currentState.sourceId).isEqualTo(String.valueOf(METER_ID));
+        assertThat(currentState.sourceType).isNotEmpty();
         assertThat(currentState.name).isEqualTo(STATE_NAME);
     }
 

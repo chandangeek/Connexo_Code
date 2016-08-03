@@ -146,12 +146,14 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     private <T extends BaseReadingRecord> List<T> getReadings(Range<Instant> interval, Function<BaseReadingRecord, T> mapper) {
         // TODO  merge records with edited/estimated/deleted records which are stored in persistedChannel
-        return this.dataAggregationService.calculate(this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint()
-                .getUsagePoint(), this.effectiveMetrologyContract.getMetrologyContract(), interval)
-                .getCalculatedDataFor(this.deliverable)
-                .stream()
-                .map(mapper::apply)
-                .collect(Collectors.toList());
+        return this.dataAggregationService.calculate(
+                this.effectiveMetrologyContract.getMetrologyConfigurationOnUsagePoint().getUsagePoint(),
+                this.effectiveMetrologyContract.getMetrologyContract(),
+                interval)
+                    .getCalculatedDataFor(this.deliverable)
+                        .stream()
+                        .map(mapper::apply)
+                        .collect(Collectors.toList());
     }
 
     @Override

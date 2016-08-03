@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.Table;
 import com.google.inject.Inject;
 
 import javax.validation.constraints.Size;
+import java.time.Instant;
 import java.util.Objects;
 
 public final class MeterRoleImpl implements MeterRole {
@@ -33,6 +34,15 @@ public final class MeterRoleImpl implements MeterRole {
     private String key;
 
     private final Thesaurus thesaurus;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public MeterRoleImpl(Thesaurus thesaurus) {
