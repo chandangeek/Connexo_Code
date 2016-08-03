@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 import javax.inject.Inject;
+import java.time.Instant;
 
 /**
  * Provides an implementation for the {@link MetrologyContractValidationRuleSetUsage} interface.
@@ -37,6 +38,14 @@ class MetrologyContractValidationRuleSetUsageImpl implements MetrologyContractVa
     @NotEmpty(message = MessageSeeds.Constants.REQUIRED)
     @IsPresent
     private Reference<MetrologyContract> metrologyContract = ValueReference.absent();
+    @SuppressWarnings("unused") // Managed by ORM
+    private long version;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private Instant modTime;
+    @SuppressWarnings("unused") // Managed by ORM
+    private String userName;
 
     private final DataModel dataModel;
 
