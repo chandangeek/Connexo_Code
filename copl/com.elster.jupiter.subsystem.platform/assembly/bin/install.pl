@@ -7,13 +7,15 @@ use File::Basename;
 use File::Path qw(rmtree);
 use File::Path qw(make_path);
 use File::Copy;
+use File::Copy::Recursive qw(dircopy);
 use Socket;
 use Sys::Hostname;
+use Archive::Zip;
 
 
 # Define global variables
 #$ENV{JAVA_HOME}="/usr/lib/jvm/jdk1.8.0";
-my $INSTALL_VERSION="v20160323";
+my $INSTALL_VERSION="v20160704";
 my $OS="$^O";
 my $JAVA_HOME="";
 my $CURRENT_DIR=getcwd;
@@ -35,12 +37,13 @@ my $INSTALL_FLOW="yes";
 my $INSTALL_WSO2IS="yes";
 my $ACTIVATE_SSO="no";
 my $APACHE_PATH;
+my $UPGRADE="no";
+my $UPGRADE_PATH;
 
 my $HOST_NAME, my $CONNEXO_HTTP_PORT, my $TOMCAT_HTTP_PORT;
 my $jdbcUrl, my $dbUserName, my $dbPassword, my $CONNEXO_SERVICE, my $CONNEXO_URL;
 my $FACTS_DB_HOST, my $FACTS_DB_PORT, my $FACTS_DB_NAME, my $FACTS_DBUSER, my $FACTS_DBPASSWORD, my $FACTS_LICENSE;
 my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
-my $SMTP_HOST, my $SMTP_PORT, my $SMTP_USER, my $SMTP_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
 my $TOMCAT_BASE="$CONNEXO_DIR/partners"; 
@@ -144,6 +147,8 @@ sub read_config {
                 if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )  {$TOMCAT_HTTP_PORT=$val[1];}
                 if ( "$val[0]" eq "SERVICE_VERSION" )   {$SERVICE_VERSION=$val[1];}
                 if ( "$val[0]" eq "INSTALL_CONNEXO" )   {$INSTALL_CONNEXO=$val[1];}
+                if ( "$val[0]" eq "UPGRADE" )           {$UPGRADE=$val[1];}
+                if ( "$val[0]" eq "UPGRADE_PATH" )      {$UPGRADE_PATH=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FACTS" )     {$INSTALL_FACTS=$val[1];}
                 if ( "$val[0]" eq "INSTALL_FLOW" )      {$INSTALL_FLOW=$val[1];}
                 if ( "$val[0]" eq "INSTALL_WSO2IS" )    {$INSTALL_WSO2IS=$val[1];}
@@ -162,10 +167,6 @@ sub read_config {
                 if ( "$val[0]" eq "FLOW_JDBC_URL" )     {$FLOW_JDBC_URL=$val[1];}
                 if ( "$val[0]" eq "FLOW_DB_USER" )      {$FLOW_DB_USER=$val[1];}
                 if ( "$val[0]" eq "FLOW_DB_PASSWORD" )  {$FLOW_DB_PASSWORD=$val[1];}
-                if ( "$val[0]" eq "SMTP_HOST" )         {$SMTP_HOST=$val[1];}
-                if ( "$val[0]" eq "SMTP_PORT" )         {$SMTP_PORT=$val[1];}
-                if ( "$val[0]" eq "SMTP_USER" )         {$SMTP_USER=$val[1];}
-                if ( "$val[0]" eq "SMTP_PASSWORD" )     {$SMTP_PASSWORD=$val[1];}
             }
         }
         close($FH);
@@ -178,9 +179,15 @@ sub read_config {
         check_java8();
         print "Please enter the hostname (leave empty to use the system variable): ";
         chomp($HOST_NAME=<STDIN>);
-        while ("$CONNEXO_ADMIN_PASSWORD" eq "") {
-            print "Please enter the admin password: ";
+        while (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
+            print "Please enter the admin password (different from \"admin\"): ";
             chomp($CONNEXO_ADMIN_PASSWORD=<STDIN>);
+        }
+        print "Are you performing an upgrade of an existing installation: (yes/no) ";
+        chomp($UPGRADE=<STDIN>);
+        if ("$UPGRADE" eq "yes") {
+            print "Please enter the path containing the upgrade zip-file: ";
+            chomp($UPGRADE_PATH=<STDIN>);
         }
 						    
         print "Do you want to install Connexo: (yes/no)";
@@ -194,7 +201,7 @@ sub read_config {
             chomp($dbPassword=<STDIN>);
             print "Please enter the Connexo http port: ";
             chomp($CONNEXO_HTTP_PORT=<STDIN>);
-            print "Do you want to install Connexo as a daemon: (yes/no)";
+            print "Do you want to install Connexo as a daemon: (yes/no) ";
             chomp($CONNEXO_SERVICE=<STDIN>);
         }
         
@@ -224,14 +231,6 @@ sub read_config {
             chomp($FLOW_DB_USER=<STDIN>);
             print "Please enter the database password for Connexo Flow: ";
             chomp($FLOW_DB_PASSWORD=<STDIN>);
-            print "Please enter the mail server host name: ";
-            chomp($SMTP_HOST=<STDIN>);
-            print "Please enter the mail server port: ";
-            chomp($SMTP_PORT=<STDIN>);
-            print "Please enter the mail server user: ";
-            chomp($SMTP_USER=<STDIN>);
-            print "Please enter the mail server user password: ";
-            chomp($SMTP_PASSWORD=<STDIN>);
         }
         
         print "\n";
@@ -245,13 +244,13 @@ sub read_config {
         }
 
         print "\n";
-        print "Do you want to install WSO2IS: (yes/no)";
+        print "Do you want to install WSO2IS: (yes/no) ";
         chomp($INSTALL_WSO2IS=<STDIN>);
         print "Please enter the version of your services (e.g. 10.1) or leave empty: ";
         chomp($SERVICE_VERSION=<STDIN>);        
 
         print "\n";
-        print "Do you want to activate SSO for Facts/Flow: (yes/no)";
+        print "Do you want to activate SSO for Facts/Flow: (yes/no) ";
         chomp($ACTIVATE_SSO=<STDIN>);
         if ("$ACTIVATE_SSO" eq "yes") {
             print "Please enter the path to your Apache HTTP 2.4: ";
@@ -267,8 +266,8 @@ sub read_config {
     if ("$HOST_NAME" eq "") {
         $HOST_NAME=hostname;
     }
-    if ("$CONNEXO_ADMIN_PASSWORD" eq "") {
-        print "Please provide an admin password\n";
+    if (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
+        print "Please provide an admin password (different from \"admin\")\n";
         exit (0);
     }
     $CONNEXO_URL="http://$HOST_NAME:$CONNEXO_HTTP_PORT";
@@ -566,7 +565,6 @@ sub install_flow {
 		my $FLOW_TABLESPACE="flow";
 		my $FLOW_DBUSER="flow";
 		my $FLOW_DBPASSWORD="flow";
-		my $DEMOWS_DIR="$TOMCAT_BASE/$TOMCAT_DIR/webapps/demows";
 
 		print "\n\nInstalling Connexo Flow ...\n";
 		print "==========================================================================\n";
@@ -578,38 +576,16 @@ sub install_flow {
 		system("\"$JAVA_HOME/bin/jar\" -xf flow.war") == 0 or die "$JAVA_HOME/bin/jar -xvf flow.war failed: $?";
 		unlink("$FLOW_DIR/flow.war");
 
-		if (!-d "$DEMOWS_DIR") { make_path("$DEMOWS_DIR"); }
-		copy("$CONNEXO_DIR/partners/flow/demows.war","$DEMOWS_DIR/demows.war");
-		chdir "$DEMOWS_DIR";
-		print "Extracting demows.war\n";
-		system("\"$JAVA_HOME/bin/jar\" -xf demows.war") == 0 or die "$JAVA_HOME/bin/jar -xvf demows.war failed: $?";
-		unlink("$DEMOWS_DIR/demows.war");
-
-		copy("$CONNEXO_DIR/partners/flow/processes.zip","$CATALINA_HOME/processes.zip");
-		chdir "$CATALINA_HOME";
-		print "Extracting processes.zip\n";
-		system("\"$JAVA_HOME/bin/jar\" -xf processes.zip") == 0 or die "$JAVA_HOME/bin/jar -xvf processes.zip failed: $?";
-		unlink("$CATALINA_HOME/processes.zip");
-
 		copy("$CONNEXO_DIR/partners/flow/resources.properties","$CATALINA_HOME/conf/resources.properties");
 		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${jdbc}',"$FLOW_JDBC_URL");
 		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${user}',"$FLOW_DB_USER");
 		replace_in_file("$CATALINA_HOME/conf/resources.properties",'\${password}',"$FLOW_DB_PASSWORD");
 
-		copy("$CONNEXO_DIR/partners/flow/CustomWorkItemHandlers.conf","$CONNEXO_DIR/CustomWorkItemHandlers.conf");
-		replace_in_file("$CONNEXO_DIR/CustomWorkItemHandlers.conf",'\${host}',"$SMTP_HOST");
-		replace_in_file("$CONNEXO_DIR/CustomWorkItemHandlers.conf",'\${port}',"$SMTP_PORT");
-		replace_in_file("$CONNEXO_DIR/CustomWorkItemHandlers.conf",'\${user}',"$SMTP_USER");
-		replace_in_file("$CONNEXO_DIR/CustomWorkItemHandlers.conf",'\${password}',"$SMTP_PASSWORD");
-		copy("$CONNEXO_DIR/CustomWorkItemHandlers.conf","$FLOW_DIR/WEB-INF/classes/META-INF/CustomWorkItemHandlers.conf");
-		unlink("$CONNEXO_DIR/CustomWorkItemHandlers.conf");
-
-		copy("$CONNEXO_DIR/partners/flow/SendSomeoneToInspect.bpmn","$CONNEXO_DIR/SendSomeoneToInspect.bpmn");
-		replace_in_file("$CONNEXO_DIR/SendSomeoneToInspect.bpmn",'\${host}',"$HOST_NAME");
-		replace_in_file("$CONNEXO_DIR/SendSomeoneToInspect.bpmn",'\${port}',"$TOMCAT_HTTP_PORT");
-		chdir "$CONNEXO_DIR";
-		system("\"$JAVA_HOME/bin/jar\" -uvf \"$CATALINA_HOME/repositories/kie/org/jbpm/sendsomeone/1.0/sendsomeone-1.0.jar\" SendSomeoneToInspect.bpmn") == 0 or die "$JAVA_HOME/bin/jar -uvf \"$CATALINA_HOME/repositories/kie/org/jbpm/sendsomeone/1.0/sendsomeone-1.0.jar\" SendSomeoneToInspect.bpmn failed: $?";
-		unlink("$CONNEXO_DIR/SendSomeoneToInspect.bpmn");
+		copy("$CONNEXO_DIR/partners/flow/kie-wb-deployment-descriptor.xml","$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
+		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\${user}',"$CONNEXO_ADMIN_ACCOUNT");
+		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\${password}',"$CONNEXO_ADMIN_PASSWORD");
+		copy("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml","$FLOW_DIR/WEB-INF/classes/META-INF/kie-wb-deployment-descriptor.xml");
+		unlink("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
 
 		print "Copying extra jar files\n";
 		if (-e "$CONNEXO_DIR/partners/flow/jbpm.extension.jar") {
@@ -681,18 +657,24 @@ sub activate_sso {
             print $FH "   RewriteRule ^/public/api/(.+)\$ http://\${HOSTNAME}:$CONNEXO_HTTP_PORT/public/api/\$1 [P]\n";
             print $FH "</VirtualHost>\n";
             close $FH;
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!--filter>","<filter>");
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO -->","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO >");
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 1 ends here -->","< Section 1 ends here -->");
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO -->","<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO >");
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 2 ends here -->","< Section 2 ends here -->");
 
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class>","<!--class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class-->");
-            replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<!--class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class-->","<class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class>");
+            if ("$INSTALL_FLOW" eq "yes") {
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!--filter>","<filter>");
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO -->","<!-- Section 1: Default Flow authentication method; to be commented out when using Connexo SSO >");
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 1 ends here -->","< Section 1 ends here -->");
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO -->","<!-- Section 2: Default Flow security constraints; to be commented out when using Connexo SSO >");
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/web.xml","<!-- Section 2 ends here -->","< Section 2 ends here -->");
 
-            replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!--filter>","<filter>");
-            replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<class>org.jbpm.services.cdi.producer.JAASUserGroupInfoProducer</class>","<!--class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class-->");
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<!--class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class-->","<class>com.elster.partners.connexo.filters.flow.identity.ConnexoUserGroupInfoProducer</class>");
+                replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml","<!--class>com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService</class-->","<class>com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthenticationService</class>");
+            }
+
+            if ("$INSTALL_FACTS" eq "yes") {
+                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","<!--filter>","<filter>");
+                replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml","</filter-mapping-->","</filter-mapping>");
+            }
             
             add_to_file("$CATALINA_BASE/conf/connexo.properties","");
             add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
@@ -786,19 +768,78 @@ sub start_tomcat {
 
 		if ("$INSTALL_FLOW" eq "yes") {
 			print "\nInstalling Connexo Flow content...\n";
-			opendir(DIR,"$CONNEXO_DIR/bundles");
-			my @files = grep(/com\.elster\.jupiter\.bpm-.*\.jar$/,readdir(DIR));
-			closedir(DIR);
 
-			my $BPM_BUNDLE;
-			foreach my $file (@files) {
-				$BPM_BUNDLE="$file";
-			}
-            if ("$ACTIVATE_SSO" eq "yes") {
-                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
-            } else {
-                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
+			opendir(DIR,"$CONNEXO_DIR/bundles");
+            my @files = grep(/com\.elster\.jupiter\.bpm-.*\.jar$/,readdir(DIR));
+            closedir(DIR);
+
+            my $BPM_BUNDLE;
+            foreach my $file (@files) {
+                $BPM_BUNDLE="$file";
             }
+
+			if ("$ACTIVATE_SSO" eq "yes") {
+			    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+                sleep 5;
+                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+            } else {
+                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+                sleep 5;
+                system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
+            }
+
+            print "\nDeploy MDC processes...\n";
+            dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
+            if(-e $mdcfile){
+                open(INPUT, $mdcfile);
+                my $line = <INPUT>; # header
+                while($line = <INPUT>)
+                {
+                    chomp($line);
+                    my ($name,$deploymentid)  = split(';', $line);
+                    if ("$ACTIVATE_SSO" eq "yes") {
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid");
+                    } else {
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid");
+                    }
+                    sleep 2;
+                }
+                close(INPUT);
+            }
+
+            print "\nDeploy INSIGHT processes...\n";
+            dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$TOMCAT_BASE/$TOMCAT_DIR/repositories/kie");
+            my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
+            if(-e $insightfile){
+                open(INPUT, $insightfile);
+                my $line = <INPUT>; # header
+                while($line = <INPUT>)
+                {
+                    chomp($line);
+                    my ($name,$deploymentid)  = split(';', $line);
+                    if ("$ACTIVATE_SSO" eq "yes") {
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid");
+                    } else {
+                        system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid");
+                    }
+                    sleep 2;
+                }
+                close(INPUT);
+            }
+			#opendir(DIR,"$CONNEXO_DIR/bundles");
+			#my @files = grep(/com\.elster\.jupiter\.bpm-.*\.jar$/,readdir(DIR));
+			#closedir(DIR);
+
+			#my $BPM_BUNDLE;
+			#foreach my $file (@files) {
+			#	$BPM_BUNDLE="$file";
+			#}
+            #if ("$ACTIVATE_SSO" eq "yes") {
+            #    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
+            #} else {
+            #    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
+            #}
 		}
 	}
 }
@@ -861,7 +902,172 @@ sub uninstall_all {
 	if (-e "$CONNEXO_DIR/conf/config.properties") { unlink("$CONNEXO_DIR/conf/config.properties"); }
 }
 
-sub show_help() {
+sub find_string_value {
+    my @bundle_arr;
+    open my $fh, $_[0] or die;
+    while (my $line = <$fh>) {
+        if ($line =~ /Bundle-SymbolicName/) {
+            $line =~s/Bundle-SymbolicName: //g;
+            $line =~ s/\r|\n//g;
+            @bundle_arr[0]=$line;
+        }
+        if ($line =~ /Bundle-Version/) {
+            $line =~s/Bundle-Version: //g;
+            $line =~ s/\r|\n//g;
+            @bundle_arr[1]=$line;
+        }
+        if ($line =~ /Git-SHA-1/) {
+            $line =~s/Git-SHA-1: //g;
+            $line =~ s/\r|\n//g;
+            @bundle_arr[2]=$line;
+        }
+    }
+    close($fh);
+    return @bundle_arr;
+}
+
+sub print_screen_file {
+    my $fh = shift;
+    my $TXT = shift;
+    print "$TXT";
+    print $fh "$TXT";
+}
+
+sub perform_upgrade {
+    if ("$UPGRADE_PATH" eq "") {
+        print "Please enter a value for the UPGRADE_PATH (currently empty).\n";
+        exit (0);
+    }
+    if (! -d "$UPGRADE_PATH") {
+        print "The path defined in UPGRADE_PATH does not exist (path=$UPGRADE_PATH)\n";
+        exit (0);
+    }
+    my @ZIPfiles = glob( $UPGRADE_PATH . '/*.zip' );
+    if ($#ZIPfiles < 0) {
+        print "UPGRADE_PATH doesn't contain any upgrade zip-file.\n";
+        exit (0);
+    }
+
+    # stop connexo
+    print "Stopping Connexo service\n";
+    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        system("sc stop Connexo$SERVICE_VERSION");
+    } else {
+        system("/sbin/service Connexo$SERVICE_VERSION stop");
+    }
+
+    print "Renaming bundles to bundles_obsolete\n";
+    rename("$CONNEXO_DIR/bundles","$CONNEXO_DIR/bundles_obsolete");
+    print "Creating new bundles folder\n";
+    make_path("$CONNEXO_DIR/bundles");
+    foreach my $zipfile (@ZIPfiles) {
+        print "Extracting $zipfile\n";
+        my $zip = Archive::Zip->new($zipfile);
+        $zip->extractTree("","$UPGRADE_PATH/temp/");
+        if (! -d "$UPGRADE_PATH/temp/bundles") {
+            print "No bundles folder found in $zipfile.\n";
+        } else {
+            print "Copying upgrade bundles\n";
+            my @JARfiles = glob( $UPGRADE_PATH . '/temp/bundles/*.jar' );
+            foreach my $jarfile (@JARfiles) {
+                copy("$jarfile","$CONNEXO_DIR/bundles");
+            }
+        }
+        rmtree("$UPGRADE_PATH/temp");
+    }
+
+    print "Pass 1\n";
+    chdir "$CONNEXO_DIR/bundles";
+    my @NEW_JARS;
+    my @JARfiles = glob( $CONNEXO_DIR . '/bundles/*.jar' );
+    foreach my $jarfile (@JARfiles) {
+        #check differences with obsolete bundle
+        print "Processing $jarfile...\n";
+        system("\"$JAVA_HOME/bin/jar\" -xf $jarfile META-INF/MANIFEST.MF");
+        my @VALUES=find_string_value("$CONNEXO_DIR/bundles/META-INF/MANIFEST.MF");
+        push(@NEW_JARS,\@VALUES);
+        rmtree("$CONNEXO_DIR/bundles/META-INF");
+    }
+
+    print "\nPass 2\n";
+    chdir "$CONNEXO_DIR/bundles_obsolete";
+    my @OLD_JARS;
+    my @JARfiles = glob( $CONNEXO_DIR . '/bundles_obsolete/*.jar' );
+    foreach my $jarfile (@JARfiles) {
+        #check differences with obsolete bundle
+        print "Processing $jarfile...\n";
+        system("\"$JAVA_HOME/bin/jar\" -xf $jarfile META-INF/MANIFEST.MF");
+        my @VALUES=find_string_value("$CONNEXO_DIR/bundles_obsolete/META-INF/MANIFEST.MF");
+        push(@OLD_JARS,\@VALUES);
+        rmtree("$CONNEXO_DIR/bundles_obsolete/META-INF");
+    }
+    chdir "$CONNEXO_DIR/bin";
+
+    open my $upgrade_log, '>>', $UPGRADE_PATH.'/upgrade.log' or die "$!";
+
+    print_screen_file($upgrade_log,"\nUpgrade performed at ".localtime(time)."\n");
+    print_screen_file($upgrade_log,"\nUpdated bundles:\n");
+    print_screen_file($upgrade_log,"================\n");
+    for my $i (0 .. $#NEW_JARS) {
+        my @result = map { $OLD_JARS[$_][1], $OLD_JARS[$_][2] }
+               grep { $NEW_JARS[$i][0] eq $OLD_JARS[$_][0] }
+                 0 .. $#OLD_JARS;  
+        if (("$NEW_JARS[$i][1]" ne "$result[0]") && ("$result[0]" ne "")) {
+            print_screen_file($upgrade_log,"    $NEW_JARS[$i][0]\n");
+            print_screen_file($upgrade_log,"        NEW version: $NEW_JARS[$i][1] (git: $NEW_JARS[$i][2])\n");
+            print_screen_file($upgrade_log,"        OLD version: $result[0] (git: $result[1])\n");
+        }
+    }
+
+    print_screen_file($upgrade_log,"\nNew bundles:\n");
+    print_screen_file($upgrade_log,"============\n");
+    for my $i (0 .. $#NEW_JARS) {
+        my @result = map { $OLD_JARS[$_][1], $OLD_JARS[$_][2] }
+               grep { $NEW_JARS[$i][0] eq $OLD_JARS[$_][0] }
+                 0 .. $#OLD_JARS;  
+        if ("$result[0]" eq "") {
+            print_screen_file($upgrade_log,"    $NEW_JARS[$i][0]\n");
+            print_screen_file($upgrade_log,"        Version: $NEW_JARS[$i][1] (git: $NEW_JARS[$i][2])\n");
+        }
+    }
+
+    print_screen_file($upgrade_log,"\nRemoved bundles:\n");
+    print_screen_file($upgrade_log,"================\n");
+    for my $i (0 .. $#OLD_JARS) {
+        my @result = map { $NEW_JARS[$_][1], $NEW_JARS[$_][2] }
+               grep { $OLD_JARS[$i][0] eq $NEW_JARS[$_][0] }
+                 0 .. $#NEW_JARS;  
+        if ("$result[0]" eq "") {
+            print_screen_file($upgrade_log,"    $OLD_JARS[$i][0]\n");
+            print_screen_file($upgrade_log,"        Version: $OLD_JARS[$i][1] (git: $OLD_JARS[$i][2])\n");
+        }
+    }
+
+    close($upgrade_log);
+    
+    if ( ! $parameter_file ) {
+        print "\n";
+        print "Are you sure you want to do the upgrade: (yes/no)";
+        chomp(my $CONT_UPG=<STDIN>);
+        if ("$CONT_UPG" eq "no") {
+            unlink("$CONNEXO_DIR/bundles");
+            rename("$CONNEXO_DIR/bundles_obsolete","$CONNEXO_DIR/bundles");
+        }
+    }
+    #rmtree("$CONNEXO_DIR/bundles_obsolete");
+    #print "Removing felix-cache\n";
+    #rmtree("$CONNEXO_DIR/felix-cache");
+
+    # start connexo
+    print "\nStarting Connexo service\n";
+    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        system("sc start Connexo$SERVICE_VERSION");
+    } else {
+        system("/sbin/service Connexo$SERVICE_VERSION start");
+    }
+}
+
+sub show_help {
     print "\n";
     print "    Usage: $0 <option>\n";
     print "\n";
@@ -885,17 +1091,21 @@ if ($help) {
     show_help();
 } elsif ($install) {
 	read_config();
-	checking_ports();
-	install_connexo();
-	install_tomcat();
-	install_wso2();
-	install_facts();
-	install_flow();
-    activate_sso();
-	change_owner();
-	start_connexo();
-	start_tomcat();
-    final_steps();
+    if ("$UPGRADE" eq "yes") {
+        perform_upgrade();
+    } else {
+        checking_ports();
+        install_connexo();
+        install_tomcat();
+        install_wso2();
+        install_facts();
+        install_flow();
+        activate_sso();
+        change_owner();
+        start_connexo();
+        start_tomcat();
+        final_steps();
+    }
 } else {
 	read_uninstall_config();
 	uninstall_all();

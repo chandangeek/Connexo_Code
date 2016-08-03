@@ -53,6 +53,10 @@ mail.from=
 #com.elster.jupiter.url.rewrite.port=
 #com.elster.jupiter.url.rewrite.scheme=
 
+# HE Application URLs
+com.energyict.mdc.url=
+com.elster.jupiter.energyaxis.url=
+
 # Property to set the appserver and comserver name that will start up.
 # Please set to appropriate value if the hostname of the machine cannot be used
 #com.elster.jupiter.server.name=
