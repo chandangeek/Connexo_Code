@@ -7,7 +7,7 @@ import java.util.Optional;
  * Checks holds methods that start fluent API for checks on Objects.
  */
 public enum Checks {
-    ;
+    Checks;
 
     public static ObjectChecker<Object> is(Object object) {
         return new ObjectChecker<>(object);
