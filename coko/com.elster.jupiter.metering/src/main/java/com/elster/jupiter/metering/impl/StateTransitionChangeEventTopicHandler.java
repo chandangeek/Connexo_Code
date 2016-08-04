@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -68,6 +69,15 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     @Override
     public void handle(LocalEvent localEvent) {
         StateTransitionChangeEvent event = (StateTransitionChangeEvent) localEvent.getSource();
+        if (event.getSourceType().contains("Device")) {
+            this.handle(event);
+        }
+        else {
+            this.logger.fine(() -> "Ignoring event for id '" + event.getSourceId() + "' because it does not relate to a device but to an obejct of type " + event.getSourceType());
+        }
+    }
+
+    public void handle(StateTransitionChangeEvent event) {
         String deviceId = event.getSourceId();
         try {
             Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
@@ -75,6 +85,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
             endDeviceQuery.select(condition)
                     .stream()
                     .findFirst()
+                    .filter(endDevice -> Objects.equals(event.getNewState().getFiniteStateMachine().getId(), endDevice.getFiniteStateMachine().get().getId()))
                     .ifPresent(d -> this.handle(event, (ServerEndDevice) d));
         }
         catch (NumberFormatException e) {

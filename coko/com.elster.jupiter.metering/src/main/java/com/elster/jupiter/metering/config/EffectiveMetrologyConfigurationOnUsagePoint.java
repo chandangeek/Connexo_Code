@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.config;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.Effectivity;
+import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -15,7 +16,7 @@ import java.util.Optional;
  * that is allowed to change over time.
  */
 @ProviderType
-public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity {
+public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity, HasId {
 
     UsagePointMetrologyConfiguration getMetrologyConfiguration();
 
@@ -26,6 +27,10 @@ public interface EffectiveMetrologyConfigurationOnUsagePoint extends Effectivity
     boolean isActive();
 
     void activate();
+
+    Instant getStart();
+
+    Instant getEnd();
 
     Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract);
 }

@@ -156,10 +156,11 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_UPDATED.topic(), this);
     }
 
-    @Override
-    public void delete() {
-        getMetrologyConfiguration().removeReadingTypeDeliverable(this);
-        this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_DELETED.topic(), this);
+    void prepareDelete() {
+        ServerFormula serverFormula = (ServerFormula) this.formula.get();
+        formula.setNull();
+        dataModel.update(this);
+        serverFormula.delete();
     }
 
     @Override

@@ -46,6 +46,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -109,7 +110,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
     private static ReadingType hourlykWhReverse;
     private static ServiceCategory ELECTRICITY;
     private static MetrologyPurpose METROLOGY_PURPOSE;
-    private static MeterRole METER_ROLE;
+    private static MeterRole DEFAULT_METER_ROLE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
@@ -142,7 +143,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             bind(LicenseService.class).to(LicenseServiceImpl.class).in(Scopes.SINGLETON);
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(SearchService.class).toInstance(mockSearchService());
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
@@ -151,7 +152,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
     public static void setUp() {
         setupServices();
         setupReadingTypes();
-        setupMetrologyPurpose();
+        setupMetrologyPurposeAndRole();
     }
 
     private static void setupServices() {
@@ -232,7 +233,7 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         }
     }
 
-    private static void setupMetrologyPurpose() {
+    private static void setupMetrologyPurposeAndRole() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             NlsKey name = mock(NlsKey.class);
             when(name.getKey()).thenReturn("DASCalculateWithFlowToVolumeConversionIT");
@@ -245,9 +246,9 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
+            DEFAULT_METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
             ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-            METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
-            ELECTRICITY.addMeterRole(METER_ROLE);
+            ELECTRICITY.addMeterRole(DEFAULT_METER_ROLE);
             ctx.commit();
         }
     }
@@ -273,6 +274,13 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         when(clauseAwareSqlBuilder.with(matches("rod" + netConsumptionDeliverableId + ".*"), any(Optional.class), anyVararg())).thenReturn(this.netConsumptionWithClauseBuilder);
         when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
         when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
+    }
+
+    private static SearchService mockSearchService() {
+        SearchService searchService = mock(SearchService.class);
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchService.findDomain(any())).thenReturn(Optional.of(searchDomain));
+        return searchService;
     }
 
     @After
@@ -308,14 +316,13 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.activateMeterWithAll15MinChannels();
 
         // Setup MetrologyConfiguration
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simplestNetConsumptionOfProsumer", ELECTRICITY).create();
-        this.configuration.addMeterRole(defaultMeterRole);
+        this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", defaultMeterRole).withReadingType(fifteenMinuteskWForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", defaultMeterRole).withReadingType(fifteenMinuteskWhReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -413,14 +420,13 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.activateMeterWithAll15MinChannels();
 
         // Setup MetrologyConfiguration
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumptionBasedOn15MinValuesOfProsumer", ELECTRICITY).create();
-        this.configuration.addMeterRole(defaultMeterRole);
+        this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", defaultMeterRole).withReadingType(fifteenMinuteskWForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", defaultMeterRole).withReadingType(fifteenMinuteskWhReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -528,14 +534,13 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.activateMeterWith15And60MinChannels();
 
         // Setup MetrologyConfiguration
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer", ELECTRICITY).create();
-        this.configuration.addMeterRole(defaultMeterRole);
+        this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", defaultMeterRole).withReadingType(fifteenMinuteskWForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", defaultMeterRole).withReadingType(hourlykWhReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(hourlykWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);

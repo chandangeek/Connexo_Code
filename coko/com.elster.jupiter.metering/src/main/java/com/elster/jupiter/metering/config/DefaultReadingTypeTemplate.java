@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.config;
+package com.elster.jupiter.metering.config;
 
 import com.elster.jupiter.nls.TranslationKey;
 

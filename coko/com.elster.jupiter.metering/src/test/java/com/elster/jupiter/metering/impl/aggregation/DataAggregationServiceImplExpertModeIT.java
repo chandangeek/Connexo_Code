@@ -46,6 +46,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -112,7 +113,7 @@ public class DataAggregationServiceImplExpertModeIT {
     private static ReadingType ENERGY_daily;
     private static ServiceCategory ELECTRICITY;
     private static MetrologyPurpose METROLOGY_PURPOSE;
-    private static MeterRole METER_ROLE;
+    private static MeterRole DEFAULT_METER_ROLE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
@@ -147,7 +148,7 @@ public class DataAggregationServiceImplExpertModeIT {
             bind(LicenseService.class).to(LicenseServiceImpl.class).in(Scopes.SINGLETON);
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(DataVaultService.class).toInstance(mock(DataVaultService.class));
-            bind(SearchService.class).toInstance(mock(SearchService.class));
+            bind(SearchService.class).toInstance(mockSearchService());
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
         }
     }
@@ -156,8 +157,7 @@ public class DataAggregationServiceImplExpertModeIT {
     public static void setUp() {
         setupServices();
         setupReadingTypes();
-        setupMetrologyPurpose();
-        ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
+        setupMetrologyPurposeAndRole();
     }
 
     private static void setupServices() {
@@ -230,7 +230,7 @@ public class DataAggregationServiceImplExpertModeIT {
         }
     }
 
-    private static void setupMetrologyPurpose() {
+    private static void setupMetrologyPurposeAndRole() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             NlsKey name = mock(NlsKey.class);
             when(name.getKey()).thenReturn(DataAggregationServiceImplExpertModeIT.class.getSimpleName());
@@ -243,9 +243,9 @@ public class DataAggregationServiceImplExpertModeIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
+            DEFAULT_METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
             ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-            METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
-            ELECTRICITY.addMeterRole(METER_ROLE);
+            ELECTRICITY.addMeterRole(DEFAULT_METER_ROLE);
             ctx.commit();
         }
     }
@@ -273,6 +273,13 @@ public class DataAggregationServiceImplExpertModeIT {
         when(clauseAwareSqlBuilder.with(matches("rod" + deliverableId + ".*"), any(Optional.class), anyVararg())).thenReturn(this.deliverableWithClauseBuilder);
         when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
         when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
+    }
+
+    private static SearchService mockSearchService() {
+        SearchService searchService = mock(SearchService.class);
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchService.findDomain(any())).thenReturn(Optional.of(searchDomain));
+        return searchService;
     }
 
     @After
@@ -310,16 +317,15 @@ public class DataAggregationServiceImplExpertModeIT {
         this.activateMeter();
 
         // Setup MetrologyConfiguration
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
-        this.configuration.addMeterRole(defaultMeterRole);
+        this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", defaultMeterRole).withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE).withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", defaultMeterRole).withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", DEFAULT_METER_ROLE).withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", defaultMeterRole).withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", DEFAULT_METER_ROLE).withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
@@ -379,7 +385,7 @@ public class DataAggregationServiceImplExpertModeIT {
             // Assert that one of the requirements is used as source for the timeline
             String deliverableWithClauseSql = this.deliverableWithClauseBuilder.getText().replace("\n", " ");
             assertThat(deliverableWithClauseSql)
-                    .matches("SELECT -1, rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp,.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.processStatus,.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate\\s*FROM.*");
+                    .matches("SELECT -1, rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp,.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.readingQuality,.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate\\s*FROM.*");
             // Assert that the formula is applied to the requirements' value in the select clause
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*\\(\\s*\\?\\s*\\* \\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.value \\* \\(\\(rid" + temperatureRequirementId + "_" + deliverableId + "_1\\.value / rid" + pressureRequirementId + "_" + deliverableId + "_1\\.value\\) \\* \\(\\s*\\?\\s*/\\s*\\?\\s*\\)\\)\\)\\).*");
@@ -421,16 +427,15 @@ public class DataAggregationServiceImplExpertModeIT {
         this.activateMeter();
 
         // Setup MetrologyConfiguration
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
-        this.configuration.addMeterRole(defaultMeterRole);
+        this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", defaultMeterRole).withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE).withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", defaultMeterRole).withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", DEFAULT_METER_ROLE).withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", defaultMeterRole).withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", DEFAULT_METER_ROLE).withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
@@ -498,7 +503,7 @@ public class DataAggregationServiceImplExpertModeIT {
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[max|MAX]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
-                    .matches("SELECT.*aggFlags\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.processStatus.*\\).*FROM.*");
+                    .matches("SELECT.*MAX\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.readingQuality.*\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[trunc|TRUNC]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate, 'DDD'\\)\\s*FROM.*");
             // Assert that the formula and the aggregation function is applied to the requirements' value in the select clause
@@ -543,18 +548,17 @@ public class DataAggregationServiceImplExpertModeIT {
         this.activateMeter();
 
         // Setup MetrologyConfiguration
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("energyFromGasVolume", ELECTRICITY).create();
-        this.configuration.addMeterRole(defaultMeterRole);
+        this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", defaultMeterRole).withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE).withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
         System.out.println("temperatureRequirementId = " + this.temperatureRequirementId);
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", defaultMeterRole).withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", DEFAULT_METER_ROLE).withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
         System.out.println("pressureRequirementId = " + this.pressureRequirementId);
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", defaultMeterRole).withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", DEFAULT_METER_ROLE).withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
         System.out.println("volumeRequirementId = " + this.volumeRequirementId);
 
@@ -622,7 +626,7 @@ public class DataAggregationServiceImplExpertModeIT {
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[max|MAX]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.timestamp\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
-                    .matches("SELECT.*aggFlags\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.processStatus.*\\).*FROM.*");
+                    .matches("SELECT.*MAX\\(.*rid" + volumeRequirementId + "_" + deliverableId + "_1\\.readingQuality.*\\).*FROM.*");
             assertThat(deliverableWithClauseSql)
                     .matches("SELECT.*[trunc|TRUNC]\\(rid" + volumeRequirementId + "_" + deliverableId + "_1\\.localdate, 'DDD'\\)\\s*FROM.*");
             // Assert that the formula and the aggregation function is applied to the requirements' value in the select clause

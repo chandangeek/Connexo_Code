@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link ServerExpressionNode.Visitor} interface
@@ -16,7 +17,7 @@ import java.util.Objects;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-18 (13:28)
  */
-class ProcessStatusFromExpressionNode implements ServerExpressionNode.Visitor<String> {
+public class ReadingQualityFromExpressionNode implements ServerExpressionNode.Visitor<String> {
 
     @Override
     public String visitConstant(NumericalConstantNode constant) {
@@ -45,12 +46,12 @@ class ProcessStatusFromExpressionNode implements ServerExpressionNode.Visitor<St
 
     @Override
     public String visitVirtualDeliverable(VirtualDeliverableNode deliverable) {
-        return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName();
+        return deliverable.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName();
     }
 
     @Override
     public String visitVirtualRequirement(VirtualRequirementNode requirement) {
-        return requirement.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS.sqlName();
+        return requirement.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName();
     }
 
     @Override
@@ -60,14 +61,22 @@ class ProcessStatusFromExpressionNode implements ServerExpressionNode.Visitor<St
 
     @Override
     public String visitOperation(OperationNode operationNode) {
-        return this.findFirst(Arrays.asList(
+        return this.findAll(Arrays.asList(
                 operationNode.getLeftOperand(),
                 operationNode.getRightOperand()));
     }
 
     @Override
     public String visitFunctionCall(FunctionCallNode functionCall) {
-        return this.findFirst(functionCall.getArguments());
+        return this.findAll(functionCall.getArguments());
+    }
+
+    private String findAll(List<ServerExpressionNode> children) {
+        return children
+                .stream()
+                .map(child -> child.accept(this))
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(","));
     }
 
     private String findFirst(List<ServerExpressionNode> children) {

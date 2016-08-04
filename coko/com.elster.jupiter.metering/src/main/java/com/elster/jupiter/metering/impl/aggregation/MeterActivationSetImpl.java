@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -13,6 +14,7 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -90,6 +92,22 @@ class MeterActivationSetImpl implements MeterActivationSet {
                 .collect(Collectors.toList());
     }
 
+    public List<? extends ReadingQualityRecord> getReadingQualitiesFor(ReadingTypeRequirement requirement, Range range) {
+        Optional<MeterRole> meterRole = configuration.getMeterRoleFor(requirement);
+        if (meterRole.isPresent()) {
+            Optional<MeterActivation> meterActivation =
+                    meterActivations.stream().filter(ma -> ma.getMeterRole().isPresent() && ma.getMeterRole().get().equals(meterRole.get())).findAny();
+            if (meterActivation.isPresent()) {
+                return meterActivation.get().getMeter().get().getReadingQualities(range);
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    public boolean contains(Instant instant) {
+        return this.meterActivations.stream().filter(ma -> ma.getRange().contains(instant)).count() == this.meterActivations.size();
+    }
+
     private Stream<MeterActivation> getMeterActivationsFor(ReadingTypeRequirement requirement) {
         Optional<MeterRole> meterRole = this.configuration.getMeterRoleFor(requirement);
         Stream<MeterActivation> meterActivations;
@@ -110,6 +128,10 @@ class MeterActivationSetImpl implements MeterActivationSet {
                 .map(meterActivation -> meterActivation.getMultiplier(type))
                 .flatMap(Functions.asStream())
                 .findFirst();
+    }
+
+    public ZoneId getZoneId() {
+        return meterActivations.iterator().next().getZoneId();
     }
 
 }

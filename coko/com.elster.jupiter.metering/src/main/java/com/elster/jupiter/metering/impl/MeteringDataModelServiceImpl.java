@@ -26,7 +26,7 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
-import com.elster.jupiter.metering.impl.config.DefaultReadingTypeTemplate;
+import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
@@ -111,6 +111,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private DataAggregationService dataAggregationService;
     private UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private MetrologyConfigurationServiceImpl metrologyConfigurationService;
+    private ServerDataAggregationService serverDataAggregationService;
 
     private boolean createAllReadingTypes;
     private String[] requiredReadingTypes;
@@ -157,6 +158,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         createServices(bundleContext);
         registerDatabaseTables();
         registerDataModel();
+        registerUsagePointSearchDoamin();
         installDataModel();
         registerServices(bundleContext);
     }
@@ -207,6 +209,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MessageService.class).toInstance(messageService);
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
                 bind(DataAggregationService.class).toInstance(dataAggregationService);
+                bind(ServerDataAggregationService.class).toInstance((ServerDataAggregationService) dataAggregationService);
             }
         });
     }
@@ -221,7 +224,6 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private void registerServices(BundleContext bundleContext) {
         registerMeteringService(bundleContext);
         registerDataAggregationService(bundleContext);
-        registerUsagePointSearchDoamin();
         registerMetrologyConfigurationService(bundleContext); // Search domain must be already registered
     }
 
@@ -291,7 +293,6 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         }).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
-        translationKeys.addAll(Arrays.asList(DefaultReadingTypeTemplate.TemplateTranslation.values()));
         translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));
         return translationKeys;
     }

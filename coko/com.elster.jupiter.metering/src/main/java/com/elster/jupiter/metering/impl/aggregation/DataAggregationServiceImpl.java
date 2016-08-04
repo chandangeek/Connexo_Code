@@ -45,7 +45,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (12:56)
  */
-public class DataAggregationServiceImpl implements DataAggregationService {
+public class DataAggregationServiceImpl implements ServerDataAggregationService {
 
     private volatile ServerMeteringService meteringService;
     private SqlBuilderFactory sqlBuilderFactory;
@@ -95,7 +95,7 @@ public class DataAggregationServiceImpl implements DataAggregationService {
                         this.execute(
                                 this.generateSql(
                                         this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
-                                        deliverablesPerMeterActivation)));
+                                        deliverablesPerMeterActivation), deliverablesPerMeterActivation));
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
@@ -129,8 +129,14 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         return each.getMetrologyConfiguration().getContracts().contains(contract);
     }
 
-    private Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
+    @Override
+    public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
         return new MeterActivationSetStreamBuilder(usagePoint, period).build();
+    }
+
+    @Override
+    public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
+        return new MeterActivationSetStreamBuilder(usagePoint, when).build();
     }
 
     private void prepare(UsagePoint usagePoint, MeterActivationSet meterActivationSet, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
@@ -245,10 +251,11 @@ public class DataAggregationServiceImpl implements DataAggregationService {
                 .forEach(each -> each.appendDefinitionTo(sqlBuilder));
     }
 
-    private Map<ReadingType, List<CalculatedReadingRecord>> execute(SqlBuilder sqlBuilder) throws SQLException {
+    private Map<ReadingType, List<CalculatedReadingRecord>> execute(SqlBuilder sqlBuilder, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws
+            SQLException {
         try (Connection connection = this.getDataModel().getConnection(true)) {
             try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
-                return this.execute(statement);
+                return this.execute(statement, deliverablesPerMeterActivation);
             }
         }
     }
@@ -265,9 +272,10 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         return this.meteringService.getThesaurus();
     }
 
-    private Map<ReadingType, List<CalculatedReadingRecord>> execute(PreparedStatement statement) throws SQLException {
+    private Map<ReadingType, List<CalculatedReadingRecord>> execute(PreparedStatement statement, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) throws
+            SQLException {
         try (ResultSet resultSet = statement.executeQuery()) {
-            return this.getDataModel().getInstance(CalculatedReadingRecordFactory.class).consume(resultSet);
+            return this.getDataModel().getInstance(CalculatedReadingRecordFactory.class).consume(resultSet, deliverablesPerMeterActivation);
         }
     }
 

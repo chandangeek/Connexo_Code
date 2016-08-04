@@ -3,12 +3,14 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +24,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-06-09 (13:01)
  */
-interface MeterActivationSet {
+public interface MeterActivationSet {
 
     void add(MeterActivation meterActivation);
 
@@ -49,5 +51,11 @@ interface MeterActivationSet {
     List<Channel> getMatchingChannelsFor(ReadingTypeRequirement requirement);
 
     Optional<BigDecimal> getMultiplier(ReadingTypeRequirement requirement, MultiplierType type);
+
+    boolean contains(Instant instant);
+
+    ZoneId getZoneId();
+
+    List<? extends ReadingQualityRecord> getReadingQualitiesFor(ReadingTypeRequirement requirement, Range range);
 
 }

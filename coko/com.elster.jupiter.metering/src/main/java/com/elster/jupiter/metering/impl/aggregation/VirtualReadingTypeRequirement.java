@@ -68,6 +68,10 @@ class VirtualReadingTypeRequirement {
         return "rid" + this.requirement.getId() + "_" + this.deliverable.getId() + "_" + this.meterActivationSequenceNumber;
     }
 
+    private String tempSqlName() {
+        return "temp" + this.requirement.getId() + "_" + this.deliverable.getId() + "_" + this.meterActivationSequenceNumber;
+    }
+
     private String sqlComment() {
         return this.requirement.getName() + this.prettyPrintedReadingType() + " for " + this.deliverable.getName() + " in " + this.prettyPrintMeterActivationPeriod();
     }
@@ -104,17 +108,39 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append("SELECT ");
         VirtualReadingType sourceReadingType = this.getSourceReadingType();
         SqlConstants.TimeSeriesColumnNames.appendAllAggregatedSelectValues(sourceReadingType, this.targetReadingType, sqlBuilder);
-        sqlBuilder.append("  FROM (");
+        sqlBuilder.append("  FROM (SELECT ");
+
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
+
+        sqlBuilder.append(", (SELECT nvl(max(case when type like '%.5.258' then 4 when type like '%.5.259' then 3 else 1 end), 0) FROM mtr_readingquality where readingtype = '");
+        sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
+        sqlBuilder.append("' and readingtimestamp = ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append(" and channelid = ");
+        sqlBuilder.append("" + this.getPreferredChannel().getId());
+        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
+        sqlBuilder.append(" FROM (");
+
         sqlBuilder.add(
                 this.getPreferredChannel()
                         .getTimeSeries()
                         .getRawValuesSql(
                                 this.rawDataPeriod,
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
-        sqlBuilder.append(") rawdata GROUP BY TRUNC(");
-        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+        sqlBuilder.append(") rawdata) GROUP BY TRUNC(");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
         sqlBuilder.append(", ");
         this.targetReadingType.getIntervalLength().appendOracleFormatModelTo(sqlBuilder);
         sqlBuilder.append(")");
@@ -122,39 +148,55 @@ class VirtualReadingTypeRequirement {
 
     @SuppressWarnings("unchecked")
     private void appendDefinitionWithoutAggregation(SqlBuilder sqlBuilder) {
+        sqlBuilder.append("SELECT ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.ID.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VERSIONCOUNT.fieldSpecName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.RECORDTIME.fieldSpecName());
+
+        sqlBuilder.append(", (SELECT nvl(max(case when type like '%.5.258' then 4 when type like '%.5.259' then 3 else 1 end), 0) FROM mtr_readingquality where readingtype = '");
+        sqlBuilder.append(this.getPreferredChannel().getMainReadingType().getMRID());
+        sqlBuilder.append("' and readingtimestamp = ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.TIMESTAMP.fieldSpecName());
+        sqlBuilder.append(" and channelid = ");
+        sqlBuilder.append("" + this.getPreferredChannel().getId());
+        sqlBuilder.append(" and (type like '%.5.258' or type like '%.5.259' or type like '%.7.%' or type like '%.8.%')) AS ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.READINGQUALITY.sqlName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
+        sqlBuilder.append(", ");
+        sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
+        sqlBuilder.append(" FROM(");
         TimeSeries timeSeries = this.getPreferredChannel().getTimeSeries();
-        if (this.hasLocalDateField(timeSeries)) {
+        if (timeSeries.isRegular()) {
             sqlBuilder.add(
                     timeSeries
                             .getRawValuesSql(
                                     this.rawDataPeriod,
-                                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
                                     this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
                                     this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)));
         } else {
-            this.appendDefinitionWithoutLocalDate(sqlBuilder);
+            this.appendDefinitionWithoutLocalDate(sqlBuilder, timeSeries);
         }
-    }
-
-    private boolean hasLocalDateField(TimeSeries timeSeries) {
-        return timeSeries.getRecordSpec().getFieldSpecs().stream().anyMatch(each -> "LOCALDATE".equals(each.getName()));
+        sqlBuilder.append(") ");
+        sqlBuilder.append(tempSqlName());
     }
 
     @SuppressWarnings("unchecked")
-    private void appendDefinitionWithoutLocalDate(SqlBuilder sqlBuilder) {
+    private void appendDefinitionWithoutLocalDate(SqlBuilder sqlBuilder, TimeSeries timeSeries) {
         /* Will use 'sysdate' as value for the localdate column expected by the with clause.
          * Tried to find a 'standard' oracle function that converts UTC milliseconds
          * in a number field to an oracle DATE type but failed.
          * As we do not plan to support time based aggregation on register data
          * it does not really matter if the value of the localdate column
          * is not actually the local version of the register reading's timestamp. */
-        sqlBuilder.append("SELECT ts.*, sysdate FROM (");
-        sqlBuilder.add(
-                this.getPreferredChannel()
-                        .getTimeSeries()
+        sqlBuilder.append("SELECT ts.*, sysdate as " + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName() + " FROM (");
+        sqlBuilder.add(timeSeries
                         .getRawValuesSql(
                                 this.rawDataPeriod,
-                                this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.PROCESSSTATUS),
                                 this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE)));
         sqlBuilder.append(") ts");
     }

@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.google.inject.Inject;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 class MultiplierValueImpl implements MultiplierValue {
 
@@ -16,6 +17,15 @@ class MultiplierValueImpl implements MultiplierValue {
     private Reference<MultiplierType> type = ValueReference.absent();
 
     private BigDecimal value;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     MultiplierValueImpl(DataModel dataModel) {

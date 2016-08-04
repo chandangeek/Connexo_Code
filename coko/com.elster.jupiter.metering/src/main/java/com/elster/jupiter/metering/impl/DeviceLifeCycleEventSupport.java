@@ -112,6 +112,7 @@ public class DeviceLifeCycleEventSupport implements StandardEventPredicate, Curr
             if (actualState.isPresent() && actualState.get().getFiniteStateMachine().getId() == finiteStateMachine.getId()) {
                 CurrentState currentState = new CurrentState();
                 currentState.sourceId = String.valueOf(endDevice.getId());
+                currentState.sourceType = EndDevice.class.getName();
                 currentState.name = actualState.map(State::getName).get();
                 return Optional.of(currentState);
             }

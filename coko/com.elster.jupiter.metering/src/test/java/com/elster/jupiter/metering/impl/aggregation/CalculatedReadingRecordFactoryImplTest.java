@@ -59,6 +59,8 @@ public class CalculatedReadingRecordFactoryImplTest {
     private IReadingType monthlyNetConsumption;
     @Mock
     private ResultSet resultSet;
+    @Mock
+    private Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation;
 
     @Before
     public void initializeMocks() {
@@ -85,7 +87,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         when(this.resultSet.next()).thenReturn(false);
 
         // Business method
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet);
+        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
 
         // Asserts
         verify(this.resultSet).next();
@@ -102,7 +104,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         doThrow(SQLException.class).when(this.resultSet).getString(anyInt());
 
         // Business method
-        this.testInstance().consume(this.resultSet);
+        this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
 
         // Asserts: see expected exception rule
     }
@@ -119,14 +121,13 @@ public class CalculatedReadingRecordFactoryImplTest {
         Timestamp ts1 = Timestamp.from(JAN_1_2016_UTC);
         when(this.resultSet.getTimestamp(3)).thenReturn(ts1);
         when(this.resultSet.getLong(4)).thenReturn(ts1.getTime());
-        when(this.resultSet.getLong(5)).thenReturn(3L);
+        when(this.resultSet.getLong(5)).thenReturn(1L);
         long expectedCountFor15minRecord = 1L;
         long expectedCountForMonthlyRecord = 1L;
         when(this.resultSet.getLong(6)).thenReturn(expectedCountFor15minRecord, expectedCountForMonthlyRecord);
-        ProcessStatus expectedProcessStatus = new ProcessStatus(3L);
 
         // Business method
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet);
+        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
 
         // Asserts
         verify(this.resultSet, times(3)).next();
@@ -143,7 +144,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         assertThat(fifteenMinuteRecord.getQuantities()).hasSize(1);
         assertThat(fifteenMinuteRecord.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity1);
         assertThat(fifteenMinuteRecord.getQuantity(monthlyNetConsumption)).isNull();
-        assertThat(fifteenMinuteRecord.getProcessStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(fifteenMinuteRecord.getProcessStatus()).isEqualTo(new ProcessStatus(0).with(ProcessStatus.Flag.EDITED, ProcessStatus.Flag.ESTIMATED)); //readingquality = 1 (estimated or edited)
         assertThat(fifteenMinuteRecord.getCount()).isEqualTo(expectedCountFor15minRecord);
         assertThat(recordsByReadingType).containsKey(monthlyNetConsumption);
         List<CalculatedReadingRecord> monthlyRecords = recordsByReadingType.get(monthlyNetConsumption);
@@ -157,7 +158,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         assertThat(monthlyRecord.getQuantities()).hasSize(1);
         assertThat(monthlyRecord.getQuantity(monthlyNetConsumption)).isEqualTo(expectedQuantity2);
         assertThat(monthlyRecord.getQuantity(fifteenMinutesNetConsumption)).isNull();
-        assertThat(monthlyRecord.getProcessStatus()).isEqualTo(expectedProcessStatus);
+        assertThat(monthlyRecord.getProcessStatus()).isEqualTo(new ProcessStatus(0).with(ProcessStatus.Flag.EDITED, ProcessStatus.Flag.ESTIMATED));
         assertThat(monthlyRecord.getCount()).isEqualTo(expectedCountForMonthlyRecord);
     }
 
@@ -174,13 +175,11 @@ public class CalculatedReadingRecordFactoryImplTest {
         Timestamp ts2 = Timestamp.from(JAN_1_2016_UTC.plus(Duration.ofMinutes(15)));
         when(this.resultSet.getTimestamp(3)).thenReturn(ts1, ts2);
         when(this.resultSet.getLong(4)).thenReturn(ts1.getTime(), ts2.getTime());
-        when(this.resultSet.getLong(5)).thenReturn(1L, 2L);
+        when(this.resultSet.getLong(5)).thenReturn(4L, 3L);
         when(this.resultSet.getLong(6)).thenReturn(1L, 1L);
-        ProcessStatus expectedProcessStatus1 = new ProcessStatus(1L);
-        ProcessStatus expectedProcessStatus2 = new ProcessStatus(2L);
 
         // Business method
-        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet);
+        Map<ReadingType, List<CalculatedReadingRecord>> recordsByReadingType = this.testInstance().consume(this.resultSet, deliverablesPerMeterActivation);
 
         // Asserts
         verify(this.resultSet, times(3)).next();
@@ -196,7 +195,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         assertThat(readingRecord1.getReadingType(0)).isEqualTo(fifteenMinutesNetConsumption);
         assertThat(readingRecord1.getQuantities()).hasSize(1);
         assertThat(readingRecord1.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity1);
-        assertThat(readingRecord1.getProcessStatus()).isEqualTo(expectedProcessStatus1);
+        assertThat(readingRecord1.getProcessStatus()).isEqualTo(ProcessStatus.of(ProcessStatus.Flag.SUSPECT));
         assertThat(readingRecord1.getCount()).isEqualTo(1L);
         CalculatedReadingRecord readingRecord2 = fifteenMinuteRecords.get(1);
         assertThat(readingRecord2.getLocalDate()).isEqualTo(ts2);
@@ -206,7 +205,7 @@ public class CalculatedReadingRecordFactoryImplTest {
         assertThat(readingRecord2.getReadingType(0)).isEqualTo(fifteenMinutesNetConsumption);
         assertThat(readingRecord2.getQuantities()).hasSize(1);
         assertThat(readingRecord2.getQuantity(fifteenMinutesNetConsumption)).isEqualTo(expectedQuantity2);
-        assertThat(readingRecord2.getProcessStatus()).isEqualTo(expectedProcessStatus2);
+        assertThat(readingRecord2.getProcessStatus()).isEqualTo(new ProcessStatus(0));
         assertThat(readingRecord2.getCount()).isEqualTo(1L);
     }
 

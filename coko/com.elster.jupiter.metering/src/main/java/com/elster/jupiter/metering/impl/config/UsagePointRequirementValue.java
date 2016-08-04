@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Instant;
 
 public class UsagePointRequirementValue {
     public enum Fields {
@@ -34,6 +35,15 @@ public class UsagePointRequirementValue {
 
     @SuppressWarnings("unused")
     private int position;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     UsagePointRequirementValue init(UsagePointRequirement usagePointRequirement, String value) {
         this.usagePointRequirement.set(usagePointRequirement);

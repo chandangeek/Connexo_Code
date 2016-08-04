@@ -667,6 +667,10 @@ public enum IntervalLength {
         throw new UnsupportedOperationException("Volume to flow conversion is not (yet) supported for " + this.name());
     }
 
+    public long getSeconds() {
+        return this.temporalAmount.get(ChronoUnit.SECONDS);
+    }
+
     public Stream<Instant> toTimeSeries(Range<Instant> period, ZoneId zoneId) {
         if (!period.hasLowerBound()) {
             throw new IllegalArgumentException("Cannot generate timeseries when start is not known");

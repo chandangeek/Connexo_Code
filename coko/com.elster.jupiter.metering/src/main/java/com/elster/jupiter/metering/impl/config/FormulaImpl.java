@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 import javax.inject.Inject;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,6 +25,15 @@ public class FormulaImpl implements ServerFormula {
     private Mode mode;
     private Reference<ServerExpressionNode> expressionNode = ValueReference.absent();
     private final DataModel dataModel;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     FormulaImpl(DataModel dataModel) {
@@ -95,7 +105,7 @@ public class FormulaImpl implements ServerFormula {
     public void delete() {
         dataModel.remove(this);
         if (this.expressionNode.isPresent()) {
-            dataModel.remove(this.expressionNode.get());
+            expressionNode.get().delete(dataModel);
         }
     }
 
