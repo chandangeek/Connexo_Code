@@ -15,12 +15,14 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.servicecall.ServiceCallTypeBuilder;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.gogo.MysqlPrint;
 
 import com.google.common.collect.Lists;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -62,6 +64,8 @@ public class ServiceCallsCommands {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile CustomPropertySetService customPropertySetService;
+
+    private final MysqlPrint mysqlPrint = new MysqlPrint();
 
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
@@ -153,7 +157,7 @@ public class ServiceCallsCommands {
     }
 
     public void serviceCall() {
-        System.out.println("Usage: servicecall <id>");
+        System.out.println("Usage: serviceCall <id>");
     }
 
     public void serviceCall(long id) {
@@ -219,7 +223,8 @@ public class ServiceCallsCommands {
     }
 
     public void handlers() {
-        serviceCallService.findAllHandlers().stream().forEach(System.out::println);
+        mysqlPrint.printTableWithHeader(Collections.singletonList("Service call handler name"),
+                serviceCallService.findAllHandlers().stream().sorted().map(Collections::singletonList).collect(toList()));
     }
 
     public void createServiceCallLifeCycle() {

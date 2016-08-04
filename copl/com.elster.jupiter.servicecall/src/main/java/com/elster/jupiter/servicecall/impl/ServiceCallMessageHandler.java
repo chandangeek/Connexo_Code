@@ -32,6 +32,7 @@ public class ServiceCallMessageHandler implements MessageHandler {
 
         } catch (RuntimeException e) {
             ((ServiceCallImpl) serviceCall).setState(DefaultState.FAILED);
+            serviceCall.log("Service call handler failed to process the service call: " + e.getLocalizedMessage(), e);
             serviceCall.save();
             serviceCall.getParent()
                     .ifPresent(parent -> parent.getType().getServiceCallHandler()
