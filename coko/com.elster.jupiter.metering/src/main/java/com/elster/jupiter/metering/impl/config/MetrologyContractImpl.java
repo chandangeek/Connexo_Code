@@ -196,6 +196,10 @@ public class MetrologyContractImpl implements MetrologyContract {
         return MetrologyContractStatusKey.UNKNOWN;
     }
 
+    void prepareDelete() {
+        this.deliverables.clear();
+    }
+
     private static class StatusImpl implements Status {
         private final Thesaurus thesaurus;
         private final MetrologyContractStatusKey statusKey;

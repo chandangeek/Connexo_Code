@@ -257,7 +257,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public List<MetrologyContract> getContracts() {
-        return Collections.unmodifiableList(this.metrologyContracts);
+        return Collections.unmodifiableList(new ArrayList<>(this.metrologyContracts));
     }
 
     @Override
@@ -290,6 +290,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void removeMetrologyContract(MetrologyContract metrologyContract) {
+        ((MetrologyContractImpl) metrologyContract).prepareDelete();
         if (this.metrologyContracts.remove(metrologyContract)) {
             touch();
         }
@@ -371,8 +372,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void delete() {
-        deliverables.clear();
-        metrologyContracts.clear();
+        getContracts().forEach(this::removeMetrologyContract);
+        getDeliverables().forEach(this::removeReadingTypeDeliverable);
         readingTypeRequirements.clear();
         customPropertySets.clear();
         this.metrologyConfigurationService.getDataModel().remove(this);

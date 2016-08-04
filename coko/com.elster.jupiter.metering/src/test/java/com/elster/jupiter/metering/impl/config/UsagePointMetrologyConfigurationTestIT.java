@@ -8,10 +8,16 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.config.MetrologyPurpose;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverableBuilder;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
@@ -418,7 +424,7 @@ public class UsagePointMetrologyConfigurationTestIT {
 
     @Test
     @Transactional
-    public void testCanRemoveMetrologConfigWithRequirements() {
+    public void testCanRemoveMetrologyConfigurationWithReadingTypeRequirements() {
         ServiceCategory serviceCategory = getServiceCategory();
         UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
         MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
@@ -431,6 +437,31 @@ public class UsagePointMetrologyConfigurationTestIT {
 
         metrologyConfiguration.delete();
 
-        assertThat(inMemoryBootstrapModule.getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
+        assertThat(getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void testCanRemoveMetrologyConfigurationWithContracts() {
+        ServiceCategory serviceCategory = getServiceCategory();
+        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService().findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION).get();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
+        MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
+        serviceCategory.addMeterRole(meterRole);
+        metrologyConfiguration.addMeterRole(meterRole);
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        FullySpecifiedReadingTypeRequirement requirement = metrologyConfiguration
+                .newReadingTypeRequirement("Reading type requirement", meterRole)
+                .withReadingType(readingType);
+        ReadingTypeDeliverableBuilder deliverableBuilder = metrologyConfiguration.newReadingTypeDeliverable("Reading type deliverable", readingType, Formula.Mode.EXPERT);
+        ReadingTypeDeliverable readingTypeDeliverable = deliverableBuilder.build(deliverableBuilder.divide(deliverableBuilder.requirement(requirement), deliverableBuilder.constant(10L)));
+        MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(metrologyPurpose);
+        metrologyContract.addDeliverable(readingTypeDeliverable);
+
+        // Business method
+        metrologyConfiguration.delete();
+
+        // Asserts
+        assertThat(getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
     }
 }
