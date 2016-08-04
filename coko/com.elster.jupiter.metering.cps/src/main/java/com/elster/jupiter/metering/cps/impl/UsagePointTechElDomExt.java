@@ -37,8 +37,7 @@ public class UsagePointTechElDomExt extends AbstractPersistentDomainExtension im
 
     private Reference<UsagePoint> usagePoint = Reference.empty();
 
-    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
-    private String crossSectionalArea;
+    private Quantity crossSectionalArea;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, message = "{FieldTooLong}")
     private String voltageLevel;
     private Quantity cableLocation;
@@ -51,11 +50,11 @@ public class UsagePointTechElDomExt extends AbstractPersistentDomainExtension im
         return super.getRegisteredCustomPropertySet();
     }
 
-    public String getCrossSectionalArea() {
+    public Quantity getCrossSectionalArea() {
         return crossSectionalArea;
     }
 
-    public void setCrossSectionalArea(String crossSectionalArea) {
+    public void setCrossSectionalArea(Quantity crossSectionalArea) {
         this.crossSectionalArea = crossSectionalArea;
     }
 
@@ -78,7 +77,7 @@ public class UsagePointTechElDomExt extends AbstractPersistentDomainExtension im
     @Override
     public void copyFrom(UsagePoint domainInstance, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.usagePoint.set(domainInstance);
-        this.setCrossSectionalArea((String) propertyValues.getProperty(FieldNames.CROSS_SECTIONAL_AREA.javaName()));
+        this.setCrossSectionalArea((Quantity) propertyValues.getProperty(FieldNames.CROSS_SECTIONAL_AREA.javaName()));
         this.setVoltageLevel((String) propertyValues.getProperty(FieldNames.VOLTAGE_LEVEL.javaName()));
         this.setCableLocation((Quantity) propertyValues.getProperty(FieldNames.CABLE_LOCATION.javaName()));
     }

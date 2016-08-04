@@ -84,12 +84,17 @@ class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTec
     @Override
     public List<PropertySpec> getPropertySpecs() {
         PropertySpec crossSectionalAreaSpec = propertySpecService
-                .stringSpec()
+                .specForValuesOf(new QuantityValueFactory())
                 .named(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA)
                 .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA_DESCRIPTION)
                 .fromThesaurus(this.getThesaurus())
-                .addValues("x mm\u00b2")
-                .markExhaustive(PropertySelectionMode.COMBOBOX)
+                .addValues(Quantity.create(BigDecimal.ZERO, -3, "m2"))
+//                .stringSpec()
+//                .named(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.javaName(), TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA)
+//                .describedAs(TranslationKeys.CPS_TECHNICAL_PROPERTIES_CROSS_SECTIONAL_AREA_DESCRIPTION)
+//                .fromThesaurus(this.getThesaurus())
+//                .addValues("x mm\u00b2")
+//                .markExhaustive(PropertySelectionMode.COMBOBOX)
                 .finish();
         PropertySpec volatageLevelSpec = propertySpecService
                 .stringSpec()
@@ -169,10 +174,8 @@ class UsagePointTechElCPS implements CustomPropertySet<UsagePoint, UsagePointTec
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
-            table.column(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.databaseName())
-                    .varChar()
-                    .map(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.javaName())
-                    .add();
+            table.addQuantityColumns(UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA.databaseName(), false, UsagePointTechElDomExt.FieldNames.CROSS_SECTIONAL_AREA
+                    .javaName());
             table.column(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.databaseName())
                     .varChar()
                     .map(UsagePointTechElDomExt.FieldNames.VOLTAGE_LEVEL.javaName())
