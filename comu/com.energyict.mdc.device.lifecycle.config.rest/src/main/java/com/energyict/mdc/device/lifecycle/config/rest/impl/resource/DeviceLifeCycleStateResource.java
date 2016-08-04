@@ -1,18 +1,26 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
-import com.elster.jupiter.fsm.*;
-import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.Privileges;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
-import com.energyict.mdc.device.lifecycle.config.rest.info.*;
+import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfoFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateFactory;
+import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
+import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionBusinessProcessInfo;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -27,12 +35,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DeviceLifeCycleStateResource {
     private final ExceptionFactory exceptionFactory;
-    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private final FiniteStateMachineService finiteStateMachineService;
     private final DeviceLifeCycleStateFactory deviceLifeCycleStateFactory;
     private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
@@ -41,13 +49,11 @@ public class DeviceLifeCycleStateResource {
     @Inject
     public DeviceLifeCycleStateResource(
             ExceptionFactory exceptionFactory,
-            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             FiniteStateMachineService finiteStateMachineService,
             DeviceLifeCycleStateFactory deviceLifeCycleStateFactory,
             AuthorizedActionInfoFactory authorizedActionInfoFactory,
             ResourceHelper resourceHelper) {
         this.exceptionFactory = exceptionFactory;
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.finiteStateMachineService = finiteStateMachineService;
         this.deviceLifeCycleStateFactory = deviceLifeCycleStateFactory;
         this.authorizedActionInfoFactory = authorizedActionInfoFactory;
@@ -59,7 +65,7 @@ public class DeviceLifeCycleStateResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getStatesForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam JsonQueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
-        List<DeviceLifeCycleStateInfo> states = (List<DeviceLifeCycleStateInfo>) deviceLifeCycle.getFiniteStateMachine().getStates()
+        List<DeviceLifeCycleStateInfo> states = deviceLifeCycle.getFiniteStateMachine().getStates()
                 .stream()
                 .map(state -> deviceLifeCycleStateFactory.from(deviceLifeCycle, state))
                 .sorted((st1, st2) -> st1.name.compareToIgnoreCase(st2.name)) // alphabetical sort
@@ -92,7 +98,11 @@ public class DeviceLifeCycleStateResource {
 
         State newState = stateUpdater.complete();
         boolean firstState = deviceLifeCycle.getFiniteStateMachine().getStates().isEmpty();
-        FiniteStateMachine fsm = firstState ? fsmUpdater.complete(newState) : fsmUpdater.complete();
+        if (firstState) {
+            fsmUpdater.complete(newState);
+        } else {
+            fsmUpdater.complete();
+        }
         return Response.status(Response.Status.CREATED).entity(deviceLifeCycleStateFactory.from(deviceLifeCycle, newState)).build();
     }
 
@@ -170,27 +180,25 @@ public class DeviceLifeCycleStateResource {
         checkStateHasTransitions(deviceLifeCycle, stateForDeletion);
         checkStateIsTheLatest(deviceLifeCycle);
         checkStateIsInitial(stateForDeletion);
-        FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
-        fsmUpdater.removeState(stateForDeletion).complete();
+        deviceLifeCycle.getFiniteStateMachine().startUpdate().removeState(stateForDeletion).complete();
         deviceLifeCycle.save(); // increase parent version
         return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, stateForDeletion)).build();
     }
 
-    public List<DeviceLifeCycleStateInfo> getAllStatesForDeviceLifecycle(long deviceLifeCycleId) {
+    List<DeviceLifeCycleStateInfo> getAllStatesForDeviceLifecycle(long deviceLifeCycleId) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
-        List<DeviceLifeCycleStateInfo> states = (List<DeviceLifeCycleStateInfo>) deviceLifeCycle.getFiniteStateMachine().getStates()
+        return deviceLifeCycle.getFiniteStateMachine().getStates()
                 .stream()
                 .map(state -> deviceLifeCycleStateFactory.from(deviceLifeCycle, state))
                 .sorted((st1, st2) -> st1.name.compareToIgnoreCase(st2.name)) // alphabetical sort
                 .collect(Collectors.toList());
-        return states;
     }
 
     private void checkStateHasTransitions(DeviceLifeCycle deviceLifeCycle, State stateForDeletion) {
         List<Long> transitionIds = deviceLifeCycle.getFiniteStateMachine().getTransitions().stream()
                 .filter(transition -> transition.getFrom().getId() == stateForDeletion.getId()
                                       || transition.getTo().getId() == stateForDeletion.getId())
-                .map(transition -> transition.getId())
+                .map(StateTransition::getId)
                 .collect(Collectors.toList());
         if (!transitionIds.isEmpty()){
             String transitionNames = deviceLifeCycle.getAuthorizedActions().stream()

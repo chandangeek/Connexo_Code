@@ -45,28 +45,28 @@ public class ResourceHelper {
         this.conflictFactory = conflictFactory;
     }
 
-    public DeviceLifeCycle findDeviceLifeCycleByIdOrThrowException(long id) {
+    DeviceLifeCycle findDeviceLifeCycleByIdOrThrowException(long id) {
         return deviceLifeCycleConfigurationService.findDeviceLifeCycle(id)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_NOT_FOUND, id));
     }
 
-    public Long getCurrentDeviceLifeCycleVersion(long id) {
+    private Long getCurrentDeviceLifeCycleVersion(long id) {
         return deviceLifeCycleConfigurationService.findDeviceLifeCycle(id)
                 .map(DeviceLifeCycle::getVersion).orElse(null);
     }
 
-    public Optional<DeviceLifeCycle> getLockedDeviceLifeCycle(long id, long version) {
+    private Optional<DeviceLifeCycle> getLockedDeviceLifeCycle(long id, long version) {
         return deviceLifeCycleConfigurationService.findAndLockDeviceLifeCycleByIdAndVersion(id, version);
     }
 
-    public DeviceLifeCycle lockDeviceLifeCycleOrThrowException(DeviceLifeCycleInfo info) {
+    DeviceLifeCycle lockDeviceLifeCycleOrThrowException(DeviceLifeCycleInfo info) {
         return getLockedDeviceLifeCycle(info.id, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
                         .withActualVersion(() -> getCurrentDeviceLifeCycleVersion(info.id))
                         .supplier());
     }
 
-    public State findStateByIdOrThrowException(DeviceLifeCycle deviceLifeCycle, long stateId) {
+    State findStateByIdOrThrowException(DeviceLifeCycle deviceLifeCycle, long stateId) {
         Objects.requireNonNull(deviceLifeCycle);
         return deviceLifeCycle.getFiniteStateMachine().getStates()
                 .stream()
@@ -75,15 +75,15 @@ public class ResourceHelper {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_STATE_NOT_FOUND, stateId));
     }
 
-    public Long getCurrentStateVersion(long id) {
+    private Long getCurrentStateVersion(long id) {
         return finiteStateMachineService.findFiniteStateById(id).map(State::getVersion).orElse(null);
     }
 
-    public Optional<State> getLockedStateOrTrowException(long id, long version) {
+    private Optional<State> getLockedStateOrTrowException(long id, long version) {
         return finiteStateMachineService.findAndLockStateByIdAndVersion(id, version);
     }
 
-    public State lockStateOrThrowException(DeviceLifeCycleStateInfo info) {
+    State lockStateOrThrowException(DeviceLifeCycleStateInfo info) {
         Optional<DeviceLifeCycle> deviceLifeCycle = getLockedDeviceLifeCycle(info.parent.id, info.parent.version);
         if (deviceLifeCycle.isPresent()) {
             return getLockedStateOrTrowException(info.id, info.version)
@@ -98,7 +98,7 @@ public class ResourceHelper {
                 .build();
     }
 
-    public AuthorizedAction findAuthorizedActionByIdOrThrowException(DeviceLifeCycle deviceLifeCycle, long actionId) {
+    AuthorizedAction findAuthorizedActionByIdOrThrowException(DeviceLifeCycle deviceLifeCycle, long actionId) {
         Objects.requireNonNull(deviceLifeCycle);
         return deviceLifeCycle.getAuthorizedActions()
                 .stream()
@@ -107,11 +107,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_AUTH_ACTION_NOT_FOUND, actionId));
     }
 
-    public Long getCurrentAuthorizedActionVersion(long id) {
+    private Long getCurrentAuthorizedActionVersion(long id) {
         return deviceLifeCycleConfigurationService.findAuthorizedActionById(id).map(AuthorizedAction::getVersion).orElse(null);
     }
 
-    public Optional<AuthorizedAction> getLockedAuthorizedAction(long id, long version) {
+    private Optional<AuthorizedAction> getLockedAuthorizedAction(long id, long version) {
         return deviceLifeCycleConfigurationService.findAndLockAuthorizedActionByIdAndVersion(id, version);
     }
 
@@ -132,7 +132,7 @@ public class ResourceHelper {
 
     public Optional<StateTransitionEventType> findStateTransitionEventType(String symbol){
         Optional<EventType> eventType = eventService.getEventType(symbol);
-        Optional<? extends StateTransitionEventType> stateTransitionEventType = Optional.empty();
+        Optional<? extends StateTransitionEventType> stateTransitionEventType;
         if (eventType.isPresent()){
             stateTransitionEventType = finiteStateMachineService.findStandardStateTransitionEventType(eventType.get());
         } else {
@@ -141,9 +141,10 @@ public class ResourceHelper {
         return Optional.ofNullable(stateTransitionEventType.orElse(null));
     }
 
-    public void checkDeviceLifeCycleUsages(DeviceLifeCycle deviceLifeCycle) {
+    void checkDeviceLifeCycleUsages(DeviceLifeCycle deviceLifeCycle) {
         if (!deviceConfigurationService.findDeviceTypesUsingDeviceLifeCycle(deviceLifeCycle).isEmpty()){
             throw exceptionFactory.newException(MessageSeeds.DEVICE_LIFECYCLE_IS_USED_BY_DEVICE_TYPE);
         }
     }
+
 }
