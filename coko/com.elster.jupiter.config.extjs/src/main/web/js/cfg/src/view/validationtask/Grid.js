@@ -31,7 +31,7 @@ Ext.define('Cfg.view.validationtask.Grid', {
                     } else if (value) {
                         result = value.statusPrefix
                     } else {
-                        result = Uni.I18n.translate('validationTasks.general.notPerformed', 'CFG', 'Not performed yet');
+                        result = Uni.I18n.translate('validationTasks.general.created', 'CFG', 'Created');
                     }
                     return result;
                 },

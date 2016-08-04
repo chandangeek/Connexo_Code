@@ -57,7 +57,7 @@ Ext.define('Cfg.model.ValidationTask', {
                 if (data.lastValidationOccurence && data.lastValidationOccurence.status) {
                     return data.lastValidationOccurence.status;
                 } else {
-                    return Uni.I18n.translate('validationTasks.general.notPerformed', 'CFG', 'Not performed yet');
+                    return Uni.I18n.translate('validationTasks.general.created', 'CFG', 'Created');
                 }
             }
         },
@@ -66,11 +66,11 @@ Ext.define('Cfg.model.ValidationTask', {
             persist: false,
             mapping: function (data) {
                 if (data.lastValidationOccurence && data.lastValidationOccurence.statusDate && data.lastValidationOccurence.statusDate != 0) {
-                    return data.lastValidationOccurence.statusPrefix + ' ' + moment(data.lastValidationOccurence.statusDate).format('ddd, DD MMM YYYY HH:mm:ss');
+                    return data.lastValidationOccurence.statusPrefix + ' ' + Uni.DateTime.formatDateTimeLong(new Date(data.lastValidationOccurence.statusDate));
                 } else if (data.lastValidationOccurence) {
                     return data.lastValidationOccurence.statusPrefix
                 } else {
-                    return Uni.I18n.translate('validationTasks.general.notPerformed', 'CFG', 'Not performed yet');
+                    return Uni.I18n.translate('validationTasks.general.created', 'CFG', 'Created');
                 }
             }
         },
