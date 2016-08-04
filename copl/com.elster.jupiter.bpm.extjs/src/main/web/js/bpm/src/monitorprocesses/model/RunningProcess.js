@@ -39,9 +39,9 @@ Ext.define('Bpm.monitorprocesses.model.RunningProcess', {
                     case 2:
                         return Uni.I18n.translate('bpm.status.completed', 'BPM', 'Completed');
                     case 3:
-                        return Uni.I18n.translate('bpm.status.aborted', 'BPM', 'Aborted');
+                        return Uni.I18n.translate('bpm.status.cancelled', 'BPM', 'Cancelled');
                     case 4:
-                        return Uni.I18n.translate('bpm.status.suspended', 'BPM', 'Suspended');
+                        return Uni.I18n.translate('bpm.status.ongoing', 'BPM', 'Ongoing');
                     default :
                         return value;
                 }

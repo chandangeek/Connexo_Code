@@ -77,19 +77,25 @@ Ext.define('Bpm.model.task.Task', {
             convert: function (value, record) {
                 switch (record.get('status')) {
                     case 'Created':
+                        return Uni.I18n.translate('bpm.filter.createdStatus', 'BPM', 'Created');
                     case 'Ready':
+                        return Uni.I18n.translate('bpm.filter.createdStatus', 'BPM', 'Created');
                     case 'Reserved':
-                        return Uni.I18n.translate('bpm.filter.openStatus', 'BPM', 'Open');
+                        return Uni.I18n.translate('bpm.filter.assignedStatus', 'BPM', 'Assigned');
                     case 'InProgress':
+                        return Uni.I18n.translate('bpm.filter.inProgressStatus', 'BPM', 'Ongoing');
                     case 'Suspended':
-                        return Uni.I18n.translate('bpm.filter.inProgressStatus', 'BPM', 'In progress');
+                        return Uni.I18n.translate('bpm.filter.inProgressStatus', 'BPM', 'Ongoing');
                     case 'Completed':
                         return Uni.I18n.translate('bpm.filter.completedStatus', 'BPM', 'Completed');
                     case 'Failed':
-                    case 'Error':
-                    case 'Exited':
-                    case 'Obsolete':
                         return Uni.I18n.translate('bpm.filter.failedStatus', 'BPM', 'Failed');
+                    case 'Error':
+                        return Uni.I18n.translate('bpm.filter.failedStatus', 'BPM', 'Failed');
+                    case 'Exited':
+                        return Uni.I18n.translate('bpm.filter.cancelledStatus', 'BPM', 'Cancelled');
+                    case 'Obsolete':
+                        return Uni.I18n.translate('bpm.filter.cancelledStatus', 'BPM', 'Cancelled');
                     default:
                         return value;
                 }
