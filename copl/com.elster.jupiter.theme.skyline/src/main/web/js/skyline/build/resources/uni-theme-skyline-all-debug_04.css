@@ -3028,8 +3028,9 @@ div.x-form-spinner-down {
   min-height: 28px;
 }
 
-.x-form-display-field .application{
-  color: #A0A0A0;
+/* line 34, ../../sass/src/form/field/Base.scss */
+.x-form-display-field .application {
+  color: #a0a0a0;
 }
 
 /* line 4, ../../sass/src/window/MessageBox.scss */
@@ -10104,6 +10105,12 @@ div.x-form-spinner-down {
 /* line 22, ../../sass/src/form/field/Checkbox.scss */
 .x-form-checkbox:hover {
   cursor: pointer;
+}
+
+/* line 27, ../../sass/src/form/field/Checkbox.scss */
+.x-form-cb-wrap {
+  height: auto;
+  min-height: 28px;
 }
 
 /* line 3, ../../sass/src/form/Label.scss */

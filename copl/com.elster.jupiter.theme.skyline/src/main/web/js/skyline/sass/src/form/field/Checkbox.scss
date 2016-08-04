@@ -23,3 +23,8 @@
         cursor: pointer;
     }
 }
+
+.#{$prefix}form-cb-wrap {
+  height: auto;
+  min-height: 28px;
+}

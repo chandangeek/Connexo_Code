@@ -7397,6 +7397,11 @@ div.x-form-spinner-down {
   min-height: 28px;
 }
 
+/* line 34, ../../sass/src/form/field/Base.scss */
+.x-form-display-field .application {
+  color: #a0a0a0;
+}
+
 /* line 4, ../../sass/src/window/MessageBox.scss */
 .x-message-box .x-window-body .x-header .x-header-text {
   font-weight: bold;
@@ -14691,6 +14696,12 @@ div.x-form-spinner-down {
   cursor: pointer;
 }
 
+/* line 27, ../../sass/src/form/field/Checkbox.scss */
+.x-form-cb-wrap {
+  height: auto;
+  min-height: 28px;
+}
+
 /* line 3, ../../sass/src/form/Label.scss */
 .x-form-item-label {
   font-size: 13px;
@@ -18083,12 +18094,4 @@ a.x-datepicker-date:hover {
 /* line 405, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
 .x-tab-bar-medium .x-tabbar-scroll-left {
   background-image: url(images/tab-bar/medium-scroll-left.png);
-}
-/* line 409, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
-.x-tab-bar-medium .x-tabbar-scroll-right {
-  background-image: url(images/tab-bar/medium-scroll-right.png);
-}
-/* line 413, ../../../../../../../../com.elster.jupiter.extjs/src/main/web/js/ext/packages/ext-theme-neutral/sass/src/tab/Bar.scss */
-.x-tab-bar-medium .x-tabbar-scroll-top {
-  background-image: url(images/tab-bar/medium-scroll-top.png);
 }
