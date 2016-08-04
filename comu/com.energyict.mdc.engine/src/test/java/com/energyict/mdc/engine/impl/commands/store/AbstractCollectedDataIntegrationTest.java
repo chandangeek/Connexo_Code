@@ -49,6 +49,7 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
@@ -78,6 +79,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import java.security.Principal;
@@ -181,6 +183,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new EngineModule(),
                 new ProtocolApiModule(),
                 new PluggableModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new TimeModule(),
@@ -190,7 +193,6 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new MasterDataModule(),
                 new MdcReadingTypeUtilServiceModule(),
                 new SchedulingModule(),
-                new KpiModule(),
                 new TaskModule(),
                 new TasksModule(),
                 new IssuesModule(),
@@ -212,6 +214,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 injector.getInstance(CustomPropertySetService.class);
                 injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
                 injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+                injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
                 injector.getInstance(FiniteStateMachineService.class);
                 injector.getInstance(MeteringService.class);
                 injector.getInstance(MasterDataService.class);
@@ -305,6 +308,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
             bind(com.elster.jupiter.issue.share.service.IssueService.class).toInstance(mock(com.elster.jupiter.issue.share.service.IssueService.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(FileImportService.class).toInstance(mock(FileImportService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
 
     }
