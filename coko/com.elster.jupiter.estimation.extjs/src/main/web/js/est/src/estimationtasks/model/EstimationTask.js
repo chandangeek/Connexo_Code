@@ -29,7 +29,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
                 if (data.lastEstimationOccurrence && data.lastEstimationOccurrence.status) {
                     return data.lastEstimationOccurrence.status;
                 } else {
-                    return Uni.I18n.translate('estimationtasks.general.notPerformed', 'EST', 'Not performed yet');
+                    return Uni.I18n.translate('estimationtasks.general.created', 'EST', 'Created');
                 }
             }
         },
@@ -45,7 +45,7 @@ Ext.define('Est.estimationtasks.model.EstimationTask', {
                         return data.lastEstimationOccurrence.status;
                     }
                 } else {
-                    return Uni.I18n.translate('estimationtasks.general.notPerformed', 'EST', 'Not performed yet');
+                    return Uni.I18n.translate('estimationtasks.general.created', 'EST', 'Created');
                 }
             }
         },

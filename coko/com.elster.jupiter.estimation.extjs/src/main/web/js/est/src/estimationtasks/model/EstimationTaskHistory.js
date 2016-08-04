@@ -36,7 +36,7 @@ Ext.define('Est.estimationtasks.model.EstimationTaskHistory', {
             persist: false,
             mapping: function (data) {
                 if (data.statusDate && (data.statusDate !== 0)) {
-                    return data.statusPrefix + ' ' + moment(data.statusDate).format('ddd, DD MMM YYYY HH:mm:ss');
+                    return data.statusPrefix + ' ' + Uni.DateTime.formatDateTimeLong(new Date(data.statusDate));
                 }
                 return data.statusPrefix;
             }
