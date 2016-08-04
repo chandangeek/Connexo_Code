@@ -551,6 +551,7 @@ public class UsagePointResource {
                 DefaultState.WAITING);
 
         serviceCallService.findServiceCalls(usagePoint, states)
+                .stream()
                 .map(serviceCallInfoFactory::summarized)
                 .forEach(serviceCallInfos::add);
 
