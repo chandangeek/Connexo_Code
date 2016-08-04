@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cps.ValuesRangeConflictType;
+import com.elster.jupiter.estimation.Estimatable;
+import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResult;
 import com.elster.jupiter.estimation.Estimator;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -145,7 +147,11 @@ public class ChannelResource {
     public PagedInfoList getChannelCustomProperties(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel, this.clock.instant());
-        return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Collections.singletonList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
+        return PagedInfoList
+                .fromCompleteList(
+                        "customproperties",
+                        customPropertySetInfo != null ? Collections.singletonList(customPropertySetInfo) : new ArrayList<>(),
+                        queryParameters);
     }
 
     @GET
@@ -529,6 +535,57 @@ public class ChannelResource {
         } else {
             return clock.instant();
         }
+    }
+
+    @POST
+    @Transactional
+    @Path("/{channelid}/data/issue/estimate")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response saveEstimatesChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, EstimateChannelDataInfo estimateChannelDataInfo) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
+        return saveEstimates(device, channel, estimateChannelDataInfo);
+    }
+
+    private Response saveEstimates(Device device, Channel channel, EstimateChannelDataInfo estimateChannelDataInfo) {
+        Estimator estimator = estimationHelper.getEstimator(estimateChannelDataInfo);
+        ReadingType readingType = channel.getReadingType();
+        List<BaseReading> editedBulkReadings = new ArrayList<>();
+        List<Range<Instant>> ranges = estimateChannelDataInfo.intervals.stream()
+                .map(info -> Range.openClosed(Instant.ofEpochMilli(info.start), Instant.ofEpochMilli(info.end)))
+                .collect(Collectors.toList());
+        ImmutableSet<Range<Instant>> blocks = ranges.stream()
+                .collect(ImmutableRangeSet::<Instant>builder, ImmutableRangeSet.Builder::add, (b1, b2) -> b1.addAll(b2.build()))
+                .build()
+                .asRanges();
+
+        Instant calculatedReadingTypeTimeStampForEstimationPreview = getCalculatedReadingTypeTimeStampForEstimationPreview(estimateChannelDataInfo);
+        if (!estimateChannelDataInfo.estimateBulk && channel.getReadingType().isCumulative() && channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).isPresent()) {
+            readingType = channel.getCalculatedReadingType(calculatedReadingTypeTimeStampForEstimationPreview).get();
+        }
+
+        for (Range<Instant> block : blocks) {
+            EstimationResult estimationResult = estimationHelper.previewEstimate(QualityCodeSystem.MDC, device, readingType, block, estimator);
+            if (!estimationResult.remainingToBeEstimated().isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            ChannelDataInfo channelDataInfo = new ChannelDataInfo();
+            for (EstimationBlock estimated : estimationResult.estimated()) {
+                for (Estimatable estimatable : estimated.estimatables()) {
+                    channelDataInfo.interval = new IntervalInfo();
+                    channelDataInfo.interval.end = estimatable.getTimestamp().toEpochMilli();
+                    channelDataInfo.collectedValue = estimatable.getEstimation();
+                    editedBulkReadings.add(channelDataInfo.createNewBulk());
+                }
+            }
+        }
+        channel.startEditingData()
+                .editBulkChannelData(editedBulkReadings)
+                .complete();
+
+        return Response.status(Response.Status.OK).build();
     }
 
     @GET

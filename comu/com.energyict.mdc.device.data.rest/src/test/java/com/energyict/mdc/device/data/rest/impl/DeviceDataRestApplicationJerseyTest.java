@@ -37,6 +37,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
@@ -147,6 +148,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     DataCollectionKpiService dataCollectionKpiService;
     @Mock
+    DataValidationKpiService dataValidationKpiService;
+    @Mock
     YellowfinGroupsService yellowfinGroupsService;
     @Mock
     FirmwareService firmwareService;
@@ -237,6 +240,7 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setFavoritesService(favoritesService);
         application.setDataCollectionKpiService(dataCollectionKpiService);
+        application.setDataValidationKpiService(dataValidationKpiService);
         application.setYellowfinGroupsService(yellowfinGroupsService);
         application.setFirmwareService(firmwareService);
         application.setDeviceLifeCycleService(deviceLifeCycleService);
