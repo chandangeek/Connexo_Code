@@ -113,6 +113,7 @@ public class DeviceTypeTwoCustomPropertySet implements CustomPropertySet<Device,
                 .describedAs("bbbbbbbb")
                 .addValues(BigDecimal.valueOf(8L), BigDecimal.valueOf(88L), BigDecimal.valueOf(888L))
                 .setDefaultValue(BigDecimal.valueOf(88L))
+                .markExhaustive()
                 .finish();
         PropertySpec testBooleanPropertySpec = this.propertySpecService
                 .booleanSpec()

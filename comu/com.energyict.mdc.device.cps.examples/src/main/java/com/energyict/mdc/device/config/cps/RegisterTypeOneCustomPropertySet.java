@@ -119,6 +119,7 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
                         .describedAs("A")
                         .addValues(BigDecimal.valueOf(7L), BigDecimal.valueOf(77L), BigDecimal.valueOf(777L))
                         .setDefaultValue(BigDecimal.valueOf(77L))
+                        .markExhaustive()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
@@ -126,6 +127,7 @@ public class RegisterTypeOneCustomPropertySet implements CustomPropertySet<Regis
                         .describedAs("infoEnumString")
                         .addValues("alfa", "beta", "gamma")
                         .setDefaultValue("gamma")
+                        .markExhaustive()
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()

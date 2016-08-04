@@ -119,6 +119,7 @@ public class DeviceTypeOneVersionedCustomPropertySet implements CustomPropertySe
                         .describedAs("bbbbbbbb")
                         .addValues(BigDecimal.valueOf(8L), BigDecimal.valueOf(88L), BigDecimal.valueOf(888L))
                         .setDefaultValue(BigDecimal.valueOf(88L))
+                        .markExhaustive()
                         .finish());
     }
 

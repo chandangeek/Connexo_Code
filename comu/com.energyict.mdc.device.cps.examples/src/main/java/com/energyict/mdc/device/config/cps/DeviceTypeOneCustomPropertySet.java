@@ -126,6 +126,7 @@ public class DeviceTypeOneCustomPropertySet implements CustomPropertySet<Device,
                         .describedAs("infoEnumString")
                         .addValues("alfa", "beta", "gamma")
                         .setDefaultValue("gamma")
+                        .markExhaustive()
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()

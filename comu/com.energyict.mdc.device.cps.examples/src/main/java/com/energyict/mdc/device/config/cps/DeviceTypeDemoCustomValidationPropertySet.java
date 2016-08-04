@@ -106,6 +106,7 @@ public class DeviceTypeDemoCustomValidationPropertySet implements CustomProperty
                         .describedAs("Meter mechanism")
                         .addValues("Credit", "Mechanical Token", "Electronic Token", "Coin", "Prepayment")
                         .setDefaultValue("Credit")
+                        .markExhaustive()
                         .finish());
     }
 

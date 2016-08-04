@@ -126,6 +126,7 @@ public class RegisterTypeOneVersionedCustomPropertySet implements CustomProperty
                         .describedAs("infoEnumString")
                         .addValues("alfa", "beta", "gamma")
                         .setDefaultValue("gamma")
+                        .markExhaustive()
                         .finish(),
                 this.propertySpecService
                         .booleanSpec()
