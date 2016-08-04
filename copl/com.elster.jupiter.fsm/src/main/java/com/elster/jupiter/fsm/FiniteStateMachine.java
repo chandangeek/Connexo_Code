@@ -26,30 +26,30 @@ import java.util.Optional;
 @ProviderType
 public interface FiniteStateMachine {
 
-    public long getId();
+    long getId();
 
-    public long getVersion();
+    long getVersion();
 
     /**
      * Gets the timestamp on which this FiniteStateMachine was created.
      *
      * @return The creation timestamp
      */
-    public Instant getCreationTimestamp();
+    Instant getCreationTimestamp();
 
     /**
      * Gets the timestamp on which this FiniteStateMachine was last modified.
      *
      * @return The timestamp of last modification
      */
-    public Instant getModifiedTimestamp();
+    Instant getModifiedTimestamp();
 
     /**
      * Tests if this FiniteStateMachine was previously marked as obsolete.
      *
      * @return A flag that indicates if this FiniteStateMachine has been marked as obsolete
      */
-    public boolean isObsolete();
+    boolean isObsolete();
 
     /**
      * Gets the timestamp on which this FiniteStateMachine was
@@ -57,11 +57,11 @@ public interface FiniteStateMachine {
      *
      * @return The obsolete timestamp
      */
-    public Instant getObsoleteTimestamp();
+    Instant getObsoleteTimestamp();
 
-    public String getName();
+    String getName();
 
-    public List<State> getStates();
+    List<State> getStates();
 
     /**
      * Gets the initial {@link State}.
@@ -69,25 +69,25 @@ public interface FiniteStateMachine {
      * @return The initial State
      * @see State#isInitial()
      */
-    public State getInitialState();
+    State getInitialState();
 
-    public Optional<State> getState(String name);
+    Optional<State> getState(String name);
 
-    public List<StateTransition> getTransitions();
+    List<StateTransition> getTransitions();
 
-    public FiniteStateMachineUpdater startUpdate();
+    FiniteStateMachineUpdater startUpdate();
 
     /**
      * Saves this FiniteStateMachine after having applied changes to it
      * via a {@link FiniteStateMachineUpdater}.
      */
-    public void update();
+    void update();
 
     /**
      * Marks this FiniteStateMachine as obsolete
      * so that it can no longer be used.
      */
-    public void makeObsolete();
+    void makeObsolete();
 
     /**
      * Deletes this FiniteStateMachine,
@@ -96,6 +96,6 @@ public interface FiniteStateMachine {
      * it makes not attempt to cleanup references to this
      * FiniteStateMachine outside of the finite state machine bundle.
      */
-    public void delete();
+    void delete();
 
 }

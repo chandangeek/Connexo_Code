@@ -21,7 +21,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
      * @param newName The new name
      * @return This FiniteStateMachineUpdater to support method chaining
      */
-    public FiniteStateMachineUpdater setName(String newName);
+    FiniteStateMachineUpdater setName(String newName);
 
     /**
      * Removes the {@link State} with the specified name as well
@@ -32,7 +32,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
      * @param obsoleteStateName The name of the obsolete State
      * @return This FiniteStateMachineUpdater to support method chaining
      */
-    public FiniteStateMachineUpdater removeState(String obsoleteStateName);
+    FiniteStateMachineUpdater removeState(String obsoleteStateName);
 
     /**
      * Removes the specified {@link State} as well
@@ -43,7 +43,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
      * @param obsoleteState The obsolete State
      * @return This FiniteStateMachineUpdater to support method chaining
      */
-    public FiniteStateMachineUpdater removeState(State obsoleteState);
+    FiniteStateMachineUpdater removeState(State obsoleteState);
 
     /**
      * Starts the update process for the {@link State} with the specified name.
@@ -51,7 +51,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
      * @param name The name of the State that needs updating
      * @return The StateUpdater
      */
-    public StateUpdater state(String name);
+    StateUpdater state(String name);
 
     /**
      * Starts the update process for the {@link State} with the unique identifier.
@@ -59,7 +59,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
      * @param id The unique identifier of the State that needs updating
      * @return The StateUpdater
      */
-    public StateUpdater state(long id);
+    StateUpdater state(long id);
 
     /**
      * Completes the building process, returning the {@link FiniteStateMachine}
@@ -75,9 +75,9 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
      * in the main builder's update target.
      */
     @ProviderType
-    public interface StateUpdater {
+    interface StateUpdater {
 
-        public StateUpdater setName(String newName);
+        StateUpdater setName(String newName);
 
         /**
          * Adds the {@link StateChangeBusinessProcess} to the list of
@@ -87,7 +87,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateUpdater onEntry(StateChangeBusinessProcess process);
+        StateUpdater onEntry(StateChangeBusinessProcess process);
 
         /**
          * Removes the {@link StateChangeBusinessProcess} from the list of
@@ -97,7 +97,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateUpdater removeOnEntry(StateChangeBusinessProcess process);
+        StateUpdater removeOnEntry(StateChangeBusinessProcess process);
 
         /**
          * Adds the {@link StateChangeBusinessProcess} to the list of
@@ -107,7 +107,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateUpdater onExit(StateChangeBusinessProcess process);
+        StateUpdater onExit(StateChangeBusinessProcess process);
 
         /**
          * Removes the {@link StateChangeBusinessProcess} from the list of
@@ -117,7 +117,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateUpdater removeOnExit(StateChangeBusinessProcess process);
+        StateUpdater removeOnExit(StateChangeBusinessProcess process);
 
         /**
          * Assists in building a {@link StateTransition} from the {@link State}
@@ -127,7 +127,7 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @param eventType The StateTransitionEventType
          * @return The builder on which you will specify the target State
          */
-        public TransitionBuilder on(StateTransitionEventType eventType);
+        TransitionBuilder on(StateTransitionEventType eventType);
 
         /**
          * Prohibits the {@link StateTransitionEventType} to occur
@@ -138,18 +138,18 @@ public interface FiniteStateMachineUpdater extends FiniteStateMachineBuilder {
          * @param eventType The StateTransitionEventType
          * @return This StateUpdater to support method chaining
          */
-        public StateUpdater prohibit(StateTransitionEventType eventType);
+        StateUpdater prohibit(StateTransitionEventType eventType);
 
-        public State complete();
+        State complete();
 
     }
 
-    public interface TransitionBuilder {
-        public TransitionBuilder setName(String transitionName);
-        public StateUpdater transitionTo(State state);
-        public StateUpdater transitionTo(StateBuilder stateBuilder);
-        public StateUpdater transitionTo(String stateName);
-        public StateUpdater transitionTo(long stateId);
+    interface TransitionBuilder {
+        TransitionBuilder setName(String transitionName);
+        StateUpdater transitionTo(State state);
+        StateUpdater transitionTo(StateBuilder stateBuilder);
+        StateUpdater transitionTo(String stateName);
+        StateUpdater transitionTo(long stateId);
     }
 
 }

@@ -21,16 +21,12 @@ import com.elster.jupiter.fsm.UnsupportedStateTransitionException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
 import com.google.common.base.Strings;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -1908,6 +1904,33 @@ public class FiniteStateMachineIT {
 
         // Asserts
         assertThat(this.getTestService().findFiniteStateMachineByName(expectedName)).isEmpty();
+    }
+
+    @Transactional
+    @Test
+    public void jira_CXO_2128() {
+        String expectedName = "CXO2128";
+        FiniteStateMachineServiceImpl service = this.getTestService();
+        FiniteStateMachineBuilder builder = service.newFiniteStateMachine(expectedName);
+        State initial = builder
+                .newCustomState("Initial")
+                .complete();
+        FiniteStateMachine stateMachine = builder.complete(initial);
+
+        // Add state
+        FiniteStateMachineUpdater addStateUpdater = stateMachine.startUpdate();
+        State toBeRemovedSoon = addStateUpdater.newCustomState("ToBeRemovedSoon").complete();
+        addStateUpdater.complete();
+        State removeMe = service.findAndLockStateByIdAndVersion(toBeRemovedSoon.getId(), toBeRemovedSoon.getVersion()).get();
+
+        // Remove the state we just added
+        stateMachine.startUpdate().removeState(removeMe).complete();
+
+        // Business method
+        stateMachine.makeObsolete();
+
+        // Asserts
+        assertThat(service.findFiniteStateMachineByName(expectedName)).isEmpty();
     }
 
     @Transactional

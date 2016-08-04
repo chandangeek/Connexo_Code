@@ -1,7 +1,8 @@
 package com.elster.jupiter.fsm;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.TranslationKey;
+
+import aQute.bnd.annotation.ProviderType;
 
 /**
  * Assists in building {@link FiniteStateMachine}s.
@@ -22,7 +23,7 @@ public interface FiniteStateMachineBuilder {
      * @return The StateBuilder
      * @see State#isCustom()
      */
-    public StateBuilder newCustomState(String name);
+    StateBuilder newCustomState(String name);
 
     /**
      * Starts the building process of a new standard {@link State}.
@@ -31,7 +32,7 @@ public interface FiniteStateMachineBuilder {
      * @return The StateBuilder
      * @see State#isCustom()
      */
-    public StateBuilder newStandardState(String symbolicName);
+    StateBuilder newStandardState(String symbolicName);
 
     /**
      * Completes the building process, marking the specified {@link State}
@@ -40,13 +41,13 @@ public interface FiniteStateMachineBuilder {
      *
      * @return The FiniteStateMachine
      */
-    public FiniteStateMachine complete(State initial);
+    FiniteStateMachine complete(State initial);
 
     /**
      * Assists in building {@link State}s that will be added
      * to the main builder when completed.
      */
-    public interface StateBuilder {
+    interface StateBuilder {
 
         /**
          * Adds the {@link StateChangeBusinessProcess} to the list of
@@ -56,7 +57,7 @@ public interface FiniteStateMachineBuilder {
          * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateBuilder onEntry(StateChangeBusinessProcess process);
+        StateBuilder onEntry(StateChangeBusinessProcess process);
 
         /**
          * Adds the {@link StateChangeBusinessProcess} to the list of
@@ -66,7 +67,7 @@ public interface FiniteStateMachineBuilder {
          * @param process The StateChangeBusinessProcess
          * @return The StateBuilder
          */
-        public StateBuilder onExit(StateChangeBusinessProcess process);
+        StateBuilder onExit(StateChangeBusinessProcess process);
 
         /**
          * Assists in building a {@link StateTransition} from the {@link State}
@@ -76,19 +77,19 @@ public interface FiniteStateMachineBuilder {
          * @param eventType The StateTransitionEventType
          * @return The builder on which you will specify the target State
          */
-        public TransitionBuilder on(StateTransitionEventType eventType);
+        TransitionBuilder on(StateTransitionEventType eventType);
 
-        public State complete();
+        State complete();
 
     }
 
-    public interface TransitionBuilder {
-        public StateBuilder transitionTo(State state);
-        public StateBuilder transitionTo(State state, String name);
-        public StateBuilder transitionTo(State state, TranslationKey translationKey);
-        public StateBuilder transitionTo(StateBuilder state);
-        public StateBuilder transitionTo(StateBuilder stateBuilder, String name);
-        public StateBuilder transitionTo(StateBuilder stateBuilder, TranslationKey translationKey);
+    interface TransitionBuilder {
+        StateBuilder transitionTo(State state);
+        StateBuilder transitionTo(State state, String name);
+        StateBuilder transitionTo(State state, TranslationKey translationKey);
+        StateBuilder transitionTo(StateBuilder state);
+        StateBuilder transitionTo(StateBuilder stateBuilder, String name);
+        StateBuilder transitionTo(StateBuilder stateBuilder, TranslationKey translationKey);
     }
 
 }

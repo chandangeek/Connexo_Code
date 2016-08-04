@@ -80,7 +80,7 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
     public FiniteStateMachineUpdater removeState(State obsoleteState) {
         FiniteStateMachineImpl stateMachine = this.getUnderConstruction();
         if (obsoleteState.getFiniteStateMachine().getId() == stateMachine.getId()) {
-            stateMachine.removeState((StateImpl) obsoleteState);
+            stateMachine.removeState(this.findStateIfExists(obsoleteState.getId(), this.getUnderConstruction()));
             return this;
         }
         else {

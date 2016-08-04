@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link FiniteStateMachine} interface.
@@ -135,7 +136,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     }
 
     void setName(String newName) {
-        if (!Checks.is(newName).emptyOrOnlyWhiteSpace()){
+        if (!Checks.is(newName).emptyOrOnlyWhiteSpace()) {
             this.name = newName.trim();
         } else {
             this.name = null;
@@ -144,7 +145,11 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
 
     @Override
     public List<State> getStates() {
-        return this.states.stream().filter(Predicates.not(StateImpl::isObsolete)).collect(Collectors.toList());
+        return this.getStatesStream().collect(Collectors.toList());
+    }
+
+    private Stream<StateImpl> getStatesStream() {
+        return this.states.stream().filter(Predicates.not(StateImpl::isObsolete));
     }
 
     @Override
@@ -155,9 +160,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
 
     void setInitialState(State newInitialState) {
         this.findInitialState().ifPresent(s -> s.setInitial(false));
-        this.states
-                .stream()
-                .filter(Predicates.not(StateImpl::isObsolete))
+        this.getStatesStream()
                 .filter(candidate -> candidate == newInitialState || newInitialState.getId() > 0 && newInitialState.getId() == candidate.getId())
                 .filter(candidate -> !candidate.isInitial())
                 .findFirst()
@@ -165,9 +168,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     }
 
     private Optional<StateImpl> findInitialState() {
-        return this.states
-                .stream()
-                .filter(Predicates.not(StateImpl::isObsolete))
+        return this.getStatesStream()
                 .filter(State::isInitial)
                 .findFirst();
     }
@@ -268,7 +269,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     }
 
     private void obsoleteAllStates() {
-        this.states.forEach(StateImpl::makeObsolete);
+        this.getStatesStream().forEach(StateImpl::makeObsolete);
     }
 
     @Override
