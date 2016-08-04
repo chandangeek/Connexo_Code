@@ -133,6 +133,9 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                                 }
 
                             }
+                            if(!Uni.Auth.checkPrivileges(Mdc.privileges.DeviceCommands.executeCommands) && view.down('tou-device-action-menu').showPreview === false) {
+                                view.down('#tou-device-actions-button').hide();
+                            }
                         }
                         ,
                         failure: function () {
