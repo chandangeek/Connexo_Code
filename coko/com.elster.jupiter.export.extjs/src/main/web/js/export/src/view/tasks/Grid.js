@@ -30,7 +30,7 @@ Ext.define('Dxp.view.tasks.Grid', {
                     } else if (value) {
                         result = value.statusPrefix
                     } else {
-                        result = Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
+                        result = Uni.I18n.translate('general.created', 'DES', 'Created');
                     }
                     return result;
                 },

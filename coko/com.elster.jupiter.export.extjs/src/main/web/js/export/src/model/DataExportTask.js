@@ -166,7 +166,7 @@ Ext.define('Dxp.model.DataExportTask', {
                 if (data.lastExportOccurrence && data.lastExportOccurrence.status) {
                     return data.lastExportOccurrence.status;
                 } else {
-                    return Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
+                    return Uni.I18n.translate('general.created', 'DES', 'Created');
                 }
             }
         },
@@ -179,7 +179,7 @@ Ext.define('Dxp.model.DataExportTask', {
                 } else if (data.lastExportOccurrence) {
                     return data.lastExportOccurrence.statusPrefix
                 } else {
-                    return Uni.I18n.translate('general.notPerformed', 'DES', 'Not performed yet');
+                    return Uni.I18n.translate('general.created', 'DES', 'Created');
                 }
             }
         },
