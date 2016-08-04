@@ -51,6 +51,8 @@ Ext.define('Est.estimationtasks.view.Grid', {
                 displayMsg: Uni.I18n.translate('estimationtasks.pagingtoolbartop.displayMsg', 'EST', '{0} - {1} of {2} estimation tasks'),
                 displayMoreMsg: Uni.I18n.translate('estimationtasks.pagingtoolbartop.displayMoreMsg', 'EST', '{0} - {1} of more than {2} estimation tasks'),
                 emptyMsg: Uni.I18n.translate('estimationtasks.pagingtoolbartop.emptyMsg', 'EST', 'There are no estimation tasks to display'),
+                isFullTotalCount: true,
+                usesExactCount: true,
                 items: [
                     {
                         xtype: 'button',
