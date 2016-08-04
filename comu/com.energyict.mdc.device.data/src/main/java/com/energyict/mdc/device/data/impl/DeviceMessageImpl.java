@@ -245,6 +245,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         this.deviceMessageStatus = DeviceMessageStatus.REVOKED;
         Save.UPDATE.validate(this.getDataModel(), this, Revoke.class);
         this.update("deviceMessageStatus");
+        this.notifyUpdated();
         this.revokeChecker = null;
     }
 

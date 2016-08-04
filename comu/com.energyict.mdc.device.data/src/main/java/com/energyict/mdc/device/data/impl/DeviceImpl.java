@@ -37,6 +37,10 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
@@ -45,6 +49,7 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -165,6 +170,7 @@ import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
@@ -301,7 +307,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     private final Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
-    private final Reference<DeviceEstimation> deviceEstimation = ValueReference.absent();
+    private final Reference<ServerDeviceEstimation> deviceEstimation = ValueReference.absent();
 
     private transient AmrSystem amrSystem;
 
@@ -630,13 +636,15 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         new SyncDeviceWithKoreForRemoval(this, meteringService, readingTypeUtilService, clock, eventService).syncWithKore(this);
         koreHelper.deactivateMeter(clock.instant());
         this.clearPassiveCalendar();
+        this.deleteEstimation();
+        this.readingTypeObisCodeUsages.clear();
         this.getDataMapper().remove(this);
     }
 
     @SuppressWarnings("unchecked")
     private void removeCustomProperties() {
         this.getDeviceType().getCustomPropertySets().forEach(this::removeCustomPropertiesFor);
-        this.getRegisters().stream()
+        this.getRegisters()
                 .forEach(register ->
                         this.getDeviceType()
                                 .getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
@@ -1001,6 +1009,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             throw DeviceConfigurationChangeException.cannotchangeConfigToDataLoggerEnabled(thesaurus);
         }
         checkIfAllConflictsAreSolved(this.getDeviceConfiguration(), destinationDeviceConfiguration);
+        validateMetrologyConfigRequirements(destinationDeviceConfiguration);
+    }
+
+    void validateMetrologyConfigRequirements(DeviceConfiguration destinationDeviceConfiguration) {
+        this.getCurrentMeterActivation()
+                .ifPresent(meterActivation -> meterActivation.getUsagePoint()
+                        .ifPresent(usagePoint -> {
+                            Map unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, clock.instant(), destinationDeviceConfiguration);
+                            if (!unsatisfiedRequirements.isEmpty()) {
+                                throw DeviceConfigurationChangeException.unsatisfiedRequirements(thesaurus, this, destinationDeviceConfiguration, unsatisfiedRequirements);
+                            }
+                        })
+                );
     }
 
 
@@ -2038,11 +2059,21 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public DeviceEstimation forEstimation() {
-        return deviceEstimation.orElseGet(() -> {
-            DeviceEstimation deviceEstimation = dataModel.getInstance(DeviceEstimationImpl.class).init(this, false);
-            this.deviceEstimation.set(deviceEstimation);
-            return deviceEstimation;
-        });
+        return this.ensureEstimationLoaded();
+    }
+
+    private ServerDeviceEstimation ensureEstimationLoaded() {
+        return deviceEstimation.orElseGet(this::loadAndSetDeviceEstimation);
+    }
+
+    private ServerDeviceEstimation loadAndSetDeviceEstimation() {
+        ServerDeviceEstimation deviceEstimation = dataModel.getInstance(DeviceEstimationImpl.class).init(this, false);
+        this.deviceEstimation.set(deviceEstimation);
+        return deviceEstimation;
+    }
+
+    private void deleteEstimation() {
+        this.ensureEstimationLoaded().delete();
     }
 
     @Override
@@ -2159,6 +2190,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
 
         requestedAction.accept(comTaskExecution.get());
+    }
+
+    @Override
+    public Optional<Device> getHistory(Instant when) {
+        if (when.isAfter(this.modTime)) {
+            return Optional.of(this);
+        }
+        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class).at(when).find(ImmutableMap.of("id", this.getId()));
+        return journalEntries.stream()
+                .map(JournalEntry::get)
+                .findFirst();
     }
 
     private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {

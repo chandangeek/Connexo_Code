@@ -1,10 +1,9 @@
 package com.energyict.mdc.device.data.impl.events;
 
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 /**
  * Copyrights EnergyICT
@@ -13,8 +12,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class VetoDeleteDeviceGroupException extends LocalizedException {
 
-    public VetoDeleteDeviceGroupException(Thesaurus thesaurus, EndDeviceGroup deviceGroup) {
-        super(thesaurus, MessageSeeds.VETO_DEVICEGROUP_DELETION, deviceGroup.getName());
+    public VetoDeleteDeviceGroupException(Thesaurus thesaurus,  MessageSeeds messageSeeds, EndDeviceGroup deviceGroup) {
+        super(thesaurus, messageSeeds, deviceGroup.getName());
     }
 
 }

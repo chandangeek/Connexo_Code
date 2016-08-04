@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  * @since 2012-05-31 (08:54)
  */
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
-public class ProtocolDialectPropertiesImpl
+class ProtocolDialectPropertiesImpl
         extends PersistentNamedObject<ProtocolDialectProperties>
         implements
         PropertyFactory<DeviceProtocolDialect, DeviceProtocolDialectProperty>,
@@ -66,20 +66,12 @@ public class ProtocolDialectPropertiesImpl
     private DeviceProtocolDialectUsagePluggableClass deviceProtocolDialectUsagePluggableClass;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
-    @SuppressWarnings("unused")
-    private String userName;
-    @SuppressWarnings("unused")
-    private long version;
-    @SuppressWarnings("unused")
-    private Instant createTime;
-    @SuppressWarnings("unused")
-    private Instant modTime;
 
     private ProtocolPluggableService protocolPluggableService;
     private final CustomPropertySetService customPropertySetService;
 
     @Inject
-    public ProtocolDialectPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, CustomPropertySetService customPropertySetService) {
+    ProtocolDialectPropertiesImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ProtocolPluggableService protocolPluggableService, CustomPropertySetService customPropertySetService) {
         super(ProtocolDialectProperties.class, dataModel, eventService, thesaurus);
         this.customPropertySetService = customPropertySetService;
         this.cache = new PropertyCache<>(this);
@@ -190,7 +182,7 @@ public class ProtocolDialectPropertiesImpl
         return new DeviceProtocolDialectPropertyImpl(propertyName, propertyValue, Range.all(), this.getPluggableClass(), false);
     }
 
-    protected void saveAllProperties () {
+    private void saveAllProperties() {
         if (this.cache.isDirty()) {
             if (this.getTypedProperties().localSize() == 0) {
                 this.removeAllProperties();
@@ -223,7 +215,7 @@ public class ProtocolDialectPropertiesImpl
         return values;
     }
 
-    protected void removeAllProperties() {
+    private void removeAllProperties() {
         this.getCustomPropertySet().ifPresent(cps -> this.customPropertySetService.removeValuesFor(cps, this));
     }
 
@@ -273,7 +265,7 @@ public class ProtocolDialectPropertiesImpl
         return this.deviceProtocolPluggableClass;
     }
 
-    protected void clearPropertyCache() {
+    private void clearPropertyCache() {
         this.cache.clear();
     }
 

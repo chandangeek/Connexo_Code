@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
@@ -189,11 +190,13 @@ public class DeviceDeleteTest {
     private MultiplierType defaultMultiplierType;
     @Mock
     private UsagePoint usagePoint;
-
+    @Mock
+    private EstimationService estimationService;
 
     @Before
     public void setup() {
         when(dataModel.mapper(DeviceImpl.class)).thenReturn(dataMapper);
+        when(this.dataModel.getInstance(DeviceEstimationImpl.class)).thenReturn(new DeviceEstimationImpl(this.dataModel, this.estimationService));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());

@@ -7,11 +7,10 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
@@ -22,7 +21,9 @@ import javax.validation.ConstraintViolationException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+
+import static com.elster.jupiter.metering.ami.CompletionMessageInfo.CompletionMessageStatus;
+import static com.elster.jupiter.metering.ami.CompletionMessageInfo.FailureReason;
 
 /**
  * Abstract implementation of {@link ServiceCallHandler} interface which handles the different steps for
@@ -37,13 +38,15 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
 
     private volatile MessageService messageService;
     private volatile Thesaurus thesaurus;
+    private volatile CompletionOptionsCallBack completionOptionsCallBack;
 
     public AbstractOperationServiceCallHandler() {
     }
 
-    public AbstractOperationServiceCallHandler(MessageService messageService, Thesaurus thesaurus) {
+    public AbstractOperationServiceCallHandler(MessageService messageService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack) {
         this.setMessageService(messageService);
         this.setThesaurus(thesaurus);
+        this.setCompletionOptionsCallBack(completionOptionsCallBack);
     }
 
     protected MessageService getMessageService() {
@@ -52,6 +55,14 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
 
     protected void setMessageService(MessageService messageService) {
         this.messageService = messageService;
+    }
+
+    protected CompletionOptionsCallBack getCompletionOptionsCallBack() {
+        return completionOptionsCallBack;
+    }
+
+    protected void setCompletionOptionsCallBack(CompletionOptionsCallBack completionOptionsCallBack) {
+        this.completionOptionsCallBack = completionOptionsCallBack;
     }
 
     protected Thesaurus getThesaurus() {
@@ -90,7 +101,10 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
                 // If oldState was Pending, then the device commands were not yet created, thus checking the nr of unconfirmed messages doesn't make sense
                 break;
             case SUCCESSFUL:
-                sendFinishedMessageToDestinationSpec(serviceCall);
+                completionOptionsCallBack.sendFinishedMessageToDestinationSpec(serviceCall);
+                break;
+            case FAILED:
+                completionOptionsCallBack.sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.ONE_OR_MORE_DEVICE_COMMANDS_FAILED);
                 break;
             case CANCELLED:
                 cancelServiceCall(serviceCall);
@@ -109,15 +123,13 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
         serviceCall.requestTransition(DefaultState.SUCCESSFUL);
     }
 
-    protected void sendFinishedMessageToDestinationSpec(ServiceCall serviceCall) {
-        Optional<CompletionOptionsServiceCallDomainExtension> extension = serviceCall.getExtensionFor(new CompletionOptionsCustomPropertySet());
-        if (extension.isPresent()) {
-            CompletionOptionsServiceCallDomainExtension domainExtension = extension.get();
-            messageService.getDestinationSpec(domainExtension.getDestinationSpec()).ifPresent(destinationSpec -> destinationSpec.message(domainExtension.getDestinationMessage()));
-        }
-    }
-
     protected void cancelServiceCall(ServiceCall serviceCall) {
+        if (!serviceCall.getParent().isPresent() || !serviceCall.getParent().get().getState().equals(DefaultState.CANCELLED)) {
+            // If the parent service call is not cancelled, then send out a finished message
+            // Else, the finished message should be already send out by the parent & thus there is no need to send one out here
+            completionOptionsCallBack.sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.CANCELLED, FailureReason.SERVICE_CALL_HAS_BEEN_CANCELLED);
+        }
+
         CommandServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CommandCustomPropertySet()).get();
         if (domainExtension.getNrOfUnconfirmedDeviceCommands() != 0) {
             cancelNotYetProcessedDeviceMessages(serviceCall, domainExtension);
@@ -147,7 +159,6 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
     private void tryToRevokeDeviceMessage(DeviceMessage<Device> msg, ServiceCall serviceCall) {
         try {
             msg.revoke();
-            msg.save();
         } catch (ConstraintViolationException e) {
             serviceCall.log(
                     LogLevel.SEVERE,

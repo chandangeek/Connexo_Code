@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.LogLevel;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
@@ -19,9 +20,14 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.impl.ami.eventhandler.MeterReadingEventHandlerFactory;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.impl.configchange.ServerDeviceForConfigChange;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementChangeMessageHandler;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
@@ -138,7 +144,9 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             Arrays.asList(
                     Pair.of(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
                     Pair.of(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED")),
-                    Pair.of(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")))
+                    Pair.of(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
+                    Pair.of(MeterReadingEventHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo("com/elster/jupiter/metering/meterreading/CREATED").or(whereCorrelationId().isEqualTo("com/energyict/mdc/connectiontask/COMPLETION")))
+            )
                     .stream()
                     .
                             filter(subscriber -> !jupiterEvents.getSubscribers()
@@ -207,6 +215,24 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         for (ServiceCallCommands.ServiceCallTypeMapping serviceCallTypeMapping : ServiceCallCommands.ServiceCallTypeMapping.values()) {
             createServiceCallType(serviceCallTypeMapping);
         }
+        createOnDemandReadServiceCallType();
+    }
+
+    private void createOnDemandReadServiceCallType() {
+        RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(OnDemandReadServiceCallDomainExtension.class.getName())
+                .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", OnDemandReadServiceCallCustomPropertySet.class
+                        .getSimpleName())));
+        RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(CompletionOptionsServiceCallDomainExtension.class.getName())
+                .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", CompletionOptionsCustomPropertySet.class
+                        .getSimpleName())));
+
+
+        serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
+                .orElseGet(() -> serviceCallService.createServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION)
+                        .handler(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
+                        .customPropertySet(customPropertySet)
+                        .customPropertySet(completionOptionsCustomPropertySet)
+                        .create());
     }
 
     private void createServiceCallType(ServiceCallCommands.ServiceCallTypeMapping serviceCallTypeMapping) {

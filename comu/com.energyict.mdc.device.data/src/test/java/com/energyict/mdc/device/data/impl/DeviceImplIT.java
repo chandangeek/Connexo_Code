@@ -385,6 +385,13 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getmRID()).isEqualTo(mRID);
     }
 
+    @Test
+    @Transactional
+    public void getHistoryTest() {
+        Device simpleDevice = createSimpleDevice();
+        assertThat(simpleDevice.getHistory(simpleDevice.getCreateTime()).get().getId()).isEqualTo(simpleDevice.getId());
+    }
+
     /**
      * This test will get the default TimeZone of the system.
      */

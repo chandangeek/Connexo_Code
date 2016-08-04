@@ -15,6 +15,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.validation.kpi.DataValidationKpiService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.events.EndDeviceGroupDeletionVetoEventHandler;
 import com.energyict.mdc.device.data.impl.events.VetoDeleteDeviceGroupException;
@@ -111,9 +112,10 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
     @Expected(value = VetoDeleteDeviceGroupException.class)
     public void testVetoDeletionOfDeviceGroupInKpi() throws Exception {
         DataCollectionKpiService kpiService = inMemoryPersistence.getDataCollectionKpiService();
+        DataValidationKpiService dataValidationKpi = inMemoryPersistence.getDataValidationKpiService();
         Thesaurus thesaurus = inMemoryPersistence.getThesaurusFromDeviceDataModel();
         MeteringGroupsService meteringGroupsService = inMemoryPersistence.getMeteringGroupsService();
-        ((EventServiceImpl)inMemoryPersistence.getEventService()).addTopicHandler(new EndDeviceGroupDeletionVetoEventHandler(kpiService, thesaurus));
+        ((EventServiceImpl)inMemoryPersistence.getEventService()).addTopicHandler(new EndDeviceGroupDeletionVetoEventHandler(kpiService, thesaurus, dataValidationKpi));
 
         QueryEndDeviceGroup queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
                 .setMRID("mine")

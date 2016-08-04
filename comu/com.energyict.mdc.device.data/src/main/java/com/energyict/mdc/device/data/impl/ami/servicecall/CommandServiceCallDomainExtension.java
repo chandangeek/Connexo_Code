@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.ami.servicecall;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -20,7 +21,7 @@ import java.util.List;
  * @author sva
  * @since 03/06/2016 - 15:39
  */
-public class CommandServiceCallDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class CommandServiceCallDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
 
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
@@ -47,13 +48,12 @@ public class CommandServiceCallDomainExtension implements PersistentDomainExtens
     }
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
 
     private Instant releaseDate;
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceMessages;
     private int nrOfUnconfirmedDeviceCommands;
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String status;
 
     public CommandServiceCallDomainExtension() {
@@ -61,7 +61,7 @@ public class CommandServiceCallDomainExtension implements PersistentDomainExtens
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public Reference<ServiceCall> getServiceCall() {

@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
+import com.elster.jupiter.tasks.TaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskReportService;
 
-import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
-import com.elster.jupiter.tasks.TaskService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
