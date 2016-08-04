@@ -12,6 +12,7 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -191,7 +192,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     private void initializePrivileges() {
         this.privileges.clear();
         this.userService
-            .getPrivileges().stream()
+            .getPrivileges()
             .forEach(this::addPrivilegeIfFound);
     }
 
@@ -318,7 +319,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     public Map<Locale, String> getAllTranslationsForKey(String translationKey){
         return userService.getUserPreferencesService().getSupportedLocales()
                 .stream()
-                .collect(Collectors.toMap(Function.<Locale>identity(), locale -> thesaurus.getString(locale, translationKey, translationKey)));
+                .collect(Collectors.toMap(Function.identity(), locale -> thesaurus.getString(locale, translationKey, translationKey)));
     }
 
     @Override
@@ -368,7 +369,7 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
             Condition condition = Where.where(AuthorizedActionImpl.Fields.PROCESS.fieldName()).in(businessProcesses);
             List<AuthorizedBusinessProcessAction> actions = this.dataModel.mapper(AuthorizedBusinessProcessAction.class).select(condition);
             if (actions.isEmpty()) {
-                businessProcesses.stream().forEach(this.dataModel::remove);
+                businessProcesses.forEach(this.dataModel::remove);
             }
             else {
                 throw new TransitionBusinessProcessInUseException(this.thesaurus, MessageSeeds.TRANSITION_PROCESS_IN_USE, businessProcesses.get(0));
@@ -387,7 +388,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     List<ResourceDefinition> getModuleResources() {
-
         return Arrays.asList(
                 this.userService.createModuleResourceWithPrivileges(DeviceLifeCycleConfigurationService.COMPONENT_NAME, Privileges.RESOURCE_DEVICE_LIFECYCLE.getKey(), Privileges.RESOURCE_DEVICE_LIFECYCLE_DESCRIPTION.getKey(),
                         Arrays.asList(Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE, Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE)),
@@ -398,18 +398,18 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                                 Privileges.Constants.INITIATE_ACTION_3,
                                 Privileges.Constants.INITIATE_ACTION_4))
         );
-
     }
 
     public boolean isValidCreationEvent(IssueEvent issueEvent){
         EnumSet<DefaultState> restrictedStates = EnumSet.of(DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED);
-        if (issueEvent.getEndDevice().isPresent()) {
-            return !issueEvent.getEndDevice().get().getState()
+        Optional<EndDevice> endDevice = issueEvent.getEndDevice();
+        if (endDevice.isPresent()) {
+            return !endDevice.get().getState()
                     .map(DefaultState::from)
                     .filter(defaultState -> defaultState.isPresent() && restrictedStates.contains(defaultState.get()))
                     .isPresent();
         }
-
         return true;
     }
+
 }
