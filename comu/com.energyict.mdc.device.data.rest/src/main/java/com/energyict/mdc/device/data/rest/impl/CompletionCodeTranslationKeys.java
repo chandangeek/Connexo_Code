@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  */
 public enum CompletionCodeTranslationKeys implements TranslationKey {
 
-    OK(CompletionCode.Ok, "Ok"),
+    OK(CompletionCode.Ok, "Successful"),
     RESCHEDULED(CompletionCode.Rescheduled, "Rescheduled"),
     CONFIGURATION_WARNING(CompletionCode.ConfigurationWarning, "Configuration warning"),
     CONFIGURATION_ERROR(CompletionCode.ConfigurationError, "Configuration error"),
