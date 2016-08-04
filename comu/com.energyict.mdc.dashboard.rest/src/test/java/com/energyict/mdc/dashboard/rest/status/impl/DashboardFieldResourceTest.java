@@ -33,7 +33,7 @@ public class DashboardFieldResourceTest extends DashboardApplicationJerseyTest {
     public void testGetComSessionSuccessIndicators() {
         String response = target("/field/comsessionsuccessindicators").request().get(String.class);
         JsonModel model = JsonModel.model(response);
-        assertThat(model.<List<String>>get("$.successIndicators[*].localizedValue")).containsExactly("Broken", "Setup error", "Success");
+        assertThat(model.<List<String>>get("$.successIndicators[*].localizedValue")).containsExactly("Broken", "Setup error", "Successful");
     }
 
     private ComPortPool mockComPortPool(long id, String name) {
