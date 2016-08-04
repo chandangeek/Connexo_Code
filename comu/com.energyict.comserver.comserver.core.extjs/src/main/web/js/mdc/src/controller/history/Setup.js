@@ -2266,7 +2266,49 @@ Ext.define('Mdc.controller.history.Setup', {
                                 route: 'history/:tab:',
                                 controller: 'Mdc.usagepointmanagement.controller.UsagePointHistory',
                                 action: 'showUsagePointHistory',
-                                privileges: Mdc.privileges.UsagePoint.canView()
+                                privileges: Mdc.privileges.UsagePoint.canView(),
+                                items: {
+                                    addmetrologyconfigurationversion: {
+                                        route: 'metrologyconfigurationversion/add',
+                                        title: Uni.I18n.translate('general.addMcVersion', 'MDC', 'Add metrology configuration version'),
+                                        controller: 'Mdc.usagepointmanagement.controller.UsagePointHistory',
+                                        action: 'showAddVersion',
+                                        privileges: Mdc.privileges.UsagePoint.canAdmin()
+                                    },
+                                    editmetrologyconfigurationversion: {
+                                        route: 'metrologyconfigurationversion/{start}/edit',
+                                        title: Uni.I18n.translate('general.editMcVersion', 'MDC', 'Edit metrology configuration version'),
+                                        controller: 'Mdc.usagepointmanagement.controller.UsagePointHistory',
+                                        action: 'showEditVersion',
+                                        privileges: Mdc.privileges.UsagePoint.canAdmin()
+                                    }
+                                }
+                            },
+                            channels: {
+                                title: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
+                                privileges: Mdc.privileges.UsagePoint.canView(),
+                                route: 'channels',
+                                controller: 'Mdc.usagepointmanagement.controller.ViewChannelsList',
+                                action: 'showOverview',
+                                callback: me.checkInsightRedirect,
+                                items: {
+                                    channeldata: {
+                                        title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
+                                        privileges: Mdc.privileges.UsagePoint.canView(),
+                                        route: '{channelId}/data',
+                                        controller: 'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
+                                        action: 'showOverview',
+                                        callback: function (route) {
+                                            me.checkInsightRedirect(route);
+                                            this.getApplication().on('usagePointChannelLoaded', function (record) {
+                                                route.setTitle(record.get('readingType').fullAliasName);
+                                                return true;
+                                            }, {single: true});
+
+                                            return this;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
