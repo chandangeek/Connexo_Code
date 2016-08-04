@@ -4,11 +4,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -21,17 +19,12 @@ import com.energyict.mdc.device.data.impl.DeviceImpl;
 import com.energyict.mdc.device.data.impl.ServerDevice;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
-import com.google.common.collect.Range;
-
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Additional behaviour related to 'Kore' objects when the Device's UsagePoint is changed
@@ -107,33 +100,10 @@ public class SynchDeviceWithKoreForUsagePointChange extends AbstractSyncDeviceWi
     }
 
     private void validateReadingTypeRequirements(UsagePoint usagePoint, Instant from) {
-        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = getUnsatisfiedRequirements(usagePoint, from);
+        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = device.getUnsatisfiedRequirements(usagePoint, from, getDevice().getDeviceConfiguration());
         if (!unsatisfiedRequirements.isEmpty()) {
             throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(thesaurus, unsatisfiedRequirements);
         }
-    }
-
-    Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from) {
-        List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getMetrologyConfigurations(Range.atLeast(from));
-        if (effectiveMetrologyConfigurations.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        List<ReadingType> supportedReadingTypes = getDeviceCapabilities();
-        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = new HashMap<>();
-        for (MetrologyConfiguration metrologyConfiguration : effectiveMetrologyConfigurations) {
-            List<ReadingTypeRequirement> unsatisfied = metrologyConfiguration.getMandatoryReadingTypeRequirements()
-                    .stream()
-                    .filter(requirement -> supportedReadingTypes.stream().noneMatch(requirement::matches))
-                    .collect(Collectors.toList());
-            if (!unsatisfied.isEmpty()) {
-                unsatisfiedRequirements.put(metrologyConfiguration, unsatisfied);
-            }
-        }
-        return unsatisfiedRequirements;
-    }
-
-    private List<ReadingType> getDeviceCapabilities() {
-        return deviceConfigurationService.getReadingTypesRelatedToConfiguration(device.getDeviceConfiguration());
     }
 
     private DateTimeFormatter getLongDateFormatForCurrentUser() {

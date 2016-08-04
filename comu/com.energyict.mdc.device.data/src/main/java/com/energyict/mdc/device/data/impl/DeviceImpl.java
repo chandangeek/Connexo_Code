@@ -37,11 +37,11 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
-import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -2867,5 +2867,34 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             }
             return true;
         }
+    }
+
+
+    public Map<MetrologyConfiguration, List<ReadingTypeRequirement>> getUnsatisfiedRequirements(UsagePoint usagePoint, Instant from, DeviceConfiguration deviceConfiguration) {
+        List<UsagePointMetrologyConfiguration> effectiveMetrologyConfigurations = usagePoint.getEffectiveMetrologyConfigurations()
+                .stream()
+                .filter(emc -> !emc.getRange().intersection(Range.atLeast(from)).isEmpty())
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+                .collect(Collectors.toList());
+
+        if (effectiveMetrologyConfigurations.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<ReadingType> supportedReadingTypes = getDeviceCapabilities(deviceConfiguration);
+        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = new HashMap<>();
+        for (MetrologyConfiguration metrologyConfiguration : effectiveMetrologyConfigurations) {
+            List<ReadingTypeRequirement> unsatisfied = metrologyConfiguration.getMandatoryReadingTypeRequirements()
+                    .stream()
+                    .filter(requirement -> supportedReadingTypes.stream().noneMatch(requirement::matches))
+                    .collect(Collectors.toList());
+            if (!unsatisfied.isEmpty()) {
+                unsatisfiedRequirements.put(metrologyConfiguration, unsatisfied);
+            }
+        }
+        return unsatisfiedRequirements;
+    }
+
+    private List<ReadingType> getDeviceCapabilities(DeviceConfiguration config) {
+        return deviceConfigurationService.getReadingTypesRelatedToConfiguration(config);
     }
 }

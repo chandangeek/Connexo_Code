@@ -48,7 +48,6 @@ public final class DeviceConfigChangeExecutor {
      * <ul>
      * <li>lock the device so no other process can update the device</li>
      * <li>validate if we <i>can</i> do a change DeviceConfig with the given destination deviceConfig</li>
-     * <li>create a new MeterActivation so all <i>new</i> data is stored on the new meterActivation</li>
      * </ul>
      *
      * @param device                         the device to change it's configuration
