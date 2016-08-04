@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LoadProfileTypeChannelTypeUsage;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -29,6 +30,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<LoadProfileType> table = dataModel.addTable(this.name(), LoadProfileType.class);
             table.map(LoadProfileTypeImpl.class);
+            table.setJournalTableName("MDS_LOADPROFILETYPEJRNL").since(Version.version(10, 2));
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
@@ -46,6 +48,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<RegisterGroup> table = dataModel.addTable(this.name(), RegisterGroup.class);
             table.map(RegisterGroupImpl.class);
+            table.setJournalTableName("MDS_REGISTERGROUPJRNL").since(Version.version(10, 2));
             table.cache();
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
@@ -60,6 +63,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<MeasurementType> table = dataModel.addTable(this.name(), MeasurementType.class);
             table.map(MeasurementTypeImpl.IMPLEMENTERS);
+            table.setJournalTableName("MDS_MEASUREMENTTYPEJRNL").since(Version.version(10, 2));
             table.cache();
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
@@ -82,19 +86,18 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<RegisterTypeInGroup> table = dataModel.addTable(this.name(), RegisterTypeInGroup.class);
             table.map(RegisterTypeInGroup.class);
+            table.setJournalTableName("MDS_REGISTERTYPEINGROUPJRNL").since(Version.version(10, 2));
             Column registerType = table.column("REGISTERTYPEID").number().notNull().add();
             Column registerGroup = table.column("REGISTERGROUPID").number().notNull().add();
             table.addAuditColumns();
             table.primaryKey("USR_PK_REGTYPEINGROUP").on(registerType, registerGroup).add();
             table.foreignKey("FK_REGTYPEINGROUP2TYPE").
                     on(registerType).
-                    references(MDS_MEASUREMENTTYPE.name()).
-                    onDelete(CASCADE).map("registerType").
+                    references(MeasurementType.class).map("registerType").
                     add();
             table.foreignKey("FK_REGTYPEINGROUP2GROUP").
                     on(registerGroup).
-                    references(MDS_REGISTERGROUP.name()).
-                    onDelete(CASCADE).
+                    references(RegisterGroup.class).
                     map("registerGroup").
                     reverseMap("registerTypeInGroups").
                     composition().
@@ -107,20 +110,16 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<LoadProfileTypeChannelTypeUsage> table = dataModel.addTable(name(), LoadProfileTypeChannelTypeUsage.class);
             table.map(LoadProfileTypeChannelTypeUsageImpl.class);
+            table.setJournalTableName("MDS_CHNTYPEINLOADPTYPEJRNL").since(Version.version(10, 2));
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column channelType = table.column("CHTYPEID").number().notNull().add();
             table.addAuditColumns();
-            table.primaryKey("PK_CHTYPEINLOADPROFILETYPE").on(loadProfileType, channelType).add();
-            table.foreignKey("FK_CHTPLPT_LOADPROFILETYPEID")
-                    .on(loadProfileType)
-                    .references(MDS_LOADPROFILETYPE.name())
-                    .map("loadProfileType")
-                    .reverseMap(LoadProfileTypeImpl.Fields.REGISTER_TYPES.fieldName())
-                    .composition()
+            table.primaryKey("PK_CHTYPEINLOADPROFILETYPE").on(loadProfileType, channelType).upTo(version(10, 2)).add();
+            table.primaryKey("PK_CHNTYPEINLOADPRFLTYPE").on(loadProfileType, channelType).since(version(10, 2)).add();
+            table.foreignKey("FK_CHTPLPT_LOADPROFILETYPEID").on(loadProfileType).references(LoadProfileType.class).map("loadProfileType").reverseMap(LoadProfileTypeImpl.Fields.REGISTER_TYPES.fieldName()).composition().add();
+            table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MeasurementType.class).map("channelType").upTo(version(10, 2))
                     .add();
-            table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MDS_MEASUREMENTTYPE.name()).map("channelType").upTo(version(10, 2))
-                    .add();
-            table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MDS_MEASUREMENTTYPE.name()).map("channelType").onDelete(CASCADE).since(version(10, 2)).add();
+            table.foreignKey("FK_CHTPLPT_CHANTYPEID").on(channelType).references(MeasurementType.class).map("channelType").onDelete(CASCADE).since(version(10, 2)).add();
         }
     },
 
@@ -129,6 +128,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<LogBookType> table = dataModel.addTable(this.name(), LogBookType.class);
             table.map(LogBookTypeImpl.class);
+            table.setJournalTableName("MDS_LOGBOOKTYPEJRNL").since(Version.version(10, 2));
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
