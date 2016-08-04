@@ -1,10 +1,9 @@
 package com.energyict.mdc.protocol.api;
 
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.util.time.Interval;
 
 import javax.validation.constraints.NotNull;
 
@@ -15,7 +14,7 @@ import javax.validation.constraints.NotNull;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-26 (11:38)
  */
-public abstract class CommonDeviceProtocolDialectProperties implements PersistentDomainExtension<DeviceProtocolDialectPropertyProvider> {
+public abstract class CommonDeviceProtocolDialectProperties extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<DeviceProtocolDialectPropertyProvider> {
 
     public enum Fields {
         DIALECT_PROPERTY_PROVIDER {
@@ -36,12 +35,7 @@ public abstract class CommonDeviceProtocolDialectProperties implements Persisten
 
     }
     @NotNull
-    @SuppressWarnings("unused")
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-    @NotNull
     private Reference<DeviceProtocolDialectPropertyProvider> dialectPropertyProvider = Reference.empty();
-    @SuppressWarnings("unused")
-    private Interval interval;
 
     @Override
     public void copyFrom(DeviceProtocolDialectPropertyProvider dialectPropertyProvider, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
