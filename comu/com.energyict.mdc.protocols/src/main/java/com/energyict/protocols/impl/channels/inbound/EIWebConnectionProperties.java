@@ -1,11 +1,10 @@
 package com.energyict.protocols.impl.channels.inbound;
 
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
@@ -20,7 +19,7 @@ import static com.elster.jupiter.util.Checks.is;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (15:43)
  */
-public class EIWebConnectionProperties implements PersistentDomainExtension<ConnectionProvider> {
+public class EIWebConnectionProperties extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ConnectionProvider> {
 
     public enum Fields {
         CONNECTION_PROVIDER {
@@ -73,11 +72,7 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
     }
 
     @SuppressWarnings("unused")
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-    @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
-    @SuppressWarnings("unused")
-    private Interval interval;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String ipAddress;
     @Size(max = Table.MAX_STRING_LENGTH)

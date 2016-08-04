@@ -38,7 +38,7 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
 
             @Override
             public String databaseName() {
-                return "USERNAME";
+                return "USER_NME";
             }
         },
         USER_ID {
@@ -77,11 +77,11 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
             @Override
             public void addTo(Table table) {
                 table
-                        .column(this.databaseName())
-                        .number()
-                        .conversion(ColumnConversion.NUMBER2BOOLEAN)
-                        .map(this.javaName())
-                        .add();
+                    .column(this.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2BOOLEAN)
+                    .map(this.javaName())
+                    .add();
             }
         },
         ENCRYPTION_KEY {
@@ -102,10 +102,10 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
 
         public void addTo(Table table) {
             table
-                    .column(this.databaseName())
-                    .varChar()
-                    .map(this.javaName())
-                    .add();
+                .column(this.databaseName())
+                .varChar()
+                .map(this.javaName())
+                .add();
         }
 
     }
@@ -127,8 +127,7 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
         this.password = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.PASSWORD.javaName());
         this.user = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.ANSI_C12_USER.javaName());
         this.userId = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.ANSI_C12_USER_ID.javaName());
-        this.calledApTitle = ((String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.ANSI_CALLED_AP_TITLE
-                .javaName()));
+        this.calledApTitle = ((String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.javaName()));
         this.binaryPassword = (Boolean) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.BINARY_PASSWORD.javaName());
         this.encryptionKey = (String) getTypedPropertyValue(propertyValues, DeviceSecurityProperty.ENCRYPTION_KEY.javaName());
     }

@@ -1,14 +1,13 @@
 package com.energyict.protocols.impl.channels.ip;
 
+import com.elster.jupiter.cps.AbstractVersionedPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
@@ -23,7 +22,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (12:53)
  */
-public class OutboundIpConnectionProperties implements PersistentDomainExtension<ConnectionProvider>, PersistenceAware {
+public class OutboundIpConnectionProperties extends AbstractVersionedPersistentDomainExtension implements PersistentDomainExtension<ConnectionProvider>, PersistenceAware {
 
     public enum Fields {
         CONNECTION_PROVIDER {
@@ -142,11 +141,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     }
 
     @SuppressWarnings("unused")
-    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
-    @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
-    @SuppressWarnings("unused")
-    private Interval interval;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String host;
     private BigDecimal portNumber;
