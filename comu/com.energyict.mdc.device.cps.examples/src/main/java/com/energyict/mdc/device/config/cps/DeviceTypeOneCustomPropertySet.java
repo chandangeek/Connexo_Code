@@ -119,6 +119,7 @@ public class DeviceTypeOneCustomPropertySet implements CustomPropertySet<Device,
                         .describedAs("A")
                         .addValues(BigDecimal.valueOf(7L), BigDecimal.valueOf(77L), BigDecimal.valueOf(777L))
                         .setDefaultValue(BigDecimal.valueOf(77L))
+                        .markExhaustive()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
