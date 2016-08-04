@@ -99,6 +99,10 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>upgrade</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>estimation</artifactId>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
@@ -109,11 +113,6 @@
     <dependency>
       <groupId>com.elster.jupiter</groupId>
       <artifactId>validation</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
-      <artifactId>estimation</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -197,7 +196,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.energyict</groupId>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>security.thread</artifactId>
+    </dependency>
+    <dependency>
+    <groupId>com.energyict</groupId>
       <artifactId>mdc.tasks</artifactId>
       <scope>test</scope>
     </dependency>
@@ -284,6 +287,11 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>calendar</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>util</artifactId>
+      <version>2.1.0${revision}</version>
     </dependency>
     <dependency>
       <groupId>com.elster.jupiter</groupId>

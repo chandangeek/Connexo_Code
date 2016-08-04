@@ -41,6 +41,7 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
@@ -105,6 +106,7 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
             ctx.commit();
         }
     }
@@ -143,13 +145,13 @@ public class InMemoryIntegrationPersistence {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new SchedulingModule(),
                 new TimeModule(),
                 new DeviceLifeCycleConfigurationModule(),
                 new ProtocolApiModule(),
-                new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
                 new IssueModule(),
