@@ -52,7 +52,7 @@ public class SetUsagePointToDevicePostBuilder implements Consumer<Device> {
                 .flatMap(amrSystem -> amrSystem.findMeter("" + device.getId()));
         meter.ifPresent(mtr -> {
             System.out.println("==> activating usage point for meter " + mtr.getMRID());
-            usagePoint.activate(mtr, clock.instant());
+            usagePoint.activate(mtr, device.getCurrentMeterActivation().get().getStart());
         });
     }
 
