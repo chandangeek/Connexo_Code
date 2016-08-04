@@ -5,6 +5,8 @@ import com.elster.jupiter.cps.rest.CustomPropertySetInfoFactory;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -84,6 +86,8 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile DeviceMessageService deviceMessageService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile CustomPropertySetService customPropertySetService;
+    private volatile MetrologyConfigurationService metrologyConfigurationService;
+    private volatile MeteringService meteringService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -248,6 +252,16 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.customPropertySetService = customPropertySetService;
     }
 
+    @Reference
+    public void setMetrologyConfigurationService(MetrologyConfigurationService metrologyConfigurationService) {
+        this.metrologyConfigurationService = metrologyConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     private Factory<Validator> getValidatorFactory() {
         return new Factory<Validator>() {
             private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
@@ -268,6 +282,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             }
         };
     }
+
+
 
     class HK2Binder extends AbstractBinder {
 
@@ -292,6 +308,9 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(schedulingService).to(SchedulingService.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
             bind(communicationTaskService).to(CommunicationTaskService.class);
+            bind(customPropertySetService).to(CustomPropertySetService.class);
+            bind(meteringService).to(MeteringService.class);
+            bind(metrologyConfigurationService).to(MetrologyConfigurationService.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bindFactory(getValidatorFactory()).to(Validator.class);
 
