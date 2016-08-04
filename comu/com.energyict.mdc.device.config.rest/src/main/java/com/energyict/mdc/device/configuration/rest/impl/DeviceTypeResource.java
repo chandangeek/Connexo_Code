@@ -547,6 +547,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<DeviceMessageFileInfo> files = deviceType.getDeviceMessageFiles()
                 .stream()
+                .sorted((f1,f2) -> f1.getName().compareTo(f2.getName()))
                 .map(DeviceMessageFileInfo::new)
                 .collect(Collectors.toList());
 
@@ -612,7 +613,6 @@ public class DeviceTypeResource {
                 deviceType
                         .getAllowedCalendars()
                         .stream()
-                        .filter(Predicates.not(AllowedCalendar::isGhost))
                         .filter(each -> each.getId() == allowedCalendarInfo.id)
                         .findFirst();
         if (allowedCalendar.isPresent()) {

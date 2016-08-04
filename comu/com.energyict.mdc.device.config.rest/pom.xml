@@ -273,6 +273,10 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>kpi</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>
