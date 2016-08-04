@@ -1921,6 +1921,8 @@ public class FiniteStateMachineIT {
         FiniteStateMachineUpdater addStateUpdater = stateMachine.startUpdate();
         State toBeRemovedSoon = addStateUpdater.newCustomState("ToBeRemovedSoon").complete();
         addStateUpdater.complete();
+
+        // This is essential to the test and why the OptimisticLockException occurred as described by the jira issue
         State removeMe = service.findAndLockStateByIdAndVersion(toBeRemovedSoon.getId(), toBeRemovedSoon.getVersion()).get();
 
         // Remove the state we just added
