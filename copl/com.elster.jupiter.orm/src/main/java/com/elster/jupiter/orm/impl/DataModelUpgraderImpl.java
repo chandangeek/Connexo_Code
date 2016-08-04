@@ -152,7 +152,6 @@ public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDiffer
 
         @Override
         public void handleDifferences(Context context, List<Difference> differences) {
-            // TODO
         }
 
         @Override
@@ -227,7 +226,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDiffer
         if (schemaMetaDataModel != null) {
             MetaData metaData = new MetaData(schemaMetaDataModel);
             for (TableImpl<?> table : model.getTables(version)) {
-                String existingJournalTableName = table.hasJournal() ? getExistingJournalTableName(metaData, table) : null;
+                String existingJournalTableName = getExistingJournalTableName(metaData, table);
                 table.getHistoricalNames()
                         .forEach(tableName -> addTableToExistingModel(currentDataModel, metaData, tableName, existingJournalTableName, processedTables, model.getTables(version)));
             }
@@ -236,13 +235,11 @@ public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDiffer
     }
 
     private String getExistingJournalTableName(MetaData metaData, TableImpl<?> table) {
-        if (table.getJournalTableName() == null) {
-            return null;
-        }
+        Set<String> journalTableNames = table.getJournalTableNames();
         return metaData.getTables()
                 .stream()
                 .map(ExistingTable::getName)
-                .filter(table.getJournalTableName()::equals)
+                .filter(journalTableNames::contains)
                 .findAny()
                 .orElse(null);
     }
@@ -268,12 +265,8 @@ public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDiffer
                                 .filter(referencedTableName -> !tableName.equalsIgnoreCase(referencedTableName) && currentDataModel
                                         .getTable(referencedTableName) == null)
                                 .forEach(referencedTableName -> {
-                                    String refJournalTableName = toBeProcessed.stream()
-                                            .filter(table -> table.getName().equals(referencedTableName))
-                                            .map(Table::getJournalTableName)
-                                            .filter(Objects::nonNull)
-                                            .findAny()
-                                            .orElse(null);
+                                    TableImpl<?> referencedTable = currentDataModel.getTable(referencedTableName);
+                                    String refJournalTableName = null; //getExistingJournalTableName(metaData, referencedTable);
                                     addTableToExistingModel(currentDataModel, metaData, referencedTableName, refJournalTableName, processedTables, toBeProcessed);
                                 });
                         userTable.addConstraintsTo(currentDataModel);
@@ -306,6 +299,7 @@ public class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDiffer
                 .stream()
                 .filter(table -> !table.getName().startsWith("USER_"))
                 .filter(table -> !table.getName().startsWith("ORM_"))
+                .filter(table -> !"INFORMATION_SCHEMA".equals(table.getSchema()))
                 .filter(Table::isAutoInstall)
                 .map(toTable -> upgradeTo(fromDataModel, toTable, version, context))
                 .flatMap(List::stream);

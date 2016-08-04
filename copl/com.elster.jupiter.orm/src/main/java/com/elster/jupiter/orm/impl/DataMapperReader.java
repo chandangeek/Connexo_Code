@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DataMapperReader<T> implements TupleParser<T> {
     private final DataMapperImpl<T> dataMapper;
@@ -301,7 +302,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
     T construct(ResultSet rs, int startIndex) throws SQLException {
         T result = getMapperType().hasMultiple() ? newInstance(rs, startIndex) : dataMapper.cast(getMapperType().newInstance());
         List<Pair<ColumnImpl, Object>> columnValues = new ArrayList<>();
-        for (ColumnImpl column : getTable().getRealColumns()) {
+        for (ColumnImpl column : this.getRealColumns()) {
             Object value = column.convertFromDb(rs, startIndex++);
             if (column.isForeignKeyPart()) {
                 columnValues.add(Pair.of(column, rs.wasNull() ? null : value));
@@ -318,6 +319,10 @@ public class DataMapperReader<T> implements TupleParser<T> {
             constraint.setReverseField(result);
         }
         return result;
+    }
+
+    private List<ColumnImpl> getRealColumns() {
+        return this.getTable().getRealColumns().collect(Collectors.toList());
     }
 
     private Object getValue(ColumnImpl column, List<Pair<ColumnImpl, Object>> columnValues) {
@@ -350,7 +355,7 @@ public class DataMapperReader<T> implements TupleParser<T> {
     }
 
     private List<ColumnImpl> getColumns() {
-        return getTable().getRealColumns();
+        return this.getRealColumns();
     }
 
     private List<ColumnImpl> getPrimaryKeyColumns() {

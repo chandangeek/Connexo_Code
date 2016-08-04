@@ -367,13 +367,13 @@ public class ColumnImpl implements Column {
 
     boolean isStandard() {
         return
-                !isPrimaryKeyColumn() &&
-                        !isVersion() &&
-                        !hasInsertValue() &&
-                        !skipOnUpdate() &&
-                        !hasAutoValue(true) &&
-                        !isDiscriminator() &&
-                        !isVirtual();
+            !isPrimaryKeyColumn() &&
+                    !isVersion() &&
+                    !hasInsertValue() &&
+                    !skipOnUpdate() &&
+                    !hasAutoValue(true) &&
+                    !isDiscriminator() &&
+                    !isVirtual();
     }
 
     boolean hasAutoValue(boolean update) {

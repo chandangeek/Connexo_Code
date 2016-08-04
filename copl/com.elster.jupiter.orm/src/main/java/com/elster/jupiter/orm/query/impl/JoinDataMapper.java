@@ -21,8 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public abstract class JoinDataMapper<T> {
+abstract class JoinDataMapper<T> {
 	private final DataMapperImpl<T> dataMapper;
 	private final String alias;
 	private Map<KeyValue,T> cache;
@@ -75,7 +76,7 @@ public abstract class JoinDataMapper<T> {
 		}
 		return result;
 	}
-	
+
 	final ColumnAndAlias getColumnAndAlias(String fieldName) {
 		ColumnImpl column = getTable().getColumnForField(fieldName);
 		return column == null ? null : new ColumnAndAlias(column,getAlias());
@@ -104,7 +105,7 @@ public abstract class JoinDataMapper<T> {
 	}
 
 	final String appendColumns(SqlBuilder builder , String separator) {
-		for (Column each : getTable().getRealColumns()) {
+		for (Column each : this.getRealColumns()) {
 			builder.append(separator);
 			builder.append(each.getName(alias));
 			builder.space();
@@ -121,10 +122,13 @@ public abstract class JoinDataMapper<T> {
 		return separator;
 	}
 
+	private List<ColumnImpl> getRealColumns() {
+	    return this.getTable().getRealColumns().collect(Collectors.toList());
+    }
+
 	final void appendTable(SqlBuilder builder) {
 		getMapper().getSqlGenerator().appendTable(builder.getBuffer(), "", getAlias());
 	}
-
 
 	final Class<?> getType(String fieldName) {
 		if (getTable().getFieldType(fieldName) == null) {
@@ -171,11 +175,11 @@ public abstract class JoinDataMapper<T> {
 	abstract T set(Object value , ResultSet rs , int index) throws SQLException;
 	abstract boolean appendFromClause(SqlBuilder builder , String parentAlias , boolean isMarked , boolean forceOuterJoin);
 
-	public final Boolean hasWhereField(String fieldName) {
+	final Boolean hasWhereField(String fieldName) {
 		return hasField(fieldName);
 	}
 
-	public final List<String> getQueryFields() {
+	final List<String> getQueryFields() {
 		List<String> result = new ArrayList<>();
 		for (Column each : getTable().getColumns()) {
 			String fieldName = each.getFieldName();
@@ -201,7 +205,8 @@ public abstract class JoinDataMapper<T> {
 		return result;
 	}
 
-	abstract public boolean isReachable();
-	
+	public abstract boolean isReachable();
+
 	abstract boolean skipFetch(boolean marked, boolean anyChildMarked);
+
 }

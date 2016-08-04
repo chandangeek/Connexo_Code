@@ -20,6 +20,7 @@ import com.elster.jupiter.orm.fields.impl.ReverseConstraintMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -36,6 +37,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -274,22 +276,15 @@ public class TableImpl<T> implements Table<T> {
     }
 
     ColumnImpl[] getVersionColumns() {
-        List<Column> result = columns.stream().filter(ColumnImpl::isVersion).collect(Collectors.toList());
-        return result.toArray(new ColumnImpl[result.size()]);
+        return this.getRealColumns().filter(ColumnImpl::isVersion).toArray(ColumnImpl[]::new);
     }
 
     List<ColumnImpl> getColumnsThatMandateRefreshAfterInsert() {
-        return columns.stream().filter(ColumnImpl::mandatesRefreshAfterInsert).collect(Collectors.toList());
+        return this.getRealColumns().filter(ColumnImpl::mandatesRefreshAfterInsert).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getUpdateValueColumns() {
-        List<ColumnImpl> result = new ArrayList<>();
-        for (ColumnImpl column : columns) {
-            if (column.hasUpdateValue()) {
-                result.add(column);
-            }
-        }
-        return result;
+        return this.getRealColumns().filter(ColumnImpl::hasUpdateValue).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getStandardColumns() {
@@ -297,7 +292,7 @@ public class TableImpl<T> implements Table<T> {
     }
 
     List<ColumnImpl> getAutoUpdateColumns() {
-        return columns.stream().filter(column -> column.hasAutoValue(true)).collect(Collectors.toList());
+        return this.getRealColumns().filter(column -> column.hasAutoValue(true)).collect(Collectors.toList());
     }
 
     @Override
@@ -423,12 +418,10 @@ public class TableImpl<T> implements Table<T> {
     }
 
     public ColumnImpl getColumnForField(String name) {
-        for (ColumnImpl column : columns) {
-            if (name.equals(column.getFieldName())) {
-                return column;
-            }
-        }
-        return null;
+        return this.getRealColumns()
+                .filter(name::equals)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -756,19 +749,13 @@ public class TableImpl<T> implements Table<T> {
         List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
         for (int i = 0; i < primaryKeyColumns.size(); i++) {
             if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
-                throw new IllegalStateException(MessageFormat.format("Table '{0}' : Primary key columns must be defined first and in order", getName()));
+                throw new IllegalStateException(MessageFormat.format("Table ''{0}'' : Primary key columns must be defined first and in order", getName()));
             }
         }
         getForeignKeyConstraints().forEach(ForeignKeyConstraintImpl::prepare);
         buildReferenceConstraints();
         buildReverseMappedConstraints();
-        realColumns = new ArrayList<>();
-        for (ColumnImpl column : getColumns(Version.latest())) {
-            if (!column.isVirtual()) {
-                checkMapped(column);
-                realColumns.add(column);
-            }
-        }
+        this.getRealColumns().forEach(this::checkMapped);
         cache = isCached() ? new TableCache.TupleCache<>(this) : new TableCache.NoCache<>();
     }
 
@@ -933,8 +920,15 @@ public class TableImpl<T> implements Table<T> {
                 .collect(Collectors.toList());
     }
 
-    public List<ColumnImpl> getRealColumns() {
-        return realColumns;
+    public Stream<ColumnImpl> getRealColumns() {
+        if (this.realColumns == null) {
+            this.realColumns =
+                    this.getColumns(Version.latest())
+                            .stream()
+                            .filter(Predicates.not(ColumnImpl::isVirtual))
+                            .collect(Collectors.toList());
+        }
+        return realColumns.stream();
     }
 
     Optional<IndexImpl> getIndex(String name) {
@@ -1058,15 +1052,9 @@ public class TableImpl<T> implements Table<T> {
                 .stream()
                 .flatMap(range -> Stream.of(Ranges.lowerBound(range), Ranges.upperBound(range)).flatMap(Functions.asStream()))
                 .collect(Collectors.toCollection(TreeSet::new));
-        columns
-                .stream()
-                .forEach(column -> versions.addAll(column.changeVersions()));
-        constraints
-                .stream()
-                .forEach(constraint -> versions.addAll(constraint.changeVersions()));
-        indexes
-                .stream()
-                .forEach(index -> versions.addAll(index.changeVersions()));
+        columns.forEach(column -> versions.addAll(column.changeVersions()));
+        constraints.forEach(constraint -> versions.addAll(constraint.changeVersions()));
+        indexes.forEach(index -> versions.addAll(index.changeVersions()));
         return versions;
     }
 
@@ -1114,6 +1102,23 @@ public class TableImpl<T> implements Table<T> {
         Set<String> set = new HashSet<>(nameHistory.asMapOfRanges().values());
         set.add(name);
         return set;
+    }
+
+    String previousJournalTableName(Version version) {
+        return journalNameHistory.subRangeMap(Range.lessThan(version))
+                .asMapOfRanges()
+                .entrySet()
+                .stream()
+                .max(Comparator.comparing(Map.Entry::getKey, Comparator.comparing(Range::upperEndpoint)))
+                .map(Map.Entry::getValue)
+                .orElse(null);
+    }
+
+    Set<String> getJournalTableNames() {
+        return journalNameHistory.asMapOfRanges()
+                .values()
+                .stream()
+                .collect(Collectors.toSet());
     }
 
     private class JournalTableVersionOptionsImpl implements JournalTableVersionOptions {

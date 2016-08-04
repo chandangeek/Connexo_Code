@@ -21,7 +21,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
 
 class TableDdlGenerator implements PartitionMethod.Visitor {
 
-	private static final long PARTITIONSIZE = 86400L * 30L * 1000L;
+    private static final long PARTITIONSIZE = 86400L * 30L * 1000L;
     private final TableImpl<?> table;
     private final SqlDialect dialect;
     private final Version version;
@@ -30,6 +30,8 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
     private interface State {
 
         List<String> getRemoveDdl(ColumnImpl column, String tableName);
+
+        Optional<Difference> getRemoveJournalTableDifference(TableImpl<?> toTable);
     }
 
     private static class Cautious implements State {
@@ -60,6 +62,11 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
             appendDdl(column, builder, false, false);
             return builder.append(" NULL ").toString();
         }
+
+        @Override
+        public Optional<Difference> getRemoveJournalTableDifference(TableImpl<?> toTable) {
+            return Optional.empty();
+        }
     }
 
     private static class Strict implements State {
@@ -82,6 +89,13 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 
         private String removeColumnDdl(ColumnImpl column, String tableName) {
             return "alter table " + tableName + " drop column " + '\"' + column.getName().toUpperCase() + '\"';
+        }
+
+        @Override
+        public Optional<Difference> getRemoveJournalTableDifference(TableImpl<?> toTable) {
+            DifferenceImpl.DifferenceBuilder difference = DifferenceImpl.builder("Table " + toTable.getName() + " : Remove journal table.");
+            difference.add("drop table " + toTable.previousJournalTableName(version).toUpperCase() + " cascade constraints");
+            return difference.build();
         }
     }
 
@@ -149,7 +163,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
             sb.append(" organization index");
             if (table.getIotCompressCount() > 0) {
                 sb.append(" compress ");
-            	sb.append(table.getIotCompressCount());
+                sb.append(table.getIotCompressCount());
             }
         }
         if (dialect.hasPartitioning()) {
@@ -160,18 +174,18 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 
     @Override
     public void visitInterval(StringBuilder sb) {
-    	sb.append(" partition by range(");
-		sb.append(table.partitionColumn().get().getName());
-		sb.append(") interval (");
-		sb.append(PARTITIONSIZE);
-		sb.append(") (partition P0 values less than(0))");
-	}
+        sb.append(" partition by range(");
+        sb.append(table.partitionColumn().get().getName());
+        sb.append(") interval (");
+        sb.append(PARTITIONSIZE);
+        sb.append(") (partition P0 values less than(0))");
+    }
 
     @Override
     public void visitReference(StringBuilder sb) {
-    	sb.append(" partition by reference(");
-    	sb.append(table.refPartitionConstraint().get().getName());
-    	sb.append(")");
+        sb.append(" partition by reference(");
+        sb.append(table.refPartitionConstraint().get().getName());
+        sb.append(")");
     }
 
     @Override
@@ -373,6 +387,9 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
 
         if (toTable.hasJournal(version) && !table.hasJournal()) {
             result.add(getJournalTableDifference(toTable));
+        }
+        if (!toTable.hasJournal(version) && table.hasJournal()) {
+            state.getRemoveJournalTableDifference(toTable).ifPresent(result::add);
         }
         // name
         if (!table.getName().equals(toTable.getName(version))) {
