@@ -13,10 +13,10 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum TranslationKeys implements TranslationKey {
 
-    ISSUE_STATUS_OPEN("issue.status.open", "Open"),
+    ISSUE_STATUS_OPEN("issue.status.open", "Created"),
     ISSUE_STATUS_RESOLVED("issue.status.resolved", "Resolved"),
     ISSUE_STATUS_WONT_FIX("issue.status.wont.fix", "Won't fix"),
-    ISSUE_STATUS_IN_PROGRESS("issue.status.in.progress", "In progress"),
+    ISSUE_STATUS_IN_PROGRESS("issue.status.in.progress", "Ongoing"),
     ACTION_ASSIGN_ISSUE("issue.action.assignIssue", "Assign issue"),
     ACTION_COMMENT_ISSUE("issue.action.commentIssue", "Comment issue"),
     CLOSE_ACTION_CLOSE_ISSUE("issue.action.closeIssue", "Close issue"),
