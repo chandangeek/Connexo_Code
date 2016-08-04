@@ -115,7 +115,7 @@ public class UsagePointConsoleCommands {
                                 .orElseThrow(() -> new IllegalArgumentException("Usage Point " + usagePointMRID + " not found."));
                         UsagePointMetrologyConfiguration mc = metrologyConfigurationService
                                 .findMetrologyConfiguration(metrologyConfigName)
-                                .filter(metrologyConfiguration -> metrologyConfiguration instanceof UsagePointMetrologyConfiguration)
+                                .filter(config -> config instanceof UsagePointMetrologyConfiguration)
                                 .map(UsagePointMetrologyConfiguration.class::cast)
                                 .orElseThrow(() -> new IllegalArgumentException("Metrology configuration " + metrologyConfigName + " not found."));
                         if (mc instanceof UsagePointMetrologyConfiguration) {

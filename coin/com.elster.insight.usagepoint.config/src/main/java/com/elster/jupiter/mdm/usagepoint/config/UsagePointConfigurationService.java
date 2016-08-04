@@ -9,6 +9,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
+import java.util.Optional;
 
 @ProviderType
 public interface UsagePointConfigurationService {
@@ -16,6 +17,10 @@ public interface UsagePointConfigurationService {
     String COMPONENTNAME = "UPC";
 
     void link(UsagePoint up, UsagePointMetrologyConfiguration mc);
+
+    Boolean unlink(UsagePoint up, UsagePointMetrologyConfiguration mc);
+
+    Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up);
 
     boolean isInUse(MetrologyConfiguration metrologyConfiguration);
 

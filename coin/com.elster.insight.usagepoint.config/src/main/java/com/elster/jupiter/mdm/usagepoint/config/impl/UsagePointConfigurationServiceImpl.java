@@ -2,10 +2,10 @@ package com.elster.jupiter.mdm.usagepoint.config.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.mdm.usagepoint.config.UsagePointConfigurationService;
-import com.elster.jupiter.mdm.usagepoint.config.security.Privileges;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -14,7 +14,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.PartiallySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.ReadingTypeTemplate;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Layer;
@@ -44,9 +44,8 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.Version.version;
@@ -112,9 +111,13 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Activate
     public void activate() {
         dataModel.register(getModule());
-        upgradeService.register(InstallIdentifier.identifier("Insight", UsagePointConfigurationService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(
-                version(10, 2), UpgraderV10_2.class
-        ));
+        upgradeService.register(
+                InstallIdentifier.identifier("Insight", UsagePointConfigurationService.COMPONENTNAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.of(
+                    version(10, 2),
+                    UpgraderV10_2.class));
     }
 
 
@@ -176,25 +179,20 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public String getComponentName() {
-        return UsagePointConfigurationService.COMPONENTNAME;
-    }
-
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>();
-        Arrays.stream(DefaultTranslationKey.values()).forEach(translationKeys::add);
-        Arrays.stream(Privileges.values()).forEach(translationKeys::add);
-        return translationKeys;
-    }
-
-    @Override
     public void link(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration) {
         usagePoint.apply(metrologyConfiguration, this.clock.instant());
+    }
+
+    @Override
+    public Boolean unlink(UsagePoint usagePoint, UsagePointMetrologyConfiguration mc) {
+        usagePoint.removeMetrologyConfiguration(this.clock.instant());
+        return Boolean.TRUE;
+    }
+
+    @Override
+    public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint usagePoint) {
+        return usagePoint.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
     }
 
     @Override
@@ -262,13 +260,13 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                     if (deliverableReadingTypeMRIDs.stream().anyMatch(ruleSetReadingTypeMRIDs::contains)) {
                         return true;
                     } else {
-                        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+                        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
                         metrologyContract.getDeliverables()
                                 .stream()
                                 .map(ReadingTypeDeliverable::getFormula)
                                 .map(Formula::getExpressionNode)
-                                .forEach(expressionNode -> expressionNode.accept(requirementChecker));
-                        for (ReadingTypeRequirement readingTypeRequirement : requirementChecker.getReadingTypeRequirements()) {
+                                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+                        for (ReadingTypeRequirement readingTypeRequirement : requirementsCollector.getReadingTypeRequirements()) {
                             if (readingTypeRequirement instanceof FullySpecifiedReadingTypeRequirement && ruleSetReadingTypes.contains(((FullySpecifiedReadingTypeRequirement) readingTypeRequirement).getReadingType())) {
                                 return true;
                             } else if (readingTypeRequirement instanceof PartiallySpecifiedReadingTypeRequirement) {
@@ -291,5 +289,20 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .query(MetrologyContractValidationRuleSetUsage.class)
                 .select(condition)
                 .isEmpty();
+    }
+
+    @Override
+    public String getComponentName() {
+        return UsagePointConfigurationService.COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return null;
     }
 }
