@@ -9,10 +9,10 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum TaskStatus implements TranslationKey {
 
-    BUSY("Busy"),
-    SUCCESS("Success"),
+    BUSY("Ongoing"),
+    SUCCESS("Successful"),
     FAILED("Failed"),
-    NOT_EXECUTED_YET("Not executed yet");
+    NOT_EXECUTED_YET("Created");
 
     private String name;
 
