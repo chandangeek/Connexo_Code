@@ -28,9 +28,9 @@ import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.impl.ServiceCallModule;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -46,6 +46,7 @@ import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.device.lifecycle.impl.DeviceLifeCycleModule;
 import com.energyict.mdc.device.topology.impl.TopologyModule;
@@ -65,6 +66,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
@@ -124,6 +126,7 @@ public class InMemoryIntegrationPersistence {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new SchedulingModule(),
@@ -132,7 +135,6 @@ public class InMemoryIntegrationPersistence {
                 new DeviceLifeCycleModule(),
                 new DeviceConfigurationModule(),
                 new ProtocolApiModule(),
-                new KpiModule(),
                 new TasksModule(),
                 new DeviceDataModule(),
                 new TopologyModule(),
@@ -152,6 +154,7 @@ public class InMemoryIntegrationPersistence {
     private void initializeCustomPropertySets() {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -174,6 +177,7 @@ public class InMemoryIntegrationPersistence {
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(LogService.class).toInstance(mock(LogService.class));
             bind(LicenseService.class).toInstance(mock(LicenseService.class));
+            bind(HttpService.class).toInstance(mock(HttpService.class));
 
             Thesaurus thesaurus = mock(Thesaurus.class);
             when(thesaurus.getFormat(any(TranslationKey.class)))

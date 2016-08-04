@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.devices.installation;
 
-import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LocationBuilder;
 import com.elster.jupiter.metering.LocationTemplate.TemplateField;
@@ -8,8 +7,8 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.elster.jupiter.util.geo.SpatialCoordinatesFactory;
+import com.elster.jupiter.util.time.DefaultDateTimeFormatters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.UnsatisfiedReadingTypeRequirementsOfUsagePointException;
 import com.energyict.mdc.device.data.exceptions.UsagePointAlreadyLinkedToAnotherDeviceException;
