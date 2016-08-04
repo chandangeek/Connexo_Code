@@ -1393,9 +1393,9 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerRegisterTimeLine.get(0).getLast()).isEqualTo(Range.atLeast(unlinkingDate));
         assertThat(dataLoggerRegisterTimeLine.get(1).getFirst().getDevice().getmRID()).isEqualTo(slave1.getmRID());
         assertThat(dataLoggerRegisterTimeLine.get(1).getFirst().getRegisterSpecId()).isEqualTo(slave1.getRegisters().get(0).getRegisterSpecId());
-        assertThat(dataLoggerRegisterTimeLine.get(1).getLast()).isEqualTo(Range.closedOpen(linkingDate, unlinkingDate));
+        assertThat(dataLoggerRegisterTimeLine.get(1).getLast()).isEqualTo(Range.openClosed(linkingDate, unlinkingDate));
         assertThat(dataLoggerRegisterTimeLine.get(2).getFirst()).isEqualTo(dataLoggerRegister);
-        assertThat(dataLoggerRegisterTimeLine.get(2).getLast()).isEqualTo(Range.closedOpen(lower, linkingDate));
+        assertThat(dataLoggerRegisterTimeLine.get(2).getLast()).isEqualTo(Range.openClosed(lower, linkingDate));
     }
 
     @Test
@@ -1421,7 +1421,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(dataLoggerRegisterTimeLine.get(0).getFirst().getRegisterSpecId()).isEqualTo(slave1.getRegisters().get(0).getRegisterSpecId());
         assertThat(dataLoggerRegisterTimeLine.get(0).getLast()).isEqualTo(Range.atLeast(linkingDate));
         assertThat(dataLoggerRegisterTimeLine.get(1).getFirst()).isEqualTo(dataLoggerRegister);
-        assertThat(dataLoggerRegisterTimeLine.get(1).getLast()).isEqualTo(Range.closedOpen(lower, linkingDate));
+        assertThat(dataLoggerRegisterTimeLine.get(1).getLast()).isEqualTo(Range.openClosed(lower, linkingDate));
     }
 
     @Test
@@ -1451,17 +1451,17 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         List<Pair<Register, Range<Instant>>> dataLoggerRegisterTimeLine = getTopologyService().getDataLoggerRegisterTimeLine(dataLoggerRegister, dataLoggerRange);
         assertThat(dataLoggerRegisterTimeLine).hasSize(5);
         assertThat(dataLoggerRegisterTimeLine.get(0).getFirst()).isEqualTo(dataLoggerRegister);
-        assertThat(dataLoggerRegisterTimeLine.get(0).getLast()).isEqualTo(Range.closedOpen(unLinkDate2, now));
+        assertThat(dataLoggerRegisterTimeLine.get(0).getLast()).isEqualTo(Range.openClosed(unLinkDate2, now));
         assertThat(dataLoggerRegisterTimeLine.get(1).getFirst().getDevice().getmRID()).isEqualTo(slave2.getmRID());
         assertThat(dataLoggerRegisterTimeLine.get(1).getFirst().getRegisterSpecId()).isEqualTo(slave2.getRegisters().get(0).getRegisterSpecId());
-        assertThat(dataLoggerRegisterTimeLine.get(1).getLast()).isEqualTo(Range.closedOpen(linkDate2, unLinkDate2));
+        assertThat(dataLoggerRegisterTimeLine.get(1).getLast()).isEqualTo(Range.openClosed(linkDate2, unLinkDate2));
         assertThat(dataLoggerRegisterTimeLine.get(2).getFirst()).isEqualTo(dataLoggerRegister);
-        assertThat(dataLoggerRegisterTimeLine.get(2).getLast()).isEqualTo(Range.closedOpen(unLinkDate1, linkDate2));
+        assertThat(dataLoggerRegisterTimeLine.get(2).getLast()).isEqualTo(Range.openClosed(unLinkDate1, linkDate2));
         assertThat(dataLoggerRegisterTimeLine.get(3).getFirst().getDevice().getmRID()).isEqualTo(slave1.getmRID());
         assertThat(dataLoggerRegisterTimeLine.get(3).getFirst().getRegisterSpecId()).isEqualTo(slave1.getRegisters().get(0).getRegisterSpecId());
-        assertThat(dataLoggerRegisterTimeLine.get(3).getLast()).isEqualTo(Range.closedOpen(linkDate1, unLinkDate1));
+        assertThat(dataLoggerRegisterTimeLine.get(3).getLast()).isEqualTo(Range.openClosed(linkDate1, unLinkDate1));
         assertThat(dataLoggerRegisterTimeLine.get(4).getFirst()).isEqualTo(dataLoggerRegister);
-        assertThat(dataLoggerRegisterTimeLine.get(4).getLast()).isEqualTo(Range.closedOpen(lower, linkDate1));
+        assertThat(dataLoggerRegisterTimeLine.get(4).getLast()).isEqualTo(Range.openClosed(lower, linkDate1));
     }
 
     private ServerDeviceService getDeviceService() {
