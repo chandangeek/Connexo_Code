@@ -34,7 +34,7 @@ public class IssueStatusTest extends BaseTest{
         assertThat(statusRef.isPresent()).isTrue();
         IssueStatus status = statusRef.get();
         assertThat(status.getKey()).isEqualTo(IssueStatus.OPEN);
-        assertThat(status.getName()).isEqualTo("Open");
+        assertThat(status.getName()).isEqualTo("Created");
         assertThat(status.isHistorical()).isFalse();
     }
 
