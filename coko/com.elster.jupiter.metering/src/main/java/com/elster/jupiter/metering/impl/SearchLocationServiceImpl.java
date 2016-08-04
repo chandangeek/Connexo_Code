@@ -16,7 +16,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,34 +136,42 @@ public class SearchLocationServiceImpl implements SearchLocationService {
             inputLocation = "";
         }
 
-        String[] mapInputLocation = inputLocation.split("\\s+|,\\s*|;\\s*|\\.\\s*");
+        String[] mapInputLocations = inputLocation.split("\\s+|,\\s*|;\\s*|\\.\\s*");
 
-        ArrayList<String> caseClauses = new ArrayList<>();
+
         String selectClause = "MTR_LOCATIONMEMBER";
+        String orderByClauses = "";
+        String maxClauses = "";
         Integer i = 0;
-        for (int j = 0; j < mapInputLocation.length; j++) {
+        for (int j = 0; j < mapInputLocations.length; j++) {
+            String whenClause = "";
+            String mapInputLocation = mapInputLocations[i].replace("'", "''");
+
             for (int k = 0; k < templateMembers.length; k++) {
                 String templateMember = templateMap.get(templateMembers[k]);
 
                 if (templateMember != null) {
-                    String whenClause = "";
-                    whenClause += String.format(" WHEN UPPER%s = UPPER('%s') THEN %s ", templateMember, mapInputLocation[j], i * 3 + 3);
-                    whenClause += String.format(" WHEN UPPER%s LIKE UPPER('%s')||'%%' THEN %s ", templateMember, mapInputLocation[j], i * 3 + 2);
-                    whenClause += String.format(" WHEN UPPER%s LIKE '%%'|| UPPER('%s') ||'%%' THEN %s ", templateMember, mapInputLocation[j], i * 3 + 1);
-                    caseClauses.add(String.format(" CASE %s ELSE 0 END DESC ", whenClause));
+                    whenClause += String.format(" WHEN UPPER%s = UPPER('%s') THEN %s ", templateMember, mapInputLocation, i * 3 + 1);
+                    whenClause += String.format(" WHEN UPPER%s LIKE UPPER('%s')||'%%' THEN %s ", templateMember, mapInputLocation, i * 3 + 2);
+                    whenClause += String.format(" WHEN UPPER%s LIKE '%%'|| UPPER('%s') ||'%%' THEN %s ", templateMember, mapInputLocation, i * 3 + 3);
                     i++;
                 }
             }
 
-            selectClause = String.format(" SELECT * FROM (%s) WHERE (%s) LIKE '%%' || UPPER('%s') || '%%' ORDER BY %s ",
+            selectClause = String.format(" SELECT MTR_LOCATIONMEMBER.*,  ( CASE %s ELSE 0 END ) as rank%s FROM (%s) MTR_LOCATIONMEMBER WHERE (%s) LIKE '%%' || UPPER('%s') || '%%' ",
+                    whenClause, j,
                     selectClause,
                     templateMap.entrySet().stream().map(entry -> "UPPER" + entry.getValue()).collect(Collectors.joining(" ||' '|| ")),
-                    mapInputLocation[j],
-                    caseClauses.stream().map(Object::toString).collect(Collectors.joining(", ")));
+                    mapInputLocation);
+
+            orderByClauses += (orderByClauses.length() == 0) ? " ORDER BY " : ", ";
+
+            orderByClauses += String.format(" rank%s ASC", j);
+            maxClauses += String.format(" max(rank%s) rank%s, ", j, j);
         }
 
         selectClause = "SELECT * from " +
-                "   (SELECT max(locationid) locationid,  COUNTRYNAME," +
+                "   (SELECT max(locationid) locationid, " + maxClauses + " COUNTRYNAME," +
                 "                COUNTRYCODE," +
                 "                ADMINISTRATIVEAREA," +
                 "                LOCALITY," +
@@ -190,7 +197,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 "                ESTABLISHMENTNAME," +
                 "                ESTABLISHMENTNUMBER," +
                 "                ADDRESSDETAIL," +
-                "                ZIPCODE" +
+                "                ZIPCODE" + orderByClauses +
                 "   ) WHERE rownum <=5 ";
 
         return selectClause;

@@ -45,7 +45,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-02-04 (12:56)
  */
-public class DataAggregationServiceImpl implements DataAggregationService {
+public class DataAggregationServiceImpl implements ServerDataAggregationService {
 
     private volatile ServerMeteringService meteringService;
     private SqlBuilderFactory sqlBuilderFactory;
@@ -130,8 +130,14 @@ public class DataAggregationServiceImpl implements DataAggregationService {
         return each.getMetrologyConfiguration().getContracts().contains(contract);
     }
 
-    private Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
+    @Override
+    public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
         return new MeterActivationSetStreamBuilder(usagePoint, period).build();
+    }
+
+    @Override
+    public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
+        return new MeterActivationSetStreamBuilder(usagePoint, when).build();
     }
 
     private void prepare(UsagePoint usagePoint, MeterActivationSet meterActivationSet, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {

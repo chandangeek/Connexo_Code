@@ -11,7 +11,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -167,14 +167,14 @@ public class MetrologyContractImpl implements MetrologyContract {
     MetrologyContractStatusKey getMetrologyContractStatusKey(UsagePoint usagePoint) {
         if (this.metrologyConfiguration.isPresent() && this.metrologyConfiguration.get() instanceof UsagePointMetrologyConfiguration) {
             UsagePointMetrologyConfiguration configuration = (UsagePointMetrologyConfiguration) this.metrologyConfiguration.get();
-            ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+            ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
             getDeliverables()
                     .stream()
                     .map(ReadingTypeDeliverable::getFormula)
                     .map(Formula::getExpressionNode)
-                    .forEach(expressionNode -> expressionNode.accept(requirementChecker));
+                    .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
 
-            List<MeterRole> meterRoles = requirementChecker.getReadingTypeRequirements()
+            List<MeterRole> meterRoles = requirementsCollector.getReadingTypeRequirements()
                     .stream()
                     .map(configuration::getMeterRoleFor)
                     .filter(Optional::isPresent)
@@ -213,6 +213,11 @@ public class MetrologyContractImpl implements MetrologyContract {
         @Override
         public String getName() {
             return this.thesaurus.getFormat(this.statusKey.getTranslation()).format();
+        }
+
+        @Override
+        public boolean isComplete() {
+            return MetrologyContractStatusKey.COMPLETE.equals(this.statusKey);
         }
     }
 

@@ -10,6 +10,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
 
+import com.google.common.collect.Range;
+
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -30,7 +32,18 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
     private Reference<UsagePointMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     private boolean active;
-    private List<EffectiveMetrologyContractOnUsagePointImpl> effectiveContracts = new ArrayList<>();
+    private List<EffectiveMetrologyContractOnUsagePoint> effectiveContracts = new ArrayList<>();
+
+    private long id;
+
+    @SuppressWarnings("unused")
+    private long version;
+    @SuppressWarnings("unused")
+    private Instant createTime;
+    @SuppressWarnings("unused")
+    private Instant modTime;
+    @SuppressWarnings("unused")
+    private String userName;
 
     @Inject
     public EffectiveMetrologyConfigurationOnUsagePointImpl(DataModel dataModel) {
@@ -38,12 +51,20 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
         this.dataModel = dataModel;
     }
 
-    public EffectiveMetrologyConfigurationOnUsagePointImpl init(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
+    public EffectiveMetrologyConfigurationOnUsagePointImpl initAndSave(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start) {
         this.usagePoint.set(usagePoint);
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.interval = Interval.startAt(start);
         return this;
     }
+
+    public EffectiveMetrologyConfigurationOnUsagePointImpl initAndSaveWithInterval(UsagePoint usagePoint, UsagePointMetrologyConfiguration metrologyConfiguration, Interval interval) {
+        this.usagePoint.set(usagePoint);
+        this.metrologyConfiguration.set(metrologyConfiguration);
+        this.interval = interval;
+        return this;
+    }
+
 
     @Override
     public UsagePointMetrologyConfiguration getMetrologyConfiguration() {
@@ -82,7 +103,7 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
 
     @Override
     public Optional<ChannelsContainer> getChannelsContainer(MetrologyContract metrologyContract) {
-        return this.effectiveContracts.stream()
+        return effectiveContracts.stream()
                 .filter(effectiveContract -> effectiveContract.getMetrologyContract().equals(metrologyContract))
                 .map(EffectiveMetrologyContractOnUsagePoint::getChannelsContainer)
                 .findAny();
@@ -102,5 +123,25 @@ public class EffectiveMetrologyConfigurationOnUsagePointImpl implements Effectiv
                 .add("usagePoint", this.usagePoint)
                 .add("configuration", this.metrologyConfiguration)
                 .toString();
+    }
+
+    public void prepareDelete() {
+        effectiveContracts.clear();
+    }
+
+    @Override
+    public Instant getStart() {
+        return getRange().lowerEndpoint();
+    }
+
+    @Override
+    public Instant getEnd() {
+        Range<Instant> range = getRange();
+        return range.hasUpperBound() ? range.upperEndpoint() : null;
+    }
+
+    @Override
+    public long getId() {
+        return id;
     }
 }

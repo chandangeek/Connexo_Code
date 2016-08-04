@@ -6,8 +6,13 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.aggregation.CalculatedMetrologyContractData;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
+import com.elster.jupiter.metering.config.MetrologyContract;
+import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
+import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactory;
 import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.VirtualFactory;
@@ -19,6 +24,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.users.UserService;
 
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.name.Names;
@@ -26,6 +32,7 @@ import com.google.inject.name.Names;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,7 +60,26 @@ public class MeteringModule extends AbstractModule {
     }
 
     public MeteringModule withDataAggregationService(DataAggregationService dataAggregationService) {
-        this.dataAggregationMock = dataAggregationService;
+        if (dataAggregationService != null && !(dataAggregationService instanceof ServerDataAggregationService)) {
+            this.dataAggregationMock = new ServerDataAggregationService() {
+                @Override
+                public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
+                    return Stream.empty();
+                }
+
+                @Override
+                public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
+                    return Stream.empty();
+                }
+
+                @Override
+                public CalculatedMetrologyContractData calculate(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period) {
+                    return dataAggregationService.calculate(usagePoint, contract, period);
+                }
+            };
+        } else {
+            this.dataAggregationMock = null;
+        }
         return this;
     }
 

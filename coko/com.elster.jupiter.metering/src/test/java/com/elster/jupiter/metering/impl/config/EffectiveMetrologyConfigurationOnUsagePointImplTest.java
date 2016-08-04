@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;

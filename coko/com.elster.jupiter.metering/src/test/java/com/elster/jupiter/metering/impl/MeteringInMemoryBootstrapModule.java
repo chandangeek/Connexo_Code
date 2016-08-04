@@ -15,6 +15,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.aggregation.DataAggregationService;
+import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.MetrologyPurposeDeletionVetoEventHandler;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.NlsService;
@@ -150,6 +151,10 @@ public class MeteringInMemoryBootstrapModule {
 
     public ServerMetrologyConfigurationService getMetrologyConfigurationService() {
         return injector.getInstance(ServerMetrologyConfigurationService.class);
+    }
+
+    public ServerDataAggregationService getServerDataAggregationService() {
+        return injector.getInstance(ServerDataAggregationService.class);
     }
 
     public TransactionService getTransactionService() {

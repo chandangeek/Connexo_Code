@@ -55,5 +55,7 @@ public interface MetrologyContract extends HasId {
         String getKey();
 
         String getName();
+
+        boolean isComplete();
     }
 }

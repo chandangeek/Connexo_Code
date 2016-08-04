@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -84,6 +85,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
             endDeviceQuery.select(condition)
                     .stream()
                     .findFirst()
+                    .filter(endDevice -> Objects.equals(event.getNewState().getFiniteStateMachine().getId(), endDevice.getFiniteStateMachine().get().getId()))
                     .ifPresent(d -> this.handle(event, (ServerEndDevice) d));
         }
         catch (NumberFormatException e) {
