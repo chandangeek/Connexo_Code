@@ -25,16 +25,16 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.exceptions.RegisterTypesNotMappableToLoadProfileTypeIntervalException;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -457,9 +457,8 @@ public class LoadProfileTypeImplTest extends PersistenceTest {
         // Asserts
         this.assertLoadProfileTypeDoesNotExist(loadProfileType);
         this.assertRegisterTypessDoNotExist(loadProfileType);
-        //No channeltypes any more
-        assertThat(masterDataService.getDataModel().query(ChannelTypeImpl.class).select(Condition.TRUE).size()).isEqualTo(0);
-
+        assertThat(masterDataService.getDataModel().query(ChannelTypeImpl.class).select(Condition.TRUE).size())
+                .describedAs("LoadProfileTypes are made obsolete and journaled, so the usages are NOT deleted").isEqualTo(1);
     }
 
     @Test
