@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.rest.impl;
 import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.util.geo.SpatialCoordinates;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -41,7 +42,7 @@ public class UsagePointInfo {
         createTime = usagePoint.getCreateDate().toEpochMilli();
         modTime = usagePoint.getModificationDate().toEpochMilli();
         location = usagePoint.getLocation().map(Location::toString).orElse(usagePoint.getSpatialCoordinates()
-                .map(coordinates -> coordinates.toString()).orElse(""));
+                .map(SpatialCoordinates::toString).orElse(""));
         meterActivations = usagePoint.getCurrentMeterActivations().stream()
                 .map(MeterActivationInfo::new)
                 .collect(Collectors.toList());
