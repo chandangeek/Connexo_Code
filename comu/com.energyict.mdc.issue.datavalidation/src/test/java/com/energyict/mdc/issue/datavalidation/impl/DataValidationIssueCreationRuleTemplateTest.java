@@ -337,9 +337,9 @@ public class DataValidationIssueCreationRuleTemplateTest {
         return deviceConfiguration;
     }
 
-    private Meter createMeter(DeviceConfiguration deviceConfiguration, String name) {
+    private Meter createMeter(DeviceConfiguration deviceConfiguration, String name, Instant creationTime) {
         DeviceService deviceService = inMemoryPersistence.getService(DeviceService.class);
-        Device device = deviceService.newDevice(deviceConfiguration, name, name);
+        Device device = deviceService.newDevice(deviceConfiguration, name, name, creationTime);
         device.save();
         MeteringService meteringService = inMemoryPersistence.getService(MeteringService.class);
         AmrSystem amrSystem  = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
