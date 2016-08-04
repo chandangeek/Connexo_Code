@@ -61,16 +61,21 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     }
 
     private void handle(StateTransitionChangeEvent event, DefaultState newState) {
-        String deviceId = event.getSourceId();
-        try {
-            Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
-            Condition condition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(where("amrId").isEqualTo(deviceId));
-            endDeviceQuery.select(condition)
-                    .stream()
-                    .findFirst()
-                    .ifPresent(d -> this.handle(event, d, newState));
-        } catch (NumberFormatException e) {
-            this.logger.fine(() -> "Unable to parse end device id '" + deviceId + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
+        if (event.getSourceType().contains("Device")) {
+            String deviceId = event.getSourceId();
+            try {
+                Query<EndDevice> endDeviceQuery = meteringService.getEndDeviceQuery();
+                Condition condition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(where("amrId").isEqualTo(deviceId));
+                endDeviceQuery.select(condition)
+                        .stream()
+                        .findFirst()
+                        .ifPresent(d -> this.handle(event, d, newState));
+            } catch (NumberFormatException e) {
+                this.logger.fine(() -> "Unable to parse end device id '" + deviceId + "' as a db identifier for an EndDevice from " + StateTransitionChangeEvent.class.getSimpleName());
+            }
+        }
+        else {
+            this.logger.fine(() -> "Ignoring event for id '" + event.getSourceId() + "' because it does not relate to a device but to an obejct of type " + event.getSourceType());
         }
     }
 

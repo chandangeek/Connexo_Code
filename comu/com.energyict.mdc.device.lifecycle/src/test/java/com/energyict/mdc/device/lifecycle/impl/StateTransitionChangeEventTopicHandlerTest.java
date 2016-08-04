@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.time.Clock;
@@ -67,6 +68,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.event.getOldState()).thenReturn(this.oldState);
         when(this.event.getNewState()).thenReturn(this.newState);
         when(this.event.getSourceId()).thenReturn(END_DEVICE_MRID);
+        when(this.event.getSourceType()).thenReturn(Device.class.getName());
         when(this.meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
         when(endDeviceQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(endDevice));
         when(this.endDevice.getLifecycleDates()).thenReturn(this.lifecycleDates);
@@ -82,6 +84,19 @@ public class StateTransitionChangeEventTopicHandlerTest {
 
         // Asserts
         verify(this.meteringService, never()).findEndDevice(anyString());
+    }
+
+    @Test
+    public void transitionToUnrelatedStateIgnoresEvent() {
+        StateTransitionChangeEventTopicHandler handler = getTestInstance();
+        when(this.event.getSourceType()).thenReturn("Please ignore me");
+        when(this.newState.isCustom()).thenReturn(true);
+
+        // Business method
+        handler.handle(this.localEvent);
+
+        // Asserts
+        verify(this.event, never()).getSourceId();
     }
 
     @Test

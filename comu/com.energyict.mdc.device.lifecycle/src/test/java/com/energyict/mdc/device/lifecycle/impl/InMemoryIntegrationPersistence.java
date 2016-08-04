@@ -64,6 +64,7 @@ import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.events.DeviceLifeCycleChangeEventHandler;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -91,6 +92,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import java.nio.file.FileSystem;
@@ -179,6 +181,7 @@ public class InMemoryIntegrationPersistence {
                 new ProtocolPluggableModule(),
                 new EngineModelModule(),
                 new MasterDataModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new SchedulingModule(),
@@ -187,7 +190,6 @@ public class InMemoryIntegrationPersistence {
                 new DeviceConfigurationModule(),
                 new ProtocolApiModule(),
                 new TaskModule(),
-                new KpiModule(),
                 new TasksModule(),
                 new TopologyModule(),
                 new DeviceDataModule(),
@@ -231,6 +233,7 @@ public class InMemoryIntegrationPersistence {
     private void initializeCustomPropertySets() {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
     }
 
     public DeviceLifeCycleChangeEventHandler getDeviceLifeCycleChangeEventHandler() {
@@ -335,6 +338,7 @@ public class InMemoryIntegrationPersistence {
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
             bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
     }
 
