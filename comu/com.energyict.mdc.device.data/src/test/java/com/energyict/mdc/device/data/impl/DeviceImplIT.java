@@ -388,7 +388,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void getHistoryTest() {
-        Device simpleDevice = createSimpleDevice();
+        Device simpleDevice = createSimpleDeviceWithName("getHistoryTest");
         assertThat(simpleDevice.getHistory(simpleDevice.getCreateTime()).get().getId()).isEqualTo(simpleDevice.getId());
     }
 
