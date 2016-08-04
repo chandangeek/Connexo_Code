@@ -104,6 +104,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
@@ -183,6 +184,7 @@ import org.kie.internal.KnowledgeBaseFactoryService;
 import org.kie.internal.builder.KnowledgeBuilderFactoryService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
@@ -239,6 +241,7 @@ public class DemoTest {
             bind(KnowledgeBaseFactoryService.class).toInstance(mock(KnowledgeBaseFactoryService.class, RETURNS_DEEP_STUBS));
             bind(KnowledgeBuilderFactoryService.class).toInstance(mock(KnowledgeBuilderFactoryService.class, RETURNS_DEEP_STUBS));
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
+            bind(HttpService.class).toInstance(mock(HttpService.class));
         }
 
         private License mockLicense() {
@@ -774,6 +777,7 @@ public class DemoTest {
     private void initializeCustomPropertySets() {
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
         injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+        injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
     }
 
     private void createRequiredProtocols() {
