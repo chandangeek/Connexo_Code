@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
@@ -7,6 +8,8 @@ import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -28,6 +31,8 @@ import static org.mockito.Mockito.when;
 
 public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
+
     public static final long OK_VERSION = 24L;
     public static final long BAD_VERSION = 17L;
     public static final long DEVICE_TYPE_ID = 564L;
@@ -47,6 +52,8 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
 
     @Test
     public void testAddRuleSetsToDeviceConfiguration() throws Exception {
+        when(validationRuleSet1.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        when(validationRuleSet2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
     	doReturn(Optional.of(validationRuleSet1)).when(validationService).getValidationRuleSet(RULESET_ID_1);
     	doReturn(Optional.of(validationRuleSet2)).when(validationService).getValidationRuleSet(RULESET_ID_2);
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
@@ -55,7 +62,10 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         when(deviceConfigurationService.findDeviceConfiguration(DEVICE_CONFIGURATION_ID)).thenReturn(Optional.of(deviceConfiguration));
         when(propertyUtils.convertPropertySpecsToPropertyInfos(anyList(), anyMap())).thenReturn(Collections.<PropertyInfo>emptyList());
 
-        Invocation.Builder all = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/").queryParam("all", Boolean.FALSE).request();
+        Invocation.Builder all = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/")
+                .queryParam("all", Boolean.FALSE)
+                .request()
+                .header(APPLICATION_HEADER_PARAM, QualityCodeSystem.MDC.name());
         Response response = all.post(Entity.json(Arrays.asList(RULESET_ID_1, RULESET_ID_2)));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -65,6 +75,8 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
 
     @Test
     public void testAddAllRuleSetsToDeviceConfiguration() throws Exception {
+        when(validationRuleSet1.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        when(validationRuleSet2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(validationRuleSet1, validationRuleSet2));
         when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration)).thenReturn(Arrays.asList(readingType1, readingType2));
         when(validationRuleSet1.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule1));
@@ -74,7 +86,10 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findDeviceConfiguration(DEVICE_CONFIGURATION_ID)).thenReturn(Optional.of(deviceConfiguration));
 
-        Invocation.Builder all = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/").queryParam("all", Boolean.TRUE).request();
+        Invocation.Builder all = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/")
+                .queryParam("all", Boolean.TRUE)
+                .request()
+                .header(APPLICATION_HEADER_PARAM, QualityCodeSystem.MDC.name());
         Response response = all.post(Entity.json(Collections.emptyList()));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -84,6 +99,8 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
 
     @Test
     public void testAddAllRuleSetsToDeviceConfigurationWithoutNonMatching() throws Exception {
+        when(validationRuleSet1.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        when(validationRuleSet2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
@@ -94,7 +111,10 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         when(validationRuleSet1.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Collections.<ValidationRule>emptyList());
         when(validationRuleSet2.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule2));
 
-        Invocation.Builder all = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/").queryParam("all", Boolean.TRUE).request();
+        Invocation.Builder all = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/")
+                .queryParam("all", Boolean.TRUE)
+                .request()
+                .header(APPLICATION_HEADER_PARAM, QualityCodeSystem.MDC.name());
         Response response = all.post(Entity.json(Collections.emptyList()));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -104,6 +124,8 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
 
     @Test
     public void testDeleteValidationRuleSetOkVersion() throws Exception {
+        when(validationRuleSet1.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        when(validationRuleSet2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
@@ -118,13 +140,18 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(DEVICE_CONFIGURATION_ID, OK_VERSION);
 
-        Response response = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/" + RULESET_ID_1).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/" + RULESET_ID_1)
+                .request()
+                .header(APPLICATION_HEADER_PARAM, QualityCodeSystem.MDC.name())
+                .build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceConfiguration).removeValidationRuleSet(validationRuleSet1);
     }
 
     @Test
     public void testDeleteValidationRuleSetBadVersion() throws Exception {
+        when(validationRuleSet1.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
+        when(validationRuleSet2.getQualityCodeSystem()).thenReturn(QualityCodeSystem.MDC);
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
         when(deviceConfiguration.getVersion()).thenReturn(BAD_VERSION);
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, BAD_VERSION)).thenReturn(Optional.empty());
@@ -139,7 +166,10 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         info.version = OK_VERSION;
         info.parent = new VersionInfo<>(DEVICE_CONFIGURATION_ID, BAD_VERSION);
 
-        Response response = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/" + RULESET_ID_1).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        Response response = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/" + RULESET_ID_1)
+                .request()
+                .header(APPLICATION_HEADER_PARAM, QualityCodeSystem.MDC.name())
+                .build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
         verify(deviceConfiguration, never()).removeValidationRuleSet(validationRuleSet1);
     }
