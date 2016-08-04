@@ -28,9 +28,13 @@ class DeviceProtocolConfigurationProperty {
     private String name;
     @Size(min = 1, max = 4000, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String value;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
 
     static DeviceProtocolConfigurationProperty forNameAndValue(String name, String value, DeviceConfiguration deviceConfiguration) {

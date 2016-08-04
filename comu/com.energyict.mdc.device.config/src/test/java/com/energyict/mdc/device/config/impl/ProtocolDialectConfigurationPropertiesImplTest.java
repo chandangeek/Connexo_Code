@@ -17,6 +17,7 @@ import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.kpi.impl.KpiModule;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -219,6 +220,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 new EngineModelModule(),
                 new ProtocolPluggableModule(),
                 new IssuesModule(),
+                new KpiModule(),
                 new ValidationModule(),
                 new EstimationModule(),
                 new MeteringGroupsModule(),
@@ -409,6 +411,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 when(persistenceSupport.application()).thenReturn("Example");
                 when(persistenceSupport.componentName()).thenReturn("DDD");
                 when(persistenceSupport.tableName()).thenReturn("TST_MYPROPS");
+                when(persistenceSupport.journalTableName()).thenReturn("TST_MYPROPSJRNL");
                 when(persistenceSupport.domainColumnName()).thenReturn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.databaseName());
                 when(persistenceSupport.domainFieldName()).thenReturn(CommonDeviceProtocolDialectProperties.Fields.DIALECT_PROPERTY_PROVIDER.javaName());
                 when(persistenceSupport.domainForeignKeyName()).thenReturn("FK_TST_MYPROPS");

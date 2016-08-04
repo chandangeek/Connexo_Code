@@ -21,9 +21,13 @@ class DeviceTypeLoadProfileTypeUsage {
     private Reference<LoadProfileType> loadProfileType = ValueReference.absent();
     private Reference<RegisteredCustomPropertySet> customPropertySet = ValueReference.absent();
     private DataModel dataModel;
+    @SuppressWarnings("unused") // Managed by ORM
     private String userName;
+    @SuppressWarnings("unused") // Managed by ORM
     private long version;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant createTime;
+    @SuppressWarnings("unused") // Managed by ORM
     private Instant modTime;
 
     @Inject
@@ -54,7 +58,7 @@ class DeviceTypeLoadProfileTypeUsage {
         update();
     }
 
-    public boolean sameLoadProfileType(LoadProfileType loadProfileType) {
+    boolean sameLoadProfileType(LoadProfileType loadProfileType) {
         return this.getLoadProfileType().getId() == loadProfileType.getId();
     }
 

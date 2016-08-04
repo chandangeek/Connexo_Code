@@ -1,6 +1,16 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Range;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -14,17 +24,6 @@ import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredExc
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.validation.ValidationRule;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -49,7 +48,7 @@ import static com.elster.jupiter.util.Checks.is;
 @ValidChannelSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
 @ValidateUpdatableChannelSpecFields(groups = {Save.Update.class})
 @ChannelOverflowValueValidation(groups = {Save.Create.class, Save.Update.class})
-public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ChannelSpec {
+class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerChannelSpec {
 
     enum ChannelSpecFields {
         DEVICE_CONFIG("deviceConfiguration"),
@@ -275,6 +274,11 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
                 throw new LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException(getLoadProfileSpec(), this.getThesaurus(), MessageSeeds.CHANNEL_SPEC_LOAD_PROFILE_SPEC_IS_NOT_ON_DEVICE_CONFIGURATION);
             }
         }
+    }
+
+    @Override
+    public void configurationBeingDeleted() {
+        this.getDataModel().remove(this);
     }
 
     @Override

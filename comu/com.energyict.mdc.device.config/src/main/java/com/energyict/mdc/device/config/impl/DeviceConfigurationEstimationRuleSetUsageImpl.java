@@ -1,22 +1,22 @@
 package com.energyict.mdc.device.config.impl;
 
-import java.time.Instant;
-
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 
-public class DeviceConfigurationEstimationRuleSetUsageImpl implements DeviceConfigurationEstimationRuleSetUsage {
-    
+import java.time.Instant;
+
+class DeviceConfigurationEstimationRuleSetUsageImpl implements DeviceConfigurationEstimationRuleSetUsage {
+
     enum Fields {
         DEVICECONFIGURATION("deviceConfiguration"),
         ESTIMATIONRULESET("estimationRuleSet"),
         POSITION("position")
         ;
-        
+
         private final String javaFieldName;
 
         Fields(String javaFieldName) {

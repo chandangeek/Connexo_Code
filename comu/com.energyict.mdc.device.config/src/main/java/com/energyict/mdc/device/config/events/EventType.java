@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.config.events;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventTypeBuilder;
 import com.elster.jupiter.events.ValueType;
 import com.elster.jupiter.orm.TransactionRequired;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 
 /**
  * Models the different event types that are produced by this "device type and configurations bundle".
@@ -17,6 +16,7 @@ public enum EventType {
 
     DEVICETYPE_CREATED("devicetype/CREATED"),
     DEVICETYPE_UPDATED("devicetype/UPDATED"),
+    DEVICETYPE_VALIDATE_DELETE("devicetype/VALIDATEDELETE"),
     DEVICETYPE_DELETED("devicetype/DELETED"),
     DEVICELIFECYCLE_UPDATED("devicetype/dlc/UPDATED"),
     DEVICECONFIGURATION_CREATED("deviceconfiguration/CREATED"),

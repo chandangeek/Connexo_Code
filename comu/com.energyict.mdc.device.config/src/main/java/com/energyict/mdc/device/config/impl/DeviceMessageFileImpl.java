@@ -17,7 +17,6 @@ import com.google.common.base.MoreObjects;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Size;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -32,7 +31,7 @@ import java.util.function.Consumer;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-05-11 (13:52)
  */
-public class DeviceMessageFileImpl implements DeviceMessageFile {
+class DeviceMessageFileImpl implements ServerDeviceMessageFile {
 
     enum Fields {
         NAME("name"),
@@ -61,6 +60,7 @@ public class DeviceMessageFileImpl implements DeviceMessageFile {
     private Reference<DeviceType> deviceType = ValueReference.absent();
     private Blob contents = FileBlob.empty();
     @Max(value = DeviceConfigurationService.MAX_DEVICE_MESSAGE_FILE_SIZE_MB, message = "{" + MessageSeeds.Keys.MAX_FILE_SIZE_EXCEEDED + "}", groups = {Save.Create.class, Save.Update.class})
+    @SuppressWarnings("unused") // For validation only
     private BigDecimal blobSize = BigDecimal.ZERO;
     @SuppressWarnings("unused")
     private String userName;
@@ -79,7 +79,7 @@ public class DeviceMessageFileImpl implements DeviceMessageFile {
         return this;
     }
 
-    DeviceMessageFileImpl init(DeviceType deviceType, InputStream inputStream, String fileName) {
+    ServerDeviceMessageFile init(DeviceType deviceType, InputStream inputStream, String fileName) {
         this.deviceType.set(deviceType);
         this.name = fileName;
         this.contents = FileBlob.from(inputStream);

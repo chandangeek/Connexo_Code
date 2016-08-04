@@ -69,7 +69,7 @@ class DeviceMessageSpecImpl implements DeviceMessageSpec {
                         .specForValuesOf(new DeviceMessageFileValueFactory(this.deviceType))
                         .named(propertySpec.getName(), propertySpec.getDisplayName())
                         .describedAs(propertySpec.getDescription())
-                        .addValues(this.deviceType.getDeviceMessageFiles());
+                        .addValues(this.deviceType.getDeviceMessageFiles().stream().sorted((f1,f2) -> f1.getName().compareTo(f2.getName())).collect(Collectors.toList()));
             if (propertySpec.isRequired()) {
                 builder.markRequired();
             }

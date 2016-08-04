@@ -35,6 +35,8 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.device.config.TimeOfUseOptions;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.DataloggerSlaveException;
 import com.energyict.mdc.device.config.exceptions.DuplicateDeviceMessageFileException;
@@ -119,7 +121,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
     private boolean deviceProtocolPluggableClassChanged = false;
     private boolean fileManagementEnabled = false;
-    private List<DeviceMessageFileImpl> deviceMessageFiles = new ArrayList<>();
+    private List<ServerDeviceMessageFile> deviceMessageFiles = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -151,14 +153,14 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.customPropertySetService = customPropertySetService;
     }
 
-    DeviceTypeImpl initializeRegular(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
+    private DeviceTypeImpl initializeRegular(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
         this.setName(name);
         this.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
         this.setDeviceLifeCycle(deviceLifeCycle, this.clock.instant());
         return this;
     }
 
-    public DeviceType initializeDataloggerSlave(String name, DeviceLifeCycle deviceLifeCycle) {
+    private DeviceType initializeDataloggerSlave(String name, DeviceLifeCycle deviceLifeCycle) {
         this.setName(name);
         this.setDeviceLifeCycle(deviceLifeCycle, this.clock.instant());
         this.deviceTypePurpose = DeviceTypePurpose.DATALOGGER_SLAVE;
@@ -181,6 +183,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.loadProfileTypeUsages.clear();
         this.logBookTypeUsages.clear();
         this.deviceMessageFiles.clear();
+        this.allowedCalendars.clear();
         Iterator<ServerDeviceConfiguration> iterator = this.deviceConfigurations.iterator();
         // do not replace with foreach!! the deviceConfiguration will be removed from the iterator
         while (iterator.hasNext()) {
@@ -189,7 +192,15 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             deviceConfiguration.prepareDelete();
             iterator.remove();
         }
+        this.deleteTimeOfUseManagementOption();
         this.getDataMapper().remove(this);
+    }
+
+    private void deleteTimeOfUseManagementOption() {
+        this.getDataModel()
+                .mapper(TimeOfUseOptions.class)
+                .find(TimeOfUseOptionsImpl.Fields.DEVICETYPE.fieldName(), this)
+                .forEach(TimeOfUseOptions::delete);
     }
 
     @Override
@@ -212,6 +223,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         if (this.hasActiveConfigurations()) {
             throw CannotDeleteBecauseStillInUseException.deviceTypeIsStillInUse(this.getThesaurus(), this, MessageSeeds.DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS);
         }
+        this.getEventService().postEvent(EventType.DEVICETYPE_VALIDATE_DELETE.topic(), this);
     }
 
     private boolean hasActiveConfigurations() {
@@ -831,11 +843,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public DeviceMessageFile addDeviceMessageFile(InputStream inputStream, String fileName) {
-        DeviceMessageFileImpl file = this.getDataModel().getInstance(DeviceMessageFileImpl.class).init(this, inputStream, fileName);
+        ServerDeviceMessageFile file = this.getDataModel().getInstance(DeviceMessageFileImpl.class).init(this, inputStream, fileName);
         return createFile(file);
     }
 
-    private DeviceMessageFile createFile(DeviceMessageFileImpl file) {
+    private DeviceMessageFile createFile(ServerDeviceMessageFile file) {
         if (this.deviceMessageFiles.stream().anyMatch(other -> other.getName().equals(file.getName()))) {
             throw new DuplicateDeviceMessageFileException(this, file.getName(), this.getThesaurus());
         }
@@ -847,6 +859,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void removeDeviceMessageFile(DeviceMessageFile obsolete) {
+        this.removeDeviceMessageFile((ServerDeviceMessageFile) obsolete);
+    }
+
+    private void removeDeviceMessageFile(ServerDeviceMessageFile obsolete) {
         if (this.deviceMessageFiles.remove(obsolete)) {
             this.touch();
         }
@@ -964,7 +980,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         boolean isLogicalSlave();
     }
 
-    class RegularProtocolBehavior implements ProtocolBehavior {
+    private class RegularProtocolBehavior implements ProtocolBehavior {
 
         @Override
         public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
@@ -1022,7 +1038,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
     }
 
-    class DataloggerSlaveProtocolBehavior implements ProtocolBehavior {
+    private class DataloggerSlaveProtocolBehavior implements ProtocolBehavior {
 
         @Override
         public void setDeviceProtocolPluggableClass(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
@@ -1069,7 +1085,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         void purposeChangedTo(DeviceTypePurpose deviceTypePurpose);
     }
 
-    class RegularLogBookBehavior implements LogBookBehavior {
+    private class RegularLogBookBehavior implements LogBookBehavior {
         @Override
         public void addLogBookTypes(List<LogBookType> logBookTypes) {
             logBookTypes.forEach(this::addSingleLogBookType);
@@ -1165,7 +1181,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         }
     }
 
-    class DataloggerSlaveLogBookBehavior implements LogBookBehavior {
+    private class DataloggerSlaveLogBookBehavior implements LogBookBehavior {
         @Override
         public void addLogBookTypes(List<LogBookType> logBookTypes) {
             if (!logBookTypes.isEmpty()) {

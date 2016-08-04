@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -19,7 +18,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-15 (08:47)
  */
-public class DeviceLifeCycleInDeviceTypeImpl implements DeviceLifeCycleInDeviceType {
+class DeviceLifeCycleInDeviceTypeImpl implements DeviceLifeCycleInDeviceType {
 
     private final UserService userService;
 
@@ -38,7 +37,7 @@ public class DeviceLifeCycleInDeviceTypeImpl implements DeviceLifeCycleInDeviceT
     private String userName;
 
     @Inject
-    public DeviceLifeCycleInDeviceTypeImpl(UserService userService) {
+    DeviceLifeCycleInDeviceTypeImpl(UserService userService) {
         super();
         this.userService = userService;
     }

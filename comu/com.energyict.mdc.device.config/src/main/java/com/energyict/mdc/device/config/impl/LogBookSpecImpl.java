@@ -1,13 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LogBookSpec;
-import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
-import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
-import com.energyict.mdc.masterdata.LogBookType;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -16,6 +8,13 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.exceptions.CannotChangeLogbookTypeOfLogbookSpecException;
+import com.energyict.mdc.device.config.exceptions.LogbookTypeIsNotConfiguredOnDeviceTypeException;
+import com.energyict.mdc.masterdata.LogBookType;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -26,7 +25,7 @@ import java.time.Instant;
  * Date: 12/11/12
  * Time: 13:30
  */
-public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements ServerLogBookSpec {
+class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements ServerLogBookSpec {
 
     private final Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_REQUIRED + "}")
@@ -43,7 +42,7 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     private Instant modTime;
 
     @Inject
-    public LogBookSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    LogBookSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(LogBookSpec.class, dataModel, eventService, thesaurus);
     }
 
