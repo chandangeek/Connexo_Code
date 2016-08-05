@@ -2,23 +2,29 @@ Ext.define('Uni.property.view.property.DateTime', {
     extend: 'Uni.property.view.property.Date',
 
     timeFormat: 'H:i:s',
+    resetButtonHidden: true,
+    widthOfTimePart: 151,
+    xtype: 'property-DateTime',
 
     getEditCmp: function () {
         var me = this,
             result = [];
 
         result[0] = this.callParent(arguments);
+        delete result[0].maxWidth;
+        result[0].width = me.width - me.widthOfTimePart;
         result[1] = {
             xtype: 'container',
             layout: 'hbox',
             align: 'stretch',
-            width: me.width,
-            maxWidth: 135,
             margin: '0 0 0 5',
             items: [
                 {
                     xtype: 'label',
-                    text: Uni.I18n.translate('general.at', 'UNI', 'At').toLowerCase(),
+                    text: Uni.I18n.translate('general.at.lowercase', 'UNI','at'),
+                    style: {
+                        fontWeight: 'normal'
+                    },
                     margin: '7 3 0 0'
                 },
                 {

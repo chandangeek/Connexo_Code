@@ -3,6 +3,8 @@ Ext.define('Uni.property.view.property.Period', {
     requires: [
         'Uni.property.store.TimeUnits'
     ],
+    unitComboWidth: 128,
+    gapWidth: 6,
 
     getNormalCmp: function () {
         var me = this;
@@ -12,7 +14,7 @@ Ext.define('Uni.property.view.property.Period', {
                 xtype: 'numberfield',
                 itemId: me.key + 'numberfield',
                 name: me.getName(),
-                width: me.width,
+                width: me.width - me.unitComboWidth - me.gapWidth,
                 required: me.required,
                 readOnly: me.isReadOnly,
                 allowBlank: me.allowBlank,
@@ -25,10 +27,9 @@ Ext.define('Uni.property.view.property.Period', {
                 itemId: me.key + 'combobox',
                 name: me.getName() + '.combobox',
                 store: 'Uni.property.store.TimeUnits',
-                //queryMode: 'local',
                 displayField: 'timeUnit',
                 valueField: 'timeUnit',
-                width: me.width,
+                width: me.unitComboWidth,
                 forceSelection: false,
                 editable:false,
                 required: me.required,
