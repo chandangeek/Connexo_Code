@@ -266,7 +266,7 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
                                         .getTable(referencedTableName) == null)
                                 .forEach(referencedTableName -> {
                                     TableImpl<?> referencedTable = currentDataModel.getTable(referencedTableName);
-                                    String refJournalTableName = getExistingJournalTableName(metaData, referencedTable);
+                                    String refJournalTableName = null; //getExistingJournalTableName(metaData, referencedTable);
                                     addTableToExistingModel(currentDataModel, metaData, referencedTableName, refJournalTableName, processedTables, toBeProcessed);
                                 });
                         userTable.addConstraintsTo(currentDataModel);
