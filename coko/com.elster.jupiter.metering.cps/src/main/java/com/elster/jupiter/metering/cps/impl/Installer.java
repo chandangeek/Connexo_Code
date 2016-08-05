@@ -50,7 +50,6 @@ class Installer implements FullInstaller {
         assign(UsagePointTechElDomExt.class.getName(), this::addElectricitySets);
 
         assign(UsagePointTechInstElectrDE.class.getName(), this::addElectricitySets);
-        assign(UsagePointAntennaDomExt.class.getName(), this::addElectricitySets);
 
         gas = meteringService.getServiceCategory(ServiceKind.GAS).get();
         assign(UsagePointTechnicalWGTDomExt.class.getName(), this::addGasSets);
