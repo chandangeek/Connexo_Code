@@ -17,7 +17,6 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
         'Uni.view.container.PreviewContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
         'Uni.view.widget.WhatsGoingOn',
-        'Mdc.view.setup.device.DataLoggerSlavesPanel'
         //'Mdc.view.setup.device.DeviceHealthCheckPanel'
     ],
 
@@ -26,6 +25,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             xtype: 'panel',
             ui: 'large',
             itemId: 'deviceSetupPanel',
+            //title: Uni.I18n.translate('devicesetup.deviceConfigurations', 'MDC', 'deviceName'),
             layout: {
                 type: 'fit',
                 align: 'stretch'
@@ -40,11 +40,9 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
     ],
 
     renderFlag: function(labelsStore) {
-        var me = this,
-            toolbar = me.down('#deviceSetupFlags'),
-            flag = null;
-
-        if (!me.rendered) return;
+        var me = this;
+        var toolbar = me.down('#deviceSetupFlags');
+        var flag = null;
 
         if (labelsStore.count) {
             flag = labelsStore.getById('mdc.label.category.favorites');
@@ -56,6 +54,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
             iconCls: !!flag ? 'icon-star-full' : 'icon-star-empty',
             ui: 'plain',
             style: 'font-size: 20px',
+            //cls: 'x-panel-header-text-container-large',
             flag: flag,
             pressed: !!flag,
             privileges: Mdc.privileges.Device.flagDevice,
@@ -116,6 +115,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         },
                         {
                             xtype: 'fieldcontainer',
+//                            ui: 'actions',
                             fieldLabel: '&nbsp',
                             layout: {
                                 type: 'hbox'
@@ -175,22 +175,31 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
 
     initComponent: function () {
         var me = this,
-            panel = me.content[0],
-            isGateway = me.device.get('isGateway'),
-            isDirectlyAddressable = me.device.get('isDirectlyAddressed'),
-            disableChangeConfigSinceDataLoggerOrSlave = me.device.get('isDataLogger') || me.device.get('isDataLoggerSlave');
-
+            panel = me.content[0];
+        //panel.title = me.device.get('mRID');
+        //panel.title = {
+        //  //  text: me.device.get('mRID'),
+        //    flex: undefined
+        //};
         panel.tools = [
             {
                 xtype: 'toolbar',
                 margin: '0 20 0 0',
                 width: '100%',
+                //flex: 1,
                 items: [
                     {
                         xtype: 'displayfield',
                         value: me.device.get('mRID'),
                         fieldCls: 'x-panel-header-text-container-large',
-                        style: 'margin-right: 10px'
+                        style: 'margin-right: 10px',
+                        //fieldStyle: 'line-height: 30px'
+                        //style: {
+                        //    'color': '#1e7d9e',
+                        //    //'font-size': '24px',
+                        //    //'font-weight': 'bold',
+                        //    //'font-family': 'Open Sans Condensed", helvetica, arial, verdana, sans-serif'
+                        //}
                     },
                     {
                         xtype: 'container',
@@ -199,9 +208,11 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         width: 20,
                         height: 20
                     },
-                    {
-                        xtype: 'tbfill'
-                    },
+                    {xtype: 'tbfill'},
+                    //{
+                    //    xtype: 'component',
+                    //    flex: 1
+                    //},
                     {
                         xtype: 'component',
                         itemId: 'last-updated-field',
@@ -233,8 +244,7 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                         menu: {
                             xtype: 'device-action-menu',
                             itemId: 'deviceActionMenu',
-                            router: me.router,
-                            disableChangeConfigSinceDataLoggerOrSlave: disableChangeConfigSinceDataLoggerOrSlave
+                            router: me.router
                         }
                     }
                 ]
@@ -270,11 +280,10 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 items: [
                     {
                         xtype: 'container',
-                        itemId: 'mdc-panel-container',
                         flex: 2,
                         layout: {
                             type: 'vbox',
-                            align: 'stretch'
+                            align: 'stretch',
                         },
                         items: [
                             {
@@ -297,32 +306,71 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                                 items: [
                                     {
                                         xtype: 'deviceCommunicationTopologyPanel',
-                                        title: Uni.I18n.translate('deviceCommunicationTopology.title', 'MDC', 'Communication topology'),
                                         privileges: Mdc.privileges.Device.deviceOperator,
                                         router: me.router,
                                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget,
-                                        hidden: isDirectlyAddressable && !isGateway
                                     },
                                     {
                                         xtype: 'device-data-validation-panel',
-                                        privileges: Mdc.privileges.Device.deviceOperator,
+                                        privileges: Cfg.privileges.Validation.fineTuneOnDevice,
                                         mRID: me.device.get('mRID'),
                                         dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget
                                     }
                                 ]
                             }
+                            //{
+                            //    xtype: 'deviceCommunicationTopologyPanel',
+                            //    privileges: Mdc.privileges.Device.deviceOperator,
+                            //    router: me.router,
+                            //    dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.topologyWidget,
+                            //
+                            //},
+                            //{
+                            //    xtype: 'panel',
+                            //    title: 'test2',
+                            //    height: 200
+                            //}
                         ]
                     },
+
                     {
                         xtype: 'deviceGeneralInformationPanel',
-                        dataLoggerSlave: me.device.get('isDataLoggerSlave') ? me.device : undefined,
                         router: me.router,
                         style: {
-                            marginRight: '20px'
+                            marginRight: '20px',
+                            //padding: '20px'
                         }
                     }
                 ]
             },
+            //{
+            //    xtype: 'panel',
+            //    layout: {
+            //        type: 'hbox',
+            //        align: 'stretch'
+            //    },
+            //    defaults: {
+            //        style: {
+            //            marginRight: '20px',
+            //            padding: '20px'
+            //        },
+            //        flex: 1
+            //    },
+            //    items: [
+            //        {
+            //            xtype: 'deviceOpenIssuesPanel',
+            //            privileges: Isu.privileges.Issue.viewAdminDevice,
+            //            router: me.router,
+            //            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.issuesWidget
+            //        },
+            //        {
+            //            xtype: 'device-data-validation-panel',
+            //            privileges: Cfg.privileges.Validation.fineTuneOnDevice,
+            //            mRID: me.device.get('mRID'),
+            //            dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.validationWidget
+            //        }
+            //    ]
+            //},
             {
                 xtype: 'panel',
                 privileges: Mdc.privileges.Device.deviceOperator,
@@ -399,30 +447,5 @@ Ext.define('Mdc.view.setup.device.DeviceSetup', {
                 }
             }
         );
-
-        if (me.rendered) {
-            me.addDataLoggerSlavesPanelIfNeeded();
-        } else {
-            me.on('afterrender', function() {
-                me.addDataLoggerSlavesPanelIfNeeded();
-            }, me, {single:true});
-
-        }
-    },
-
-    addDataLoggerSlavesPanelIfNeeded: function() {
-        var me = this,
-            panelContainer = me.down('#mdc-panel-container');
-
-        if ( Ext.isEmpty(me.device.get('isDataLogger')) || !me.device.get('isDataLogger') ) {
-            return;
-        }
-
-        panelContainer.add({
-            xtype: 'dataLoggerSlavesPanel',
-            privileges: Mdc.privileges.Device.viewDevice,
-            router: me.router,
-            device: me.device
-        });
     }
 });

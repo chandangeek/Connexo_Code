@@ -11,10 +11,6 @@ Ext.define('Mdc.store.BulkDeviceConfigurations', {
             root: 'deviceConfigurations'
         },
 
-        pageParam: undefined,
-        startParam: undefined,
-        limitParam: undefined,
-
         extraParams: {
             filter: '[{"property":"active","value":true}]'
         },

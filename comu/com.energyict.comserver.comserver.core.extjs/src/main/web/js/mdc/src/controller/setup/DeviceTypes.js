@@ -271,7 +271,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     showDeviceTypeEditView: function (deviceTypeId) {
         var me = this,
             protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols'),
-            configurationStore = me.getStore('Mdc.store.DeviceConfigurations'),
+            confugurationStore = me.getStore('Mdc.store.DeviceConfigurations'),
             lifeCycleStore = me.getStore('Mdc.store.DeviceLifeCycles'),
             deviceTypePurposesStore = me.getStore('Mdc.store.DeviceTypePurposes'),
             router = me.getController('Uni.controller.history.Router'),
@@ -286,7 +286,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
         widget.setLoading(true);
-        configurationStore.getProxy().url = configurationStore.getProxy().baseUrl.replace('{deviceType}', deviceTypeId);
+        confugurationStore.getProxy().url = confugurationStore.getProxy().baseUrl.replace('{deviceType}', deviceTypeId);
         var when = new Uni.util.When();
         when.when([
             {
@@ -297,7 +297,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             {action: protocolStore.load, context: protocolStore, simple: true},
             {action: lifeCycleStore.load, context: lifeCycleStore, simple: true},
             {action: deviceTypePurposesStore.load, context: deviceTypePurposesStore, simple: true},
-            {action: configurationStore.load, context: configurationStore, simple: true}
+            {action: confugurationStore.load, context: confugurationStore, simple: true}
         ]).then(
             {
                 success: function (results) {
@@ -308,7 +308,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                         me.getDeviceTypeEditForm().loadRecord(deviceType);
                         widget.down('#mdc-deviceTypeEdit-typeComboBox').setValue(deviceType.get('deviceTypePurpose'));
                         me.getDeviceTypeEditForm().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", deviceType.get('name')));
-                        me.modifyEditView(widget, configurationStore);
+                        me.modifyEditView(widget, confugurationStore);
                         Ext.resumeLayouts(true);
                         widget.setLoading(false);
                     }
@@ -430,9 +430,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             record = me.getDeviceTypeEditForm().getRecord(),
             values = me.getDeviceTypeEditForm().getValues(),
             router = me.getController('Uni.controller.history.Router'),
-            page = me.getDeviceTypeEditView(),
-            editForm = me.getDeviceTypeEditForm(),
-            baseForm = editForm.getForm();
+            page = me.getDeviceTypeEditView();
 
         me.hideErrorPanel();
         if (record) {
@@ -443,20 +441,16 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     ? router.getRoute('administration/devicetypes/view').buildUrl()
                     : router.getRoute('administration/devicetypes').buildUrl(),
                 success: function (record) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.saved', 'MDC', 'Device type saved'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowledgment.saved', 'MDC', 'Device type saved'));
                     router.queryParams.fromDetails ? router.getRoute('administration/devicetypes/view').forward() : router.getRoute('administration/devicetypes').forward();
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        baseForm.markInvalid(json.errors);
-                        Ext.Array.each(json.errors, function (item) {
-                            if (item.id === 'deviceLifeCycle') {
-                                editForm.down('#device-life-cycle-field').setActiveError(item.msg);
-                            } else if (item.id === 'deviceProtocolPluggableClassId') {
-                                editForm.down('#communicationProtocolComboBox').setActiveError(item.msg);
-                            }
-                        });
+
+                    if (operation.response.status === 400) {
+                        if (json && json.errors) {
+                            me.getDeviceTypeEditForm().getForm().markInvalid(json.errors);
+                        }
                         me.showErrorPanel();
                     }
                 },

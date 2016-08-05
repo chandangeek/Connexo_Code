@@ -37,9 +37,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
     initComponent: function () {
         var me = this,
             readingType = me.channelRecord.get('readingType'),
-            unitOfCollectedValues = readingType && readingType.names ? readingType.names.unitOfMeasure : undefined,
+            unitOfCollectedValues = readingType && readingType.names
+                ? readingType.names.unitOfMeasure : undefined,
             calculatedReadingType = me.channelRecord.get('calculatedReadingType'),
-            unitOfCalculatedValues = calculatedReadingType && calculatedReadingType.names ? calculatedReadingType.names.unitOfMeasure : undefined;
+            unitOfCalculatedValues = calculatedReadingType && calculatedReadingType.names
+                ? calculatedReadingType.names.unitOfMeasure : undefined;
 
         me.columns = [
             {
@@ -49,15 +51,20 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
                         text = value
                             ? Uni.I18n.translate(
-                            'general.dateAtTime', 'MDC', '{0} at {1}',
-                            [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)])
+                                'general.dateAtTime', 'MDC', '{0} at {1}',
+                                [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)] )
                             : '-',
                         tooltipContent = '',
                         icon = '';
 
                     if (readingQualitiesPresent) {
-                        Ext.Array.forEach(record.get('readingQualities'), function (readingQualityName) {
-                            tooltipContent += (readingQualityName + '<br>');
+                        Ext.Array.forEach(record.get('readingQualities'), function(readingQualityName) {
+                            // Strange behaviour detected:
+                            // When scrolling the grid completely down a reading quality *object* is added to the first grid item
+                            // Therefor we add this extra condition:
+                            if (typeof(readingQualityName) === 'string') {
+                                tooltipContent += (readingQualityName + '<br>');
+                            }
                         });
                         if (tooltipContent.length > 0) {
                             tooltipContent += '<br>';
@@ -133,9 +140,6 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                 menu: {
                     xtype: 'deviceLoadProfileChannelDataActionMenu',
                     itemId: 'channel-data-grid-action-menu'
-                },
-                renderer: function(value, metaData, record) {
-                    this.disabled = !Ext.isEmpty(record.get('slaveChannel'))
                 }
             }
         ];

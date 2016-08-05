@@ -115,7 +115,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                                     view.down('device-tou-preview-form').fillPassiveCalendars(resultSet.records[0].get('passiveCalendars'));
                                     view.down('#wrappingPanel').setLoading(false);
 
-                                    if (resultSet.records[0].get('passiveCalendars') === null && noActiveCalendar) {
+                                    if(resultSet.records[0].get('passiveCalendars') === null && noActiveCalendar) {
                                         view.down('device-tou-preview-form').hide();
                                     }
                                 }

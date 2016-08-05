@@ -26,10 +26,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
 
     setValues: function (record) {
         var me = this;
-        if (!Ext.isEmpty(record.get("readingType")) &&
-            !Ext.isEmpty(record.get("readingType").names) &&
-            !Ext.isEmpty(record.get("readingType").names.unitOfMeasure)) {
-            me.down('#valueUnitDisplayField').setValue(record.get("readingType").names.unitOfMeasure);
+        if (!Ext.isEmpty(record.get("unitOfMeasure"))) {
+            me.down('#valueUnitDisplayField').setValue(record.get("unitOfMeasure"));
         }
     },
 
@@ -143,10 +141,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                             {
                                 xtype: 'displayfield',
                                 itemId: 'valueUnitDisplayField',
-                                padding: '0 0 0 10',
-                                renderer: function(value) {
-                                    return Ext.isEmpty(value) ? '' : value;
-                                }
+                                padding: '0 0 0 10'
                             }
                         ]
                     },

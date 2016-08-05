@@ -11,8 +11,6 @@ Ext.define('Mdc.view.setup.devicechannels.Overview', {
 
     router: null,
     device: null,
-    dataLoggerSlaveHistoryStore: null,
-
     initComponent: function () {
         var me = this;
         me.content = [
@@ -27,8 +25,6 @@ Ext.define('Mdc.view.setup.devicechannels.Overview', {
                             xtype: 'deviceLoadProfileChannelsPreviewForm',
                             device: me.device,
                             router: me.router,
-                            showDataLoggerSlaveHistory: true,
-                            dataLoggerSlaveHistoryStore: me.dataLoggerSlaveHistoryStore,
                             margin: '0 0 0 0',
                             itemId: 'deviceLoadProfileChannelsOverviewForm'
                         }

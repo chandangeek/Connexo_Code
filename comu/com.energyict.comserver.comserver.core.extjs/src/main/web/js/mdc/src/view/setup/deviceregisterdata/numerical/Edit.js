@@ -26,10 +26,8 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
 
     setValues: function (record) {
         var me = this;
-        if (!Ext.isEmpty(record.get("readingType")) &&
-            !Ext.isEmpty(record.get("readingType").names) &&
-            !Ext.isEmpty(record.get("readingType").names.unitOfMeasure)) {
-            me.down('#valueUnitDisplayField').setValue(record.get("readingType").names.unitOfMeasure);
+        if (!Ext.isEmpty(record.get("unitOfMeasure"))) {
+            me.down('#valueUnitDisplayField').setValue(record.get("unitOfMeasure"));
         }
     },
 
@@ -109,10 +107,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
                             },
                             {
                                 xtype: 'displayfield',
-                                itemId: 'valueUnitDisplayField',
-                                renderer: function(value) {
-                                    return Ext.isEmpty(value) ? '' : value;
-                                }
+                                itemId: 'valueUnitDisplayField'
                             }
                         ]
                     },

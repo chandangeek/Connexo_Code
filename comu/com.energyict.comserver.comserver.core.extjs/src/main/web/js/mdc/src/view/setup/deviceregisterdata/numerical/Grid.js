@@ -4,8 +4,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
     itemId: 'deviceregisterreportgrid',
     store: 'NumericalRegisterData',
     requires: [
-        'Uni.grid.column.Action',
-        'Uni.grid.column.Edited',
         'Uni.grid.column.ValidationFlag'
     ],
     initComponent: function () {
@@ -93,9 +91,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Grid', {
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,
                 menu: {
                     xtype: 'deviceregisterdataactionmenu'
-                },
-                isDisabled: function(grid, rowIndex, colIndex, clickedItem, record) {
-                    return !Ext.isEmpty(record.get('slaveRegister'));
                 }
             }
         ];

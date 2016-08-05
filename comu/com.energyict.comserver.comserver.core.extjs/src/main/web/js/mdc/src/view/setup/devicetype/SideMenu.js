@@ -65,7 +65,6 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                     me.isDataLoggerSlave = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
                     if (me.isDataLoggerSlave) {
                         me.down('#logbooksLink').hide();
-                        me.down('#conflictingMappingLink').hide();
                     } else {
                         me.executeIfNoDataLoggerSlave();
                     }

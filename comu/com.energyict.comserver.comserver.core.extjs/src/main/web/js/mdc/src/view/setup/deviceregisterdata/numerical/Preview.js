@@ -10,8 +10,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
     unitOfMeasureCalculated: '',
     multiplier: null,
 
-    getGeneralItems: function () {
-        var me = this;
+    getGeneralItems: function() {
         return [
             {
                 fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),
@@ -101,7 +100,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Preview', {
         ];
     },
 
-    getValidationItems: function () {
+    getValidationItems: function() {
         return [
             {
                 xtype: 'deviceregisterreportpreview-validation',

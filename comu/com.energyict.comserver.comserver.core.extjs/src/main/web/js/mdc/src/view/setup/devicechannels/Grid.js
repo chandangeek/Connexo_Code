@@ -14,7 +14,6 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
 
     mRID: null,
     router: null,
-    showDataLoggerSlaveColumn: false,
 
     initComponent: function () {
         var me = this;
@@ -26,7 +25,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                 showTimeAttribute: false,
                 makeLink: function (record) {
                     return me.router.getRoute('devices/device/channels/channeldata').buildUrl({
-                        mRID: encodeURIComponent(me.mRID),
+                        mRID: me.mRID,
                         channelId: record.getId()
                     });
                 }
@@ -43,27 +42,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                     return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
                 },
                 flex: 1
-            }
-        ];
-
-        if (me.showDataLoggerSlaveColumn) {
-            me.columns.push(
-                {
-                    dataIndex: 'dataloggerSlavemRID',
-                    flex: 1,
-                    header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
-                    renderer: function(value) {
-                        if (Ext.isEmpty(value)) {
-                            return '-';
-                        }
-                        var href = me.router.getRoute('devices/device/channels').buildUrl({mRID: encodeURIComponent(value)});
-                        return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
-                    }
-                }
-            );
-        }
-
-        me.columns.push(
+            },
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
@@ -71,7 +50,7 @@ Ext.define('Mdc.view.setup.devicechannels.Grid', {
                     itemId: 'channelActionMenu'
                 }
             }
-        );
+        ];
 
         me.dockedItems = [
             {

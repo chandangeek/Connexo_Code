@@ -3,7 +3,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
     alias: 'widget.deviceRegisterConfigurationSetup',
     itemId: 'deviceRegisterConfigurationSetup',
     device: null,
-    router: null,
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
@@ -41,9 +40,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Setup', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'deviceRegisterConfigurationGrid',
-                            mRID: encodeURIComponent(me.device.get('mRID')),
-                            showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger'),
-                            router: me.router
+                            mRID: encodeURIComponent(me.device.get('mRID'))
                         },
                         emptyComponent: {
                             xtype: 'uni-form-empty-message',
