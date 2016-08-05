@@ -219,10 +219,10 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void createOnDemandReadServiceCallType() {
-        RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(OnDemandReadServiceCallDomainExtension.class.getName())
+        RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet().getId())
                 .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", OnDemandReadServiceCallCustomPropertySet.class
                         .getSimpleName())));
-        RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(CompletionOptionsServiceCallDomainExtension.class.getName())
+        RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(new CompletionOptionsCustomPropertySet().getId())
                 .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", CompletionOptionsCustomPropertySet.class
                         .getSimpleName())));
 
