@@ -18,7 +18,7 @@ import java.util.List;
  */
 enum DisplayDeviceMessage implements DeviceMessageSpecEnum {
 
-    CONSUMER_MESSAGE_CODE_TO_PORT_P1(DeviceMessageId.DISPLAY_CONSUMER_MESSAGE_CODE_TO_PORT_P1, "Send a code message tot he P1 port") {
+    CONSUMER_MESSAGE_CODE_TO_PORT_P1(DeviceMessageId.DISPLAY_CONSUMER_MESSAGE_CODE_TO_PORT_P1, "Send a code message to the P1 port") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
