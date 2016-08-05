@@ -6,7 +6,6 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.cps.impl.metrology.UsagePointAntennaDomExt;
 import com.elster.jupiter.metering.cps.impl.metrology.UsagePointTechInstElectrDE;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
