@@ -96,7 +96,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_ACTIVE_CALENDAR(279, "NoActiveCalendar", "This device doesn't have an active calendar"),
     ACTIVE_CALENDAR_IS_GHOST(280, "ActiveCalendarIsGhost", "The active calendar on this device is a ghost calendar and can not be previewed"),
     CALENDAR_NOT_ACTIVE_ON_DEVICE(281, "CalendarNotActiveOnDevice", "The requested calendar is not an active calendar on this device"),
-    COMMAND_NOT_ALLOWED_OR_SUPPORTED(282, "CommandNotAllowedOrSupported", "The command you want to add is not supported or allowed on the device type");
+    COMMAND_NOT_ALLOWED_OR_SUPPORTED(282, "CommandNotAllowedOrSupported", "The command you want to add is not supported or allowed on the device type"),
+    PROCESS_STATUS_PENDING(283, "ProcessStatusPending", "Pending"),
+    PROCESS_STATUS_ACTIVE(284, "ProcessStatusActive", "Active"),
+    PROCESS_STATUS_COMPLETED(285, "ProcessStatusCompleted", "Completed"),
+    PROCESS_STATUS_ABORTED(286, "ProcessStatusAborted", "Aborted"),
+    PROCESS_STATUS_SUSPENDED(286, "ProcessStatusSuspended", "Suspended");
     private final int number;
     private final String key;
     private final String format;
