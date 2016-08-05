@@ -30,7 +30,6 @@ Ext.define('Mdc.controller.setup.Devices', {
     refs: [
         {ref: 'deviceGeneralInformationForm', selector: '#deviceGeneralInformationForm'},
         {ref: 'deviceCommunicationTopologyPanel', selector: '#devicecommicationtopologypanel'},
-        {ref: 'dataLoggerSlavesPanel', selector: '#mdc-dataLoggerSlavesPanel'},
         {ref: 'deviceOpenIssuesPanel', selector: '#deviceopenissuespanel'},
         {ref: 'deviceDataValidationPanel', selector: '#deviceDataValidationPanel'},
         {ref: 'deviceSetup', selector: '#deviceSetup'},
@@ -249,79 +248,21 @@ Ext.define('Mdc.controller.setup.Devices', {
                             .update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
                     }
                 });
-                if (!Ext.isEmpty(me.getDeviceCommunicationTopologyPanel())) {
-                    if (device.get('isDataLoggerSlave')) {
-                        me.getDeviceCommunicationTopologyPanel().hide();
-                    } else {
-                        me.getDeviceCommunicationTopologyPanel().setRecord(device);
-                    }
-                }
-                if (!Ext.isEmpty(me.getDataLoggerSlavesPanel())) {
-                    me.getDataLoggerSlavesPanel().setSlaveStore(me.createDataLoggerSlavesStore(device));
-                }
-                if (!Ext.isEmpty(me.getDeviceOpenIssuesPanel())) {
-                    me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
-                }
-                if (!Ext.isEmpty(me.getDeviceValidationResultFieldLink())) {
-                    me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
-                }
-                if ( (device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
-                     && Cfg.privileges.Validation.canUpdateDeviceValidation() ) {
+                !!me.getDeviceCommunicationTopologyPanel() && me.getDeviceCommunicationTopologyPanel().setRecord(device);
+                !!me.getDeviceOpenIssuesPanel() && me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
+
+                !!me.getDeviceValidationResultFieldLink() && me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
+
+                if ((device.get('hasLoadProfiles') || device.get('hasLogBooks') || device.get('hasRegisters'))
+                    && Cfg.privileges.Validation.canUpdateDeviceValidation()) {
                     me.updateDataValidationStatusSection(mRID, widget);
                 } else {
-                    !Ext.isEmpty(widget.down('device-data-validation-panel')) && widget.down('device-data-validation-panel').hide();
+                    !!widget.down('device-data-validation-panel') && widget.down('device-data-validation-panel').hide();
                 }
                 viewport.setLoading(false);
 
             }
         });
-    },
-
-    createDataLoggerSlavesStore: function(device) {
-        var me = this,
-            counter,
-            maxNumberOfStoreRecords = 5,
-            store,
-            slaves = [];
-
-        // 1. Collect all datalogger slaves in an array
-        Ext.Array.forEach(device.get('dataLoggerSlaveDevices'), function(slaveRecord){
-            if (slaveRecord.id > 0) {
-                slaves.push(slaveRecord);
-            }
-        }, me);
-        // 2. Sort that array descending
-        Ext.Array.sort(slaves, function(slave1, slave2) {
-            return slave2.linkingTimeStamp - slave1.linkingTimeStamp;
-        });
-        // 3. If the array contains too much items, only keep the first <maxNumberOfStoreRecords>
-        if (slaves.length > maxNumberOfStoreRecords) {
-            slaves = Ext.Array.splice(slaves, maxNumberOfStoreRecords, slaves.length - maxNumberOfStoreRecords);
-        }
-
-        // 4. Create the store
-        Ext.define('DataLoggerSlave', {
-            extend: 'Ext.data.Model',
-            fields: [
-                {name: 'mRID', type: 'string'},
-                {name: 'deviceTypeName', type: 'string'},
-                {name: 'deviceConfigurationName', type: 'string'},
-                {name: 'linkingTimeStamp', type: 'number'}
-            ]
-        });
-        store = Ext.create('Ext.data.Store', {
-            model: 'DataLoggerSlave',
-            autoLoad: false
-        });
-        Ext.Array.forEach(slaves, function(slaveRecord){
-            store.add({
-                mRID: slaveRecord.mRID,
-                deviceTypeName: slaveRecord.deviceTypeName,
-                deviceConfigurationName: slaveRecord.deviceConfigurationName,
-                linkingTimeStamp: slaveRecord.linkingTimeStamp
-            });
-        }, me);
-        return store;
     },
 
     doRefresh: function () {

@@ -43,8 +43,7 @@ Ext.define('Mdc.view.setup.devicechannels.Setup', {
                     grid: {
                         xtype: 'deviceLoadProfileChannelsGrid',
                         mRID: me.mRID,
-                        router: me.router,
-                        showDataLoggerSlaveColumn: !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')
+                        router: me.router
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',

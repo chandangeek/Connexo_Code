@@ -50,14 +50,14 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePlannedOnForm', {
         me.callParent(arguments);
     },
 
-    checkWillNotBePickedUp: function (willBePickedUpByPlannedComtask, willBePickedUpByComtask) {
+    checkWillNotBePickedUp: function(willBePickedUpByPlannedComtask, willBePickedUpByComtask) {
         var me = this;
-        if (!willBePickedUpByPlannedComtask || !willBePickedUpByComtask) {
+        if(!willBePickedUpByPlannedComtask || !willBePickedUpByComtask) {
             me.down('#willNotBePickedUpMessage').show();
-            if (!willBePickedUpByPlannedComtask && willBePickedUpByComtask) {
-                me.down('#willNotBePickedUpMessage').setText(Uni.I18n.translate('deviceCommand.willNotBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned and will not be picked up.'));
+            if(!willBePickedUpByPlannedComtask && willBePickedUpByComtask) {
+                me.down('#willNotBePickedUpMessage').setText( Uni.I18n.translate('deviceCommands.view.willNotBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned and will not be picked up'));
             } else {
-                me.down('#willNotBePickedUpMessage').setText(Uni.I18n.translate('deviceCommand.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'));
+                me.down('#willNotBePickedUpMessage').setText(Uni.I18n.translate('deviceCommands.view.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device'));
             }
         }
     }

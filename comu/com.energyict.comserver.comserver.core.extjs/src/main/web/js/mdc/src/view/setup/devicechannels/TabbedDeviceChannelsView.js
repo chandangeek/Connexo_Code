@@ -27,8 +27,6 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
     indexLocation: null,
     contentName: null,
     filterDefault: {},
-    mentionDataLoggerSlave: false,
-    dataLoggerSlaveHistoryStore: null,
 
     initComponent: function () {
         var me = this;
@@ -46,8 +44,7 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                         items: {
                             xtype: 'deviceLoadProfileChannelOverview',
                             router: me.router,
-                            device: me.device,
-                            dataLoggerSlaveHistoryStore: me.dataLoggerSlaveHistoryStore
+                            device: me.device
                         }
                     },
                     {
@@ -85,14 +82,12 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
                                 ]
                             },
                             {
-                                xtype: 'deviceLoadProfileChannelGraphView',
-                                mentionDataLoggerSlave : me.mentionDataLoggerSlave
+                                xtype: 'deviceLoadProfileChannelGraphView'
                             },
                             {
                                 xtype: 'deviceLoadProfileChannelTableView',
                                 channel: me.channel,
-                                router: me.router,
-                                mentionDataLoggerSlave: !Ext.isEmpty(me.device) && !Ext.isEmpty(me.device.get('isDataLogger')) && me.device.get('isDataLogger')
+                                router: me.router
                             }
                         ]
                     }
@@ -237,26 +232,23 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             missedValues = [],
             collectedUnitOfMeasure = me.channel.get('readingType').names.unitOfMeasure,
             calculatedUnitOfMeasure = me.channel.get('calculatedReadingType') ? me.channel.get('calculatedReadingType').names.unitOfMeasure : collectedUnitOfMeasure,
-            okColor = '#70BB51',
-            estimatedColor = '#568343',
+            okColor = "#70BB51",
+            estimatedColor = "#568343",
             suspectColor = 'rgba(235, 86, 66, 1)',
-            informativeColor = '#dedc49',
-            notValidatedColor = '#71adc7',
-            dataSlaveColor = '#d2d2d2',
+            informativeColor = "#dedc49",
+            notValidatedColor = "#71adc7",
             tooltipOkColor = 'rgba(255, 255, 255, 0.85)',
             tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)',
             tooltipEstimatedColor = 'rgba(86, 131, 67, 0.3)',
             tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)',
-            tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)',
-            tooltipDataSlaveColor = 'rgba(210, 210, 210, 0.3)';
+            tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
 
         me.store.each(function (record) {
             var point = {},
                 interval = record.get('interval'),
                 mainValidationInfo = record.get('mainValidationInfo'),
                 bulkValidationInfo = record.get('bulkValidationInfo'),
-                properties = record.get('readingProperties'),
-                slaveChannelInfo = record.get('slaveChannel');
+                properties = record.get('readingProperties');
 
             point.x = interval.start;
             point.id = point.x;
@@ -293,12 +285,6 @@ Ext.define('Mdc.view.setup.devicechannels.TabbedDeviceChannelsView', {
             } else if (properties.delta.informative) {
                 point.color = informativeColor;
                 point.tooltipColor = tooltipInformativeColor;
-            }
-
-            if (!Ext.isEmpty(slaveChannelInfo)) {
-                point.dataLoggerSlave = Ext.String.htmlEncode(slaveChannelInfo.mrid);
-                point.color = dataSlaveColor;
-                point.tooltipColor = tooltipDataSlaveColor;
             }
 
             if (bulkValidationInfo.valueModificationFlag == 'EDITED') {

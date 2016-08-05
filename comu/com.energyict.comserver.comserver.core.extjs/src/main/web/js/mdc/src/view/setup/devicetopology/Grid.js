@@ -16,7 +16,7 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 header: Uni.I18n.translate('deviceCommunicationTopology.mRID', 'MDC', 'MRID'),
                 dataIndex: 'mRID',
                 renderer: function (value, meta, record) {
-                    var href = me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(record.get('mRID'))});
+                    var href = me.router.getRoute('devices/device').buildUrl({mRID: record.get('mRID')});
                     return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
                 },
                 flex: 1
@@ -32,21 +32,16 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.configuration', 'MDC', 'Configuration'),
+                header: Uni.I18n.translate('deviceCommunicationTopology.configuration', 'MDC', 'Configuration'),
                 dataIndex: 'deviceConfigurationName',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('general.state', 'MDC', 'State'),
-                dataIndex: 'state',
-                flex: 1
-            },
-            {
-                header: Uni.I18n.translate('general.linkedOn', 'MDC', 'Linked on'),
-                dataIndex: 'linkingTimeStamp',
+                header: Uni.I18n.translate('deviceCommunicationTopology.addedOn', 'MDC', 'Added on'),
+                dataIndex: 'creationTime',
                 flex: 1,
                 renderer: function (value) {
-                    return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
+                    return value ? Uni.DateTime.formatDateTimeShort(value) : '';
                 }
             }
         ];
@@ -65,8 +60,19 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 xtype: 'pagingtoolbarbottom',
                 deferLoading: true,
                 store: me.store,
+                defaultPageSize: 15,
                 itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page'),
-                dock: 'bottom'
+                dock: 'bottom',
+                pageSizeStore: Ext.create('Ext.data.Store', {
+                    fields: ['value'],
+                    data: [
+                        {value: '15'},
+                        {value: '30'},
+                        {value: '50'},
+                        {value: '100'},
+                        {value: '200'}
+                    ]
+                })
             }
         ];
 
