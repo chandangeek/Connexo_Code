@@ -14,7 +14,7 @@ Ext.define('Uni.property.view.property.Period', {
                 xtype: 'numberfield',
                 itemId: me.key + 'numberfield',
                 name: me.getName(),
-                width: me.width - me.unitComboWidth - me.gapWidth,
+                width: me.width ? me.width - me.unitComboWidth - me.gapWidth : undefined,
                 required: me.required,
                 readOnly: me.isReadOnly,
                 allowBlank: me.allowBlank,

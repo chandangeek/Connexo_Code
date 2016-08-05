@@ -12,7 +12,7 @@ Ext.define('Uni.property.view.property.DateTime', {
 
         result[0] = this.callParent(arguments);
         delete result[0].maxWidth;
-        result[0].width = me.width - me.widthOfTimePart;
+        result[0].width = me.width ? me.width - me.widthOfTimePart : undefined;
         result[1] = {
             xtype: 'container',
             layout: 'hbox',
