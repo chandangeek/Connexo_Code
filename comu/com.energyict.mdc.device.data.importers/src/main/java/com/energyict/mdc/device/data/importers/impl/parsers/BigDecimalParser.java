@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.parsers;
 
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 
@@ -9,6 +8,8 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.Locale;
+
+import static com.elster.jupiter.util.Checks.is;
 
 public class BigDecimalParser implements FieldParser<BigDecimal> {
 
@@ -19,13 +20,13 @@ public class BigDecimalParser implements FieldParser<BigDecimal> {
     }
 
     public BigDecimal parse(String value) throws ValueParserException {
-        if (Checks.is(value).emptyOrOnlyWhiteSpace()) {
+        if (is(value).emptyOrOnlyWhiteSpace()) {
             throw new ValueParserException(value, numberFormat.getExample());
         }
         return parseNonEmptyBigDecimalString(value);
     }
 
-    public BigDecimal parseNonEmptyBigDecimalString(String value) throws ValueParserException {
+    private BigDecimal parseNonEmptyBigDecimalString(String value) throws ValueParserException {
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.ENGLISH);
         symbols.setDecimalSeparator(numberFormat.getDecimalSeparator());
         if (numberFormat.getGroupSeparator() != null) {
@@ -40,4 +41,5 @@ public class BigDecimalParser implements FieldParser<BigDecimal> {
             throw new ValueParserException(value, numberFormat.getExample());
         }
     }
+
 }

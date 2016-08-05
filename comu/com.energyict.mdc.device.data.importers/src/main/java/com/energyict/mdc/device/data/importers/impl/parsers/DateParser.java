@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.parsers;
 
-
-import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.device.data.importers.impl.exceptions.ValueParserException;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
 
@@ -9,6 +7,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+
+import static com.elster.jupiter.util.Checks.is;
 
 public class DateParser implements FieldParser<ZonedDateTime> {
 
@@ -21,7 +21,7 @@ public class DateParser implements FieldParser<ZonedDateTime> {
     }
 
     public ZonedDateTime parse(String value) throws ValueParserException {
-        if (Checks.is(value).emptyOrOnlyWhiteSpace()) {
+        if (is(value).emptyOrOnlyWhiteSpace()) {
             return null;
         }
         return parseNonEmptyDateString(value);
