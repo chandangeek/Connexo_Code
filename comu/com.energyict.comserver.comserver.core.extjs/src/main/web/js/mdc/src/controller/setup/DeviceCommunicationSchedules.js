@@ -410,7 +410,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
             jsonData: jsonData,
             timeout: 180000,
             success: function (response) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.runScheduleSucceeded', 'MDC', 'Run communication schedule succeeded'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.taskPlanned', 'MDC', 'The task has been planned'));
                 me.showDeviceCommunicationScheduleView(me.mrid);
             }
         });
