@@ -38,6 +38,10 @@ Ext.define('Fwc.view.firmware.FormEditGhost', {
             itemId: 'firmwareStatus',
             name: 'firmwareStatus',
             hidden: true
+        },
+        {
+            xtype: 'hiddenfield',
+            name: 'version'
         }
     ]
 });
