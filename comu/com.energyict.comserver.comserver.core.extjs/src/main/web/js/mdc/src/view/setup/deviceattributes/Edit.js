@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.deviceattributes.Edit', {
         {
             xtype: 'panel',
             ui: 'large',
-            title: Uni.I18n.translate('deviceAttributes.edit', 'MDC', 'Edit device attributes'),
+            title: Uni.I18n.translate('deviceconfiguration.deviceAttributes.edit.general', 'MDC', 'Edit \'General\''),
             items: [
                 {
                     xtype: 'deviceAttributesEditForm',

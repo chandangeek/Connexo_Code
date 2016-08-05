@@ -18,7 +18,7 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePoint', {
                 xtype: 'panel',
                 ui: 'large',
                 itemId: 'add-usage-point-panel',
-                title: me.edit ? Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", me.mRID) : Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
+                title: me.edit ? Uni.I18n.translate('general.editCurrentUsagePoint', 'MDC', "Edit '{0}'", me.mRID) : Uni.I18n.translate('general.addUsagePoint', 'MDC', 'Add usage point'),
                 items: [
                     {
                         xtype: 'uni-form-error-message',

@@ -64,7 +64,7 @@ Ext.define('Mdc.devicetypecustomattributes.controller.AttributeSets', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             title: Uni.I18n.translate('customattributesets.remove.question', 'MDC', "Remove custom attribute set '{0}'?", [encodeURIComponent(menu.record.get('name'))]),
-            msg: Uni.I18n.translate('customattributesets.remove.confirmation', 'MDC', 'You will no longer be able to use this custom attribute set on devices of this device type. Current device values will be lost.'),
+            msg: Uni.I18n.translate('customattributesets.remove.confirmation', 'MDC', 'You will no longer be able to use this custom attribute set on a devices. Current device values will be lost.'),
             fn: function (state) {
                 switch (state) {
                     case 'confirm':

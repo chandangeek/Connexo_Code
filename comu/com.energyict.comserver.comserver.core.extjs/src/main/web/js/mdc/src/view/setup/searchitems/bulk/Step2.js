@@ -26,7 +26,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
             {
                 itemId: 'searchitemschangeconfig',
                 boxLabel: '<b>' + Uni.I18n.translate('searchItems.bulk.changeConfig', 'MDC', 'Change device configuration') + '</b>',
-                afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.changeConfigMsg', 'MDC', 'This option is only available on devices of the same device configuration of a standard device type. Please first apply the corresponding search criteria to enable this option.') + '</span>',
+                afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('searchItems.bulk.changeConfigMsg', 'MDC', 'This option is only available on devices of the same device configuration. Please first search on devices of the same device configuration to enable this option.') + '</span>',
                 name: 'operation',
                 inputValue: 'changeconfig',
                 privilege: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceCommunication'])

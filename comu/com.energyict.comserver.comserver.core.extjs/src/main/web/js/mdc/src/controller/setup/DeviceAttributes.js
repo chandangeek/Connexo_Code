@@ -69,7 +69,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
             backUrl: me.getLandingUrl(),
             success: function (record) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
-                me.goToAttributesLanding();
+                me.goToAttributesLanding(record);
             },
             callback: function () {
                 editView.setLoading(false);
@@ -161,7 +161,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
     },
 
     goToAttributesLanding: function () {
-        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward();
+        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward({mRID:this.getDeviceAttributesEditPage().device.get('mRID')});
     },
 
     goToAttributesLanding: function(mRID) {

@@ -29,19 +29,19 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.communications.comScheduleFrequency', 'MDC', 'Frequency') + '</td>',
-        '<td>{[values.frequency]}</td>',
+        '<td>{[values.temporalExpression ? Mdc.util.ScheduleToStringConverter.convert(values.temporalExpression) : "-"]}</td>',
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.communications.plannedDate', 'MDC', 'Planned date') + '</td>',
-        '<td>{[values.plannedDate? Uni.DateTime.formatDateTimeLong(values.plannedDate) : ""]}</td>',
+        '<td>{[values.plannedDate? Uni.DateTime.formatDateTimeLong(values.plannedDate) : "-"]}</td>',
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.communications.startedOn', 'MDC', 'Started on') + '</td>',
-        '<td>{[values.lastCommunicationStart ? Uni.DateTime.formatDateTimeLong(values.lastCommunicationStart) : ""]}</td>',
+        '<td>{[values.lastCommunicationStart ? Uni.DateTime.formatDateTimeLong(new Date(values.lastCommunicationStart)) : "-"]}</td>',
         '</tr>',
         '<tr>',
         '<td>' + Uni.I18n.translate('device.communications.finishedOn', 'MDC', 'Finished on') + '</td>',
-        '<td>{[values.successfulFinishTime ? Uni.DateTime.formatDateTimeLong(values.successfulFinishTime) : ""]}</td>',
+        '<td>{[values.successfulFinishTime ? Uni.DateTime.formatDateTimeLong(values.successfulFinishTime) : "-"]}</td>',
         '</tr>',
         '</tpl>',
         '</table>'
@@ -61,23 +61,14 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                     dataIndex: 'comTask',
                     renderer: function (val, metaData, record) {
                         var me = this;
-                        metaData.tdAttr = 'data-qtip="' + Ext.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
+                        metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(me.connectionTpl.apply(record.getData())) + '"';
                         return val ? Ext.String.htmlEncode(val.name) : '-'
                     },
                     flex: 4
                 },
                 {
-                    itemId: 'currentState',
-                    text: Uni.I18n.translate('device.communications.currentState', 'MDC', 'Current state'),
-                    dataIndex: 'status',
-                    renderer: function (val) {
-                        return val ? Ext.String.htmlEncode(val) : '-'
-                    },
-                    flex: 3
-                },
-                {
                     itemId: 'latestResult',
-                    text: Uni.I18n.translate('device.communications.latestResult', 'MDC', 'Latest result'),
+                    text: Uni.I18n.translate('device.communications.lastResult', 'MDC', 'Last result'),
                     dataIndex: 'latestResult',
                     name: 'latestResult',
                     renderer: function (val) {
@@ -87,13 +78,13 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                     flex: 2
                 },
                 {
-                    itemId: 'nextCommunication',
-                    text: Uni.I18n.translate('device.communications.nextCommunication', 'MDC', 'Next communication'),
-                    dataIndex: 'nextCommunication',
-                    renderer: function (value) {
-                        return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
+                    itemId: 'currentState',
+                    text: Uni.I18n.translate('device.communications.status', 'MDC', 'Status'),
+                    dataIndex: 'status',
+                    renderer: function (val) {
+                        return val ? Ext.String.htmlEncode(val) : '-'
                     },
-                    flex: 2
+                    flex: 3
                 },
                 {
                     itemId: 'startTime',
@@ -101,6 +92,15 @@ Ext.define('Mdc.view.setup.device.DeviceCommunications', {
                     dataIndex: 'lastCommunicationStart',
                     renderer: function (value) {
                         return value ? Uni.DateTime.formatDateTimeShort(new Date(value)) : '-';
+                    },
+                    flex: 2
+                },
+                {
+                    itemId: 'nextCommunication',
+                    text: Uni.I18n.translate('device.communications.nextCommunication', 'MDC', 'Next communication'),
+                    dataIndex: 'nextCommunication',
+                    renderer: function (value) {
+                        return value ? Uni.DateTime.formatDateTimeShort(value) : '-';
                     },
                     flex: 2
                 },

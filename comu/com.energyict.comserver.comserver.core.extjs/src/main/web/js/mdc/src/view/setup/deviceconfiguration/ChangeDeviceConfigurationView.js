@@ -23,80 +23,93 @@ Ext.define('Mdc.view.setup.deviceconfiguration.ChangeDeviceConfigurationView', {
                 },
                 items: [
                     {
-                        xtype: 'form',
-                        itemId: 'change-device-configuration-form',
-                        border: false,
+                        xtype: 'container',
                         layout: {
-                            type: 'vbox'
-                        },
-                        defaults: {
-                            labelWidth: 250
+                            type: 'column'
                         },
                         items: [
                             {
-                                xtype: 'uni-form-empty-message',
-                                itemId: 'form-notification',
-                                text: Uni.I18n.translate('device.changeDeviceConfiguration.lossDataNotification', 'MDC', 'The device configuration change can possibly lead to critical data loss (security settings, connection attributes...)'),
-                            },
-                            {
-                                xtype: 'uni-form-error-message',
-                                itemId: 'form-errors',
-                                name: 'form-errors',
-                                width: 707,
-                                hidden: true
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'device-configuration-name',
-                                name: 'deviceConfigurationName',
-                                fieldLabel: Uni.I18n.translate('device.changeDeviceConfiguration.currentConfigurationName', 'MDC', 'Current device configuration')
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'no-device-configuration',
-                                fieldLabel: Uni.I18n.translate('device.changeDeviceConfiguration.newDeviceConfiguration', 'MDC', 'New device configuration'),
-                                value: Uni.I18n.translate('general.noOtherActiveNonDataLoggerDeviceConfigurationsDefined', 'MDC', 'No other active, non-data logger device configurations defined.'),
-                                fieldStyle: 'color: #eb5642',
-                                required: true,
-                                hidden: true
-                            },
-                            {
-                                xtype: 'combo',
-                                itemId: 'new-device-configuration',
-                                name: 'newDeviceConfiguration',
-                                store: 'Mdc.store.DeviceConfigurations',
-                                emptyText: Uni.I18n.translate('general.selectDeviceConfiguration', 'MDC', 'Select a device configuration...'),
-                                width: 250+256,
-                                fieldLabel: Uni.I18n.translate('device.changeDeviceConfiguration.newDeviceConfiguration', 'MDC', 'New device configuration'),
-                                displayField: 'name',
-                                valueField: 'id',
-                                required: true,
-                                allowBlank: false,
-                                editable: false,
-                                queryMode: 'local'
-                            },
-                            {
-                                xtype: 'fieldcontainer',
-                                ui: 'actions',
-                                fieldLabel: '&nbsp',
-                                layout: {
-                                    type: 'hbox'
-                                },
+                                xtype: 'container',
+                                columnWidth: 0.5,
                                 items: [
                                     {
-                                        xtype: 'button',
-                                        ui: 'action',
-                                        itemId: 'save-change-device-configuration',
-                                        action: 'save-change-device-configuration',
-                                        text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
-                                        disabled: true
-                                    },
-                                    {
-                                        xtype: 'button',
-                                        ui: 'link',
-                                        itemId: 'cancel-change-device-configuration',
-                                        action: 'cancel-change-device-configuration',
-                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
+                                        xtype: 'form',
+                                        itemId: 'change-device-configuration-form',
+                                        border: false,
+                                        width: 800,
+                                        layout: {
+                                            type: 'vbox'
+                                        },
+                                        defaults: {
+                                            labelWidth: 250
+                                        },
+                                        items: [
+                                            {
+                                                xtype: 'uni-form-empty-message',
+                                                itemId: 'form-notification',
+                                                text: Uni.I18n.translate('device.changeDeviceConfiguration.lossDataNotification', 'MDC', 'The device configuration change can possibly lead to critical data loss (security settings, connection attributes...)'),
+                                            },
+                                            {
+                                                xtype: 'uni-form-error-message',
+                                                itemId: 'form-errors',
+                                                name: 'form-errors',
+                                                width: 707,
+                                                hidden: true
+                                            },
+                                            {
+                                                xtype: 'displayfield',
+                                                itemId: 'device-configuration-name',
+                                                name: 'deviceConfigurationName',
+                                                fieldLabel: Uni.I18n.translate('device.changeDeviceConfiguration.currentConfigurationName', 'MDC', 'Current device configuration')
+                                            },
+                                            {
+                                                xtype: 'displayfield',
+                                                itemId: 'no-device-configuration',
+                                                fieldLabel: Uni.I18n.translate('device.changeDeviceConfiguration.newDeviceConfiguration', 'MDC', 'New device configuration'),
+                                                value: Uni.I18n.translate('device.changeDeviceConfiguration.noOtherDeviceConfigurationsDefined', 'MDC', 'No other device configurations defined'),
+                                                fieldStyle: 'color: #eb5642',
+                                                required: true,
+                                                hidden: true
+                                            },
+                                            {
+                                                xtype: 'combo',
+                                                itemId: 'new-device-configuration',
+                                                name: 'newDeviceConfiguration',
+                                                store: 'Mdc.store.DeviceConfigurations',
+                                                fieldLabel: Uni.I18n.translate('device.changeDeviceConfiguration.newDeviceConfiguration', 'MDC', 'New device configuration'),
+                                                displayField: 'name',
+                                                valueField: 'id',
+                                                required: true,
+                                                allowBlank: false,
+                                                editable: false,
+                                                queryMode: 'local'
+                                            },
+                                            {
+                                                xtype: 'fieldcontainer',
+                                                ui: 'actions',
+                                                fieldLabel: '&nbsp',
+                                                layout: {
+                                                    type: 'hbox'
+                                                },
+                                                items: [
+                                                    {
+                                                        xtype: 'button',
+                                                        ui: 'action',
+                                                        itemId: 'save-change-device-configuration',
+                                                        action: 'save-change-device-configuration',
+                                                        text: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                                                        disabled: true
+                                                    },
+                                                    {
+                                                        xtype: 'button',
+                                                        ui: 'link',
+                                                        itemId: 'cancel-change-device-configuration',
+                                                        action: 'cancel-change-device-configuration',
+                                                        text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
+                                                    }
+                                                ]
+                                            }
+                                        ]
                                     }
                                 ]
                             }
