@@ -41,25 +41,33 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
     },
 
     showDeviceDataEstimationMainView: function (mRID) {
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
         me.mRID = mRID;
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
-            success: function (device) {
-                var view = Ext.widget('deviceDataEstimationRulesSetMainView', {device: device, router: me.getController('Uni.controller.history.Router')}),
-                    status = device.get('estimationStatus').active,
-                    toggleActivationButton = view.down('#deviceDataEstimationStateChangeBtn');
+            success: function (record) {
+                if (record.get('hasLogBooks')
+                    || record.get('hasLoadProfiles')
+                    || record.get('hasRegisters')) {
+                    var view = Ext.widget('deviceDataEstimationRulesSetMainView', {device: record, router: me.getController('Uni.controller.history.Router')}),
+                        status = record.get('estimationStatus').active,
+                        toggleActivationButton = view.down('#deviceDataEstimationStateChangeBtn');
 
-                me.device = device;
-                me.getApplication().fireEvent('loadDevice', device);
-                view.down('#deviceDataEstimationStatusField').setValue(status ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive'));
-                if (toggleActivationButton) {
-                    toggleActivationButton.setText((status ?
-                        Uni.I18n.translate('estimationDevice.deactivateEstimation', 'MDC', 'Deactivate data estimation') :
-                        Uni.I18n.translate('estimationDevice.activateEstimation', 'MDC', 'Activate data estimation')));
-                    toggleActivationButton.action = status ? 'deactivate' : 'activate';
+                    me.device = record;
+                    me.getApplication().fireEvent('loadDevice', record);
+                    view.down('#deviceDataEstimationStatusField').setValue(status ? Uni.I18n.translate('general.active', 'MDC', 'Active') : Uni.I18n.translate('general.inactive', 'MDC', 'Inactive'));
+                    if (toggleActivationButton) {
+                        toggleActivationButton.setText((status ?
+                            Uni.I18n.translate('estimationDevice.deactivateEstimation', 'MDC', 'Deactivate data estimation') :
+                            Uni.I18n.translate('estimationDevice.activateEstimation', 'MDC', 'Activate data estimation')));
+                        toggleActivationButton.action = status ? 'deactivate' : 'activate';
+                    }
+                    me.getApplication().fireEvent('changecontentevent', view);
+
+                } else {
+                    window.location.replace(router.getRoute('notfound').buildUrl());
                 }
-                me.getApplication().fireEvent('changecontentevent', view);
             }
         });
     },
