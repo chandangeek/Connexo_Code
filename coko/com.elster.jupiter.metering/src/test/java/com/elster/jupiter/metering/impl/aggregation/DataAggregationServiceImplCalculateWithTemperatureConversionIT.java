@@ -101,9 +101,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
-    public static final String DAILY_TEMPERATURE_CELCIUS_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0";
-    public static final String DAILY_TEMPERATURE_FAHRENHEIT_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0";
-    public static final String DAILY_TEMPERATURE_KELVIN_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0";
+    private static final String DAILY_TEMPERATURE_CELCIUS_MRID = "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0";
+    private static final String DAILY_TEMPERATURE_FAHRENHEIT_MRID = "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0";
+    private static final String DAILY_TEMPERATURE_KELVIN_MRID = "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
     private static ReadingType K_15min;
@@ -213,7 +213,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
                 injector.getInstance(CustomPropertySetService.class),
-                injector.getInstance(ServerMeteringService.class),
+                meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithTemperatureConversionIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));

@@ -239,6 +239,7 @@ public class DataAggregationServiceImplCalculateGasIT {
         return new DataAggregationServiceImpl(
                 mock(CustomPropertySetService.class),
                 meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateGasIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));

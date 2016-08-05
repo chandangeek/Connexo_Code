@@ -241,6 +241,7 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
         return new DataAggregationServiceImpl(
                 getCustomPropertySetService(),
                 meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithCustomPropertiesIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));

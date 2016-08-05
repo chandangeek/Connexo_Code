@@ -219,6 +219,7 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         return new DataAggregationServiceImpl(
                 mock(CustomPropertySetService.class),
                 meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));

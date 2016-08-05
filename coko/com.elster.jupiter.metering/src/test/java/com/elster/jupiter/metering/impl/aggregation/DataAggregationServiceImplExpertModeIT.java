@@ -215,6 +215,7 @@ public class DataAggregationServiceImplExpertModeIT {
         return new DataAggregationServiceImpl(
                 mock(CustomPropertySetService.class),
                 meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplExpertModeIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));

@@ -147,9 +147,9 @@ public class DataAggregationCommands {
 
         List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
         if (qualities.isEmpty()) {
-            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " : " + readingRecord.getValue());
+            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " in " + readingRecord.getTimePeriod().get() + " : " + readingRecord.getValue());
         } else {
-            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " : " + readingRecord.getValue() + " , "
+            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " in " + readingRecord.getTimePeriod().get() + " : " + readingRecord.getValue() + " , "
                     + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
         }
     }

@@ -204,6 +204,7 @@ public class DataAggregationServiceImplCalculateWithRegisterIT {
         return new DataAggregationServiceImpl(
                 injector.getInstance(CustomPropertySetService.class),
                 meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithRegisterIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
                 () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));

@@ -10,14 +10,11 @@ import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
-import com.elster.jupiter.metering.impl.GasDayOptions;
-import com.elster.jupiter.metering.impl.ServerMeteringService;
 
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,17 +31,17 @@ import java.util.stream.Collectors;
  */
 class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContractData {
 
-    private final ServerMeteringService meteringService;
+    private final InstantTruncaterFactory truncaterFactory;
     private final UsagePoint usagePoint;
     private final MetrologyContract contract;
     private final Range<Instant> period;
     private final Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords;
 
-    CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords, ServerMeteringService meteringService) {
+    CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords, InstantTruncaterFactory truncaterFactory) {
         this.usagePoint = usagePoint;
         this.contract = contract;
         this.period = period;
-        this.meteringService = meteringService;
+        this.truncaterFactory = truncaterFactory;
         this.injectUsagePoint(calculatedReadingRecords);
         this.calculatedReadingRecords = this.generateConstantsAsTimeSeries(contract, this.mergeMeterActivations(calculatedReadingRecords));
     }
@@ -86,11 +83,11 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
     private List<CalculatedReadingRecord> merge(ReadingType readingType, List<CalculatedReadingRecord> readingRecords) {
         Map<Instant, CalculatedReadingRecord> merged = new TreeMap<>(); // Keeps the keys sorted
         IntervalLength intervalLength = IntervalLength.from(readingType);
-        readingRecords.forEach(record -> this.merge(record, this.truncaterFor(readingType), intervalLength, merged));
+        readingRecords.forEach(record -> this.merge(record, this.truncaterFactory.truncaterFor(readingType), intervalLength, merged));
         return new ArrayList<>(merged.values());
     }
 
-    private void merge(CalculatedReadingRecord record, Truncater truncater, IntervalLength intervalLength, Map<Instant, CalculatedReadingRecord> merged) {
+    private void merge(CalculatedReadingRecord record, InstantTruncater truncater, IntervalLength intervalLength, Map<Instant, CalculatedReadingRecord> merged) {
         ZoneId zone = this.getUsagePoint()
                 .getMeterActivation(record.getTimeStamp())
                 .map(MeterActivation::getChannelsContainer)
@@ -106,7 +103,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         }
         merged.compute(
                 endOfInterval,
-                (timestamp, existingRecord) -> existingRecord == null ? record : CalculatedReadingRecord.merge(existingRecord, record, endOfInterval));
+                (timestamp, existingRecord) -> existingRecord == null ? record : CalculatedReadingRecord.merge(existingRecord, record, endOfInterval, this.truncaterFactory));
     }
 
     /**
@@ -177,53 +174,4 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         return this.calculatedReadingRecords.getOrDefault(deliverable.getReadingType(), Collections.emptyList());
     }
 
-    private Truncater truncaterFor(ReadingType readingType) {
-        if (VirtualReadingType.isGas(readingType.getCommodity())) {
-            GasDayOptions gasDayOptions = this.meteringService.getGasDayOptions();
-            if (gasDayOptions != null) {
-                return new GasDayTruncater(gasDayOptions);
-            } else {
-                return new MidnightTruncater();
-            }
-        } else {
-            return new MidnightTruncater();
-        }
-    }
-
-    private interface Truncater {
-        Instant truncate(Instant instant, IntervalLength intervalLength, ZoneId zoneId);
-    }
-
-    private static class MidnightTruncater implements Truncater {
-        @Override
-        public Instant truncate(Instant instant, IntervalLength intervalLength, ZoneId zoneId) {
-            return intervalLength.truncate(instant, zoneId);
-        }
-    }
-
-    private static class GasDayTruncater implements Truncater {
-        private final GasDayOptions gasDayOptions;
-
-        private GasDayTruncater(GasDayOptions gasDayOptions) {
-            this.gasDayOptions = gasDayOptions;
-        }
-
-        @Override
-        public Instant truncate(Instant instant, IntervalLength intervalLength, ZoneId zoneId) {
-            switch (intervalLength) {
-                case YEAR1: // Intentional fall-through
-                case DAY1: {
-                    int hours = this.gasDayOptions.getYearStart().getHour();
-                    if (hours > 0) {
-                        return intervalLength.truncate(instant.minus(hours, ChronoUnit.HOURS), zoneId).plus(hours, ChronoUnit.HOURS);
-                    } else {
-                        return intervalLength.truncate(instant, zoneId);
-                    }
-                }
-                default: {
-                    return intervalLength.truncate(instant, zoneId);
-                }
-            }
-        }
-    }
 }
