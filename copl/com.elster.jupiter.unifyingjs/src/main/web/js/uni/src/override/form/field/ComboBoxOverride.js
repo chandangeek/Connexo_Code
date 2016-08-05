@@ -16,7 +16,7 @@ Ext.define('Uni.override.form.field.ComboBoxOverride', {
     initComponent: function () {
         var me=this;
         me.listConfig = me.listConfig || {};
-        Ext.apply(me.listConfig, {
+        Ext.applyIf(me.listConfig, {
             getInnerTpl: function (displayField) {
                 return '{' + displayField  + ':htmlEncode}';
             }
