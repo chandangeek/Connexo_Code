@@ -122,7 +122,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'lastCommunication',
+                                    name: 'lastCommunicationStart',
                                     fieldLabel: Uni.I18n.translate('deviceCommunicationTask.lastCommunicationStart', 'MDC', 'Last communication start'),
                                     renderer: function (value) {
                                         if (value) {
