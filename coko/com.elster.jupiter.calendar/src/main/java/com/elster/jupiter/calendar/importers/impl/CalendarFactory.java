@@ -1,9 +1,7 @@
 package com.elster.jupiter.calendar.importers.impl;
 
-import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.calendar.MessageSeeds;
-import com.elster.jupiter.calendar.impl.CalendarBuilderImpl;
 import com.elster.jupiter.calendar.impl.xmlbinding.DayType;
 import com.elster.jupiter.calendar.impl.xmlbinding.Event;
 import com.elster.jupiter.calendar.impl.xmlbinding.FixedOccurrence;
@@ -63,7 +61,7 @@ public class CalendarFactory {
                         getStartYear())
                         .description(getDescription()).mRID(getMRID()));
 
-        events = new HashMap<BigInteger, String>();
+        events = new HashMap<>();
         for (Event event : calendar.getEvents().getEvent()) {
             BigInteger eventId = getEventId(event);
             String eventName = getEventName(event);
@@ -72,7 +70,7 @@ public class CalendarFactory {
             builder.addEvent(eventName, eventCode);
         }
 
-        dayTypes = new HashMap<BigInteger, String>(); // needed for periods (has a link to daytypes on code) and builder api requires daytype name
+        dayTypes = new HashMap<>(); // needed for periods (has a link to daytypes on code) and builder api requires daytype name
         for (DayType dayType : calendar.getDayTypes().getDayType()) {
             BigInteger id = dayType.getId();
             String dayTypeName = dayType.getName();
@@ -89,7 +87,7 @@ public class CalendarFactory {
             dayTypeBuilder.add();
         }
 
-        periods = new HashMap<BigInteger, String>(); // needed for period transitions
+        periods = new HashMap<>(); // needed for period transitions
         for (Period period : calendar.getPeriods().getPeriod()) {
             BigInteger id = period.getId();
             String periodName = period.getName();

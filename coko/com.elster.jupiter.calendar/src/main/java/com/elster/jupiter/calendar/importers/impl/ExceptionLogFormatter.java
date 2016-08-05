@@ -1,26 +1,23 @@
 package com.elster.jupiter.calendar.importers.impl;
 
-
 import com.elster.jupiter.calendar.MessageSeeds;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by igh on 19/05/2016.
  */
-public class ExceptionLogFormatter {
+class ExceptionLogFormatter {
 
     private Logger logger;
     private Thesaurus thesaurus;
 
-    public ExceptionLogFormatter(Thesaurus thesaurus, Logger logger) {
+    ExceptionLogFormatter(Thesaurus thesaurus, Logger logger) {
         this.thesaurus = thesaurus;
         this.logger = logger;
     }
@@ -29,7 +26,7 @@ public class ExceptionLogFormatter {
         for (ConstraintViolation<?> constraintViolation : e.getConstraintViolations()) {
             if (constraintViolation.getPropertyPath()!=null) {
                 String key = removeCurlyBrace(constraintViolation.getMessageTemplate());
-                Optional<MessageSeeds> messageSeeds = Arrays.asList(MessageSeeds.values()).stream().filter(s -> s.getKey().equals(key)).findFirst();
+                Optional<MessageSeeds> messageSeeds = Stream.of(MessageSeeds.values()).filter(s -> s.getKey().equals(key)).findFirst();
                 //search for message seed
                 if (messageSeeds.isPresent()) {
                     messageSeeds.get().log(logger, thesaurus);

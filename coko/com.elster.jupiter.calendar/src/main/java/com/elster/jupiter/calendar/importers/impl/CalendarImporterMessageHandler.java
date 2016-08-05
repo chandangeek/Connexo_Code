@@ -24,18 +24,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-
 @Component(name = "com.elster.jupiter.calendar.importers.CalendarImporterMessageHandler",
         service = {MessageHandlerFactory.class, TranslationKeyProvider.class, MessageSeedProvider.class},
-        property = {"name=" + CalendarImporterMessageHandler.COMPONENT,
+        property = {
+                "name=" + CalendarImporterMessageHandler.COMPONENT,
                 "subscriber=" + CalendarImporterMessageHandler.SUBSCRIBER_NAME,
                 "destination=" + CalendarImporterMessageHandler.DESTINATION_NAME},
         immediate = true)
 public class CalendarImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider, MessageSeedProvider {
 
-    public static final String COMPONENT = "CLI";
+    static final String COMPONENT = "CLI";
 
-    public static final String DESTINATION_NAME = "CalendarImport";
+    static final String DESTINATION_NAME = "CalendarImport";
     public static final String SUBSCRIBER_NAME = "CalendarImport";
 
     private volatile MessageService messageService;

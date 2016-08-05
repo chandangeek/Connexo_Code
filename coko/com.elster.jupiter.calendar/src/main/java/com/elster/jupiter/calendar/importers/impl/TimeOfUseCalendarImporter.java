@@ -14,16 +14,14 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-;
-
 /**
  * Created by igh on 27/04/2016.
  */
-public class TimeOfUseCalendarImporter implements FileImporter {
+class TimeOfUseCalendarImporter implements FileImporter {
 
     private CalendarImporterContext context;
 
-    public TimeOfUseCalendarImporter(CalendarImporterContext context) {
+    TimeOfUseCalendarImporter(CalendarImporterContext context) {
         this.context = context;
     }
 
@@ -96,4 +94,5 @@ public class TimeOfUseCalendarImporter implements FileImporter {
             throw new CalendarParserException(context.getThesaurus(), MessageSeeds.SCHEMA_FAILED, e);
         }
     }
+
 }

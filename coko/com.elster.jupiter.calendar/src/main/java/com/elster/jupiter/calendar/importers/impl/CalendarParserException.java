@@ -7,21 +7,18 @@ import com.elster.jupiter.util.exception.MessageSeed;
 /**
  * Created by igh on 27/04/2016.
  */
-public class CalendarParserException extends LocalizedException {
+class CalendarParserException extends LocalizedException {
 
-    public CalendarParserException(Thesaurus thesaurus, MessageSeed messageSeed) {
+    CalendarParserException(Thesaurus thesaurus, MessageSeed messageSeed) {
         super(thesaurus, messageSeed);
     }
 
-    public CalendarParserException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+    CalendarParserException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
         super(thesaurus, messageSeed, args);
     }
 
-    public CalendarParserException(Thesaurus thesaurus, MessageSeed messageSeed, Throwable cause) {
+    CalendarParserException(Thesaurus thesaurus, MessageSeed messageSeed, Throwable cause) {
         super(thesaurus, messageSeed, cause);
     }
 
-    public CalendarParserException(Thesaurus thesaurus, MessageSeed messageSeed, Throwable cause, Object... args) {
-        super(thesaurus, messageSeed, cause, args);
-    }
 }

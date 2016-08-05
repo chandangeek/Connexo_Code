@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
-import org.osgi.service.component.annotations.Activate;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -37,13 +37,6 @@ public class CalendarImporterContext {
         setClock(clock);
     }
 
-    @Activate
-    public void activate() {
-
-    }
-
-
-
     public Thesaurus getThesaurus() {
         return thesaurus;
     }
@@ -56,7 +49,6 @@ public class CalendarImporterContext {
     public final void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(CalendarImporterMessageHandler.COMPONENT, Layer.DOMAIN);
     }
-
 
     @Reference
     public final void setUserService(UserService userService) {
@@ -89,5 +81,5 @@ public class CalendarImporterContext {
     public final void setClock(Clock clock) {
         this.clock = clock;
     }
-}
 
+}

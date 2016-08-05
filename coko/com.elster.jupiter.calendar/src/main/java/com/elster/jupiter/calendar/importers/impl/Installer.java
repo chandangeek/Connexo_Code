@@ -29,8 +29,6 @@ final class Installer implements FullInstaller {
         }
     }
 
-
-
     private void createQueue() {
         QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(CalendarImporterMessageHandler.DESTINATION_NAME, 60);
@@ -38,5 +36,5 @@ final class Installer implements FullInstaller {
         destinationSpec.activate();
         destinationSpec.subscribe(CalendarImporterMessageHandler.SUBSCRIBER_NAME);
     }
-}
 
+}
