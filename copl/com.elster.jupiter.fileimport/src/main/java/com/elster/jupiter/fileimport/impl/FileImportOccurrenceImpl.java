@@ -16,7 +16,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -36,6 +35,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
 
+    @SuppressWarnings("unused") // Managed by ORM
     private long id;
     private ImportSchedule importSchedule;
     private long importScheduleId;
@@ -51,25 +51,23 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
     private final FileNameCollisionResolver fileNameCollisionResolver;
     private final Thesaurus thesaurus;
     private FileImportService fileImportService;
-    private final FileSystem fileSystem;
     private List<ImportLogEntry> logEntries = new ArrayList<>();
 
-    Logger logger;
+    private Logger logger;
     private Clock clock;
 
     @Inject
-    private FileImportOccurrenceImpl(FileImportService fileImportService, FileUtils fileUtils, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, FileSystem fileSystem) {
+    private FileImportOccurrenceImpl(FileImportService fileImportService, FileUtils fileUtils, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock) {
         this.fileUtils = fileUtils;
         this.dataModel = dataModel;
         this.fileNameCollisionResolver = fileNameCollisionResolver;
         this.thesaurus = thesaurus;
         this.clock = clock;
         this.fileImportService = fileImportService;
-        this.fileSystem = fileSystem;
     }
 
-    public static FileImportOccurrenceImpl create(FileImportService fileImportService, FileSystem fileSystem, FileUtils importFileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, ImportSchedule importSchedule, Path path) {
-        return new FileImportOccurrenceImpl(fileImportService, importFileSystem, dataModel, fileNameCollisionResolver, thesaurus, clock,fileSystem).init(importSchedule, path);
+    public static FileImportOccurrenceImpl create(FileImportService fileImportService, FileUtils importFileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, ImportSchedule importSchedule, Path path) {
+        return new FileImportOccurrenceImpl(fileImportService, importFileSystem, dataModel, fileNameCollisionResolver, thesaurus, clock).init(importSchedule, path);
     }
 
     @Override
@@ -184,12 +182,12 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         return Collections.unmodifiableList(logEntries);
     }
 
-    public FileImportLogHandler createFileImportLogHandler() {
+    private FileImportLogHandler createFileImportLogHandler() {
         return new FileImportLogHandlerImpl(this);
     }
 
     public Logger getLogger() {
-        if(logger == null) {
+        if (logger == null) {
             logger = Logger.getAnonymousLogger();
             logger.addHandler(createFileImportLogHandler().asHandler());
         }
@@ -292,14 +290,6 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         }
     }
 
-    protected void setClock(Clock clock) {
-        this.clock = clock;
-    }
-
-    protected Clock getClock() {
-        return clock;
-    }
-
     public Instant getTriggerTime() {
         return triggerTime;
     }
@@ -309,13 +299,9 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         save();
     }
 
-    public void setEndDate(Instant instant) {
-        this.endDate = instant;
-        save();
-    }
-
     @Override
     public Connection getCurrentConnection() throws SQLException {
         return dataModel.getConnection(false);
     }
+
 }

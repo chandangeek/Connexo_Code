@@ -376,7 +376,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
             throw new IllegalArgumentException();
         }
         Path relativeFilePath = fileImportService.getBasePath().relativize(file);
-        return FileImportOccurrenceImpl.create(fileImportService, fileSystem, fileUtils, dataModel, fileNameCollisionresolver, thesaurus, clock, this, relativeFilePath);
+        return FileImportOccurrenceImpl.create(fileImportService, fileUtils, dataModel, fileNameCollisionresolver, thesaurus, clock, this, relativeFilePath);
     }
 
     @Override

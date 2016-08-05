@@ -1,10 +1,11 @@
 package com.elster.jupiter.fileimport;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.nio.file.Path;
 import java.time.Instant;
@@ -24,61 +25,77 @@ public interface ImportSchedule {
      */
     long getId();
 
+    long getVersion();
 
     /**
      * @return import schedule status
      */
-
     boolean isActive();
+
+    void setActive(Boolean active);
 
     /**
      * @return import schedule name
      */
     String getName();
 
+    void setName(String name);
+
     /**
      * @return the Destination on which to post a message when a file needs processing.
      */
     DestinationSpec getDestination();
+
+    void setDestination(String destinationName);
 
     /**
      * @return Path representing the directory to scan for new files to import
      */
     Path getImportDirectory();
 
+    void setImportDirectory(Path path);
+
     /**
      * @return String representing the pattern to scan for new files to import
      */
     String getPathMatcher();
+
+    void setPathMatcher(String pathMatcher);
 
     /**
      * @return Path representing the directory where files are moved for awaiting processing.
      */
     Path getInProcessDirectory();
 
+    void setProcessingDirectory(Path path);
+
     /**
      * @return Path representing the directory where files are moved once they've been processed successfully.
      */
     Path getSuccessDirectory();
+
+    void setSuccessDirectory(Path path);
 
     /**
      * @return Path representing the directory where files are moved in case they could not be processed successfully.
      */
     Path getFailureDirectory();
 
+    void setFailureDirectory(Path path);
+
     /**
      * @return a CronExpression that indicates the times at which the import directory should be scanned.
      */
     ScheduleExpression getScheduleExpression();
-    /**
-     * Updates this instance.
-     */
-    void update();
+
+    void setScheduleExpression(ScheduleExpression scheduleExpression);
 
     /**
      * @return returns the type of the importer (name of the FileImporterFactory
      */
     String getImporterName();
+
+    void setImporterName(String name);
 
     /**
      * @return returns the list of importer property specs
@@ -101,41 +118,11 @@ public interface ImportSchedule {
      */
     List<FileImporterProperty> getImporterProperties();
 
-    void setProperty(String name, Object value);
-
     Map<String,Object> getProperties();
 
-    void delete();
-
-    void setName(String name);
-
-    void setScheduleExpression(ScheduleExpression scheduleExpression);
-
-    void setImportDirectory(Path path);
-
-    void setFailureDirectory(Path path);
-
-    void setSuccessDirectory(Path path);
-
-    void setProcessingDirectory(Path path);
-
-    void setImporterName(String name);
-
-    void setPathMatcher(String pathMatcher);
-
-    void setDestination(String destinationName);
+    void setProperty(String name, Object value);
 
     String getApplicationName();
-
-    Instant getObsoleteTime();
-
-    default boolean isObsolete() {
-        return getObsoleteTime() != null;
-    }
-
-    void setActive(Boolean active);
-
-    boolean isDeleted();
 
     boolean isImporterAvailable();
 
@@ -143,5 +130,19 @@ public interface ImportSchedule {
 
     Optional<FileImportOccurrence> getFileImportOccurrence(long occurrenceId);
 
-    long getVersion();
+    /**
+     * Updates this instance.
+     */
+    void update();
+
+    void delete();
+
+    boolean isDeleted();
+
+    Instant getObsoleteTime();
+
+    default boolean isObsolete() {
+        return getObsoleteTime() != null;
+    }
+
 }

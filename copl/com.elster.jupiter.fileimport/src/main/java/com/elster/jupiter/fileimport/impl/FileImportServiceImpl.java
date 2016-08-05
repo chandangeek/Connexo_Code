@@ -358,10 +358,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
 
     @Override
     public Optional<FileImportOccurrence> getFileImportOccurrence(Long id) {
-        Optional<FileImportOccurrence> fileImportOccurence = dataModel.mapper(FileImportOccurrence.class)
-                .getOptional(id);
-        fileImportOccurence.map(FileImportOccurrenceImpl.class::cast).ifPresent(fio -> fio.setClock(clock));
-        return fileImportOccurence;
+        return dataModel.mapper(FileImportOccurrence.class).getOptional(id);
     }
 
     @Override
