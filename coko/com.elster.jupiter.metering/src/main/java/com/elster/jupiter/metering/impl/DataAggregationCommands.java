@@ -108,6 +108,10 @@ public class DataAggregationCommands {
         }
     }
 
+    public void showData() {
+        System.out.println("Usage: showData <usage point MRID> <contract purpose> <deliverable name> <start date>");
+    }
+
     public void showData(String usagePointMRID, String contractPurpose, String deliverableName, String startDate) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
