@@ -7,6 +7,7 @@ Ext.define('Uni.view.search.field.Location', {
     ],
     alias: 'widget.uni-search-criteria-location',
     minWidth: 350,
+    value: null,
     initComponent: function () {
         var me = this;
 
@@ -64,23 +65,7 @@ Ext.define('Uni.view.search.field.Location', {
                     xtype: 'form',
                     height: 355,
                     itemId: 'properties-form',
-                    autoScroll: true,
-
-                    items1: [
-                        {
-                            xtype: 'property-form',
-                            itemId: 'property-form-location',
-                            defaults: {
-                                resetButtonHidden: true,
-                                labelWidth: 140,
-                                width: 160
-                            },
-                            layout: {
-                                type: 'vbox',
-                                align: 'stretch'
-                            }
-                        }
-                    ]
+                    autoScroll: true
                 }
             ]
         });
@@ -94,7 +79,6 @@ Ext.define('Uni.view.search.field.Location', {
             clearBtn = this.down('#clearall');
 
         this.callParent(arguments);
-
         if (clearBtn) {
             clearBtn.setDisabled(!!Ext.isEmpty(value));
         }
@@ -129,8 +113,6 @@ Ext.define('Uni.view.search.field.Location', {
             Ext.create('Uni.model.search.Value', {
                 operator: '==',
                 criteria: {values: values}
-
-
             })
         ]);
     },
@@ -168,7 +150,54 @@ Ext.define('Uni.view.search.field.Location', {
                         }));
                     });
                 }
+
+                if (me.value && me.value[0] && me.value[0].get('criteria') && (me.value[0].get('criteria').values instanceof Array)) {
+                    me.down('#advanced-search').setValue(true);
+                    Ext.Array.each(me.value[0].get('criteria').values, function (val) {
+                        var component = Ext.ComponentQuery.query('[name=' + val.propertyName + ']');
+                        if (component && component instanceof Array && component.length > 0) {
+                            component[0].setValue(val.propertyValue);
+                        }
+                    });
+                }
             }
         })
+    },
+
+    setValue: function (value) {
+        var me = this,
+            store = me.getStore();
+
+        me.value = value;
+        if (value && value[0] && value[0].get('criteria') && (value[0].get('criteria').values instanceof Array == false)) {
+            if (me.value[0].get('filter') == me.down('#filter-input').getValue()) {
+                Uni.view.search.field.Location.superclass.setValue.call(me, me.value);
+            }
+            else {
+                me.down('#filter-input').setValue(me.value[0].get('filter'));
+                store.addListener('load', me.onLocationsStoreLoaded, me);
+            }
+        }
+    },
+
+    onLocationsStoreLoaded: function () {
+        var me = this;
+
+        Uni.view.search.field.Location.superclass.setValue.call(me, me.value);
+    },
+
+    getValue: function () {
+        var me = this, value;
+
+        me.selection.sort();
+        value = me.selection.getRange().map(function (item) {
+            return item.get(me.valueField)
+        });
+
+        return value.length ? [Ext.create('Uni.model.search.Value', {
+            operator: this.down('#filter-operator').getValue(),
+            criteria: value,
+            filter: me.down('#filter-input').getValue()
+        })] : null
     }
 });

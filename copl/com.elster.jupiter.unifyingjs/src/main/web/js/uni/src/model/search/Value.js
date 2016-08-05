@@ -6,6 +6,7 @@ Ext.define('Uni.model.search.Value', {
     idProperty: null,
     fields: [
         {name: 'operator', type: 'string'},
-        {name: 'criteria', type: 'auto'}
+        {name: 'criteria', type: 'auto'},
+        {name: 'filter', type: 'string'}
     ]
 });
