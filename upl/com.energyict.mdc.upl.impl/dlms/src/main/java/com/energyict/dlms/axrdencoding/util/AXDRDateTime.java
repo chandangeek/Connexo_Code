@@ -83,6 +83,7 @@ public class AXDRDateTime extends AbstractDataType {
     protected Calendar dateTime;
     protected boolean useUnspecifiedAsDeviation;
     protected int status;
+    private boolean setHSByte = true;
 
     public AXDRDateTime() {
     }
@@ -287,7 +288,7 @@ public class AXDRDateTime extends AbstractDataType {
         int hour = v.get(Calendar.HOUR_OF_DAY);
         int minute = v.get(Calendar.MINUTE);
         int second = v.get(Calendar.SECOND);
-        int hs = v.get(Calendar.MILLISECOND) / MS_PER_HS;
+        int hs = isSetHSByte() ? (v.get(Calendar.MILLISECOND) / MS_PER_HS) : 255;
 
         int deviation = useUnspecifiedAsDeviation
                 ? 0x8000
@@ -370,5 +371,13 @@ public class AXDRDateTime extends AbstractDataType {
      */
     public void useUnspecifiedAsDeviation(boolean useUnspecifiedAsDeviation) {
         this.useUnspecifiedAsDeviation = useUnspecifiedAsDeviation;
+    }
+
+    public boolean isSetHSByte() {
+        return setHSByte;
+    }
+
+    public void setSetHSByte(boolean setHSByte) {
+        this.setHSByte = setHSByte;
     }
 }

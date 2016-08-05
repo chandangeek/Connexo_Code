@@ -185,7 +185,7 @@ public class EventPushNotificationParser {
         return this.securityPropertySet;
     }
 
-    private ByteBuffer readInboundFrame() {
+    protected ByteBuffer readInboundFrame() {
         byte[] header = new byte[8];
         getComChannel().startReading();
         int readBytes = getComChannel().read(header);

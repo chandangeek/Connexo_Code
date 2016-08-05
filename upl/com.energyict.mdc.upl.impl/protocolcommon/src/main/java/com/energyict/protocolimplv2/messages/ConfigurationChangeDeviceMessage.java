@@ -4,11 +4,10 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecFactory;
 import com.energyict.cuo.core.UserEnvironment;
-import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
-
 import com.energyict.mdc.messages.DeviceMessageCategory;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageSpecPrimaryKey;
+import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -354,8 +353,9 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpec {
     EnableGzipCompression(79, PropertySpecFactory.notNullableBooleanPropertySpec(DeviceMessageConstants.ENABLE_GZIP_COMPRESSION)),
     SetAuthenticationMechanism(80, PropertySpecFactory.stringPropertySpecWithValues(DeviceMessageConstants.SET_AUTHENTICATION_MECHANISM, AuthenticationMechanism.getAuthNames())),
     SetMaxLoginAttempts(81, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.SET_MAX_LOGIN_ATTEMPTS)),
-    SetLockoutDuration(82, PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DeviceMessageConstants.SET_LOCKOUT_DURATION, new TimeDuration(10000, TimeDuration.MILLISECONDS))
-    );
+    SetLockoutDuration(82, PropertySpecFactory.timeDurationPropertySpecWithSmallUnitsAndDefaultValue(DeviceMessageConstants.SET_LOCKOUT_DURATION, new TimeDuration(10000, TimeDuration.MILLISECONDS))),
+    ConfigureGeneralLocalPortReadout(83, PropertySpecFactory.stringPropertySpec(DeviceMessageConstants.objectDefinitionsAttributeName))
+    ;
 
     private final List<PropertySpec> deviceMessagePropertySpecs;
     private final int id;
