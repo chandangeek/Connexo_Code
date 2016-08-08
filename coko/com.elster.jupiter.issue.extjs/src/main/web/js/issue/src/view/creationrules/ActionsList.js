@@ -4,7 +4,8 @@ Ext.define('Isu.view.creationrules.ActionsList', {
         'Ext.grid.column.Template',
         'Uni.grid.column.Action',
         'Isu.store.CreationRuleActionPhases',
-        'Isu.store.CreationRuleActions'
+        'Isu.store.CreationRuleActions',
+        'Uni.grid.column.RemoveAction'
     ],
     alias: 'widget.issues-creation-rules-actions-list',
     store: 'ext-empty-store',
@@ -30,26 +31,20 @@ Ext.define('Isu.view.creationrules.ActionsList', {
                 }
             },
             {
-                xtype: 'actioncolumn',
-               // header: Uni.I18n.translate('general.remove', 'ISU', 'Remove'),
-                align: 'center',
-                items: [{
-                    iconCls: 'uni-icon-delete',
-                    tooltip: Uni.I18n.translate('general.remove', 'ISU', 'Remove'),
-                    handler: function (grid, rowIndex) {
-                        var store = grid.getStore(),
-                            gridPanel = grid.up(),
-                            emptyMsg = gridPanel.up().down('displayfield');
+                xtype: 'uni-actioncolumn-remove',
+                handler: function (grid, rowIndex) {
+                    var store = grid.getStore(),
+                        gridPanel = grid.up(),
+                        emptyMsg = gridPanel.up().down('displayfield');
 
-                        store.removeAt(rowIndex);
-                        if (!store.getCount()) {
-                            Ext.suspendLayouts();
-                            gridPanel.hide();
-                            emptyMsg.show();
-                            Ext.resumeLayouts(true);
-                        }
+                    store.removeAt(rowIndex);
+                    if (!store.getCount()) {
+                        Ext.suspendLayouts();
+                        gridPanel.hide();
+                        emptyMsg.show();
+                        Ext.resumeLayouts(true);
                     }
-                }]
+                }
             }
         ]
     }
