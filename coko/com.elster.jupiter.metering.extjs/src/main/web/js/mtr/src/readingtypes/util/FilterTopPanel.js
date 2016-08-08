@@ -94,6 +94,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-accumulation',
                 store: 'Mtr.readingtypes.attributes.store.Accumulation'
@@ -109,6 +110,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-argument-denominator',
                 store: 'Mtr.readingtypes.attributes.store.ArgumentDenominator'
@@ -124,6 +126,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-argument-numerator',
                 store: 'Mtr.readingtypes.attributes.store.ArgumentNumerator'
@@ -139,6 +142,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-commodity',
                 store: 'Mtr.readingtypes.attributes.store.Commodity'
@@ -154,6 +158,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-consumption-tier',
                 store: 'Mtr.readingtypes.attributes.store.ConsumptionTier'
@@ -169,6 +174,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-critical-peak-period',
                 store: 'Mtr.readingtypes.attributes.store.CriticalPeakPeriod'
@@ -184,6 +190,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-currency',
                 store: 'Mtr.readingtypes.attributes.store.Currency'
@@ -199,6 +206,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-data-qualifier',
                 store: 'Mtr.readingtypes.attributes.store.DataQualifier'
@@ -214,6 +222,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-direction-of-Flow',
                 store: 'Mtr.readingtypes.attributes.store.DirectionOfFlow'
@@ -229,6 +238,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-interharmonic-denominator',
                 store: 'Mtr.readingtypes.attributes.store.InterharmonicDenominator'
@@ -244,6 +254,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-numerator',
                 store: 'Mtr.readingtypes.attributes.store.InterharmonicNumerator'
@@ -259,6 +270,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-kind',
                 store: 'Mtr.readingtypes.attributes.store.Kind'
@@ -275,6 +287,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-multiplier',
                 store: 'Mtr.readingtypes.attributes.store.Multiplier'
@@ -290,6 +303,7 @@ Ext.define('Mtr.readingtypes.util.FilterTopPanel', {
                 displayField: 'displayName',
                 valueField: 'code',
                 multiSelect: true,
+                forceSelection: true,
                 queryMode: 'local',
                 itemId: 'reading-type-interharmonic-phase',
                 store: 'Mtr.readingtypes.attributes.store.Phase'
