@@ -6,10 +6,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Setup', {
     initComponent: function () {
         var me = this;
 
-        me.content = [
+        me.items = [
             {
                 xtype: 'panel',
-                ui: 'large',
                 items: [
                     {
                         xtype: 'mdc-registers-topfilter',
@@ -42,7 +41,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Setup', {
                                     ]
                                 },
                                 previewComponent: {
-                                    xtype: 'deviceregisterreportpreview-flags'
+                                    xtype: 'deviceregisterreportpreview-flags',
+                                    mentionDataLoggerSlave: me.mentionDataLoggerSlave,
+                                    router: me.router
                                 }
                             }
                         ]
