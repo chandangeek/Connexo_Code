@@ -26,6 +26,9 @@ Ext.define('Cfg.model.Validator', {
         reader: {
             type: 'json',
             root: 'validators'
-        }
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined
     }
 });

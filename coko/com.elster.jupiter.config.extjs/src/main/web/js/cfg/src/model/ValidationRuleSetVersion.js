@@ -13,18 +13,17 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
                 endDate = data.endDate;
 				if (startDate && endDate) {
 				    result = Uni.I18n.translate('validation.version.display.fromUntil', 'CFG', "From {0} - Until {1}",
-                        [Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
-                         Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT)],
+                        [Uni.DateTime.formatDateTimeShort(new Date(startDate)), Uni.DateTime.formatDateTimeShort(new Date(endDate))],
                         false
                     );
 				} else if (data.startDate) {
 					result = Uni.I18n.translate('validation.version.display.from', 'CFG', "From {0}",
-                        Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        Uni.DateTime.formatDateTimeShort(new Date(startDate)),
                         false
                     );
 				} else if (data.endDate) {
 					result = Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}",
-                        Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        Uni.DateTime.formatDateTimeShort(new Date(endDate)),
                         false
                     );
 				} else {
@@ -44,18 +43,18 @@ Ext.define('Cfg.model.ValidationRuleSetVersion', {
                 endDate = data.endDate;
                 if (startDate && endDate) {
 					result = Uni.I18n.translate('validation.version.display.fromUntil', 'CFG', "From {0} - Until {1}",
-                        [Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
-                         Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT)],
+                        [Uni.DateTime.formatDateTimeShort(new Date(startDate)),
+                         Uni.DateTime.formatDateTimeShort(new Date(endDate))],
                         false
                     );
 				} else if (data.startDate) {
 					result = Uni.I18n.translate('validation.version.display.from', 'CFG', "From {0}",
-                        Uni.DateTime.formatDateTime(new Date(startDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        Uni.DateTime.formatDateTimeShort(new Date(startDate)),
                         false
                     );
 				} else if (data.endDate) {
 					result = Uni.I18n.translate('validation.version.display.until', 'CFG', "Until {0}",
-                        Uni.DateTime.formatDateTime(new Date(endDate), Uni.DateTime.LONG, Uni.DateTime.SHORT),
+                        Uni.DateTime.formatDateTimeShort(new Date(endDate)),
                         false
                     );
 				}else {

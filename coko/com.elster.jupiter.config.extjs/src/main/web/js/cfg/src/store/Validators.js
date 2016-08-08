@@ -10,6 +10,9 @@ Ext.define('Cfg.store.Validators', {
         reader: {
             type: 'json',
             root: 'validators'
-        }
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined
     }
 });
