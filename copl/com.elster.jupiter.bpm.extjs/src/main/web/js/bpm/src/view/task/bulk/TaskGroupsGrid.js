@@ -5,7 +5,8 @@ Ext.define('Bpm.view.task.bulk.TaskGroupsGrid', {
     requires: [
         'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Uni.grid.column.RemoveAction'
 
     ],
 
@@ -52,42 +53,36 @@ Ext.define('Bpm.view.task.bulk.TaskGroupsGrid', {
                 flex: 1
             },
             {
-                xtype: 'actioncolumn',
-                align: 'right',
+                xtype: 'uni-actioncolumn-remove',
                 renderer: function () {
                     if(me.getStore('Bpm.store.task.TaskGroups').data.items.length <= 1)
                     {
-                        this.items[0].iconCls = 'uni-icon-deleted';
-                        this.items[0].disabled = true;
+                        this.iconCls = 'icon-cancel-circle';
+                        this.disabled = true;
                     }
                     else
                     {
-                        this.items[0].iconCls = 'uni-icon-delete';
-                        this.items[0].disabled = false;
+                        this.iconCls = 'icon-cancel-circle2';
+                        this.disabled = false;
                     }
                 },
-                items: [
-                    {
-                        tooltip: Uni.I18n.translate('bpm.task.bulk.remove', 'BPM', 'Remove'),
-                        handler: function (grid, rowIndex, colIndex, column, event, record) {
-                            grid.getStore().removeAt(rowIndex);
-                            grid.refresh();
-                            if(grid.getStore().getCount() <= 1) {
-                                this.items[0].disabled = true;
-                                this.items[0].iconCls = 'uni-icon-deleted';
-                                grid.refresh();
-                            }
-                            else
-                            {
-                                this.items[0].disabled = false;
-                                this.items[0].iconCls = 'uni-icon-delete';
-                            }
-                        }
+                handler: function (grid, rowIndex, colIndex, column, event, record) {
+                    grid.getStore().removeAt(rowIndex);
+                    grid.refresh();
+                    if(grid.getStore().getCount() <= 1) {
+                        this.disabled = true;
+                        this.iconCls = 'icon-cancel-circle';
+                        grid.refresh();
                     }
-                ],
+                    else
+                    {
+                        this.disabled = false;
+                        this.iconCls = 'icon-cancel-circle2';
+                    }
+                }
             }
+        ];
 
-        ],
-        me.callParent(arguments);
-    },
+        me.callParent(arguments)
+    }
 });
