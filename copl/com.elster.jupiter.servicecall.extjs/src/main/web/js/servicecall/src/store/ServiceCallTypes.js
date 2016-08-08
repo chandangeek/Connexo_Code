@@ -9,6 +9,9 @@ Ext.define('Scs.store.ServiceCallTypes', {
         reader: {
             type: 'json',
             root: 'serviceCallTypes'
-        }
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined
     }
 });
