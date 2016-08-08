@@ -23,7 +23,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,6 +44,7 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
         }
 
     }
+
     private final DataModel dataModel;
     private final ThreadPrincipalService threadPrincipalService;
     private final ServerCustomPropertySetService customPropertySetService;
@@ -70,7 +70,7 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE__NULL+"}")
     private long editPrivilegesBits;
     private EnumSet<EditPrivilege> editPrivileges = EnumSet.noneOf(EditPrivilege.class);
-    private Optional<CustomPropertySet> customPropertySet;
+    private CustomPropertySet customPropertySet;
     @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
@@ -83,7 +83,7 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
     public RegisteredCustomPropertySetImpl initialize(CustomPropertySet customPropertySet, boolean systemDefined, Set<ViewPrivilege> viewPrivileges, Set<EditPrivilege> editPrivileges) {
         this.logicalId = customPropertySet.getId();
         this.systemDefined = systemDefined;
-        this.customPropertySet = Optional.of(customPropertySet);
+        this.customPropertySet = customPropertySet;
         this.addAllViewPrivileges(viewPrivileges);
         this.addAllEditPrivileges(editPrivileges);
         return this;
@@ -91,7 +91,10 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
 
     @Override
     public void postLoad() {
-        this.customPropertySet = this.customPropertySetService.findRegisteredCustomPropertySet(this.logicalId);
+        this.customPropertySet =
+                this.customPropertySetService
+                    .findRegisteredCustomPropertySet(this.logicalId)
+                    .orElse(null);
         this.postLoadPrivileges();
     }
 
@@ -127,18 +130,18 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
         return this.id;
     }
 
-    public boolean isSystemDefined() {
-        return systemDefined;
+    @Override
+    public CustomPropertySet getCustomPropertySet() {
+        return this.customPropertySet;
     }
 
     @Override
-    public CustomPropertySet getCustomPropertySet() {
-        /* this method is intended to be used by client code
-         * and RegisteredCustomPropertySet that are not active
-         * are never returned to the client side,
-         * therefore it is safe to use the get method
-         * as there will always be a value present when this method is called. */
-        return this.customPropertySet.get();
+    public String getCustomPropertySetId() {
+        if (this.isActive()) {
+            return this.getCustomPropertySet().getId();
+        } else {
+            return this.logicalId;
+        }
     }
 
     @Override
@@ -230,8 +233,9 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
         return !currentUserPrivileges.isEmpty();
     }
 
-    boolean isActive() {
-        return this.customPropertySet.isPresent();
+    @Override
+    public boolean isActive() {
+        return this.customPropertySet != null;
     }
 
     void create() {
@@ -239,7 +243,7 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
         Save.CREATE.save(this.dataModel, this);
     }
 
-    void update() {
+    private void update() {
         Save.UPDATE.save(this.dataModel, this);
     }
 
@@ -263,4 +267,5 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
     public int hashCode() {
         return Objects.hash(id, logicalId);
     }
+
 }
