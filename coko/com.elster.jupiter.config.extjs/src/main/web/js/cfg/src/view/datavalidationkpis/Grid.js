@@ -5,7 +5,8 @@ Ext.define('Cfg.view.datavalidationkpis.Grid', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Cfg.view.datavalidationkpis.ActionMenu',
-        'Uni.util.ScheduleToStringConverter'
+        'Uni.util.ScheduleToStringConverter',
+        'Uni.grid.column.RemoveAction'
     ],
     store: 'Cfg.store.DataValidationKpis',
     initComponent: function () {
@@ -39,20 +40,11 @@ Ext.define('Cfg.view.datavalidationkpis.Grid', {
                 }
             },
             {
-                xtype: 'actioncolumn',
+                xtype: 'uni-actioncolumn-remove',
                 privileges: Cfg.privileges.Validation.admin,
-                align: 'right',
-                header: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
-                items: [
-                    {
-                        iconCls: 'uni-icon-delete',
-                        itemId: 'cfg-data-validation-kpis-action-menu',
-                        tooltip: Uni.I18n.translate('general.remove', 'CFG', 'Remove'),
-                        handler: function (grid, rowIndex, colIndex, column, event, record) {
-                            this.fireEvent('remove', record);
-                        }
-                    }
-                ]
+                handler: function (grid, rowIndex, colIndex, column, event, record) {
+                    this.fireEvent('remove', record);
+                }
             }
 
         ];
