@@ -5,7 +5,6 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
     border: false,
     shadow: false,
     items: [],
-    disableChangeConfigSinceDataLoggerOrSlave: false,
 
     setActions: function(actionsStore, router) {
       var me = this;
@@ -40,22 +39,7 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
     },
 
     initComponent: function() {
-        var me = this,
-            changeConfigItem = {
-                itemId: 'change-device-configuration-action-item',
-                privileges: Mdc.privileges.Device.changeDeviceConfiguration,
-                dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
-                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.changeDeviceConfiguration,
-                text: Uni.I18n.translate('deviceconfiguration.changeDeviceConfiguration', 'MDC', 'Change device configuration'),
-                handler: function () {
-                    me.router.getRoute('devices/device/changedeviceconfiguration').forward();
-                }
-            };
-
-        if (me.disableChangeConfigSinceDataLoggerOrSlave) {
-            changeConfigItem.disabled = true;
-            changeConfigItem.tooltip = Uni.I18n.translate('deviceconfiguration.changeImpossible.reason', 'MDC', 'The device configuration of data loggers and data logger slaves cannot be changed.');
-        }
+        var me = this;
 
         me.items = [
             {
@@ -66,7 +50,16 @@ Ext.define('Mdc.view.setup.device.DeviceActionMenu', {
                 },
                 text: Uni.I18n.translate('deviceconfiguration.deviceAttributes.editAttributes', 'MDC', 'Edit attributes')
             },
-            changeConfigItem
+            {
+                itemId: 'change-device-configuration-action-item',
+                privileges: Mdc.privileges.Device.changeDeviceConfiguration,
+                dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.changeDeviceConfiguration,
+                text: Uni.I18n.translate('deviceconfiguration.changeDeviceConfiguration', 'MDC', 'Change device configuration'),
+                handler: function () {
+                    me.router.getRoute('devices/device/changedeviceconfiguration').forward();
+                }
+            }
         ];
 
         me.callParent(arguments);

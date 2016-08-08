@@ -4,7 +4,10 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
-        'Mdc.view.setup.devicehistory.LifeCycle'
+        'Mdc.view.setup.devicehistory.LifeCycle',
+        'Mdc.view.setup.devicehistory.MeterActivations',
+        'Uni.view.container.EmptyGridContainer',
+        'Uni.util.FormEmptyMessage'
     ],
 
     router: null,
@@ -46,6 +49,33 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
                             title: Uni.I18n.translate('general.firmware', 'MDC', 'Firmware'),
                             padding: '8 16 16 0',
                             itemId: 'device-history-firmware-tab'
+                        },
+                        {
+                            title: Uni.I18n.translate('general.meterActivation', 'MDC', 'Meter activation'),
+                            padding: '8 16 16 0',
+                            itemId: 'device-history-meter-activations-tab',
+                            items: {
+                                xtype: 'emptygridcontainer',
+                                grid: {
+                                    xtype: 'device-history-meter-activations-tab',
+                                    itemId: 'device-history-meter-activations-grid',
+                                    device: me.device,
+                                    router: me.router
+                                },
+                                emptyComponent: {
+                                    xtype: 'form',
+                                    items: [
+                                        {
+                                            xtype: 'uni-form-empty-message',
+                                            text: Uni.I18n.translate('general.device.noMeterActivations', 'MDC', 'No meter activations for this device')
+                                        }
+                                    ]
+                                }
+                            },
+                            listeners: {
+                                activate: me.controller.showMeterActivations,
+                                scope: me.controller
+                            }
                         }
                     ]
                 }

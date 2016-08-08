@@ -24,9 +24,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.store.LoadProfileDataDurations',
         'Mdc.store.Clipboard',
         'Mdc.store.Estimators',
-        'Mdc.store.ValidationBlocks',
-        'Mdc.store.TimeUnits',
-        'Mdc.store.DataLoggerSlaveChannelHistory'
+        'Mdc.store.ValidationBlocks'
     ],
 
     refs: [
@@ -104,7 +102,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             '#deviceLoadProfileChannelData #undo-button': {
                 click: this.undoChannelDataChanges
             },
-            '#channel-reading-estimation-window #estimate-reading-button': {
+            '#estimate-reading-button': {
                 click: this.estimateReading
             },
             'channel-data-bulk-action-menu': {
@@ -165,7 +163,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             isFullTotalCount = contentName === 'block',
             activeTab = contentName === 'spec' ? 0 : 1,
             timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
-            slaveHistoryStore = me.getStore('Mdc.store.DataLoggerSlaveChannelHistory'),
             loadDevice = function() {
                 device.load(mRID, {
                     scope: me,
@@ -190,9 +187,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                             prevNextstore: prevNextstore,
                             routerIdArgument: routerIdArgument,
                             isFullTotalCount: isFullTotalCount,
-                            filterDefault: activeTab === 1 ? me.setDataFilter(channel, contentName, router) : {},
-                            mentionDataLoggerSlave: !Ext.isEmpty(device.get('isDataLogger')) && device.get('isDataLogger'),
-                            dataLoggerSlaveHistoryStore: slaveHistoryStore
+                            filterDefault: activeTab === 1 ? me.setDataFilter(channel, contentName, router) : {}
                         });
 
                         me.getApplication().fireEvent('changecontentevent', widget);
@@ -208,11 +203,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         viewport.setLoading(true);
         if (contentName === 'spec') {
-            slaveHistoryStore.getProxy().setUrl(mRID, channelId);
-            slaveHistoryStore.load(function() {
-                timeUnitsStore.load(function() {
-                    loadDevice();
-                });
+            timeUnitsStore.load(function() {
+                loadDevice();
             });
         } else {
             loadDevice();
@@ -393,9 +385,12 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 },
                 failure: function (response) {
                     viewport.setLoading(false);
+                    var failureResponseText;
+
                     if (response.status == 400) {
-                        var failureResponseText = Ext.decode(response.responseText, true);
-                        if (failureResponseText && failureResponseText.error !== 'cannotAddChannelValueWhenLinkedToSlave') {
+                        failureResponseText = Ext.decode(response.responseText, true);
+
+                        if (failureResponseText) {
                             Ext.create('Uni.view.window.Confirmation', {
                                 confirmText: Uni.I18n.translate('general.retry', 'MDC', 'Retry'),
                                 closeAction: 'destroy',
@@ -555,7 +550,6 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         me.getStore('Mdc.store.Estimators').load(function () {
             me.getPage().setLoading(false);
             Ext.widget('reading-estimation-window', {
-                itemId: 'channel-reading-estimation-window',
                 record: record,
                 bothSuspected: bothSuspected
             }).show();
@@ -860,7 +854,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         model.load(customAttributeSetId, {
             success: function (record) {
-                widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('devicechannels.EditCustomAttributeSet', 'MDC', "Edit '{0}'", [record.get('name')]));
                 me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', record);
                 form.loadRecord(record);
             },

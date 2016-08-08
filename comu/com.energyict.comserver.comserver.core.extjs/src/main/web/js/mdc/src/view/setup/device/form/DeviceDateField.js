@@ -3,17 +3,23 @@ Ext.define('Mdc.view.setup.device.form.DeviceDateField', {
     xtype: 'deviceFormDateField',
     fullInfo: false,
 
-    renderer: function (value) {
-        if (value && (value.available || this.fullInfo)) {
-            this.show();
-            if (Ext.isEmpty(value.displayValue)) {
-                return '-'
+    initComponent: function () {
+        var me = this;
+
+        me.renderer = function (value) {
+            if (value && (value.available || me.fullInfo)) {
+                me.show();
+                if (Ext.isEmpty(value.displayValue)) {
+                    return '-'
+                } else {
+                    return Uni.DateTime.formatDateTimeShort(new Date(value.displayValue));
+                }
             } else {
-                return Uni.DateTime.formatDateTimeShort(new Date(value.displayValue));
+                me.hide();
+                return null;
             }
-        } else {
-            this.hide();
-            return null;
+
+            me.callParent(arguments);
         }
     }
 });

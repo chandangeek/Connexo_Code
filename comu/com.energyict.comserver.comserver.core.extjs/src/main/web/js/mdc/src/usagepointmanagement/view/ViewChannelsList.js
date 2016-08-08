@@ -26,7 +26,8 @@ Ext.define('Mdc.usagepointmanagement.view.ViewChannelsList', {
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'usage-point-channels-grid',
-                            itemId: 'usage-point-channels-grid'
+                            itemId: 'usage-point-channels-grid',
+                            router: me.router
                         },
                         emptyComponent: {
                             xtype: 'uni-form-info-message',

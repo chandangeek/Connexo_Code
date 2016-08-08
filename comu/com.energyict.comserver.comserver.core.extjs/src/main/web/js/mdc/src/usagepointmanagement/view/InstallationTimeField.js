@@ -2,18 +2,26 @@ Ext.define('Mdc.usagepointmanagement.view.InstallationTimeField', {
     extend: 'Ext.form.RadioGroup',
     alias: 'widget.installationtimefield',
     columns: 1,
+    defaultValueLabel: null,
+    midnight: false,
 
     listeners: {
         change: function (field, newValue) {
-            var dateField = field.down('date-time');
+            var me = this,
+                dateField = field.down('date-time[name=' + me.dateFieldName + ']');
 
             Ext.suspendLayouts();
             if (newValue['installation-time']) {
                 dateField.disable();
                 dateField.setValue(null);
             } else {
+                var currentDate = new Date();
+                 if (me.midnight) {
+                     currentDate.setHours(0,0,0,0);
+                 }
                 dateField.enable();
-                dateField.setValue(new Date());
+                dateField.setValue(currentDate);
+
             }
             Ext.resumeLayouts(true);
         }
@@ -26,7 +34,7 @@ Ext.define('Mdc.usagepointmanagement.view.InstallationTimeField', {
             {
                 xtype: 'radiofield',
                 itemId: 'installation-time-now',
-                boxLabel: Uni.I18n.translate('general.now', 'MDC', 'Now'),
+                boxLabel: me.defaultValueLabel ? me.defaultValueLabel : Uni.I18n.translate('general.now', 'MDC', 'Now'),
                 name: 'installation-time',
                 inputValue: true,
                 submitValue: false
@@ -34,6 +42,7 @@ Ext.define('Mdc.usagepointmanagement.view.InstallationTimeField', {
             {
                 xtype: 'container',
                 layout: 'hbox',
+                width: 500,
                 items: [
                     {
                         xtype: 'radiofield',
@@ -50,8 +59,11 @@ Ext.define('Mdc.usagepointmanagement.view.InstallationTimeField', {
                         required: true,
                         layout: 'hbox',
                         valueInMilliseconds: true,
+                        minWidth: 500,
                         dateConfig: {
-                            width: 148
+                            width: 148,
+                            fieldLabel: me.dateOnLabel ? me.dateOnLabel : '',
+                            labelWidth: 16
                         },
                         dateTimeSeparatorConfig: {
                             html: Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase(),

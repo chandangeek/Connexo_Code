@@ -72,39 +72,27 @@ Ext.define('Mdc.usagepointmanagement.view.Setup', {
                 ui: 'large',
                 itemId: 'usagePointSetupPanel',
                 layout: {
-                    type: 'fit',
+                    type: 'hbox',
                     align: 'stretch'
+                },
+                defaults: {
+                    style: {
+                        marginRight: '20px',
+                        padding: '20px'
+                    },
+                    flex: 1
                 },
                 items: [
                     {
-                        xtype: 'panel',
-                        layout: {
-                            type: 'hbox'
-                        },
-                        defaults: {
-                            style: {
-                                marginRight: '20px',
-                                padding: '20px'
-                            },
-                            flex: 1
-                        },
-                        items: [
-                            {
-                                xtype: 'metrology-configuration',
-                                router: me.router
-                            },
-                            {
-                                xtype: 'panel',
-                                ui: 'tile',
-                                itemId: 'usage-point-attributes-panel',
-                                router: me.router,
-                                items: [
-                                    {
-                                        xtype: 'usagePointAttributesFormMain'
-                                    }
-                                ]
-                            }
-                        ]
+                        xtype: 'metrology-configuration',
+                        router: me.router,
+                        flex: 7
+                    },
+                    {
+                        xtype: 'usagePointAttributesFormMain',
+                        itemId: 'usage-point-attributes-panel',
+                        router: me.router,
+                        flex: 4
                     }
                 ]
             }

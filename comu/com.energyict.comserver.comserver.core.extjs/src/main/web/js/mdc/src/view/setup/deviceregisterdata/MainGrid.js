@@ -50,17 +50,15 @@ Ext.define('Mdc.view.setup.deviceregisterdata.MainGrid', {
         me.callParent(arguments);
     },
 
-    renderMeasurementTime: function (value, metaData, record) {
-        if (Ext.isEmpty(value)) {
-            return '-';
-        }
+    renderMeasurementTime: function(value, metaData, record) {
+        if (Ext.isEmpty(value)) { return '-'; }
         var date = new Date(value),
             showDeviceQualityIcon = false,
             tooltipContent = '',
             icon = '';
 
-        if (!Ext.isEmpty(record.get('readingQualities'))) {
-            Ext.Array.forEach(record.get('readingQualities'), function (readingQualityObject) {
+        if ( !Ext.isEmpty(record.get('readingQualities')) ) {
+            Ext.Array.forEach(record.get('readingQualities'), function(readingQualityObject) {
                 if (readingQualityObject.cimCode.startsWith('1.')) {
                     showDeviceQualityIcon |= true;
                     tooltipContent += readingQualityObject.indexName + '<br>';

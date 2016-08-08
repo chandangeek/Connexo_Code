@@ -30,7 +30,7 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
         });
         me.store = me.getStore('Mdc.store.LogbookTypesOfDeviceType');
     },
-    
+
     loadGridItemDetail: function (grid, record) {
         var itemPanel = Ext.ComponentQuery.query('device-type-logbooks panel[name=details]')[0],
             itemForm = Ext.ComponentQuery.query('device-type-logbooks form[name=logbookTypeDetails]')[0],

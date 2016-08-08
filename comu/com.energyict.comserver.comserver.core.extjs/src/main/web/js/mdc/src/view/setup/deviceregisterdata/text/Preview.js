@@ -4,8 +4,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.text.Preview', {
     itemId: 'deviceregisterreportpreview',
     title: '',
 
-    getGeneralItems: function () {
-        var me = this;
+    getGeneralItems: function() {
         return [
             {
                 fieldLabel: Uni.I18n.translate('device.registerData.measurementTime', 'MDC', 'Measurement time'),

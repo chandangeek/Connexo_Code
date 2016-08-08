@@ -6,9 +6,10 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Setup', {
     initComponent: function () {
         var me = this;
 
-        me.items = [
+        me.content = [
             {
                 xtype: 'panel',
+                ui: 'large',
                 items: [
                     {
                         xtype: 'mdc-registers-topfilter',
@@ -42,7 +43,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Setup', {
                                 },
                                 previewComponent: {
                                     xtype: 'deviceregisterreportpreview-billing',
-                                    mentionDataLoggerSlave: me.mentionDataLoggerSlave,
                                     router: me.router
                                 }
                             }

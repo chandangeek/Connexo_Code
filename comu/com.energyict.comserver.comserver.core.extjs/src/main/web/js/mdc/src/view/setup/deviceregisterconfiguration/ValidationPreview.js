@@ -65,7 +65,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
                     } else {
                         field.show();
                         var tooltip = Uni.I18n.translate('deviceloadprofiles.tooltip.lastChecked', 'MDC', 'The moment when the last interval was checked in the validation process.');
-                        return '<span style="display:inline-block; float:left; margin-right:7px;" >' + Ext.String.htmlEncode(value) + '</span>' +
+                        return '<span style="display:inline-block; float:left; margin-right:7px;" >' + Ext.String.htmlEncode(value) + '</span>'+
                             '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + Ext.String.htmlEncode(tooltip) + '"></span>'
                     }
                 }

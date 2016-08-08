@@ -15,9 +15,8 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
         {name: 'confirmed', type: 'auto'},
         {name: 'dataValidated', type: 'auto'},
         {name: 'multiplier', type: 'auto'},
-        {name: 'slaveChannel', type: 'auto', defaultValue: null},
         'plotband',
-        {name: 'readingQualities', type: 'auto', defaultValue: null},
+        'readingQualities',
         {
             name: 'interval_end',
             persist: false,
@@ -39,6 +38,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                         app: mainValidationInfo.editedInApp
                     }
                 }
+
                 return result;
             }
         },
@@ -66,6 +66,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                         app: bulkValidationInfo.editedInApp
                     }
                 }
+
                 return result;
             }
         },
@@ -92,6 +93,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                         result.delta.suspect ? result.delta['informative'] = false : result.delta['informative'] = true;
                     }
                 }
+
                 if (bulk) {
                     bulk.validationResult == 'validationStatus.notValidated' ? result.bulk.notValidated = true : result.bulk.notValidated = false
 
@@ -103,23 +105,28 @@ Ext.define('Mdc.model.ChannelOfLoadProfileOfDeviceData', {
                         result.bulk.suspect ? result.bulk.informative = false : result.bulk.informative = true;
                     }
                 }
+
                 return result;
             }
         }
     ],
 
-    getDetailedInformation: function(deviceId, channelId, callback) {
+    refresh: function(device, channel, callback) {
         var me = this;
-        Ext.Ajax.request({
-            url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data/{2}/validation', deviceId, channelId, me.get('interval').end),
-            success: function(response) {
-                var detailRecord = Ext.create(Mdc.model.ChannelOfLoadProfileOfDeviceData),
-                    data = Ext.decode(response.responseText);
 
-                detailRecord.set(data);
-                if (Ext.isFunction(callback)) {
-                    callback(detailRecord);
-                }
+        Ext.Ajax.request({
+            url: '/api/ddr/devices/{device}/channels/{channel}/data/{reading}/validation'
+                .replace('{device}', device)
+                .replace('{channel}', channel)
+                .replace('{reading}', me.get('interval').end),
+            success: function(response) {
+                var data = Ext.decode(response.responseText);
+                //Ext.apply(me.raw, data)
+                me.beginEdit();
+                me.set(data);
+                me.endEdit(true);
+
+                callback ? callback() : null;
             }
         })
     }

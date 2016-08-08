@@ -3,7 +3,7 @@ Ext.define('Mdc.store.MasterDeviceCandidates', {
     storeId: 'MasterDeviceCandidates',
     autoLoad: false,
     fields: ['id', 'name'],
-    pageSize: 30,
+    pageSize: 50,
     proxy: {
         type: 'ajax',
         url: '/api/ddr/field/gateways',

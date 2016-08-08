@@ -96,9 +96,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                             {
                                                 itemId: 'details-device-life-cycle-link',
                                                 xtype: 'button',
-                                                style: {
-                                                    paddingLeft: 0
-                                                },
                                                 ui: 'link',
                                                 href: 'javascript:void(0)'
                                             }
