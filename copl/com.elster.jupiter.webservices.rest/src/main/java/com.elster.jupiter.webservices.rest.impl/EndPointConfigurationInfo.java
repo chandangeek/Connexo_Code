@@ -26,5 +26,5 @@ public class EndPointConfigurationInfo {
     public String username;
     public String password;
     public IdWithLocalizedValueInfo<WebServiceDirection> direction;
-    public String type = "SOAP";
+    public String type;
 }

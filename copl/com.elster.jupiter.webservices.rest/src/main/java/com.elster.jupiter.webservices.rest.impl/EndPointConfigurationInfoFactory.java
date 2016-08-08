@@ -56,6 +56,9 @@ public class EndPointConfigurationInfoFactory {
         info.tracing = endPointConfiguration.isTracing();
         info.traceFile = endPointConfiguration.getTraceFile();
         info.schemaValidation = endPointConfiguration.isSchemaValidation();
+        if(webService.isPresent()){
+            info.type = webService.get().getProtocol().name();
+        }
         info.authenticationMethod = new IdWithLocalizedValueInfo<>(endPointConfiguration
                 .getAuthenticationMethod(),
                 endPointConfiguration.getAuthenticationMethod()
