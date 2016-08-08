@@ -6,6 +6,10 @@ Ext.define('Dbp.processes.view.PrivilegesGrid', {
     },
     width: '100%',
     maxHeight: 300,
+    requires: [
+        'Uni.grid.column.RemoveAction'
+    ],
+
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -27,20 +31,11 @@ Ext.define('Dbp.processes.view.PrivilegesGrid', {
                 flex: 1
             },
             {
-                xtype: 'actioncolumn',
-                header: Uni.I18n.translate('editProcess.actions', 'DBP', 'Actions'),
-                align: 'right',
+                xtype: 'uni-actioncolumn-remove',
                 privileges: Dbp.privileges.DeviceProcesses.administrateProcesses,
-                items: [
-                    {
-                        iconCls: 'uni-icon-delete',
-                        itemId: 'btn-remove-privilege',
-                        tooltip: Uni.I18n.translate('editProcess.remove', 'DBP', 'Remove'),
-                        handler: function (grid, rowIndex, colIndex, column, event, record) {
-                            me.fireEvent('msgRemovePrivilege', record);
-                        }
-                    }
-                ]
+                handler: function (grid, rowIndex, colIndex, column, event, record) {
+                    me.fireEvent('msgRemovePrivilege', record);
+                }
             }
         ];
         me.callParent();
