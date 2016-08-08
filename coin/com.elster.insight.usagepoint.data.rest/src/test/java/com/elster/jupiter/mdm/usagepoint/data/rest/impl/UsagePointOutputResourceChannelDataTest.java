@@ -24,6 +24,10 @@ import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +60,8 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
 
     @Before
     public void before() {
+        when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+
         when(meteringService.findUsagePoint(any())).thenReturn(Optional.empty());
         when(meteringService.findUsagePoint("MRID")).thenReturn(Optional.of(usagePoint));
 
@@ -202,6 +208,39 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<String>get("$.channelData[2].action")).isEqualTo("FAIL");
         assertThat(jsonModel.<Number>get("$.channelData[2].validationRules[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.channelData[2].validationRules[0].name")).isEqualTo("MinMax");
+    }
+
+    @Test
+    public void testGetChannelDataOfMonthlyChannel() throws UnsupportedEncodingException {
+        ZonedDateTime time = ZonedDateTime.of(LocalDateTime.of(2016, 5, 1, 0, 0), ZoneId.systemDefault());
+        Range<Instant> interval_JUN = Range.openClosed(time.toInstant(), time.with(Month.JUNE).toInstant());
+        Range<Instant> interval_JUL = Range.openClosed(time.with(Month.JUNE).toInstant(), time.with(Month.JULY).toInstant());
+        Range<Instant> interval_AUG = Range.openClosed(time.with(Month.JULY).toInstant(), time.with(Month.AUGUST).toInstant());
+        Channel channel = mock(Channel.class);
+        when(channelsContainer.getChannel(any())).thenReturn(Optional.of(channel));
+        when(channel.toList(Range.openClosed(time.toInstant(), interval_AUG.upperEndpoint()))).thenReturn(
+                Arrays.asList(interval_JUN.upperEndpoint(), interval_JUL.upperEndpoint(), interval_AUG.upperEndpoint())
+        );
+        IntervalReadingRecord intervalReadingRecord1 = mockIntervalReadingRecord(interval_JUN, BigDecimal.ONE);
+        IntervalReadingRecord intervalReadingRecord2 = mockIntervalReadingRecord(interval_JUL, BigDecimal.TEN);
+        IntervalReadingRecord intervalReadingRecord3 = mockIntervalReadingRecord(interval_AUG, BigDecimal.ONE);
+        List<IntervalReadingRecord> intervalReadings = Arrays.asList(intervalReadingRecord1, intervalReadingRecord2, intervalReadingRecord3);
+        when(channel.getIntervalReadings(any())).thenReturn(intervalReadings);
+        ValidationEvaluator evaluator = mock(ValidationEvaluator.class);
+        when(validationService.getEvaluator()).thenReturn(evaluator);
+
+        String filter = ExtjsFilter.filter()
+                .property("intervalStart", time.toInstant().toEpochMilli())
+                .property("intervalEnd", interval_AUG.upperEndpoint().toEpochMilli())
+                .create();
+
+        // Business method
+        String json = target("usagepoints/MRID/purposes/100/outputs/1/channelData").queryParam("filter", filter).request().get(String.class);
+
+        // Asserts
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Number>get("$.total")).isEqualTo(3);
+        assertThat(jsonModel.<List<String>>get("$.channelData[*].value")).containsExactly("1", "10", "1");
     }
 
     private void mockIntervalReadingsWithValidationResult(Channel channel) {
