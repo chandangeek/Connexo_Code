@@ -8,7 +8,8 @@ Ext.define('Cfg.view.validation.AddRule', {
         'Cfg.store.Validators',
         'Cfg.model.Validator',
         'Uni.util.FormErrorMessage',
-        'Uni.property.form.Property'
+        'Uni.property.form.Property',
+        'Uni.grid.column.RemoveAction'
     ],
 
     edit: false,
@@ -132,20 +133,13 @@ Ext.define('Cfg.view.validation.AddRule', {
                                             flex: 1
                                         },
                                         {
-                                            xtype: 'actioncolumn',
-                                            align: 'right',
-                                            items: [
-                                                {
-                                                    iconCls: 'uni-icon-delete',
-                                                    tooltip: Uni.I18n.translate('general.remove','CFG','Remove'),
-                                                    handler: function (grid, rowIndex) {
-                                                        grid.getStore().removeAt(rowIndex);
-                                                        if (grid.getStore().count() === 0) {
-                                                            me.updateGrid();
-                                                        }
-                                                    }
+                                            xtype: 'uni-actioncolumn-remove',
+                                            handler: function (grid, rowIndex) {
+                                                grid.getStore().removeAt(rowIndex);
+                                                if (grid.getStore().count() === 0) {
+                                                    me.updateGrid();
                                                 }
-                                            ]
+                                            }
                                         }
                                     ],
                                     height: 220,
