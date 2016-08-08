@@ -4,6 +4,9 @@ Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithRuleSetsGrid',
     purposes: null,
     router: null,
     metrologyConfig: null,
+    requires: [
+        'Uni.grid.column.RemoveAction'
+    ],
 
     initComponent: function () {
         var me = this;
@@ -55,20 +58,13 @@ Ext.define('Imt.metrologyconfiguration.view.validation.PurposeWithRuleSetsGrid',
                 flex: 1
             },
             {
-                xtype: 'actioncolumn',
+                xtype: 'uni-actioncolumn-remove',
                 itemId: 'remove-rule-set-from-purpose-column',
-                align: 'right',
                 hidden: me.metrologyConfig.get('status').id == 'deprecated',
                 privileges: Imt.privileges.MetrologyConfig.adminValidation,
-                text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
-                items: [{
-                    itemId: 'remove-rule-set-from-purpose-icon',
-                    iconCls: ' uni-icon-delete',
-                    tooltip: Uni.I18n.translate('general.menu.remove', 'IMT', 'Remove'),
-                    handler: function (grid, rowIndex, colIndex, item, e, record) {
-                        this.fireEvent('removeRuleSetFromPurpose', record);
-                    }
-                }]
+                handler: function (grid, rowIndex, colIndex, item, e, record) {
+                    this.fireEvent('removeRuleSetFromPurpose', record);
+                }
             }
         ];
 
