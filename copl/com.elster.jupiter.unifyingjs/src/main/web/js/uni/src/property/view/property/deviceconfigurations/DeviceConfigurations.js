@@ -4,7 +4,8 @@ Ext.define('Uni.property.view.property.deviceconfigurations.DeviceConfigurations
         'Uni.property.view.property.deviceconfigurations.AddDeviceConfigurationsView',
         'Uni.property.model.PropertyDeviceConfiguration',
         'Uni.property.store.PropertyDeviceConfigurations',
-        'Uni.model.BreadcrumbItem'
+        'Uni.model.BreadcrumbItem',
+        'Uni.grid.column.RemoveAction'
     ],
 
     currentPageView: null,
@@ -50,17 +51,11 @@ Ext.define('Uni.property.view.property.deviceconfigurations.DeviceConfigurations
                             flex: 1
                         },
                         {
-                            xtype: 'actioncolumn',
-                            header: Uni.I18n.translate('general.action', 'UNI', 'Action'),
-                            align: 'center',
-                            items: [{
-                                iconCls: 'uni-icon-delete',
-                                tooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
-                                handler: function (grid, rowIndex) {
-                                    grid.getStore().removeAt(rowIndex);
-                                    me.setValue();
-                                }
-                            }]
+                            xtype: 'uni-actioncolumn-remove',
+                            handler: function (grid, rowIndex) {
+                                grid.getStore().removeAt(rowIndex);
+                                me.setValue();
+                            }
                         }
                     ]
                 },
