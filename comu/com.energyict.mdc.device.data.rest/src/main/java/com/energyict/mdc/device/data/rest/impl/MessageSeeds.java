@@ -38,6 +38,7 @@ public enum MessageSeeds implements MessageSeed {
     UPDATE_SECURITY_PROPERTY_SET_NOT_ALLOWED(217, "UpdateSecurityPropertySetNotAllowed", "Update security property set not allowed"),
     NO_SUCH_LABEL_CATEGORY(219, "NoSuchLabelCategory", "No such label category"),
     NO_SUCH_CHANNEL_ON_DEVICE(221, "NoSuchChannelOnDevice", "Device {0} has no channel {1}"),
+    NO_SUCH_REGISTER_ON_DEVICE(222, "NoSuchRegisterOnDevice", "Device {0} has no register {1}"),
     RUN_CONNECTIONTASK_IMPOSSIBLE(224, "runConTaskImpossible", "Running of this connection task is impossible"),
     NO_SUCH_COMMUNICATION(225, "NoSuchComTaskExecution", "No such communication with id ''{0}'' on device ''{1}''"),
     NO_SUCH_KPI(226, "NoSuchKpi", "No data collection with id ''{0}'' could be found"),
@@ -97,11 +98,15 @@ public enum MessageSeeds implements MessageSeed {
     ACTIVE_CALENDAR_IS_GHOST(280, "ActiveCalendarIsGhost", "The active calendar on this device is a ghost calendar and can not be previewed"),
     CALENDAR_NOT_ACTIVE_ON_DEVICE(281, "CalendarNotActiveOnDevice", "The requested calendar is not an active calendar on this device"),
     COMMAND_NOT_ALLOWED_OR_SUPPORTED(282, "CommandNotAllowedOrSupported", "The command you want to add is not supported or allowed on the device type"),
-    PROCESS_STATUS_PENDING(283, "ProcessStatusPending", "Pending"),
-    PROCESS_STATUS_ACTIVE(284, "ProcessStatusActive", "Active"),
-    PROCESS_STATUS_COMPLETED(285, "ProcessStatusCompleted", "Completed"),
-    PROCESS_STATUS_ABORTED(286, "ProcessStatusAborted", "Aborted"),
-    PROCESS_STATUS_SUSPENDED(286, "ProcessStatusSuspended", "Suspended");
+    UNIQUE_MRID(283, "unique.mrid", "The MRID of the device must be unique"), // we only use this validation/error when we use the wizard to create slave devices
+    INVALID_MULTIPLIER(284, "invalidMultiplier", "Should be larger than zero"),
+    CANNOT_ADDEDITREMOVE_REGISTER_VALUE_WHEN_LINKED_TO_SLAVE(285, "cannotAddRegisterValueWhenLinkedToSlave", "You cannot add, edit or remove a register value at a timestamp at which you have a linked slave"),
+    CANNOT_ADDEDITREMOVE_CHANNEL_VALUE_WHEN_LINKED_TO_SLAVE(286, "cannotAddChannelValueWhenLinkedToSlave", "You cannot add, edit or remove a channel value at a timestamp at which you have a linked slave"),
+    PROCESS_STATUS_PENDING(287, "ProcessStatusPending", "Pending"),
+    PROCESS_STATUS_ACTIVE(288, "ProcessStatusActive", "Active"),
+    PROCESS_STATUS_COMPLETED(289, "ProcessStatusCompleted", "Completed"),
+    PROCESS_STATUS_ABORTED(290, "ProcessStatusAborted", "Aborted"),
+    PROCESS_STATUS_SUSPENDED(291, "ProcessStatusSuspended", "Suspended");
     private final int number;
     private final String key;
     private final String format;

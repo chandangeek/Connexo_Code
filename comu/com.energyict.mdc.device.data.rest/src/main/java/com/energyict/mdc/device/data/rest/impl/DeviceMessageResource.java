@@ -37,6 +37,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -79,9 +80,9 @@ public class DeviceMessageResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<DeviceMessageInfo> infos = device.getMessages().stream().
                 // we do the explicit filtering because some categories should be hidden for the user
-                filter(deviceMessage -> deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition().contains(deviceMessage.getSpecification().getCategory())).
+                        filter(deviceMessage -> deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition().contains(deviceMessage.getSpecification().getCategory())).
                 sorted(comparing(DeviceMessage::getReleaseDate, nullsLast(Comparator.<Instant>naturalOrder().reversed()))).
-                map(deviceMessage -> deviceMessageInfoFactory.asInfo(deviceMessage, uriInfo)).
+                        map(deviceMessage -> deviceMessageInfoFactory.asInfo(deviceMessage, uriInfo)).
                 collect(toList());
         List<DeviceMessageInfo> infosInPage = ListPager.of(infos).from(queryParameters).find();
         return Response.ok(PagedInfoList.fromPagedList("deviceMessages", infosInPage, queryParameters)).build();
@@ -156,7 +157,8 @@ public class DeviceMessageResource {
     }
 
     private boolean hasCommandsWithPrivileges (Device device) {
-        Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
+        Set<DeviceMessageId> supportedMessagesSpecs = device.getDeviceType().getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet());
         List<DeviceMessageId> enabledDeviceMessageIds = device.getDeviceConfiguration().getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
         return deviceMessageSpecificationService.filteredCategoriesForUserSelection()
                 .stream()

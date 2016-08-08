@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -54,14 +54,15 @@ public class DeviceProtocolPropertyResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getDeviceProperties() {
         TypedProperties deviceProperties = device.getDeviceProtocolProperties();
-        DeviceProtocolPluggableClass pluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
-        List <PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(pluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties);
         DeviceProtocolInfo info = new DeviceProtocolInfo();
-        info.id = pluggableClass.getId();
-        info.name = pluggableClass.getName();
-        info.properties = propertyInfos;
-        info.version = pluggableClass.getEntityVersion();
-        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        device.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
+            List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpecs(), deviceProperties);
+            info.id = deviceProtocolPluggableClass.getId();
+            info.name = deviceProtocolPluggableClass.getName();
+            info.properties = propertyInfos;
+            info.version = deviceProtocolPluggableClass.getEntityVersion();
+            info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        });
         return Response.ok(info).build();
     }
     
