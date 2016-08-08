@@ -13,6 +13,7 @@ public class ProcessDeployer {
 
     private static final String defaultRepoPayload = "{\"name\":\"connexoRepo\",\"description\":\"repository for the new Connexo project\",\"userName\":null,\"password\":null,\"requestType\":\"new\",\"gitURL\":null,\"organizationalUnitName\":\"connexoGroup\"}";
     private static final String defaultOrgUnitPayload = "{\"name\":\"connexoGroup\",\"description\":\"default Connexo organizational unit\",\"owner\":\"rootUsr\",\"defaultGroupId\":\"connexoGroup\"}";
+    private static final String orgUnitName = "connexoGroup";
 
     public static void main(String args[]) {
         if ((args.length < 4) || (args[0].equals("deployProcess") && (args.length < 5))) {
@@ -37,14 +38,15 @@ public class ProcessDeployer {
         }
     }
 
-    private static void createRepository(String arg, String authString, String payload){
-       String url = arg + "/rest/repositories/";
+    private static void createRepository(String arg, String authString, String payload) {
+        String url = arg + "/rest/repositories/";
         doPost(url, authString, payload);
     }
 
-    private static void createOrganizationalUnit(String arg, String authString, String payload){
+    private static void createOrganizationalUnit(String arg, String authString, String payload) {
         String url = arg + "/rest/organizationalunits/";
         doPost(url, authString, payload);
+        doVerify(url + orgUnitName, authString);
     }
 
     private static void deployProcess(String deploymentId, String arg, String authString) {
@@ -54,27 +56,27 @@ public class ProcessDeployer {
 
     private static void doPost(String url, String authString, String payload) {
         HttpURLConnection httpConnection = null;
-        try{
+        try {
 
-        URL targetUrl = new URL(url);
-        httpConnection = (HttpURLConnection)targetUrl.openConnection();
+            URL targetUrl = new URL(url);
+            httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("POST");
             httpConnection.setRequestProperty("Authorization", authString);
 
-            if(payload!=null && payload.length()!= 0) {
+            if (payload != null && payload.length() != 0) {
                 httpConnection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
-                OutputStreamWriter outWriter = new OutputStreamWriter(httpConnection.getOutputStream(),"UTF-8");
+                OutputStreamWriter outWriter = new OutputStreamWriter(httpConnection.getOutputStream(), "UTF-8");
                 outWriter.write(payload);
                 outWriter.close();
-            }else{
+            } else {
                 httpConnection.setRequestProperty("Content-Type", "text/plain;charset=UTF-8");
-                }
+            }
 
             if (httpConnection.getResponseCode() != 202) {
-                    throw new RuntimeException("Failed : HTTP error code : "
-                            + httpConnection.getResponseCode());
-                }
+                throw new RuntimeException("Failed : HTTP error code : "
+                        + httpConnection.getResponseCode());
+            }
 
         } catch (IOException e) {
             throw new RuntimeException(e.getStackTrace().toString());
@@ -84,4 +86,44 @@ public class ProcessDeployer {
             }
         }
     }
+
+    private static boolean doGet(String url, String authString) {
+        HttpURLConnection httpConnection = null;
+        try {
+
+            URL targetUrl = new URL(url);
+            httpConnection = (HttpURLConnection) targetUrl.openConnection();
+            httpConnection.setDoOutput(true);
+            httpConnection.setRequestMethod("GET");
+            httpConnection.setRequestProperty("Authorization", authString);
+            httpConnection.setRequestProperty("Content-Type", "text/plain;charset=UTF-8");
+
+            if (httpConnection.getResponseCode() != 200) {
+                return false;
+            }
+
+        } catch (IOException e) {
+            return false;
+        } finally {
+            if (httpConnection != null) {
+                httpConnection.disconnect();
+            }
+        }
+        return true;
+    }
+
+    private static void doVerify(String url, String authString) {
+        int maxSteps = 12;
+        int timeout = 5 * 1000;
+
+        while ((maxSteps != 0) && (doGet(url, authString) == false)) {
+            try {
+                maxSteps--;
+                Thread.sleep(timeout);
+            } catch (InterruptedException e) {
+            }
+        }
+
+    }
+
 }
