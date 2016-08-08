@@ -2,7 +2,8 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
     extend: 'Uni.property.view.property.Base',
     requires: [
         'Ext.ux.form.MultiSelect',
-        'Uni.property.view.property.AddReadingQualityWindow'
+        'Uni.property.view.property.AddReadingQualityWindow',
+        'Uni.grid.column.RemoveAction'
     ],
     readingQualityStore: undefined,
     systemStore: undefined,
@@ -143,20 +144,13 @@ Ext.define('Uni.property.view.property.ReadingQualities', {
                                 }
                             },
                             {
-                                xtype: 'actioncolumn',
-                                align: 'right',
-                                items: [
-                                    {
-                                        iconCls: 'uni-icon-delete',
-                                        tooltip: Uni.I18n.translate('general.remove','UNI','Remove'),
-                                        handler: function (grid, rowIndex) {
-                                            grid.getStore().removeAt(rowIndex);
-                                            if (grid.getStore().count() === 0) {
-                                                me.updateGrid();
-                                            }
-                                        }
+                                xtype: 'uni-actioncolumn-remove',
+                                handler: function (grid, rowIndex) {
+                                    grid.getStore().removeAt(rowIndex);
+                                    if (grid.getStore().count() === 0) {
+                                        me.updateGrid();
                                     }
-                                ]
+                                }
                             }
                         ],
                         height: 220,
