@@ -28,7 +28,6 @@ public class ServiceCallTypeInfoFactory {
         info.version = serviceCallType.getVersion();
         info.name = serviceCallType.getName();
         info.versionName = serviceCallType.getVersionName();
-        info.handler = Optional.ofNullable(serviceCallType.getServiceCallHandler()).map(sct -> sct.getDisplayName()).orElse(null);
         info.status = new IdWithDisplayValueInfo<>(serviceCallType.getStatus().name(), serviceCallType.getStatus()
                 .getDisplayName(thesaurus));
         info.logLevel = new IdWithDisplayValueInfo<>(serviceCallType.getLogLevel().name(), serviceCallType.getLogLevel()
