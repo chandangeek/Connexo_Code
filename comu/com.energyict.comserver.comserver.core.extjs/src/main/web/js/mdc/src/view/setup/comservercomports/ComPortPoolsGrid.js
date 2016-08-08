@@ -8,6 +8,10 @@ Ext.define('Mdc.view.setup.comservercomports.ComPortPoolsGrid', {
     autoHeight: true,
     overflowY: 'hidden',
     width: 538,
+    requires: [
+        'Uni.grid.column.RemoveAction'
+    ],
+
     listeners: {
         afterrender: function (grid) {
             grid.view.on('refresh', function () {
@@ -23,17 +27,11 @@ Ext.define('Mdc.view.setup.comservercomports.ComPortPoolsGrid', {
             flex: 1
         },
         {
-            xtype: 'actioncolumn',
-            align: 'right',
-            items: [
-                {
-                    iconCls: 'uni-icon-delete',
-                    handler: function (grid, rowIndex) {
-                        grid.getStore().removeAt(rowIndex);
-                        grid.refresh();
-                    }
-                }
-            ]
+            xtype: 'uni-actioncolumn-remove',
+            handler: function (grid, rowIndex) {
+                grid.getStore().removeAt(rowIndex);
+                grid.refresh();
+            }
         }
     ],
     tbar: [
