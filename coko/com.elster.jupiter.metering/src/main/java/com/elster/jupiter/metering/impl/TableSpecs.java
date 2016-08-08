@@ -781,17 +781,18 @@ public enum TableSpecs {
             table.map(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
             table.since(version(10, 2));
             table.setJournalTableName("MTR_USAGEPOINTMTRCONFIG_JRNL");
+            Column id = table.addAutoIdColumn();
             Column usagePoint = table.column("USAGEPOINT").number().notNull().add();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
+            table.addIntervalColumns("interval");
             table.addAuditColumns();
-            table.primaryKey("PK_MTR_UPMTRCONFIG").on(usagePoint, intervalColumns.get(0)).add();
+            table.primaryKey("PK_MTR_UPMTRCONFIG").on(id).add();
             table.foreignKey("FK_MTR_UPMTRCONFIG_UP")
                     .on(usagePoint)
                     .references(UsagePoint.class)
                     .map("usagePoint")
-                    .reverseMap("metrologyConfiguration")
+                    .reverseMap("metrologyConfigurations")
                     .composition()
                     .add();
             table.foreignKey("FK_MTR_UPMTRCONFIG_MC")
@@ -806,6 +807,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MultiplierType> table = dataModel.addTable(name(), MultiplierType.class);
             table.map(MultiplierTypeImpl.class);
+
+            table.cache();
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             Column nameIsKey = table.column("NAMEISKEY").bool().notNull().map("nameIsKey").add();
@@ -1605,7 +1608,7 @@ public enum TableSpecs {
 
             table.primaryKey("PK_MTR_EFFECTIVE_CONTRACT").on(idColumn).add();
             table.foreignKey("MTR_EF_CONTRACT_2_EF_CONF")
-                    .on(effectiveConfColumn, intervalColumns.get(0))
+                    .on(effectiveConfColumn)
                     .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.fieldName())
                     .reverseMap("effectiveContracts")

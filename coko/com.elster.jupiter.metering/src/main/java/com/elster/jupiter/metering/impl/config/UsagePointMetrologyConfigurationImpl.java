@@ -4,15 +4,19 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.UnsatisfiedReadingTypeRequirements;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointRequirement;
 import com.elster.jupiter.metering.impl.search.UsagePointRequirementsSearchDomain;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.Pair;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -161,5 +165,36 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
                 .collect(Collectors.toMap(req -> req.propertyName, Function.identity()));
         return this.searchDomain
                 .getPropertiesValues(property -> new SearchablePropertyValue(property, searchableProperties.get(property.getName())));
+    }
+
+    @Override
+    public void validateMeterCapabilities(List<Pair<MeterRole, Meter>> meters) {
+        List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = getMandatoryReadingTypeRequirements();
+        boolean hasUnsatisfiedReadingTypeRequirements = false;
+        UnsatisfiedReadingTypeRequirements ex = new UnsatisfiedReadingTypeRequirements(getMetrologyConfigurationService().getThesaurus(), this);
+        for (Pair<MeterRole, Meter> pair : meters) {
+            List<ReadingTypeRequirement> unmatchedRequirements = getUnmatchedMeterReadingTypeRequirements(this, mandatoryReadingTypeRequirements, pair);
+            if (!unmatchedRequirements.isEmpty()) {
+                hasUnsatisfiedReadingTypeRequirements = true;
+                ex.addUnsatisfiedReadingTypeRequirements(pair.getFirst(), unmatchedRequirements);
+            }
+        }
+        if (hasUnsatisfiedReadingTypeRequirements) {
+            throw ex;
+        }
+
+    }
+
+
+    private List<ReadingTypeRequirement> getUnmatchedMeterReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingTypeRequirement> mandatoryReadingTypeRequirements, Pair<MeterRole, Meter> pair) {
+        List<ReadingType> readingTypesOnMeter = new ArrayList<>();
+        pair.getLast().getHeadEndInterface()
+                .map(headEndInterface -> headEndInterface.getCapabilities(pair.getLast()))
+                .ifPresent(endDeviceCapabilities -> readingTypesOnMeter.addAll(endDeviceCapabilities.getConfiguredReadingTypes()));
+        return metrologyConfiguration.getRequirements(pair.getFirst())
+                .stream()
+                .filter(mandatoryReadingTypeRequirements::contains)
+                .filter(requirement -> !readingTypesOnMeter.stream().anyMatch(requirement::matches))
+                .collect(Collectors.toList());
     }
 }
