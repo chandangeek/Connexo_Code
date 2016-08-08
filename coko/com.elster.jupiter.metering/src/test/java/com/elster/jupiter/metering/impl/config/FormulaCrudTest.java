@@ -428,17 +428,17 @@ public class FormulaCrudTest {
         long formulaId = formula.getId();
         Optional<Formula> loadedFormula = service.findFormula(formulaId);
         assertThat(loadedFormula).isPresent();
-        Formula myFormula = loadedFormula.get();
+        ServerFormula myFormula = (ServerFormula) loadedFormula.get();
 
-        ExpressionNode newExpression = builder.constant(99).create();
+        ServerExpressionNode newExpression = builder.constant(99).create();
         myFormula.updateExpression(newExpression);
 
-        loadedFormula = service.findFormula(formulaId);
-        assertThat(loadedFormula).isPresent();
-        myFormula = loadedFormula.get();
-        assertThat(myFormula.getId()).isEqualTo(formulaId);
-        assertThat(myFormula.getMode()).isEqualTo(Formula.Mode.EXPERT);
-        ExpressionNode myNode = myFormula.getExpressionNode();
+        Optional<Formula> reloadedFormula = service.findFormula(formulaId);
+        assertThat(reloadedFormula).isPresent();
+        ServerFormula reloadedServerFormula = (ServerFormula) reloadedFormula.get();
+        assertThat(reloadedServerFormula.getId()).isEqualTo(formulaId);
+        assertThat(reloadedServerFormula.getMode()).isEqualTo(Formula.Mode.EXPERT);
+        ExpressionNode myNode = reloadedServerFormula.getExpressionNode();
         assertThat(myNode).isEqualTo(newExpression);
         assertThat(myNode).isInstanceOf(ConstantNodeImpl.class);
         ConstantNode constantNode = (ConstantNode) myNode;
@@ -612,8 +612,7 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp");
         try {
-            deliverable1.setReadingType(temperatureRT);
-            deliverable1.update();
+            deliverable1.startUpdate().setReadingType(temperatureRT).complete();
             fail("ConstraintViolationException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
@@ -628,8 +627,7 @@ public class FormulaCrudTest {
                         "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhMonthlyRT");
 
         try {
-            deliverable1.setReadingType(conskWhMonthlyRT);
-            deliverable1.update();
+            deliverable1.startUpdate().setReadingType(conskWhMonthlyRT).complete();
             assertEquals(deliverable1.getReadingType(), conskWhMonthlyRT);
         } catch (InvalidNodeException e) {
             fail("No InvalidNodeException expected!");
@@ -680,8 +678,7 @@ public class FormulaCrudTest {
                         "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp"));
 
         try {
-            deliverable1.setReadingType(temperatureRT);
-            deliverable1.update();
+            deliverable1.startUpdate().setReadingType(temperatureRT).complete();
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
@@ -699,8 +696,7 @@ public class FormulaCrudTest {
                                 "13.0.0.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0", "conskWhMonthlyRT"));
 
         try {
-            deliverable1.setReadingType(conskWhMonthlyRT);
-            deliverable1.update();
+            deliverable1.startUpdate().setReadingType(conskWhMonthlyRT).complete();
             assertEquals(deliverable1.getReadingType(), conskWhMonthlyRT);
         } catch (InvalidNodeException e) {
             fail("No InvalidNodeException expected!");
@@ -1187,8 +1183,7 @@ public class FormulaCrudTest {
                         "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0", "temp"));
 
         try {
-            deliverable1.setReadingType(temperatureRT);
-            deliverable1.update();
+            deliverable1.startUpdate().setReadingType(temperatureRT).complete();
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
                     "The readingtype \"" + conskWhRT60min.getMRID() + " (" + conskWhRT60min.getFullAliasName() +
@@ -1762,8 +1757,7 @@ public class FormulaCrudTest {
                 inMemoryBootstrapModule.getMeteringService().createReadingType(
                         "0.0.2.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0", "incompatibleRT");
         try {
-            deliverable1.setReadingType(incompatibleRT);
-            deliverable1.update();
+            deliverable1.startUpdate().setReadingType(incompatibleRT).complete();
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),
@@ -1825,8 +1819,7 @@ public class FormulaCrudTest {
         try {
             ReadingTypeDeliverable toUpdate = config.getDeliverables().get(0);
             assertThat(toUpdate.getName()).isEqualTo("Del1");
-            toUpdate.setReadingType(incompatibleRT);
-            toUpdate.update();
+            toUpdate.startUpdate().setReadingType(incompatibleRT).complete();
             fail("InvalidNodeException expected");
         } catch (ConstraintViolationException e) {
             assertEquals(e.getConstraintViolations().iterator().next().getMessage(),

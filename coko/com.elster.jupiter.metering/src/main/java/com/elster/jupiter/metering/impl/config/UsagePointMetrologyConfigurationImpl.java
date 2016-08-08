@@ -111,6 +111,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
     void addReadingTypeRequirementMeterRoleUsage(ReadingTypeRequirementMeterRoleUsage usage) {
         Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), usage);
         this.requirementToRoleUsages.add(usage);
+        this.touch();
     }
 
     @Override
