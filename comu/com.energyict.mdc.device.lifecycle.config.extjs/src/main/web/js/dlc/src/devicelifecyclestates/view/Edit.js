@@ -4,7 +4,8 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
     itemId: 'dlc-state-edit',
     requires: [
         'Uni.view.container.ContentContainer',
-        'Uni.grid.column.Default'
+        'Uni.grid.column.Default',
+        'Uni.grid.column.RemoveAction'
     ],
 
     content: [
@@ -76,18 +77,11 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                                     flex: 1
                                 },
                                 {
-                                    xtype: 'actioncolumn',
-                                    iconCls: 'uni-icon-delete',
-                                    width: 55,
-                                    items: [
-                                        {
-                                            tooltip: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
-                                            handler: function (grid, rowIndex) {
-                                                grid.getStore().removeAt(rowIndex);
-                                                this.up('#dlc-state-edit').showGridsOrMessages();
-                                            }
-                                        }
-                                    ]
+                                    xtype: 'uni-actioncolumn-remove',
+                                    handler: function (grid, rowIndex) {
+                                        grid.getStore().removeAt(rowIndex);
+                                        this.up('#dlc-state-edit').showGridsOrMessages();
+                                    }
                                 }
                             ],
                             listeners: {
@@ -157,18 +151,11 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                                     flex: 1
                                 },
                                 {
-                                    xtype: 'actioncolumn',
-                                    iconCls: 'uni-icon-delete',
-                                    width: 55,
-                                    items: [
-                                        {
-                                            tooltip: Uni.I18n.translate('general.remove', 'DLC', 'Remove'),
-                                            handler: function (grid, rowIndex) {
-                                                grid.getStore().removeAt(rowIndex);
-                                                this.up('#dlc-state-edit').showGridsOrMessages();
-                                            }
-                                        }
-                                    ]
+                                    xtype: 'uni-actioncolumn-remove',
+                                    handler: function (grid, rowIndex) {
+                                        grid.getStore().removeAt(rowIndex);
+                                        this.up('#dlc-state-edit').showGridsOrMessages();
+                                    }
                                 }
                             ],
                             listeners: {
