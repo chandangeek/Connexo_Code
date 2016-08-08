@@ -36,7 +36,7 @@ class ReadingTypeListFactory {
     }
 
     private void addMacroPeriod() {
-        this.addToCodeListFrom(info.macroPeriod);
+        this.addFirstToCodeListFrom(info.macroPeriod);
     }
 
     private void addAggregate() {
@@ -116,6 +116,19 @@ class ReadingTypeListFactory {
         for (int i = 0; i < numbers.size(); i++) {
             int j = i;
             this.codeList.stream().map(e -> e + "." + numbers.get(j)).forEach(tempList::add);
+        }
+        this.codeList = tempList;
+    }
+
+    private void addFirstToCodeListFrom(List<Integer> numbers) {
+        List<String> tempList = new ArrayList<>();
+        if (numbers.isEmpty()) {
+            this.codeList.stream().map(e -> e + "0").forEach(tempList::add);
+        }
+
+        for (int i = 0; i < numbers.size(); i++) {
+            int j = i;
+            this.codeList.stream().map(e -> e + numbers.get(j)).forEach(tempList::add);
         }
         this.codeList = tempList;
     }
