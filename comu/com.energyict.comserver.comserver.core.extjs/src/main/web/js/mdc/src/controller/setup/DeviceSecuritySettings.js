@@ -273,6 +273,8 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                             form.hide();
                             var showValuesForm = widget.down('#deviceSecuritySettingEditShowValuesForm');
                             showValuesForm.hide();
+                            var buttonForm = widget.down('#deviceSecuritySettingEditButtonsForm');
+                            buttonForm.hide();
                             me.getDeviceSecuritySettingDetailTitle().setVisible(false);
                         }
 
