@@ -272,17 +272,6 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
         servedImportSchedules.remove(importSchedule);
     }
 
-    private void launchWebServices() {
-        Optional<AppServer> appServer = this.getAppServer();
-        if (appServer.isPresent()) {
-            appServer.get()
-                    .supportedEndPoints()
-                    .stream()
-                    .filter(EndPointConfiguration::isActive)
-                    .forEach(webServicesService::publishEndPoint);
-        }
-    }
-
     private void serveImportSchedule(ImportSchedule importSchedule) {
         fileImportService.schedule(importSchedule);
         servedImportSchedules.add(importSchedule);
