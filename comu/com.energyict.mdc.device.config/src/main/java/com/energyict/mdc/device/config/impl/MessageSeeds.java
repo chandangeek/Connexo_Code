@@ -149,7 +149,7 @@ public enum MessageSeeds implements MessageSeed {
     NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS(15006, Keys.NEXT_EXECUTION_SPEC_REQUIRED_FOR_MINIMIZE_CONNECTIONS, "Next Execution Spec is required for OutboundConnectionTasks that minimize connections."),
     NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW_KEY(15007, Keys.NEXT_EXECUTION_SPEC_INVALID_FOR_COM_WINDOW, "Next Execution Spec is invalid for Communication Window."),
     NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY(15008, Keys.NEXT_EXECUTION_SPEC_OFFSET_IS_GREATER_THAN_FREQUENCY, "Next Execution Spec's offset is greater than its frequency."),
-    UNDER_MINIMUM_RESCHEDULE_DELAY(15009, Keys.UNDER_MINIMUM_RESCHEDULE_DELAY, "Reschedule delay is below minimum."),
+    UNDER_MINIMUM_RESCHEDULE_DELAY(15009, Keys.UNDER_MINIMUM_RESCHEDULE_DELAY, "Reschedule delay is below minimum of 1 minute."),
     VETO_CONNECTIONTYPE_PLUGGABLECLASS_DELETION(15010, "connectionTypePluggableClass.XstillInUseByY", "ConnectionType Pluggable Class {0} is still in use by {1}"),
     VETO_COMPORTPOOL_DELETION(15011, "comPortPoolXstillInUseByY", "ComPortPool {0} is still in use by connection method(s): {1}"),
     DESTINATION_DATA_SOURCE_IS_EMPTY(15012, Keys.DESTINATION_DATA_SOURCE_IS_EMPTY, "The value of the destination data source is empty while a 'map' solution was defined"),
