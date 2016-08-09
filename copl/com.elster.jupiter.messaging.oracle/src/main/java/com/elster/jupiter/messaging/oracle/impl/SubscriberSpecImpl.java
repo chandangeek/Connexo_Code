@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
+
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
@@ -29,12 +30,18 @@ import java.util.HashSet;
 /**
  * SubscriberSpec implementation.
  */
-public class SubscriberSpecImpl implements SubscriberSpec {
+class SubscriberSpecImpl implements SubscriberSpec {
 
     /**
-     * Receive will wait this long before checking whether to continue or not.
+     * Default duration that we are willing to wait for a messages while dequeueing.
      */
-    private static final Duration DEFAULT_WAIT = Duration.ofSeconds(60);
+    private static final Duration DEQUEUE_DEFAULT_WAIT = Duration.ofSeconds(10);
+
+    /**
+     * Default duration that we are willing to wait between dequeueing when no messages were available.
+     */
+    private static final Duration INBETWEEN_DEQUEUE_DEFAULT_WAIT = Duration.ofSeconds(20);
+
     private String name;
     @Size(max = 4000)
     private String filter;
@@ -61,15 +68,15 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         this.dataModel = dataModel;
     }
 
-    SubscriberSpecImpl init(DestinationSpec destination, String name) {
+    private SubscriberSpecImpl init(DestinationSpec destination, String name) {
         return this.init(destination, name, false);
     }
 
-    SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged) {
+    private SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged) {
         return init(destination, name, systemManaged, null);
     }
 
-    SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged, Condition filter) {
+    private SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged, Condition filter) {
         this.destination.set(destination);
         this.name = name;
         this.systemManaged = systemManaged;
@@ -88,10 +95,6 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name) {
         return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, name);
-    }
-
-    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name, boolean systemManaged) {
-        return from(dataModel, destinationSpec, name, systemManaged, null);
     }
 
     static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name, boolean systemManaged, Condition filter) {
@@ -124,35 +127,38 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private Message tryReceive() throws SQLException {
         OracleConnection cancellableConnection = null;
-        try (Connection connection = getConnection()) {
-            cancellableConnection = connection.unwrap(OracleConnection.class);
-            cancellableConnections.add(cancellableConnection);
-            AQMessage aqMessage = null;
-            try {
-                while (aqMessage == null) {
-                    aqMessage = dequeueMessage(cancellableConnection);
+        Message message = null;
+        NullValueCause nullValueCause = NullValueCause.INITIAL;
+        while (message == null && nullValueCause != NullValueCause.CONNECTION_CANCELLED) {
+            try (Connection connection = getConnection()) {
+                cancellableConnection = connection.unwrap(OracleConnection.class);
+                cancellableConnections.add(cancellableConnection);
+                ReceiveAttempt attempt = new ReceiveAttempt();
+                attempt.tryReceive(cancellableConnection);
+                message = attempt.message;
+                nullValueCause = attempt.nullValueCause;
+            } finally {
+                if (cancellableConnection != null) {
+                    cancellableConnections.remove(cancellableConnection);
                 }
-                return new MessageImpl(aqMessage);
-            } catch (SQLTimeoutException e) {
-                /*
-                      The connection has been canceled.
-                      We'll ignore this exception, since we have a way to recover from it (i.e. stop waiting as requested).
-                 */
             }
-        } finally {
-            if (cancellableConnection != null) {
-                cancellableConnections.remove(cancellableConnection);
+            if (nullValueCause == NullValueCause.DEQUEUE_TIMED_OUT) {
+                this.sleep();
             }
         }
-        return null;
+        return message;
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(INBETWEEN_DEQUEUE_DEFAULT_WAIT.toMillis());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private Connection getConnection() throws SQLException {
         return dataModel.getConnection(false);
-    }
-
-    private AQMessage dequeueMessage(OracleConnection cancellableConnection) throws SQLException {
-        return cancellableConnection.dequeue(destination.get().getName(), basicOptions(), getDestination().getPayloadType());
     }
 
     @Override
@@ -179,7 +185,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private AQDequeueOptions basicOptions() throws SQLException {
         AQDequeueOptions options = new AQDequeueOptions();
-        options.setWait((int) DEFAULT_WAIT.getSeconds());
+        options.setWait((int) DEQUEUE_DEFAULT_WAIT.getSeconds());
         if (getDestination().isTopic()) {
             options.setConsumerName(name);
             options.setNavigation(AQDequeueOptions.NavigationOption.FIRST_MESSAGE);
@@ -196,13 +202,17 @@ public class SubscriberSpecImpl implements SubscriberSpec {
      */
     AQMessage receiveNow() {
         try (Connection connection = getConnection()) {
-            OracleConnection oraConnection = connection.unwrap(OracleConnection.class);
-            return oraConnection.dequeue(destination.get().getName(), optionsNoWait(), getDestination().getPayloadType());
+            return this.dequeue(connection.unwrap(OracleConnection.class), optionsNoWait());
         } catch (SQLTimeoutException e) {
             return null;
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
+    }
+
+    private AQMessage dequeue(OracleConnection oracleConnection, AQDequeueOptions options) throws SQLException {
+        DestinationSpec destination = getDestination();
+        return oracleConnection.dequeue(destination.getName(), options, destination.getPayloadType());
     }
 
     private AQDequeueOptions optionsNoWait() throws SQLException {
@@ -222,7 +232,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         }
     }
 
-    void doSubscribe() throws SQLException {
+    private void doSubscribe() throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(subscribeSql())) {
                 statement.setString(1, name);
@@ -233,7 +243,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         }
     }
 
-    public void unSubscribe() {
+    void unSubscribe() {
         try {
             doUnSubscribe(name);
         } catch (SQLException ex) {
@@ -241,7 +251,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         }
     }
 
-    void doUnSubscribe(String subscriberName) throws SQLException {
+    private void doUnSubscribe(String subscriberName) throws SQLException {
         try (Connection connection = getConnection()) {
             try (PreparedStatement statement = connection.prepareStatement(unSubscribeSql())) {
                 statement.setString(1, subscriberName);
@@ -267,5 +277,47 @@ public class SubscriberSpecImpl implements SubscriberSpec {
                         "dbms_aqadm.remove_subscriber(?,subscriber); end;";
     }
 
-}
+    private enum NullValueCause {
+        /**
+         * Null is the initial value when no attempts to retrieve a message has been executed yet.
+         */
+        INITIAL,
+        /**
+         * Indicates that the sql connection was canceled
+         * as a result of shutting down the app server.
+         */
+        CONNECTION_CANCELLED,
+        /**
+         * Indicates that the dequeueMessage method
+         * on the oracle connection returned null
+         * because there was no message available
+         * within the requested time period.
+         */
+        DEQUEUE_TIMED_OUT;
+    }
 
+    private class ReceiveAttempt {
+        Message message;
+        NullValueCause nullValueCause;
+        private void tryReceive(OracleConnection connection) throws SQLException {
+            try {
+                AQMessage aqMessage = this.dequeueMessage(connection);
+                if (aqMessage != null) {
+                    this.message = new MessageImpl(aqMessage);
+                } else {
+                    this.nullValueCause = NullValueCause.DEQUEUE_TIMED_OUT;
+                }
+            } catch (SQLTimeoutException e) {
+                /* The connection has been canceled.
+                 * We'll ignore this exception, since we have a way to recover from it (i.e. stop waiting as requested). */
+                this.nullValueCause = NullValueCause.CONNECTION_CANCELLED;
+            }
+        }
+
+        private AQMessage dequeueMessage(OracleConnection cancellableConnection) throws SQLException {
+            return dequeue(cancellableConnection, basicOptions());
+        }
+
+    }
+
+}

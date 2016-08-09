@@ -3,17 +3,10 @@ package com.elster.jupiter.messaging.oracle.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.orm.DataModel;
+
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -24,10 +17,23 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubscriberSpecImplConcurrencyTest {
@@ -80,12 +86,7 @@ public class SubscriberSpecImplConcurrencyTest {
         ExecutorService executorService = Executors.newFixedThreadPool(4);
 
         for (int i = 0; i < 4; i++) {
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    subscriberSpec.receive();
-                }
-            });
+            executorService.submit((Runnable) () -> subscriberSpec.receive());
         }
         executorService.shutdown();
         allThreadsBlocking.await(2, TimeUnit.SECONDS);
@@ -109,12 +110,7 @@ public class SubscriberSpecImplConcurrencyTest {
         ExecutorService executorService = Executors.newFixedThreadPool(4);
 
         for (int i = 0; i < 4; i++) {
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    subscriberSpec.receive();
-                }
-            });
+            executorService.submit((Runnable) () -> subscriberSpec.receive());
         }
         executorService.shutdown();
         allThreadsBlocking.await(2, TimeUnit.SECONDS);
