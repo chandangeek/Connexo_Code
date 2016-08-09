@@ -32,17 +32,20 @@ Ext.define('Uni.form.field.Coordinates', {
             displayCoordinateLat = {
                 xtype: 'displayfield',
                 itemId: 'coordinate-lat',
-                width: '39%'
+                width: '39%',
+                emptyValueDisplay: ''
             },
             displayCoordinateLong = {
                 xtype: 'displayfield',
                 itemId: 'coordinate-long',
-                width: '39%'
+                width: '39%',
+                emptyValueDisplay: ''
             },
             displayCoordinateElev = {
                 xtype: 'displayfield',
                 itemId: 'coordinate-elev',
-                width: '22%'
+                width: '22%',
+                emptyValueDisplay: ''
             },
             displayContainer = {
                 xtype: 'container',
