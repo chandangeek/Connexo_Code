@@ -23,10 +23,21 @@ import org.kie.internal.task.api.model.InternalTask;
 import org.kie.remote.services.cdi.ProcessRequestBean;
 
 import javax.inject.Inject;
-import javax.persistence.*;
-import javax.persistence.criteria.*;
-import javax.ws.rs.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
@@ -36,7 +47,16 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Path("/tasks")
 public class JbpmTaskResource {
@@ -673,8 +693,13 @@ public class JbpmTaskResource {
     @Produces("application/json")
     @Path("/{taskId: [0-9-]+}/contentsave/")
     public Response saveTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId){
-        ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
-        return Response.ok().build();
+        Task task = taskService.getTaskById(taskId);
+        if (task != null) {
+            ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
+            return Response.ok().build();
+        }else {
+            return Response.status(409).entity(taskId).build();
+        }
     }
 
     private List<Long> taskIdList(String source){
