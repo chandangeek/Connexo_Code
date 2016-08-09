@@ -1,41 +1,9 @@
 package com.elster.jupiter.bpm.rest.impl;
 
-import com.elster.jupiter.bpm.BpmProcessDefinition;
-import com.elster.jupiter.bpm.BpmProcessDefinitionBuilder;
-import com.elster.jupiter.bpm.BpmProcessPrivilege;
-import com.elster.jupiter.bpm.BpmServer;
-import com.elster.jupiter.bpm.BpmService;
-import com.elster.jupiter.bpm.ProcessAssociationProvider;
+import com.elster.jupiter.bpm.*;
 import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
-import com.elster.jupiter.bpm.UserTaskInfo;
-import com.elster.jupiter.bpm.UserTaskInfos;
-import com.elster.jupiter.bpm.rest.AssigneeFilterListInfo;
-import com.elster.jupiter.bpm.rest.BpmProcessNotAvailable;
-import com.elster.jupiter.bpm.rest.BpmResourceAssignUserException;
-import com.elster.jupiter.bpm.rest.DeploymentInfo;
-import com.elster.jupiter.bpm.rest.DeploymentInfos;
-import com.elster.jupiter.bpm.rest.Errors;
-import com.elster.jupiter.bpm.rest.LocalizedFieldException;
-import com.elster.jupiter.bpm.rest.NoBpmConnectionException;
-import com.elster.jupiter.bpm.rest.NoTaskWithIdException;
-import com.elster.jupiter.bpm.rest.NodeInfos;
-import com.elster.jupiter.bpm.rest.PagedInfoListCustomized;
-import com.elster.jupiter.bpm.rest.ProcessAssociationInfo;
-import com.elster.jupiter.bpm.rest.ProcessAssociationInfos;
-import com.elster.jupiter.bpm.rest.ProcessDefinitionInfo;
-import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
-import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
-import com.elster.jupiter.bpm.rest.ProcessInstanceNodeInfos;
-import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
-import com.elster.jupiter.bpm.rest.PropertyUtils;
-import com.elster.jupiter.bpm.rest.StartupInfo;
-import com.elster.jupiter.bpm.rest.TaskBulkReportInfo;
-import com.elster.jupiter.bpm.rest.TaskContentInfo;
-import com.elster.jupiter.bpm.rest.TaskContentInfos;
-import com.elster.jupiter.bpm.rest.TaskGroupsInfos;
-import com.elster.jupiter.bpm.rest.TaskOutputContentInfo;
-import com.elster.jupiter.bpm.rest.VariableInfos;
+import com.elster.jupiter.bpm.rest.*;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
@@ -43,12 +11,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.rest.util.*;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Resource;
@@ -56,7 +19,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,31 +28,10 @@ import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -1077,7 +1018,7 @@ public class BpmResource {
     }
 
     @PUT
-    @Path("taskcontent/{id}")
+    @Path("/taskcontent/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.EXECUTE_TASK)
     public Response postTaskContent(TaskContentInfos taskContentInfos,
@@ -1117,7 +1058,19 @@ public class BpmResource {
         }
         if ("startTask".equals(taskContentInfos.action)) {
             String rest = "/rest/tasks/" + id + "/contentstart/";
-            postResult = bpmService.getBpmServer().doPost(rest, null, auth, 0);
+            try {
+                postResult = bpmService.getBpmServer().doPost(rest, null, auth, 0);
+            } catch (RuntimeException e) {
+                throw e.getMessage().contains("409")
+                        ? conflictFactory.conflict()
+                        .withActualVersion(() -> 1L)
+                        .withMessageTitle(MessageSeeds.START_TASK_CONCURRENT_TITLE, e.getMessage().replace("409", ""))
+                        .withMessageBody(MessageSeeds.START_TASK_CONCURRENT_BODY, e.getMessage().replace("409", ""))
+                        .supplier().get()
+                        : new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                        .entity(this.errorNotFoundMessage)
+                        .build());
+            }
         }
         if ("completeTask".equals(taskContentInfos.action)) {
             Map<String, Object> outputBindingContents = getOutputContent(taskContentInfos, id, null, auth);
@@ -1126,7 +1079,20 @@ public class BpmResource {
             try {
                 String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
                 String rest = "/rest/tasks/" + id + "/contentcomplete/";
-                postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
+                try {
+                    postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
+                }catch (RuntimeException e) {
+                    throw e.getMessage().contains("409")
+                            ? conflictFactory.conflict()
+                            .withActualVersion(() -> 1L)
+                            .withMessageTitle(MessageSeeds.COMPLETE_TASK_CONCURRENT_TITLE, e.getMessage().replace("409", ""))
+                            .withMessageBody(MessageSeeds.COMPLETE_TASK_CONCURRENT_BODY, e.getMessage().replace("409", ""))
+                            .supplier().get()
+                            : new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                            .entity(this.errorNotFoundMessage)
+                            .build());
+                }
+
             } catch (JsonProcessingException e) {
                 throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
             }
