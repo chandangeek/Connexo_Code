@@ -47,6 +47,9 @@ public class EndPointConfigurationInfoFactory {
                 .getAuthenticationMethod(),
                 endPointConfiguration.getAuthenticationMethod()
                         .getDisplayName(thesaurus));
+        if(webService.isPresent()){
+            info.type = webService.get().getProtocol().name();
+        }
         return info;
     }
 }

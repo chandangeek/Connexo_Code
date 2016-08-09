@@ -18,6 +18,6 @@ public class EndPointConfigurationInfo {
     public Boolean active;
     public Boolean available;
     public IdWithLocalizedValueInfo<EndPointAuthentication> authenticationMethod;
-    public String type = "SOAP";
+    public String type;
     public String previewUrl;
 }
