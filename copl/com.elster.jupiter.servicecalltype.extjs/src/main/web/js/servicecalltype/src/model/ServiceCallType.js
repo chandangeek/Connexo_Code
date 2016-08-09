@@ -3,6 +3,10 @@ Ext.define('Sct.model.ServiceCallType', {
     fields: [
         'name', 'versionName', 'logLevel', 'status', 'serviceCallLifeCycle', 'customPropertySets',
         {
+            name: 'active',
+            type: 'boolean'
+        },
+        {
             name: 'version',
             defaultValue: 0
         },
