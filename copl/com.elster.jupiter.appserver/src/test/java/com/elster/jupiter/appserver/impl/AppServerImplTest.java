@@ -6,6 +6,8 @@ import com.elster.jupiter.appserver.AppServerCommand;
 import com.elster.jupiter.appserver.ServerMessageQueueMissing;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
+import com.elster.jupiter.devtools.rest.MockUtils;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
@@ -17,10 +19,13 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -29,17 +34,22 @@ import com.elster.jupiter.util.json.JsonService;
 import javax.inject.Provider;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +58,7 @@ public class AppServerImplTest {
 
     private static final String NAME = "Name";
     private static final String SERIALIZED = "SERIALIZED";
-
+    private final MockUtils mockUtils = new MockUtils();
     private AppServerImpl appServer;
 
     private TransactionService transactionService = new TransactionVerifier();
@@ -226,5 +236,52 @@ public class AppServerImplTest {
 
         verify(importScheduleOnAppServerFactory).remove(importScheduleOnAppServer);
         assertThat(appServer.getImportSchedulesOnAppServer()).hasSize(0);
+    }
+
+    @Test
+    public void testActivateLaunchesWebServices() throws Exception {
+        EndPointConfiguration epc1 = mock(EndPointConfiguration.class);
+        when(epc1.isActive()).thenReturn(false);
+        EndPointConfiguration epc2 = mock(EndPointConfiguration.class);
+        when(epc2.isActive()).thenReturn(true);
+        EndPointConfiguration epc3 = mock(EndPointConfiguration.class);
+        when(epc3.isActive()).thenReturn(false);
+        EndPointConfiguration epc4 = mock(EndPointConfiguration.class);
+        when(epc4.isActive()).thenReturn(true);
+        QueryStream<WebServiceForAppServer> queryStream = mock(QueryStream.class);
+        when(dataModel.stream(WebServiceForAppServer.class)).thenReturn(queryStream);
+        when(queryStream.filter(any(Condition.class))).thenReturn(queryStream);
+        when(queryStream.map(any(Function.class))).thenReturn(Stream.of(epc1, epc2));
+        Finder<EndPointConfiguration> endPointConfigurationFinder = mockUtils.mockFinder(Arrays.asList(epc3, epc4));
+        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(endPointConfigurationFinder);
+
+        appServer.activate();
+        ArgumentCaptor<EndPointConfiguration> endPointConfigurationArgumentCaptor = ArgumentCaptor.forClass(EndPointConfiguration.class);
+        verify(webServicesService, times(2)).publishEndPoint(endPointConfigurationArgumentCaptor.capture());
+        assertThat(endPointConfigurationArgumentCaptor.getAllValues().get(0)).isEqualTo(epc2);
+        assertThat(endPointConfigurationArgumentCaptor.getAllValues().get(1)).isEqualTo(epc4);
+    }
+
+    @Test
+    public void testDeactivateLaunchesWebServices() throws Exception {
+        EndPointConfiguration epc1 = mock(EndPointConfiguration.class);
+        when(epc1.isActive()).thenReturn(false);
+        EndPointConfiguration epc2 = mock(EndPointConfiguration.class);
+        when(epc2.isActive()).thenReturn(true);
+        EndPointConfiguration epc3 = mock(EndPointConfiguration.class);
+        when(epc3.isActive()).thenReturn(false);
+        EndPointConfiguration epc4 = mock(EndPointConfiguration.class);
+        when(epc4.isActive()).thenReturn(true);
+        QueryStream<WebServiceForAppServer> queryStream = mock(QueryStream.class);
+        when(dataModel.stream(WebServiceForAppServer.class)).thenReturn(queryStream);
+        when(queryStream.filter(any(Condition.class))).thenReturn(queryStream);
+        when(queryStream.map(any(Function.class))).thenReturn(Stream.of(epc1, epc2));
+        Finder<EndPointConfiguration> endPointConfigurationFinder = mockUtils.mockFinder(Arrays.asList(epc3, epc4));
+        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(endPointConfigurationFinder);
+
+        appServer.activate();
+        appServer.deactivate();
+
+        verify(webServicesService, times(1)).removeAllEndPoints();
     }
 }

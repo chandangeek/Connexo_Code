@@ -190,7 +190,7 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
 
     @Deactivate
     public void deactivate() {
-        LOGGER.info(() -> "Dectivating " + this.toString() + " from thread " + Thread.currentThread().getName());
+        LOGGER.info(() -> "Deactivating " + this.toString() + " from thread " + Thread.currentThread().getName());
         this.context = null;
         stopAppServer();
     }
@@ -223,18 +223,18 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     }
 
     private void activateAs(String appServerName) {
-        Optional<AppServer> foundAppServer = dataModel.mapper(AppServer.class).getOptional(appServerName);
+        Optional<AppServerImpl> foundAppServer = dataModel.mapper(AppServerImpl.class).getOptional(appServerName);
         if (!foundAppServer.isPresent()) {
             LOGGER.log(Level.SEVERE, "AppServer with name " + appServerName + " not found.");
             activateAnonymously();
             return;
         }
-        appServer = (AppServerImpl) foundAppServer.get();
+        appServer = foundAppServer.get();
         subscriberExecutionSpecs = appServer.getSubscriberExecutionSpecs();
 
         launchFileImports();
         launchTaskService();
-        launchWebServices();
+        foundAppServer.ifPresent(AppServerImpl::launchWebServices);
         listenForMessagesToAppServer();
         listenForMessagesToAllServers();
     }
@@ -270,17 +270,6 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
     private void unserveImportSchedule(ImportSchedule importSchedule) {
         fileImportService.unschedule(importSchedule);
         servedImportSchedules.remove(importSchedule);
-    }
-
-    private void launchWebServices() {
-        this.getAppServer().ifPresent(aps -> {
-            if (aps.isActive()) {
-                aps.supportedEndPoints()
-                        .stream()
-                        .filter(EndPointConfiguration::isActive)
-                        .forEach(webServicesService::publishEndPoint);
-            }
-        });
     }
 
     private void serveImportSchedule(ImportSchedule importSchedule) {

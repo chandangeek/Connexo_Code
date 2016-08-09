@@ -123,6 +123,7 @@ public class AppServerCommandHandlerTest {
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.mapper(SubscriberExecutionSpecImpl.class)).thenReturn(dataMapper);
         when(dataModel.mapper(AppServer.class)).thenReturn(dataMapper);
+        when(dataModel.mapper(AppServerImpl.class)).thenReturn(dataMapper);
         when(dataModel.mapper(ImportFolderForAppServer.class)).thenReturn(dataMapper);
         when(dataModel.addTable(anyString(), any(Class.class))).thenReturn(table);
         QueryExecutor<WebServiceForAppServer> webServicesQuery = mock(QueryExecutor.class);
