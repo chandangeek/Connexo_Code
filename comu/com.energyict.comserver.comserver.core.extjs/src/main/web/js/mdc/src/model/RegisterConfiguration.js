@@ -20,7 +20,9 @@ Ext.define('Mdc.model.RegisterConfiguration', {
             name: 'registerTypeName',
             type: 'string',
             persist: false,
-            mapping: 'readingType.fullAliasName'
+            convert: function registerTypeName(valueAsReadByReader, record){
+                return record.get('readingType').fullAliasName;
+            }
         },
         {name: 'asText', type:'boolean'},
         {name: 'useMultiplier', type:'boolean'}
