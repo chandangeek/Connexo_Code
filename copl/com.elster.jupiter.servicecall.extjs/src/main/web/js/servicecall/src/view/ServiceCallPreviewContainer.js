@@ -1,6 +1,7 @@
 Ext.define('Scs.view.ServiceCallPreviewContainer', {
     extend: 'Uni.view.container.PreviewContainer',
     alias: 'widget.service-call-preview-container',
+    itemId: 'service-call-preview-container',
     router: null,
     store: null,
 

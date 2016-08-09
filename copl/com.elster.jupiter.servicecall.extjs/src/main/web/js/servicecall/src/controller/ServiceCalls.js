@@ -55,7 +55,7 @@ Ext.define('Scs.controller.ServiceCalls', {
             'service-call-preview-container servicecalls-grid': {
                 select: this.showPreview
             },
-            'scs-action-menu': {
+            '#service-calls-overview-scs-menu': {
                 click: this.chooseAction
             }
         });
