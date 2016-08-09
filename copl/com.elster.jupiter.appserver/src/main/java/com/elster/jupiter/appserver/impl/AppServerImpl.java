@@ -344,9 +344,24 @@ class AppServerImpl implements AppServer {
                 .ifPresent(DestinationSpec::delete);
     }
 
+    public void launchWebServices() {
+        if (this.isActive()) {
+            this.supportedEndPoints()
+                    .stream()
+                    .filter(EndPointConfiguration::isActive)
+                    .forEach(webServicesService::publishEndPoint);
+        }
+    }
+
+    public void stopWebServices() {
+        webServicesService.removeAllEndPoints();
+    }
+
     private class BatchUpdateImpl implements BatchUpdate {
 
         private boolean deleted;
+        private boolean wasActivated = false;
+        private boolean wasDeactivated = false;
 
         @Override
         public SubscriberExecutionSpecImpl createActiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
@@ -414,6 +429,7 @@ class AppServerImpl implements AppServer {
         public void activate() {
             if (!active) {
                 active = true;
+                this.wasActivated = true;
             }
         }
 
@@ -421,6 +437,7 @@ class AppServerImpl implements AppServer {
         public void deactivate() {
             if (active) {
                 active = false;
+                this.wasDeactivated = true;
             }
         }
 
@@ -450,6 +467,11 @@ class AppServerImpl implements AppServer {
                 dataModel.mapper(AppServer.class).update(AppServerImpl.this);
             }
             sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
+            if (wasActivated) {
+                launchWebServices();
+            } else if (wasDeactivated) {
+                stopWebServices();
+            }
         }
 
         @Override
