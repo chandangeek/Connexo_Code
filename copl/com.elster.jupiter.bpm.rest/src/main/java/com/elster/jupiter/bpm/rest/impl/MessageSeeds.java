@@ -19,8 +19,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_TASK_WITH_ID(11, Constants.NO_TASK_WITH_ID, "No task with ID ''{0}''", Level.SEVERE ),
     START_TASK_CONCURRENT_TITLE(12, Constants.START_TASK_CONCURRENT_TITLE, "Failed to start task ''{0}''", Level.SEVERE ),
     START_TASK_CONCURRENT_BODY(13, Constants.START_TASK_CONCURRENT_BODY, "''{0}'' status has changed since the page was last updated.", Level.SEVERE ),
-    COMPLETE_TASK_CONCURRENT_TITLE(14, Constants.COMPLETE_TASK_CONCURRENT_TITLE, "Failed to complete task with ID''{0}''", Level.SEVERE ),
-    COMPLETE_TASK_CONCURRENT_BODY(15, Constants.COMPLETE_TASK_CONCURRENT_BODY, "Task status has changed since the page was last updated.", Level.SEVERE )
+    COMPLETE_TASK_CONCURRENT_TITLE(14, Constants.COMPLETE_TASK_CONCURRENT_TITLE, "Failed to complete task with ID ''{0}''", Level.SEVERE ),
+    COMPLETE_TASK_CONCURRENT_BODY(15, Constants.COMPLETE_TASK_CONCURRENT_BODY, "Task status has changed since the page was last updated.", Level.SEVERE ),
+    SAVE_TASK_CONCURRENT_TITLE(14, Constants.SAVE_TASK_CONCURRENT_TITLE, "Failed to save task with ID ''{0}''", Level.SEVERE ),
+    SAVE_TASK_CONCURRENT_BODY(15, Constants.SAVE_TASK_CONCURRENT_BODY, "Task status has changed since the page was last updated.", Level.SEVERE )
     ;
 
     public static final String COMPONENT_NAME = "BPM";
@@ -72,10 +74,12 @@ public enum MessageSeeds implements MessageSeed {
         public static final String EDIT_PROCESS_CONCURRENT_TITLE = "BPM.EditProcessConcurrentTitle";
         public static final String START_TASK_CONCURRENT_TITLE = "BPM.StartTaskConcurrentTitle";
         public static final String COMPLETE_TASK_CONCURRENT_TITLE = "BPM.CompleteTaskConcurrentTitle";
+        public static final String SAVE_TASK_CONCURRENT_TITLE = "BPM.SaveTaskConcurrentTitle";
         public static final String START_PROCESS_CONCURRENT_TITLE = "BPM.StartProcessConcurrentTitle";
         public static final String EDIT_TASK_CONCURRENT_BODY = "BPM.EditTaskConcurrentBody";
         public static final String START_TASK_CONCURRENT_BODY = "BPM.StartTaskConcurrentBody";
         public static final String COMPLETE_TASK_CONCURRENT_BODY = "BPM.CompleteTaskConcurrentBody";
+        public static final String SAVE_TASK_CONCURRENT_BODY = "BPM.SaveTaskConcurrentBody";
         public static final String EDIT_PROCESS_CONCURRENT_BODY = "BPM.EditProcessConcurrentBody";
         public static final String START_PROCESS_CONCURRENT_BODY = "BPM.StartProcessConcurrentBody";
         public static final String NO_TASK_WITH_ID = "BPM.NoTaskWithId";

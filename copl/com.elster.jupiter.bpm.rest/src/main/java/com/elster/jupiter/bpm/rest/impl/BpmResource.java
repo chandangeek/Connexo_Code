@@ -1163,7 +1163,19 @@ public class BpmResource {
             try {
                 String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
                 String rest = "/rest/tasks/" + id + "/contentsave";
-                postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
+                try{
+                    postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
+                }catch (RuntimeException e) {
+                    throw e.getMessage().contains("409")
+                            ? conflictFactory.conflict()
+                            .withActualVersion(() -> 1L)
+                            .withMessageTitle(MessageSeeds.SAVE_TASK_CONCURRENT_TITLE, e.getMessage().replace("409", ""))
+                            .withMessageBody(MessageSeeds.SAVE_TASK_CONCURRENT_BODY, e.getMessage().replace("409", ""))
+                            .supplier().get()
+                            : new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                            .entity(this.errorNotFoundMessage)
+                            .build());
+                }
             } catch (JsonProcessingException e) {
                 throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
             }
