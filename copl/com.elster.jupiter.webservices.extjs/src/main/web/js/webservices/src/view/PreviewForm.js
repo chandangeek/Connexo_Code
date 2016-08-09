@@ -19,11 +19,11 @@ Ext.define('Wss.view.PreviewForm', {
             items: [
                 {
                     xtype: 'displayfield',
-                    fieldLabel:Uni.I18n.translate('general.status', 'WSS', 'Status'),
+                    fieldLabel: Uni.I18n.translate('general.status', 'WSS', 'Status'),
                     name: 'active',
                     hidden: !me.isLandingPage,
-                    renderer: function(value) {
-                        if(value === true) {
+                    renderer: function (value) {
+                        if (value === true) {
                             return Uni.I18n.translate('general.active', 'WSS', 'Active');
                         } else {
                             return Uni.I18n.translate('general.inactive', 'WSS', 'Inactive');
@@ -35,8 +35,8 @@ Ext.define('Wss.view.PreviewForm', {
                     fieldLabel: Uni.I18n.translate('general.type', 'WSS', 'Type'),
                     name: 'direction',
                     hidden: !me.isLandingPage,
-                    renderer: function(value) {
-                        if(Ext.isEmpty(value)) {
+                    renderer: function (value) {
+                        if (Ext.isEmpty(value)) {
                             return '-';
                         }
                         return value.localizedValue;
@@ -46,9 +46,9 @@ Ext.define('Wss.view.PreviewForm', {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.webservice', 'WSS', 'Webservice'),
                     name: 'webServiceName',
-                    renderer: function(value) {
+                    renderer: function (value) {
                         var record = this.up().getRecord();
-                        if(record) {
+                        if (record) {
                             if (value && record.get('available')) {
                                 return value;
                             } else if (value && !record.get('available')) {
@@ -70,7 +70,7 @@ Ext.define('Wss.view.PreviewForm', {
                     name: 'previewUrl',
                     hidden: true,
                     renderer: function (value) {
-                        if(Ext.isEmpty(value)) {
+                        if (Ext.isEmpty(value)) {
                             this.hide();
                             this.up().down('#pathField').show();
                             return '-';
@@ -100,8 +100,8 @@ Ext.define('Wss.view.PreviewForm', {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('webservices.traceRequestsFileName', 'WSS', 'Trace requests file name'),
                     name: 'traceFile',
-                    renderer: function(value,field){
-                        if(field.up('form').down('[name=tracing]').getValue()===''){
+                    renderer: function (value, field) {
+                        if (field.up('form').down('[name=tracing]').getValue() === '') {
                             this.hide();
                         } else {
                             this.show();
@@ -119,26 +119,36 @@ Ext.define('Wss.view.PreviewForm', {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('webservices.schemeValidation', 'WSS', 'Scheme validation'),
                     name: 'schemaValidation',
-                    renderer: me.renderYesOrNo
+                    renderer: function (value, field) {
+                        var rec = field.up('form').getRecord();
+                        if (rec) {
+                            rec.get('type') === 'REST' ? this.hide() : this.show();
+                            if (value === true) {
+                                return Uni.I18n.translate('general.yes', 'WSS', 'Yes');
+                            } else {
+                                return Uni.I18n.translate('general.no', 'WSS', 'No')
+                            }
+                        }
+                    }
                 },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('webservices.authenticationRequired', 'WSS', 'Authentication'),
                     name: 'authenticationMethod',
-                    renderer: function(value){
-                        return !Ext.isEmpty(value)?value.localizedValue:'';
+                    renderer: function (value) {
+                        return !Ext.isEmpty(value) ? value.localizedValue : '';
                     }
                 },
                 {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.userRole', 'WSS', 'User role'),
                     name: 'group',
-                    renderer: function(value,field){
-                        if(field.up('form').down('[name=authenticationMethod]').getValue().id === "BASIC_AUTHENTICATION" && Ext.isEmpty(value) && field.up('form').getRecord().get('direction')==='INBOUND'){
+                    renderer: function (value, field) {
+                        if (field.up('form').down('[name=authenticationMethod]').getValue().id === "BASIC_AUTHENTICATION" && Ext.isEmpty(value) && field.up('form').getRecord().get('direction') === 'INBOUND') {
                             this.show();
                             return Uni.I18n.translate('endPointAdd.all', 'WSS', 'All');
                         }
-                        else if(Ext.isEmpty(value)){
+                        else if (Ext.isEmpty(value)) {
                             this.hide();
                             return value;
                         } else {
@@ -151,9 +161,9 @@ Ext.define('Wss.view.PreviewForm', {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.userName', 'WSS', 'Username'),
                     name: 'username',
-                    renderer: function(value){
+                    renderer: function (value) {
 
-                        Ext.isEmpty(value)?this.hide():this.show();
+                        Ext.isEmpty(value) ? this.hide() : this.show();
                         return value;
                     }
                 },
@@ -161,8 +171,8 @@ Ext.define('Wss.view.PreviewForm', {
                     xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.password', 'WSS', 'Password'),
                     name: 'password',
-                    renderer: function(value){
-                        Ext.isEmpty(value)?this.hide():this.show();
+                    renderer: function (value) {
+                        Ext.isEmpty(value) ? this.hide() : this.show();
                         return value;
                     }
                 }
