@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
@@ -7,11 +11,6 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 
@@ -54,7 +53,7 @@ public class PartialInboundConnectionTaskImpl extends PartialConnectionTaskImpl 
     }
 
     @Override
-    protected final DeleteEventType deleteEventType() {
+    public final DeleteEventType deleteEventType() {
         return DeleteEventType.PARTIAL_INBOUND_CONNECTION_TASK;
     }
 
