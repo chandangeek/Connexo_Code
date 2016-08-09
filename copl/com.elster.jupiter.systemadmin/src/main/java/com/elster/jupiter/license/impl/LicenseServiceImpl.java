@@ -147,24 +147,14 @@ public final class LicenseServiceImpl implements LicenseService, MessageSeedProv
      */
     private void reloadApps() {
         if (context != null) {
+            List<License> licenses = dataModel.mapper(License.class).find();
             ExecutorService singleThread = Executors.newFixedThreadPool(1);
-            singleThread.submit(() -> {
-                try {
-                    reloadAppsSemaphore.acquire();
-                    try {
-                        doReloadApps();
-                    } finally {
-                        reloadAppsSemaphore.release();
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            });
+            singleThread.submit(new AppReloader(licenses));
             singleThread.shutdown();
         }
     }
 
-    private void doReloadApps() {
+    private void doReloadApps(List<License> licenses) {
         List<ServiceRegistration> toRemove = new ArrayList<>();
         for (ServiceRegistration<License> licenseService : licenseServices) {
             License license = context.getService(licenseService.getReference());
@@ -175,17 +165,16 @@ public final class LicenseServiceImpl implements LicenseService, MessageSeedProv
         }
         licenseServices.removeAll(toRemove);
         try {
-            dataModel.mapper(License.class)
-                    .find()
-                    .stream()
-                    .filter(license -> License.Status.ACTIVE.equals(license.getStatus()) || license.getGracePeriodInDays() > 0)
-                    .filter(license -> !getLicenseServiceRegistrationFor(license).isPresent())
-                    .forEach(license -> {
-                        Dictionary<String, String> props = new Hashtable<>();
-                        props.put("com.elster.jupiter.license.application.key", license.getApplicationKey());
-                        props.put("com.elster.jupiter.license.rest.key", license.getApplicationKey());
-                        licenseServices.add(context.registerService(License.class, license, props));
-                    });
+            licenses
+                .stream()
+                .filter(license -> License.Status.ACTIVE.equals(license.getStatus()) || license.getGracePeriodInDays() > 0)
+                .filter(license -> !getLicenseServiceRegistrationFor(license).isPresent())
+                .forEach(license -> {
+                    Dictionary<String, String> props = new Hashtable<>();
+                    props.put("com.elster.jupiter.license.application.key", license.getApplicationKey());
+                    props.put("com.elster.jupiter.license.rest.key", license.getApplicationKey());
+                    licenseServices.add(context.registerService(License.class, license, props));
+                });
         } catch (Exception ex) {
             Logger.getLogger(getClass().getName()).log(Level.WARNING, "Could not load licenses because " + ex.getMessage(), ex);
         }
@@ -316,4 +305,27 @@ public final class LicenseServiceImpl implements LicenseService, MessageSeedProv
             reloadApps();
         }
     }
+
+    private class AppReloader implements Runnable {
+        private final List<License> licenses;
+
+        private AppReloader(List<License> licenses) {
+            this.licenses = licenses;
+        }
+
+        @Override
+        public void run() {
+            try {
+                reloadAppsSemaphore.acquire();
+                try {
+                    doReloadApps(this.licenses);
+                } finally {
+                    reloadAppsSemaphore.release();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
 }
