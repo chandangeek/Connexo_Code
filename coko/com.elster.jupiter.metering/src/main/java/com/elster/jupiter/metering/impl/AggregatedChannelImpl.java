@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -17,6 +18,8 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyContractOnUsagePoint;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.MeterReading;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
@@ -119,7 +122,7 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     @Override
     public List<IntervalReadingRecord> getIntervalReadings(Range<Instant> interval) {
-        return getReadings(interval, IntervalReadingRecordImpl::new);
+        return getReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
     }
 
     @Override
@@ -157,9 +160,7 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     @Override
     public List<ReadingRecord> getRegisterReadings(Range<Instant> interval) {
-        // Data aggregation service doesn't support register readings for now
-        // return persistedChannel.getRegisterReadings(interval);
-        throw new UnsupportedOperationException("Data aggregation is not possible for register readings.");
+        return getReadings(interval, record -> new CalculatedReadingRecordImpl(this.persistedChannel, record));
     }
 
     @Override
@@ -172,7 +173,7 @@ public class AggregatedChannelImpl implements ChannelContract {
 
     @Override
     public Optional<BaseReadingRecord> getReading(Instant when) {
-        return persistedChannel.getReading(when);
+        return persistedChannel.getReadings(Range.openClosed(when.minusMillis(1L), when)).stream().findFirst();
     }
 
     @Override
@@ -265,6 +266,11 @@ public class AggregatedChannelImpl implements ChannelContract {
         return persistedChannel.getPreviousDateTime(instant);
     }
 
+    @Override
+    public MeterReading deleteReadings(Range<Instant> period) {
+        return MeterReadingImpl.newInstance();
+    }
+
     // ChannelContract methods ================================================
 
     @Override
@@ -307,12 +313,14 @@ public class AggregatedChannelImpl implements ChannelContract {
         return persistedChannel.getReadingTypes();
     }
 
-    private static class IntervalReadingRecordImpl implements IntervalReadingRecord {
+    private static class CalculatedReadingRecordImpl implements IntervalReadingRecord, ReadingRecord {
 
         private final BaseReadingRecord record;
+        private final Channel channel;
 
-        public IntervalReadingRecordImpl(BaseReadingRecord record) {
+        public CalculatedReadingRecordImpl(Channel channel, BaseReadingRecord record) {
             this.record = record;
+            this.channel = channel;
         }
 
         @Override
@@ -357,7 +365,7 @@ public class AggregatedChannelImpl implements ChannelContract {
         }
 
         @Override
-        public IntervalReadingRecord filter(ReadingType readingType) {
+        public CalculatedReadingRecordImpl filter(ReadingType readingType) {
             return this;
         }
 
@@ -394,6 +402,21 @@ public class AggregatedChannelImpl implements ChannelContract {
         @Override
         public Optional<Range<Instant>> getTimePeriod() {
             return record.getTimePeriod();
+        }
+
+        @Override
+        public String getReason() {
+            return null;
+        }
+
+        @Override
+        public String getReadingTypeCode() {
+            return channel.getMainReadingType().getMRID();
+        }
+
+        @Override
+        public String getText() {
+            return null;
         }
     }
 }

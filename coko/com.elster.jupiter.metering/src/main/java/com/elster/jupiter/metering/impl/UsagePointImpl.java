@@ -31,11 +31,25 @@ import com.elster.jupiter.metering.UsagePointDetailBuilder;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.metering.ami.CompletionOptions;
+import com.elster.jupiter.metering.ami.HeadEndInterface;
+import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
+import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionEnd;
+import com.elster.jupiter.metering.config.OverlapsOnMetrologyConfigurationVersionStart;
+import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDate;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationEndDateInThePast;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd;
+import com.elster.jupiter.metering.config.UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
+import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.EffectiveMetrologyConfigurationOnUsagePointImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -51,8 +65,10 @@ import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.util.time.RangeInstantBuilder;
 import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.ImmutableList;
@@ -67,14 +83,16 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
-import static com.elster.jupiter.util.streams.Functions.first;
 
 @UniqueMRID(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_USAGEPOINT + "}")
 public class UsagePointImpl implements UsagePoint {
@@ -119,7 +137,7 @@ public class UsagePointImpl implements UsagePoint {
     private SpatialCoordinates spatialCoordinates;
 
     private TemporalReference<UsagePointDetailImpl> detail = Temporals.absent();
-    private TemporalReference<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfiguration = Temporals.absent();
+    private List<EffectiveMetrologyConfigurationOnUsagePoint> metrologyConfigurations = new ArrayList<>();
 
     // associations
     private final Reference<ServiceCategory> serviceCategory = ValueReference.absent();
@@ -138,6 +156,7 @@ public class UsagePointImpl implements UsagePoint {
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
     private final CustomPropertySetService customPropertySetService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
+    private final ServerDataAggregationService dataAggregationService;
     private transient UsagePointCustomPropertySetExtensionImpl customPropertySetExtension;
 
     @Inject
@@ -145,7 +164,10 @@ public class UsagePointImpl implements UsagePoint {
             Clock clock, DataModel dataModel, EventService eventService,
             Thesaurus thesaurus, Provider<MeterActivationImpl> meterActivationFactory,
             Provider<UsagePointAccountabilityImpl> accountabilityFactory,
-            CustomPropertySetService customPropertySetService, MeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService) {
+            CustomPropertySetService customPropertySetService,
+            MeteringService meteringService,
+            ServerMetrologyConfigurationService metrologyConfigurationService,
+            ServerDataAggregationService dataAggregationService) {
         this.clock = clock;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -155,6 +177,7 @@ public class UsagePointImpl implements UsagePoint {
         this.customPropertySetService = customPropertySetService;
         this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.dataAggregationService = dataAggregationService;
     }
 
     UsagePointImpl init(String mRID, ServiceCategory serviceCategory) {
@@ -354,17 +377,20 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public void delete() {
         this.removeMetrologyConfigurationCustomPropertySetValues();
-        metrologyConfiguration.all()
-                .stream()
-                .map(EffectiveMetrologyConfigurationOnUsagePointImpl.class::cast)
-                .forEach(
-                        first(EffectiveMetrologyConfigurationOnUsagePointImpl::prepareDelete)
-                        .andThen(metrologyConfiguration::remove)
-                );
+        this.removeMetrologyConfigurations();
         this.removeServiceCategoryCustomPropertySetValues();
         this.removeDetail();
         dataModel.remove(this);
         eventService.postEvent(EventType.USAGEPOINT_DELETED.topic(), this);
+    }
+
+    private void removeMetrologyConfigurations() {
+        Iterator<EffectiveMetrologyConfigurationOnUsagePoint> iterator = this.metrologyConfigurations.iterator();
+        while (iterator.hasNext()) {
+            EffectiveMetrologyConfigurationOnUsagePointImpl mc = (EffectiveMetrologyConfigurationOnUsagePointImpl) iterator.next();
+            mc.prepareDelete();
+            iterator.remove();
+        }
     }
 
     private void removeDetail() {
@@ -374,7 +400,8 @@ public class UsagePointImpl implements UsagePoint {
 
     private void removeMetrologyConfigurationCustomPropertySetValues() {
         this.removeCustomPropertySetValues(
-                getMetrologyConfiguration()
+                getCurrentEffectiveMetrologyConfiguration()
+                        .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
                         .map(MetrologyConfiguration::getCustomPropertySets)
                         .orElse(Collections.emptyList()));
     }
@@ -429,34 +456,37 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     @Override
-    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration() {
-        return this.getMetrologyConfiguration(this.clock.instant());
-    }
-
-    @Override
-    public Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration(Instant when) {
-        return this.metrologyConfiguration.effective(when)
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
-    }
-
-    @Override
-    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration() {
-        return getEffectiveMetrologyConfiguration(clock.instant());
-    }
-
-    @Override
     public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when) {
-        return this.metrologyConfiguration.effective(when);
+        return this.metrologyConfigurations.stream()
+                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
+                .filter(emc -> emc.getRange().contains(when))
+                .findFirst();
+
     }
 
     @Override
-    public List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period) {
-        return this.metrologyConfiguration
-                .effective(period)
-                .stream()
-                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration)
+    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationByStart(Instant start) {
+        return this.metrologyConfigurations.stream()
+                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
+                .filter(emc -> emc.getStart().equals(start))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> getCurrentEffectiveMetrologyConfiguration() {
+        return this.metrologyConfigurations.stream()
+                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
+                .filter(emc -> emc.getRange().contains(clock.instant()))
+                .findFirst();
+    }
+
+    @Override
+    public List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurations() {
+        return this.metrologyConfigurations.stream()
+                .filter(emc -> !emc.getStart().equals(emc.getEnd()))
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration) {
@@ -465,23 +495,126 @@ public class UsagePointImpl implements UsagePoint {
 
     @Override
     public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when) {
-        this.removeMetrologyConfiguration(when);
-        EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfiguration = this.dataModel
-                .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
-        effectiveMetrologyConfiguration.init(this, metrologyConfiguration, when);
-        this.metrologyConfiguration.add(effectiveMetrologyConfiguration);
-        effectiveMetrologyConfiguration.createEffectiveMetrologyContracts();
+        this.apply(metrologyConfiguration, when, null);
+    }
+
+    @Override
+    public void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
+        Thesaurus thesaurus = this.metrologyConfigurationService.getThesaurus();
+        Long startDate = start.toEpochMilli();
+        Long endDate = end != null ? end.toEpochMilli() : null;
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> latest = this.getEffectiveMetrologyConfigurations().stream()
+                .sorted((m1, m2) -> -m1.getStart().compareTo(m2.getStart())).findFirst();
+        if (latest.isPresent()) {
+            Instant latestStartDate = latest.get().getStart();
+            Instant latestEndDate = latest.get().getEnd();
+
+            if (latestEndDate != null) {
+                if (start.isBefore(latestEndDate)) {
+                    throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestEnd(thesaurus);
+                }
+
+            } else {
+                if (start.isBefore(latestStartDate) || start.equals(latestStartDate)) {
+                    throw new UnsatisfiedMerologyConfigurationStartDateRelativelyLatestStart(thesaurus);
+                }
+                latest.get().close(start);
+            }
+        }
+        basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
+        EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfigurationOnUsagePoint = this.dataModel
+                .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
+                .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(startDate, endDate)));
+        effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
+        this.metrologyConfigurations.add(effectiveMetrologyConfigurationOnUsagePoint);
+        this.update();
+    }
+
+    @Override
+    public void updateWithInterval(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationVersion, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
+
+        Instant startTimeOfCurrent = this.getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getStart)
+                .orElse(null);
+
+        if (end != null && metrologyConfigurationVersion.getStart().equals(startTimeOfCurrent) && end.isBefore(this.clock.instant())) {
+            throw new UnsatisfiedMerologyConfigurationEndDateInThePast(thesaurus);
+        }
+        this.getEffectiveMetrologyConfigurations()
+                .stream()
+                .filter(v -> !v.getStart().equals(metrologyConfigurationVersion.getStart()))
+                .forEach(each -> checkOverlapsOfEffectiveMetrologyConfiguations(each, start, end));
+
+        metrologyConfigurationVersion.close(metrologyConfigurationVersion.getStart());
+        Long endDate;
+        if (end != null) {
+            endDate = end.toEpochMilli();
+        } else {
+            endDate = null;
+        }
+        basicCheckEffectiveMetrologyConfiguration(metrologyConfiguration, start, end);
+        EffectiveMetrologyConfigurationOnUsagePointImpl effectiveMetrologyConfigurationOnUsagePoint = this.dataModel
+                .getInstance(EffectiveMetrologyConfigurationOnUsagePointImpl.class)
+                .initAndSaveWithInterval(this, metrologyConfiguration, Interval.of(RangeInstantBuilder.closedOpenRange(start.toEpochMilli(), endDate)));
+        effectiveMetrologyConfigurationOnUsagePoint.createEffectiveMetrologyContracts();
+        this.metrologyConfigurations.add(effectiveMetrologyConfigurationOnUsagePoint);
+        this.update();
+    }
+
+    private void checkOverlapsOfEffectiveMetrologyConfiguations(EffectiveMetrologyConfigurationOnUsagePoint each, Instant start, Instant end) {
+        if (each.isEffectiveAt(start)) {
+            if (each.getEnd() != null) {
+                throw new OverlapsOnMetrologyConfigurationVersionStart(thesaurus);
+            }
+        } else if (each.getStart().isAfter(start)) {
+            if (end == null) {
+                throw new OverlapsOnMetrologyConfigurationVersionEnd(thesaurus);
+            } else if (each.isEffectiveAt(end)) {
+                throw new OverlapsOnMetrologyConfigurationVersionEnd(thesaurus);
+            }
+        }
+    }
+
+    private void basicCheckEffectiveMetrologyConfiguration(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end) {
+        if (end != null && (end.isBefore(start) || end.equals(start))) {
+            throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
+        }
+        Range range = end == null ? Range.atLeast(start) : Range.closedOpen(start, end);
+        List<MeterActivation> meterActivations = this.getMeterActivations(range);
+        List<Pair<MeterRole, Meter>> pairs = new ArrayList<>();
+        metrologyConfiguration.getMeterRoles().stream().forEach(meterRole -> {
+            meterActivations
+                    .stream()
+                    .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeterRole().get().equals(meterRole))
+                    .findFirst()
+                    .ifPresent(meterActivation -> pairs.add(Pair.of(meterRole, meterActivation.getMeter().get())));
+        });
+        metrologyConfiguration.validateMeterCapabilities(pairs);
     }
 
     @Override
     public void removeMetrologyConfiguration(Instant when) {
-        Optional<EffectiveMetrologyConfigurationOnUsagePoint> current = this.metrologyConfiguration.effective(this.clock.instant());
-        if (current.isPresent()) {
-            if (!current.get().getRange().contains(when)) {
+        Optional<EffectiveMetrologyConfigurationOnUsagePoint> config = this.getEffectiveMetrologyConfiguration(when);
+        if (config.isPresent()) {
+            if (!config.get().getStart().isBefore(clock.instant())) {
                 throw new IllegalArgumentException("Time of metrology configuration removal is before it was actually applied");
             }
-            current.get().close(when);
+            this.removeMetrologyConfigurationVersion(config.get());
         }
+    }
+
+    @Override
+    public void removeMetrologyConfigurationVersion(EffectiveMetrologyConfigurationOnUsagePoint version) {
+        if (version.getStart().isBefore(clock.instant())) {
+            throw new RemoveCurrentEffectiveMetrologyConfigurationException(thesaurus);
+        }
+        version.close(version.getStart());
+        this.update();
+    }
+
+    @Override
+    public Optional<EffectiveMetrologyConfigurationOnUsagePoint> findEffectiveMetrologyConfigurationById(long id) {
+        return dataModel.mapper(EffectiveMetrologyConfigurationOnUsagePoint.class).getOptional(id);
     }
 
     @Override
@@ -535,10 +668,11 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
-                                .createConnectCommand(meter, when), when, serviceCall)))
+                        .flatMap(headEndInterface -> createCommand(headEndInterface, he -> he.sendCommand(headEndInterface.getCommandFactory()
+                                .createConnectCommand(meter, when), when, serviceCall))))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .map(CompletionOptions.class::cast)
                 .collect(Collectors.toList());
     }
 
@@ -550,10 +684,11 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
-                                .createDisconnectCommand(meter, when), when, serviceCall)))
+                        .flatMap(headEndInterface -> createCommand(headEndInterface, he -> he.sendCommand(he.getCommandFactory()
+                                .createDisconnectCommand(meter, when), when, serviceCall))))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .map(CompletionOptions.class::cast)
                 .collect(Collectors.toList());
     }
 
@@ -565,10 +700,11 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
-                                .createEnableLoadLimitCommand(meter, loadLimit), when, serviceCall)))
+                        .flatMap(headEndInterface -> createCommand(headEndInterface, he -> he.sendCommand(headEndInterface.getCommandFactory()
+                                .createEnableLoadLimitCommand(meter, loadLimit), when, serviceCall))))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .map(CompletionOptions.class::cast)
                 .collect(Collectors.toList());
     }
 
@@ -580,25 +716,89 @@ public class UsagePointImpl implements UsagePoint {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.sendCommand(headEndInterface.getCommandFactory()
-                                .createDisableLoadLimitCommand(meter), when, serviceCall)))
+                        .flatMap(headEndInterface -> createCommand(headEndInterface, he -> he.sendCommand(headEndInterface.getCommandFactory()
+                                .createDisableLoadLimitCommand(meter), when, serviceCall))))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(CompletionOptions.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    private Optional<CompletionOptions> createCommand(HeadEndInterface headEndInterface, Function<HeadEndInterface, CompletionOptions> function) {
+        try {
+            return Optional.ofNullable(function.apply(headEndInterface));
+        } catch (UnsupportedCommandException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
+        UsagePointMetrologyConfiguration metrologyConfiguration = getEffectiveMetrologyConfiguration(when).get().getMetrologyConfiguration();
+
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
+
+        metrologyConfiguration.getDeliverables()
+                .stream()
+                .filter(deliverable -> readingTypes.contains(deliverable.getReadingType()))
+                .map(ReadingTypeDeliverable::getFormula)
+                .map(Formula::getExpressionNode)
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+
+        List<ReadingTypeRequirement> readingTypeRequirements = requirementsCollector.getReadingTypeRequirements();
+        List<MeterActivationSet> meterActivationSets = dataAggregationService.getMeterActivationSets(this, when)
+                .collect(Collectors.toList());
+
+        List<ReadingType> configuredReadingTypes = this.getMeterActivations(when).stream()
+                .filter(meterActivation -> meterActivationSets.stream()
+                        .anyMatch(meterActivationSet -> readingTypeRequirements.stream()
+                                .anyMatch(requirement -> meterActivation.getChannelsContainer()
+                                        .getChannels()
+                                        .containsAll(meterActivationSet.getMatchingChannelsFor(requirement)))))
+                .map(ma -> getConfiguredMatchingReadingTypes(ma, readingTypeRequirements))
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!readingTypeRequirements.stream().allMatch(readingTypeRequirement -> configuredReadingTypes.stream().anyMatch(readingTypeRequirement::matches))) {
+            return Collections.emptyList();
+        }
+
+        return this.getMeterActivations(when).stream()
+                .map(meterActivation -> readData(when, meterActivation, readingTypeRequirements))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<CompletionOptions> readData(Instant when, List<ReadingType> readingTypes, ServiceCall serviceCall) {
-        return this.getMeterActivations(when)
-                .stream()
-                .map(MeterActivation::getMeter)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(meter -> meter.getHeadEndInterface()
-                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter, readingTypes, when, serviceCall)))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+    private Optional<CompletionOptions> readData(Instant when, MeterActivation meterActivation, List<ReadingTypeRequirement> readingTypeRequirements) {
+        List<ReadingType> configuredReadingTypes = getConfiguredMatchingReadingTypes(meterActivation, readingTypeRequirements);
+        Optional<Meter> meter = meterActivation.getMeter();
+
+        if (meter.isPresent()) {
+            if (!configuredReadingTypes.isEmpty()) {
+                return meter.get().getHeadEndInterface()
+                        .map(headEndInterface -> headEndInterface.scheduleMeterRead(meter.get()
+                                , configuredReadingTypes.stream().filter(headEndInterface.getCapabilities(meter.get())
+                                        .getConfiguredReadingTypes()::contains).collect(Collectors.toList())
+                                , when));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private List<ReadingType> getConfiguredMatchingReadingTypes(MeterActivation meterActivation, List<ReadingTypeRequirement> readingTypeRequirements) {
+        Optional<Meter> meter = meterActivation.getMeter();
+
+        if (meter.isPresent()) {
+            return meter.get().getHeadEndInterface()
+                    .map(headEndInterface -> headEndInterface.getCapabilities(meter.get())
+                            .getConfiguredReadingTypes()
+                            .stream()
+                            .filter(rt -> readingTypeRequirements.stream().anyMatch(rtr -> rtr.matches(rt)))
+                            .collect(Collectors.toList())).orElse(Collections.emptyList());
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override
@@ -768,7 +968,23 @@ public class UsagePointImpl implements UsagePoint {
     @Override
     public List<MeterActivation> getMeterActivations(Instant when) {
         return this.meterActivations.stream()
+                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
                 .filter(meterActivation -> meterActivation.isEffectiveAt(when))
+                .collect(Collectors.toList());
+    }
+
+    private List<MeterActivation> getMeterActivations(Range<Instant> range) {
+        if (range == null) {
+            throw new IllegalArgumentException("Range can't be null");
+        }
+        return this.meterActivations.stream()
+                .filter(meterActivation -> {
+                    try {
+                        return !meterActivation.getRange().intersection(range).isEmpty();
+                    } catch (IllegalArgumentException ex) {
+                        return false;
+                    }
+                })
                 .collect(Collectors.toList());
     }
 

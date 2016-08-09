@@ -6,10 +6,12 @@ import com.elster.jupiter.metering.readings.IntervalReading;
 import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.util.time.RangeBuilder;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,9 +48,9 @@ public class MeterReadingFacade {
 		}
 		return builder.hasRange() ? builder.getRange() : null;			
 	}
-	
-	public Range<Instant> getRange() {
-		return range;
+
+	public Optional<Range<Instant>> getRange() {
+		return Optional.ofNullable(range);
 	}
 	
 	public boolean isEmpty() {

@@ -29,7 +29,10 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_MULTIPLIER(2015, Constants.INVALID_MULTIPLIER, "Multiplier must be between {min} and {max}", Level.SEVERE),
     INVALID_UNIT(2016, Constants.INVALID_UNIT, "Invalid unit", Level.SEVERE),
     DUPLICATE_USAGEPOINT(3001, Constants.DUPLICATE_USAGEPOINT, "MRID must be unique", Level.SEVERE),
-    NO_USAGE_POINT_FOR_MRID(2, Constants.NO_USAGE_POINT_FOR_MRID, "No usage point with MRID {0}"),
+    NO_USAGE_POINT_FOR_MRID(3002, Constants.NO_USAGE_POINT_FOR_MRID, "No usage point with MRID {0}"),
+    NO_CHANNEL_WITH_ID(3003, Constants.NO_CHANNEL_WITH_ID, "No channel with id {0}"),
+    NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT(3004, Constants.NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT, "No effective metrology configuration on usage point {0}"),
+    NO_READING_FOUND(3005, Constants.NO_READING_FOUND, "No reading found"),
 
     REQUIRED(4001, Constants.REQUIRED, "This field is required"),
     FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION(4002, Constants.FAIL_MANAGE_CPS_ON_ACTIVE_METROLOGY_CONFIGURATION, "You cannot manage custom attribute sets because metrology configuration is active."),
@@ -87,9 +90,17 @@ public enum MessageSeeds implements MessageSeed {
     USAGE_POINT_INCORRECT_STATE(7001, Constants.USAGE_POINT_INCORRECT_STATE, "Usage point ''{0}'' should be in ''Under construction'' state to activate meters"),
     THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT(7002, Constants.THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT, "The same meter can''t be specified for different meter roles."),
     UNSATISFIED_METROLOGY_REQUIREMENT(7003, Constants.UNSATISFIED_METROLOGY_REQUIREMENT, "This meter does not provide reading types matching to {0}."),
-    CHANNEL_DATA_PRESENT(7004, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
-    UNSUPPORTED_COMMAND(7005, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device with MRID {1}"),;
-
+    UNSATISFIED_READING_TYPE_REQUIREMENTS(7004, Constants.UNSATISFIED_READING_TYPE_REQUIREMENTS, "Meters don't provide reading types specified in the metrology configuration."),
+    UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE(7005, Constants.UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE, "Devices activated on this usage point in specified period of time don't provide reading types specified in selected metrology configuration."),
+    START_DATE_SHOULD_BE_GREATER_THAN_LATEST_START_DATE(7006, Constants.START_DATE_SHOULD_BE_GREATER_THAN_LATEST_START_DATE, "Start date should be more than Start date of the latest metrology configuration version."),
+    START_DATE_SHOULD_BE_GREATER_THAN_LATEST_END_DATE(7007, Constants.START_DATE_SHOULD_BE_GREATER_THAN_LATEST_END_DATE, "Start date should be more than or equal to End date of the latest metrology configuration version."),
+    END_DATE_MUST_BE_GREATER_THAN_START_DATE(7008, Constants.END_DATE_MUST_BE_GREATER_THAN_START_DATE, "End date must be greater than Start date."),
+    THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION(7009, Constants.THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION, "This date is overlapped by other metrology configuration version."),
+    END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION(7010, Constants.END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION, "End date can't be in the past for current metrology configuration version"),
+    CHANNEL_DATA_PRESENT(7011, "ChannelDataIsPresent", "A meter activation could not be created: channel data is already present beyond the meter activation start time"),
+    UNSUPPORTED_COMMAND(7012, Constants.UNSPPORTED_COMMAND, "Unsupported Command {0} for end device with MRID {1}"),
+    CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED(7013, Constants.CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED, "Current metrology configuration version can't be removed")
+    ;
 
     private final int number;
     private final String key;
@@ -157,6 +168,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALID_MULTIPLIER = "invalidMultiplier";
         public static final String INVALID_UNIT = "invalidUnit";
         public static final String NO_USAGE_POINT_FOR_MRID = "NoUsagePointForMRID";
+        public static final String NO_CHANNEL_WITH_ID = "no.channel.for.id";
+        public static final String NO_EFFECTIVE_METROLOGY_CONFIGURATION_ON_USAGE_POINT = "no.effective.metrology.configuration.on.usage.point";
+        public static final String NO_READING_FOUND = "no.reading.found";
         public static final String NO_SUCH_LOCATION = "no.such.location";
         public static final String DUPLICATE_LOCATION_ENTRY = "duplicate.address.entry";
         public static final String FAILED_TO_DEACTIVATE_METROLOGY_CONFIGURATION = "failed.to.deactivate.metrology.configuration";
@@ -205,7 +219,15 @@ public enum MessageSeeds implements MessageSeed {
         public static final String USAGE_POINT_INCORRECT_STATE = "usage.point.incorrect.state";
         public static final String THE_SAME_METER_ACTIVATED_TWICE_ON_USAGE_POINT = "the.same.meter.activated.twice.on.usage.point";
         public static final String UNSATISFIED_METROLOGY_REQUIREMENT = "unsatisfied.metrology.requirement";
+        public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS = "unsatisfied.reading.type.requirements";
+        public static final String UNSATISFIED_READING_TYPE_REQUIREMENTS_FOR_DEVICE = "unsatisfied.reading.type.requirements.for.device";
+        public static final String START_DATE_SHOULD_BE_GREATER_THAN_LATEST_START_DATE = "start.date.should.be.greater.than.latest.start.date";
+        public static final String START_DATE_SHOULD_BE_GREATER_THAN_LATEST_END_DATE = "start.date.should.be.greater.than.latest.end.date";
+        public static final String END_DATE_MUST_BE_GREATER_THAN_START_DATE = "end.date.must.be.greater.than.start.date";
+        public static final String THIS_DATE_IS_OVERLAPPED_BY_OTHER_METROLOGYCONFIGURATION_VERSION = "this.date.is.overlapped.by.other.metrology.configuration.version";
+        public static final String END_DATE_CANT_BE_IN_THE_PAST_FOR_CURRENT_METROLOGYCONFIGURATION_VERSION = "End.date.cant.be.in.the.past.for.current.metrology.configuration.version";
         public static final String UNSPPORTED_COMMAND = "Unsupported.Command.for.enddevice";
+        public static final String CURRENT_EFFECTIVE_METROLOGY_CONFIG_CANT_BE_REMOVED = "Remove.current.effectve.mc";
     }
 
 }

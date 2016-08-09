@@ -22,7 +22,7 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
     private final PropertySpecService propertySpecService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
     private Clock clock;
-    static final String FIELD_NAME = "metrologyConfiguration.metrologyConfiguration";
+    static final String FIELD_NAME = "metrologyConfigurations.metrologyConfiguration";
 
     public MetrologyConfigurationSearchableProperty(SearchDomain domain, PropertySpecService propertySpecService, ServerMetrologyConfigurationService metrologyConfigurationService, Clock clock) {
         super();
@@ -95,7 +95,7 @@ public class MetrologyConfigurationSearchableProperty implements SearchableUsage
 
     @Override
     public Condition toCondition(Condition specification) {
-        return specification.and(Where.where("metrologyConfiguration.interval")
+        return specification.and(Where.where("metrologyConfigurations.interval")
                 .isEffective(this.clock.instant()));
     }
 }

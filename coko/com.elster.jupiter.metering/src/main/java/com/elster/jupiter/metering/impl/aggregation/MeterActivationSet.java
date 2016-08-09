@@ -24,7 +24,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-06-09 (13:01)
  */
-interface MeterActivationSet {
+public interface MeterActivationSet {
 
     void add(MeterActivation meterActivation);
 
