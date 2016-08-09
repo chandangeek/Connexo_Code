@@ -144,7 +144,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         Integer i = 0;
         for (int j = 0; j < mapInputLocations.length; j++) {
             String whenClause = "";
-            String mapInputLocation = mapInputLocations[i].replace("'", "''");
+            String mapInputLocation = mapInputLocations[j].replace("'", "''");
 
             for (int k = 0; k < templateMembers.length; k++) {
                 String templateMember = templateMap.get(templateMembers[k]);
