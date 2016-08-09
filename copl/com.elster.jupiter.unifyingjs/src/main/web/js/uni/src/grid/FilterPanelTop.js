@@ -390,11 +390,12 @@ Ext.define('Uni.grid.FilterPanelTop', {
         var me = this,
             params = me.getFilterParams(true, true),
             href = Uni.util.QueryString.buildHrefWithQueryString(params, false);
+
         if (location.href !== href) {
             Uni.util.History.setParsePath(false);
             Uni.util.History.suspendEventsForNextCall();
             if (Uni.util.QueryString.getQueryString()) {
-                location.href = href;
+                location.replace(href);
             } else {
                 if (me.hasDefaultFilters) {
                     location.replace(href);
