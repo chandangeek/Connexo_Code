@@ -71,7 +71,17 @@ Ext.define('Apr.view.appservers.WebserviceEndpointPreviewForm', {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('webservices.schemeValidation', 'APR', 'Scheme validation'),
                 name: 'schemaValidation',
-                renderer: me.renderYesOrNo
+                renderer: function (value, field) {
+                    var rec = field.up('form').getRecord();
+                    if (rec) {
+                        rec.get('type') === 'REST' ? this.hide() : this.show();
+                        if (value === true) {
+                            return Uni.I18n.translate('general.yes', 'APR', 'Yes');
+                        } else {
+                            return Uni.I18n.translate('general.no', 'APR', 'No')
+                        }
+                    }
+                }
             },
             {
                 xtype: 'displayfield',
