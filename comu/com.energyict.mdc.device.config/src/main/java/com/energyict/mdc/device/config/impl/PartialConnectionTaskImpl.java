@@ -96,13 +96,14 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
 
     protected abstract ValidateDeleteEventType validateDeleteEventType();
 
-    void prepareDelete() {
-        this.properties.clear();
+    @Override
+    public void validateDelete () {
+        this.getEventService().postEvent(this.validateDeleteEventType().topic(), this);
     }
 
     @Override
-    protected void validateDelete () {
-        this.getEventService().postEvent(this.validateDeleteEventType().topic(), this);
+    public void prepareDelete() {
+        this.properties.clear();
     }
 
     @Override
@@ -222,8 +223,7 @@ abstract class PartialConnectionTaskImpl extends PersistentNamedObject<PartialCo
         return this.isDefault;
     }
 
-    // only to be used in the setDefault
-    void clearDefault() {
+    public void clearDefault() {
         this.isDefault = false;
         this.post();
     }
