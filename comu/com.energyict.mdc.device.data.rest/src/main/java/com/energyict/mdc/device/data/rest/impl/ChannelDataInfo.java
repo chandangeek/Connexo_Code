@@ -47,6 +47,8 @@ public class ChannelDataInfo {
 
     public BigDecimal multiplier;
 
+    public SlaveChannelInfo slaveChannel;
+
     public BaseReading createNew() {
         return IntervalReadingImpl.of(Instant.ofEpochMilli(this.interval.end), this.value, Collections.emptyList());
     }

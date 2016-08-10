@@ -41,6 +41,7 @@ public abstract class RegisterInfo {
     public String mRID;
     public long version;
     public VersionInfo<Long> parent;
+    public String dataloggerSlavemRID;
 
     public RegisterInfo() {}
 

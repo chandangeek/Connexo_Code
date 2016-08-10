@@ -130,7 +130,8 @@ public class EstimationHelper {
     }
 
     private ChannelDataInfo getChannelDataInfo(Channel channel, EstimationBlock block, LoadProfileReading reading, boolean isValidationActive, DeviceValidation deviceValidation, Estimatable estimatable) {
-        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation);
+        //todo do we need to add the datalogger here?
+        ChannelDataInfo channelDataInfo = deviceDataInfoFactory.createChannelDataInfo(channel, reading, isValidationActive, deviceValidation, null);
         if (!channel.getReadingType().isCumulative()) {
             channelDataInfo.value = estimatable.getEstimation();
             channelDataInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;

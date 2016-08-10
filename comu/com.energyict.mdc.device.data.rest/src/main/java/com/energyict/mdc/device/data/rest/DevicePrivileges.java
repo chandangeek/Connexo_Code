@@ -69,7 +69,7 @@ public final class DevicePrivileges {
                     privileges.add("devices.timeofuse.supportspassive");
 
             }
-            if(containsSendOption(allowedOptions)) {
+            if (containsSendOption(allowedOptions)) {
                 privileges.add("devices.timeofuse.supportssend");
             }
             privileges.addAll(getTimeOfUsePrivileges(allowedOptions));

@@ -15,6 +15,9 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.NumericalRegister;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.topology.TopologyService;
+
+import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -46,16 +49,18 @@ public class RegisterResource {
     private final Provider<RegisterDataResource> registerDataResourceProvider;
     private final ValidationInfoHelper validationInfoHelper;
     private final DeviceDataInfoFactory deviceDataInfoFactory;
+    private final TopologyService topologyService;
     private final Clock clock;
 
     @Inject
-    public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory) {
+    public RegisterResource(ExceptionFactory exceptionFactory, ResourceHelper resourceHelper, Provider<RegisterDataResource> registerDataResourceProvider, ValidationInfoHelper validationInfoHelper, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, TopologyService topologyService) {
         this.exceptionFactory = exceptionFactory;
         this.resourceHelper = resourceHelper;
         this.registerDataResourceProvider = registerDataResourceProvider;
         this.clock = clock;
         this.validationInfoHelper = validationInfoHelper;
         this.deviceDataInfoFactory = deviceDataInfoFactory;
+        this.topologyService = topologyService;
     }
 
     @GET
@@ -65,7 +70,7 @@ public class RegisterResource {
     public PagedInfoList getRegisters(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<RegisterInfo> registerInfos = ListPager.of(device.getRegisters(), this::compareRegisters).from(queryParameters).stream()
-                .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r))).collect(Collectors.toList());
+                .map(r -> deviceDataInfoFactory.createRegisterInfo(r, validationInfoHelper.getMinimalRegisterValidationInfo(r), topologyService)).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", registerInfos, queryParameters);
     }
 
@@ -82,7 +87,7 @@ public class RegisterResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public RegisterInfo getRegister(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
         Register<?, ?> register = doGetRegister(mRID, registerId);
-        return deviceDataInfoFactory.createRegisterInfo(register, validationInfoHelper.getRegisterValidationInfo(register));
+        return deviceDataInfoFactory.createRegisterInfo(register, validationInfoHelper.getRegisterValidationInfo(register), topologyService);
     }
 
     @PUT
@@ -338,5 +343,15 @@ public class RegisterResource {
 
     private boolean hasData(Register<?, ?> register) {
         return register.hasData();
+    }
+
+    @GET
+    @Transactional
+    @Path("/{registerId}/history")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
+    public RegisterHistoryInfos getDataLoggerSlaveRegisterHistory(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId) {
+        Register register = resourceHelper.findRegisterOnDeviceOrThrowException(mRID, registerId);
+        return RegisterHistoryInfos.from(topologyService.findDataLoggerChannelUsagesForRegisters(register, Range.atMost(clock.instant())));
     }
 }

@@ -25,6 +25,7 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -108,7 +109,13 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private Device device;
     @Mock
+    private DeviceType deviceType;
+    @Mock
     private LoadProfile loadProfile;
+    @Mock
+    private LoadProfileType loadProfileType;
+    @Mock
+    private LoadProfileSpec loadProfileSpec;
     @Mock
     private LoadProfileReading loadProfileReading, addedLoadProfileReading, editedProfileReading, removedProfileReading, confirmedProfileReading, missingReadingRecord;
     @Mock
@@ -165,9 +172,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         LoadProfile.LoadProfileUpdater loadProfileUpdater = mock(LoadProfile.LoadProfileUpdater.class);
         when(device.getLoadProfileUpdaterFor(loadProfile)).thenReturn(loadProfileUpdater);
         when(device.getMultiplier()).thenReturn(BigDecimal.ONE);
+        when(device.getChannels()).thenReturn(Arrays.asList(channel));
         when(loadProfile.getId()).thenReturn(1L);
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channel));
-
+        when(loadProfile.getLoadProfileSpec()).thenReturn(loadProfileSpec);
+        when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
+        when(loadProfileType.getName()).thenReturn("LoadProfileTypeName");
         Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
         when(channel.getChannelData(interval)).thenReturn(Arrays.asList(
                 loadProfileReading, addedLoadProfileReading, editedProfileReading, removedProfileReading, confirmedProfileReading, missingReadingRecord));
@@ -303,6 +313,13 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(loadProfileService.findById(loadProfile.getId())).thenReturn(Optional.of(loadProfile));
         when(loadProfileService.findAndLockLoadProfileByIdAndVersion(loadProfile.getId(), loadProfile.getVersion())).thenReturn(Optional.of(loadProfile));
         when(loadProfile.getDevice()).thenReturn(device);
+
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.isDataloggerSlave()).thenReturn(false);
+        when(topologyService.getSlaveChannel(any(Channel.class), any(Instant.class))).thenReturn(Optional.empty());
+
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenAnswer(invocationOnMock -> Collections.singletonList(Pair.of(((Channel) invocationOnMock.getArguments()[0]), ((Range<Instant>) invocationOnMock
+                .getArguments()[1]))));
     }
 
     private ReadingQualityRecord mockReadingQuality(String code) {
@@ -352,7 +369,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     @Test
     public void testChannelData() throws UnsupportedEncodingException {
-        String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).create();
+        String filter = ExtjsFilter.filter().property("intervalStart", intervalStart).property("intervalEnd", intervalEnd).create();
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd)))));
 
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
@@ -361,8 +380,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel jsonModel = JsonModel.create(json);
 
         assertThat(jsonModel.<List<?>>get("$.data")).hasSize(6);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(1410774630000L);
-        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(1410828630000L);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.start")).isEqualTo(intervalStart);
+        assertThat(jsonModel.<Long>get("$.data[0].interval.end")).isEqualTo(intervalEnd);
         assertThat(jsonModel.<List<?>>get("$.data[0].readingQualities")).hasSize(1);
         assertThat(jsonModel.<String>get("$.data[0].readingQualities[0]")).isEqualTo(BATTERY_LOW);
         assertThat(jsonModel.<String>get("$.data[0].collectedValue")).isEqualTo("200.000");
@@ -460,6 +479,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Test
     public void testChannelDataFilteredMatches() throws UnsupportedEncodingException {
         String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect", "suspect").create();
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(channel, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd)))));
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
                 .request().get(String.class);
@@ -584,6 +605,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channelWithBulkAndCalculatedDelta.getUnit()).thenReturn(collectedUnit);
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channelWithBulkAndCalculatedDelta));
         when(deviceValidation.getLastChecked(channelWithBulkAndCalculatedDelta)).thenReturn(Optional.of(NOW));
+        when(device.getChannels()).thenReturn(Arrays.asList(channelWithBulkAndCalculatedDelta));
     }
 
     private Unit getUnit(ReadingType rt) {
@@ -649,6 +671,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getChannelSpec()).thenReturn(channelSpec);
         when(channel.getId()).thenReturn(1L);
         when(channel.getDevice()).thenReturn(device);
+        when(device.getChannels()).thenReturn(Arrays.asList(channel));
         when(channelSpec.getId()).thenReturn(1L);
         when(channelSpec.getVersion()).thenReturn(1L);
         when(channelSpec.getLoadProfileSpec()).thenReturn(loadProfileSpec);
@@ -832,9 +855,9 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.id")).isEqualTo(((Long)estimationRule.getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.id")).isEqualTo(((Long) estimationRule.getId()).intValue());
         assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.name")).isEqualTo(estimationRule.getName());
-        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(((Long)estimationRule.getRuleSet().getId()).intValue());
+        assertThat(jsonModel.<Number>get("$.bulkValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(((Long) estimationRule.getRuleSet().getId()).intValue());
         assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.application.id")).isEqualTo(QualityCodeSystem.MDC.name());
         assertThat(jsonModel.<String>get("$.bulkValidationInfo.estimatedByRule.application.name")).isEqualTo("MultiSense");
     }

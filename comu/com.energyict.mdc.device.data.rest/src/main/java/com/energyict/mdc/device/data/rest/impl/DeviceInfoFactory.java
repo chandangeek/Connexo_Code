@@ -19,6 +19,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,18 +37,22 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     private volatile TopologyService topologyService;
     private volatile IssueService issueService;
     private volatile DeviceService deviceService;
+    private volatile Clock clock;
+    private volatile DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory;
+
 
     public DeviceInfoFactory() {
     }
 
     @Inject
-    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService,
-                             IssueService issueService, DeviceService deviceService) {
+    public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, DeviceService deviceService, Clock clock) {
         this.thesaurus = thesaurus;
         this.batchService = batchService;
         this.topologyService = topologyService;
         this.issueService = issueService;
+        this.dataLoggerSlaveDeviceInfoFactory = dataLoggerSlaveDeviceInfoFactory;
         this.deviceService = deviceService;
+        this.clock = clock;
     }
 
     @Reference
@@ -104,7 +109,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
         Optional<Location> location = device.getLocation();
-        Optional<SpatialCoordinates> geoCoordinates = device.getSpatialCoordinates();
+        Optional<SpatialCoordinates> spatialCoordinates = device.getSpatialCoordinates();
         String formattedLocation = "";
         if (location.isPresent()) {
             List<List<String>> formattedLocationMembers = location.get().format();
@@ -115,9 +120,8 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .collect(Collectors.joining(", "));
         }
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, new IssueRetriever(issueService), thesaurus,
-                formattedLocation, geoCoordinates.map(coord -> coord.toString()).orElse(null));
+                dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(coord -> coord.toString()).orElse(null), clock);
     }
-
 
     @Override
     public Class<Device> getDomainClass() {

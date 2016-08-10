@@ -16,6 +16,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.ValidationResult;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -51,6 +52,8 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
 
     @Mock
     private Device device;
+    @Mock
+    private DeviceType deviceType;
     @Mock
     private DeviceValidation deviceValidation;
 
@@ -93,6 +96,9 @@ public class ChannelResourceFilterTest extends DeviceDataRestApplicationJerseyTe
         when(channel2.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(channel3.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
         when(channel4.getMultiplier(any(Instant.class))).thenReturn(Optional.empty());
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.isDataloggerSlave()).thenReturn(false);
+        when(topologyService.getSlaveChannel(any(Channel.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     private Channel mockChannel(long id, ReadingType readingType){

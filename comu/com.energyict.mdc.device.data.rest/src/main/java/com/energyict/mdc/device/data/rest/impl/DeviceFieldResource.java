@@ -1,16 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.rest.FieldResource;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -18,7 +16,6 @@ import com.energyict.mdc.device.data.rest.LogLevelAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.impl.device.messages.DeviceMessageAttributes;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.annotation.security.RolesAllowed;
@@ -29,7 +26,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,7 +92,8 @@ public class DeviceFieldResource extends FieldResource {
         return PagedInfoList.fromPagedList("gateways", infos, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/calendartypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -112,7 +109,8 @@ public class DeviceFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("calendarTypes", "calendarType", calendarTypes);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/contracts")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})

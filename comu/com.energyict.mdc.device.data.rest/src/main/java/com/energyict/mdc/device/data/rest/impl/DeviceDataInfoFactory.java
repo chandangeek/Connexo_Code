@@ -33,9 +33,9 @@ import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.TextRegister;
+import com.energyict.mdc.device.topology.TopologyService;
 
 import javax.inject.Inject;
-import javax.ws.rs.HEAD;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -69,7 +69,7 @@ public class DeviceDataInfoFactory {
         this.resourceHelper = resourceHelper;
     }
 
-    public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation) {
+    public ChannelDataInfo createChannelDataInfo(Channel channel, LoadProfileReading loadProfileReading, boolean isValidationActive, DeviceValidation deviceValidation, Device dataLoggerSlave) {
         ChannelDataInfo channelIntervalInfo = new ChannelDataInfo();
         channelIntervalInfo.interval = IntervalInfo.from(loadProfileReading.getRange());
         channelIntervalInfo.readingTime = loadProfileReading.getReadingTime();
@@ -81,8 +81,7 @@ public class DeviceDataInfoFactory {
             readingQualityRecords = new ArrayList<>();
         }
 
-        channelIntervalInfo.readingQualities = readingQualityRecords
-                .stream()
+        channelIntervalInfo.readingQualities = readingQualityRecords.stream()
                 .filter(ReadingQualityRecord::isActual)
                 .distinct()
                 .filter(record -> record.getType().system().isPresent())
@@ -118,6 +117,9 @@ public class DeviceDataInfoFactory {
                 channelIntervalInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
             channelIntervalInfo.dataValidated = false;
+        }
+        if (dataLoggerSlave != null) {
+            channelIntervalInfo.slaveChannel = SlaveChannelInfo.from(dataLoggerSlave, channel);
         }
         return channelIntervalInfo;
     }
@@ -214,18 +216,18 @@ public class DeviceDataInfoFactory {
         return channelIntervalInfo;
     }
 
-    public List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, Register<?, ?> register, boolean isValidationStatusActive) {
+    public List<ReadingInfo> asReadingsInfoList(List<? extends Reading> readings, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         return readings
                 .stream()
-                .map(r -> createReadingInfo(r, register, isValidationStatusActive))
+                .map(r -> createReadingInfo(r, register, isValidationStatusActive, dataLoggerSlave))
                 .collect(Collectors.toList());
     }
 
-    public ReadingInfo createReadingInfo(Reading reading, Register<?, ?> register, boolean isValidationStatusActive) {
+    public ReadingInfo createReadingInfo(Reading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         if (reading instanceof BillingReading) {
-            return createBillingReadingInfo((BillingReading) reading, register, isValidationStatusActive);
+            return createBillingReadingInfo((BillingReading) reading, register, isValidationStatusActive, dataLoggerSlave);
         } else if (reading instanceof NumericalReading) {
-            return createNumericalReadingInfo((NumericalReading) reading, register, isValidationStatusActive);
+            return createNumericalReadingInfo((NumericalReading) reading, register, isValidationStatusActive, dataLoggerSlave);
         } else if (reading instanceof TextReading) {
             return createTextReadingInfo((TextReading) reading);
         } else if (reading instanceof FlagsReading) {
@@ -262,7 +264,7 @@ public class DeviceDataInfoFactory {
                 .collect(Collectors.toList());
     }
 
-    private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, boolean isValidationStatusActive) {
+    private BillingReadingInfo createBillingReadingInfo(BillingReading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         BillingReadingInfo billingReadingInfo = new BillingReadingInfo();
         setCommonReadingInfo(reading, billingReadingInfo);
         Instant timeStamp = reading.getTimeStamp();
@@ -278,10 +280,13 @@ public class DeviceDataInfoFactory {
             billingReadingInfo.interval = IntervalInfo.from(reading.getRange().get());
         }
         addValidationInfo(reading, billingReadingInfo, isValidationStatusActive);
+        if (dataLoggerSlave != null) {
+            billingReadingInfo.slaveRegister = SlaveRegisterInfo.from(dataLoggerSlave, register);
+        }
         return billingReadingInfo;
     }
 
-    private NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, Register<?, ?> register, boolean isValidationStatusActive) {
+    private NumericalReadingInfo createNumericalReadingInfo(NumericalReading reading, Register<?, ?> register, boolean isValidationStatusActive, Device dataLoggerSlave) {
         NumericalReadingInfo numericalReadingInfo = new NumericalReadingInfo();
         setCommonReadingInfo(reading, numericalReadingInfo);
         Instant timeStamp = reading.getTimeStamp();
@@ -298,6 +303,9 @@ public class DeviceDataInfoFactory {
         }
         setCalculatedValueIfApplicable(reading, register, numericalReadingInfo, numberOfFractionDigits);
         addValidationInfo(reading, numericalReadingInfo, isValidationStatusActive);
+        if (dataLoggerSlave != null) {
+            numericalReadingInfo.slaveRegister = SlaveRegisterInfo.from(dataLoggerSlave, register);
+        }
         return numericalReadingInfo;
     }
 
@@ -345,25 +353,39 @@ public class DeviceDataInfoFactory {
         return flagsReadingInfo;
     }
 
-    public RegisterInfo createRegisterInfo(Register register, DetailedValidationInfo registerValidationInfo) {
+    public RegisterInfo createRegisterInfo(Register register, DetailedValidationInfo registerValidationInfo, TopologyService topologyService) {
         if (register instanceof BillingRegister) {
-            BillingRegisterInfo info = createBillingRegisterInfo((BillingRegister) register);
+            BillingRegisterInfo info = createBillingRegisterInfo((BillingRegister) register, topologyService);
             info.detailedValidationInfo = registerValidationInfo;
             return info;
         } else if (register instanceof NumericalRegister) {
-            NumericalRegisterInfo info = createNumericalRegisterInfo((NumericalRegister) register);
+            NumericalRegisterInfo info = createNumericalRegisterInfo((NumericalRegister) register, topologyService);
             info.detailedValidationInfo = registerValidationInfo;
             return info;
         } else if (register instanceof TextRegister) {
-            return createTextRegisterInfo((TextRegister) register);
+            return createTextRegisterInfo((TextRegister) register, topologyService);
         } else if (register instanceof FlagsRegister) {
-            return createFlagsRegisterInfo((FlagsRegister) register);
+            return createFlagsRegisterInfo((FlagsRegister) register, topologyService);
         }
 
         throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
     }
 
-    private void addCommonRegisterInfo(Register register, RegisterInfo registerInfo) {
+    public RegisterInfo createLeanRegisterInfo(Register register, TopologyService topologyService) {
+        if (register instanceof BillingRegister) {
+            return createBillingRegisterInfo((BillingRegister) register, topologyService);
+        } else if (register instanceof NumericalRegister) {
+            return createNumericalRegisterInfo((NumericalRegister) register, topologyService);
+        } else if (register instanceof TextRegister) {
+            return createTextRegisterInfo((TextRegister) register, topologyService);
+        } else if (register instanceof FlagsRegister) {
+            return createFlagsRegisterInfo((FlagsRegister) register, topologyService);
+        }
+
+        throw new IllegalArgumentException("Unsupported register type: " + register.getClass().getSimpleName());
+    }
+
+    private void addCommonRegisterInfo(Register<?, ?> register, RegisterInfo registerInfo, TopologyService topologyService) {
         RegisterSpec registerSpec = register.getRegisterSpec();
         Device device = register.getDevice();
         registerInfo.id = registerSpec.getId();
@@ -377,13 +399,19 @@ public class DeviceDataInfoFactory {
         registerInfo.version = device.getVersion();
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
-        Optional<? extends Reading> lastReading = register.getLastReading();
-        lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false));
+        Optional<Register> slaveRegister = topologyService.getSlaveRegister(register, clock.instant());
+        if (!slaveRegister.isPresent()) {
+            register.getLastReading().ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register, false, null));
+        } else {
+            Register<?, ?> register1 = slaveRegister.get();
+            register1.getLastReading().ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, register1, false, null));
+            registerInfo.dataloggerSlavemRID = register1.getDevice().getmRID();
+        }
     }
 
-    public BillingRegisterInfo createBillingRegisterInfo(BillingRegister register) {
+    public BillingRegisterInfo createBillingRegisterInfo(BillingRegister register, TopologyService topologyService) {
         BillingRegisterInfo billingRegisterInfo = new BillingRegisterInfo();
-        addCommonRegisterInfo(register, billingRegisterInfo);
+        addCommonRegisterInfo(register, billingRegisterInfo, topologyService);
         Instant timeStamp = register.getLastReadingDate().orElse(clock.instant());
         register.getCalculatedReadingType(timeStamp).ifPresent(calculatedReadingType -> billingRegisterInfo.calculatedReadingType = new ReadingTypeInfo(calculatedReadingType));
         billingRegisterInfo.multiplier = register.getMultiplier(timeStamp).orElseGet(() -> null);
@@ -391,21 +419,21 @@ public class DeviceDataInfoFactory {
         return billingRegisterInfo;
     }
 
-    public FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister) {
+    public FlagsRegisterInfo createFlagsRegisterInfo(FlagsRegister flagsRegister, TopologyService topologyService) {
         FlagsRegisterInfo flagsRegisterInfo = new FlagsRegisterInfo();
-        addCommonRegisterInfo(flagsRegister, flagsRegisterInfo);
+        addCommonRegisterInfo(flagsRegister, flagsRegisterInfo, topologyService);
         return flagsRegisterInfo;
     }
 
-    private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister) {
+    private TextRegisterInfo createTextRegisterInfo(TextRegister textRegister, TopologyService topologyService) {
         TextRegisterInfo textRegisterInfo = new TextRegisterInfo();
-        addCommonRegisterInfo(textRegister, textRegisterInfo);
+        addCommonRegisterInfo(textRegister, textRegisterInfo, topologyService);
         return textRegisterInfo;
     }
 
-    public NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister) {
+    public NumericalRegisterInfo createNumericalRegisterInfo(NumericalRegister numericalRegister, TopologyService topologyService) {
         NumericalRegisterInfo numericalRegisterInfo = new NumericalRegisterInfo();
-        addCommonRegisterInfo(numericalRegister, numericalRegisterInfo);
+        addCommonRegisterInfo(numericalRegister, numericalRegisterInfo, topologyService);
         NumericalRegisterSpec registerSpec = numericalRegister.getRegisterSpec();
         numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         numericalRegisterInfo.overruledNumberOfFractionDigits = numericalRegister.getNumberOfFractionDigits();
