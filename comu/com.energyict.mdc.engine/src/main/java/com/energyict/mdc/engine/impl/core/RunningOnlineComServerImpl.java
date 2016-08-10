@@ -30,17 +30,17 @@ public class RunningOnlineComServerImpl extends RunningComServerImpl implements 
     }
 
     private RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ServiceProvider serviceProvider) {
-        super(comServer, comServerDAO, null, null, new ComServerThreadFactory(comServer), new CleanupDuringStartupImpl(comServer, comServerDAO), serviceProvider);
+        super(comServer, comServerDAO, null, null, new ComServerThreadFactory(comServer), serviceProvider);
         this.comServer = comServer;
     }
 
-    public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
-        super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, cleanupDuringStartup, serviceProvider);
+    public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+        super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, serviceProvider);
         this.comServer = comServer;
     }
 
-    public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, CleanupDuringStartup cleanupDuringStartup, ServiceProvider serviceProvider) {
-        super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, embeddedWebServerFactory, cleanupDuringStartup, serviceProvider);
+    public RunningOnlineComServerImpl(OnlineComServer comServer, ComServerDAO comServerDAO, ScheduledComPortFactory scheduledComPortFactory, ComPortListenerFactory comPortListenerFactory, ThreadFactory threadFactory, EmbeddedWebServerFactory embeddedWebServerFactory, ServiceProvider serviceProvider) {
+        super(comServer, comServerDAO, scheduledComPortFactory, comPortListenerFactory, threadFactory, embeddedWebServerFactory, serviceProvider);
         this.comServer = comServer;
     }
 

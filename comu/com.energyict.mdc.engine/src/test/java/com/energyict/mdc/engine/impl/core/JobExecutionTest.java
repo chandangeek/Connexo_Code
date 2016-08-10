@@ -48,6 +48,7 @@ import com.energyict.mdc.protocol.api.impl.HexServiceImpl;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.tasks.*;
 import com.google.common.base.Strings;
 import org.joda.time.DateTime;
@@ -191,6 +192,10 @@ public class JobExecutionTest {
         when(this.jobExecutionServiceProvider.deviceService()).thenReturn(this.deviceService);
         when(this.jobExecutionServiceProvider.engineService()).thenReturn(this.engineService);
         when(this.jobExecutionServiceProvider.mdcReadingTypeUtilService()).thenReturn(this.mdcReadingTypeUtilService);
+
+        IdentificationService identificationService = mock(IdentificationService.class);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(any(Device.class))).thenReturn(mock(DeviceIdentifier.class));
+        when(this.jobExecutionServiceProvider.identificationService()).thenReturn(identificationService);
 
         when(this.commandRootServiceProvider.transactionService()).thenReturn(new FakeTransactionService());
         when(this.commandRootServiceProvider.clock()).thenReturn(this.clock);

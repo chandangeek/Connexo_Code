@@ -23,16 +23,17 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
 
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
-    public SingleThreadedComPortListener(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        this(comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
+    public SingleThreadedComPortListener(RunningComServer runningComServer, InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        this(runningComServer, comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
     }
 
     public SingleThreadedComPortListener(
-                InboundComPort comPort,
-                DeviceCommandExecutor deviceCommandExecutor,
-                ServiceProvider serviceProvider,
-                InboundComPortExecutorFactory inboundComPortExecutorFactory) {
-        super(comPort, deviceCommandExecutor, serviceProvider);
+            RunningComServer runningComServer,
+            InboundComPort comPort,
+            DeviceCommandExecutor deviceCommandExecutor,
+            ServiceProvider serviceProvider,
+            InboundComPortExecutorFactory inboundComPortExecutorFactory) {
+        super(runningComServer, comPort, deviceCommandExecutor, serviceProvider);
         this.inboundComPortExecutorFactory = inboundComPortExecutorFactory;
     }
 

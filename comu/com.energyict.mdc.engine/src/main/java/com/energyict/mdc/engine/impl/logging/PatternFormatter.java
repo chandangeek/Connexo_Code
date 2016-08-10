@@ -16,7 +16,6 @@ import java.util.logging.LogRecord;
 public class PatternFormatter extends Formatter {
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
-
     public PatternFormatter () {
         super();
     }

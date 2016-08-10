@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
  */
 public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
 
-    public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
+    public SingleThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    public SingleThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
-        super(comPort, comServerDAO, deviceCommandExecutor, threadFactory, serviceProvider);
+    public SingleThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+        super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, threadFactory, serviceProvider);
     }
 
     @Override
@@ -36,11 +36,6 @@ public class SingleThreadedScheduledComPort extends ScheduledComPortImpl {
         if (user.isPresent()) {
             getServiceProvider().threadPrincipalService().set(user.get(), "SingleThreadedComPort", "Executing", Locale.ENGLISH);
         }
-    }
-
-    @Override
-    protected void doRun () {
-        this.executeTasks();
     }
 
     @Override

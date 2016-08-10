@@ -4,6 +4,7 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPortImpl;
 
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -43,6 +44,8 @@ public class ScheduledComPortFactoryImplTest {
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private ScheduledComPortImpl.ServiceProvider serviceProvider;
+    @Mock
+    private RunningComServer runningComServer;
 
     private Clock clock = Clock.systemDefaultZone();
 
@@ -57,19 +60,19 @@ public class ScheduledComPortFactoryImplTest {
     @Test
     public void testWithActivePort () {
         ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor, this.serviceProvider);
-        assertNotNull("Was NOT expecting the factory to return null for an active port", factory.newFor(this.activeComPort()));
+        assertNotNull("Was NOT expecting the factory to return null for an active port", factory.newFor(runningComServer, this.activeComPort()));
     }
 
     @Test
     public void testWithInactivePort () {
         ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor, this.serviceProvider);
-        assertNull("Was expecting the factory to return null for an inactive port", factory.newFor(this.inactiveComPort()));
+        assertNull("Was expecting the factory to return null for an inactive port", factory.newFor(runningComServer, this.inactiveComPort()));
     }
 
     @Test
     public void testWithActivePortWithZeroSimultaneousConnections () {
         ScheduledComPortFactoryImpl factory = new ScheduledComPortFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor, this.serviceProvider);
-        assertNull("Was expecting the factory to return null for active port with 0 simultaneous connections", factory.newFor(this.activeComPortWithZeroSimultaneousConnections()));
+        assertNull("Was expecting the factory to return null for active port with 0 simultaneous connections", factory.newFor(runningComServer, this.activeComPortWithZeroSimultaneousConnections()));
     }
 
     private ComServerDAO comServerDAO () {

@@ -44,7 +44,8 @@ public class CreateOutboundComSessionTest {
     public void testExecuteDelegatesToComServerDAO() {
         ComSessionBuilder comSessionBuilder = mock(ComSessionBuilder.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
-        CreateOutboundComSession command = new CreateOutboundComSession(Instant.now(), ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
+        Instant now = Instant.now();
+        CreateOutboundComSession command = new CreateOutboundComSession(now, ComServer.LogLevel.INFO, connectionTask, comSessionBuilder, ComSession.SuccessIndicator.Success, clock);
         command.setStopWatch(new StopWatch());
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
 
@@ -52,7 +53,7 @@ public class CreateOutboundComSessionTest {
         command.execute(comServerDAO);
 
         // Asserts
-        verify(comServerDAO).createComSession(comSessionBuilder, Instant.now(), ComSession.SuccessIndicator.Success);
+        verify(comServerDAO).createComSession(comSessionBuilder, now, ComSession.SuccessIndicator.Success);
     }
 
     @Test

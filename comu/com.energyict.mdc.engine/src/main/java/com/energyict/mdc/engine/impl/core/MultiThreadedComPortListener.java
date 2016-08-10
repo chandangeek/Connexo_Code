@@ -31,12 +31,12 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     private int numberOfThreads;
     private InboundComPortExecutorFactory inboundComPortExecutorFactory;
 
-    public MultiThreadedComPortListener(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
-        this(comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
+    public MultiThreadedComPortListener(RunningComServer runningComServer, InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl.ServiceProvider serviceProvider) {
+        this(runningComServer, comPort, deviceCommandExecutor, serviceProvider, new InboundComPortExecutorFactoryImpl(serviceProvider));
     }
 
-    protected MultiThreadedComPortListener(InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, InboundComPortExecutorFactory inboundComPortExecutorFactory) {
-        super(comPort, deviceCommandExecutor, serviceProvider);
+    protected MultiThreadedComPortListener(RunningComServer runningComServer, InboundComPort comPort, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider, InboundComPortExecutorFactory inboundComPortExecutorFactory) {
+        super(runningComServer, comPort, deviceCommandExecutor, serviceProvider);
         this.setThreadName("MultiThreaded listener for inbound ComPort " + comPort.getName());
         this.numberOfThreads = getComPort().getNumberOfSimultaneousConnections();
         this.resourceManager = new ResourceManager(getComPort().getNumberOfSimultaneousConnections());

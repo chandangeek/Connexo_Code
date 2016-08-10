@@ -2,12 +2,7 @@ package com.energyict.mdc.engine.impl.core.factories;
 
 import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
-import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
-import com.energyict.mdc.engine.impl.core.ComPortListener;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.MultiThreadedComPortListener;
-import com.energyict.mdc.engine.impl.core.ServletInboundComPortListener;
-import com.energyict.mdc.engine.impl.core.SingleThreadedComPortListener;
+import com.energyict.mdc.engine.impl.core.*;
 
 /**
  * Provides an implementation for the {@link ComPortListenerFactory}.
@@ -29,7 +24,7 @@ public class ComPortListenerFactoryImpl implements ComPortListenerFactory {
     }
 
     @Override
-    public ComPortListener newFor(InboundComPort comPort) {
+    public ComPortListener newFor(RunningComServer runningComServer, InboundComPort comPort) {
         if (comPort.isActive()) {
             if (!comPort.isServletBased()) {
                 switch (comPort.getNumberOfSimultaneousConnections()) {
@@ -37,20 +32,19 @@ public class ComPortListenerFactoryImpl implements ComPortListenerFactory {
                         return null;
                     }
                     case 1: {
-                        return new SingleThreadedComPortListener(comPort, this.deviceCommandExecutor, this.serviceProvider);
+                        return new SingleThreadedComPortListener(runningComServer, comPort, this.deviceCommandExecutor, this.serviceProvider);
                     }
                     default: {
-                        return new MultiThreadedComPortListener(comPort, this.deviceCommandExecutor, this.serviceProvider);
+                        return new MultiThreadedComPortListener(runningComServer, comPort, this.deviceCommandExecutor, this.serviceProvider);
                     }
                 }
             }
             else {
-                return new ServletInboundComPortListener(comPort, this.comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
+                return new ServletInboundComPortListener(runningComServer, comPort, this.comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
             }
         }
         else {
             return null;
         }
     }
-
 }

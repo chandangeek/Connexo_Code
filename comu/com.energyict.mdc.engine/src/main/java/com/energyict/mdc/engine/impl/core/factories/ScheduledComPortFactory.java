@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
+import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 import com.energyict.mdc.engine.config.OutboundComPort;
 
@@ -22,6 +23,6 @@ public interface ScheduledComPortFactory {
      * @return The ScheduledComPort or <code>null</code> if it was not necessary to schedule
      *         the OutboundComPort
      */
-    public ScheduledComPort newFor(OutboundComPort comPort);
+    public ScheduledComPort newFor(RunningComServer runningComServer, OutboundComPort comPort);
 
 }

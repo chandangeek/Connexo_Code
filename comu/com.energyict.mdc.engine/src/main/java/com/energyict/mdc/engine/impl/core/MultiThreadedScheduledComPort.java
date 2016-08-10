@@ -38,13 +38,13 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
      */
     private BlockingQueue<ScheduledJob> jobQueue;
 
-    public MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
-        super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
+    public MultiThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
+        super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         this.jobQueue = new ArrayBlockingQueue<>(comPort.getNumberOfSimultaneousConnections());
     }
 
-    public MultiThreadedScheduledComPort(OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
-        super(comPort, comServerDAO, deviceCommandExecutor, new ComPortThreadFactory(comPort, threadFactory), serviceProvider);
+    public MultiThreadedScheduledComPort(RunningComServer runningComServer, OutboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ThreadFactory threadFactory, ServiceProvider serviceProvider) {
+        super(runningComServer, comPort, comServerDAO, deviceCommandExecutor, new ComPortThreadFactory(comPort, threadFactory), serviceProvider);
         this.jobQueue = new ArrayBlockingQueue<>(comPort.getNumberOfSimultaneousConnections());
     }
 
@@ -81,11 +81,6 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
     private void shutdownJobScheduler () {
         this.jobScheduler.shutdown();
-    }
-
-    @Override
-    protected void doRun () {
-        this.executeTasks();
     }
 
     @Override

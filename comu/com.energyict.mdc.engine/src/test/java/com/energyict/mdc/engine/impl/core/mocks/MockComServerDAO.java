@@ -87,7 +87,7 @@ public class MockComServerDAO implements ComServerDAO {
         comServer.setServerLogLevel(ComServer.LogLevel.INFO);
         comServer.setCommunicationLogLevel(ComServer.LogLevel.INFO);
         comServer.setChangesInterPollDelay(new TimeDuration(CHANGES_DELAY_SECONDS, TimeDuration.TimeUnit.SECONDS));
-        comServer.setSchedulingInterPollDelay(new TimeDuration(2, TimeDuration.TimeUnit.HOURS));
+        comServer.setSchedulingInterPollDelay(new TimeDuration(100, TimeDuration.TimeUnit.MILLISECONDS));
     }
 
     public MockOnlineComServer addComServer (int activeOutboundComPorts, int activeInboundComPorts) throws SQLException {
@@ -202,6 +202,24 @@ public class MockComServerDAO implements ComServerDAO {
     public ComServer refreshComServer (ComServer comServer) {
         this.comServerRefreshCount++;
         return this.doRefresh(comServer);
+    }
+
+    @Override
+    public ComPort refreshComPort (ComPort comPort) {
+        MockComPort mockComPort = (MockComPort) comPort;
+        if (mockComPort.isDirty()) {
+            mockComPort.setDirty(false);
+            try {
+                return (ComPort) mockComPort.clone();
+            }
+            catch (CloneNotSupportedException e) {
+                // Silly bugger, the class implements Cloneable
+                return comPort;
+            }
+        }
+        else {
+            return comPort;
+        }
     }
 
     private ComServer doRefresh (ComServer comServer) {
@@ -377,6 +395,11 @@ public class MockComServerDAO implements ComServerDAO {
     public TimeDuration releaseTimedOutTasks (ComServer comServer) {
         this.comTaskExecutionLocking.clear();
         return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+    }
+
+    @Override
+    public void releaseTasksFor(ComPort comPort) {
+        this.comTaskExecutionLocking.clear();
     }
 
 //    private EndDeviceCache createOrUpdateDeviceCache(int deviceId, DeviceCacheShadow shadow) {

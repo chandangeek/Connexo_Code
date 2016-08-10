@@ -70,6 +70,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
     private Counter getThisComServer = new Counter();
     private Counter getComServer = new Counter();
     private Counter refreshComServer = new Counter();
+    private Counter refreshComPort = new Counter();
     private Counter findExecutableComTasks = new Counter();
     private Counter connectionTaskExecutionStarted = new Counter();
     private Counter connectionTaskExecutionCompleted = new Counter();
@@ -103,6 +104,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
     public ComServer refreshComServer (ComServer comServer) {
         this.refreshComServer.increment();
         return this.actual.refreshComServer(comServer);
+    }
+
+    @Override
+    public ComPort refreshComPort(ComPort comPort) {
+        this.refreshComPort.increment();
+        return this.actual.refreshComPort(comPort);
     }
 
     @Override
@@ -333,6 +340,12 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public ComPort refreshComPort(ComPort comPort) {
+            this.verifier.verify(refreshComPort);
+            return null;
+        }
+
+        @Override
         public List<ComJob> findExecutableOutboundComTasks (OutboundComPort comPort) {
             this.verifier.verify(findExecutableComTasks);
             return null;
@@ -525,6 +538,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public void releaseTasksFor(ComPort comPort) {
+            // No implementation required
+        }
+
+        @Override
         public void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading) {
             // Not storing readings in mock mode
         }
@@ -626,6 +644,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     public TimeDuration releaseTimedOutTasks (ComServer comServer) {
         // No need to release when in monitoring mode
         return new TimeDuration(1, TimeDuration.TimeUnit.DAYS);
+    }
+
+    @Override
+    public void releaseTasksFor(ComPort comPort) {
+        // No implementation required
     }
 
     @Override

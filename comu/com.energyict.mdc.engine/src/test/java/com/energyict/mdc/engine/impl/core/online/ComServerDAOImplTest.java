@@ -7,7 +7,9 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -20,12 +22,7 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceBreakerStatus;
 import com.energyict.mdc.engine.impl.meterdata.DeviceFirmwareVersion;
-import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.firmware.FirmwareStatus;
-import com.energyict.mdc.firmware.FirmwareType;
-import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareVersionBuilder;
+import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.protocol.api.device.data.BreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedBreakerStatus;
 import com.energyict.mdc.protocol.api.device.data.CollectedCalendar;
@@ -34,8 +31,13 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.MessageIdentifier;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-
 import com.google.common.collect.Range;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -44,22 +46,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link ComServerDAOImpl} component.
@@ -314,6 +304,27 @@ public class ComServerDAOImplTest {
         // Asserts
         verify(connectionTask).setProperty(IP_ADDRESS_PROPERTY_NAME, IP_ADDRESS);
         verify(connectionTask).save();
+    }
+
+    @Test
+    public void releaseComTasksForComPortTest() throws SQLException {
+        ServerConnectionTask connectionTask = mock(ServerConnectionTask.class);
+        ServerComTaskExecution comTaskExecution1 = mock(ServerComTaskExecution.class);
+        when(comTaskExecution1.getConnectionTask()).thenReturn(Optional.of(connectionTask));
+        ServerComTaskExecution comTaskExecution2 = mock(ServerComTaskExecution.class);
+        when(comTaskExecution2.getConnectionTask()).thenReturn(Optional.of(connectionTask));
+        ServerComTaskExecution comTaskExecution3 = mock(ServerComTaskExecution.class);
+        when(comTaskExecution3.getConnectionTask()).thenReturn(Optional.of(connectionTask));
+        when(communicationTaskService.findComTaskExecutionsWhichAreExecuting(this.comPort)).thenReturn(Arrays.<ComTaskExecution>asList(comTaskExecution1, comTaskExecution2, comTaskExecution3));
+
+        // Business method
+        this.comServerDAO.releaseTasksFor(this.comPort);
+
+        // Asserts
+        verify(comTaskExecution1).unlock();
+        verify(comTaskExecution2).unlock();
+        verify(comTaskExecution3).unlock();
+        verify(connectionTaskService).unlockConnectionTask(eq(connectionTask));
     }
 
     @Test

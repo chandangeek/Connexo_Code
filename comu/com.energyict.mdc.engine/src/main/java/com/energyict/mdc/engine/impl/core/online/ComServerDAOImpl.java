@@ -14,6 +14,9 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
+import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
@@ -42,10 +45,7 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -182,6 +182,18 @@ public class ComServerDAOImpl implements ComServerDAO {
             }
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public ComPort refreshComPort(ComPort comPort) {
+        Optional<? extends ComPort> reloaded = getEngineModelService().findComPort(comPort.getId());
+        if (!reloaded.isPresent() || reloaded.get().isObsolete()) {
+            return null;
+        } else if (reloaded.get().getModificationDate().isAfter(comPort.getModificationDate())) {
+            return reloaded.get();
+        } else {
+            return comPort;
         }
     }
 
@@ -446,6 +458,66 @@ public class ComServerDAOImpl implements ComServerDAO {
             getConnectionTaskService().releaseTimedOutConnectionTasks(comServer);
             return getCommunicationTaskService().releaseTimedOutComTasks(comServer);
         });
+    }
+
+    @Override
+    public void releaseTasksFor(final ComPort comPort) {
+        this.executeTransaction(() -> {
+            List<ComTaskExecution> comTaskExecutionsWhichAreExecuting = getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(comPort);
+            Set<ServerConnectionTask> lockedConnectionTasks = new HashSet<>();
+
+            if (comTaskExecutionsWhichAreExecuting.isEmpty()) {
+                // There are no ComTaskExec locked for this com port,
+                // so we might be in the case where only the connection task is locked
+
+                lockedConnectionTasks.addAll(getLockedByComServer(comPort.getComServer()));
+
+                for (ComPort otherComPort : comPort.getComServer().getComPorts()) {
+                    unlockAllTasksByComPort(otherComPort);
+                }
+            } else {
+                for (ComTaskExecution comTaskExecution : comTaskExecutionsWhichAreExecuting) {
+                    if (comTaskExecution.getConnectionTask().isPresent()) {
+                        lockedConnectionTasks.add((ServerConnectionTask) comTaskExecution.getConnectionTask().get());
+                        ((ServerComTaskExecution) comTaskExecution).unlock();
+                    }
+                }
+            }
+
+            // unlock the connection tasks (after all affected ComTaskExecs are unlocked)
+            for (ServerConnectionTask lockedConnectionTask : lockedConnectionTasks) {
+                if (lockedConnectionTask instanceof ScheduledConnectionTask) {
+                    unlock((ScheduledConnectionTask) lockedConnectionTask);
+                } else if (lockedConnectionTask instanceof OutboundConnectionTask) {
+                    unlock((OutboundConnectionTask) lockedConnectionTask);
+                }
+            }
+            return null;
+        });
+    }
+
+    /**
+     *  Find and release any ComTaskExec executed by a ComPort
+     *
+     *  Those tasks will not appear busy anymore, but the ComServer will still continue with these tasks until they are actually finished
+     *  Normally no other port will pick it up until the nextExecutionTimeStamp has passed,
+     *  but we update that nextExecutionTimestamp to the next according to his schedule in the beginning of the session (from Govanni)
+     */
+    private void unlockAllTasksByComPort(ComPort otherComPort) {
+        for (ComTaskExecution otherComTaskExec : getCommunicationTaskService().findComTaskExecutionsWhichAreExecuting(otherComPort)){
+            ((ServerComTaskExecution) otherComTaskExec).unlock();
+        }
+    }
+
+    /**
+     * Find connections locked by a comServer
+     */
+    private List<ServerConnectionTask> getLockedByComServer(ComServer comServer) {
+        List<ServerConnectionTask> lockedConnectionTasks = new ArrayList<>();
+        for (ConnectionTask connectionTask : ((ServerConnectionTaskService) getConnectionTaskService()).findLockedByComServer(comServer)){
+            lockedConnectionTasks.add((ServerConnectionTask)connectionTask );
+        }
+        return lockedConnectionTasks;
     }
 
     @Override
