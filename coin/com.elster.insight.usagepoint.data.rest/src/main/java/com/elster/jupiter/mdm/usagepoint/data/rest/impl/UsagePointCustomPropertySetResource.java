@@ -320,11 +320,9 @@ public class UsagePointCustomPropertySetResource {
                                                               @QueryParam("forced") boolean forced,
                                                               @Context SecurityContext securityContext,
                                                               CustomPropertySetInfo<UsagePointInfo> info) {
-        UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
-                .lockUsagePointOrThrowException(info.parent)
-                .forCustomProperties()
-                .getVersionedPropertySet(rcpsId);
-        validateRangeSourceValues(info.startTime, info.endTime);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(usagePointMrid);
+        UsagePointVersionedPropertySet versionedPropertySet = usagePoint.forCustomProperties().getVersionedPropertySet(rcpsId);
+        validateRangeStart(info.startTime, usagePoint);
         Instant versionStartTime = Instant.ofEpochMilli(info.versionId);
         CustomPropertySetValues values = customPropertySetInfoFactory
                 .getCustomPropertySetValues(info, versionedPropertySet.getCustomPropertySet().getPropertySpecs());
