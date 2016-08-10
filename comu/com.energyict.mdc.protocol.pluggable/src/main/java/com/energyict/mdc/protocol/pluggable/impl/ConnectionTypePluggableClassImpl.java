@@ -39,11 +39,11 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
         this.protocolPluggableService = protocolPluggableService;
     }
 
-    static ConnectionTypePluggableClassImpl from (DataModel dataModel, PluggableClass pluggableClass) {
+    static ConnectionTypePluggableClassImpl from(DataModel dataModel, PluggableClass pluggableClass) {
         return dataModel.getInstance(ConnectionTypePluggableClassImpl.class).initializeFrom(pluggableClass);
     }
 
-    ConnectionTypePluggableClassImpl initializeFrom (PluggableClass pluggableClass) {
+    ConnectionTypePluggableClassImpl initializeFrom(PluggableClass pluggableClass) {
         this.setPluggableClass(pluggableClass);
         return this;
     }
@@ -63,7 +63,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
         return this.newInstance(pluggableClass.getJavaClassName());
     }
 
-    private ConnectionType newInstance (String javaClassName) {
+    private ConnectionType newInstance(String javaClassName) {
         return this.protocolPluggableService.createConnectionType(javaClassName);
     }
 
@@ -96,14 +96,14 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public ConnectionType getConnectionType () {
+    public ConnectionType getConnectionType() {
         ConnectionType connectionType = this.newInstance();
         connectionType.copyProperties(this.getProperties(connectionType.getPropertySpecs()));
         return connectionType;
     }
 
     @Override
-    public PluggableClassType getPluggableClassType () {
+    public PluggableClassType getPluggableClassType() {
         return PluggableClassType.ConnectionType;
     }
 
@@ -135,7 +135,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public boolean isInstance (ConnectionType connectionType) {
+    public boolean isInstance(ConnectionType connectionType) {
         return this.getJavaClassName().equals(connectionType.getClass().getName());
     }
 
@@ -161,4 +161,21 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
                 .ifPresent(propertySet -> this.customPropertySetService.removeValuesFor(propertySet, connectionProvider));
     }
 
+    @Override
+    public int getNrOfRetries() {
+        String propertyValue = getProperties().getStringProperty(NR_OF_RETRIES_ATTRIBUTE_NAME);
+        if (propertyValue != null && !propertyValue.isEmpty()) {
+            return Integer.valueOf(propertyValue);
+        } else {
+            return DEFAULT_NR_OF_RETRIES;
+        }
+    }
+
+    @Override
+    public void updateNrOfRetries(int nrOfRetries) {
+        Optional<PropertySpec> propertySpec = getPropertySpec(NR_OF_RETRIES_ATTRIBUTE_NAME);
+        if (propertySpec.isPresent()) {
+            setProperty(propertySpec.get(), String.valueOf(nrOfRetries));
+        }
+    }
 }

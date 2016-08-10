@@ -19,6 +19,9 @@ import java.util.Optional;
  */
 public interface ConnectionTypePluggableClass extends PluggableClass {
 
+    String NR_OF_RETRIES_ATTRIBUTE_NAME = "connectionTypeRetries";
+    int DEFAULT_NR_OF_RETRIES = 3;
+
     List<PropertySpec> getPropertySpecs();
 
     /**
@@ -27,7 +30,7 @@ public interface ConnectionTypePluggableClass extends PluggableClass {
      *
      * @param name The name of the property specification
      * @return The PropertySpec or <code>null</code>
-     *         if no such PropertySpec exists
+     * if no such PropertySpec exists
      */
     Optional<PropertySpec> getPropertySpec(String name);
 
@@ -73,7 +76,7 @@ public interface ConnectionTypePluggableClass extends PluggableClass {
      * Sets all the properties for the specified {@link ConnectionProvider}.
      *
      * @param connectionProvider The ConnectionProvider
-     * @param value The property values
+     * @param value              The property values
      * @param effectiveTimestamp The point in time from which the new values are effective onwards
      */
     void setPropertiesFor(ConnectionProvider connectionProvider, CustomPropertySetValues value, Instant effectiveTimestamp);
@@ -86,5 +89,19 @@ public interface ConnectionTypePluggableClass extends PluggableClass {
      * @see #setPropertiesFor(ConnectionProvider, CustomPropertySetValues, Instant)
      */
     void removePropertiesFor(ConnectionProvider connectionProvider);
+
+    /**
+     * Provides the nr of retries this connectionTask can do before failing
+     *
+     * @return the number of retries
+     */
+    int getNrOfRetries();
+
+    /**
+     * Set the new value for the number or retries
+     *
+     * @param nrOfRetries the new value for the number of retries
+     */
+    void updateNrOfRetries(int nrOfRetries);
 
 }
