@@ -242,8 +242,7 @@ Ext.define('Wss.controller.Webservices', {
                         record.destroy({
                             success: function () {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('webservices.remove.success.msg', 'WSS', 'Webservice endpoint removed'));
-                                me.getPaging().resetPaging();
-                                store.load();
+                                me.showWebservicesOverview();
                             }
                         });
                     }
