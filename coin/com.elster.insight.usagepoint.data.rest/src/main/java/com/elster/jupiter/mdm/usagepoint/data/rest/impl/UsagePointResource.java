@@ -706,8 +706,7 @@ public class UsagePointResource {
         if (now.isAfter(relativePeriodStart)) {
             long relativePeriodLength = getIntervalLength(interval.intersection(Range.atMost(now)));
             long targetLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodStart.plus(targetIntervalLength)));
-            long temporalDistance = Math.abs(now.toInstant().toEpochMilli() - interval.upperEndpoint().toInstant().toEpochMilli());
-            return Math.abs(targetLength - relativePeriodLength + temporalDistance);
+            return Math.abs(targetLength - relativePeriodLength);
         }
         // period starts in the future, this is not what we need,
         // return max interval length to move such relative period to the bottom of the list
