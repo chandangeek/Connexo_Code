@@ -25,7 +25,7 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     private static final String APPLY_CTRATIO = "ApplyCTRatio";
     private ProfileBuilder profileBuilder;
     private boolean applyCtRatio;
-    private String timeZone = "GWT";
+    private String timeZone = "UTC";
 
     @Override
     public String getSerialNumber() {
@@ -39,7 +39,7 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     @Override
     protected void doTheValidateProperties(Properties properties) throws MissingPropertyException, InvalidPropertyException {
         applyCtRatio = Integer.parseInt(properties.getProperty(APPLY_CTRATIO, "0").trim()) == 1;
-        setTimeZone(properties.getProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, "GMT+2"));
+        setTimeZone(properties.getProperty(LegacyProtocolProperties.DEVICE_TIMEZONE_PROPERTY_NAME, "UTC"));
     }
 
     private void setTimeZone(String timeZone) {
