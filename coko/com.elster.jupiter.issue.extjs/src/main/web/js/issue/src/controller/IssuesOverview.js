@@ -136,7 +136,7 @@ Ext.define('Isu.controller.IssuesOverview', {
         Ext.suspendLayouts();
         preview.loadRecord(record);
         preview.down('issues-action-menu').record = record;
-        preview.setTitle(record.get('issueId') +': ' + record.get('title'));
+        preview.setTitle(record.get('title'));
         Ext.resumeLayouts(true);
     },
 

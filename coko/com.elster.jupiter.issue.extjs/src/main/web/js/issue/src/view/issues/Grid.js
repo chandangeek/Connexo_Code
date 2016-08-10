@@ -18,16 +18,6 @@ Ext.define('Isu.view.issues.Grid', {
 
         me.columns = [
             {
-                itemId: 'issues-grid-id',
-                header: Uni.I18n.translate('general.title.issueId', 'ISU', 'Id'),
-                dataIndex: 'issueId',
-                flex: 1,
-                renderer: function (value, metaData, record) {
-                    var url = me.router.getRoute(me.router.currentRoute + '/view').buildUrl({issueId: record.getId()}, {issueType: record.get('issueType').uid});
-                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
-                }
-            },
-            {
                 itemId: 'issues-grid-title',
                 header: Uni.I18n.translate('general.title.issue', 'ISU', 'Issue'),
                 dataIndex: 'title',
@@ -65,7 +55,6 @@ Ext.define('Isu.view.issues.Grid', {
                 itemId: 'issues-grid-status',
                 header: Uni.I18n.translate('general.status', 'ISU', 'Status'),
                 dataIndex: 'status_name',
-                //width: 100
                 flex: 1
             },
             {
