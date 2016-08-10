@@ -335,7 +335,6 @@ Ext.define('Mdc.timeofuse.controller.TimeOfUse', {
                     calendarRecord.destroy(
                         {
                             callback: function(record, operation, success) {
-                                debugger;
                                 me.calendarCount = store.getCount();
                                 me.updateCounter();
                             }
