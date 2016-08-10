@@ -4,7 +4,11 @@
 Ext.define('Uni.grid.column.Date', {
     extend: 'Uni.grid.column.Default',
     xtype: 'uni-date-column',
-    renderer: function (value) {
-        return value ? Uni.DateTime.formatDateTimeShort(value) : '';
+    renderer: function (value, metaData) {
+        var result = value ? Uni.DateTime.formatDateTimeShort(value) : '';
+
+        metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(result)) + '"';
+
+        return result;
     }
 });

@@ -164,7 +164,7 @@ Ext.define('Uni.view.search.Overview', {
                                 Uni.I18n.translate('search.overview.noItemsFoundPanel.item2', 'UNI', 'There are no requested items.'),
                                 Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'No search results comply with the filter.')
                             ],
-                            margins: '16 0 0 0'
+                            margin: '16 0 0 0'
                         }
                     }
                 ]/*,

@@ -7,13 +7,18 @@ Ext.define('Uni.grid.column.search.Quantity', {
 
 
     renderer: function (value, metaData, record) {
+        var result = ' ';
 
         if (value) {
             if (value.multiplier == 0)
-                return value.value + ' ' + value.unit;
+                result = value.value + ' ' + value.unit;
             else
-                return value.value + '*10<sup style="vertical-align: top; position: relative; top: -0.5em;">' + value.multiplier + '</sup> ' + value.unit;
+                result = value.value + '*10<sup style="vertical-align: top; position: relative; top: -0.5em;">' + value.multiplier + '</sup> ' + value.unit;
 
-        } else return ' ';
+        }
+
+        metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(result)) + '"';
+
+        return result
     }
 });
