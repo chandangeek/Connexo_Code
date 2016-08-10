@@ -112,7 +112,10 @@ public class DeviceFinder implements Finder<Device> {
     private class NoPaging implements Pager {
         @Override
         public SqlBuilder addPaging(SqlBuilder sqlBuilder, String field) {
-            return sqlBuilder;
+            SqlBuilder builder = new SqlBuilder("SELECT id FROM ( ");
+            builder.add(sqlBuilder);
+            builder.append(")");
+            return builder;
         }
     }
 
