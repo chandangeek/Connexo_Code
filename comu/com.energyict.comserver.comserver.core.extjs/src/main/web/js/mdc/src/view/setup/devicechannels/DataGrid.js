@@ -49,8 +49,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     var readingQualitiesPresent = !Ext.isEmpty(record.get('readingQualities')),
                         text = value
                             ? Uni.I18n.translate(
-                            'general.dateAtTime', 'MDC', '{0} at {1}',
-                            [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)])
+                                'general.dateAtTime', 'MDC', '{0} at {1}',
+                                [Uni.DateTime.formatDateShort(value), Uni.DateTime.formatTimeShort(value)])
                             : '-',
                         tooltipContent = '',
                         icon = '';
@@ -134,8 +134,8 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     xtype: 'deviceLoadProfileChannelDataActionMenu',
                     itemId: 'channel-data-grid-action-menu'
                 },
-                renderer: function(value, metaData, record) {
-                    this.disabled = !Ext.isEmpty(record.get('slaveChannel'))
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return !Ext.isEmpty(record.get('slaveChannel'));
                 }
             }
         ];

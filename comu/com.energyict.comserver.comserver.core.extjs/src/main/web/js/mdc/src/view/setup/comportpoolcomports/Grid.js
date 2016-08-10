@@ -36,7 +36,6 @@ Ext.define('Mdc.view.setup.comportpoolcomports.Grid', {
             {
                 xtype: 'actioncolumn',
                 privileges: Mdc.privileges.Communication.admin,
-
                 align: 'center',
                 items: [{
                     iconCls: 'uni-icon-delete',
@@ -56,8 +55,8 @@ Ext.define('Mdc.view.setup.comportpoolcomports.Grid', {
                         }
                     }
                 }]
-            }
 
+            }
         ]
     },
     dockedItems: [

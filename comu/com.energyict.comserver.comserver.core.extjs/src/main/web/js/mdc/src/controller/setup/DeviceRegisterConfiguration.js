@@ -498,7 +498,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
         model.load(customAttributeSetId, {
             success: function (record) {
-                widget.down('#registerEditPanel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                widget.down('#registerEditPanel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
                 me.getApplication().fireEvent('loadRegisterConfigurationCustomAttributes', record);
                 form.loadRecord(record);
             },

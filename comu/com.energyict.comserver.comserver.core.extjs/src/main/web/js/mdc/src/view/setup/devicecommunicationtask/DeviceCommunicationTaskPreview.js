@@ -136,7 +136,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 {
                                     xtype: 'displayfield',
                                     name: 'status',
-                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.currentStatus', 'MDC', 'Current status')
+                                    fieldLabel: Uni.I18n.translate('deviceCommunicationTask.status', 'MDC', 'Status')
                                 },
                                 {
                                     xtype: 'displayfield',
