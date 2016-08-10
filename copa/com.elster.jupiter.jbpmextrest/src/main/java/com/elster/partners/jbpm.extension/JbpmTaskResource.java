@@ -667,8 +667,10 @@ public class JbpmTaskResource {
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
         if(task != null){
             if(task.getStatus().equals("Created") || task.getStatus().equals("Ready") || task.getStatus().equals("Reserved")) {
-                taskService.start(taskId, context.getUserPrincipal().getName());
-                return Response.ok().build();
+                if(taskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(context.getUserPrincipal().getName())) {
+                    taskService.start(taskId, context.getUserPrincipal().getName());
+                    return Response.ok().build();
+                }
             }
             return Response.status(409).entity(task.getName()).build();
         }
@@ -682,13 +684,14 @@ public class JbpmTaskResource {
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
         if(task != null) {
             if (!task.getStatus().equals("Completed")) {
-                TaskCommand<?> cmd = new CompleteTaskCommand(taskId, context.getUserPrincipal()
-                        .getName(), taskOutputContentInfo.outputTaskContent);
-                processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
-                return Response.ok().build();
-            } else {
-                return Response.status(409).entity(task.getName()).build();
+                if(taskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(context.getUserPrincipal().getName())) {
+                    TaskCommand<?> cmd = new CompleteTaskCommand(taskId, context.getUserPrincipal()
+                            .getName(), taskOutputContentInfo.outputTaskContent);
+                    processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
+                    return Response.ok().build();
+                }
             }
+            return Response.status(409).entity(task.getName()).build();
         }
         return Response.status(400).build();
     }
@@ -696,15 +699,16 @@ public class JbpmTaskResource {
     @POST
     @Produces("application/json")
     @Path("/{taskId: [0-9-]+}/contentsave/")
-    public Response saveTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId){
+    public Response saveTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @Context SecurityContext context){
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
         if(task != null) {
             if (!task.getStatus().equals("Completed")) {
-                ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
-                return Response.ok().build();
-            } else {
-                return Response.status(409).entity(task.getName()).build();
+                if(taskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(context.getUserPrincipal().getName())) {
+                    ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
+                    return Response.ok().build();
+                }
             }
+            return Response.status(409).entity(task.getName()).build();
         }
         return Response.status(400).build();
     }
