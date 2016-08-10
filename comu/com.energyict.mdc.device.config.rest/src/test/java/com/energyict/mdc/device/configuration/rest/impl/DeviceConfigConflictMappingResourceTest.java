@@ -10,13 +10,14 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -40,7 +41,7 @@ public class DeviceConfigConflictMappingResourceTest extends DeviceConfiguration
         when(deviceType.getName()).thenReturn("Device type " + id);
         when(deviceType.getId()).thenReturn(id);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();

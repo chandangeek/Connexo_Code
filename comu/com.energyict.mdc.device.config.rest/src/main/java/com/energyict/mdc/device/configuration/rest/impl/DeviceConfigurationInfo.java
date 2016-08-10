@@ -6,7 +6,6 @@ import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
@@ -55,14 +54,13 @@ public class DeviceConfigurationInfo {
         parent = new VersionInfo<>(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getDeviceType().getVersion());
         dataloggerEnabled = deviceConfiguration.isDataloggerEnabled();
 
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
-        if (deviceProtocolPluggableClass!=null) {
-            this.deviceProtocolInfo=new DeviceProtocolInfo(deviceProtocolPluggableClass);
+        deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().ifPresent(deviceProtocolPluggableClass -> {
+            this.deviceProtocolInfo = new DeviceProtocolInfo(deviceProtocolPluggableClass);
             DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
-            if (deviceProtocol!=null) {
+            if (deviceProtocol != null) {
                 deviceFunction = deviceProtocol.getDeviceFunction();
             }
-        }
+        });
     }
 
     public static List<DeviceConfigurationInfo> from(List<DeviceConfiguration> deviceConfigurations) {
@@ -77,10 +75,10 @@ public class DeviceConfigurationInfo {
         deviceConfiguration.setDescription(this.description);
         deviceConfiguration.setName(this.name);
         deviceConfiguration.setGatewayType(this.gatewayType);
-        if (this.canBeGateway!=null) {
+        if (this.canBeGateway != null) {
             deviceConfiguration.setCanActAsGateway(this.canBeGateway);
         }
-        if (this.isDirectlyAddressable!=null) {
+        if (this.isDirectlyAddressable != null) {
             deviceConfiguration.setDirectlyAddressable(this.isDirectlyAddressable);
         }
         deviceConfiguration.setDataloggerEnabled(dataloggerEnabled);

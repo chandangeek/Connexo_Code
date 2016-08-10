@@ -182,8 +182,10 @@ public class DeviceTypeResource {
         deviceTypeInfo.id = id;
         DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeInfo);
         deviceType.setName(deviceTypeInfo.name);
-        deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
         deviceType.setDeviceTypePurpose(getDeviceTypePurpose(deviceTypeInfo));
+        if (!deviceType.isDataloggerSlave()) {
+            deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
+        }
         if (deviceTypeInfo.registerTypes != null) {
             updateRegisterTypeAssociations(deviceType, deviceTypeInfo.registerTypes);
         }
@@ -236,7 +238,7 @@ public class DeviceTypeResource {
     public Response getDeviceTypeCapabilites(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<IdWithNameInfo> capabilities =
-                deviceType.getDeviceProtocolPluggableClass().supportsFileManagement() ?
+                deviceType.getDeviceProtocolPluggableClass().isPresent() && deviceType.getDeviceProtocolPluggableClass().get().supportsFileManagement() ?
                         Collections.singletonList(new IdWithNameInfo(null, "devicetype.supports.filemanagement")) :
                         Collections.emptyList();
         return Response.ok(PagedInfoList.fromCompleteList("capabilities", capabilities, queryParameters)).build();
