@@ -242,10 +242,10 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
             Range<Instant> valuesRange = values.getEffectiveRange();
             if (!valuesRange.hasLowerBound()) {
                 valuesRange = valuesRange.hasUpperBound()
-                        ? Range.closedOpen(usagePoint.getCreateDate(), valuesRange.upperEndpoint())
+                        ? Range.open(usagePoint.getCreateDate(), valuesRange.upperEndpoint())
                         : Range.atLeast(usagePoint.getCreateDate());
             } else if (usagePoint.getCreateDate().isAfter(valuesRange.lowerEndpoint())) {
-                throw new UsagePointCustomPropertySetVersionIncorrectStartDateException(thesaurus, MessageSeeds.VERSION_START_SHOULD_BE_GREATER_THAN_UP_CREATION_DATE);
+                throw new UsagePointCustomPropertySetVersionIncorrectStartDateException(thesaurus, MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE);
             }
             if (anyTimeInVersionInterval == null) {
                 // create new version
