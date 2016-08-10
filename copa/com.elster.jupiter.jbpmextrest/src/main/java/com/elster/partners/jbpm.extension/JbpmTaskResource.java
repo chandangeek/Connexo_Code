@@ -9,6 +9,7 @@ import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
+import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.jbpm.services.task.commands.CompleteTaskCommand;
 import org.jbpm.services.task.commands.TaskCommand;
 import org.jbpm.services.task.impl.model.TaskImpl;
@@ -663,9 +664,9 @@ public class JbpmTaskResource {
     @Produces("application/json")
     @Path("/{taskId: [0-9-]+}/contentstart")
     public Response startTaskContent(@PathParam("taskId") long taskId, @Context SecurityContext context) {
-        Task task = taskService.getTaskById(taskId);
-        if(task != null) {
-            if (task.getTaskData().getStatus().equals(Status.Created) || task.getTaskData().getStatus().equals(Status.Reserved) || task.getTaskData().getStatus().equals(Status.Ready)) {
+        UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
+        if(task != null){
+            if(task.getStatus().equals("Created") || task.getStatus().equals("Ready") || task.getStatus().equals("Reserved")) {
                 taskService.start(taskId, context.getUserPrincipal().getName());
                 return Response.ok().build();
             }
@@ -678,28 +679,34 @@ public class JbpmTaskResource {
     @Produces("application/json")
     @Path("/{taskId: [0-9-]+}/contentcomplete")
     public Response completeTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @Context SecurityContext context) {
-        Task task = taskService.getTaskById(taskId);
-        if (task != null) {
-            TaskCommand<?> cmd = new CompleteTaskCommand(taskId, context.getUserPrincipal()
-                    .getName(), taskOutputContentInfo.outputTaskContent);
-            processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
-            return Response.ok().build();
-        }else {
-            return Response.status(409).entity(taskId).build();
+        UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
+        if(task != null) {
+            if (!task.getStatus().equals("Completed")) {
+                TaskCommand<?> cmd = new CompleteTaskCommand(taskId, context.getUserPrincipal()
+                        .getName(), taskOutputContentInfo.outputTaskContent);
+                processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
+                return Response.ok().build();
+            } else {
+                return Response.status(409).entity(task.getName()).build();
+            }
         }
+        return Response.status(400).build();
     }
 
     @POST
     @Produces("application/json")
     @Path("/{taskId: [0-9-]+}/contentsave/")
     public Response saveTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId){
-        Task task = taskService.getTaskById(taskId);
-        if (task != null) {
-            ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
-            return Response.ok().build();
-        }else {
-            return Response.status(409).entity(taskId).build();
+        UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
+        if(task != null) {
+            if (!task.getStatus().equals("Completed")) {
+                ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
+                return Response.ok().build();
+            } else {
+                return Response.status(409).entity(task.getName()).build();
+            }
         }
+        return Response.status(400).build();
     }
 
     private List<Long> taskIdList(String source){
@@ -823,54 +830,59 @@ public class JbpmTaskResource {
             if (getQueryValue(uriInfo, "currentuser") != null) {
                 for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
                     for(Long taskId: taskGroup.taskIds){
-                        if (!taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Completed)) {
-                            boolean check = true;
-                            if (taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Ready)) {
-                                assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
-                            }
-                            if (taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Created)) {
-                                if(assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId)) {
-                                    taskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
-                                }else{
-                                    check = false;
+                        if(taskService.getTaskById(taskId) != null) {
+                            if (!taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Completed)) {
+                                boolean check = true;
+                                if (taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Ready)) {
+                                    assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId);
                                 }
-                            }
-                            if (taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Reserved)) {
-                                if (!taskService.getTaskById(taskId)
-                                        .getTaskData()
-                                        .getActualOwner()
-                                        .getId()
-                                        .equals(getQueryValue(uriInfo, "currentuser"))) {
-                                    if (assignTaskToUser(getQueryValue(uriInfo, "currentuser"), taskService.getTaskById(taskId)
+                                if (taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Created)) {
+                                    if (assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId)) {
+                                        taskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                    } else {
+                                        check = false;
+                                    }
+                                }
+                                if (taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Reserved)) {
+                                    if (!taskService.getTaskById(taskId)
                                             .getTaskData()
                                             .getActualOwner()
-                                            .getId(), taskId)) {
+                                            .getId()
+                                            .equals(getQueryValue(uriInfo, "currentuser"))) {
+                                        if (assignTaskToUser(getQueryValue(uriInfo, "currentuser"), taskService.getTaskById(taskId)
+                                                .getTaskData()
+                                                .getActualOwner()
+                                                .getId(), taskId)) {
+                                            taskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                        } else {
+                                            check = false;
+                                        }
+                                    } else {
                                         taskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
-                                    }else{
-                                        check = false;
                                     }
-                                }else {
-                                    taskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
                                 }
-                            }
-                            if (taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.InProgress)) {
-                                if (!taskService.getTaskById(taskId)
+                                if (taskService.getTaskById(taskId)
                                         .getTaskData()
-                                        .getActualOwner()
-                                        .getId()
-                                        .equals(getQueryValue(uriInfo, "currentuser"))) {
-                                    if(assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId)) {
-                                        taskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
-                                    }else{
-                                        check = false;
+                                        .getStatus()
+                                        .equals(Status.InProgress)) {
+                                    if (!taskService.getTaskById(taskId)
+                                            .getTaskData()
+                                            .getActualOwner()
+                                            .getId()
+                                            .equals(getQueryValue(uriInfo, "currentuser"))) {
+                                        if (assignTaskToUser(getQueryValue(uriInfo, "currentuser"), getQueryValue(uriInfo, "currentuser"), taskId)) {
+                                            taskService.start(taskId, getQueryValue(uriInfo, "currentuser"));
+                                        } else {
+                                            check = false;
+                                        }
                                     }
                                 }
-                            }
-                            if(check) {
-                                TaskCommand<?> cmd = new CompleteTaskCommand(taskId, getQueryValue(uriInfo, "currentuser"), taskGroup.outputBindingContents);
-                                processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
-                            }else {
-                                failed++;
+                                if (check) {
+                                    TaskCommand<?> cmd = new CompleteTaskCommand(taskId, getQueryValue(uriInfo, "currentuser"), taskGroup.outputBindingContents);
+                                    processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
+                                } else {
+                                    failed++;
+                                }
                             }
                         }
                     }
