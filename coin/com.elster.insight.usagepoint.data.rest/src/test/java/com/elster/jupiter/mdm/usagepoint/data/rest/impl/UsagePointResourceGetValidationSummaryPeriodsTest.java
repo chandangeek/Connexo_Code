@@ -127,9 +127,9 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(7);
-        assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(4, 2, 3, 1, 6, 5, 7);
+        assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(7, 4, 2, 3, 1, 6, 5);
         assertThat(jsonModel.<List<String>>get("$.relativePeriods[*].name")).containsExactly(
-                THIS_YEAR, PREVIOUS_MONTH, THIS_MONTH, LAST_7_DAYS, YESTERDAY, TODAY, YEAR_AGO
+                YEAR_AGO, THIS_YEAR, PREVIOUS_MONTH, THIS_MONTH, LAST_7_DAYS, YESTERDAY, TODAY
         );
     }
 
@@ -172,9 +172,9 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(7);
-        assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(3, 2, 1, 6, 5, 4, 7);
+        assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(3, 1, 6, 5, 2, 4, 7);
         assertThat(jsonModel.<List<String>>get("$.relativePeriods[*].name")).containsExactly(
-                THIS_MONTH, PREVIOUS_MONTH, LAST_7_DAYS, YESTERDAY, TODAY, THIS_YEAR, YEAR_AGO
+                THIS_MONTH, LAST_7_DAYS, YESTERDAY, TODAY, PREVIOUS_MONTH, THIS_YEAR, YEAR_AGO
         );
     }
 
@@ -195,9 +195,9 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(7);
-        assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(4, 2, 3, 1, 6, 5, 7);
+        assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(7, 4, 2, 3, 1, 6, 5);
         assertThat(jsonModel.<List<String>>get("$.relativePeriods[*].name")).containsExactly(
-                THIS_YEAR, PREVIOUS_MONTH, THIS_MONTH, LAST_7_DAYS, YESTERDAY, TODAY, YEAR_AGO
+                YEAR_AGO, THIS_YEAR, PREVIOUS_MONTH, THIS_MONTH, LAST_7_DAYS, YESTERDAY, TODAY
         );
     }
 
@@ -218,9 +218,9 @@ public class UsagePointResourceGetValidationSummaryPeriodsTest extends UsagePoin
         // Asserts
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<Number>get("$.total")).isEqualTo(7);
-        assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(4, 2, 3, 1, 6, 5, 7);
+        assertThat(jsonModel.<List<Number>>get("$.relativePeriods[*].id")).containsExactly(7, 4, 2, 3, 1, 6, 5);
         assertThat(jsonModel.<List<String>>get("$.relativePeriods[*].name")).containsExactly(
-                THIS_YEAR, PREVIOUS_MONTH, THIS_MONTH, LAST_7_DAYS, YESTERDAY, TODAY, YEAR_AGO
+                YEAR_AGO, THIS_YEAR, PREVIOUS_MONTH, THIS_MONTH, LAST_7_DAYS, YESTERDAY, TODAY
         );
     }
 
