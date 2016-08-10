@@ -44,6 +44,7 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -226,7 +227,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+        upgradeService.register(InstallIdentifier.identifier("Pulse", COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
+                Version.version(10, 2), UpgraderV10_2.class
+        ));
         this.installed = true;
         this.registerAllCustomPropertySets();
     }
