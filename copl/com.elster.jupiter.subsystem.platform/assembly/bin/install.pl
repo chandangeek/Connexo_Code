@@ -778,6 +778,7 @@ sub start_tomcat {
                 $BPM_BUNDLE="$file";
             }
 
+            chdir "$CONNEXO_DIR";
 			if ("$ACTIVATE_SSO" eq "yes") {
 			    system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer createOrganizationalUnit $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow") == 0 or die "Installing Connexo Flow content failed: $?";
                 sleep 5;
