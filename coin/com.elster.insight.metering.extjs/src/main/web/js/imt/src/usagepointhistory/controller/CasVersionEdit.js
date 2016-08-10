@@ -40,6 +40,7 @@ Ext.define('Imt.usagepointhistory.controller.CasVersionEdit', {
 
         me.getModel('Imt.usagepointmanagement.model.UsagePoint').load(mRID, {
             success: function (record) {
+                //widget.down('#custom-attribute-set-version-start-date-field').setMinValue(record.get('installationTime'));
                 app.fireEvent('usagePointLoaded', record);
             }
         });
