@@ -16,6 +16,8 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
+import com.elster.jupiter.validation.rest.PropertyUtils;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
@@ -202,6 +204,36 @@ public class UsagePointOutputResourceChannelDataTest extends UsagePointDataRestA
         assertThat(jsonModel.<String>get("$.channelData[2].action")).isEqualTo("FAIL");
         assertThat(jsonModel.<Number>get("$.channelData[2].validationRules[0].id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.channelData[2].validationRules[0].name")).isEqualTo("MinMax");
+    }
+
+    @Test
+    public void testReadingValidationInfoForMissedReadingInTheMiddleOfValidatedData() {
+        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(mock(PropertyUtils.class)));
+        IntervalReadingWithValidationStatus status = mock(IntervalReadingWithValidationStatus.class);
+        when(status.getTimeStamp()).thenReturn(timeStamp.minus(1, ChronoUnit.DAYS));
+        when(status.getTimePeriod()).thenReturn(Range.closedOpen(timeStamp.minus(1, ChronoUnit.DAYS), timeStamp));
+        when(status.getValidationStatus()).thenReturn(Optional.empty());
+        when(status.getChannelLastChecked()).thenReturn(Optional.of(timeStamp));
+        when(status.isChannelValidationActive()).thenReturn(true);
+        OutputChannelDataInfo info = factory.createChannelDataInfo(status);
+        assertThat(info.dataValidated).isTrue();
+        assertThat(info.validationResult).isEqualTo(ValidationStatus.OK);
+    }
+
+
+    @Test
+    public void testReadingValidationInfoForMissedReadingAfterLastCheckedDate() {
+        OutputChannelDataInfoFactory factory = new OutputChannelDataInfoFactory(new ValidationRuleInfoFactory(mock(PropertyUtils.class)));
+        IntervalReadingWithValidationStatus status = mock(IntervalReadingWithValidationStatus.class);
+        Instant dayAfter = timeStamp.plus(1, ChronoUnit.DAYS);
+        when(status.getTimeStamp()).thenReturn(dayAfter);
+        when(status.getTimePeriod()).thenReturn(Range.closedOpen(dayAfter, timeStamp.plus(2, ChronoUnit.DAYS)));
+        when(status.getValidationStatus()).thenReturn(Optional.empty());
+        when(status.getChannelLastChecked()).thenReturn(Optional.of(timeStamp));
+        when(status.isChannelValidationActive()).thenReturn(true);
+        OutputChannelDataInfo info = factory.createChannelDataInfo(status);
+        assertThat(info.dataValidated).isFalse();
+        assertThat(info.validationResult).isEqualTo(ValidationStatus.NOT_VALIDATED);
     }
 
     private void mockIntervalReadingsWithValidationResult(Channel channel) {

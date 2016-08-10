@@ -32,6 +32,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,9 +80,10 @@ public class ValidationStatusFactory {
         return Range.openClosed(start.toInstant(), end.toInstant());
     }
 
-    private Instant getLastCheckedForChannels(ValidationEvaluator validationEvaluator, ChannelsContainer channelsContainer, List<Channel> channels) {
+    public Instant getLastCheckedForChannels(ValidationEvaluator validationEvaluator, ChannelsContainer channelsContainer, List<Channel> channels) {
         return channels.stream()
                 .map(channel -> validationEvaluator.getLastChecked(channelsContainer, channel.getMainReadingType()))
+                .filter(Objects::nonNull)
                 .flatMap(Functions.asStream())
                 .min(Ordering.natural())
                 .orElse(null);
@@ -124,7 +126,7 @@ public class ValidationStatusFactory {
         return validationEvaluator.isAllDataValidated(channels);
     }
 
-    private boolean isValidationActive(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
+    public boolean isValidationActive(EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration, MetrologyContract metrologyContract) {
         return metrologyContract.getStatus(effectiveMetrologyConfiguration.getUsagePoint()).isComplete()
                 && !usagePointConfigurationService.getValidationRuleSets(metrologyContract).isEmpty();
     }
