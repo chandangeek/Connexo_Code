@@ -86,6 +86,7 @@ public interface CimChannel {
 
     /**
      * TODO: for now this is only a stub; see {@link ChannelImpl#removeReadings(QualityCodeSystem, List)} implementation.
+     *
      * @param readings
      */
     @Deprecated

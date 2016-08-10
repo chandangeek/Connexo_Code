@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.search.location", service = {SearchLocationService.class}, property = "name=" + SearchService.COMPONENT_NAME)
@@ -70,9 +69,9 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        Optional<DataModel> ormDataModel = ormService.getDataModel("ORM");
-        if (ormDataModel.isPresent()) {
-            this.dataModel = ormDataModel.get();
+        List<DataModel> dataModels = ormService.getDataModels();
+        if (dataModels.size() > 0) {
+            this.dataModel = dataModels.get(0);
             this.ensureLocationTemplateInitialized();
         }
     }
@@ -145,7 +144,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         Integer i = 0;
         for (int j = 0; j < mapInputLocations.length; j++) {
             String whenClause = "";
-            String mapInputLocation = mapInputLocations[i].replace("'", "''");
+            String mapInputLocation = mapInputLocations[j].replace("'", "''");
 
             for (int k = 0; k < templateMembers.length; k++) {
                 String templateMember = templateMap.get(templateMembers[k]);
