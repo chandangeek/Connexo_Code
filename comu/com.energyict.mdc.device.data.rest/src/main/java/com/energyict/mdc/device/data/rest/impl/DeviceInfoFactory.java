@@ -8,6 +8,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -136,21 +138,22 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
         infos.add(createDescription("serviceCategory", String.class));
         infos.add(createDescription("usagePoint", String.class));
         infos.add(createDescription("yearOfCertification", Integer.class));
-        infos.add(createDescription("estimationActive", Boolean.class));
+        infos.add(createDescription("estimationActive", String.class));
         infos.add(createDescription("masterDevicemRID", String.class));
         infos.add(createDescription("shipmentDate", Instant.class));
         infos.add(createDescription("installationDate", Instant.class));
         infos.add(createDescription("deactivationDate", Instant.class));
         infos.add(createDescription("decommissionDate", Instant.class));
-        infos.add(createDescription("validationActive", Boolean.class));
+        infos.add(createDescription("validationActive", String.class));
         infos.add(createDescription("hasOpenDataValidationIssues", Boolean.class));
         Collections.sort(infos, Comparator.comparing(pdi -> pdi.propertyName));
 
         // Default columns in proper order
+
         infos.add(0, createDescription("location", String.class));
         infos.add(0, new PropertyDescriptionInfo("state", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE).format()));
-        infos.add(0, createDescription("deviceConfigurationName", String.class));
-        infos.add(0, createDescription("deviceTypeName", String.class));
+        infos.add(0, createDescription("deviceConfigurationName", DeviceConfiguration.class));
+        infos.add(0, createDescription("deviceTypeName", DeviceType.class));
         infos.add(0, createDescription("serialNumber", String.class));
         infos.add(0, createDescription("mRID", String.class));
         return infos;
