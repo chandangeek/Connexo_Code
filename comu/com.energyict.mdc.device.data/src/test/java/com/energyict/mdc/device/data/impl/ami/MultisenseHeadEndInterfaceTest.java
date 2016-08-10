@@ -165,7 +165,7 @@ public class MultisenseHeadEndInterfaceTest {
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageIds);
         DeviceProtocolPluggableClass protocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(protocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(device.getDeviceProtocolPluggableClass()).thenReturn(protocolPluggableClass);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(protocolPluggableClass));
 
         when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(any(DeviceConfiguration.class))).thenReturn(Collections.singletonList(readingType));
         when(device.getDeviceConfiguration().getDeviceType().getId()).thenReturn(3L);

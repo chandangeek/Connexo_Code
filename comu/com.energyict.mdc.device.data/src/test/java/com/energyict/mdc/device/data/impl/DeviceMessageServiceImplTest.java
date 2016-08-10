@@ -25,8 +25,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -38,6 +36,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mock;
 
 import static com.energyict.mdc.device.data.impl.DeviceMessageServiceImplTest.Progress.OnHold;
@@ -78,11 +78,17 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
         device = mock(Device.class);
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
 
-        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory)).collect(Collectors.toList()));
-        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class).stream().map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory)).collect(Collectors.toList()));
+        when(deviceMessageSpecificationService.filteredCategoriesForUserSelection()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class)
+                .stream()
+                .map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory))
+                .collect(Collectors.toList()));
+        when(deviceMessageSpecificationService.filteredCategoriesForComTaskDefinition()).thenReturn(EnumSet.allOf(DeviceMessageCategories.class)
+                .stream()
+                .map(deviceMessageCategory -> new DeviceMessageCategoryImpl(deviceMessageCategory))
+                .collect(Collectors.toList()));
         command1 = mockCommand(device, 1L, DeviceMessageId.DEVICE_ACTIONS_DEMAND_RESET, "do delete rule", "Error message", DeviceMessageStatus.PENDING, "T14", "Jeff", created, created.plusSeconds(10), null, deviceMessageCategory);
         when(device.getMessages()).thenReturn(Arrays.asList(command1));
-        EnumSet<DeviceMessageId> userAuthorizedDeviceMessages = EnumSet.of(DeviceMessageId.CONTACTOR_OPEN, DeviceMessageId.CONTACTOR_CLOSE,DeviceMessageId.CONTACTOR_ARM);
+        EnumSet<DeviceMessageId> userAuthorizedDeviceMessages = EnumSet.of(DeviceMessageId.CONTACTOR_OPEN, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_ARM);
 
         DeviceMessageEnablement deviceMessageEnablement1 = mock(DeviceMessageEnablement.class);
         when(deviceMessageEnablement1.getDeviceMessageId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
@@ -101,7 +107,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocol.getSupportedMessages()).thenReturn(EnumSet.of(DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT, DeviceMessageId.CONTACTOR_CLOSE_WITH_OUTPUT, DeviceMessageId.CONTACTOR_ARM, DeviceMessageId.CONTACTOR_CLOSE, DeviceMessageId.CONTACTOR_OPEN));
         when(pluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         when(device.getDeviceType()).thenReturn(deviceType);
 
@@ -255,7 +261,7 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
 
         ComTask comTask1 = mockComTaskWithProtocolTaskForCategory(1L, "AdHoc on hold", wrongCategory, allEnablements);
         mockComTaskExecution(comTask1, OnHold, AdHoc, allComTaskExecutions);
- mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
+        mockComTaskWithProtocolTaskForCategory(2L, "Merely enabled", wrongCategory, allEnablements);
 
         ComTask comTask3 = mockComTaskWithProtocolTaskForCategory(3L, "AdHoc planned", wrongCategory, allEnablements);
         mockComTaskExecution(comTask3, Planned, AdHoc, allComTaskExecutions);
@@ -309,7 +315,6 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(allEnablements);
         when(device.getComTaskExecutions()).thenReturn(allComTaskExecutions);
-
 
 
         assertThat(deviceMessageService.willDeviceMessageBePickedUpByComTask(device, command1)).isTrue();
@@ -761,7 +766,6 @@ public class DeviceMessageServiceImplTest extends PersistenceIntegrationTest {
             return result;
         }
     }
-
 
 
 }

@@ -27,6 +27,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.sql.Date;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.device.data.impl.ami.EndDeviceCommandFactory",
@@ -99,7 +100,9 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
      * @return true in case the device supports the given EndDeviceControlType, false otherwise
      */
     private boolean multiSenseDeviceHasSupportForEndDeviceControlType(EndDevice endDevice, EndDeviceControlTypeMapping endDeviceControlTypeMapping) {
-        Set<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages();
+        Set<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages())
+                .orElse(Collections.emptySet());
         return endDeviceControlTypeMapping.getPossibleDeviceMessageIdGroups().stream().anyMatch(supportedMessages::containsAll);
     }
 

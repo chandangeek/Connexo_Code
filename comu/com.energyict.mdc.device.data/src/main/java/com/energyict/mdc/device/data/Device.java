@@ -114,7 +114,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @return the used {@link DeviceProtocolPluggableClass}
      */
-    DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
+    Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass();
 
     /**
      * Gets the device configuration of a device.
@@ -285,6 +285,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     Optional<? extends MeterActivation> getCurrentMeterActivation();
 
     List<MeterActivation> getMeterActivationsMostRecentFirst();
+
+    /**
+     * Provides a list of all meteractivations which were effective for the given range.
+     *
+     * @param range the range of meteractivations to request
+     * @return a (potentially empty) list of effective meterActivations based on the given range
+     */
+    List<MeterActivation> getMeterActivations(Range<Instant> range);
 
     /**
      * Gets the Unique mRID of the device.

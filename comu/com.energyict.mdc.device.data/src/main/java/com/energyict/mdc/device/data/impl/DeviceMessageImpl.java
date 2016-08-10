@@ -366,6 +366,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
      * Models a Group used for validating attributes that need
      * validation during revoke operations.
      */
-    private interface Revoke {}
+    private interface Revoke {
+    }
 
 }

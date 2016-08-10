@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -132,6 +133,9 @@ public class DeviceImplSecurityPropertiesTest {
     private UserPreferencesService userPreferencesService;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private MultiplierType multiplierType;
+
 
     @Before
     public void setup() {
@@ -143,6 +147,8 @@ public class DeviceImplSecurityPropertiesTest {
         when(meter.getLifecycleDates()).thenReturn(lifeCycleDates);
         mockDataModelWithNoValidationIssues();
         when(meteringService.findAmrSystem(anyLong())).thenReturn(Optional.of(amrSystem));
+        when(meteringService.getMultiplierType("Default")).thenReturn(Optional.of(multiplierType));
+        when(multiplierType.getName()).thenReturn("Default");
         when(amrSystem.findMeter(anyString())).thenReturn(Optional.of(meter));
     }
 
@@ -245,7 +251,7 @@ public class DeviceImplSecurityPropertiesTest {
                 this.scheduledComTaskExecutionProvider, this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider, this.meteringGroupsService, this.customPropertySetService, this.readingTypeUtilService,
                 this.threadPrincipalService, this.userPreferencesService, this.deviceConfigurationService);
-        device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services");
+        device.initialize(this.deviceConfiguration, "Not persistent", "with all mocked services", null);
         return device;
     }
 

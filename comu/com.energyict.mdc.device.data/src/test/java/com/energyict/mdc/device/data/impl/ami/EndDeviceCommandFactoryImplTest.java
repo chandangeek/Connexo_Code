@@ -127,7 +127,7 @@ public class EndDeviceCommandFactoryImplTest {
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
         DeviceProtocolPluggableClass protocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(protocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(device.getDeviceProtocolPluggableClass()).thenReturn(protocolPluggableClass);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(protocolPluggableClass));
 
         when(device.getDeviceConfiguration().getDeviceType().getId()).thenReturn(6L);
         when(deviceMessageSpecificationService.findMessageSpecById(anyLong())).thenReturn(Optional.empty());

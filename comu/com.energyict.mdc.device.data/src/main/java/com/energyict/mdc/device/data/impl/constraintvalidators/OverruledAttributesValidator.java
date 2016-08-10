@@ -35,7 +35,6 @@ public class OverruledAttributesValidator implements ConstraintValidator<ValidOv
     private boolean validateChannelOverflowIncrease(Device device, ConstraintValidatorContext context) {
         Set<LoadProfile> overflowIncreased = new HashSet<>();
         device.getLoadProfiles().stream().forEach(loadProfile -> {
-
             loadProfile.getChannels().stream().forEach(channel -> {
                 if (channel.getOverflow().isPresent() && channel.getChannelSpec().getOverflow().isPresent()) {
                     if (channel.getOverflow().get().compareTo(channel.getChannelSpec().getOverflow().get()) > 0) {

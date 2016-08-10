@@ -318,7 +318,11 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     private Meter fetchKoreMeter() {
         if (meter == null) {
-            meter = device.findOrCreateKoreMeter(amrSystem);
+            if (device.getMeter().isPresent()){
+                meter = device.getMeter().get();
+            }else{
+                throw new UnsupportedOperationException("No Kore Meter for device " + device.getId());
+            }
         }
         return meter;
     }

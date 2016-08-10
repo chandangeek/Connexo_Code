@@ -320,7 +320,7 @@ public class ComSessionCrudIT {
             configDialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
             deviceConfiguration.save();
             deviceConfiguration.activate();
-            device = this.deviceDataModelService.deviceService().newDevice(deviceConfiguration, "SimpleDevice", "mrid");
+            device = this.deviceDataModelService.deviceService().newDevice(deviceConfiguration, "SimpleDevice", "mrid", Instant.now());
             device.save();
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
             connectionTypePluggableClass.save();

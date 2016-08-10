@@ -89,7 +89,9 @@ public abstract class EndDeviceCommandImpl implements EndDeviceCommand {
     }
 
     protected boolean deviceHasSupportFor(DeviceMessageId deviceMessageId) {
-        return findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages().contains(deviceMessageId);
+        return findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().contains(deviceMessageId))
+                .orElse(false);
     }
 
     protected List<DeviceMessage<Device>> doCreateCorrespondingMultiSenseDeviceMessages(ServiceCall serviceCall, Instant releaseDate, List<DeviceMessageId> deviceMessageIds) {

@@ -92,7 +92,8 @@ class ProtocolDialectPropertiesImpl
     }
 
     private DeviceProtocolPluggableClass getDeviceProtocolPluggableClass(ProtocolDialectConfigurationProperties configurationProperties) {
-        return configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+        // if we have this object then we can assume that the pluggableclass is present so it's more or less safe to call the get
+        return configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().get();
     }
 
     DeviceProtocol getDeviceProtocol () {

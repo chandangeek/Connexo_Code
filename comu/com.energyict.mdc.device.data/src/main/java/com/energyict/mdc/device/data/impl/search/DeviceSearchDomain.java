@@ -232,13 +232,13 @@ public class DeviceSearchDomain implements SearchDomain {
             List<SearchableProperty> dynamicProperties = new ArrayList<>();
             Set<Long> uniquePluggableClasses = new HashSet<>();
             for (Object value : deviceTypeConstriction.get().getConstrainingValues()) {
-                DeviceProtocolPluggableClass pluggableClass = ((DeviceType) value).getDeviceProtocolPluggableClass();
-                if (pluggableClass==null || !uniquePluggableClasses.add(pluggableClass.getId())) {
+                Optional<DeviceProtocolPluggableClass> pluggableClass = ((DeviceType) value).getDeviceProtocolPluggableClass();
+                if (!pluggableClass.isPresent() || !uniquePluggableClasses.add(pluggableClass.get().getId())) {
                     continue;
                 }
-                for (PropertySpec propertySpec : pluggableClass.getDeviceProtocol().getPropertySpecs()) {
+                for (PropertySpec propertySpec : pluggableClass.get().getDeviceProtocol().getPropertySpecs()) {
                     dynamicProperties.add(injector.getInstance(GeneralAttributeDynamicSearchableProperty.class)
-                        .init(this, propertiesGroup, propertySpec, deviceTypeConstriction.get().getConstrainingProperty(), pluggableClass));
+                            .init(this, propertiesGroup, propertySpec, deviceTypeConstriction.get().getConstrainingProperty(), pluggableClass.get()));
                 }
             }
             return dynamicProperties;

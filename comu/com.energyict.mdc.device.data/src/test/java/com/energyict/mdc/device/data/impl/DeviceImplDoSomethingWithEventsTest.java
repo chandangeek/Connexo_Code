@@ -114,6 +114,7 @@ import org.osgi.service.log.LogService;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -209,7 +210,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     }
 
     private Device createSimpleDeviceWithName(String name) {
-        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, MRID);
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, MRID, Instant.now());
     }
 
     private Device getReloadedDevice(Device device) {

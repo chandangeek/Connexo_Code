@@ -54,7 +54,6 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.CommonDeviceProtocolDialectProperties;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialectPropertyProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -72,6 +71,7 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,9 +147,11 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     private void appendCountDevicesSql(ProtocolDialectConfigurationProperties configurationProperties, SqlBuilder sqlBuilder) {
         Instant now = this.deviceDataModelService.clock().instant();
-        DeviceProtocolPluggableClass deviceProtocolPluggableClass = configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
+        Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = configurationProperties.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass();
         Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> customPropertySet =
-                this.getCustomPropertySet(deviceProtocolPluggableClass.getDeviceProtocol(), configurationProperties.getDeviceProtocolDialectName());
+                this.getCustomPropertySet(configurationProperties.getDeviceProtocolDialectName(),
+                        deviceProtocolPluggableClass.map(deviceProtocolPluggableClass1 -> deviceProtocolPluggableClass1.getDeviceProtocol().getDeviceProtocolDialects())
+                                .orElse(Collections.emptyList()));
         if (customPropertySet.isPresent()) {
             String propertiesTable = customPropertySet.get().getPersistenceSupport().tableName();
             sqlBuilder.append(" from ");
@@ -170,9 +172,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
         }
     }
 
-    private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet(DeviceProtocol deviceProtocol, String name) {
-        return deviceProtocol
-                .getDeviceProtocolDialects()
+    private Optional<CustomPropertySet<DeviceProtocolDialectPropertyProvider, ? extends PersistentDomainExtension<DeviceProtocolDialectPropertyProvider>>> getCustomPropertySet(String name, List<DeviceProtocolDialect> deviceProtocolDialects) {
+        return deviceProtocolDialects
                 .stream()
                 .filter(dialect -> dialect.getDeviceProtocolDialectName().equals(name))
                 .map(DeviceProtocolDialect::getCustomPropertySet)
@@ -193,15 +194,15 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID) {
-        Device device = this.deviceDataModelService.dataModel().getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, Instant startDate) {
+        Device device = this.deviceDataModelService.dataModel().getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID, startDate);
         device.save(); // always returns a persisted device
         return device;
     }
 
     @Override
-    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch) {
-        Device device = newDevice(deviceConfiguration, name, mRID);
+    public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch, Instant startDate) {
+        Device device = newDevice(deviceConfiguration, name, mRID, startDate);
         this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
         return device;
     }

@@ -25,7 +25,8 @@ public class PassiveCalendarImplTest extends PersistenceIntegrationTest {
     private static final String CALENDAR_NAME = "Calendar";
 
     private Device createSimpleDeviceWithOneCalendar() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceName", "MyUniqueID");
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceName", "MyUniqueID", inMemoryPersistence.getClock().instant());
         Calendar calendar = createCalendar();
         DeviceType deviceType = device.getDeviceConfiguration().getDeviceType();
         deviceType.addCalendar(calendar);
