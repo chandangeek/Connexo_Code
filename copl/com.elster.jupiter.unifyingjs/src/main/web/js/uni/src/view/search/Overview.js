@@ -40,6 +40,7 @@ Ext.define('Uni.view.search.Overview', {
 
     initComponent: function () {
         var me = this,
+            domainsStore = this.getService().getSearchDomainsStore(),
             store = Ext.getStore('Uni.store.search.Properties');
 
         me.items = [
@@ -69,6 +70,7 @@ Ext.define('Uni.view.search.Overview', {
                             {
                                 // Type of search.
                                 xtype: 'toolbar',
+                                hidden: true,
                                 itemId: 'search-domain',
                                 defaults: {
                                     margin: '0 10 10 0'
@@ -190,6 +192,15 @@ Ext.define('Uni.view.search.Overview', {
             scope: me,
             destroyable: true
         });
+
+        var domainsListeners = domainsStore.on({
+            load: function() {
+                me.down('#search-domain').setVisible(domainsStore.count() > 1);
+            },
+            scope: me,
+            destroyable: true
+        });
+
         var resultsListeners = me.service.getSearchResultsStore().on({
             load: me.setGridMaxHeight,
             scope: me,
@@ -199,6 +210,7 @@ Ext.define('Uni.view.search.Overview', {
         me.on('destroy', function () {
             listeners.destroy();
             resultsListeners.destroy();
+            domainsListeners.destroy();
         });
     },
 
