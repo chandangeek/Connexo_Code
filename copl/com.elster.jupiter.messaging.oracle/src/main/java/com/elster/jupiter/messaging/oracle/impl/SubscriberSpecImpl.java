@@ -33,14 +33,14 @@ import java.util.HashSet;
 class SubscriberSpecImpl implements SubscriberSpec {
 
     /**
-     * Default duration that we are willing to wait for a messages while dequeueing.
+     * Default duration that we are willing to wait for a message while dequeueing.
      */
-    private static final Duration DEQUEUE_DEFAULT_WAIT = Duration.ofSeconds(10);
+    private static final Duration DEQUEUE_DEFAULT_WAIT = Duration.ofSeconds(1);
 
     /**
      * Default duration that we are willing to wait between dequeueing when no messages were available.
      */
-    private static final Duration INBETWEEN_DEQUEUE_DEFAULT_WAIT = Duration.ofSeconds(20);
+    private static final Duration INBETWEEN_DEQUEUE_DEFAULT_WAIT = Duration.ofSeconds(10);
 
     private String name;
     @Size(max = 4000)
@@ -58,7 +58,7 @@ class SubscriberSpecImpl implements SubscriberSpec {
     private boolean systemManaged;
 
     private final Reference<DestinationSpec> destination = ValueReference.absent();
-
+    private volatile boolean running = true;
     private final Collection<OracleConnection> cancellableConnections = Collections.synchronizedSet(new HashSet<OracleConnection>());
 
     private final DataModel dataModel;
@@ -127,33 +127,39 @@ class SubscriberSpecImpl implements SubscriberSpec {
 
     private Message tryReceive() throws SQLException {
         OracleConnection cancellableConnection = null;
-        Message message = null;
-        NullValueCause nullValueCause = NullValueCause.INITIAL;
-        while (message == null && nullValueCause != NullValueCause.CONNECTION_CANCELLED) {
-            try (Connection connection = getConnection()) {
-                cancellableConnection = connection.unwrap(OracleConnection.class);
-                cancellableConnections.add(cancellableConnection);
-                ReceiveAttempt attempt = new ReceiveAttempt();
-                attempt.tryReceive(cancellableConnection);
-                message = attempt.message;
-                nullValueCause = attempt.nullValueCause;
+        ReceiveResult receiveResult = ReceiveResult.initial();
+        while (this.continueReceiving() && receiveResult.nextAttemptAllowed()) {
+            try (Connection connection = acquireAndAddConnection()) {
+                // Connection can be null if we are cancelling
+                if (connection != null) {
+                    cancellableConnection = connection.unwrap(OracleConnection.class);
+                    ReceiveAttempt attempt = new ReceiveAttempt();
+                    receiveResult = attempt.tryReceive(cancellableConnection);
+                }
             } finally {
                 if (cancellableConnection != null) {
                     cancellableConnections.remove(cancellableConnection);
                 }
             }
-            if (nullValueCause == NullValueCause.DEQUEUE_TIMED_OUT) {
-                this.sleep();
-            }
+            receiveResult.sleepIfApplicable();
         }
-        return message;
+        return receiveResult.message;
     }
 
-    private void sleep() {
-        try {
-            Thread.sleep(INBETWEEN_DEQUEUE_DEFAULT_WAIT.toMillis());
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+    private boolean continueReceiving() {
+        return this.running && !Thread.currentThread().isInterrupted();
+    }
+
+    private Connection acquireAndAddConnection() throws SQLException {
+        synchronized (cancellableConnections) {
+            if (this.running) {
+                Connection connection = this.getConnection();
+                OracleConnection cancellableConnection = connection.unwrap(OracleConnection.class);
+                cancellableConnections.add(cancellableConnection);
+                return connection;
+            } else {
+                return null;
+            }
         }
     }
 
@@ -163,6 +169,7 @@ class SubscriberSpecImpl implements SubscriberSpec {
 
     @Override
     public void cancel() {
+        this.running = false;
         synchronized (cancellableConnections) {
             for (OracleConnection cancellableConnection : new ArrayList<>(cancellableConnections)) {
                 try {
@@ -283,6 +290,10 @@ class SubscriberSpecImpl implements SubscriberSpec {
          */
         INITIAL,
         /**
+         * Indicates that there is a Message
+         */
+        NOT_APPLICABLE,
+        /**
          * Indicates that the sql connection was canceled
          * as a result of shutting down the app server.
          */
@@ -296,21 +307,70 @@ class SubscriberSpecImpl implements SubscriberSpec {
         DEQUEUE_TIMED_OUT;
     }
 
-    private class ReceiveAttempt {
+    private static class ReceiveResult {
         Message message;
         NullValueCause nullValueCause;
-        private void tryReceive(OracleConnection connection) throws SQLException {
+
+        static ReceiveResult initial() {
+            ReceiveResult result = new ReceiveResult();
+            result.message = null;
+            result.nullValueCause = NullValueCause.INITIAL;
+            return result;
+        }
+
+        static ReceiveResult with(Message message) {
+            ReceiveResult result = new ReceiveResult();
+            result.message = message;
+            result.nullValueCause = NullValueCause.NOT_APPLICABLE;
+            return result;
+        }
+
+        static ReceiveResult dequeueTimeOut() {
+            ReceiveResult result = new ReceiveResult();
+            result.message = null;
+            result.nullValueCause = NullValueCause.DEQUEUE_TIMED_OUT;
+            return result;
+        }
+
+        static ReceiveResult connectionCancelled() {
+            ReceiveResult result = new ReceiveResult();
+            result.message = null;
+            result.nullValueCause = NullValueCause.CONNECTION_CANCELLED;
+            return result;
+        }
+
+        boolean nextAttemptAllowed() {
+            return this.message == null && this.nullValueCause != NullValueCause.CONNECTION_CANCELLED;
+        }
+
+        void sleepIfApplicable() {
+            if (this.nullValueCause == NullValueCause.DEQUEUE_TIMED_OUT) {
+                this.sleep();
+            }
+        }
+
+        private void sleep() {
+            try {
+                Thread.sleep(INBETWEEN_DEQUEUE_DEFAULT_WAIT.toMillis());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private class ReceiveAttempt {
+        private ReceiveResult tryReceive(OracleConnection connection) throws SQLException {
             try {
                 AQMessage aqMessage = this.dequeueMessage(connection);
                 if (aqMessage != null) {
-                    this.message = new MessageImpl(aqMessage);
+                    return ReceiveResult.with(new MessageImpl(aqMessage));
                 } else {
-                    this.nullValueCause = NullValueCause.DEQUEUE_TIMED_OUT;
+                    return ReceiveResult.dequeueTimeOut();
                 }
             } catch (SQLTimeoutException e) {
                 /* The connection has been canceled.
                  * We'll ignore this exception, since we have a way to recover from it (i.e. stop waiting as requested). */
-                this.nullValueCause = NullValueCause.CONNECTION_CANCELLED;
+                return ReceiveResult.connectionCancelled();
             }
         }
 
