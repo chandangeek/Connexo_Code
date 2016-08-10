@@ -14,6 +14,6 @@ Ext.define('Uni.form.field.EventTypeDisplay', {
             + Uni.I18n.translate('general.deviceEventOrAction', 'UNI', 'Device event or action') + ': ' + record.get('deviceEventOrActionName') + '<br>';
 
         return '<span style="display:inline-block; float:left; margin-right:7px;">' + value + '</span>' +
-               '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + tooltip + '"></span>';
+            '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + tooltip + '"></span>';
     }
 });

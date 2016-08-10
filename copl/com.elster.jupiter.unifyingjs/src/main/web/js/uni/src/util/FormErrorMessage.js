@@ -38,7 +38,7 @@ Ext.define('Uni.util.FormErrorMessage', {
         me.add([
             {
                 xtype: 'displayfield',
-                renderer: function() {
+                renderer: function () {
                     return '<span class="' + me.errorIcon + '" style="display:inline-block; color:#eb5642; font-size:21px;"></span>';
                 }
             },
