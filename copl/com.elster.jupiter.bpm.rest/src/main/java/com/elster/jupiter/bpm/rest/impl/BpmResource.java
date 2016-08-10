@@ -1013,24 +1013,21 @@ public class BpmResource {
         try {
             String rest = "/rest/tasks/process/" + deploymentId + "/content/" + id;
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
-            if (!"".equals(jsonContent)) {
-                obj = new JSONObject(jsonContent);
-            }
-            if (obj != null) {
-                return new TaskContentInfos(obj);
-            } else {
+            if("Undeployed".equals(jsonContent)){
                 throw conflictFactory.conflict()
-                        .withActualVersion(() -> {
-                            return 0L; // Not an actual version; process has been undeployed
-                        })
+                        .withActualVersion(() -> 1L) // Not an actual version; process has been undeployed
                         .withMessageTitle(MessageSeeds.START_PROCESS_CONCURRENT_TITLE, id)
                         .withMessageBody(MessageSeeds.START_PROCESS_CONCURRENT_BODY, id)
                         .supplier().get();
             }
+
+            if (!"".equals(jsonContent)) {
+                obj = new JSONObject(jsonContent);
+            }
+
+            return obj != null ? new TaskContentInfos(obj) : new TaskContentInfos();
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
-        } catch (RuntimeException e) {
-            throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
         }
     }
 
