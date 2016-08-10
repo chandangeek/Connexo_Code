@@ -59,7 +59,10 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
             Object value = register.value();
             if (value instanceof BigDecimal) {
                 return new RegisterValue(obisCode, new Quantity((BigDecimal) value, register.getUnit()));
-            } else if (value instanceof String) {
+            } else if (value instanceof Double){
+                return new RegisterValue(obisCode, new Quantity((Double) value, register.getUnit()));
+            }
+            else if (value instanceof String) {
                 return new RegisterValue(obisCode, (String) value);
             }  else if (value instanceof ReadStatuses) {
                 ReadStatuses readStatuses = (ReadStatuses) value;

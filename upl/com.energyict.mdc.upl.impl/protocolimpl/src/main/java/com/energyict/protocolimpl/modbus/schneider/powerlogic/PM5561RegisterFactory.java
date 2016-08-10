@@ -202,7 +202,7 @@ public class PM5561RegisterFactory extends AbstractRegisterFactory{
                     if (values.length == 1 | values.length == 2 | values.length == 4) {           // Signed register
                         byte[] intBitsArray = getByteArrayFromValue(values, bigEndianEncoding);
                         BigInteger bigInteger = ProtocolTools.getSignedBigIntegerFromBytes(intBitsArray);
-                        return new BigDecimal(bigInteger.intValue()/1000);
+                        return new Double((double)(bigInteger.intValue())/1000);
                     } else {
                         throw new ModbusException("ParserFactory, SignedValueParser, received data has invalid length (" + values.length + ")");
                     }
