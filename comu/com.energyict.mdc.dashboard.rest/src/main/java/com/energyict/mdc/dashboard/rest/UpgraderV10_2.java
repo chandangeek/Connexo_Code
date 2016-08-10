@@ -28,7 +28,7 @@ public class UpgraderV10_2 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         Optional<User> comServerInternalAccessAccount = userService.findUser(COM_SERVER_INTERNAL_USER);
         Optional<Group> comServerInternalGroup = userService.findGroup(COM_SERVER_INTERNAL_USER_GROUP);
-        comServerInternalAccessAccount.ifPresent(User::delete);
         comServerInternalGroup.ifPresent(Group::delete);
+        comServerInternalAccessAccount.ifPresent(User::delete);
     }
 }
