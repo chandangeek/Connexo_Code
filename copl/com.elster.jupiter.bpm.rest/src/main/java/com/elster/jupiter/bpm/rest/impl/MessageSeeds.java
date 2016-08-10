@@ -19,10 +19,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_TASK_WITH_ID(11, Constants.NO_TASK_WITH_ID, "No task with ID ''{0}''", Level.SEVERE ),
     START_TASK_CONCURRENT_TITLE(12, Constants.START_TASK_CONCURRENT_TITLE, "Failed to start task ''{0}''", Level.SEVERE ),
     START_TASK_CONCURRENT_BODY(13, Constants.START_TASK_CONCURRENT_BODY, "''{0}'' status has changed since the page was last updated.", Level.SEVERE ),
-    COMPLETE_TASK_CONCURRENT_TITLE(14, Constants.COMPLETE_TASK_CONCURRENT_TITLE, "Failed to complete task with ID ''{0}''", Level.SEVERE ),
-    COMPLETE_TASK_CONCURRENT_BODY(15, Constants.COMPLETE_TASK_CONCURRENT_BODY, "Task status has changed since the page was last updated.", Level.SEVERE ),
-    SAVE_TASK_CONCURRENT_TITLE(14, Constants.SAVE_TASK_CONCURRENT_TITLE, "Failed to save task with ID ''{0}''", Level.SEVERE ),
-    SAVE_TASK_CONCURRENT_BODY(15, Constants.SAVE_TASK_CONCURRENT_BODY, "Task status has changed since the page was last updated.", Level.SEVERE )
+    COMPLETE_TASK_CONCURRENT_TITLE(14, Constants.COMPLETE_TASK_CONCURRENT_TITLE, "Failed to complete task ''{0}''", Level.SEVERE ),
+    COMPLETE_TASK_CONCURRENT_BODY(15, Constants.COMPLETE_TASK_CONCURRENT_BODY, "''{0}'' status has changed since the page was last updated.", Level.SEVERE ),
+    SAVE_TASK_CONCURRENT_TITLE(14, Constants.SAVE_TASK_CONCURRENT_TITLE, "Failed to save task ''{0}''", Level.SEVERE ),
+    SAVE_TASK_CONCURRENT_BODY(15, Constants.SAVE_TASK_CONCURRENT_BODY, "''{0}'' status has changed since the page was last updated.", Level.SEVERE )
     ;
 
     public static final String COMPONENT_NAME = "BPM";
