@@ -237,12 +237,14 @@ public class DataAggregationServiceImplCalculateWithCustomPropertiesIT {
     }
 
     private static DataAggregationService getDataAggregationService() {
+        ServerMeteringService meteringService = getMeteringService();
         return new DataAggregationServiceImpl(
                 getCustomPropertySetService(),
-                getMeteringService(),
+                meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithCustomPropertiesIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+                () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 
     private static void setupReadingTypes() {

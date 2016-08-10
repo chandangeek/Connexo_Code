@@ -3,10 +3,10 @@ package com.elster.jupiter.metering.impl.aggregation;
 import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.impl.IReadingType;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.units.Quantity;
@@ -44,15 +44,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CalculatedReadingRecordFactoryImplTest {
 
-    public static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
-    public static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
-    public static final long MY_FAVOURITE_PRIME_NUMBER = 97L;
+    private static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final long MY_FAVOURITE_PRIME_NUMBER = 97L;
     private static Instant JAN_1_2016_UTC = Instant.ofEpochMilli(1451606400000L);
 
     @Mock
     private DataModel dataModel;
     @Mock
-    private MeteringService meteringService;
+    private ServerMeteringService meteringService;
     @Mock
     private IReadingType fifteenMinutesNetConsumption;
     @Mock
@@ -65,7 +65,7 @@ public class CalculatedReadingRecordFactoryImplTest {
     @Before
     public void initializeMocks() {
         when(this.dataModel.getInstance(CalculatedReadingRecord.class))
-                .thenAnswer(invocationOnMock -> new CalculatedReadingRecord());
+                .thenAnswer(invocationOnMock -> new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService)));
         when(this.fifteenMinutesNetConsumption.getMacroPeriod()).thenReturn(MacroPeriod.NOTAPPLICABLE);
         when(this.fifteenMinutesNetConsumption.getMeasuringPeriod()).thenReturn(TimeAttribute.MINUTE15);
         when(this.fifteenMinutesNetConsumption.getFlowDirection()).thenReturn(FlowDirection.NET);

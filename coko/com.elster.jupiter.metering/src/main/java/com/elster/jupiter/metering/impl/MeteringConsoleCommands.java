@@ -300,7 +300,7 @@ public class MeteringConsoleCommands {
     }
 
     public void createUsagePoint() {
-        System.out.println("Usage: createUsagePoint <mRID>");
+        System.out.println("Usage: createUsagePoint <mRID> <installation datetime format 2011-12-03T10:15:30Z>");
     }
 
     public void createUsagePoint(String mrId, String timestamp) {

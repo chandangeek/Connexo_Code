@@ -9,6 +9,7 @@ import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.math.BigDecimal;
@@ -39,6 +40,8 @@ public class ReadingTypeDeliverableForMeterActivationSetReferenceTest {
     private ReadingType readingType;
     @Mock
     private MeterActivationSet meterActivationSet;
+    @Mock
+    private ServerMeteringService meteringService;
 
     private ServerExpressionNode expressionNode = new NumericalConstantNode(BigDecimal.TEN);
 
@@ -277,6 +280,7 @@ public class ReadingTypeDeliverableForMeterActivationSetReferenceTest {
 
     private ReadingTypeDeliverableForMeterActivationSet testInstance(Formula.Mode mode, VirtualReadingType virtualReadingType) {
         return new ReadingTypeDeliverableForMeterActivationSet(
+                this.meteringService,
                 mode,
                 this.deliverable,
                 this.meterActivationSet,

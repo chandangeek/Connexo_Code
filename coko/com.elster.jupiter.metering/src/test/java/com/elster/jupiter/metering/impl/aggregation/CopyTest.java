@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.config.FullySpecifiedReadingTypeRequirement;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.impl.MeteringDataModelService;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.metering.impl.config.FunctionCallNodeImpl;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerFormulaBuilder;
@@ -90,6 +91,8 @@ public class CopyTest {
     private CustomPropertySetService customPropertySetService;
     @Mock
     private MeteringDataModelService meteringDataModelService;
+    @Mock
+    private ServerMeteringService meteringService;
 
     private ServerMetrologyConfigurationService metrologyConfigurationService;
 
@@ -312,7 +315,7 @@ public class CopyTest {
         when(readingTypeDeliverable.getReadingType()).thenReturn(readingType);
 
         ServerExpressionNode serverExpressionNode = mock(ServerExpressionNode.class);
-        when(serverExpressionNode.accept(any(RequirementsFromExpressionNode.class))).thenReturn(new ArrayList<VirtualRequirementNode>());
+        when(serverExpressionNode.accept(any(RequirementsFromExpressionNode.class))).thenReturn(new ArrayList<>());
 
         ServerFormulaBuilder formulaBuilder = this.metrologyConfigurationService.newFormulaBuilder(Formula.Mode.EXPERT);
         FullySpecifiedReadingTypeRequirement requirement = mock(FullySpecifiedReadingTypeRequirement.class);
@@ -331,6 +334,7 @@ public class CopyTest {
         com.elster.jupiter.metering.config.OperationNode node = (com.elster.jupiter.metering.config.OperationNode) formulaPart;
         ReadingTypeDeliverableForMeterActivationSet readingTypeDeliverableForMeterActivationSet =
                 new ReadingTypeDeliverableForMeterActivationSet(
+                        this.meteringService,
                         Formula.Mode.AUTO,
                         readingTypeDeliverable,
                         this.meterActivationSet,

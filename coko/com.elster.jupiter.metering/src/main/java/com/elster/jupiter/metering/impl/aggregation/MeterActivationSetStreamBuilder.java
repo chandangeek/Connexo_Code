@@ -43,7 +43,7 @@ class MeterActivationSetStreamBuilder {
     }
 
     private Stream<Instant> switchTimestampsFromMeterActivationRange(Range<Instant> meterActivationRange) {
-        Stream.Builder<Instant> builder = Stream.<Instant>builder();
+        Stream.Builder<Instant> builder = Stream.builder();
         builder.add(meterActivationRange.lowerEndpoint());
         if (meterActivationRange.hasUpperBound()) {
             builder.add(meterActivationRange.upperEndpoint());

@@ -73,6 +73,14 @@ class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter {
     }
 
     @Override
+    public List<? extends MeterActivation> getMeterActivations(Range<Instant> range) {
+        return this.meterActivations.stream()
+                .filter(ma -> !ma.getStart().equals(ma.getEnd()))
+                .filter(activation -> activation.overlaps(range))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void store(QualityCodeSystem system, MeterReading meterReading) {
         new MeterReadingStorer(getDataModel(), meteringService, this, meterReading, thesaurus, getEventService(), deviceEventFactory).store(system);
     }

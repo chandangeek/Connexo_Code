@@ -807,6 +807,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MultiplierType> table = dataModel.addTable(name(), MultiplierType.class);
             table.map(MultiplierTypeImpl.class);
+
+            table.cache();
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             Column nameIsKey = table.column("NAMEISKEY").bool().notNull().map("nameIsKey").add();
@@ -1803,14 +1805,32 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("PK_MTR_ENDDEVICECONTROLTYPE").on(mRidColumn).add();
         }
+    },
+
+    MTR_GASDAYOPTIONS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<GasDayOptions> table = dataModel.addTable(name(), GasDayOptions.class);
+            table.since(version(10, 2));
+            table.map(GasDayOptionsImpl.class);
+            table.cache();
+            Column id = this.addColum("ID", "id", table);
+            this.addColum("MONTH", "month", table);
+            this.addColum("DAY", "day", table);
+            this.addColum("HOUR", "hour", table);
+            table.primaryKey("MTR_PK_GASDAYOPTIONS").on(id).add();
+        }
+
+        private Column addColum(String columnName, String fieldName, Table table) {
+            return table.column(columnName).number().notNull().conversion(ColumnConversion.NUMBER2INT).map(fieldName).add();
+        }
     };
 
     abstract void addTo(DataModel dataModel);
 
     private static class Constants {
-        public static final String JOURNAL_TABLE_SUFFIX = "JRNL";
+        static final String JOURNAL_TABLE_SUFFIX = "JRNL";
     }
-
 
     private static class TableBuilder {
         static void buildLocationMemberTable(Table<?> table, List<TemplateField> templateMembers) {
@@ -1823,7 +1843,7 @@ public enum TableSpecs {
             Column localeColumn = table.column("LOCALE").varChar(Table.NAME_LENGTH).notNull().map("locale").add();
 
             if (templateMembers != null && !templateMembers.isEmpty()) {
-                templateMembers.stream().filter(f -> !f.getName().equalsIgnoreCase("locale")).forEach(column -> {
+                templateMembers.stream().filter(f -> !"locale".equalsIgnoreCase(f.getName())).forEach(column -> {
                             if (column.isMandatory()) {
                                 table.column(column.getName().toUpperCase())
                                         .varChar(Table.NAME_LENGTH)

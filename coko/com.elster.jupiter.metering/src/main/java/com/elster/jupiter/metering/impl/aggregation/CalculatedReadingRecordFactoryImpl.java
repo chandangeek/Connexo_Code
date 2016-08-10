@@ -54,7 +54,7 @@ public class CalculatedReadingRecordFactoryImpl implements CalculatedReadingReco
 
     private Pair<ReadingType, List<CalculatedReadingRecord>> toPair(Map.Entry<String, List<CalculatedReadingRecord>> entry) {
         IReadingType readingType = this.findReadingType(entry.getKey());
-        entry.getValue().stream().forEach(record -> record.setReadingType(readingType));
+        entry.getValue().forEach(record -> record.setReadingType(readingType));
         return Pair.of(readingType, entry.getValue());
     }
 

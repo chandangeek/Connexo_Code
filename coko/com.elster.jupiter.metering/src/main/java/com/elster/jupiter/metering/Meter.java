@@ -25,6 +25,8 @@ public interface Meter extends EndDevice, ReadingContainer {
 
     List<? extends MeterActivation> getMeterActivations();
 
+    List<? extends MeterActivation> getMeterActivations(Range<Instant> range);
+
     MeterActivation activate(Instant start);
 
     MeterActivation activate(Range<Instant> start);

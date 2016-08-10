@@ -193,9 +193,7 @@ class ReadingStorerImpl implements ReadingStorer {
 
         IntStream.range(offset, values.length)
                 .filter(i -> valuesToAdd[i] != null)
-                .forEach(i -> {
-                    values[i] = valuesToAdd[i];
-                });
+                .forEach(i -> values[i] = valuesToAdd[i]);
 
         ProcessStatus processStatus;
         if (values[0] != null && !Objects.equals(storer.doNotUpdateMarker(), values[0])) {
@@ -208,6 +206,7 @@ class ReadingStorerImpl implements ReadingStorer {
             values[1] = 0L; //The 'profile status' is no longer used. Its usage has been replaced by reading qualities.
         }
         addScope(channel, reading.getTimeStamp());
+        readings.put(key, reading);
     }
 
     @Override
@@ -539,16 +538,14 @@ class ReadingStorerImpl implements ReadingStorer {
                         Object[] currentReading = previousReadings.get(entry.getKey());
                         int bulkIndex = slotOffset + derivation.index + 1;
                         getValue(previousReading, null, bulkIndex)
-                                .ifPresent(previous -> {
-                                    getValue(consolidatedEntry, currentReading, bulkIndex)
-                                            .ifPresent(current -> {
-                                                IReadingType bulkReadingType = channel.getReadingTypes().get(derivation.index + 1);
-                                                Instant instant = entry.getKey().getLast();
-                                                Function<BigDecimal, BigDecimal> overflowCorrection = getOverflowCorrection(channel, bulkReadingType, instant, previous, current);
+                                .ifPresent(previous -> getValue(consolidatedEntry, currentReading, bulkIndex)
+                                        .ifPresent(current -> {
+                                            IReadingType bulkReadingType = channel.getReadingTypes().get(derivation.index + 1);
+                                            Instant instant = entry.getKey().getLast();
+                                            Function<BigDecimal, BigDecimal> overflowCorrection = getOverflowCorrection(channel, bulkReadingType, instant, previous, current);
 
-                                                consolidatedEntry[slotOffset + derivation.index] = overflowCorrection.apply(delta(previous, current));
-                                            });
-                                });
+                                            consolidatedEntry[slotOffset + derivation.index] = overflowCorrection.apply(delta(previous, current));
+                                        }));
                     }
                 });
     }

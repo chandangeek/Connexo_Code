@@ -101,9 +101,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
-    public static final String DAILY_TEMPERATURE_CELCIUS_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0";
-    public static final String DAILY_TEMPERATURE_FAHRENHEIT_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0";
-    public static final String DAILY_TEMPERATURE_KELVIN_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0";
+    private static final String DAILY_TEMPERATURE_CELCIUS_MRID = "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0";
+    private static final String DAILY_TEMPERATURE_FAHRENHEIT_MRID = "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0";
+    private static final String DAILY_TEMPERATURE_KELVIN_MRID = "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
     private static ReadingType K_15min;
@@ -168,12 +168,12 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new MeteringModule(
-                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0",    // macro period: daily, averages, Kelvin
-                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0",   // macro period: daily, averages, degrees celcius
-                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0",  // macro period: daily, averages, degrees Fahrenheit
-                            "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0",     // no macro period, 15 min, Kelvin
-                            "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0",    // no macro period, 15 min, degrees Celcius
-                            "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0"    // no macro period, 15 min, degrees Fahrenheit
+                            "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0",    // macro period: daily, averages, Kelvin
+                            "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0",   // macro period: daily, averages, degrees celcius
+                            "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0",  // macro period: daily, averages, degrees Fahrenheit
+                            "0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0",     // no macro period, 15 min, Kelvin
+                            "0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0",    // no macro period, 15 min, degrees Celcius
+                            "0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0"    // no macro period, 15 min, degrees Fahrenheit
                     ),
                     new BasicPropertiesModule(),
                     new TimeModule(),
@@ -210,22 +210,24 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     }
 
     private static DataAggregationService getDataAggregationService() {
+        ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
                 injector.getInstance(CustomPropertySetService.class),
-                injector.getInstance(ServerMeteringService.class),
+                meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithTemperatureConversionIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+                () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 
     private static void setupReadingTypes() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            K_15min = getMeteringService().getReadingType("0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0").get();
-            C_15min = getMeteringService().getReadingType("0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0").get();
-            F_15min = getMeteringService().getReadingType("0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0").get();
-            K_daily = getMeteringService().getReadingType("11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0").get();
-            C_daily = getMeteringService().getReadingType("11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0").get();
-            F_daily = getMeteringService().getReadingType("11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0").get();
+            K_15min = getMeteringService().getReadingType("0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0").get();
+            C_15min = getMeteringService().getReadingType("0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0").get();
+            F_15min = getMeteringService().getReadingType("0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0").get();
+            K_daily = getMeteringService().getReadingType("11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0").get();
+            C_daily = getMeteringService().getReadingType("11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0").get();
+            F_daily = getMeteringService().getReadingType("11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0").get();
             ctx.commit();
         }
     }

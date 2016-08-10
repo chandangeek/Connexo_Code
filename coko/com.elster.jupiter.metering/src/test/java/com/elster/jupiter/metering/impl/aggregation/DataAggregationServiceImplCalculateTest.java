@@ -609,6 +609,7 @@ public class DataAggregationServiceImplCalculateTest {
         return new DataAggregationServiceImpl(
                 this.customPropertySetService,
                 this.meteringService,
+                new InstantTruncaterFactory(this.meteringService),
                 this::getSqlBuilderFactory,
                 this::getVirtualFactory,
                 this::getReadingTypeDeliverableForMeterActivationFactory);
