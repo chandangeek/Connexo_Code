@@ -4,6 +4,7 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
 
 import java.util.List;
 
@@ -43,5 +44,10 @@ public interface ServerConnectionTaskService extends ConnectionTaskService {
      * @return The List of ConnectionTask
      */
     List<Long> findConnectionTasksForPartialId(long partialConnectionTaskId);
+
+    /**
+     * Finds all ConnectionTasks locked by a specific ComServer
+     */
+    public List<ConnectionTask> findLockedByComServer(ComServer comServer);
 
 }

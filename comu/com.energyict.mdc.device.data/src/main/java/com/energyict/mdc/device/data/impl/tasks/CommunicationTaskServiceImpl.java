@@ -24,24 +24,12 @@ import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComTaskExecutionSessionImpl;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.engine.config.ComPortPool;
-import com.energyict.mdc.engine.config.ComServer;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPort;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
 
@@ -51,14 +39,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -686,6 +667,12 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     @Override
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
         refreshComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
+    }
+
+    @Override
+    public List<ComTaskExecution> findComTaskExecutionsWhichAreExecuting(ComPort comPort) {
+        Condition condition = where(ComTaskExecutionFields.COMPORT.fieldName()).isEqualTo(comPort);
+        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(condition);
     }
 
     @Override

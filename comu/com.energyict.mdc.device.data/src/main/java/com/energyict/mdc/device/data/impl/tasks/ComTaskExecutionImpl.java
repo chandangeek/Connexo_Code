@@ -17,44 +17,22 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
-import com.energyict.mdc.device.data.impl.CreateEventType;
-import com.energyict.mdc.device.data.impl.DeleteEventType;
-import com.energyict.mdc.device.data.impl.EventType;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.PersistentIdObject;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
-import com.energyict.mdc.device.data.impl.TaskStatusTranslationKeys;
-import com.energyict.mdc.device.data.impl.UpdateEventType;
+import com.energyict.mdc.device.data.impl.*;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ComTasksMustBeEnabledByDeviceConfiguration;
 import com.energyict.mdc.device.data.impl.constraintvalidators.ConnectionTaskIsRequiredWhenNotUsingDefault;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionTrigger;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
-
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * Provides code and structural reuse opportunities for
@@ -618,6 +596,12 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void setLockedComPort(ComPort comPort) {
         setExecutingComPort(comPort);
+        this.update(ComTaskExecutionFields.COMPORT.fieldName());
+    }
+
+    @Override
+    public void unlock() {
+        this.setExecutingComPort(null);
         this.update(ComTaskExecutionFields.COMPORT.fieldName());
     }
 
