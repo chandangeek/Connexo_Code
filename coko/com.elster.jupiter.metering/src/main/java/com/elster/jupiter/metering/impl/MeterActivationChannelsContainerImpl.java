@@ -34,6 +34,11 @@ public class MeterActivationChannelsContainerImpl extends ChannelsContainerImpl 
     }
 
     @Override
+    public Optional<Meter> getMeter() {
+        return meterActivation.flatMap(MeterActivation::getMeter);
+    }
+
+    @Override
     public Optional<Meter> getMeter(Instant instant) {
         MeterActivation meterActivation = this.meterActivation.get();
         return meterActivation.isEffectiveAt(instant) ? meterActivation.getMeter() : Optional.empty();
