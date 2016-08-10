@@ -58,7 +58,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 title: me.router.getRoute().getTitle(),
                 defaults: {
                     labelWidth: 260,
-                    width: 605
+                    width: 800
                 },
                 width: 650,
                 items: [
