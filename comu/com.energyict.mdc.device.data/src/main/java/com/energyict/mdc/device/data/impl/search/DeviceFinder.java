@@ -32,6 +32,7 @@ import java.util.stream.Stream;
  */
 public class DeviceFinder implements Finder<Device> {
 
+    public static final String ID = "id";
     private static Logger LOGGER = Logger.getLogger(DeviceFinder.class.getName());
 
     private final DataModel dataModel;
@@ -53,9 +54,9 @@ public class DeviceFinder implements Finder<Device> {
         sqlBuilder.append(" ORDER BY " + this.orders.stream()
                 .map(order -> order.getClause(order.getName()))
                 .collect(Collectors.joining(", ")));
-        final SqlBuilder finalBuilder = this.pager.addPaging(sqlBuilder, "id");
+        final SqlBuilder finalBuilder = this.pager.addPaging(sqlBuilder, ID);
         QueryExecutor<Device> query = this.dataModel.query(Device.class, DeviceConfiguration.class, DeviceType.class);
-        return query.select(ListOperator.IN.contains(() -> finalBuilder, "id"), this.orders.toArray(new Order[orders.size()]));
+        return query.select(ListOperator.IN.contains(() -> finalBuilder, ID), this.orders.toArray(new Order[orders.size()]));
     }
 
     @Override
@@ -112,7 +113,7 @@ public class DeviceFinder implements Finder<Device> {
     private class NoPaging implements Pager {
         @Override
         public SqlBuilder addPaging(SqlBuilder sqlBuilder, String field) {
-            SqlBuilder builder = new SqlBuilder("SELECT id FROM ( ");
+            SqlBuilder builder = new SqlBuilder("SELECT " + ID + " FROM ( ");
             builder.add(sqlBuilder);
             builder.append(")");
             return builder;
