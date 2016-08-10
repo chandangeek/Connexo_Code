@@ -83,7 +83,6 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -678,7 +677,16 @@ public class UsagePointResource {
         ZonedDateTime now = ZonedDateTime.now(clock);
         TemporalAmount targetIntervalLength = getValidationOverviewIntervalLength(intervalLength).orElse(intervalLength);
         return fetchRelativePeriods().stream()
-                .sorted(Comparator.comparing(relativePeriod -> getIntervalLengthDifference(relativePeriod, targetIntervalLength, now)))
+                .sorted((rp1, rp2) -> {
+                    int cmp = Long.compare(getIntervalLengthDifference(rp1, targetIntervalLength, now), getIntervalLengthDifference(rp2, targetIntervalLength, now));
+                    if (cmp == 0) {
+                        return Long.compare(
+                                Math.abs(rp1.getOpenClosedZonedInterval(now).upperEndpoint().toInstant().toEpochMilli() - now.toInstant().toEpochMilli()),
+                                Math.abs(rp2.getOpenClosedZonedInterval(now).upperEndpoint().toInstant().toEpochMilli() - now.toInstant().toEpochMilli()));
+                    } else {
+                        return cmp;
+                    }
+                })
                 .collect(Collectors.toList());
     }
 
@@ -692,11 +700,11 @@ public class UsagePointResource {
         return Optional.ofNullable(targetInterval).map(Map.Entry::getValue);
     }
 
-    private long getIntervalLengthDifference(RelativePeriod relativePeriod, TemporalAmount targetIntervalLength, ZonedDateTime referenceTime) {
-        Range<ZonedDateTime> interval = relativePeriod.getOpenClosedZonedInterval(referenceTime);
+    private long getIntervalLengthDifference(RelativePeriod relativePeriod, TemporalAmount targetIntervalLength, ZonedDateTime now) {
+        Range<ZonedDateTime> interval = relativePeriod.getOpenClosedZonedInterval(now);
         ZonedDateTime relativePeriodStart = interval.lowerEndpoint();
-        if (referenceTime.isAfter(relativePeriodStart)) {
-            long relativePeriodLength = getIntervalLength(interval.intersection(Range.atMost(referenceTime)));
+        if (now.isAfter(relativePeriodStart)) {
+            long relativePeriodLength = getIntervalLength(interval.intersection(Range.atMost(now)));
             long targetLength = getIntervalLength(Range.openClosed(relativePeriodStart, relativePeriodStart.plus(targetIntervalLength)));
             return Math.abs(targetLength - relativePeriodLength);
         }

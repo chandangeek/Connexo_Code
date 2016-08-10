@@ -19,6 +19,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationContextImpl;
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 
 import com.google.common.collect.Range;
@@ -56,6 +57,7 @@ public class UsagePointOutputResource {
     private final OutputChannelDataInfoFactory outputChannelDataInfoFactory;
     private final OutputRegisterDataInfoFactory outputRegisterDataInfoFactory;
     private final PurposeInfoFactory purposeInfoFactory;
+    private final ValidationStatusFactory validationStatusFactory;
 
     @Inject
     public UsagePointOutputResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory,
@@ -63,7 +65,8 @@ public class UsagePointOutputResource {
                                     OutputInfoFactory outputInfoFactory,
                                     OutputChannelDataInfoFactory outputChannelDataInfoFactory,
                                     OutputRegisterDataInfoFactory outputRegisterDataInfoFactory,
-                                    PurposeInfoFactory purposeInfoFactory) {
+                                    PurposeInfoFactory purposeInfoFactory,
+                                    ValidationStatusFactory validationStatusFactory) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.validationService = validationService;
@@ -71,6 +74,7 @@ public class UsagePointOutputResource {
         this.outputChannelDataInfoFactory = outputChannelDataInfoFactory;
         this.outputRegisterDataInfoFactory = outputRegisterDataInfoFactory;
         this.purposeInfoFactory = purposeInfoFactory;
+        this.validationStatusFactory = validationStatusFactory;
     }
 
     @GET
@@ -95,7 +99,7 @@ public class UsagePointOutputResource {
     @Path("/{purposeId}/outputs")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("mRID") String mRID, @PathParam("purposeId") long contractId,@BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("mRID") String mRID, @PathParam("purposeId") long contractId, @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
@@ -137,13 +141,18 @@ public class UsagePointOutputResource {
         List<OutputChannelDataInfo> outputChannelDataInfoList = new ArrayList<>();
         if (filter.hasProperty("intervalStart") && filter.hasProperty("intervalEnd")) {
             Range<Instant> requestedInterval = Ranges.openClosed(filter.getInstant("intervalStart"), filter.getInstant("intervalEnd"));
-            ChannelsContainer channelsContainer = usagePoint.getCurrentEffectiveMetrologyConfiguration().get().getChannelsContainer(metrologyContract).get();
+            EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration().get();
+            ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
             if (channelsContainer.getRange().isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
                 Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
                 TemporalAmount intervalLength = readingTypeDeliverable.getReadingType().getIntervalLength().get();
+                ValidationEvaluator evaluator = validationService.getEvaluator();
+                IntervalReadingWithValidationStatus.Builder builder = IntervalReadingWithValidationStatus.builder(
+                        validationStatusFactory.isValidationActive(effectiveMetrologyConfiguration, metrologyContract),
+                        validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
                 Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval).stream()
-                        .collect(Collectors.toMap(Function.identity(), timeStamp -> new IntervalReadingWithValidationStatus(timeStamp, intervalLength)));
+                        .collect(Collectors.toMap(Function.identity(), timeStamp -> builder.from(timeStamp, intervalLength)));
 
                 // add readings to pre filled channel data map
                 List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(effectiveInterval);
@@ -153,7 +162,7 @@ public class UsagePointOutputResource {
                 }
 
                 // add validation statuses to pre filled channel data map
-                List<DataValidationStatus> dataValidationStatuses = validationService.getEvaluator()
+                List<DataValidationStatus> dataValidationStatuses = evaluator
                         .getValidationStatus(EnumSet.of(QualityCodeSystem.MDM, QualityCodeSystem.MDC), channel, intervalReadings, effectiveInterval);
                 for (DataValidationStatus dataValidationStatus : dataValidationStatuses) {
                     IntervalReadingWithValidationStatus readingWithValidationStatus = preFilledChannelDataMap.get(dataValidationStatus.getReadingTimestamp());

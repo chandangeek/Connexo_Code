@@ -41,8 +41,15 @@ public class OutputChannelDataInfoFactory {
             outputChannelDataInfo.validationRules = validationRuleInfoFactory.createInfosForDataValidationStatus(status);
         } else {
             // Missing value
-            outputChannelDataInfo.validationResult = ValidationStatus.NOT_VALIDATED;
-            outputChannelDataInfo.dataValidated = false;
+            if (readingWithValidationStatus.isChannelValidationActive()
+                    && readingWithValidationStatus.getChannelLastChecked().isPresent()
+                    && !readingWithValidationStatus.getTimeStamp().isAfter(readingWithValidationStatus.getChannelLastChecked().get())) {
+                outputChannelDataInfo.validationResult = ValidationStatus.OK;
+                outputChannelDataInfo.dataValidated = true;
+            } else {
+                outputChannelDataInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                outputChannelDataInfo.dataValidated = false;
+            }
         }
         return outputChannelDataInfo;
     }
