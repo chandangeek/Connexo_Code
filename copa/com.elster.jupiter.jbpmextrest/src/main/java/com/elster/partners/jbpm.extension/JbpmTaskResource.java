@@ -623,7 +623,10 @@ public class JbpmTaskResource {
     @GET
     @Produces("application/json")
     @Path("/process/{deploymentId}/content/{processId}")
-    public ConnexoForm getProcessForm(@PathParam("processId") String processId, @PathParam("deploymentId") String deploymentId) {
+    public Response getProcessForm(@PathParam("processId") String processId, @PathParam("deploymentId") String deploymentId) {
+        if(runtimeDataService.getProcessesById(processId).size() == 0){
+            return Response.ok().entity("Undeployed").build();
+        }
         if (formManagerService != null) {
             String template = formManagerService.getFormByKey(deploymentId, processId);
             if (Strings.isNullOrEmpty(template)) {
@@ -641,7 +644,7 @@ public class JbpmTaskResource {
                     StringReader reader = new StringReader(template);
                     ConnexoForm form = (ConnexoForm) unmarshaller.unmarshal(reader);
 
-                    return form;
+                    return Response.ok().entity(form).build();
                 } catch (JAXBException e) {
                     e.printStackTrace();
                 }
