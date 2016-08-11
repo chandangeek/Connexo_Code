@@ -37,7 +37,7 @@ public class DeviceSearchInfo {
 
 
     public static DeviceSearchInfo from(Device device, BatchRetriever batchService, GatewayRetriever gatewayRetriever,
-                                        IssueRetriever issueService, Thesaurus thesaurus, DeviceEstimationRetriever deviceEstimationRetriever, DeviceValidationRetriever deviceValidationRetriever) {
+                                        IssueRetriever issueService, Thesaurus thesaurus, DeviceValidationRetriever deviceValidationRetriever) {
         DeviceSearchInfo searchInfo = new DeviceSearchInfo();
         searchInfo.id = device.getId();
         searchInfo.mRID = device.getmRID();
@@ -55,7 +55,7 @@ public class DeviceSearchInfo {
             searchInfo.serviceCategory = usagePoint.getServiceCategory().getName();
         });
         searchInfo.yearOfCertification = device.getYearOfCertification();
-        searchInfo.estimationActive = getStatus(deviceEstimationRetriever.isEstimationActive(device), thesaurus);
+        searchInfo.estimationActive = getStatus(device.forEstimation().isEstimationActive(), thesaurus);
         Optional<Device> physicalGateway = gatewayRetriever.getPhysicalGateway(device);
         if (physicalGateway.isPresent()) {
             searchInfo.masterDevicemRID = physicalGateway.get().getmRID();
