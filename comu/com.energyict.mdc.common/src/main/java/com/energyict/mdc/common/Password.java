@@ -28,6 +28,14 @@ public class Password {
         this.value = value;
     }
 
+    public int length(){
+        return value.length();
+    }
+
+    public boolean isEmpty(){
+        return value == null || value.isEmpty();
+    }
+
     @Override
     public int hashCode() {
         return value != null ? value.hashCode() : 0;

@@ -39,4 +39,16 @@ public class PasswordTest {
         assertFalse(password1.equals(password2));
     }
 
+    @Test
+    public void isEmptyTest(){
+        Password password1 = new Password("myPassword");
+        assertFalse("password myPassword not is empty", password1.isEmpty());
+
+        Password password2 = new Password();
+        assertTrue("password with null string is empty", password2.isEmpty());
+
+        Password password3 = new Password("");
+        assertTrue("password with empty string is empty", password3.isEmpty());
+    }
+
 }

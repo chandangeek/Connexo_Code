@@ -90,5 +90,28 @@ public class HexStringTest {
         assertFalse("non equal Objects should have different hashCodes", hexString1.hashCode() == new HexString().hashCode());
         assertTrue("equal Objects must have equal hashCodes", new HexString().hashCode() == new HexString().hashCode());
     }
+    @Test
+    public void isEmptyTest(){
+        HexString hexString1 = new HexString("0A7B");
+        assertFalse("hex 0A7B not is empty", hexString1.isEmpty());
+
+        HexString hexString2 = new HexString();
+        assertTrue("hex with null string is empty", hexString2.isEmpty());
+
+        HexString hexString3 = new HexString("");
+        assertTrue("hex with empty string is empty", hexString3.isEmpty());
+    }
+
+    @Test
+    public void lengthTest(){
+        HexString hexString1 = new HexString("0A7B");
+        assertEquals("hex 0A7B has length 4", 4, hexString1.lenght());
+
+        HexString hexString2 = new HexString();
+        assertEquals("hex with null string has length 0", 0, hexString2.lenght());
+
+        HexString hexString3 = new HexString("");
+        assertEquals("hex with empty string has length 0", 0, hexString3.lenght());
+    }
 
 }
