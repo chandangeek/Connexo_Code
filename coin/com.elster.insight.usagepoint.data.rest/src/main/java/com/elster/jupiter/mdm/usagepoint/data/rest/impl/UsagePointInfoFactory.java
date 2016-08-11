@@ -275,7 +275,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         if (!usagePoint.isSdp() && !usagePoint.isVirtual()) {
             return "Measured non-SDP";
         }
-
         return null;
     }
 
@@ -363,7 +362,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return builder;
     }
 
-
     public List<MeterActivationInfo> getMetersOnUsagePointInfo(UsagePoint usagePoint, String authorization) {
         Map<MeterRole, MeterRoleInfo> mandatoryMeterRoles = new LinkedHashMap<>();
         usagePoint.getCurrentEffectiveMetrologyConfiguration()
@@ -389,7 +387,7 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                         meterActivationInfo.meter.mRID = meter.getMRID();
                         meterActivationInfo.meter.name = meter.getName();
                         meterActivationInfo.meter.version = meter.getVersion();
-                        meterActivationInfo.meter.watsGoingOnMeterStatus = getWatsGoingOnMeterStatus(meter, authorization);
+                        meterActivationInfo.meter.watsGoingOnMeterStatus = getWhatsGoingOnMeterStatus(meter, authorization);
                         meterActivationInfo.meterRole.activationTime = meterActivationForMeterRole.getStart();
                         meterActivationInfo.id = meterActivationForMeterRole.getId();
                         meterActivationInfo.meter.url = meter.getHeadEndInterface()
@@ -403,8 +401,8 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
                 .collect(Collectors.toList());
     }
 
-    public WatsGoingOnMeterStatusInfo getWatsGoingOnMeterStatus(Meter meter, String authorization) {
-        WatsGoingOnMeterStatusInfo info = new WatsGoingOnMeterStatusInfo();
+    public WhatsGoingOnMeterStatusInfo getWhatsGoingOnMeterStatus(Meter meter, String authorization) {
+        WhatsGoingOnMeterStatusInfo info = new WhatsGoingOnMeterStatusInfo();
         IssueFilter issueFilter = issueService.newIssueFilter();
         issueFilter.addDevice(meter);
         issueFilter.addStatus(issueService.findStatus(IssueStatus.OPEN).get());
@@ -418,6 +416,6 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
         return "?variableid=deviceId&variablevalue=" + meter.getMRID();
     }
 
-    static class EmptyDomain {
+    private static class EmptyDomain {
     }
 }
