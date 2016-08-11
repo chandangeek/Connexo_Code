@@ -185,13 +185,11 @@ Ext.define('Uni.service.Search', {
             }
 
             searchProperties.load(function(){
-                Ext.suspendLayouts();
                 me.fireEvent('reset', me.filters);
                 me.init();
                 searchFields.load(function(){
                     callback ? callback() : null;
                 });
-                Ext.resumeLayouts(true);
             });
         }
     },
@@ -387,7 +385,6 @@ Ext.define('Uni.service.Search', {
         resultsStore.addFilter(filters, false);
         propertiesStore.addFilter(filters, false);
 
-        Ext.suspendLayouts();
         me.setDomain(state.domain, function() {
             if (filters && filters.length) {
                 me.setFilters(filters);
@@ -400,7 +397,6 @@ Ext.define('Uni.service.Search', {
             me.isStateLoad = false;
             callback ? callback() : null;
         });
-        Ext.resumeLayouts(true);
     },
 
     createColumnDefinitionFromModel: function (field) {
@@ -555,17 +551,18 @@ Ext.define('Uni.service.Search', {
 
     setFilters: function(filters) {
         var me = this;
-        Ext.suspendLayouts();
 
+        Ext.suspendLayouts();
         me.filters.removeAll();
         me.filters.add(filters);
+        Ext.resumeLayouts(true);
 
         filters.map(function(filter) {
             me.onFilterChange(filter);
         });
 
         me.saveState();
-        Ext.resumeLayouts(true);
+
     },
 
     setFilter: function (filter) {
