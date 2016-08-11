@@ -419,7 +419,7 @@ public class TableImpl<T> implements Table<T> {
 
     public ColumnImpl getColumnForField(String name) {
         return this.getRealColumns()
-                .filter(name::equals)
+                .filter(column -> column.getFieldName().equals(name))
                 .findFirst()
                 .orElse(null);
     }
