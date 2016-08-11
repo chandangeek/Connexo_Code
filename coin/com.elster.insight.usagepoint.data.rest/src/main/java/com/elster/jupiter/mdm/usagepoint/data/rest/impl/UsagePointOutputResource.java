@@ -81,7 +81,9 @@ public class UsagePointOutputResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList getUsagePointPurposes(@PathParam("mRID") String mRID, @QueryParam("withValidationTasks") boolean withValidationTasks, @BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getUsagePointPurposes(@PathParam("mRID") String mRID,
+                                               @QueryParam("withValidationTasks") boolean withValidationTasks,
+                                               @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         Optional<EffectiveMetrologyConfigurationOnUsagePoint> effectiveMetrologyConfiguration = usagePoint.getCurrentEffectiveMetrologyConfiguration();
         List<PurposeInfo> purposeInfoList;
@@ -99,7 +101,9 @@ public class UsagePointOutputResource {
     @Path("/{purposeId}/outputs")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT, Privileges.Constants.VIEW_METROLOGY_CONFIGURATION})
-    public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("mRID") String mRID, @PathParam("purposeId") long contractId,@BeanParam JsonQueryParameters queryParameters) {
+    public PagedInfoList getOutputsOfUsagePointPurpose(@PathParam("mRID") String mRID,
+                                                       @PathParam("purposeId") long contractId,
+                                                       @BeanParam JsonQueryParameters queryParameters) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
         MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
@@ -211,10 +215,11 @@ public class UsagePointOutputResource {
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
-    public Response validateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long purposeId, @QueryParam("upVersion") long upVersion, PurposeInfo purposeInfo) {
+    public Response validateMetrologyContract(@PathParam("mRID") String mRID, @PathParam("purposeId") long contractId,
+                                              @QueryParam("upVersion") long upVersion, PurposeInfo purposeInfo) {
         UsagePoint usagePoint = resourceHelper.findAndLockUsagePointByMrIdOrThrowException(mRID, upVersion);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = resourceHelper.findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint);
-        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, purposeId);
+        MetrologyContract metrologyContract = resourceHelper.findMetrologyContractOrThrowException(effectiveMC, contractId);
         usagePoint.update();
         effectiveMC.getChannelsContainer(metrologyContract)
                 .ifPresent(channelsContainer -> validationService.validate(new ValidationContextImpl(EnumSet.of(QualityCodeSystem.MDM), channelsContainer)
