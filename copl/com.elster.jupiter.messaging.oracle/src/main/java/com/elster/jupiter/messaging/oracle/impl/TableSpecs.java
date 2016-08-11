@@ -4,12 +4,14 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
     MSG_QUEUETABLESPEC {
@@ -38,7 +40,13 @@ public enum TableSpecs {
             table.column("BUFFERED").bool().map("buffered").add();
             table.addAuditColumns();
             table.primaryKey("MSG_PK_DESTINATIONSPEC").on(nameColumn).add();
-            table.foreignKey("MSG_FK_DESTINATIONSPEC").references(MSG_QUEUETABLESPEC.name()).onDelete(RESTRICT).map("queueTableSpec").on(queueTableNameColumn).add();
+            table
+                .foreignKey("MSG_FK_DESTINATIONSPEC")
+                .references(MSG_QUEUETABLESPEC.name())
+                .onDelete(RESTRICT)
+                .map("queueTableSpec")
+                .on(queueTableNameColumn)
+                .add();
         }
     },
     MSG_SUBSCRIBERSPEC {
@@ -50,9 +58,29 @@ public enum TableSpecs {
             Column nameColumn = table.column("NAME").varChar(30).notNull().map("name").add();
             table.column("SYSTEMMANAGED").bool().map("systemManaged").add();
             table.column("filter").varChar().map("filter").add();
+            table.column("DEQUEUE_WAIT_SECS")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .map("dequeueWaitSeconds")
+                    .since(version(10, 2))
+                    .add();
+            table.column("DEQUEUE_SLEEP_SECS")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
+                    .map("dequeueRetryDelaySeconds")
+                    .since(version(10, 2))
+                    .add();
             table.addAuditColumns();
             table.primaryKey("MSG_PK_SUBSCRIBERSPEC").on(destinationColumn , nameColumn).add();
-            table.foreignKey("MSG_FK_SUBSCRIBERSPEC").references(MSG_DESTINATIONSPEC.name()).onDelete(CASCADE).map("destination").reverseMap("subscribers").on(destinationColumn).composition().add();
+            table
+                .foreignKey("MSG_FK_SUBSCRIBERSPEC")
+                .references(MSG_DESTINATIONSPEC.name())
+                .onDelete(CASCADE)
+                .map("destination")
+                .reverseMap("subscribers")
+                .on(destinationColumn)
+                .composition()
+                .add();
         }
     };
 

@@ -107,7 +107,7 @@ public class DestinationSpecImplIT {
                 destinationSpec.save();
                 destinationSpec.activate();
 
-                destinationSpec.subscribe("A");
+                destinationSpec.subscribe("A").create();
 
                 Optional<DestinationSpec> found = messageService.getDestinationSpec("name");
                 assertThat(found.isPresent()).isTrue();
@@ -115,6 +115,5 @@ public class DestinationSpecImplIT {
             }
         });
     }
-
 
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
+
 import oracle.jdbc.aq.AQMessage;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -148,7 +149,7 @@ public class ConsoleCommandsImpl {
                         if (!destination.isPresent()) {
                             System.err.println("No such destination " + destinationName);
                         }
-                        destination.get().subscribe(subscriberName);
+                        destination.get().subscribe(subscriberName).create();
                     });
         } catch (Exception ex) {
             ex.printStackTrace();

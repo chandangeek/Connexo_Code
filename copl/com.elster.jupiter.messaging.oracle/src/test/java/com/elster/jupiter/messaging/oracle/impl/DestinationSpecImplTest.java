@@ -12,12 +12,19 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableList;
 import oracle.AQ.AQQueueTable;
 import oracle.jdbc.OracleConnection;
 import oracle.jms.AQjmsDestination;
 import oracle.jms.AQjmsDestinationProperty;
 import oracle.jms.AQjmsSession;
+
+import javax.jms.QueueConnection;
+import javax.jms.Session;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,17 +34,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.jms.QueueConnection;
-import javax.jms.Session;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DestinationSpecImplTest {
@@ -47,7 +53,7 @@ public class DestinationSpecImplTest {
     private static final String RAW = "RAW";
     private static final String SUBSCRIBER = "SUBSCRIBER";
     private static final String QUEUE_TABLE_NAME = "QUEUE_TABLE_NAME";
-    public static final int RETRIES = 4;
+    private static final int RETRIES = 4;
 
     private DestinationSpecImpl destinationSpec;
 
@@ -139,7 +145,7 @@ public class DestinationSpecImplTest {
 
     @Test(expected = InactiveDestinationException.class)
     public void testSubscribeOnInactiveDestinationThrowsException() {
-        destinationSpec.subscribe(SUBSCRIBER);
+        destinationSpec.subscribe(SUBSCRIBER).create();
     }
 
     @Test
@@ -201,8 +207,8 @@ public class DestinationSpecImplTest {
     public void testGetConsumers() {
 
         destinationSpec.activate();
-        subscriber1 = destinationSpec.subscribe("1");
-        subscriber2 = destinationSpec.subscribe("2");
+        subscriber1 = destinationSpec.subscribe("1").create();
+        subscriber2 = destinationSpec.subscribe("2").create();
 
         ImmutableList<SubscriberSpec> subscribers = ImmutableList.of(subscriber1, subscriber2);
 
@@ -217,8 +223,8 @@ public class DestinationSpecImplTest {
 
         assertThat(destinationSpec.isActive()).isTrue();
 
-        destinationSpec.subscribe(SUBSCRIBER);
-        destinationSpec.subscribe(SUBSCRIBER);
+        destinationSpec.subscribe(SUBSCRIBER).create();
+        destinationSpec.subscribe(SUBSCRIBER).create();
     }
 
     @Test(expected = AlreadyASubscriberForQueueException.class)
@@ -230,15 +236,15 @@ public class DestinationSpecImplTest {
 
         assertThat(destinationSpec.isActive()).isTrue();
 
-        destinationSpec.subscribe("destination");
-        destinationSpec.subscribe(SUBSCRIBER + "2");
+        destinationSpec.subscribe("destination").create();
+        destinationSpec.subscribe(SUBSCRIBER + "2").create();
     }
 
     @Test
     public void testSubscribeSuccess() throws SQLException {
         when(queueTableSpec.isJms()).thenReturn(false);
         when(queueTableSpec.isMultiConsumer()).thenReturn(false);
-        when(subscriberSpecFactory.find("destination", destinationSpec)).thenReturn(ImmutableList.<SubscriberSpec>of());
+        when(subscriberSpecFactory.find("destination", destinationSpec)).thenReturn(ImmutableList.of());
 
         destinationSpec.activate();
 
@@ -246,7 +252,7 @@ public class DestinationSpecImplTest {
 
         Mockito.reset(preparedStatement); // clear interactions that may have occurred in activate
 
-        SubscriberSpec subscriberSpec = destinationSpec.subscribe(SUBSCRIBER);
+        SubscriberSpec subscriberSpec = destinationSpec.subscribe(SUBSCRIBER).create();
 
         assertThat(subscriberSpec.getName()).isEqualTo(SUBSCRIBER);
         assertThat(subscriberSpec.getDestination()).isEqualTo(destinationSpec);

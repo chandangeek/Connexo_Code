@@ -1,5 +1,6 @@
 package com.elster.jupiter.messaging.oracle.impl;
 
+import com.elster.jupiter.messaging.DequeueOptions;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -20,7 +21,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,12 +35,12 @@ class SubscriberSpecImpl implements SubscriberSpec {
     /**
      * Default duration that we are willing to wait for a message while dequeueing.
      */
-    private static final Duration DEQUEUE_DEFAULT_WAIT = Duration.ofSeconds(1);
+    static final int DEQUEUE_DEFAULT_WAIT_SECONDS = 1;
 
     /**
      * Default duration that we are willing to wait between dequeueing when no messages were available.
      */
-    private static final Duration INBETWEEN_DEQUEUE_DEFAULT_WAIT = Duration.ofSeconds(10);
+    static final int INBETWEEN_DEQUEUE_DEFAULT_WAIT_SECONDS = 10;
 
     private String name;
     @Size(max = 4000)
@@ -56,6 +56,10 @@ class SubscriberSpecImpl implements SubscriberSpec {
     private String userName;
     @SuppressWarnings("unused")
     private boolean systemManaged;
+    @Size(min = 1, max = 2147483647)
+    private long dequeueWaitSeconds;
+    @Size(min = 0)
+    private long dequeueRetryDelaySeconds;
 
     private final Reference<DestinationSpec> destination = ValueReference.absent();
     private volatile boolean running = true;
@@ -77,10 +81,16 @@ class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     private SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged, Condition filter) {
+        return init(destination, name, systemManaged, filter, DEQUEUE_DEFAULT_WAIT_SECONDS, INBETWEEN_DEQUEUE_DEFAULT_WAIT_SECONDS);
+    }
+
+    private SubscriberSpecImpl init(DestinationSpec destination, String name, boolean systemManaged, Condition filter, long dequeueWaitSeconds, long dequeueRetryDelaySeconds) {
         this.destination.set(destination);
         this.name = name;
         this.systemManaged = systemManaged;
         this.filter = toString(filter);
+        this.dequeueWaitSeconds = dequeueWaitSeconds;
+        this.dequeueRetryDelaySeconds = dequeueRetryDelaySeconds;
         return this;
     }
 
@@ -97,8 +107,16 @@ class SubscriberSpecImpl implements SubscriberSpec {
         return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, name);
     }
 
-    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name, boolean systemManaged, Condition filter) {
-        return dataModel.getInstance(SubscriberSpecImpl.class).init(destinationSpec, name, systemManaged, filter);
+    static SubscriberSpecImpl from(DataModel dataModel, DestinationSpec destinationSpec, String name, boolean systemManaged, Condition filter, DequeueOptions dequeueOptions) {
+        return dataModel
+                .getInstance(SubscriberSpecImpl.class)
+                .init(
+                    destinationSpec,
+                    name,
+                    systemManaged,
+                    filter,
+                    dequeueOptions.waitTime().getSeconds(),
+                    dequeueOptions.retryDelay().getSeconds());
     }
 
     @Override
@@ -141,7 +159,7 @@ class SubscriberSpecImpl implements SubscriberSpec {
                     cancellableConnections.remove(cancellableConnection);
                 }
             }
-            receiveResult.sleepIfApplicable();
+            this.sleepIfApplicable(receiveResult);
         }
         return receiveResult.message;
     }
@@ -160,6 +178,20 @@ class SubscriberSpecImpl implements SubscriberSpec {
             } else {
                 return null;
             }
+        }
+    }
+
+    private void sleepIfApplicable(ReceiveResult receiveResult) {
+        if (receiveResult.nullValueCause == NullValueCause.DEQUEUE_TIMED_OUT) {
+            this.sleep();
+        }
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(this.dequeueWaitSeconds * 1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -192,7 +224,7 @@ class SubscriberSpecImpl implements SubscriberSpec {
 
     private AQDequeueOptions basicOptions() throws SQLException {
         AQDequeueOptions options = new AQDequeueOptions();
-        options.setWait((int) DEQUEUE_DEFAULT_WAIT.getSeconds());
+        options.setWait((int) this.dequeueWaitSeconds); // javax.validation sets max to Integer.MAX_VALUE so can be cast without risk
         if (getDestination().isTopic()) {
             options.setConsumerName(name);
             options.setNavigation(AQDequeueOptions.NavigationOption.FIRST_MESSAGE);
@@ -341,20 +373,6 @@ class SubscriberSpecImpl implements SubscriberSpec {
 
         boolean nextAttemptAllowed() {
             return this.message == null && this.nullValueCause != NullValueCause.CONNECTION_CANCELLED;
-        }
-
-        void sleepIfApplicable() {
-            if (this.nullValueCause == NullValueCause.DEQUEUE_TIMED_OUT) {
-                this.sleep();
-            }
-        }
-
-        private void sleep() {
-            try {
-                Thread.sleep(INBETWEEN_DEQUEUE_DEFAULT_WAIT.toMillis());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
         }
     }
 
