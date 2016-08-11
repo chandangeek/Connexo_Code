@@ -1113,7 +1113,7 @@ public class BpmResource {
           return  Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
         if ("startTask".equals(taskContentInfos.action)) {
-            String rest = "/rest/tasks/" + id + "/contentstart/";
+            String rest = "/rest/tasks/" + id + "/contentstart/" + securityContext.getUserPrincipal().getName();
             try {
                 postResult = bpmService.getBpmServer().doPost(rest, null, auth, 0);
             } catch (RuntimeException e) {
@@ -1134,7 +1134,7 @@ public class BpmResource {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
-                String rest = "/rest/tasks/" + id + "/contentcomplete/";
+                String rest = "/rest/tasks/" + id + "/contentcomplete/" + securityContext.getUserPrincipal().getName();
                 try {
                     postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
                 }catch (RuntimeException e) {
@@ -1159,7 +1159,7 @@ public class BpmResource {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
-                String rest = "/rest/tasks/" + id + "/contentsave";
+                String rest = "/rest/tasks/" + id + "/contentsave/" + securityContext.getUserPrincipal().getName();
                 try{
                     postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
                 }catch (RuntimeException e) {
