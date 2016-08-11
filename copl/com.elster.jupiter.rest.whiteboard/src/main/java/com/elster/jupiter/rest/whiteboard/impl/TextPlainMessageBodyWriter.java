@@ -7,7 +7,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.MessageBodyWriter;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -41,7 +40,8 @@ public class TextPlainMessageBodyWriter implements MessageBodyWriter<Object> {
     public void writeTo(Object o, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws
             IOException,
             WebApplicationException {
-        String message = jsonService.serialize(o);
-        throw new WebApplicationException(Response.status(422).entity(message).build());
+        entityStream.write(jsonService.serialize(o).getBytes());
+//        String message = jsonService.serialize(o);
+//        throw new WebApplicationException(Response.status(422).entity(message).build());
     }
 }
