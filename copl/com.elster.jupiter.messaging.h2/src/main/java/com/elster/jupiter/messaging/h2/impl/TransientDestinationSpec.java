@@ -1,6 +1,7 @@
 package com.elster.jupiter.messaging.h2.impl;
 
 import com.elster.jupiter.messaging.AlreadyASubscriberForQueueException;
+import com.elster.jupiter.messaging.DequeueOptions;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.InactiveDestinationException;
@@ -28,7 +29,7 @@ class TransientDestinationSpec implements DestinationSpec {
     private final Thesaurus thesaurus;
     private final boolean buffered;
 
-    public TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name, boolean buffered) {
+    TransientDestinationSpec(QueueTableSpec queueTableSpec, Thesaurus thesaurus, String name, boolean buffered) {
         this.queueTableSpec = queueTableSpec;
         this.thesaurus = thesaurus;
         this.name = name;
@@ -43,13 +44,11 @@ class TransientDestinationSpec implements DestinationSpec {
     @Override
     public void activate() {
         this.active = true;
-
     }
 
     @Override
     public void deactivate() {
         active = false;
-
     }
 
     @Override
@@ -84,11 +83,15 @@ class TransientDestinationSpec implements DestinationSpec {
 
     @Override
     public List<SubscriberSpec> getSubscribers() {
-        return Collections.<SubscriberSpec>unmodifiableList(subscribers);
+        return Collections.unmodifiableList(subscribers);
     }
 
     @Override
-    public SubscriberSpec subscribe(String name) {
+    public SubscriberSpecBuilder subscribe(String name) {
+        return new TransientSubscriberSpecBuilder(name);
+    }
+
+    private SubscriberSpec createSubscriberSpec(String name) {
         if (!active) {
             throw new InactiveDestinationException(thesaurus, this, name);
         }
@@ -103,11 +106,6 @@ class TransientDestinationSpec implements DestinationSpec {
         TransientSubscriberSpec subscriberSpec = new TransientSubscriberSpec(this, name);
         subscribers.add(subscriberSpec);
         return subscriberSpec;
-    }
-
-    @Override
-    public SubscriberSpec subscribe(String name, Condition filter) {
-        return subscribe(name);
     }
 
     @Override
@@ -127,11 +125,6 @@ class TransientDestinationSpec implements DestinationSpec {
         if (isActive()) {
             deactivate();
         }
-    }
-
-    @Override
-    public SubscriberSpec subscribeSystemManaged(String name) {
-        return subscribe(name);
     }
 
     @Override
@@ -175,9 +168,7 @@ class TransientDestinationSpec implements DestinationSpec {
 
     @Override
     public void purgeCorrelationId(String correlationId) {
-       subscribers
-               .stream()
-               .forEach(perform(TransientSubscriberSpec::removeMessagesWithCorrelationId).with(correlationId));
+       subscribers.forEach(perform(TransientSubscriberSpec::removeMessagesWithCorrelationId).with(correlationId));
     }
 
     @Override
@@ -195,11 +186,11 @@ class TransientDestinationSpec implements DestinationSpec {
         private final byte[] data;
         private String correlationId;
 
-        public TransientMessageBuilder(String text) {
+        TransientMessageBuilder(String text) {
             data = text.getBytes();
         }
 
-        public TransientMessageBuilder(byte[] bytes) {
+        TransientMessageBuilder(byte[] bytes) {
             data = new byte[bytes.length];
             System.arraycopy(bytes, 0, data, 0, bytes.length);
         }
@@ -211,7 +202,6 @@ class TransientDestinationSpec implements DestinationSpec {
                 message.setCorrelationId(correlationId);
                 subscriber.addMessage(message);
             }
-
         }
 
         @Override
@@ -225,4 +215,33 @@ class TransientDestinationSpec implements DestinationSpec {
             return this;
         }
     }
+
+    private class TransientSubscriberSpecBuilder implements SubscriberSpecBuilder {
+        private final String name;
+
+        private TransientSubscriberSpecBuilder(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public SubscriberSpecBuilder with(Condition filter) {
+            return this;
+        }
+
+        @Override
+        public SubscriberSpecBuilder with(DequeueOptions dequeueOptions) {
+            return this;
+        }
+
+        @Override
+        public SubscriberSpecBuilder systemManaged(boolean flag) {
+            return this;
+        }
+
+        @Override
+        public SubscriberSpec create() {
+            return createSubscriberSpec(this.name);
+        }
+    }
+
 }

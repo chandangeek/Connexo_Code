@@ -7,15 +7,17 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableList;
+
+import java.sql.SQLException;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.sql.SQLException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -84,7 +86,7 @@ public class TransientDestinationSpecTest {
 
     @Test(expected = InactiveDestinationException.class)
     public void testSubscribeOnInactiveDestinationThrowsException() {
-        destinationSpec.subscribe(SUBSCRIBER);
+        destinationSpec.subscribe(SUBSCRIBER).create();
     }
 
     @Test
@@ -113,10 +115,10 @@ public class TransientDestinationSpecTest {
     public void testGetConsumers() {
         destinationSpec.activate();
 
-        subscriber1 = (TransientSubscriberSpec) destinationSpec.subscribe("1");
-        subscriber2 = (TransientSubscriberSpec) destinationSpec.subscribe("2");
+        subscriber1 = (TransientSubscriberSpec) destinationSpec.subscribe("1").create();
+        subscriber2 = (TransientSubscriberSpec) destinationSpec.subscribe("2").create();
 
-        ImmutableList<SubscriberSpec> subscribers = ImmutableList.<SubscriberSpec>of(subscriber1, subscriber2);
+        ImmutableList<SubscriberSpec> subscribers = ImmutableList.of(subscriber1, subscriber2);
 
         assertThat(destinationSpec.getSubscribers()).isEqualTo(subscribers);
     }
@@ -125,13 +127,13 @@ public class TransientDestinationSpecTest {
     public void testSubscribeDuplicate() throws SQLException {
         when(queueTableSpec.isJms()).thenReturn(false);
         destinationSpec.activate();
-        subscriber = (TransientSubscriberSpec) destinationSpec.subscribe(SUBSCRIBER);
+        subscriber = (TransientSubscriberSpec) destinationSpec.subscribe(SUBSCRIBER).create();
 
         destinationSpec.activate();
 
         assertThat(destinationSpec.isActive()).isTrue();
 
-        destinationSpec.subscribe(SUBSCRIBER);
+        destinationSpec.subscribe(SUBSCRIBER).create();
     }
 
     @Test(expected = AlreadyASubscriberForQueueException.class)
@@ -139,13 +141,13 @@ public class TransientDestinationSpecTest {
         when(queueTableSpec.isJms()).thenReturn(false);
         when(queueTableSpec.isMultiConsumer()).thenReturn(false);
         destinationSpec.activate();
-        subscriber = (TransientSubscriberSpec) destinationSpec.subscribe("A");
+        subscriber = (TransientSubscriberSpec) destinationSpec.subscribe("A").create();
 
         destinationSpec.activate();
 
         assertThat(destinationSpec.isActive()).isTrue();
 
-        destinationSpec.subscribe(SUBSCRIBER + "2");
+        destinationSpec.subscribe(SUBSCRIBER + "2").create();
     }
 
     @Test
@@ -157,11 +159,10 @@ public class TransientDestinationSpecTest {
 
         assertThat(destinationSpec.isActive()).isTrue();
 
-        SubscriberSpec subscriberSpec = destinationSpec.subscribe(SUBSCRIBER);
+        SubscriberSpec subscriberSpec = destinationSpec.subscribe(SUBSCRIBER).create();
 
         assertThat(subscriberSpec.getName()).isEqualTo(SUBSCRIBER);
         assertThat(subscriberSpec.getDestination()).isEqualTo(destinationSpec);
     }
-
 
 }
