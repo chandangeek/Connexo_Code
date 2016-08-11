@@ -2,12 +2,10 @@ package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.properties.AbstractValueFactory;
-import com.elster.jupiter.util.sql.SqlBuilder;
+
+import com.energyict.mdc.common.Password;
 
 import javax.inject.Inject;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 /**
  * Insert your comments here.
@@ -15,15 +13,13 @@ import java.sql.SQLException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:57)
  */
-public class EncryptedStringFactory extends AbstractValueFactory<String> {
+public class EncryptedStringFactory extends EncryptedValueFactory<String> {
 
     public static final int MAX_SIZE = Table.MAX_STRING_LENGTH;
 
-    private final DataVaultService dataVaultService;
-
     @Inject
     public EncryptedStringFactory(DataVaultService dataVaultService) {
-        this.dataVaultService = dataVaultService;
+        super(new PropertyEncryptor(dataVaultService));
     }
 
     @Override
@@ -32,31 +28,12 @@ public class EncryptedStringFactory extends AbstractValueFactory<String> {
     }
 
     @Override
-    public int getJdbcType() {
-        return java.sql.Types.VARCHAR;
-    }
-
-    @Override
     public String valueFromDatabase (Object object) {
         return this.valueFromDb((String) object);
     }
 
     private String valueFromDb(String encodedString) {
-        return new String(dataVaultService.decrypt(encodedString));
-    }
-
-    @Override
-    public Object valueToDatabase (String string) {
-        if (string == null) {
-            return null;
-        }
-        else {
-            return this.encrypt(string);
-        }
-    }
-
-    private String encrypt (String string) {
-        return dataVaultService.encrypt(string.getBytes());
+        return new String(getDecryptedValueFromDatabase(encodedString));
     }
 
     @Override
@@ -64,35 +41,11 @@ public class EncryptedStringFactory extends AbstractValueFactory<String> {
         return stringValue == null? "" : stringValue;
     }
 
-    @Override
-    public String toStringValue(String object) {
-        return this.encrypt(object);
-    }
-
-    @Override
-    public void bind(SqlBuilder builder, String value) {
-        if (value != null) {
-            builder.addObject(this.encrypt(value));
+    private class EncryptedStringValidator implements PropertyValidator<String>{
+        @Override
+        public boolean validate(String value) {
+            return ((String) valueToDatabase(value)).length() <= MAX_SIZE;
         }
-        else {
-            builder.addNull(this.getJdbcType());
-        }
-    }
-
-    @Override
-    public void bind(PreparedStatement statement, int offset, String value) throws SQLException {
-        if (value != null) {
-            statement.setString(offset, this.encrypt(value));
-        }
-        else {
-            statement.setNull(offset, this.getJdbcType());
-        }
-    }
-
-    @Override
-    public boolean isValid(String value) {
-        String encryptedValue = this.encrypt(value);
-        return encryptedValue.length() <= MAX_SIZE;
     }
 
 }

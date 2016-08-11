@@ -39,6 +39,14 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
 
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
+     * {@link PropertySpec} of encrypted HexString values.
+     *
+     * @return The PropertySpecBuilder
+     */
+    PropertySpecBuilderWizard.NlsOptions<HexString> encryptedHexStringSpec();
+
+    /**
+     * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of {@link TimeDuration} values.
      *
      * @return The PropertySpecBuilder

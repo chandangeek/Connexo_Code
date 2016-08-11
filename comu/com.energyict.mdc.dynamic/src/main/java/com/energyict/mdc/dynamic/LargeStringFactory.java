@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Provides an implementation for the {@link ValueFactory} interface
+ * Provides an implementation for the {@link com.elster.jupiter.properties.ValueFactory} interface
  * for very large String values.
  *
  * @author Rudi Vankeirsbilck (rudi)

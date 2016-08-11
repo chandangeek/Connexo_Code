@@ -104,6 +104,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
+    public PropertySpecBuilderWizard.NlsOptions<HexString> encryptedHexStringSpec() {
+        return this.specForValuesOf(new EncryptedHexStringFactory(this.dataVaultService).addValidator(new HexStringLengthValidator().withLength(32) ));
+    }
+
+    @Override
     public PropertySpecBuilderWizard.NlsOptions<TimeDuration> timeDurationSpec() {
         return this.specForValuesOf(new TimeDurationValueFactory());
     }
