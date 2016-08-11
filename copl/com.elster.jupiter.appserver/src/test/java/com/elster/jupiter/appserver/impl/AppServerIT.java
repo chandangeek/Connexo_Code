@@ -74,8 +74,8 @@ import static org.mockito.Mockito.when;
 public class AppServerIT {
 
     public static final String NAME = "name";
-    public static final String IMPORTER_NAME = "importer";
-    public static final String DESTINATION = "destination";
+    private static final String IMPORTER_NAME = "importer";
+    private static final String DESTINATION = "destination";
     private Injector injector;
 
     @Mock
@@ -88,8 +88,6 @@ public class AppServerIT {
     private Group group;
     @Mock
     private HttpService httpService;
-
-    private WebServicesService webServicesService;
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private TransactionService transactionService;
@@ -144,7 +142,7 @@ public class AppServerIT {
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
             endPointConfigurationService = injector.getInstance(EndPointConfigurationService.class);
-            webServicesService = injector.getInstance(WebServicesService.class);
+            injector.getInstance(WebServicesService.class);
             appService = injector.getInstance(AppService.class);
             return null;
         });
@@ -160,7 +158,7 @@ public class AppServerIT {
 
     @Test
     public void testCreateSimpleAppServer() {
-        AppServer appServer = null;
+        AppServer appServer;
         try (TransactionContext context = transactionService.getContext()) {
             appServer = appService.createAppServer(NAME, injector.getInstance(CronExpressionParser.class).parse("0 * * * * ? *").get());
             context.commit();
@@ -183,7 +181,7 @@ public class AppServerIT {
 
     @Test
     public void testCreateSimpleActiveAppServer() {
-        AppServer appServer = null;
+        AppServer appServer;
         try (TransactionContext context = transactionService.getContext()) {
             appServer = appService.createAppServer(NAME, injector.getInstance(CronExpressionParser.class).parse("0 * * * * ? *").get());
             appServer.activate();
@@ -212,17 +210,17 @@ public class AppServerIT {
 
     @Test
     public void testCreateActiveAppServerWithSubscriberExecutionSpecs() {
-        SubscriberSpec subscriber = null;
+        SubscriberSpec subscriber;
         try (TransactionContext context = transactionService.getContext()) {
             QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("QTS", "RAW", false);
             queueTableSpec.activate();
             DestinationSpec destination = queueTableSpec.createDestinationSpec(DESTINATION, 60);
             destination.activate();
-            subscriber = destination.subscribe("subscriber");
+            subscriber = destination.subscribe("subscriber").create();
             context.commit();
         }
 
-        AppServer appServer = null;
+        AppServer appServer;
         try (TransactionContext context = transactionService.getContext()) {
             appServer = appService.createAppServer(NAME, injector.getInstance(CronExpressionParser.class).parse("0 * * * * ? *").get());
             try (AppServer.BatchUpdate batchUpdate = appServer.forBatchUpdate()) {
@@ -267,18 +265,17 @@ public class AppServerIT {
     public void testCreateActiveAppServerWithImportSchedule() {
         ((FileImportServiceImpl) fileImportService).addFileImporter(fileImporterFactory);
 
-        SubscriberSpec subscriber = null;
-        DestinationSpec destination = null;
+        DestinationSpec destination;
         try (TransactionContext context = transactionService.getContext()) {
             QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("QTS", "RAW", false);
             queueTableSpec.activate();
             destination = queueTableSpec.createDestinationSpec(DESTINATION, 60);
             destination.activate();
-            subscriber = destination.subscribe("subscriber");
+            destination.subscribe("subscriber").create();
             context.commit();
         }
 
-        ImportSchedule importSchedule = null;
+        ImportSchedule importSchedule;
         try (TransactionContext context = transactionService.getContext()) {
             importSchedule = fileImportService.newBuilder()
                     .setImporterName(IMPORTER_NAME)
@@ -294,7 +291,7 @@ public class AppServerIT {
             context.commit();
         }
 
-        AppServer appServer = null;
+        AppServer appServer;
         try (TransactionContext context = transactionService.getContext()) {
             appServer = appService.createAppServer(NAME, injector.getInstance(CronExpressionParser.class).parse("0 * * * * ? *").get());
             try (AppServer.BatchUpdate batchUpdate = appServer.forBatchUpdate()) {
@@ -338,30 +335,30 @@ public class AppServerIT {
     public void testFullUpdate() {
         ((FileImportServiceImpl) fileImportService).addFileImporter(fileImporterFactory);
 
-        SubscriberSpec subscriber1 = null;
-        DestinationSpec destination1 = null;
-        SubscriberSpec subscriber2 = null;
-        DestinationSpec destination2 = null;
-        SubscriberSpec subscriber3 = null;
-        DestinationSpec destination3 = null;
+        SubscriberSpec subscriber1;
+        DestinationSpec destination1;
+        SubscriberSpec subscriber2;
+        DestinationSpec destination2;
+        SubscriberSpec subscriber3;
+        DestinationSpec destination3;
         try (TransactionContext context = transactionService.getContext()) {
             QueueTableSpec queueTableSpec = messageService.createQueueTableSpec("QTS", "RAW", false);
             queueTableSpec.activate();
             destination1 = queueTableSpec.createDestinationSpec(DESTINATION + '1', 60);
             destination1.activate();
-            subscriber1 = destination1.subscribe("subscriber1");
+            subscriber1 = destination1.subscribe("subscriber1").create();
             destination2 = queueTableSpec.createDestinationSpec(DESTINATION + '2', 60);
             destination2.activate();
-            subscriber2 = destination2.subscribe("subscriber2");
+            subscriber2 = destination2.subscribe("subscriber2").create();
             destination3 = queueTableSpec.createDestinationSpec(DESTINATION + '3', 60);
             destination3.activate();
-            subscriber3 = destination3.subscribe("subscriber3");
+            subscriber3 = destination3.subscribe("subscriber3").create();
             context.commit();
         }
 
-        ImportSchedule importSchedule1 = null;
-        ImportSchedule importSchedule2 = null;
-        ImportSchedule importSchedule3 = null;
+        ImportSchedule importSchedule1;
+        ImportSchedule importSchedule2;
+        ImportSchedule importSchedule3;
         try (TransactionContext context = transactionService.getContext()) {
             importSchedule1 = fileImportService.newBuilder()
                     .setImporterName(IMPORTER_NAME)
@@ -399,7 +396,7 @@ public class AppServerIT {
             context.commit();
         }
 
-        AppServer appServer = null;
+        AppServer appServer;
         try (TransactionContext context = transactionService.getContext()) {
             appServer = appService.createAppServer(NAME, injector.getInstance(CronExpressionParser.class).parse("0 * * * * ? *").get());
             try (AppServer.BatchUpdate batchUpdate = appServer.forBatchUpdate()) {

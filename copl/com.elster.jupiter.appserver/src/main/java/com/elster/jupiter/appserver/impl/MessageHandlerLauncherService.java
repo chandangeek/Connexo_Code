@@ -307,7 +307,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
 
     private void shutDownServiceWithCancelling(CancellableTaskExecutorService executorService) {
         for (Future<?> future : futures.get(executorService)) {
-            future.cancel(false);
+            future.cancel(true);
         }
         executorService.shutdownNow();
         try {
