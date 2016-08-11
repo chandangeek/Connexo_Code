@@ -41,6 +41,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
@@ -1612,7 +1613,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         // Simulating a mismatch between mdc-channels and pulse channels: e.g. pulse channel having the mdc-channels' readingtype does not exist
         verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(StatusCode.UNPROCESSABLE_ENTITY.getStatusCode());
         assertThat(response.hasEntity()).isTrue();
 
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -2142,7 +2143,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         // Simulating a mismatch between mdc-channels and pulse channels: e.g. pulse channel having the mdc-channels' readingtype does not exist
         verify(topologyService).setDataLogger(eq(slave1), eq(dataLogger), eq(Instant.ofEpochMilli(slaveInfo1.linkingTimeStamp)), any(Map.class), any(Map.class));
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(StatusCode.UNPROCESSABLE_ENTITY.getStatusCode());
         assertThat(response.hasEntity()).isTrue();
 
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
