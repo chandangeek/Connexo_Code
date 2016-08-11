@@ -161,7 +161,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterDataEdit', {
                     var response = resp.response;
                     if (response.status == 400) {
                         var responseText = Ext.decode(response.responseText, true);
-                        if (responseText && responseText.errors) {
+                        if (responseText && !Ext.isEmpty(responseText.errors)) {
                             me.getRegisterDataEditForm().getForm().markInvalid(responseText.errors);
                             me.showErrorPanel();
                         }

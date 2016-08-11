@@ -3,7 +3,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
     alias: 'widget.deviceRegisterConfigurationPreview-billing',
     itemId: 'deviceRegisterConfigurationPreview',
     router: null,
-
+    showDataLoggerSlaveField: false,
     requires: [
         'Mdc.view.setup.deviceregisterconfiguration.ActionMenu',
         'Uni.form.field.ObisDisplay',
@@ -36,6 +36,18 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.billing.Preview', {
                             {
                                 xtype: 'reading-type-displayfield',
                                 name: 'readingType'
+                            },
+                            {
+                                fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                                name: 'dataloggerSlavemRID',
+                                hidden: !me.showDataLoggerSlaveField,
+                                renderer: function(value) {
+                                    if (Ext.isEmpty(value)) {
+                                        return '-';
+                                    }
+                                    var href = me.router.getRoute('devices/device/registers').buildUrl({mRID: encodeURIComponent(value)});
+                                    return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
+                                }
                             },
                             {
                                 xtype: 'obis-displayfield',

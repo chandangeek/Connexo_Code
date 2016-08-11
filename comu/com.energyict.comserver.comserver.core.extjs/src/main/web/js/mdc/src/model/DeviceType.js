@@ -36,6 +36,10 @@ Ext.define('Mdc.model.DeviceType', {
         reader: {
             type: 'json'
         }
+    },
+
+    isDataLoggerSlave: function() {
+        return this.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
     }
 
 });

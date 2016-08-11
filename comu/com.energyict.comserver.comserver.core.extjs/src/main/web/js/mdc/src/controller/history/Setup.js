@@ -1642,6 +1642,22 @@ Ext.define('Mdc.controller.history.Setup', {
 
                             }
                         },
+                        dataloggerslaves: {
+                            title: Uni.I18n.translate('general.dataLoggerSlaves', 'MDC', 'Data logger slaves'),
+                            route: 'dataloggerslaves',
+                            privileges: Mdc.privileges.Device.viewOrAdministrateDeviceData,
+                            controller: 'Mdc.controller.setup.DataLoggerSlaves',
+                            action: 'showDataLoggerSlaves',
+                            items: {
+                                link: {
+                                    title: Uni.I18n.translate('general.linkDataLoggerSlave', 'MDC', 'Link data logger slave'),
+                                    route: 'link',
+                                    controller: 'Mdc.controller.setup.DataLoggerSlaves',
+                                    privileges: Mdc.privileges.Device.administrateDevice,
+                                    action: 'showLinkWizard'
+                                }
+                            }
+                        },
                         datavalidation: {
                             title: Uni.I18n.translate('general.validationConfiguration', 'MDC', 'Validation configuration'),
                             route: 'datavalidation',
