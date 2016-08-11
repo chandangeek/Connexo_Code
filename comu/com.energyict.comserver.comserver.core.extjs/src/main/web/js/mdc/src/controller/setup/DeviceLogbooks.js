@@ -41,6 +41,7 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
 
     showView: function (mRID) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             model = me.getModel('Mdc.model.Device'),
             viewport = Ext.ComponentQuery.query('viewport')[0],
             widget;
@@ -50,13 +51,17 @@ Ext.define('Mdc.controller.setup.DeviceLogbooks', {
         me.getStore('Mdc.store.LogbooksOfDevice').getProxy().setUrl(mRID);
         model.load(mRID, {
             success: function (record) {
-                widget = Ext.widget('deviceLogbooksSetup', {
-                    device: record,
-                    router: me.getController('Uni.controller.history.Router'),
-                    toggleId: 'logbooksLink'
-                });
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getApplication().fireEvent('loadDevice', record);
+                if (record.get('hasLogBooks')) {
+                    widget = Ext.widget('deviceLogbooksSetup', {
+                        device: record,
+                        router: router,
+                        toggleId: 'logbooksLink'
+                    });
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    me.getApplication().fireEvent('loadDevice', record);
+                } else {
+                    window.location.replace(router.getRoute('notfound').buildUrl());
+                }
                 viewport.setLoading(false);
             }
         });

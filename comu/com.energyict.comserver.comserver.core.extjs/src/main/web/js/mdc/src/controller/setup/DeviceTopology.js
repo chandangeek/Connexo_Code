@@ -25,12 +25,18 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
             widget;
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
-            success: function (device) {
-                widget = Ext.widget('deviceTopologySetup', { device: device, router: router });
-                me.getApplication().fireEvent('loadDevice', device);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                deviceTopologyStore.getProxy().setUrl(device.get('mRID'));
-                deviceTopologyStore.load();
+            success: function (record) {
+                var gatewayType = record.get('gatewayType');
+
+                if (gatewayType === 'LAN' || gatewayType === 'HAN') {
+                    widget = Ext.widget('deviceTopologySetup', {device: record, router: router});
+                    me.getApplication().fireEvent('loadDevice', record);
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    deviceTopologyStore.getProxy().setUrl(record.get('mRID'));
+                    deviceTopologyStore.load();
+                } else {
+                    window.location.replace(router.getRoute('notfound').buildUrl());
+                }
             }
         });
     }
