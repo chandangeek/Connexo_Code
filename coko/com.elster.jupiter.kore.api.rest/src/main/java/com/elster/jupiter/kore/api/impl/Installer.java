@@ -59,7 +59,7 @@ public class Installer implements FullInstaller {
             DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec("CommandCallback", 60);
             destinationSpec.save();
             destinationSpec.activate();
-            destinationSpec.subscribe("CommandCallback");
+            destinationSpec.subscribe("CommandCallback").create();
         }
     }
 
