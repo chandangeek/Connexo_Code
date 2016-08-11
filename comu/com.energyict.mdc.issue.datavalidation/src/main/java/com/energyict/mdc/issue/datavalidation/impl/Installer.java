@@ -30,7 +30,6 @@ class Installer implements FullInstaller {
     private final EventService eventService;
     private final MessageService messageService;
 
-
     @Inject
     Installer(DataModel dataModel, IssueService issueService, IssueActionService issueActionService, EventService eventService, MessageService messageService) {
         this.dataModel = dataModel;
@@ -84,9 +83,11 @@ class Installer implements FullInstaller {
     }
     private void setAQSubscriber() {
         DestinationSpec destinationSpec = messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get();
-        destinationSpec.subscribe(DataValidationEventHandlerFactory.AQ_DATA_VALIDATION_EVENT_SUBSCRIBER,
-                whereCorrelationId().isEqualTo(DataValidationEventDescription.CANNOT_ESTIMATE_DATA.getTopic())
-                        .or(whereCorrelationId().isEqualTo(DataValidationEventDescription.READINGQUALITY_DELETED.getTopic())));
+        destinationSpec
+            .subscribe(DataValidationEventHandlerFactory.AQ_DATA_VALIDATION_EVENT_SUBSCRIBER)
+            .with(  whereCorrelationId().isEqualTo(DataValidationEventDescription.CANNOT_ESTIMATE_DATA.getTopic())
+                .or(whereCorrelationId().isEqualTo(DataValidationEventDescription.READINGQUALITY_DELETED.getTopic())))
+            .create();
     }
     private void run(Runnable runnable, String explanation, Logger logger) {
         doTry(
