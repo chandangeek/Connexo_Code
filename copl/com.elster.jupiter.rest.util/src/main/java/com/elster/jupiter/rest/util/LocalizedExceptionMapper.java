@@ -1,6 +1,7 @@
 package com.elster.jupiter.rest.util;
 
 import com.elster.jupiter.nls.LocalizedException;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.core.Response;
@@ -21,7 +22,11 @@ public class LocalizedExceptionMapper implements ExceptionMapper<LocalizedExcept
         ConstraintViolationInfo constraintViolationInfo = infoProvider.get();
         constraintViolationInfo.from(exception);
 
-        return Response.status(Response.Status.BAD_REQUEST).entity(constraintViolationInfo).build();
+        int status = StatusCode.UNPROCESSABLE_ENTITY.getStatusCode();
+        if (exception instanceof ExceptionFactory.RestException) {
+            status = ((ExceptionFactory.RestException) exception).getStatus().getStatusCode();
+        }
+        return Response.status(status).entity(constraintViolationInfo).build();
     }
 
 }
