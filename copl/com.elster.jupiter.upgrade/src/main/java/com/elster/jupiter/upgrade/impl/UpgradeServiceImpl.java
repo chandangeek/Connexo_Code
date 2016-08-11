@@ -60,7 +60,7 @@ import static com.elster.jupiter.util.streams.Currying.test;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(name = "com.elster.jupiter.upgrade", immediate = true, service = {UpgradeService.class, EventHandler.class},
-        property = {"osgi.command.scope=upgrade", "osgi.command.function=init", EventConstants.EVENT_TOPIC + "=org/osgi/framework/FrameworkEvent/STARTED"})
+        property = {"osgi.command.scope=upgrade", "osgi.command.function=init", "osgi.command.function=runDifferences", EventConstants.EVENT_TOPIC + "=org/osgi/framework/FrameworkEvent/STARTED"})
 public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
 
     private volatile BootstrapService bootstrapService;
@@ -309,6 +309,10 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
                 .orElseThrow(() -> new IllegalArgumentException("No such data model registered."));
         DataModelUpgrader dataModelUpgrader = ormService.getDataModelUpgrader(logger);
         dataModelUpgrader.upgrade(dataModel, Version.version(version));
+    }
+
+    public void runDifferences() {
+        ormService.getDataModelDifferences(logger).findDifferences();
     }
 
     private interface State {
