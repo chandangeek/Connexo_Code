@@ -105,42 +105,48 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         validationResultsStore.getProxy().setUrl(mRID);
         configurationResultsStore.getProxy().setUrl(mRID);
         me.getModel('Mdc.model.Device').load(mRID, {
-            success: function (device) {
-                var widget = me.getMainPage();
+            success: function (record) {
+                if (record.get('hasLogBooks')
+                    || record.get('hasLoadProfiles')
+                    || record.get('hasRegisters')) {
+                    var widget = me.getMainPage();
 
-                me.getApplication().fireEvent('loadDevice', device);
-                viewport.setLoading(false);
+                    me.getApplication().fireEvent('loadDevice', record);
 
-                if (!widget) {
-                    widget = Ext.widget('mdc-device-validation-results-main-view', {
-                        router: router,
-                        device: device
-                    });
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                } else {
-                    widget.device = device;
-                    widget.router = router;
-                }
-                me.veto = true;
-                me.getValidationResultsTabPanel().setActiveTab(activeTab);
-                loadProfileStoreProxy.setUrl(me.mRID);
-                loadProfileStoreProxy.pageParam = false;
-                loadProfileStoreProxy.startParam = false;
-                loadProfileStoreProxy.limitParam = false;
-                loadProfileStore.load(function () {
-                    switch (activeTab) {
-                        case 0:
-                            configurationResultsStore.load();
-                            break;
-                        case 1:
-                            validationResultsStore.load();
-                            break;
+                    if (!widget) {
+                        widget = Ext.widget('mdc-device-validation-results-main-view', {
+                            router: router,
+                            device: record
+                        });
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                    } else {
+                        widget.device = record;
+                        widget.router = router;
                     }
-                });
-                loadProfileStoreProxy.pageParam = proxyParams.pageParam;
-                loadProfileStoreProxy.startParam = proxyParams.startParam;
-                loadProfileStoreProxy.limitParam = proxyParams.limitParam;
-                me.veto = false;
+                    me.veto = true;
+                    me.getValidationResultsTabPanel().setActiveTab(activeTab);
+                    loadProfileStoreProxy.setUrl(me.mRID);
+                    loadProfileStoreProxy.pageParam = false;
+                    loadProfileStoreProxy.startParam = false;
+                    loadProfileStoreProxy.limitParam = false;
+                    loadProfileStore.load(function () {
+                        switch (activeTab) {
+                            case 0:
+                                configurationResultsStore.load();
+                                break;
+                            case 1:
+                                validationResultsStore.load();
+                                break;
+                        }
+                    });
+                    loadProfileStoreProxy.pageParam = proxyParams.pageParam;
+                    loadProfileStoreProxy.startParam = proxyParams.startParam;
+                    loadProfileStoreProxy.limitParam = proxyParams.limitParam;
+                    me.veto = false;
+                } else {
+                    window.location.replace(router.getRoute('notfound').buildUrl());
+                }
+                viewport.setLoading(false);
             },
             failure: function (response) {
                 viewport.setLoading(false);
