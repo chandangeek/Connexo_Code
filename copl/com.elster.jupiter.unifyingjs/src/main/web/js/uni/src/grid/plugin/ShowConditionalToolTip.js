@@ -27,7 +27,7 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
         if (gridPanel.rendered && !grid.isHidden()) {
             Ext.suspendLayouts();
             Ext.Array.each(gridPanel.columns, function (column) {
-                if (!column.isHidden()) {
+                if (!column.isHidden() && column.getEl()) {
                     var header = column.getEl().down('.' + Ext.baseCSSPrefix + 'column-header-inner');
 
                     if (column.text && (header !== null && header.getWidth(true) < header.getTextWidth())) {
