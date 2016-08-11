@@ -35,6 +35,7 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -665,14 +666,19 @@ public class JbpmTaskResource {
 
     @POST
     @Produces("application/json")
-    @Path("/{taskId: [0-9-]+}/contentstart")
-    public Response startTaskContent(@PathParam("taskId") long taskId, @Context SecurityContext context) {
+    @Path("/{taskId: [0-9-]+}/contentstart/{username}")
+    public Response startTaskContent(@PathParam("taskId") long taskId, @PathParam("username") String username, @Context SecurityContext context, @HeaderParam("Authorization") String auth) {
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
         if(task != null){
             if(task.getStatus().equals("Created") || task.getStatus().equals("Ready") || task.getStatus().equals("Reserved")) {
-                if(taskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(context.getUserPrincipal().getName())) {
-                    taskService.start(taskId, context.getUserPrincipal().getName());
+                if(auth.contains("Basic") && username.equals(task.getActualOwner())){
+                    taskService.start(taskId, task.getActualOwner());
                     return Response.ok().build();
+                } else {
+                    if (auth.contains("Bearer") && task.getActualOwner().equals(context.getUserPrincipal().getName())) {
+                        taskService.start(taskId, context.getUserPrincipal().getName());
+                        return Response.ok().build();
+                    }
                 }
             }
             return Response.status(409).entity(task.getName()).build();
@@ -682,16 +688,22 @@ public class JbpmTaskResource {
 
     @POST
     @Produces("application/json")
-    @Path("/{taskId: [0-9-]+}/contentcomplete")
-    public Response completeTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @Context SecurityContext context) {
+    @Path("/{taskId: [0-9-]+}/contentcomplete/{username}")
+    public Response completeTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @PathParam("username") String username, @Context SecurityContext context, @HeaderParam("Authorization") String auth) {
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
         if(task != null) {
             if (!task.getStatus().equals("Completed")) {
-                if(taskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(context.getUserPrincipal().getName())) {
-                    TaskCommand<?> cmd = new CompleteTaskCommand(taskId, context.getUserPrincipal()
-                            .getName(), taskOutputContentInfo.outputTaskContent);
+                if(auth.contains("Basic") && username.equals(task.getActualOwner())){
+                    TaskCommand<?> cmd = new CompleteTaskCommand(taskId, task.getActualOwner(), taskOutputContentInfo.outputTaskContent);
                     processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
                     return Response.ok().build();
+                } else {
+                    if (auth.contains("Bearer") && task.getActualOwner().equals(context.getUserPrincipal().getName())) {
+                        TaskCommand<?> cmd = new CompleteTaskCommand(taskId, context.getUserPrincipal()
+                                .getName(), taskOutputContentInfo.outputTaskContent);
+                        processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
+                        return Response.ok().build();
+                    }
                 }
             }
             return Response.status(409).entity(task.getName()).build();
@@ -701,14 +713,19 @@ public class JbpmTaskResource {
 
     @POST
     @Produces("application/json")
-    @Path("/{taskId: [0-9-]+}/contentsave/")
-    public Response saveTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @Context SecurityContext context){
+    @Path("/{taskId: [0-9-]+}/contentsave/{username}")
+    public Response saveTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @PathParam("username") String username, @Context SecurityContext context, @HeaderParam("Authorization") String auth){
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
         if(task != null) {
             if (!task.getStatus().equals("Completed")) {
-                if(taskService.getTaskById(taskId).getTaskData().getActualOwner().getId().equals(context.getUserPrincipal().getName())) {
+                if(auth.contains("Basic") && username.equals(task.getActualOwner())){
                     ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
                     return Response.ok().build();
+                } else {
+                    if (auth.contains("Bearer") && task.getActualOwner().equals(context.getUserPrincipal().getName())) {
+                        ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
+                        return Response.ok().build();
+                    }
                 }
             }
             return Response.status(409).entity(task.getName()).build();
