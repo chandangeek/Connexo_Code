@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
 
 /**
  * This writer will convert our Info objects to JSON, yet return them as being "text/plain". This construction turned out
- * to be required for the response to a MultiPart-file upload.
+ * to be required for the response to a MultiPart-file upload. Cfr CXO-2451
  */
 @Produces(MediaType.TEXT_PLAIN)
 public class TextPlainMessageBodyWriter implements MessageBodyWriter<Object> {
@@ -41,7 +41,5 @@ public class TextPlainMessageBodyWriter implements MessageBodyWriter<Object> {
             IOException,
             WebApplicationException {
         entityStream.write(jsonService.serialize(o).getBytes());
-//        String message = jsonService.serialize(o);
-//        throw new WebApplicationException(Response.status(422).entity(message).build());
     }
 }
