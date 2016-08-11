@@ -46,6 +46,10 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
         this.publish(event);
     }
 
+    public void answerPing(){
+        this.sendMessage(RequestParser.PONG_MESSAGE);
+    }
+
     @Override
     public void publish (ComServerEvent event) {
         this.sendEvent(event);
@@ -81,8 +85,10 @@ public class WebSocketEventPublisher implements EventReceiver, EventPublisher, W
     public void onMessage (String message) {
         try {
             Request request = this.parser.parse(message);
-            request.applyTo(this);
-            this.sendMessage("Copy " + message);
+            if (request != null) {
+                request.applyTo(this);
+//            this.sendMessage("Copy " + message);  //No sense to send the message back  - just to debug
+            }
         }
         catch (RequestParseException e) {
             this.sendMessage("Message not understood:" + e.getMessage());

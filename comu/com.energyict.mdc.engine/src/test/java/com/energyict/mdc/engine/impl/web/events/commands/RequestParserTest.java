@@ -700,6 +700,26 @@ public class RequestParserTest {
         assertThat(comPortPoolRequest.getBusinessObjectIds()).containsOnly(COM_PORT_POOL1_ID);
     }
 
+    @Test
+    public void testPing() throws RequestParseException {
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        parser.parse(RequestParser.PING_MESSAGE);
+
+        //Should not throw a RequestParseException
+    }
+
+    @Test
+    public void testPong() throws RequestParseException {
+        RequestParser parser = new RequestParser(serviceProvider);
+
+        //Business method
+        parser.parse(RequestParser.PONG_MESSAGE);
+
+        //Should not throw a RequestParseException
+    }
+
     private void mockDevices() {
         this.mockDevice(DEVICE1_ID);
         this.mockDevice(DEVICE2_ID);

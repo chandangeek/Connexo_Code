@@ -32,7 +32,7 @@ public interface EventPublisher {
      *
      * @param receiver The EventReceiver
      */
-    public void registerInterest (EventReceiver receiver);
+    void registerInterest (EventReceiver receiver);
 
     /**
      * Narrows the registered interest of the {@link EventReceiver}
@@ -41,7 +41,7 @@ public interface EventPublisher {
      * @param receiver The EventReceiver
      * @param categories The set of event categories in which the EventReceiver is interested
      */
-    public void narrowInterestToCategories (EventReceiver receiver, Set<Category> categories);
+    void narrowInterestToCategories (EventReceiver receiver, Set<Category> categories);
 
     /**
      * Narrows the registered interest of the {@link EventReceiver}
@@ -50,7 +50,7 @@ public interface EventPublisher {
      * @param receiver The EventReceiver
      * @param devices The devices
      */
-    public void narrowInterestToDevices (EventReceiver receiver, List<Device> devices);
+    void narrowInterestToDevices (EventReceiver receiver, List<Device> devices);
 
     /**
      * Widens the registered interest so that not only events
@@ -59,7 +59,7 @@ public interface EventPublisher {
      *
      * @param receiver The EventReceiver
      */
-    public void widenInterestToAllDevices (EventReceiver receiver);
+    void widenInterestToAllDevices (EventReceiver receiver);
 
     /**
      * Narrows the registered interest of the {@link EventReceiver}
@@ -75,7 +75,7 @@ public interface EventPublisher {
      * @param receiver The EventReceiver
      * @param connectionTask The ConnectionTask
      */
-    public void narrowInterestToConnectionTasks (EventReceiver receiver, List<ConnectionTask> connectionTask);
+    void narrowInterestToConnectionTasks (EventReceiver receiver, List<ConnectionTask> connectionTask);
 
     /**
      * Widens the registered interest so that not only events
@@ -84,7 +84,7 @@ public interface EventPublisher {
      *
      * @param receiver The EventReceiver
      */
-    public void widenInterestToAllConnectionTasks (EventReceiver receiver);
+    void widenInterestToAllConnectionTasks (EventReceiver receiver);
 
     /**
      * Narrows the registered interest to events that relate
@@ -97,7 +97,7 @@ public interface EventPublisher {
      * @param receiver The EventReceiver
      * @param comTaskExecution The ComTaskExecution
      */
-    public void narrowInterestToComTaskExecutions (EventReceiver receiver, List<ComTaskExecution> comTaskExecution);
+    void narrowInterestToComTaskExecutions (EventReceiver receiver, List<ComTaskExecution> comTaskExecution);
 
     /**
      * Widens the registered interest so that not only events
@@ -106,7 +106,7 @@ public interface EventPublisher {
      *
      * @param receiver The EventReceiver
      */
-    public void widenInterestToAllComTaskExecutions (EventReceiver receiver);
+    void widenInterestToAllComTaskExecutions (EventReceiver receiver);
 
     /**
      * Narrows the registered interest to events that relate
@@ -118,7 +118,7 @@ public interface EventPublisher {
      * @param receiver The EventReceiver
      * @param comPorts The ComPorts
      */
-    public void narrowInterestToComPorts (EventReceiver receiver, List<ComPort> comPorts);
+    void narrowInterestToComPorts (EventReceiver receiver, List<ComPort> comPorts);
 
     /**
      * Widens the registered interest so that not only events
@@ -127,7 +127,7 @@ public interface EventPublisher {
      *
      * @param receiver The EventReceiver
      */
-    public void widenInterestToAllComPorts (EventReceiver receiver);
+    void widenInterestToAllComPorts (EventReceiver receiver);
 
     /**
      * Narrows the registered interest to events that relate
@@ -139,7 +139,7 @@ public interface EventPublisher {
      * @param receiver The EventReceiver
      * @param comPortPool The ComPortPool
      */
-    public void narrowInterestToComPortPools (EventReceiver receiver, List<ComPortPool> comPortPool);
+    void narrowInterestToComPortPools (EventReceiver receiver, List<ComPortPool> comPortPool);
 
     /**
      * Widens the registered interest so that not only events
@@ -148,7 +148,7 @@ public interface EventPublisher {
      *
      * @param receiver The EventReceiver
      */
-    public void widenInterestToAllComPortPools (EventReceiver receiver);
+    void widenInterestToAllComPortPools (EventReceiver receiver);
 
     /**
      * Narrows the registered interest to {@link com.energyict.mdc.engine.events.LoggingEvent}s
@@ -161,14 +161,14 @@ public interface EventPublisher {
      * @param eventReceiver The EventReceiver
      * @param logLevel The LogLevel of interest
      */
-    public void narrowInterestToLogLevel (EventReceiver eventReceiver, LogLevel logLevel);
+    void narrowInterestToLogLevel (EventReceiver eventReceiver, LogLevel logLevel);
 
     /**
      * Unregisters the {@link EventReceiver}'s interest in {@link com.energyict.mdc.engine.events.LoggingEvent}s.
      *
      * @param eventReceiver The EventReceiver
      */
-    public void widenToAllLogLevels (EventReceiver eventReceiver);
+    void widenToAllLogLevels (EventReceiver eventReceiver);
 
     /**
      * Unregisters all interests previously indicated by the {@link EventReceiver}.
@@ -177,7 +177,7 @@ public interface EventPublisher {
      *
      * @param receiver The EventReceiver
      */
-    public void unregisterAllInterests (EventReceiver receiver);
+    void unregisterAllInterests (EventReceiver receiver);
 
     /**
      * Publishes the specified {@link ComServerEvent}
@@ -185,8 +185,12 @@ public interface EventPublisher {
      *
      * @param event The ComServerEvent
      */
-    public void publish (ComServerEvent event);
+    void publish (ComServerEvent event);
 
-    public void shutdown();
+    void shutdown();
+
+    default void answerPing(){
+        // do nothing;
+    }
 
 }
