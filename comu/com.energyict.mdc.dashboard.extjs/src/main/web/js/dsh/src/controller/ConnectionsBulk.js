@@ -385,8 +385,9 @@ Ext.define('Dsh.controller.ConnectionsBulk', {
 
     adaptFilterObject: function(filterObject) {
         // Assure that properties that are expected to be an int array, are indeed int arrays
-        var props = ['deviceTypes', 'deviceGroups', 'comPortPools', 'connectionTypes'];
-        Ext.Array.each(props, function(prop) {
+        var intProps = ['deviceTypes', 'deviceGroups', 'comPortPools', 'connectionTypes'];
+        var strProps = ['currentStates', 'latestResults', 'latestStates'];
+        Ext.Array.each(intProps, function (prop) {
             if (filterObject.hasOwnProperty(prop)) {
                 if (Ext.isArray(filterObject[prop])) {
                     for (i = 0; i < filterObject[prop].length; i++) {
@@ -399,6 +400,14 @@ Ext.define('Dsh.controller.ConnectionsBulk', {
                 }
             }
         });
+        Ext.Array.each(strProps, function (prop) {
+            if (filterObject.hasOwnProperty(prop)) {
+                if (!Ext.isArray(filterObject[prop])) {
+                    filterObject[prop] = [filterObject[prop]];
+                }
+            }
+        });
+
     }
 
 });
