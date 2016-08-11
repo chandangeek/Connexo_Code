@@ -12,38 +12,14 @@ Ext.define('Mdc.privileges.UsagePoint', {
     insightView: ['privilege.administer.anyUsagePoint', 'privilege.view.anyUsagePoint', 'privilege.administer.ownUsagePoint', 'privilege.view.ownUsagePoint'],
     insightAdmin: ['privilege.administer.ownUsagePoint', 'privilege.administer.anyUsagePoint'],
     all: function () {
-        return this.checkInsightLicense(Ext.Array.merge(Mdc.privileges.UsagePoint.view, Mdc.privileges.UsagePoint.admin));
+        return !Uni.util.CheckAppStatus.insightAppIsActive() && Uni.Auth.checkPrivileges(Ext.Array.merge(Mdc.privileges.UsagePoint.view, Mdc.privileges.UsagePoint.admin));
     },
     canView: function () {
-        return this.checkInsightLicense(Mdc.privileges.UsagePoint.view);
+        return !Uni.util.CheckAppStatus.insightAppIsActive() && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.view);
     },
 
     canAdmin: function () {
-        return this.checkInsightLicense(Mdc.privileges.UsagePoint.admin);
-    },
-
-    checkInsightLicense: function (privileges) {
-        var me = this,
-            checkStatus = function(){
-                if(me.insightStatus != 'ACTIVE'){
-                    return (Uni.Auth.checkPrivileges(privileges));
-                } else {
-                    return false;
-                }
-            };
-
-        if(!me.insightStatus){
-            Ext.Ajax.request({
-                url: '/api/apps/apps/status/INS',
-                method: 'GET',
-                success: function(response) {
-                    me.insightStatus = Ext.decode(response.responseText, true).status;
-                    return checkStatus();
-                }
-            });
-        } else {
-            return checkStatus();
-        }
+        return !Uni.util.CheckAppStatus.insightAppIsActive() && Uni.Auth.checkPrivileges(Mdc.privileges.UsagePoint.admin);
     },
 
     canViewInInsight: function () {
