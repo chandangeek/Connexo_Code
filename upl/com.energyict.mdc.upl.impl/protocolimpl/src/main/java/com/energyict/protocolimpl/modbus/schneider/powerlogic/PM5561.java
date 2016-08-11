@@ -89,6 +89,11 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     }
 
     @Override
+    public ProfileData getProfileData(boolean includeEvents) throws IOException {
+        return super.getProfileData(includeEvents);
+    }
+
+    @Override
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
         if(getProfileBuilder().isSupported()) {
             return getProfileData(lastReading, new Date(), includeEvents);
