@@ -35,8 +35,7 @@ public enum EventType {
                     withProperty("connectionTaskId", ValueType.LONG, "connectionTaskId").
                     withProperty("successTaskIDs", ValueType.STRING, "successTaskIDs").
                     withProperty("failedTaskIDs", ValueType.STRING, "failedTaskIDs").
-                    withProperty("skippedTaskIDs", ValueType.STRING, "skippedTaskIDs").
-                    shouldPublish();
+                    withProperty("skippedTaskIDs", ValueType.STRING, "skippedTaskIDs");
         }
     },
     UNKNOWN_INBOUND_DEVICE("inboundcommunication/UNKNOWNDEVICE") {
