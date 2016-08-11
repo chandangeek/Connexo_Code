@@ -93,6 +93,14 @@ com.elster.jupiter.yellowfin.password=admin
 com.elster.jupiter.location.template =#ccod,#cnam,#adma,#loc,#subloc,#styp,#snam,#snum,#etyp,#enam,#enum,#addtl,#zip,#locale
 com.elster.jupiter.location.template.mandatoryfields =#adma,#loc,#styp,#snam,#snum
 
+# Use the following property to set the start of the gas year.
+# Needs to respect the following grep pattern: JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC@\d\d[A|P]M
+# First is the abbreviation of the month in which the gas year starts
+# followed by two digits for the hour and then AM or PM.
+# There is no support for gas year starting in the middle of the month.
+# Examples: gas day in Belgium starts Oct 1st 05:00 and needs the following setting: OCT@05AM
+com.elster.jupiter.gasday.start=OCT@05AM
+
 # When manually updating this file, uncomment and change the following lines
 # The install script will append these properties automatically
 # com.elster.jupiter.datasource.jdbcurl=jdbc:oracle:thin:@yourHost:yourPort:yourSID
@@ -105,4 +113,5 @@ com.elster.jupiter.location.template.mandatoryfields =#adma,#loc,#styp,#snam,#sn
 # com.elster.jupiter.bpm.url=http://localhost:8081/flow
 # com.elster.jupiter.yellowfin.url=http://localhost:8081/facts
 # com.elster.jupiter.yellowfin.externalurl=https://hostname/facts
+# upgrade=true
 
