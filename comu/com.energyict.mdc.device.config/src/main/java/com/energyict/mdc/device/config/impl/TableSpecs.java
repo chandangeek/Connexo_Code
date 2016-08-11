@@ -79,6 +79,7 @@ public enum TableSpecs {
                     .conversion(NUMBER2BOOLEAN)
                     .map(DeviceTypeImpl.Fields.FILE_MANAGEMENT_ENABLED.fieldName())
                     .since(version(10, 2))
+                    .installValue("0")
                     .add();
             table.addAuditColumns();
             table.unique("UK_DTC_DEVICETYPE").on(name).add();
