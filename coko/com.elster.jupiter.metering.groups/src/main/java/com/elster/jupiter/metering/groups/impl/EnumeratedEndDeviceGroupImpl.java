@@ -159,7 +159,9 @@ class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Enu
             entries = this.entries;
         }
         entries.forEach(EntryImpl::delete);
-        this.entries.clear();
+        if (this.entries != null) {
+            this.entries.clear();
+        }
         super.delete();
     }
 
