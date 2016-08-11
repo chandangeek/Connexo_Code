@@ -810,7 +810,7 @@ public enum TableSpecs {
             table.map(MultiplierTypeImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
-            Column nameIsKey = table.column("NAMEISKEY").bool().notNull().map("nameIsKey").add();
+            Column nameIsKey = table.column("NAMEISKEY").bool().notNull().map("nameIsKey").installValue("'Y'").since(version(10, 2)).add();
             table.primaryKey("PK_MTR_MULTIPLIERTYPE").on(id).add();
             table.unique("UK_MTR_MULTTYPE_NAME").on(name, nameIsKey).add();
         }
