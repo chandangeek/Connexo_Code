@@ -48,9 +48,11 @@ public class SingleThreadedComPortListener extends ComChannelBasedComPortListene
     @Override
     protected void doRun() {
         ComPortRelatedComChannel comChannel = listen();
-        handleInboundDeviceProtocol(comChannel);
+        if (comChannel != null) {
+            handleInboundDeviceProtocol(comChannel);
+        }
         /*
-       Else no accept within the configured TimeOut, but this allows us to check for any changes
+            Else no accept within the configured TimeOut, but this allows us to check for any changes
         */
     }
 

@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.FakeTransactionService;
@@ -308,7 +309,7 @@ public class ComServerDAOImplTest {
 
     @Test
     public void releaseComTasksForComPortTest() throws SQLException {
-        ServerConnectionTask connectionTask = mock(ServerConnectionTask.class);
+        OutboundConnectionTask connectionTask = mock(OutboundConnectionTask.class, withSettings().extraInterfaces(ServerConnectionTask.class));
         ServerComTaskExecution comTaskExecution1 = mock(ServerComTaskExecution.class);
         when(comTaskExecution1.getConnectionTask()).thenReturn(Optional.of(connectionTask));
         ServerComTaskExecution comTaskExecution2 = mock(ServerComTaskExecution.class);

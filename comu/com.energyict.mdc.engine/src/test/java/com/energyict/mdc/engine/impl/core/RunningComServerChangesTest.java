@@ -171,7 +171,7 @@ public class RunningComServerChangesTest {
         runningComServer.shutdownImmediate();
 
         assertTrue("Was expecting the ComServer to have requested at least once for changes.", comServerDAO.getAndResetComServerRefreshCount() > 0);
-        verify(scheduledComPortFactory).newFor(any(RunningComServer.class), newOutboundComPort);
+        verify(scheduledComPortFactory).newFor(runningComServer, newOutboundComPort);
     }
 
     @Test
@@ -279,7 +279,7 @@ public class RunningComServerChangesTest {
 
         // Change the number of simultaneous connection of the first ComPort
         MockOutboundComPort changedComPort = comServerDAO.setNumberOfSimultaneousOutboundConnections(0, 1, 3);
-        when(scheduledComPortFactory.newFor(any(RunningComServer.class), changedComPort)).thenReturn(firstScheduledComPortAfterChanges);
+        when(scheduledComPortFactory.newFor(runningComServer, changedComPort)).thenReturn(firstScheduledComPortAfterChanges);
 
         this.waitForComServerToPickupChanges(runningComServer);
 
@@ -453,7 +453,7 @@ public class RunningComServerChangesTest {
 
         // Deactivate first ComPort
         MockTCPInboundComPort changedComPort = comServerDAO.setNumberOfSimultaneousInboundConnections(0, 1, 3);
-        when(comPortListenerFactory.newFor(any(RunningComServer.class), changedComPort)).thenReturn(firstComPortListenerAfterChanges);
+        when(comPortListenerFactory.newFor(runningComServer, changedComPort)).thenReturn(firstComPortListenerAfterChanges);
 
         this.waitForComServerToPickupChanges(runningComServer);
 
