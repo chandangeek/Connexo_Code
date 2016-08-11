@@ -3,9 +3,10 @@
  */
 Ext.define('Uni.override.DisplayFieldOverride', {
     override: 'Ext.form.field.Display',
+    emptyValueDisplay: '-',
     renderer: function(value){
         if(Ext.isEmpty(value)) {
-            return '-'
+            return this.emptyValueDisplay;
         }
         return this.htmlEncode ? Ext.String.htmlEncode(value) : value;
 

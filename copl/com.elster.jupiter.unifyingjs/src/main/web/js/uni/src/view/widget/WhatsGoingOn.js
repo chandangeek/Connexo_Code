@@ -304,19 +304,19 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         var result = '<span style="color:' + color + ';font-size:16px;line-height:24px;">';
         switch (value.type) {
             case 'issue':
-                result += Uni.I18n.translate('whatsGoingOn.issue', 'UNI', 'Issue');
+                result += Uni.I18n.translate('whatsGoingOn.issue', 'UNI', 'Issue') + ' ID: ';
                 break;
             case 'servicecall':
-                result += Uni.I18n.translate('whatsGoingOn.serviceCall', 'UNI', 'Service call');
+                result += Uni.I18n.translate('whatsGoingOn.serviceCall', 'UNI', 'Service call') + ' ID: ';
                 break;
             case 'alarm':
-                result += Uni.I18n.translate('whatsGoingOn.alarm', 'UNI', 'Alarm');
+                result += Uni.I18n.translate('whatsGoingOn.alarm', 'UNI', 'Alarm') + ' ID: ';
                 break;
             case 'process':
-                result += Uni.I18n.translate('whatsGoingOn.process', 'UNI', 'Process');
+                result += Uni.I18n.translate('whatsGoingOn.process', 'UNI', 'Process') + ' ID: ';
                 break;
         }
-        result += !!value.description ? " '" + value.description + "'</span><br>" : '</span>';
+        result += !!value.id ? value.id + "</span><br>" : '';
 
         result = this.addContentToTooltip(result, value);
         result = this.addDueDateToTooltip(value, result);
@@ -326,7 +326,7 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
     },
 
     addContentToTooltip: function (result, value) {
-        result += !!value.description && !!value.status ? Uni.I18n.translate('whatsGoingOn.is', 'UNI', '{0} is {1}', [value.description, value.status]) + "<br>" : '';
+        result += !!value.status ? Uni.I18n.translate('whatsGoingOn.status', 'UNI', 'Status: {0}', value.status) + "<br>" : '';
         return result;
     },
 
