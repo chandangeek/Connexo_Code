@@ -102,7 +102,11 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_MULTIPLIER(284, "invalidMultiplier", "Should be larger than zero"),
     CANNOT_ADDEDITREMOVE_REGISTER_VALUE_WHEN_LINKED_TO_SLAVE(285, "cannotAddRegisterValueWhenLinkedToSlave", "You cannot add, edit or remove a register value at a timestamp at which you have a linked slave"),
     CANNOT_ADDEDITREMOVE_CHANNEL_VALUE_WHEN_LINKED_TO_SLAVE(286, "cannotAddChannelValueWhenLinkedToSlave", "You cannot add, edit or remove a channel value at a timestamp at which you have a linked slave"),
-    ;
+    PROCESS_STATUS_PENDING(287, "ProcessStatusPending", "Pending"),
+    PROCESS_STATUS_ACTIVE(288, "ProcessStatusActive", "Active"),
+    PROCESS_STATUS_COMPLETED(289, "ProcessStatusCompleted", "Completed"),
+    PROCESS_STATUS_ABORTED(290, "ProcessStatusAborted", "Aborted"),
+    PROCESS_STATUS_SUSPENDED(291, "ProcessStatusSuspended", "Suspended");
     private final int number;
     private final String key;
     private final String format;

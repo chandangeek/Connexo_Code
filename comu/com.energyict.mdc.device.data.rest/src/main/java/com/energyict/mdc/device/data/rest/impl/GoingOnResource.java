@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -48,18 +49,20 @@ public class GoingOnResource {
     private final IssueService issueService;
     private final ResourceHelper resourceHelper;
     private final MeteringService meteringService;
+    private final Thesaurus thesaurus;
     private final Clock clock;
     private final Optional<IssueStatus> open;
     private final Optional<IssueStatus> inProgress;
 
     @Inject
-    public GoingOnResource(ResourceHelper resourceHelper, ServiceCallService serviceCallService, BpmService bpmService, IssueService issueService, MeteringService meteringService, Clock clock) {
+    public GoingOnResource(ResourceHelper resourceHelper, ServiceCallService serviceCallService, BpmService bpmService, IssueService issueService, MeteringService meteringService, Clock clock, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.serviceCallService = serviceCallService;
         this.bpmService = bpmService;
         this.issueService = issueService;
         this.meteringService = meteringService;
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.open = issueService.findStatus(IssueStatus.OPEN);
         this.inProgress = issueService.findStatus(IssueStatus.IN_PROGRESS);
 
@@ -155,14 +158,33 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "process";
             goingOnInfo.issueType = null;
-            goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
+            goingOnInfo.id = Long.parseLong(processInstanceInfo.processId);
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
             goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).filter(not(String::isEmpty)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);
             goingOnInfo.severity = severity(goingOnInfo.dueDate);
             goingOnInfo.assignee = userTaskInfo.flatMap(info -> Optional.ofNullable(info.actualOwner)).orElse(null);
             goingOnInfo.assigneeIsCurrentUser = userTaskInfo.flatMap(info -> Optional.ofNullable(info.isAssignedToCurrentUser)).orElse(false);
-            goingOnInfo.status = userTaskInfo.flatMap(info -> Optional.ofNullable(info.status)).orElse(null);
+            goingOnInfo.status = processInstanceInfo.status;
+            if(goingOnInfo.status != null){
+                switch (goingOnInfo.status) {
+                    case "0":
+                        goingOnInfo.status = thesaurus.getString("Open", "Pending");
+                        break;
+                    case "1":
+                        goingOnInfo.status = thesaurus.getString("Open", "Active");
+                        break;
+                    case "2":
+                        goingOnInfo.status = thesaurus.getString("Open", "Completed");
+                        break;
+                    case "3":
+                        goingOnInfo.status = thesaurus.getString("Open", "Aborted");
+                        break;
+                    case "4":
+                        goingOnInfo.status = thesaurus.getString("Open", "Suspended");
+                        break;
+                }
+            }
             return goingOnInfo;
         }
 

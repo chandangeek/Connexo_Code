@@ -23,13 +23,13 @@ public class DeviceSearchInfo {
     public String serviceCategory;
     public String usagePoint;
     public Integer yearOfCertification;
-    public Boolean estimationActive;
+    public String estimationActive;
     public String masterDevicemRID;
     public Instant shipmentDate;
     public Instant installationDate;
     public Instant deactivationDate;
     public Instant decommissionDate;
-    public Boolean validationActive;
+    public String validationActive;
     public Boolean hasOpenDataValidationIssues;
     public String location;
 
@@ -51,7 +51,7 @@ public class DeviceSearchInfo {
             searchInfo.serviceCategory = usagePoint.getServiceCategory().getName();
         });
         searchInfo.yearOfCertification = device.getYearOfCertification();
-        searchInfo.estimationActive = deviceEstimationRetriever.isEstimationActive(device);
+        searchInfo.estimationActive = getStatus(deviceEstimationRetriever.isEstimationActive(device), thesaurus);
         Optional<Device> physicalGateway = gatewayRetriever.getPhysicalGateway(device);
         if (physicalGateway.isPresent()) {
             searchInfo.masterDevicemRID = physicalGateway.get().getmRID();
@@ -61,7 +61,7 @@ public class DeviceSearchInfo {
         searchInfo.installationDate = lifecycleDates.getInstalledDate().orElse(null);
         searchInfo.deactivationDate = lifecycleDates.getRemovedDate().orElse(null);
         searchInfo.decommissionDate = lifecycleDates.getRetiredDate().orElse(null);
-        searchInfo.validationActive = deviceValidationRetriever.isValidationActive(device);
+        searchInfo.validationActive = getStatus(deviceValidationRetriever.isValidationActive(device), thesaurus);
         searchInfo.hasOpenDataValidationIssues = issueService.hasOpenDataValidationIssues(device);
         searchInfo.location = device.getLocation().map(Location::toString).
                 orElse(device.getSpatialCoordinates()
@@ -78,5 +78,12 @@ public class DeviceSearchInfo {
             name = state.getName();
         }
         return name;
+    }
+
+    private static String getStatus(boolean isActive, Thesaurus thesaurus) {
+        if (isActive) {
+            return thesaurus.getFormat(DeviceSearchModelTranslationKeys.DEVICE_DATA_STATE_ACTIVE).format();
+        }
+        return thesaurus.getFormat(DeviceSearchModelTranslationKeys.DEVICE_DATA_STATE_INACTIVE).format();
     }
 }
