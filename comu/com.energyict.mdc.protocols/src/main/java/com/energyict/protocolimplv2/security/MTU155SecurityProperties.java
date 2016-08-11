@@ -51,7 +51,7 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             @Override
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService
-                        .encryptedStringSpec()
+                        .encryptedHexStringSpec()
                         .named(SecurityPropertySpecName.ENCRYPTION_KEY_2)
                         .fromThesaurus(thesaurus)
                         .markRequired()
@@ -72,7 +72,7 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             @Override
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService
-                        .encryptedStringSpec()
+                        .encryptedHexStringSpec()
                         .named(SecurityPropertySpecName.ENCRYPTION_KEY_3)
                         .fromThesaurus(thesaurus)
                         .markRequired()
@@ -93,7 +93,7 @@ public class MTU155SecurityProperties extends CommonBaseDeviceSecurityProperties
             @Override
             public PropertySpec propertySpec(PropertySpecService propertySpecService, Thesaurus thesaurus) {
                 return propertySpecService
-                        .encryptedStringSpec()
+                        .encryptedHexStringSpec()
                         .named(SecurityPropertySpecName.ENCRYPTION_KEY_1)
                         .fromThesaurus(thesaurus)
                         .markRequired()

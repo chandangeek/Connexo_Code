@@ -276,7 +276,12 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
                         .named(SDKTranslationKeys.SDKENCRYPTEDSTRINGPROPERTY)
                         .fromThesaurus(this.getThesaurus())
                         .finish());
-
+        optionalProperties.add(
+                this.propertySpecService
+                        .encryptedHexStringSpec()
+                        .named(SDKTranslationKeys.SDKENCRYPTEDHEXSTRINGPROPERTY)
+                        .fromThesaurus(this.getThesaurus())
+                        .finish());
         return optionalProperties;
     }
 
