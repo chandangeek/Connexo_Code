@@ -373,7 +373,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
         QueueTableSpec defaultQueueTableSpec = this.messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(queueDestination, DEFAULT_RETRY_DELAY_IN_SECONDS);
         destinationSpec.activate();
-        destinationSpec.subscribe(queueSubscriber);
+        destinationSpec.subscribe(queueSubscriber).create();
     }
 
     private void createSqlAggregationComponents() {
