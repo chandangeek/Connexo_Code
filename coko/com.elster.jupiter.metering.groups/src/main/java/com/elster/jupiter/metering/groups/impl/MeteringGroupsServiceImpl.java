@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
-        name = "com.elster.jupiter.metering",
+        name = "com.elster.jupiter.metering.groups",
         service = {MeteringGroupsService.class, TranslationKeyProvider.class},
         property = "name=" + MeteringGroupsService.COMPONENTNAME,
         immediate = true)
