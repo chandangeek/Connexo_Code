@@ -19,6 +19,7 @@ import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import com.google.common.base.Strings;
@@ -63,6 +64,7 @@ public class WhiteBoard {
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
     private volatile WhiteBoardConfiguration configuration;
     private volatile HttpAuthenticationService authenticationService;
+    private volatile JsonService jsonService;
 
     private final UrlRewriteFilter urlRewriteFilter = new UrlRewriteFilter();
 
@@ -78,6 +80,11 @@ public class WhiteBoard {
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
     }
 
     @Reference
@@ -151,7 +158,8 @@ public class WhiteBoard {
         ResourceConfig secureConfig = ResourceConfig.forApplication(Objects.requireNonNull(application));
         secureConfig.register(ObjectMapperProvider.class);
         secureConfig.register(JacksonFeature.class);
-        secureConfig.register(new RoleFilter(threadPrincipalService));
+        secureConfig.register(TextPlainMessageBodyWriter.class);
+        secureConfig.register(RoleFilter.class);
         secureConfig.register(RolesAllowedDynamicFeature.class);
         secureConfig.register(LocalizedFieldValidationExceptionMapper.class);
         secureConfig.register(LocalizedExceptionMapper.class);
@@ -159,7 +167,7 @@ public class WhiteBoard {
         secureConfig.register(FormValidationExceptionMapper.class);
         secureConfig.register(JsonMappingExceptionMapper.class);
         secureConfig.register(OptimisticLockExceptionMapper.class);
-        secureConfig.register(new TransactionWrapper(transactionService));
+        secureConfig.register(TransactionWrapper.class);
         secureConfig.register(ConcurrentModificationExceptionMapper.class);
         secureConfig.register(urlRewriteFilter);
         secureConfig.register(new AbstractBinder() {
@@ -168,6 +176,9 @@ public class WhiteBoard {
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(ConcurrentModificationInfo.class).to(ConcurrentModificationInfo.class);
                 bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
+                bind(jsonService).to(JsonService.class);
+                bind(transactionService).to(TransactionService.class);
+                bind(threadPrincipalService).to(ThreadPrincipalService.class);
             }
         });
         if (application instanceof BinderProvider) {
