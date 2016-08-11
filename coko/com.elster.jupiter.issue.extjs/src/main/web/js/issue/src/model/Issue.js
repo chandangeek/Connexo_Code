@@ -25,11 +25,11 @@ Ext.define('Isu.model.Issue', {
             persist: false,
             mapping: function (data) {
                 if (data.device) {
-                    return data.reason.name + data.device.name + ' ' + data.device.serialNumber;
+                    return data.issueId +': ' + data.reason.name + data.device.name + ' ' + data.device.serialNumber;
                 } else if (data.deviceMRID) {
-                    return data.reason.name + ' ' + data.deviceMRID;
+                    return data.issueId +': ' + data.reason.name + ' ' + data.deviceMRID;
                 } else {
-                    return data.reason.name;
+                    return data.issueId +': ' + data.reason.name;
                 }
             }
         },
