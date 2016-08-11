@@ -257,14 +257,14 @@ Ext.define('Uni.controller.Navigation', {
             tokens = me.stripAndSplitToken(token),
             text;
 
+        me.getNavigationMenu().deselectAllMenuItems();
+
         Uni.store.MenuItems.each(function (model) {
             modelTokens = me.stripAndSplitToken(model.get('href'));
             if (tokens[0] === modelTokens[0] || tokens[0] === model.get('portal')) {
-                me.getNavigationMenu().deselectAllMenuItems();
                 me.getNavigationMenu().selectMenuItem(model);
 
                 if (tokens.length === 1) {
-
                     text = model.get('text');
 
                     if (!Ext.isEmpty(text)) {
@@ -275,6 +275,7 @@ Ext.define('Uni.controller.Navigation', {
                         Ext.getDoc().dom.title = me.applicationTitle;
                     }
                 }
+
                 return;
             }
         });

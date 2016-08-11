@@ -35,7 +35,7 @@ Ext.define('Uni.grid.filtertop.ComboBox', {
                 getInnerTpl: function (displayField) {
                     return '<div class="x-combo-list-item"><img src="'
                         + Ext.BLANK_IMAGE_URL + '" class="x-form-checkbox" style="  top: 2px; left: -2px; position: relative;"/> {'
-                        + displayField + '} </div>';
+                        + displayField + ':htmlEncode} </div>';
                 }
             });
         }
