@@ -169,9 +169,9 @@ public class MetrologyConfigurationResource {
 
     private void setReadingTypes(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingType> readingTypes, boolean isUpdate) {
         MetrologyPurpose purpose = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEFAULT_METROLOGY_PURPOSE_NOT_FOUND));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_METROLOGY_PURPOSE_NOT_FOUND));
         MeterRole meterRoleDefault = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.DEFAULT_METER_ROLE_NOT_FOUND));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEFAULT_METER_ROLE_NOT_FOUND));
 
         if (isUpdate) {
             metrologyConfiguration.getDeliverables().stream().forEach(deliverable -> {
