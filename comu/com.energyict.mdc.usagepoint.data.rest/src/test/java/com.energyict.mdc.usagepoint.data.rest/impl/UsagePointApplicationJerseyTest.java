@@ -27,6 +27,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.Currency;
 import java.util.HashSet;
@@ -38,8 +39,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class
-UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+public class UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     @Mock
     static SecurityContext securityContext;
@@ -51,6 +51,8 @@ UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     TransactionService transactionService;
     @Mock
     ValidationService validationService;
+    @Mock
+    Clock clock;
 
     @Override
     protected Application getApplication() {
@@ -69,6 +71,7 @@ UsagePointApplicationJerseyTest extends FelixRestApplicationJerseyTest {
         app.setNlsService(nlsService);
         app.setDeviceService(deviceService);
         app.setValidationService(validationService);
+        app.setClock(clock);
         return app;
     }
 

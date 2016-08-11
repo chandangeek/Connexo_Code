@@ -20,6 +20,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,6 +38,7 @@ public class UsagePointApplication extends Application implements MessageSeedPro
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
     private volatile ValidationService validationService;
+    private volatile Clock clock;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(UsagePointResource.class);
@@ -69,6 +71,11 @@ public class UsagePointApplication extends Application implements MessageSeedPro
         this.transactionService = transactionService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -96,6 +103,7 @@ public class UsagePointApplication extends Application implements MessageSeedPro
             bind(nlsService).to(NlsService.class);
             bind(transactionService).to(TransactionService.class);
             bind(validationService).to(ValidationService.class);
+            bind(clock).to(Clock.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(MeterInfoFactory.class).to(MeterInfoFactory.class);
             bind(UsagePointChannelInfoFactory.class).to(UsagePointChannelInfoFactory.class);
