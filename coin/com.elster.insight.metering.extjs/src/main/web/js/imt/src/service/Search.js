@@ -28,7 +28,11 @@ Ext.define('Imt.service.Search', {
                 }
             }
         }
-        else {
+        else if (column.xtype != 'uni-date-column'
+            && column.xtype != 'uni-grid-column-search-boolean'
+            && column.xtype != 'uni-grid-column-search-devicetype'
+            && column.xtype != 'uni-grid-column-search-deviceconfiguration'
+            && column.xtype != 'uni-grid-column-search-quantity') {
             column.renderer = function (value, metaData, record) {
                 // stupid solution to resolve encoding in tooltip
                 metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';

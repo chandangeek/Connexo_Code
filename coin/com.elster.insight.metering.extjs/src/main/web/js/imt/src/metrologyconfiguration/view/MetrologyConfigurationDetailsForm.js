@@ -38,7 +38,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm', 
                     itemId: 'area-mc-requirements',
                     fieldLabel: Uni.I18n.translate('general.label.usagePointRequirements', 'IMT', 'Usage point requirements'),
                     labelAlign: 'top',
-                    defaults: defaults
+                    defaults: defaults,
+                    style: 'margin-left: 5px'
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -46,6 +47,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationDetailsForm', 
                     fieldLabel: Uni.I18n.translate('general.label.metersSpecifications', 'IMT', 'Meters specifications'),
                     labelAlign: 'top',
                     defaults: defaults,
+                    style: 'margin-left: 5px',
                     items: [
                         {
                             fieldLabel: Uni.I18n.translate('general.meterRoles', 'IMT', 'Meter roles'),
