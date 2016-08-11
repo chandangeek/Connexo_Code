@@ -1,6 +1,5 @@
 package com.elster.jupiter.devtools.rest;
 
-import aQute.lib.strings.Strings;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -15,11 +14,14 @@ import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.RestExceptionMapper;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.rest.util.TransactionWrapper;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
+import aQute.lib.strings.Strings;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -28,9 +30,6 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.DELETE;
@@ -42,6 +41,10 @@ import javax.ws.rs.core.Application;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static java.util.stream.Collectors.toList;
 import static junit.framework.Assert.fail;
@@ -154,6 +157,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         resourceConfig.register(JacksonFeature.class); // Server side JSON processing
         resourceConfig.register(ObjectMapperProvider.class);
         resourceConfig.register(LocalizedFieldValidationExceptionMapper.class);
+        resourceConfig.register(RestExceptionMapper.class);
         resourceConfig.register(LocalizedExceptionMapper.class);
         resourceConfig.register(ConstraintViolationExceptionMapper.class);
         resourceConfig.register(JsonMappingExceptionMapper.class);
@@ -194,7 +198,8 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         List<String> errors = getApplication()
                 .getClasses().stream() // also contains non-resources, but that doesn't matter
                 .flatMap(clazz -> Stream.of(clazz.getMethods()))
-                .filter(method -> method.isAnnotationPresent(GET.class) || method.isAnnotationPresent(POST.class) || method.isAnnotationPresent(PUT.class) || method.isAnnotationPresent(DELETE.class) || method.isAnnotationPresent(PROPFIND.class))
+                .filter(method -> Stream.of(GET.class, POST.class, PUT.class, DELETE.class, PROPFIND.class)
+                        .anyMatch(method::isAnnotationPresent))
                 .filter(method -> !method.isAnnotationPresent(Produces.class))
                 .map(method -> method.getDeclaringClass().getSimpleName() + ":" + method.getName())
                 .collect(toList());
