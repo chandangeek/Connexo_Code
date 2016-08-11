@@ -19,12 +19,7 @@ class SqlDiffFileListener implements DifferencesListener {
 
     private final FileSystem fileSystem;
     private Writer writer;
-    private DifferencesListener state = difference -> {
-        writer = createFile();
-        SubsequentState subsequentState = new SubsequentState();
-        state = subsequentState;
-        subsequentState.onDifference(difference);
-    };
+    private DifferencesListener state = new InitialDifferencesListener();
 
     private class SubsequentState implements DifferencesListener {
         @Override
@@ -42,10 +37,10 @@ class SqlDiffFileListener implements DifferencesListener {
 
         private String buildEntryString(Difference difference) {
             String entryPrefix = new StringJoiner("", "---- ", " start ----\n").add(difference.description()).toString();
-            String entrySuffix = new StringJoiner("", "---- ", "  end  ----\n").add(difference.description()).toString();
+            String entrySuffix = new StringJoiner("", ";\n---- ", "  end  ----\n").add(difference.description()).toString();
             return difference.ddl()
                     .stream()
-                    .collect(Collectors.joining("\n", entryPrefix, entrySuffix));
+                    .collect(Collectors.joining(";\n", entryPrefix, entrySuffix));
         }
 
         @Override
@@ -82,8 +77,32 @@ class SqlDiffFileListener implements DifferencesListener {
     }
 
     private Writer tryCreateFile() throws IOException {
-        Path targetFile = fileSystem.getPath("./logs/connexo_difference.sql");
+        Path targetFile = getTargetFile();
         Files.createDirectories(targetFile.getParent());
         return new OutputStreamWriter(Files.newOutputStream(targetFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE));
+    }
+
+    private Path getTargetFile() {
+        return fileSystem.getPath("./logs/connexo_difference.sql");
+    }
+
+    private class InitialDifferencesListener implements DifferencesListener {
+        @Override
+        public void onDifference(Difference difference) {
+            writer = SqlDiffFileListener.this.createFile();
+            SubsequentState subsequentState = new SubsequentState();
+            state = subsequentState;
+            subsequentState.onDifference(difference);
+        }
+
+        @Override
+        public void done() {
+            // if this is still the state at done, we should remove the file
+            try {
+                Files.deleteIfExists(getTargetFile());
+            } catch (IOException e) {
+                throw new UnderlyingIOException(e);
+            }
+        }
     }
 }
