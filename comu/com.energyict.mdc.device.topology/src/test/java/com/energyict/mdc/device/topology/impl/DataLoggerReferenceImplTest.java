@@ -4,7 +4,6 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.IntervalReading;
-import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.IntervalReadingImpl;
@@ -34,14 +33,11 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -278,7 +274,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
         do {
             readingTime = readingTime.plus(15, ChronoUnit.MINUTES);
             // ProfileStatus set to Test so to easily filter them
-            profile.add(IntervalReadingImpl.of(readingTime, value, new HashSet<>(Collections.singletonList(ProtocolReadingQualities.TEST.getReadingQualityType()))));
+            profile.add(IntervalReadingImpl.of(readingTime, value));
         }
         while (readingTime.isBefore(end));
         return profile;
@@ -402,7 +398,7 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Ignore // first do something about the performance
+    //@Ignore // first do something about the performance
     public void testLinkSlaveWithProfileData() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
@@ -434,38 +430,35 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 //        profile.add(IntervalReadingImpl.of(readingTime, value, new HashSet<>(Collections.singletonList(ProtocolReadingQualities.TEST.getReadingQualityType()))));
 
         assertThat(slave.hasData()).isTrue();
-        List<LoadProfileReading> intervals1 = slave.getChannels()
-                .get(0)
+        Channel channel1 = slave.getChannels().get(0);
+        Channel channel2 = slave.getChannels().get(1);
+        Channel channel3 = slave.getChannels().get(2);
+        List<LoadProfileReading> intervals1 = channel1
                 .getChannelData(Range.open(start, firstOfJuli))
                 .stream()
-                .filter(loadProfileReading -> loadProfileReading.getReadingQualities().values().stream()
-                        .filter(readingQualityRecords -> readingQualityRecords.stream()
-                                .filter(readingQualityRecord -> readingQualityRecord.getType().equals(ProtocolReadingQualities.TEST.getReadingQualityType()))
-                                .findAny()
-                                .isPresent()).findAny().isPresent())
+                .filter(loadProfileReading -> loadProfileReading.getChannelValues().get(channel1) != null)
                 .collect(Collectors.toList());
-        List<LoadProfileReading> intervals2 = slave.getChannels()
-                .get(0)
+        List<LoadProfileReading> intervals2 = channel2
                 .getChannelData(Range.open(start, firstOfJuli))
                 .stream()
-                .filter(loadProfileReading -> loadProfileReading.getReadingQualities().values().stream()
-                        .filter(readingQualityRecords -> readingQualityRecords.stream()
-                                .filter(readingQualityRecord -> readingQualityRecord.getType().equals(ProtocolReadingQualities.TEST.getReadingQualityType()))
-                                .findAny()
-                                .isPresent()).findAny().isPresent()).collect(Collectors.toList());
-        List<LoadProfileReading> intervals3 = slave.getChannels()
-                .get(0)
+                .filter(loadProfileReading -> loadProfileReading.getChannelValues().get(channel2) != null)
+                .collect(Collectors.toList());
+        List<LoadProfileReading> intervals3 = channel3
                 .getChannelData(Range.open(start, firstOfJuli))
                 .stream()
-                .filter(loadProfileReading -> loadProfileReading.getReadingQualities().values().stream()
-                        .filter(readingQualityRecords -> readingQualityRecords.stream()
-                                .filter(readingQualityRecord -> readingQualityRecord.getType().equals(ProtocolReadingQualities.TEST.getReadingQualityType()))
-                                .findAny()
-                                .isPresent()).findAny().isPresent()).collect(Collectors.toList());
-
+                .filter(loadProfileReading -> loadProfileReading.getChannelValues().get(channel3) != null)
+                .collect(Collectors.toList());
         assertThat(intervals1).hasSize(2976); //month may: 31*24*4
+        assertThat(intervals1.stream().map(loadProfileReading -> loadProfileReading.getRange().lowerEndpoint()).min(Instant::compareTo).orElse(Instant.now())).isEqualTo(startLink);
+        assertThat(intervals1.stream().map(loadProfileReading -> loadProfileReading.getRange().upperEndpoint()).max(Instant::compareTo).orElse(Instant.now())).isEqualTo(endOfData);
         assertThat(intervals2).hasSize(2976); //month may: 31*24*4
+        assertThat(intervals2.stream().map(loadProfileReading -> loadProfileReading.getRange().lowerEndpoint()).min(Instant::compareTo).orElse(Instant.now())).isEqualTo(startLink);
+        assertThat(intervals2.stream().map(loadProfileReading -> loadProfileReading.getRange().upperEndpoint()).max(Instant::compareTo).orElse(Instant.now())).isEqualTo(endOfData);
+
         assertThat(intervals3).hasSize(2976); //month may: 31*24*4
+        assertThat(intervals2.stream().map(loadProfileReading -> loadProfileReading.getRange().lowerEndpoint()).min(Instant::compareTo).orElse(Instant.now())).isEqualTo(startLink);
+        assertThat(intervals2.stream().map(loadProfileReading -> loadProfileReading.getRange().upperEndpoint()).max(Instant::compareTo).orElse(Instant.now())).isEqualTo(endOfData);
+
 
         assertThat(slave.getChannels().get(0).getLastReading().get()).isEqualTo(endOfData);
         assertThat(slave.getChannels().get(1).getLastReading().get()).isEqualTo(endOfData);
@@ -590,7 +583,6 @@ public class DataLoggerReferenceImplTest extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Ignore // first do something about the performance
     public void testUnLinkSlaveWithProfileData() {
         setUpForDataLoggerEnabledDevice();
         setUpForSlaveHavingLoadProfiles();
