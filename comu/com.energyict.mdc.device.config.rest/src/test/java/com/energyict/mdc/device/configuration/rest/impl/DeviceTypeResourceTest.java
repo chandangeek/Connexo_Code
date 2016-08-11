@@ -21,6 +21,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.StatusCode;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -79,7 +80,6 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.stream.LongStream;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -1481,7 +1481,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         deviceTypeInfo.version = OK_VERSION;
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
         Response response = target("/devicetypes/31").request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(StatusCode.UNPROCESSABLE_ENTITY.getStatusCode());
     }
 
     @Test
