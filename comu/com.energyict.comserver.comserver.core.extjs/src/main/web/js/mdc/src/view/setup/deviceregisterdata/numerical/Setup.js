@@ -9,10 +9,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Setup', {
     initComponent: function () {
         var me = this;
 
-        me.content = [
+        me.items = [
             {
                 xtype: 'panel',
-                ui: 'large',
                 items: [
                     {
                         xtype: 'mdc-registers-topfilter',
@@ -49,7 +48,9 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Setup', {
                                     router: me.router,
                                     unitOfMeasureCollected: me.unitOfMeasureCollected,
                                     unitOfMeasureCalculated: me.unitOfMeasureCalculated,
-                                    multiplier: me.multiplier
+                                    multiplier: me.multiplier,
+                                    mentionDataLoggerSlave: me.mentionDataLoggerSlave,
+                                    router: me.router
                                 }
                             }
                         ]

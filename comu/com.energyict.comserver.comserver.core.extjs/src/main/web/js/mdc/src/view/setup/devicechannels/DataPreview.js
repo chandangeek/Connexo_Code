@@ -11,12 +11,14 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
     ],
     channelRecord: null,
     channels: null,
+    router: null,
     frame: false,
+    mentionDataLoggerSlave: false,
 
-    updateForm: function (record) {
+    updateForm: function(record) {
         var me = this,
             intervalEnd = record.get('interval_end'),
-            title =  Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+            title = Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
                 [Uni.DateTime.formatDateLong(intervalEnd), Uni.DateTime.formatTimeShort(intervalEnd)],
                 false),
             mainValidationInfo,
@@ -26,7 +28,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             router = me.router;
 
         me.setLoading();
-        record.refresh(router.arguments.mRID, router.arguments.channelId, function(){
+        record.getDetailedInformation(router.arguments.mRID, router.arguments.channelId, function(detailRecord){
             Ext.suspendLayouts();
             me.down('#general-panel').setTitle(title);
             me.down('#values-panel').setTitle(title);
@@ -83,12 +85,18 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                     }
                 });
             } else {
-                me.setDataQuality(record.get('readingQualities'));
+                me.setDataQuality(detailRecord.get('readingQualities'));
                 me.down('#readingDataValidated').setValue(record.get('dataValidated'));
+                var dataLoggerSlaveField = me.down('#mdc-channel-data-preview-data-logger-slave');
+                if (dataLoggerSlaveField) {
+                    dataLoggerSlaveField.setValue(record.get('slaveChannel'));
+                }
             }
 
             Ext.resumeLayouts(true);
-            me.down('#values-panel').loadRecord(record);
+            detailRecord.set('value', record.get('value'));
+            detailRecord.set('collectedValue', record.get('collectedValue'));
+            me.down('#values-panel').loadRecord(detailRecord);
             me.setLoading(false);
         });
     },
@@ -208,29 +216,31 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         insightQualityField.setValue('');
         thirdPartyQualityField.setValue('');
 
-        Ext.Array.forEach(dataQualities, function(readingQuality) {
-            if (readingQuality.cimCode.startsWith('1.')) {
-                showDeviceQuality |= true;
-                field = deviceQualityField;
-            } else if (readingQuality.cimCode.startsWith('2.')) {
-                showMultiSenseQuality |= true;
-                field = multiSenseQualityField;
-            } else if (readingQuality.cimCode.startsWith('3.')) {
-                showInsightQuality |= true;
-                field = insightQualityField;
-            } else if (readingQuality.cimCode.startsWith('4.')||readingQuality.cimCode.startsWith('5.')) {
-                show3rdPartyQuality |= true;
-                field = thirdPartyQualityField;
-            }
-            if (!Ext.isEmpty(field)) {
-                field.setValue(field.getValue()
-                    + (Ext.isEmpty(field.getValue()) ? '' : '<br>')
-                    + '<span style="display:inline-block; float: left; margin-right:7px;" >' + readingQuality.indexName + ' (' + readingQuality.cimCode + ')' + '</span>'
-                    + '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
-                    + me.getTooltip(readingQuality.systemName, readingQuality.categoryName, readingQuality.indexName) + '"></span>'
-                );
-            }
-        });
+        if (!Ext.isEmpty(dataQualities)) {
+            Ext.Array.forEach(dataQualities, function (readingQuality) {
+                if (readingQuality.cimCode.startsWith('1.')) {
+                    showDeviceQuality |= true;
+                    field = deviceQualityField;
+                } else if (readingQuality.cimCode.startsWith('2.')) {
+                    showMultiSenseQuality |= true;
+                    field = multiSenseQualityField;
+                } else if (readingQuality.cimCode.startsWith('3.')) {
+                    showInsightQuality |= true;
+                    field = insightQualityField;
+                } else if (readingQuality.cimCode.startsWith('4.') || readingQuality.cimCode.startsWith('5.')) {
+                    show3rdPartyQuality |= true;
+                    field = thirdPartyQualityField;
+                }
+                if (!Ext.isEmpty(field)) {
+                    field.setValue(field.getValue()
+                        + (Ext.isEmpty(field.getValue()) ? '' : '<br>')
+                        + '<span style="display:inline-block; float: left; margin-right:7px;" >' + readingQuality.indexName + ' (' + readingQuality.cimCode + ')' + '</span>'
+                        + '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                        + me.getTooltip(readingQuality.systemName, readingQuality.categoryName, readingQuality.indexName) + '"></span>'
+                    );
+                }
+            });
+        }
 
         showDeviceQuality ? deviceQualityField.show() : deviceQualityField.hide();
         showMultiSenseQuality ? multiSenseQualityField.show() : multiSenseQualityField.hide();
@@ -263,18 +273,48 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 name: 'interval',
                 renderer: function (value) {
                     return value
-                        ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value.start)),Uni.DateTime.formatTimeLong(new Date(value.start))])
-                        + ' - ' +
-                        Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))])
-                        : '-';
+                        ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                            [Uni.DateTime.formatDateLong(new Date(value.start)),Uni.DateTime.formatTimeLong(new Date(value.start))])
+                          + ' - ' +
+                          Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',
+                            [Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))])
+                        : '';
                 },
                 htmlEncode: false
-            },
+            }
+        );
+
+        if (me.mentionDataLoggerSlave) {
+            generalItems.push(
+                {
+                    fieldLabel: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                    itemId: 'mdc-channel-data-preview-data-logger-slave',
+                    renderer: function(slaveChannel) {
+                        if (Ext.isEmpty(slaveChannel)) {
+                            return '-';
+                        }
+                        var slaveMRID = slaveChannel.mrid,
+                            channelId = slaveChannel.channelId;
+                        return Ext.String.format('<a href="{0}">{1}</a>',
+                            me.router.getRoute('devices/device/channels/channeldata').buildUrl(
+                                {
+                                    mRID: encodeURIComponent(slaveMRID),
+                                    channelId: channelId
+                                },
+                                me.router.queryParams
+                            ),
+                            slaveMRID);
+                    }
+                }
+            );
+        }
+
+        generalItems.push(
             {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
                 name: 'readingTime',
                 renderer: function (value, field) {
-                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';
+                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}', [Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '-';
                 }
             },
             {

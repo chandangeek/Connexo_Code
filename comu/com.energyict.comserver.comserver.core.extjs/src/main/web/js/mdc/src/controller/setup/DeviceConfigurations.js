@@ -194,52 +194,66 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             deviceConfigurations = me.getDeviceConfigurationsGrid().getSelectionModel().getSelection(),
             onDeviceTypeLoad = function() {
                 var deviceConfigurationId = deviceConfigurations[0].get('id'),
-                    registerLink = me.getDeviceConfigurationRegisterLink();
-                    logBookLink = me.getDeviceConfigurationLogBookLink();
-                    loadProfilesLink = me.getDeviceConfigurationLoadProfilesLink();
+                    registerLink = me.getDeviceConfigurationRegisterLink(),
+                    logBookLink = me.getDeviceConfigurationLogBookLink(),
+                    loadProfilesLink = me.getDeviceConfigurationLoadProfilesLink(),
+                    preview = me.getDeviceConfigurationPreview(),
+                    previewForm = me.getDeviceConfigurationPreviewForm();
 
                 Ext.suspendLayouts();
 
-                registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/registerconfigurations');
-                registerLink.setText(
-                    Uni.I18n.translatePlural('general.registerConfigurations', deviceConfigurations[0].get('registerCount'), 'MDC',
-                        'No register configurations', '1 register configuration', '{0} register configurations')
-                );
-
-                logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
-                logBookLink.setText(
-                    Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfigurations[0].get('logBookCount'), 'MDC',
-                        'No logbook configurations', '1 logbook configuration', '{0} logbook configurations')
-                );
-
-                loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/loadprofiles');
-                loadProfilesLink.setText(
-                    Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfigurations[0].get('loadProfileCount'), 'MDC',
-                        'No load profile configurations', '1 load profile configuration', '{0} load profile configurations')
-                );
-
-                me.getDeviceConfigurationPreviewForm().loadRecord(deviceConfigurations[0]);
-
-                var actionMenu = me.getDeviceConfigurationPreview().down('#device-configuration-action-menu');
-                if (actionMenu)
-                    actionMenu.record = deviceConfigurations[0];
-
-                if (me.getDeviceConfigurationPreview().down('#device-configuration-action-menu')) {
-                    me.getDeviceConfigurationPreview().down('#device-configuration-action-menu').record = deviceConfigurations[0];
+                if (registerLink) {
+                    registerLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/registerconfigurations');
+                    registerLink.setText(
+                        Uni.I18n.translatePlural('general.registerConfigurations', deviceConfigurations[0].get('registerCount'), 'MDC',
+                            'No register configurations', '1 register configuration', '{0} register configurations')
+                    );
                 }
-                me.getDeviceConfigurationPreview().getLayout().setActiveItem(1);
-                me.getDeviceConfigurationPreview().setTitle(Ext.String.htmlEncode(deviceConfigurations[0].get('name')));
+
+                if (logBookLink) {
+                    logBookLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/logbookconfigurations');
+                    logBookLink.setText(
+                        Uni.I18n.translatePlural('general.logbookConfigurations', deviceConfigurations[0].get('logBookCount'), 'MDC',
+                            'No logbook configurations', '1 logbook configuration', '{0} logbook configurations')
+                    );
+                }
+
+                if (loadProfilesLink) {
+                    loadProfilesLink.setHref('#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(deviceConfigurationId) + '/loadprofiles');
+                    loadProfilesLink.setText(
+                        Uni.I18n.translatePlural('general.loadProfileConfigurations', deviceConfigurations[0].get('loadProfileCount'), 'MDC',
+                            'No load profile configurations', '1 load profile configuration', '{0} load profile configurations')
+                    );
+                }
+
+                if (previewForm) {
+                    previewForm.loadRecord(deviceConfigurations[0]);
+
+                    var actionMenu = preview.down('#device-configuration-action-menu');
+                    if (actionMenu) {
+                        actionMenu.record = deviceConfigurations[0];
+                    }
+
+                    if (preview.down('#device-configuration-action-menu')) {
+                        preview.down('#device-configuration-action-menu').record = deviceConfigurations[0];
+                    }
+                    preview.getLayout().setActiveItem(1);
+                    preview.setTitle(Ext.String.htmlEncode(deviceConfigurations[0].get('name')));
+                }
 
                 Ext.resumeLayouts(true);
             };
 
-        if (deviceConfigurations.length == 1) {
+        if (deviceConfigurations.length === 1) {
             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(me.deviceTypeId, {
                 success: function (deviceType) {
-                    if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
-                        me.getDeviceConfigurationLogBookLink().hide();
-                    } else {
-                        me.getDeviceConfigurationLogBookLink().show();
+                    var logBookLink = me.getDeviceConfigurationLogBookLink();
+                    if (logBookLink) {
+                        if (deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE') {
+                            logBookLink.hide();
+                        } else {
+                            logBookLink.show();
+                        }
                     }
                     onDeviceTypeLoad();
                 }
@@ -470,7 +484,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             typeOfGatewayRadioGroup = this.getTypeOfGatewayRadioGroup(),
             dataLoggerMessage = this.getDataLoggerMessage(),
             dataLoggerRadioGroup = this.getDataLoggerRadioGroup(),
-            isDataLoggerSlaveType = deviceType.get('deviceTypePurpose') === 'DATALOGGER_SLAVE';
+            isDataLoggerSlaveType = deviceType.isDataLoggerSlave();
 
         if (deviceConfiguration) {
             addressableRadioGroup.setValue({isDirectlyAddressable: deviceConfiguration.get('isDirectlyAddressable')});
@@ -823,13 +837,30 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     currentDeviceConfigurationId = device.get('deviceConfigurationId');
 
                 form.loadRecord(device);
-                deviceConfigurationsStore.clearFilter();
+                deviceConfigurationsStore.clearFilter(false);
+                deviceConfigurationsStore.addFilter([
+                    function(record) {
+                        return record.get('id')!==currentDeviceConfigurationId && !record.get('dataloggerEnabled');
+                    }
+                ]);
+                deviceConfigurationsStore.getProxy().pageParam = undefined;
+                deviceConfigurationsStore.getProxy().startParam = undefined;
+                deviceConfigurationsStore.getProxy().limitParam = undefined;
                 deviceConfigurationsStore.getProxy().setUrl({deviceType: device.get('deviceTypeId')});
+                deviceConfigurationsStore.getProxy().setExtraParam('filter', Ext.encode([
+                    {
+                        property: 'active',
+                        value: true
+                    }
+                ]));
 
                 deviceConfigurationsStore.load(function () {
-                    this.removeAt(this.findExact('id', currentDeviceConfigurationId));
                     me.getNoDeviceConfigurationsLabel().setVisible(!this.count());
                     me.getNewDeviceConfigurationCombo().setVisible(this.count());
+                    if (this.count() === 1) {
+                        me.getNewDeviceConfigurationCombo().setValue(this.getAt(0).get('id'));
+                        me.getSaveChangeDeviceConfigurationBtn().setDisabled(false);
+                    }
                 });
 
                 widget.down('#device-configuration-name').setValue(device.get('deviceConfigurationName'));

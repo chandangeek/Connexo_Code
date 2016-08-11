@@ -2,7 +2,9 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.deviceRegisterConfigurationGrid',
     itemId: 'deviceRegisterConfigurationGrid',
-    mRID: null,
+    mRID: null, // is already encodeURIComponent'ed
+    router: null,
+    showDataLoggerSlaveColumn: false,
     store: 'RegisterConfigsOfDevice',
     scroll: false,
     requires: [
@@ -42,7 +44,27 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                 header: Uni.I18n.translate('deviceregisterconfiguration.latestValue', 'MDC', 'Latest value'),
                 dataIndex: 'value',
                 flex: 1
-            },
+            }
+        ];
+
+        if (me.showDataLoggerSlaveColumn) {
+            me.columns.push(
+                {
+                    dataIndex: 'dataloggerSlavemRID',
+                    flex: 1,
+                    header: Uni.I18n.translate('general.dataLoggerSlave', 'MDC', 'Data logger slave'),
+                    renderer: function(value) {
+                        if (Ext.isEmpty(value)) {
+                            return '-';
+                        }
+                        var href = me.router.getRoute('devices/device/registers').buildUrl({mRID: encodeURIComponent(value)});
+                        return '<a href="' + href + '">' + Ext.String.htmlEncode(value) + '</a>'
+                    }
+                }
+            );
+        }
+
+        me.columns.push(
             {
                 xtype: 'uni-actioncolumn',
                 menu: {
@@ -50,7 +72,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.Grid', {
                     itemId: 'registerActionMenu'
                 }
             }
-        ];
+        );
 
         me.dockedItems = [
             {

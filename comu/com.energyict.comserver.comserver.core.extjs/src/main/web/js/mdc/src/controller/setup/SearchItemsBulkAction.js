@@ -258,9 +258,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 statusPage.setLoading(false);
                 if (success) {
                     wizard.setLoading(false);
-                    var devicesQty = Ext.isEmpty(me.devices) ? Uni.I18n.translate('searchItems.bulk.general.all', 'MDC', 'all') : me.devices.length;
-                    statusPage.showChangeDeviceConfigSuccess(Uni.I18n.translate('searchItems.bulk.devicesAddedToQueueTitle', 'MDC', 'This task has been put on the queue successfully'),
-                        Ext.String.format(Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', devicesQty, 'MDC', "The {0} devices are queued to change their configuration", "The {0} device is queued to change its configuration", "The {0} devices are queued to change their configuration"))
+                    var infoMessage = Ext.isEmpty(me.devices)
+                            ? Uni.I18n.translate('searchItems.bulk.devConfigQueuedTitle.all', 'MDC', 'All devices are queued to change their configuration.')
+                            : Uni.I18n.translatePlural('searchItems.bulk.devConfigQueuedTitle', me.devices.length, 'MDC',
+                                'No devices are queued to change their configuration.',
+                                'One device is queued to change its configuration.',
+                                '{0} devices are queued to change their configuration.');
+
+                    statusPage.showChangeDeviceConfigSuccess(
+                        Uni.I18n.translate('searchItems.bulk.devicesAddedToQueueTitle', 'MDC', 'This task has been put on the queue successfully'),
+                        infoMessage
                     );
                     finishBtn.enable();
                 }
@@ -528,10 +535,15 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         configStore.getProxy().setUrl({deviceType: me.deviceType});
 
                         wizard.setLoading(true);
+                        configStore.clearFilter(false);
+                        configStore.addFilter([
+                            function(record) {
+                                return record.get('id')!==me.deviceConfigId && !record.get('dataloggerEnabled');
+                            }
+                        ]);
                         configStore.load(function (operation, success) {
                             var deviceConfig = this.getById(me.deviceConfigId);
                             currentConfigField.setValue(deviceConfig.get('name'));
-                            this.removeAt(this.findExact('id', me.deviceConfigId));
                             if (success && (configStore.getCount() < 1)) {
                                 wizard.down('#nextButton').disable();
                                 nextCmp.down('#new-device-config-selection').hide();
@@ -540,6 +552,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 wizard.down('#nextButton').enable();
                                 nextCmp.down('#new-device-config-selection').show();
                                 nextCmp.down('#no-device-configuration').hide();
+                            }
+                            if (configStore.getCount() === 1) {
+                                wizard.down('#new-device-config-selection').setValue(this.getAt(0).get('id'));
+                                wizard.down('#nextButton').enable();
                             }
                             wizard.setLoading(false);
                         });

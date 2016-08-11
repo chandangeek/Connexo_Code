@@ -73,9 +73,14 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingSet
                             store: this.store
                         },
                         emptyComponent: {
-                            xtype: 'uni-form-empty-message',
-                            itemId: 'noItemMessage',
-                            text: Uni.I18n.translate('deviceConflicting.empty.title', 'MDC', 'This device type has no conflicting device configuration mappings')
+                            xtype: 'form',
+                            items: [
+                                {
+                                    xtype: 'uni-form-empty-message',
+                                    itemId: 'noItemMessage',
+                                    text: Uni.I18n.translate('deviceConflicting.empty.title', 'MDC', 'This device type has no conflicting device configuration mappings')
+                                }
+                            ]
                         }
                     }
                 ]
