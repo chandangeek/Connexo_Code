@@ -2,13 +2,15 @@ package com.elster.jupiter.time.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.RelativePeriod;
+
+import java.util.Collections;
+
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.Collections;
 
 import static org.fest.reflect.core.Reflection.field;
 
@@ -22,6 +24,8 @@ public class RelativePeriodTest extends EqualsContractTest {
     private DataModel dataModel;
     @Mock
     private EventService eventService;
+    @Mock
+    private Thesaurus thesaurus;
 
     private RelativePeriod relativePeriod;
 
@@ -32,7 +36,7 @@ public class RelativePeriodTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (relativePeriod == null) {
-            relativePeriod = new RelativePeriodImpl(dataModel, eventService);
+            relativePeriod = new RelativePeriodImpl(dataModel, eventService, thesaurus);
             setId(relativePeriod, ID);
         }
         return relativePeriod;
@@ -40,14 +44,14 @@ public class RelativePeriodTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        RelativePeriod instanceB = new RelativePeriodImpl(dataModel, eventService);
+        RelativePeriod instanceB = new RelativePeriodImpl(dataModel, eventService, thesaurus);
         setId(instanceB, ID);
         return instanceB;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        RelativePeriodImpl relativePeriod = new RelativePeriodImpl(dataModel, eventService);
+        RelativePeriodImpl relativePeriod = new RelativePeriodImpl(dataModel, eventService, thesaurus);
         setId(relativePeriod, OTHER_ID);
         return Collections.singletonList(relativePeriod);
     }

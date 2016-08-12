@@ -4,7 +4,9 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.CannotDeleteUsedRelativePeriodException;
 import com.elster.jupiter.time.EventType;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativePeriod;
@@ -38,9 +40,12 @@ final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     private List<RelativePeriodCategoryUsage> relativePeriodCategoryUsages = new ArrayList<>();
     private transient boolean isCreatedByInstaller = false;
 
+    private final Thesaurus thesaurus;
+
     @Inject
-    RelativePeriodImpl(DataModel dataModel, EventService eventService) {
+    RelativePeriodImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
         super(dataModel, eventService);
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -192,7 +197,13 @@ final class RelativePeriodImpl extends EntityImpl implements RelativePeriod {
     @Override
     protected void doDelete() {
         this.relativePeriodCategoryUsages.clear();
-        super.doDelete();
+        try {
+            super.doDelete();
+        } catch (Exception ex) {
+            throw new CannotDeleteUsedRelativePeriodException(this, thesaurus, MessageSeeds.RELATIVE_PERIOD_IN_USE);
+        }
+
+
     }
 
 }
