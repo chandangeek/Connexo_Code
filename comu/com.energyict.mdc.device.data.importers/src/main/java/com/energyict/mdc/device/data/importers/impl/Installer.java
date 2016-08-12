@@ -32,7 +32,7 @@ class Installer implements FullInstaller {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(DeviceDataImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(DeviceDataImporterMessageHandler.SUBSCRIBER_NAME);
+        destinationSpec.subscribe(DeviceDataImporterMessageHandler.SUBSCRIBER_NAME).create();
     }
 
 }

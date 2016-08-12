@@ -36,6 +36,7 @@ import com.google.common.collect.Range;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
     @Transactional
     public void testImportRegisterAndChannelReadings() {
         DeviceConfiguration deviceConfiguration = createDeviceConfiguration();
-        Device device = createDevice(deviceConfiguration);
+        Device device = createDevice(deviceConfiguration, LocalDate.of(2015, 8, 1).atStartOfDay().toInstant(ZoneOffset.UTC));
 
         DeviceReadingsImporterFactory deviceReadingsImporterFactory = inMemoryPersistence.getService(DeviceReadingsImporterFactory.class);
         Map<String, Object> properties = new HashMap<>();
@@ -159,11 +160,8 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
         return deviceConfiguration;
     }
 
-    private Device createDevice(DeviceConfiguration deviceConfiguration) {
-        DeviceService deviceService = inMemoryPersistence.getService(DeviceService.class);
-        Device device = deviceService.newDevice(deviceConfiguration, "TestDevice", "TestDevice");
-        device.save();
-        return device;
+    private Device createDevice(DeviceConfiguration deviceConfiguration, Instant creationDate) {
+        return inMemoryPersistence.getService(DeviceService.class).newDevice(deviceConfiguration, "TestDevice", "TestDevice", creationDate);
     }
 
     private Device reloadDevice(Device device) {
