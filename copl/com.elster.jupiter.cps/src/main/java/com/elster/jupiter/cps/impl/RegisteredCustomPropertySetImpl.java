@@ -135,6 +135,10 @@ class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, Pe
         return this.customPropertySet;
     }
 
+    String getLogicalId() {
+        return logicalId;
+    }
+
     @Override
     public String getCustomPropertySetId() {
         if (this.isActive()) {
