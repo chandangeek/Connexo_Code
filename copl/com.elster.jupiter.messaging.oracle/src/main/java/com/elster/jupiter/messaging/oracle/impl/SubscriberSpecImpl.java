@@ -189,7 +189,7 @@ class SubscriberSpecImpl implements SubscriberSpec {
 
     private void sleep() {
         try {
-            Thread.sleep(this.dequeueWaitSeconds * 1000);
+            Thread.sleep(this.dequeueRetryDelaySeconds * 1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
