@@ -34,7 +34,7 @@ final class Installer implements FullInstaller {
         DestinationSpec destinationSpec = queueTableSpec.createDestinationSpec(CalendarImporterMessageHandler.DESTINATION_NAME, 60);
         destinationSpec.save();
         destinationSpec.activate();
-        destinationSpec.subscribe(CalendarImporterMessageHandler.SUBSCRIBER_NAME);
+        destinationSpec.subscribe(CalendarImporterMessageHandler.SUBSCRIBER_NAME).create();
     }
 
 }
