@@ -26,7 +26,7 @@ public class IntervalReadingWithValidationStatus {
     private Optional<IntervalReadingRecord> intervalReadingRecord = Optional.empty();
     private Optional<DataValidationStatus> validationStatus = Optional.empty();
 
-    private IntervalReadingWithValidationStatus(OutputChannelGeneralValidation outputChannelGeneralValidation, (ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
+    private IntervalReadingWithValidationStatus(OutputChannelGeneralValidation outputChannelGeneralValidation, ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
         this.outputChannelGeneralValidation = outputChannelGeneralValidation;
         this.readingTimeStamp = readingTimeStamp;
         this.intervalLength = intervalLength;
@@ -89,7 +89,7 @@ public class IntervalReadingWithValidationStatus {
             this.outputChannelGeneralValidation = outputChannelGeneralValidation;
         }
 
-        public IntervalReadingWithValidationStatus from(Instant readingTimeStamp, TemporalAmount intervalLength) {
+        public IntervalReadingWithValidationStatus from(ZonedDateTime readingTimeStamp, TemporalAmount intervalLength) {
             return new IntervalReadingWithValidationStatus(this.outputChannelGeneralValidation, readingTimeStamp, intervalLength);
         }
     }
