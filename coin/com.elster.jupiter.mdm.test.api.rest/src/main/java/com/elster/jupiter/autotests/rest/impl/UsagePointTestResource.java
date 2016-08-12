@@ -95,6 +95,18 @@ public class UsagePointTestResource {
                         .execute(
                                 "DELETE FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " + usagePointId
                         );
+                connection.createStatement()
+                        .execute(
+                                "DELETE FROM ANT_CPS_ANTENNA WHERE USAGEPOINT = " + usagePointId
+                        );
+                connection.createStatement()
+                        .execute(
+                                "DELETE FROM CON_CPS_USAGEPOINT_CONTRCT WHERE USAGEPOINT = " + usagePointId
+                        );
+                connection.createStatement()
+                        .execute(
+                                "DELETE FROM GNR_CPS_USAGEPOINT_GNRL WHERE USAGEPOINT  = " + usagePointId
+                        );
             } catch (SQLException e) {
                 e.printStackTrace();
             }
