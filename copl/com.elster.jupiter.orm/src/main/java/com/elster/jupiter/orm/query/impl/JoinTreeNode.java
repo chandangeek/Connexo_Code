@@ -37,12 +37,12 @@ final class JoinTreeNode<T>  {
 		children.forEach(JoinTreeNode::clearCache);
 	}
 
-	final <R> boolean addMapper(DataMapperImpl<R> newMapper , AliasFactory aliasFactory) {
+	final <R> boolean addMapper(DataMapperImpl<R> newMapper, AliasFactory aliasFactory) {
 		// returns true, if mapper was added.
 		// take care not to shortcircuit calculations, as map lambdas have side effects.
 		return
 			Stream.concat(
-				children.stream().map(child -> child.addMapper(newMapper,aliasFactory)),
+				children.stream().map(child -> child.addMapper(newMapper, aliasFactory)),
 				value.wrap(newMapper, aliasFactory)
 						.stream()
                         .map(this::add))
@@ -69,7 +69,7 @@ final class JoinTreeNode<T>  {
 		return execute(fieldName, JoinTreeAction.find(biFunction));
 	}
 
-	private <R> R execute(String fieldName , JoinTreeAction<R> action) {
+	private <R> R execute(String fieldName, JoinTreeAction<R> action) {
 		if (fieldName == null) {
 			return null;
 		}
@@ -91,11 +91,11 @@ final class JoinTreeNode<T>  {
 	}
 
 	boolean hasWhereField(String fieldName) {
-		return booleanValue(mark(fieldName , JoinDataMapper::hasWhereField));
+		return booleanValue(mark(fieldName, JoinDataMapper::hasWhereField));
 	}
 
 	Class<?> getType(String fieldName) {
-		return find(fieldName , JoinDataMapper::getType);
+		return find(fieldName, JoinDataMapper::getType);
 	}
 
 	ColumnImpl getColumnForField(String fieldName) {
@@ -104,30 +104,30 @@ final class JoinTreeNode<T>  {
 	}
 
 	List<ColumnAndAlias> getColumnAndAliases(String fieldName) {
-		return mark(fieldName , JoinDataMapper::getColumnAndAliases);
+		return mark(fieldName, JoinDataMapper::getColumnAndAliases);
 	}
 
 	private ColumnAndAlias getColumnAndAliasForField(String fieldName) {
-		return mark(fieldName , JoinDataMapper::getColumnAndAlias);
+		return mark(fieldName, JoinDataMapper::getColumnAndAlias);
 	}
 
-	SqlFragment getFragment(final Comparison comparison , String fieldName) {
-		return find(fieldName , (value,reduced) -> value.getFragment(comparison,reduced));
+	SqlFragment getFragment(final Comparison comparison, String fieldName) {
+		return find(fieldName, (value,reduced) -> value.getFragment(comparison,reduced));
 	}
 
-	SqlFragment getFragment(final Contains contains , String fieldName) {
-		return find(fieldName , (value,reduced) -> value.getFragment(contains,reduced));
+	SqlFragment getFragment(final Contains contains, String fieldName) {
+		return find(fieldName, (value,reduced) -> value.getFragment(contains,reduced));
 	}
 
 	DataMapperImpl<?> getDataMapperForField(String fieldName) {
-		return find(fieldName , JoinDataMapper::getDataMapperForField);
+		return find(fieldName, JoinDataMapper::getDataMapperForField);
 	}
 
-	int set(Object target , ResultSet rs, int index)  throws SQLException {
-		if (semiJoin()) {
+	int set(Object target, ResultSet rs, int index)  throws SQLException {
+		if (skipFetch()) {
 			return index;
 		}
-		target = target == null  ? null : value.set(target,rs,index);
+		target = target == null ? null : value.set(target, rs, index);
 		index += this.getRealColumns().size();
 		for (JoinTreeNode<?> each : children) {
 			index = each.set(target, rs, index);
@@ -140,28 +140,27 @@ final class JoinTreeNode<T>  {
 	}
 
 	void completeFind(Instant effectiveDate) {
-		if (!semiJoin()) {
+		if (!skipFetch()) {
 			// do children first, so they can set collection relations before postLoad does.
 			children.forEach(child-> child.completeFind(effectiveDate));
 			value.completeFind(effectiveDate);
 		}
 	}
 
-
 	String appendColumns (SqlBuilder builder, String separator) {
-		if (semiJoin()) {
+		if (distinct()) {
 			return separator;
 		} else {
 			return children.stream().reduce(
 				value.appendColumns(builder,separator),
-				(sep, child) -> child.appendColumns(builder, sep) ,
+				(sep, child) -> child.appendColumns(builder, sep),
 				(sep1, sep2) -> sep2);
 		}
 	}
 
-	void appendFromClause(SqlBuilder builder, String parentAlias , boolean forceOuterJoin) {
-		boolean force = value.appendFromClause(builder, parentAlias , isMarked() , forceOuterJoin );
-		children.forEach(child -> child.appendFromClause(builder, value.getAlias() , force));
+	void appendFromClause(SqlBuilder builder, String parentAlias, boolean forceOuterJoin) {
+		boolean force = value.appendFromClause(builder, parentAlias, isMarked(), forceOuterJoin);
+		children.forEach(child -> child.appendFromClause(builder, value.getAlias(), force));
 	}
 
 	JoinTreeNode<T> copy() {
@@ -246,12 +245,16 @@ final class JoinTreeNode<T>  {
 				.collect(Collectors.toList());
 	}
 
-	private boolean semiJoin() {
-		return value.skipFetch(marked,isAnyChildMarked());
+	private boolean skipFetch() {
+		return value.skipFetch(marked, isAnyChildMarked());
 	}
 
-	boolean hasSemiJoin() {
-		return semiJoin() || children.stream().anyMatch(JoinTreeNode::hasSemiJoin);
+	boolean needsDistinct() {
+		return distinct() || children.stream().anyMatch(JoinTreeNode::needsDistinct);
+	}
+
+	private boolean distinct() {
+		return value.needsDistinct(marked, isAnyChildMarked());
 	}
 
 	String alias() {
@@ -271,4 +274,3 @@ final class JoinTreeNode<T>  {
 	}
 
 }
-

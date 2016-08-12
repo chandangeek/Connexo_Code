@@ -1,19 +1,19 @@
 package com.elster.jupiter.orm.query.impl;
 
+import com.elster.jupiter.orm.NotUniqueException;
+import com.elster.jupiter.orm.impl.DataMapperImpl;
+import com.elster.jupiter.orm.impl.DomainMapper;
+import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import com.elster.jupiter.orm.NotUniqueException;
-import com.elster.jupiter.orm.impl.DataMapperImpl;
-import com.elster.jupiter.orm.impl.DomainMapper;
-import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+class ChildDataMapper<T> extends AbstractChildDataMapper<T> {
 
-public class ChildDataMapper<T> extends AbstractChildDataMapper<T> {
-	
-	public ChildDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraintImpl constraint, String alias) {
+	ChildDataMapper(DataMapperImpl<T> dataMapper, ForeignKeyConstraintImpl constraint, String alias) {
 		super(dataMapper, constraint, alias);
 	}
 
@@ -45,41 +45,45 @@ public class ChildDataMapper<T> extends AbstractChildDataMapper<T> {
 			Collections.sort(list, new FieldComparator(fieldName));
 		}
 	}
-	
+
 
 	private static class FieldComparator implements Comparator<Object> {
 		private final String sortField;
-		
+
 		FieldComparator(String sortField) {
 			this.sortField = sortField;
 		}
-		
+
 		@Override
 		public int compare(Object o1, Object o2) {
-			return getValue(o1).compareTo(getValue(o2));			
+			return getValue(o1).compareTo(getValue(o2));
 		}
-		
+
 		@SuppressWarnings({ "unchecked" })
 		private Comparable<Object> getValue(Object o) {
 			return (Comparable<Object>) DomainMapper.FIELDSTRICT.get(o, sortField);
 		}
-		
+
 	}
 
 	@Override
 	public boolean isReachable() {
 		return getConstraint().getReverseFieldName() != null;
 	}
-	
+
 	@Override
 	boolean isChild() {
 		return !getConstraint().isOneToOne();
 	}
 
+    @Override
 	boolean skipFetch(boolean marked, boolean anyChildMarked) {
 		return isChild() && (marked || anyChildMarked);
 	}
-	
-	
+
+    @Override
+	boolean needsDistinct(boolean marked, boolean anyChildMarked) {
+        return this.skipFetch(marked, anyChildMarked);
+	}
 
 }
