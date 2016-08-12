@@ -13,6 +13,7 @@ import com.elster.jupiter.util.units.Quantity;
 
 import com.google.common.collect.Range;
 
+import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,6 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.elster.jupiter.util.streams.Currying.test;
+
 /**
  * Provides an implementation for the {@link BaseReadingRecord} interface
  * for data that is calculated from data provided by a {@link com.elster.jupiter.metering.UsagePoint}
@@ -36,11 +39,11 @@ import java.util.Optional;
  */
 class CalculatedReadingRecord implements BaseReadingRecord {
 
-
     private static final int SUSPECT = 4;
     private static final int MISSING = 3;
     private static final int ESTIMATED_EDITED = 1;
 
+    private final InstantTruncaterFactory truncaterFactory;
     private String readingTypeMRID;
     private IReadingType readingType;
     private BigDecimal rawValue;
@@ -51,7 +54,13 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     private long readingQuality;
     private long count;
 
-    static CalculatedReadingRecord merge(CalculatedReadingRecord r1, CalculatedReadingRecord r2, Instant mergedTimestamp) {
+    @Inject
+    CalculatedReadingRecord(InstantTruncaterFactory truncaterFactory) {
+        super();
+        this.truncaterFactory = truncaterFactory;
+    }
+
+    static CalculatedReadingRecord merge(CalculatedReadingRecord r1, CalculatedReadingRecord r2, Instant mergedTimestamp, InstantTruncaterFactory truncaterFactory) {
         if (!r1.readingTypeMRID.equals(r2.readingTypeMRID)) {
             throw new IllegalArgumentException("Cannot merge two CalculatedReadingRecords with different reading type");
         }
@@ -62,7 +71,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             if (r1.readingType == null) {
                 throw new IllegalStateException("CalculatedReadingRecords can only be merged if ReadingType was injected first: see com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecord.setReadingType");
             }
-            CalculatedReadingRecord merged = new CalculatedReadingRecord();
+            CalculatedReadingRecord merged = new CalculatedReadingRecord(truncaterFactory);
             merged.readingTypeMRID = r1.readingTypeMRID;
             merged.readingType = r1.readingType;
             merged.rawValue = mergeValue(VirtualReadingType.from(r1.readingType).aggregationFunction(), r1.rawValue, r2.rawValue);
@@ -74,7 +83,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             merged.count = r1.count + r2.count;
             return merged;
         } else {
-            return merge(r2, r1, mergedTimestamp);
+            return merge(r2, r1, mergedTimestamp, truncaterFactory);
         }
     }
 
@@ -103,12 +112,9 @@ class CalculatedReadingRecord implements BaseReadingRecord {
             this.timestamp = Instant.ofEpochMilli(resultSet.getLong(columnIndex++));
             this.readingQuality = resultSet.getLong(columnIndex++);
             this.count = resultSet.getLong(columnIndex++);
-
             if (this.count != 1) {
                 checkCount(deliverablesPerMeterActivation);
             }
-
-
             return this;
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -121,21 +127,29 @@ class CalculatedReadingRecord implements BaseReadingRecord {
         if (meterActivationSet.isPresent()) {
             List<ReadingTypeDeliverableForMeterActivationSet> deliverables = deliverablesPerMeterActivation.get(meterActivationSet.get());
             Optional<ReadingTypeDeliverableForMeterActivationSet> readingTypeDeliverableForMeterActivationSet =
-                    deliverables.stream().filter(d -> d.getDeliverable().getReadingType().getMRID().equals(readingTypeMRID)).findFirst();
+                    deliverables
+                            .stream()
+                            .filter(test(this::readingTypeMatches).with(readingTypeMRID))
+                            .findFirst();
             if (readingTypeDeliverableForMeterActivationSet.isPresent()) {
                 long expectedCount = readingTypeDeliverableForMeterActivationSet.get().getExpectedCount(this.timestamp);
                 if (this.count != expectedCount) {
                     List<? extends ReadingQualityRecord> qualities =
                             readingTypeDeliverableForMeterActivationSet.get().getReadingQualities(this.timestamp);
                     this.readingQuality =
-                            qualities.stream().filter(record -> record.isSuspect()).findAny().isPresent() ?
-                                    SUSPECT : MISSING;
-
+                            qualities
+                                    .stream()
+                                    .filter(ReadingQualityRecord::isSuspect)
+                                    .findAny()
+                                    .isPresent() ? SUSPECT : MISSING;
                 }
             }
         }
     }
 
+    private boolean readingTypeMatches(ReadingTypeDeliverableForMeterActivationSet set, String readingTypeMRID) {
+        return set.getDeliverable().getReadingType().getMRID().equals(readingTypeMRID);
+    }
 
     /**
      * Returns a copy of this CalculatedReadingRecord for the specified timestamp.
@@ -144,7 +158,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
      * @return The copied CalculatedReadingRecord that occurs on the specified timestamp
      */
     CalculatedReadingRecord atTimeStamp(Instant timeStamp) {
-        CalculatedReadingRecord record = new CalculatedReadingRecord();
+        CalculatedReadingRecord record = new CalculatedReadingRecord(this.truncaterFactory);
         record.usagePoint = this.usagePoint;
         record.rawValue = this.rawValue;
         record.readingTypeMRID = this.readingTypeMRID;
@@ -224,7 +238,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
 
     @Override
     public List<? extends ReadingQualityRecord> getReadingQualities() {
-        List<ReadingQualityRecord> readingQualityRecords = new ArrayList();
+        List<ReadingQualityRecord> readingQualityRecords = new ArrayList<>();
         ReadingQuality readingQualityValue = null;
         if (readingQuality == SUSPECT) {
             readingQualityValue = ReadingQuality.DERIVED_SUSPECT;
@@ -240,7 +254,7 @@ class CalculatedReadingRecord implements BaseReadingRecord {
         return readingQualityRecords;
     }
 
-    public Timestamp getLocalDate() {
+    Timestamp getLocalDate() {
         return new Timestamp(localDate.getTime());
     }
 
@@ -271,25 +285,30 @@ class CalculatedReadingRecord implements BaseReadingRecord {
                 .get();
         ZoneId zoneId = meterActivation.getChannelsContainer().getZoneId();
         IntervalLength intervalLength = IntervalLength.from(this.getReadingType());
-        Instant startCandidate = intervalLength.truncate(this.getTimeStamp(), zoneId);
-        if (startCandidate.equals(this.getTimeStamp())) {
+        InstantTruncater truncater = truncaterFactory.truncaterFor(this.getReadingType());
+        Instant truncatedTimestamp = truncater.truncate(this.getTimeStamp(), intervalLength, zoneId);
+        Instant startCandidate;
+        Instant endCandidate;
+        if (truncatedTimestamp.equals(this.getTimeStamp())) {
             // Timestamp was aligned with interval
-            startCandidate = intervalLength.subtractFrom(startCandidate, zoneId);
+            startCandidate = intervalLength.subtractFrom(truncatedTimestamp, zoneId);
+            endCandidate = truncatedTimestamp;
+        } else {
+            startCandidate = truncatedTimestamp;
+            endCandidate = intervalLength.addTo(truncatedTimestamp, zoneId);
         }
-        Optional<MeterActivation> meterActivationAtStart = this.usagePoint.getMeterActivations(startCandidate)
-                .stream()
-                .findFirst();
+        Optional<MeterActivation> meterActivationAtStart = this.usagePoint.getMeterActivations(startCandidate).stream().findFirst();
         if (meterActivationAtStart.isPresent()) {
             if (zoneId.equals(meterActivationAtStart.get().getChannelsContainer().getZoneId())) {
                 // Same ZoneId
-                return Optional.of(Range.openClosed(startCandidate, this.getTimeStamp()));
+                return Optional.of(Range.openClosed(startCandidate, endCandidate));
             } else {
                 // Different ZoneId is not supported yet
                 throw new IllegalStateException("UsagePoint has meters that are activated in different TimeZones");
             }
         } else {
             // No meter activation, clip TimePeriod to start of meter activation
-            return Optional.of(Range.openClosed(meterActivation.getStart(), this.getTimeStamp()));
+            return Optional.of(Range.openClosed(meterActivation.getStart(), endCandidate));
         }
     }
 
@@ -307,6 +326,5 @@ class CalculatedReadingRecord implements BaseReadingRecord {
     public String getSource() {
         return null;
     }
-
 
 }

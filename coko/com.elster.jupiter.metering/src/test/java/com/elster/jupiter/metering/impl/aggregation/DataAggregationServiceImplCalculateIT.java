@@ -220,12 +220,14 @@ public class DataAggregationServiceImplCalculateIT {
     }
 
     private static DataAggregationService getDataAggregationService() {
+        ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
                 mock(CustomPropertySetService.class),
-                injector.getInstance(ServerMeteringService.class),
+                meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+                () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 
     private static void setupReadingTypes() {

@@ -1,13 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableMap;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -19,7 +17,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.search.location", service = {SearchLocationService.class}, property = "name=" + SearchService.COMPONENT_NAME)
@@ -37,10 +34,9 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
     // For testing purposes
     @Inject
-    public SearchLocationServiceImpl(OrmService ormService) {
+    public SearchLocationServiceImpl(MeteringDataModelService meteringDataModelService) {
         this();
-        this.setOrmService(ormService);
-        this.activate();
+        this.setMeteringDataModelService(meteringDataModelService);
     }
 
     private Map<String, String> templateMap() {
@@ -61,20 +57,10 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 .build();
     }
 
-    @Activate
-    public void activate() {
-        if (this.dataModel != null) {
-            this.ensureLocationTemplateInitialized();
-        }
-    }
-
     @Reference
-    public void setOrmService(OrmService ormService) {
-        Optional<DataModel> ormDataModel = ormService.getDataModel("ORM");
-        if (ormDataModel.isPresent()) {
-            this.dataModel = ormDataModel.get();
-            this.ensureLocationTemplateInitialized();
-        }
+    public void setMeteringDataModelService(MeteringDataModelService meteringDataModelService) {
+        this.dataModel = meteringDataModelService.getDataModel();
+        this.ensureLocationTemplateInitialized();
     }
 
     private void ensureLocationTemplateInitialized() {
@@ -145,7 +131,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         Integer i = 0;
         for (int j = 0; j < mapInputLocations.length; j++) {
             String whenClause = "";
-            String mapInputLocation = mapInputLocations[i].replace("'", "''");
+            String mapInputLocation = mapInputLocations[j].replace("'", "''");
 
             for (int k = 0; k < templateMembers.length; k++) {
                 String templateMember = templateMap.get(templateMembers[k]);
