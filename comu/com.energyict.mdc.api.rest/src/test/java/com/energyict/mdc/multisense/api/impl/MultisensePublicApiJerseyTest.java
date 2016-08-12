@@ -35,15 +35,6 @@ import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.UsagePointPropertySet;
-import com.elster.jupiter.metering.WaterDetail;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
-import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
@@ -240,12 +231,12 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         Batch batch = mock(Batch.class);
         when(batch.getName()).thenReturn("BATCH A");
         when(mock.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
-        when(batchService.findBatch(mock)).thenReturn(Optional.of(batch));
+        when(mock.getBatch()).thenReturn(Optional.of(batch));
         when(topologyService.getPhysicalGateway(mock)).thenReturn(Optional.empty());
         when(deviceService.findByUniqueMrid(mrid)).thenReturn(Optional.of(mock));
         when(deviceService.findAndLockDeviceByIdAndVersion(deviceId, version)).thenReturn(Optional.of(mock));
-        when(deviceService.findAndLockDeviceByIdAndVersion(eq(deviceId), longThat(Matcher.matches(v->v!=version)))).thenReturn(Optional.empty());
-        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mrid), longThat(Matcher.matches(v->v!=version)))).thenReturn(Optional.empty());
+        when(deviceService.findAndLockDeviceByIdAndVersion(eq(deviceId), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
+        when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mrid), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceService.findAndLockDeviceBymRIDAndVersion(eq(mrid), eq(version))).thenReturn(Optional.of(mock));
         when(mock.getVersion()).thenReturn(version);
         return mock;
@@ -261,7 +252,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(pluggableClass.getId()).thenReturn(id * id);
         when(mock.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(pluggableClass));
         when(deviceConfigurationService.findDeviceType(id)).thenReturn(Optional.of(mock));
-        when(deviceConfigurationService.findAndLockDeviceType(eq(id), longThat(Matcher.matches(v->v!=version)))).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findAndLockDeviceType(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceConfigurationService.findAndLockDeviceType(id, version)).thenReturn(Optional.of(mock));
         when(mock.getVersion()).thenReturn(version);
         return mock;
@@ -272,7 +263,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getVersion()).thenReturn(version);
-        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(id), longThat(Matcher.matches(v->v!=version)))).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, version)).thenReturn(Optional.of(mock));
         when(deviceConfigurationService.findDeviceConfiguration(id)).thenReturn(Optional.of(mock));
         return mock;
@@ -360,7 +351,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getCommunicationWindow()).thenReturn(new ComWindow(PartialTime.fromHours(2), PartialTime.fromHours(4)));
         when(mock.getVersion()).thenReturn(version);
         when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(mock));
-        when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(eq(id), longThat(Matcher.matches(v->v!=version)))).thenReturn(Optional.empty());
+        when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(id, version)).thenReturn(Optional.of(mock));
         return mock;
     }
@@ -382,7 +373,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getVersion()).thenReturn(version);
 
         when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(mock));
-        when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(eq(id), longThat(Matcher.matches(v->v!=version)))).thenReturn(Optional.empty());
+        when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(id, version)).thenReturn(Optional.of(mock));
         return mock;
     }
@@ -463,12 +454,12 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return mock;
     }
 
-    DeviceMessageCategory mockDeviceMessageCategory(int id, String name, DeviceMessageSpec ... specs) {
+    DeviceMessageCategory mockDeviceMessageCategory(int id, String name, DeviceMessageSpec... specs) {
         DeviceMessageCategory mock = mock(DeviceMessageCategory.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getDescription()).thenReturn("Description of " + name);
-        if (specs!=null && specs.length>0) {
+        if (specs != null && specs.length > 0) {
             when(mock.getMessageSpecifications()).thenReturn(Arrays.asList(specs));
         }
         when(deviceMessageSpecificationService.findCategoryById(id)).thenReturn(Optional.of(mock));
@@ -561,8 +552,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(comSchedule.getVersion()).thenReturn(version);
 
         when(schedulingService.findSchedule(scheduleId)).thenReturn(Optional.of(comSchedule));
-        when(schedulingService.findAndLockComScheduleByIdAndVersion(eq(scheduleId), longThat(Matcher.matches(v->v!=version)))).thenReturn(Optional.empty());
-        when(schedulingService.findAndLockComScheduleByIdAndVersion(scheduleId,version)).thenReturn(Optional.of(comSchedule));
+        when(schedulingService.findAndLockComScheduleByIdAndVersion(eq(scheduleId), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
+        when(schedulingService.findAndLockComScheduleByIdAndVersion(scheduleId, version)).thenReturn(Optional.of(comSchedule));
         return comSchedule;
     }
 
@@ -604,7 +595,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     protected MessagesTask mockMessagesTask(long id, DeviceMessageCategory... deviceMessageCategories) {
         MessagesTask messagesTask = mock(MessagesTask.class);
         when(messagesTask.getId()).thenReturn(id);
-        if (deviceMessageCategories!=null && deviceMessageCategories.length>0) {
+        if (deviceMessageCategories != null && deviceMessageCategories.length > 0) {
             when(messagesTask.getDeviceMessageCategories()).thenReturn(Arrays.asList(deviceMessageCategories));
         }
         return messagesTask;
@@ -628,7 +619,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(scheduledComTaskExecution.getId()).thenReturn(id);
         when(scheduledComTaskExecution.getDevice()).thenReturn(device);
         when(scheduledComTaskExecution.getVersion()).thenReturn(version);
-        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(eq(id), longThat(Matcher.matches(v->v!=version)))).thenReturn(Optional.empty());
+        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)).thenReturn(Optional.of(scheduledComTaskExecution));
         return scheduledComTaskExecution;
     }
@@ -644,7 +635,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
         when(mock.getVersion()).thenReturn(version);
         when(deviceConfigurationService.findSecurityPropertySet(id)).thenReturn(Optional.of(mock));
-        when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(eq(id), longThat(Matcher.matches(v->v!=version)))).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(eq(id), longThat(Matcher.matches(v -> v != version)))).thenReturn(Optional.empty());
         when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(id, version)).thenReturn(Optional.of(mock));
         return mock;
     }
