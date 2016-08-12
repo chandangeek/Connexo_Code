@@ -3,7 +3,8 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
     alias: 'widget.message-services-grid',
     requires: [
         'Apr.view.appservers.MessageServicesActionMenu',
-        'Apr.store.ActiveService'
+        'Apr.store.ActiveService',
+        'Uni.grid.column.RemoveAction'
     ],
     width: '100%',
     maxHeight: 300,
@@ -42,21 +43,12 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
                 emptyCellText: 1
             },
             {
-                xtype: 'actioncolumn',
+                xtype: 'uni-actioncolumn-remove',
                 privileges: Apr.privileges.AppServer.admin,
-                header: Uni.I18n.translate('general.actions', 'APR', 'Actions'),
-                align: 'right',
                 itemId: 'apr-remove-message-service-column',
-                items: [
-                    {
-                        iconCls: 'uni-icon-delete',
-                        itemId: 'apr-remove-message-service-btn',
-                        tooltip: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
-                        handler: function (grid, rowIndex, colIndex, column, event, messageServiceRecord) {
-                            me.fireEvent('msgServiceRemoveEvent', messageServiceRecord);
-                        }
-                    }
-                ]
+                handler: function (grid, rowIndex, colIndex, column, event, messageServiceRecord) {
+                    me.fireEvent('msgServiceRemoveEvent', messageServiceRecord);
+                }
             }
         ];
 

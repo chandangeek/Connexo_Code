@@ -5,6 +5,9 @@ Ext.define('Apr.view.appservers.WebserviceEndpointsGrid', {
     maxHeight: 300,
     needLink: false,
     router: null,
+    requires: [
+        'Uni.grid.column.RemoveAction'
+    ],
 
     initComponent: function () {
         var me = this;
@@ -55,19 +58,10 @@ Ext.define('Apr.view.appservers.WebserviceEndpointsGrid', {
                 }
             },
             {
-                xtype: 'actioncolumn',
-                align: 'right',
-                header: Uni.I18n.translate('general.actions', 'APR', 'Actions'),
-                items: [
-                    {
-                        iconCls: 'uni-icon-delete',
-                        itemId: 'apr-remove-webservice-endpoint-btn',
-                        tooltip: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
-                        handler: function (grid, rowIndex, colIndex, column, event, record) {
-                            this.fireEvent('removeEvent', record);
-                        }
-                    }
-                ]
+                xtype: 'uni-actioncolumn-remove',
+                handler: function (grid, rowIndex, colIndex, column, event, record) {
+                    this.fireEvent('removeEvent', record);
+                }
             }
         ];
 
