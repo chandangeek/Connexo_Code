@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>mdc.protocol.pluggable</artifactId>
-    <version>2.1.0${revision}</version>
+    <version>3.0.0${revision}</version>
     <packaging>bundle</packaging>
     <name>[MDC] mdc.protocol.pluggable [init PPC]</name>
     <description>
