@@ -10,9 +10,14 @@ Ext.define('Uni.view.search.Results', {
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
         'Uni.store.search.Results',
-        'Uni.view.search.ColumnPicker'
+        'Uni.view.search.ColumnPicker',
+        'Uni.grid.plugin.ShowConditionalToolTip'
     ],
-
+    plugins: [{
+        ptype: 'showConditionalToolTip',
+        pluginId: 'showConditionalToolTipId'
+    }
+    ],
     store: 'Uni.store.search.Results',
     forceFit: true,
     enableColumnMove: true,

@@ -53,19 +53,14 @@ Ext.define('Uni.form.field.readingtypes.ReadingTypesField', {
                         flex: 1
                     },
                     {
-                        xtype: 'actioncolumn',
-                        align: 'right',
-                        items: [{
-                            iconCls: ' uni-icon-delete',
-                            isDisabled: function () {
-                                return me.disabled
-                            },
-                            tooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
-                            handler: function (grid, rowIndex) {
-                                grid.getStore().removeAt(rowIndex);
-                                me.updateView();
-                            }
-                        }]
+                        xtype: 'uni-actioncolumn-remove',
+                        isDisabled: function () {
+                            return me.disabled
+                        },
+                        handler: function (grid, rowIndex) {
+                            grid.getStore().removeAt(rowIndex);
+                            me.updateView();
+                        }
                     }
                 ]
             },

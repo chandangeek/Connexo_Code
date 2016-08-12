@@ -112,6 +112,7 @@ Ext.define('Uni.view.search.ColumnPicker', {
             me.defaultColumns = Ext.clone(columns);
             me.currentColumns = columns;
             me.grid.reconfigure(null, _.filter(columns, function(c){return c.isDefault}));
+            me.refreshConditionalToolTips();
         }
     },
 
@@ -173,6 +174,8 @@ Ext.define('Uni.view.search.ColumnPicker', {
         }
         Ext.Array.push(toAdd, newColumns);
         grid.reconfigure(null, toAdd);
+        me.refreshConditionalToolTips();
+
         menu.suspendEvent('hide');
         menu.hide();
         menu.resumeEvent('hide');
@@ -185,5 +188,18 @@ Ext.define('Uni.view.search.ColumnPicker', {
         me.setColumns(me.defaultColumns);
         me.menu.hide();
         Ext.resumeLayouts(true);
+        me.refreshConditionalToolTips();
+    },
+
+    refreshConditionalToolTips: function () {
+        var me = this,
+            grid = me.grid,
+            view = grid.getView(),
+            gridPanel = view.up('gridpanel');
+
+        if (gridPanel) {
+            gridPanel.columns = gridPanel.columnManager.getColumns();
+            grid.getPlugin('showConditionalToolTipId').setTooltip(view);
+        }
     }
 });
