@@ -1,8 +1,8 @@
 package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.rest.FieldResource;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -55,7 +55,7 @@ public class FirmwareFieldResource extends FieldResource {
         List<String> firmwareTypes = new FirmwareTypeFieldAdapter().getClientSideValues();
         if (deviceTypeId != null){
             DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
-            if (!deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().supportsCommunicationFirmwareVersion()){
+            if (deviceType.getDeviceProtocolPluggableClass().isPresent() && !deviceType.getDeviceProtocolPluggableClass().get().getDeviceProtocol().supportsCommunicationFirmwareVersion()) {
                 firmwareTypes.remove(MessageSeeds.Keys.TYPE_COMMUNICATION);
             }
         }

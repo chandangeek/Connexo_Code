@@ -17,6 +17,7 @@ import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.Optional;
 
 public class ResourceHelper {
@@ -103,7 +104,7 @@ public class ResourceHelper {
      */
     public DeviceMessageId findFirmwareMessageIdOrThrowException(DeviceType deviceType, String firmwareOption) {
         ProtocolSupportedFirmwareOptions targetFirmwareOptions = findProtocolSupportedFirmwareOptionsOrThrowException(firmwareOption);
-        return deviceType.getDeviceProtocolPluggableClass().getDeviceProtocol().getSupportedMessages()
+        return deviceType.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages()).orElse(Collections.emptySet())
                 .stream()
                 .filter(firmwareMessageCandidate -> {
                     Optional<ProtocolSupportedFirmwareOptions> firmwareOptionForCandidate = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(firmwareMessageCandidate);
