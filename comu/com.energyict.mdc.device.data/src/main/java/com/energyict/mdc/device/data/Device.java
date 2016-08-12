@@ -490,6 +490,11 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<Device> getHistory(Instant when);
 
+    void addInBatch(Batch batch);
+
+    void removeFromBatch(Batch batch);
+
+    Optional<Batch> getBatch();
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */

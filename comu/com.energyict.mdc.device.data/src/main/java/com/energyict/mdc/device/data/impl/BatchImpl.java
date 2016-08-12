@@ -1,17 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.device.data.Batch;
+import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.time.Instant;
-import java.util.Optional;
 
 public class BatchImpl implements Batch {
 
@@ -73,33 +71,37 @@ public class BatchImpl implements Batch {
 
     @Override
     public boolean addDevice(Device device) {
-        Optional<DeviceInBatch> deviceInBatch = dataModel.mapper(DeviceInBatch.class).getOptional(device.getId());
-        if (deviceInBatch.isPresent()) {
-            if (deviceInBatch.get().getBatch().getId() == this.getId()) {
-                return false;
-            }
-            deviceInBatch.get().remove();
+        if (device.getBatch().isPresent() && device.getBatch().get().getId() == getId()) {
+            return false;
         }
-        DeviceInBatch.from(dataModel, device, this).persist();
+        device.addInBatch(this);
         return true;
     }
 
     @Override
     public void removeDevice(Device device) {
-        findDeviceInBatch(device).ifPresent(DeviceInBatch::remove);
+        device.removeFromBatch(this);
     }
 
     @Override
     public boolean isMember(Device device) {
-        return findDeviceInBatch(device).isPresent();
-    }
-
-    private Optional<DeviceInBatch> findDeviceInBatch(Device device) {
-        return dataModel.mapper(DeviceInBatch.class).getUnique(DeviceInBatch.Fields.DEVICE.fieldName(), device, DeviceInBatch.Fields.BATCH.fieldName(), this);
+        return device.getBatch().isPresent() && device.getBatch().get().getId() == getId();
     }
 
     @Override
-    public void delete() {
-        dataModel.mapper(Batch.class).remove(this);
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        BatchImpl batch = (BatchImpl) o;
+        return id == batch.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 }

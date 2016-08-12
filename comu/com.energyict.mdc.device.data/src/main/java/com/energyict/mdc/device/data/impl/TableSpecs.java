@@ -93,6 +93,17 @@ import static com.elster.jupiter.orm.Version.version;
  */
 public enum TableSpecs {
 
+    DDC_BATCH {
+        void addTo(DataModel dataModel) {
+            Table<Batch> table = dataModel.addTable(name(), Batch.class);
+            table.map(BatchImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map(BatchImpl.Fields.BATCH_NAME.fieldName()).add();
+            table.addAuditColumns();
+            table.primaryKey("DDC_PK_BATCH").on(idColumn).add();
+            table.unique("DDC_U_BATCH_NAME").on(nameColumn).add();
+        }
+    },
     DDC_DEVICE {
         @Override
         public void addTo(DataModel dataModel) {
@@ -109,6 +120,7 @@ public enum TableSpecs {
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             Column meterId = table.column("METERID").number().since(version(10, 2)).add();
+            Column batchId = table.column("BATCH_ID").number().since(version(10, 2)).add();
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
                     references(DeviceConfiguration.class).
@@ -123,6 +135,12 @@ public enum TableSpecs {
                     .on(meterId)
                     .references(EndDevice.class)
                     .map(DeviceFields.METER.fieldName())
+                    .since(version(10, 2))
+                    .add();
+            table.foreignKey("FK_DDC_DEVICE_BATCH")
+                    .on(batchId)
+                    .references(Batch.class)
+                    .map(DeviceFields.BATCH.fieldName())
                     .since(version(10, 2))
                     .add();
 
@@ -699,22 +717,11 @@ public enum TableSpecs {
         }
     },
 
-    DDC_BATCH {
-        void addTo(DataModel dataModel) {
-            Table<Batch> table = dataModel.addTable(name(), Batch.class);
-            table.map(BatchImpl.class);
-            Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map(BatchImpl.Fields.BATCH_NAME.fieldName()).add();
-            table.addAuditColumns();
-            table.primaryKey("DDC_PK_BATCH").on(idColumn).add();
-            table.unique("DDC_U_BATCH_NAME").on(nameColumn).add();
-        }
-    },
-
     DDC_DEVICEINBATCH {
         void addTo(DataModel dataModel) {
             Table<DeviceInBatch> table = dataModel.addTable(name(), DeviceInBatch.class);
             table.map(DeviceInBatch.class);
+            table.upTo(version(10, 2));
             Column deviceColumn = table.column("DEVICEID").number().notNull().add();
             Column batchColumn = table.column("BATCHID").number().notNull().add();
             table.addCreateTimeColumn("CREATETIME", DeviceInBatch.Fields.CREATE_TIME.fieldName());

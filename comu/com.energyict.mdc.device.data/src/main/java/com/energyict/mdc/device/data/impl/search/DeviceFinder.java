@@ -10,6 +10,7 @@ import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuilder;
 
@@ -54,7 +55,7 @@ public class DeviceFinder implements Finder<Device> {
                 .map(order -> order.getClause(order.getName()))
                 .collect(Collectors.joining(", ")));
         final SqlBuilder finalBuilder = this.pager.addPaging(sqlBuilder, "id");
-        QueryExecutor<Device> query = this.dataModel.query(Device.class, DeviceConfiguration.class, DeviceType.class);
+        QueryExecutor<Device> query = this.dataModel.query(Device.class, DeviceConfiguration.class, DeviceType.class, Batch.class);
         return query.select(ListOperator.IN.contains(() -> finalBuilder, "id"), this.orders.toArray(new Order[orders.size()]));
     }
 
