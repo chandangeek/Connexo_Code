@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.DeviceChannelData', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Uni.util.Common'
+    ],
+
     views: [
         'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView',
         'Mdc.view.setup.devicechannels.Overview',
@@ -383,7 +387,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         viewport.setLoading();
         if (!Ext.isEmpty(changedData)) {
             Ext.Ajax.request({
-                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', encodeURIComponent(router.arguments.mRID), router.arguments.channelId),
+                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', Uni.util.Common.encodeURIComponent(router.arguments.mRID), router.arguments.channelId),
                 method: 'PUT',
                 jsonData: Ext.encode(changedData),
                 timeout: 300000,
