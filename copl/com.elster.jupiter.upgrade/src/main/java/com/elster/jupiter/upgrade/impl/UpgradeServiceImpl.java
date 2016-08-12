@@ -334,7 +334,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
         public void addHandler() {
             if (handler == null) {
                 try {
-                    Path path = fileSystem.getPath("./Upgrade.log");
+                    Path path = fileSystem.getPath("./logs/upgrade.log");
                     handler = new FileHandler(path);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
