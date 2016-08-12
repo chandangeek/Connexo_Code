@@ -138,6 +138,9 @@ Ext.define('Bpm.startprocess.view.StartProcess', {
                 me.down('combobox[name=startProcessCombo]').bindStore(availableStore);
             }
         });
+        if (me.properties.context) {
+            me.down('property-form').context = me.properties.context;
+        }
 
     }
 });

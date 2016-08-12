@@ -45,7 +45,7 @@ Ext.define('Bpm.processes.view.ProcessesGrid', {
                             return Uni.I18n.translate('bpm.process.undeployed', 'BPM', 'Undeployed');
                             break;
                         default:
-                            return value;
+                            return Ext.isEmpty(value) ? '-' : value;
                     }
                 }
 
@@ -63,7 +63,7 @@ Ext.define('Bpm.processes.view.ProcessesGrid', {
                             return Uni.I18n.translate('bpm.process.mdc', 'BPM', 'MultiSense');
                             break;
                         default:
-                            return value;
+                            return Ext.isEmpty(value) ? '-' : value;
                     }
                 }
             },
