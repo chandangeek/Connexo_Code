@@ -9,5 +9,5 @@ import com.energyict.mdc.device.config.DeviceType;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-04 (17:20)
  */
-public class ConnectionTaskDeviceTypeHeatMapImpl extends ConnectionTaskHeatMapImpl<DeviceType> implements ConnectionTaskDeviceTypeHeatMap {
+class ConnectionTaskDeviceTypeHeatMapImpl extends ConnectionTaskHeatMapImpl<DeviceType> implements ConnectionTaskDeviceTypeHeatMap {
 }

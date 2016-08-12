@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (14:03)
  */
-public class DeviceTypeBreakdownImpl extends TaskStatusBreakdownCountersImpl<DeviceType> implements DeviceTypeBreakdown {
+class DeviceTypeBreakdownImpl extends TaskStatusBreakdownCountersImpl<DeviceType> implements DeviceTypeBreakdown {
 
     public static DeviceTypeBreakdownImpl from(Map<DeviceType, Map<TaskStatus, Long>> rawData) {
         DeviceTypeBreakdownImpl breakdown = new DeviceTypeBreakdownImpl();
@@ -27,11 +27,12 @@ public class DeviceTypeBreakdownImpl extends TaskStatusBreakdownCountersImpl<Dev
         return breakdown;
     }
 
-    public static DeviceTypeBreakdownImpl empty() {
+    static DeviceTypeBreakdownImpl empty() {
         return new DeviceTypeBreakdownImpl();
     }
 
     private DeviceTypeBreakdownImpl() {
         super();
     }
+
 }

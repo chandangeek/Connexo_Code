@@ -21,7 +21,7 @@ public class CommunicationTaskHeatMapRowImpl implements CommunicationTaskHeatMap
     private final DeviceType target;
     private final List<ComCommandCompletionCodeOverview> overviews = new ArrayList<>();
 
-    public CommunicationTaskHeatMapRowImpl(DeviceType target) {
+    CommunicationTaskHeatMapRowImpl(DeviceType target) {
         super();
         this.target = target;
     }

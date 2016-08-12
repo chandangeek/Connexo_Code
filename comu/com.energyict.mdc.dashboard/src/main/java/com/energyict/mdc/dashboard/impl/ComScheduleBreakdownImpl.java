@@ -9,8 +9,8 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-25 (11:00)
  */
-public class ComScheduleBreakdownImpl extends TaskStatusBreakdownCountersImpl<ComSchedule> implements ComScheduleBreakdown {
-    public ComScheduleBreakdownImpl() {
+class ComScheduleBreakdownImpl extends TaskStatusBreakdownCountersImpl<ComSchedule> implements ComScheduleBreakdown {
+    ComScheduleBreakdownImpl() {
         super();
     }
 }

@@ -1,7 +1,7 @@
 package com.energyict.mdc.dashboard.impl;
 
-import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
 import com.energyict.mdc.dashboard.ConnectionTaskHeatMap;
+import com.energyict.mdc.dashboard.ConnectionTaskHeatMapRow;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +14,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-04 (17:17)
  */
-public abstract class ConnectionTaskHeatMapImpl<T> implements ConnectionTaskHeatMap<T> {
+abstract class ConnectionTaskHeatMapImpl<T> implements ConnectionTaskHeatMap<T> {
 
     private final List<ConnectionTaskHeatMapRow<T>> rows = new ArrayList<>();
 

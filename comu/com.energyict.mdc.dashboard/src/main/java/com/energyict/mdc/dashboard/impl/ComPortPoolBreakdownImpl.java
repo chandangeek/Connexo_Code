@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (12:00)
  */
-public class ComPortPoolBreakdownImpl extends TaskStatusBreakdownCountersImpl<ComPortPool> implements ComPortPoolBreakdown {
+class ComPortPoolBreakdownImpl extends TaskStatusBreakdownCountersImpl<ComPortPool> implements ComPortPoolBreakdown {
 
     public static ComPortPoolBreakdownImpl from (Map<ComPortPool, Map<TaskStatus, Long>> rawData) {
         ComPortPoolBreakdownImpl breakdown = new ComPortPoolBreakdownImpl();

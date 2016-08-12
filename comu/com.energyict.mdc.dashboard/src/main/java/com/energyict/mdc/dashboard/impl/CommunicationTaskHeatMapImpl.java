@@ -23,15 +23,15 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-04 (17:20)
  */
-public class CommunicationTaskHeatMapImpl implements CommunicationTaskHeatMap {
+class CommunicationTaskHeatMapImpl implements CommunicationTaskHeatMap {
 
     private final List<CommunicationTaskHeatMapRow> rows = new ArrayList<>();
 
-    public CommunicationTaskHeatMapImpl() {
+    CommunicationTaskHeatMapImpl() {
         super();
     }
 
-    public CommunicationTaskHeatMapImpl(Map<DeviceType, List<Long>> rawData) {
+    CommunicationTaskHeatMapImpl(Map<DeviceType, List<Long>> rawData) {
         this();
         for (DeviceType deviceType : rawData.keySet()) {
             List<Long> counters = rawData.get(deviceType);

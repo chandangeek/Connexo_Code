@@ -12,7 +12,7 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (13:50)
  */
-public class ConnectionTypeBreakdownImpl extends TaskStatusBreakdownCountersImpl<ConnectionTypePluggableClass> implements ConnectionTypeBreakdown {
+class ConnectionTypeBreakdownImpl extends TaskStatusBreakdownCountersImpl<ConnectionTypePluggableClass> implements ConnectionTypeBreakdown {
 
     public static ConnectionTypeBreakdownImpl from(Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> rawData) {
         ConnectionTypeBreakdownImpl breakdown = new ConnectionTypeBreakdownImpl();

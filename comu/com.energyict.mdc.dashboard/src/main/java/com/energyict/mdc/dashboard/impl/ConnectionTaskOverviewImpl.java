@@ -14,7 +14,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskBreakdowns;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-10-05 (14:27)
  */
-public class ConnectionTaskOverviewImpl implements ConnectionTaskOverview {
+class ConnectionTaskOverviewImpl implements ConnectionTaskOverview {
 
     private final TaskStatusOverview overview;
     private final ComSessionSuccessIndicatorOverview lastResultsOverview;
@@ -22,7 +22,7 @@ public class ConnectionTaskOverviewImpl implements ConnectionTaskOverview {
     private final ConnectionTypeBreakdown connectionTypeBreakdown;
     private final DeviceTypeBreakdown deviceTypeBreakdown;
 
-    public ConnectionTaskOverviewImpl (ConnectionTaskBreakdowns breakdowns, ComSessionSuccessIndicatorOverview lastResultsOverview) {
+    ConnectionTaskOverviewImpl(ConnectionTaskBreakdowns breakdowns, ComSessionSuccessIndicatorOverview lastResultsOverview) {
         this.overview = TaskStatusOverviewImpl.from(breakdowns.getStatusBreakdown());
         this.lastResultsOverview = lastResultsOverview;
         this.comPortPoolBreakdown = ComPortPoolBreakdownImpl.from(breakdowns.getComPortPoolBreakdown());

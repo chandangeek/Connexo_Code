@@ -22,7 +22,7 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-09-22 (11:18)
  */
-public class CommunicationTaskOverviewImpl implements CommunicationTaskOverview {
+class CommunicationTaskOverviewImpl implements CommunicationTaskOverview {
 
     private TaskStatusOverviewImpl taskStatusOverview = TaskStatusOverviewImpl.empty();
     private ComCommandCompletionCodeOverviewImpl completionCodeOverview = new ComCommandCompletionCodeOverviewImpl();
@@ -31,7 +31,7 @@ public class CommunicationTaskOverviewImpl implements CommunicationTaskOverview 
     private ComTaskBreakdownImpl comTaskBreakdown = new ComTaskBreakdownImpl();
     private DeviceTypeBreakdownImpl deviceTypeBreakdown = DeviceTypeBreakdownImpl.empty();
 
-    public CommunicationTaskOverviewImpl(CommunicationTaskBreakdowns breakdowns, Map<DeviceType, List<Long>> heatMap) {
+    CommunicationTaskOverviewImpl(CommunicationTaskBreakdowns breakdowns, Map<DeviceType, List<Long>> heatMap) {
         super();
         this.initializeTaskStatusOverview(breakdowns.getStatusBreakdown());
         this.initializeComScheduleBreakdown(breakdowns.getComScheduleBreakdown());

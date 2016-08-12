@@ -9,5 +9,5 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-04 (17:20)
  */
-public class ConnectionTypeHeatMapImpl extends ConnectionTaskHeatMapImpl<ConnectionTypePluggableClass> implements ConnectionTypeHeatMap {
+class ConnectionTypeHeatMapImpl extends ConnectionTaskHeatMapImpl<ConnectionTypePluggableClass> implements ConnectionTypeHeatMap {
 }

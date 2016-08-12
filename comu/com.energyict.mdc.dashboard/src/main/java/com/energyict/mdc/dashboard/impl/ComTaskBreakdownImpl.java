@@ -9,8 +9,8 @@ import com.energyict.mdc.tasks.ComTask;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-25 (08:35)
  */
-public class ComTaskBreakdownImpl extends TaskStatusBreakdownCountersImpl<ComTask> implements ComTaskBreakdown {
-    public ComTaskBreakdownImpl() {
+class ComTaskBreakdownImpl extends TaskStatusBreakdownCountersImpl<ComTask> implements ComTaskBreakdown {
+    ComTaskBreakdownImpl() {
         super();
     }
 }

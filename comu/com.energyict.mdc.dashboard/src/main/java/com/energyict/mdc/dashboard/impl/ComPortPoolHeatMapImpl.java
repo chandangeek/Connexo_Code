@@ -9,5 +9,5 @@ import com.energyict.mdc.engine.config.ComPortPool;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-08-04 (17:20)
  */
-public class ComPortPoolHeatMapImpl extends ConnectionTaskHeatMapImpl<ComPortPool> implements ComPortPoolHeatMap {
+class ComPortPoolHeatMapImpl extends ConnectionTaskHeatMapImpl<ComPortPool> implements ComPortPoolHeatMap {
 }

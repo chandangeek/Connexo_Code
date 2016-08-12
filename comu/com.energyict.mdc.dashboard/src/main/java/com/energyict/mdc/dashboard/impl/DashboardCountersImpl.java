@@ -14,15 +14,15 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (10:40)
  */
-public abstract class DashboardCountersImpl<T> implements DashboardCounters<T> {
+abstract class DashboardCountersImpl<T> implements DashboardCounters<T> {
 
     private List<Counter<T>> counters = new ArrayList<>();
 
-    public DashboardCountersImpl() {
+    DashboardCountersImpl() {
         super();
     }
 
-    public DashboardCountersImpl(Counter<T>... counters) {
+    DashboardCountersImpl(Counter<T>... counters) {
         this();
         for (Counter<T> counter : counters) {
             this.add(counter);

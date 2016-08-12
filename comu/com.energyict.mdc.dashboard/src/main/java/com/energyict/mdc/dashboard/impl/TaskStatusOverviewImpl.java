@@ -11,9 +11,9 @@ import java.util.Map;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (11:53)
  */
-public class TaskStatusOverviewImpl extends DashboardCountersImpl<TaskStatus> implements TaskStatusOverview {
+class TaskStatusOverviewImpl extends DashboardCountersImpl<TaskStatus> implements TaskStatusOverview {
 
-    public static TaskStatusOverviewImpl empty() {
+    static TaskStatusOverviewImpl empty() {
         return new TaskStatusOverviewImpl();
     }
 

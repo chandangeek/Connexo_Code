@@ -1,7 +1,7 @@
 package com.energyict.mdc.dashboard.impl;
 
-import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
 import com.energyict.mdc.dashboard.TaskStatusBreakdownCounter;
+import com.energyict.mdc.dashboard.TaskStatusBreakdownCounters;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,15 +14,15 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (12:02)
  */
-public abstract class TaskStatusBreakdownCountersImpl<T> implements TaskStatusBreakdownCounters<T> {
+abstract class TaskStatusBreakdownCountersImpl<T> implements TaskStatusBreakdownCounters<T> {
 
     private List<TaskStatusBreakdownCounter<T>> counters = new ArrayList<>();
 
-    public TaskStatusBreakdownCountersImpl() {
+    TaskStatusBreakdownCountersImpl() {
         super();
     }
 
-    public TaskStatusBreakdownCountersImpl(TaskStatusBreakdownCounter<T>... counters) {
+    TaskStatusBreakdownCountersImpl(TaskStatusBreakdownCounter<T>... counters) {
         this();
         for (TaskStatusBreakdownCounter<T> counter : counters) {
             this.add(counter);

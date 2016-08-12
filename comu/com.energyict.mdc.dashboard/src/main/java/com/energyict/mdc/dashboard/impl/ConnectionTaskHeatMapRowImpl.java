@@ -21,7 +21,7 @@ public class ConnectionTaskHeatMapRowImpl<T> implements ConnectionTaskHeatMapRow
     private final T target;
     private final List<ComSessionSuccessIndicatorOverview> overviews = new ArrayList<>();
 
-    public ConnectionTaskHeatMapRowImpl(T target) {
+    ConnectionTaskHeatMapRowImpl(T target) {
         super();
         this.target = target;
     }

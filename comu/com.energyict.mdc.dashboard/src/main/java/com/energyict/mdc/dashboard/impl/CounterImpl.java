@@ -8,16 +8,16 @@ import com.energyict.mdc.dashboard.Counter;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-07-30 (10:36)
  */
-public class CounterImpl<T> implements Counter<T> {
+class CounterImpl<T> implements Counter<T> {
 
     private final T target;
     private long count;
 
-    public CounterImpl(T target) {
+    CounterImpl(T target) {
         this(target, 0);
     }
 
-    public CounterImpl(T target, long count) {
+    CounterImpl(T target, long count) {
         super();
         this.target = target;
         this.count = count;
