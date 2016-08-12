@@ -20,6 +20,7 @@ import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -192,6 +193,8 @@ public class DeviceDeleteTest {
     private UsagePoint usagePoint;
     @Mock
     private EstimationService estimationService;
+    @Mock
+    private MeterRole meterRole;
 
     @Before
     public void setup() {
@@ -219,6 +222,7 @@ public class DeviceDeleteTest {
 
         doReturn(Optional.of(meterActivation)).when(meter).getCurrentMeterActivation();
         when(meterActivation.getUsagePoint()).thenReturn(Optional.of(usagePoint));
+        when(meterActivation.getMeterRole()).thenReturn(Optional.of(meterRole));
 
         when(issueService.query(OpenIssue.class)).thenReturn(openIssueQuery);
         when(openIssueQuery.select(any(Condition.class))).thenReturn(Collections.emptyList());

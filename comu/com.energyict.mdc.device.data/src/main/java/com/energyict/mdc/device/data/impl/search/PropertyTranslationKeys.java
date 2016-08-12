@@ -28,9 +28,9 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_MASTER_MRID("device.master.mrid", "Master device"),
     DEVICE_SLAVE_MRID("device.slave.mrid", "Slave device"),
     VALIDATION("device.validation", "Validation"),
-    VALIDATION_STATUS("device.validation.status", "Validation active"),
+    VALIDATION_STATUS("device.validation.status", "Data validation"),
     ESTIMATION("device.estimation", "Estimation"),
-    ESTIMATION_STATUS("device.estimation.status", "Estimation active"),
+    ESTIMATION_STATUS("device.estimation.status", "Data estimation"),
     SECURITY("device.security", "Security"),
     SECURITY_NAME("device.security.name", "Name"),
     REGISTER("device.register", "Register"),
@@ -90,7 +90,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_TASK_DIRECTION_OUTBOUND("device.connection.direction.outbound", "Outbound"),
     DEVICE_LOCATION("device.location", "Location"),
     FIRMWARE("device.firmware","Firmware") ,
-    FIRMWARE_VERSION("device.firmware.version", "Firmware version")
+    FIRMWARE_VERSION("device.firmware.version", "Firmware version"),
+
+    DEVICE_DATA_STATUS_ACTIVE("device.data.status.ACTIVE", "Active"),
+    DEVICE_DATA_STATUS_INACTIVE("device.data.status.INACTIVE", "Inactive"),
     ;
 
     private String key;

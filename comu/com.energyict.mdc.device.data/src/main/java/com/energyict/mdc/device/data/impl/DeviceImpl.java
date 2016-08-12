@@ -1286,13 +1286,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return koreHelper.getUsagePoint();
     }
 
-    @Override
-    public void setUsagePoint(UsagePoint usagePoint) {
-        SynchDeviceWithKoreForUsagePointChange usagePointChange = new SynchDeviceWithKoreForUsagePointChange(this, clock.instant(), usagePoint, meteringService, readingTypeUtilService, deviceConfigurationService, thesaurus, userPreferencesService, threadPrincipalService, eventService);
-        //All actions to take to sync with Kore once a Device is created
-        syncsWithKore.add(usagePointChange);
-    }
-
     private Supplier<RuntimeException> mdcAMRSystemDoesNotExist() {
         return () -> new RuntimeException("The MDC AMR system does not exist");
     }
