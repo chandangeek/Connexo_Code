@@ -93,7 +93,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
             );
             doTry(
                     "Create subsriber " + ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME,
-                    () -> queue.subscribe(subscriberName),
+                    () -> queue.subscribe(subscriberName).create(),
                     logger
             );
         } else {
@@ -107,7 +107,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                         "Create subsriber " + ServiceCallServiceImpl.SERIVCE_CALLS_SUBSCRIBER_NAME + " on " + ServiceCallServiceImpl.SERIVCE_CALLS_DESTINATION_NAME,
                         () -> {
                             queue.activate();
-                            queue.subscribe(subscriberName);
+                            queue.subscribe(subscriberName).create();
                         },
                         logger
                 );
