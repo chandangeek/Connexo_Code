@@ -198,8 +198,8 @@ public class OutboundIpConnectionProperties extends AbstractVersionedPersistentD
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(Fields.HOST.propertySpecName(), this.host);
-        propertySetValues.setProperty(Fields.PORT_NUMBER.propertySpecName(), this.portNumber);
+        this.copyNullablePropertyTo(propertySetValues, Fields.HOST, this.host);
+        this.copyNullablePropertyTo(propertySetValues, Fields.PORT_NUMBER, this.portNumber );
         this.copyNullablePropertyTo(propertySetValues, Fields.CONNECTION_TIMEOUT, this.connectionTimeout);
         this.copyNullablePropertyTo(propertySetValues, Fields.BUFFER_SIZE, this.bufferSize);
         this.copyPostDialPropertiesTo(propertySetValues);
