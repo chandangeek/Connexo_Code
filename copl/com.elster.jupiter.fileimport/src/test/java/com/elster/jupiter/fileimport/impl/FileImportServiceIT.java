@@ -80,13 +80,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FileImportServiceIT {
 
-    private static final long ID = 5564;
     private static final String FILE_NAME = "fileName";
     private static final String CONTENTS = "CONTENTS";
     private static final String SUCCESS_MESSAGE = "SUCCESS_MESSAGE";
     private static final String FAILURE_MESSAGE = "FAILURE_MESSAGE";
     private static final String SUCCESS_WITH_FAILURE_MESSAGE = "SUCCESS_WITH_FAILURE_MESSAGE";
-    private static final String SERIALIZED = "serialized";
     private static final String DESTINATION_NAME = "DESTINATION";
     private static final String IMPORTER_NAME = "TEST_IMPORTER";
     private ImportScheduleImpl importSchedule;
@@ -112,8 +110,6 @@ public class FileImportServiceIT {
 
     @Mock
     private FileUtilsImpl fileUtils;
-
-    private FileNameCollisionResolver fileNameCollisionResolver;
 
     @Mock
     private DataModel dataModel;
@@ -209,7 +205,6 @@ public class FileImportServiceIT {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        //fileImportService = new FileImportServiceImpl();
 
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
@@ -220,36 +215,27 @@ public class FileImportServiceIT {
 
             return null;
         });
-        //fileImportService.setOrmService(ormService);
-        //fileImportService.setClock(clock);
 
         transactionService.execute(() -> {
-
             queueTableSpec = messageService.createQueueTableSpec(DESTINATION_NAME, "raw", true);
             destination = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 0);
             destination.activate();
-            subscriberSpec = destination.subscribe(DESTINATION_NAME);
-
-
+            subscriberSpec = destination.subscribe(DESTINATION_NAME).create();
             return null;
         });
 
-
         assertThat(messageService.getDestinationSpec(DESTINATION_NAME).get()).isEqualTo(destination);
-
 
         logger = Logger.getAnonymousLogger();
         logger.setUseParentHandlers(false);
         logRecorder = new LogRecorder(Level.ALL);
         logger.addHandler(logRecorder);
 
-
         when(fileUtils.getInputStream(any(Path.class))).thenReturn(contentsAsStream());
         when(fileUtils.move(any(Path.class), any(Path.class))).thenCallRealMethod();
         when(fileUtils.exists(any(Path.class))).thenCallRealMethod();
         when(fileUtils.newDirectoryStream(any(Path.class), any(String.class))).thenCallRealMethod();
 
-        fileNameCollisionResolver = new SimpleFileNameCollisionResolver(fileUtils, testFileSystem);
         Path root = testFileSystem.getRootDirectories().iterator().next();
 
         basePath = Files.createDirectory(root.resolve("baseImportPath"));
@@ -277,10 +263,9 @@ public class FileImportServiceIT {
 
         when(fileImporterFactory.getDestinationName()).thenReturn(DESTINATION_NAME);
         when(fileImporterFactory.getName()).thenReturn(IMPORTER_NAME);
-        when(fileImporterFactory.getPropertySpecs()).thenReturn(Collections.EMPTY_LIST);
+        when(fileImporterFactory.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(fileImporterFactory.getApplicationName()).thenReturn("SYS");
         when(fileImporterFactory.requiresTransaction()).thenReturn(true);
-
 
         transactionService.execute(() -> {
             importSchedule = (ImportScheduleImpl) fileImportService.newBuilder()
@@ -297,7 +282,6 @@ public class FileImportServiceIT {
             return null;
         });
 
-
         when(thesaurus.getFormat(MessageSeeds.FILE_IMPORT_STARTED)).thenReturn(importStarted);
         when(importStarted.format(anyVararg())).thenAnswer(invocation -> {
             return MessageFormat.format(MessageSeeds.FILE_IMPORT_STARTED.getDefaultFormat(), "");//invocation.getArguments()[0]);//, invocation.getArguments()[1], invocation.getArguments()[2], invocation.getArguments()[3]);
@@ -306,7 +290,6 @@ public class FileImportServiceIT {
         when(importFinished.format(anyVararg())).thenAnswer(invocation -> {
             return MessageFormat.format(MessageSeeds.FILE_IMPORT_FINISHED.getDefaultFormat(), "");// invocation.getArguments()[0]);//, invocation.getArguments()[1]);
         });
-
     }
 
     private ByteArrayInputStream contentsAsStream() {
@@ -322,8 +305,9 @@ public class FileImportServiceIT {
     public void testImportFileWithSuccess() throws IOException {
 
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
-        if (!Files.exists(file))
+        if (!Files.exists(file)) {
             Files.createFile(file);
+        }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccess(SUCCESS_MESSAGE));
 
@@ -350,8 +334,9 @@ public class FileImportServiceIT {
     public void testImportFileWithFailure() throws IOException {
 
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
-        if (!Files.exists(file))
+        if (!Files.exists(file)) {
             Files.createFile(file);
+        }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markFailure(FAILURE_MESSAGE));
 
@@ -378,8 +363,9 @@ public class FileImportServiceIT {
     public void testImportFileSuccessWithFailures() throws IOException {
 
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
-        if (!Files.exists(file))
+        if (!Files.exists(file)) {
             Files.createFile(file);
+        }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccessWithFailures(SUCCESS_WITH_FAILURE_MESSAGE));
 
