@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.elster.jupiter.time.CannotDeleteUsedRelativePeriodException;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeOperation;
 import com.elster.jupiter.time.RelativePeriod;
@@ -147,7 +148,7 @@ public class RelativePeriodResource {
             relativePeriod.delete();
             context.commit();
             return Response.status(Response.Status.OK).build();
-        } catch (WebApplicationException | ConcurrentModificationException e) {
+        } catch (WebApplicationException | ConcurrentModificationException | CannotDeleteUsedRelativePeriodException e) {
             throw e;
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
