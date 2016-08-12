@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -215,6 +216,9 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
 
     @Test
     public void test1IntervalOfLPData() throws UnsupportedEncodingException {
+
+        when(topologyService.getDataLoggerChannelTimeLine(any(Channel.class), any(Range.class))).thenAnswer(invocationOnMock -> Collections.singletonList(Pair.of(((Channel) invocationOnMock.getArguments()[0]), ((Range<Instant>) invocationOnMock
+                .getArguments()[1]))));
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data/1410774630000/validation")
                 .request().get(String.class);
 

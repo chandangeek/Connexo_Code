@@ -62,10 +62,13 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Mock
     private Device device;
     @Mock
+    private DeviceType deviceType;
+    @Mock
     private DeviceValidation deviceValidation;
     @Mock
     private DeviceConfiguration deviceConfiguration;
     private ObisCode registerSpecObisCode = ObisCode.fromString("1.0.1.8.0.255");
+
 
     @Before
     public void setUpStubs() {
@@ -79,6 +82,9 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.VALID);
         when(deviceValidation.getLastChecked(any(Register.class))).thenReturn(Optional.empty());
         when(clock.instant()).thenReturn(NOW);
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.isDataloggerSlave()).thenReturn(false);
+        when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     public CustomPropertySet mockCustomPropertySet() {

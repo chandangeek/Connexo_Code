@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.util.units.Quantity;
@@ -32,7 +33,6 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
 
-import javax.ws.rs.HEAD;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -43,6 +43,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -144,6 +145,8 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
         when(readingQualityEstimated.hasEstimatedCategory()).thenReturn(true);
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
         doReturn(Arrays.asList(readingQualityEstimated, readingQualityConfirmed)).when(dataValidationStatus).getReadingQualities();
+        when(topologyService.getSlaveChannel(any(com.energyict.mdc.device.data.Channel.class), any(Instant.class))).thenReturn(Optional.empty());
+        when(topologyService.getSlaveRegister(any(Register.class), any(Instant.class))).thenReturn(Optional.empty());
     }
 
     private ReadingQualityRecord mockReadingQuality(String code) {
@@ -186,6 +189,8 @@ public class RegisterDataResourceTest extends DeviceDataRestApplicationJerseyTes
 
         long intervalStart = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).minusYears(1).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
         long intervalEnd = ZonedDateTime.ofInstant(NOW, ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant().toEpochMilli();
+        when(topologyService.getDataLoggerRegisterTimeLine(any(Register.class), any(Range.class))).thenReturn(Collections.singletonList(Pair.of(register, Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant
+                .ofEpochMilli(intervalEnd)))));
         String filter = ExtjsFilter.filter()
                 .property("intervalStart", intervalStart)
                 .property("intervalEnd", intervalEnd)

@@ -176,9 +176,11 @@ public class DeviceAttributesInfoFactory {
         if (DeviceAttribute.GEOCOORDINATES.isEditableForState(currentState)) {
             validateGeoCoordinates(validationBuilder, "geoCoordinates", info.geoCoordinates);
         }
-
-        if (DeviceAttribute.GEOCOORDINATES.isEditableForState(currentState)) {
-            validateLocation(validationBuilder, "editLocation", info.location);
+        if (DeviceAttribute.LOCATION.isEditableForState(currentState)) {
+            validateLocation(validationBuilder, info.location);
+        }
+        if (DeviceAttribute.MULTIPLIER.isEditableForState(currentState) &&  info.multiplier.displayValue.compareTo(BigDecimal.ZERO) <= 0 ){
+            validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.INVALID_MULTIPLIER, "multiplier"));
         }
         validationBuilder.validate();
     }
@@ -195,7 +197,7 @@ public class DeviceAttributesInfoFactory {
     }
 
 
-    private void validateLocation(RestValidationBuilder validationBuilder, String fieldName, DeviceAttributeInfo<EditLocationInfo> editLocation) {
+    private void validateLocation(RestValidationBuilder validationBuilder, DeviceAttributeInfo<EditLocationInfo> editLocation) {
         if (editLocation.displayValue.properties != null) {
             List<PropertyInfo> propertyInfos = Arrays.asList(editLocation.displayValue.properties);
             for (PropertyInfo propertyInfo : propertyInfos) {
@@ -232,7 +234,6 @@ public class DeviceAttributesInfoFactory {
         try {
             BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
             BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
-            BigDecimal numericElevation = new BigDecimal(parts[2]);
             if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
                     || numericLatitude.compareTo(BigDecimal.valueOf(90)) > 0
                     || numericLongitude.compareTo(BigDecimal.valueOf(-180)) < 0
