@@ -236,8 +236,10 @@ public final class BasicAuthentication implements HttpAuthenticationService {
             } else if (!shouldUnauthorize(request.getRequestURI())) {
                 String server = request.getRequestURL()
                         .substring(0, request.getRequestURL().indexOf(request.getRequestURI()));
+
                 response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT);
-                response.sendRedirect(server + LOGIN_URI + "?" + "page=" + request.getRequestURL());
+                response.setHeader("Location", server + LOGIN_URI + "?" + "page=" + request.getRequestURL());
+                response.getOutputStream().flush();
                 return true;
             } else {
                 // Rest resources send back UNAUTHORIZED HTTP response code
