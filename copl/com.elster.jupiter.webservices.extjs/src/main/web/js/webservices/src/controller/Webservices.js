@@ -97,11 +97,11 @@ Ext.define('Wss.controller.Webservices', {
                                     id: 'all',
                                     name: Uni.I18n.translate('endPointAdd.all', 'WSS', 'All')
                                 });
-                                view = Ext.widget('endpoint-add', {
+                                var previousPath = me.getController('Uni.controller.history.EventBus').getPreviousPath();
+                                var view = Ext.widget('endpoint-add', {
                                     action: type,
                                     record: record,
-                                    returnLink: record === null ? me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl()
-                                        : me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints/view').buildUrl({endpointId: record.get('id')}),
+                                    returnLink: previousPath ? '#' + previousPath : me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl(),
                                     authenticationMethodStore: authenticationMethodStore,
                                     rolesStore: rolesStore,
                                     logLevelsStore: logLevelsStore
