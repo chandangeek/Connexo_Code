@@ -35,7 +35,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,6 +59,7 @@ public class UsagePointOutputResource {
     private final OutputChannelDataInfoFactory outputChannelDataInfoFactory;
     private final OutputRegisterDataInfoFactory outputRegisterDataInfoFactory;
     private final PurposeInfoFactory purposeInfoFactory;
+    private final Clock clock;
     private final ValidationStatusFactory validationStatusFactory;
 
     @Inject
@@ -66,7 +69,8 @@ public class UsagePointOutputResource {
                                     OutputChannelDataInfoFactory outputChannelDataInfoFactory,
                                     OutputRegisterDataInfoFactory outputRegisterDataInfoFactory,
                                     PurposeInfoFactory purposeInfoFactory,
-                                    ValidationStatusFactory validationStatusFactory) {
+                                    ValidationStatusFactory validationStatusFactory,
+                                    Clock clock) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.validationService = validationService;
@@ -75,6 +79,7 @@ public class UsagePointOutputResource {
         this.outputRegisterDataInfoFactory = outputRegisterDataInfoFactory;
         this.purposeInfoFactory = purposeInfoFactory;
         this.validationStatusFactory = validationStatusFactory;
+        this.clock = clock;
     }
 
     @GET
@@ -145,6 +150,7 @@ public class UsagePointOutputResource {
             ChannelsContainer channelsContainer = effectiveMetrologyConfiguration.getChannelsContainer(metrologyContract).get();
             if (channelsContainer.getRange().isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = channelsContainer.getRange().intersection(requestedInterval);
+                effectiveInterval = Range.openClosed(effectiveInterval.lowerEndpoint(), effectiveInterval.upperEndpoint());
                 Channel channel = channelsContainer.getChannel(readingTypeDeliverable.getReadingType()).get();
                 TemporalAmount intervalLength = readingTypeDeliverable.getReadingType().getIntervalLength().get();
                 ValidationEvaluator evaluator = validationService.getEvaluator();
@@ -152,7 +158,7 @@ public class UsagePointOutputResource {
                         validationStatusFactory.isValidationActive(effectiveMetrologyConfiguration, metrologyContract),
                         validationStatusFactory.getLastCheckedForChannels(evaluator, channelsContainer, Collections.singletonList(channel)));
                 Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval).stream()
-                        .collect(Collectors.toMap(Function.identity(), timeStamp -> builder.from(timeStamp, intervalLength)));
+                        .collect(Collectors.toMap(Function.identity(), timeStamp -> new IntervalReadingWithValidationStatus(ZonedDateTime.ofInstant(timeStamp, clock.getZone()), intervalLength)));
 
                 // add readings to pre filled channel data map
                 List<IntervalReadingRecord> intervalReadings = channel.getIntervalReadings(effectiveInterval);
