@@ -9,7 +9,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
     requires: [
         'Mdc.store.ConnectionMethodsOfDeviceConfiguration',
-        'Mdc.store.TimeUnits'
+        'Mdc.store.TimeUnits',
+        'Mdc.store.TimeUnitsWithoutMillisecondsAndSeconds',
+        'Mdc.store.TimeUnitsWithoutMilliseconds'
     ],
 
     views: [
@@ -25,7 +27,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
         'ConnectionStrategies',
         'TimeUnits',
         'ComPortPools',
-        'ComPortPoolsWithoutPaging'
+        'ComPortPoolsWithoutPaging',
+        'TimeUnitsWithoutMilliseconds',
+        'TimeUnitsWithoutMillisecondsAndSeconds'
     ],
 
     refs: [
