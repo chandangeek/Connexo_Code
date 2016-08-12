@@ -9,6 +9,7 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
         'Imt.customattributesets.view.DetailForm',
         'Imt.metrologyconfiguration.store.CustomAttributeSets',
         'Imt.metrologyconfiguration.view.CustomAttributeSetsActions',
+        'Uni.grid.column.RemoveAction',
         'Uni.util.FormInfoMessage',
         'Uni.util.FormEmptyMessage'
     ],
@@ -39,21 +40,12 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                         itemId: 'cas-grid',
                         store: 'Imt.metrologyconfiguration.store.CustomAttributeSets',
                         actionColumnConfig: {
-                            header: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+                            xtype: 'uni-actioncolumn-remove',
                             privileges: Imt.privileges.MetrologyConfig.admin,
-                            xtype: 'actioncolumn',
-                            align: 'right',
-                            width: 80,
-                            items: [
-                                {
-                                    tooltip: Uni.I18n.translate('general.remove', 'IMT', 'Remove'),
-                                    iconCls: ' uni-icon-delete',
-                                    disabled: isActive,
-                                    handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                                        this.fireEvent('deleteCAS', record);
-                                    }
-                                }
-                            ],
+                            disabled: isActive,
+                            handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                                this.fireEvent('deleteCAS', record);
+                            },
                             isDisabled: function() {
                                 return isActive;
                             }
