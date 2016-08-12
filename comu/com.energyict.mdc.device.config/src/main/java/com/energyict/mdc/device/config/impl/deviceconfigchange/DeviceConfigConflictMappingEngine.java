@@ -1,6 +1,16 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
+import com.energyict.mdc.device.config.ConflictingSolution;
+import com.energyict.mdc.device.config.DeviceConfigChangeAction;
+import com.energyict.mdc.device.config.DeviceConfigChangeActionType;
+import com.energyict.mdc.device.config.DeviceConfigChangeEngine;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.ServerDeviceType;
 
 import java.util.List;
@@ -23,22 +33,27 @@ public final class DeviceConfigConflictMappingEngine {
     }
 
     public void reCalculateConflicts(DeviceType deviceType) {
-        List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
+        if (!deviceType.isDataloggerSlave()) {
+            List<DeviceConfigChangeAction> deviceConfigChangeActions = DeviceConfigChangeEngine.INSTANCE.calculateDeviceConfigChangeActionsForConflicts(deviceType);
 
-        deviceConfigChangeActions.stream()
-                .forEach(conflictingAction -> {
-                    // find existing conflictMapping
-                    if (conflictingAction.getActionType().equals(DeviceConfigChangeActionType.CONFLICT)) {
-                        DeviceConfigConflictMappingImpl conflictMapping = getDeviceConfigConflictMapping(conflictingAction, deviceType);
-                        findOrCreateConflict(conflictingAction, conflictMapping);
-                    } else { // cleaunup if exists
-                        Optional<DeviceConfigConflictMappingImpl> existingDeviceConfigConflictMapping = getExistingDeviceConfigConflictMapping(conflictingAction, deviceType);
-                        existingDeviceConfigConflictMapping.ifPresent(removeExistingConflictIfExists(conflictingAction));
-                    }
-                });
-        // remove the non-conflicting
-        List<DeviceConfigConflictMapping> solvedConflicts = deviceType.getDeviceConfigConflictMappings().stream().filter(areConflictsResolved(deviceConfigChangeActions)).collect(Collectors.toList());
-        ((ServerDeviceType) deviceType).removeDeviceConfigConflictMappings(solvedConflicts);
+            deviceConfigChangeActions.stream()
+                    .forEach(conflictingAction -> {
+                        // find existing conflictMapping
+                        if (conflictingAction.getActionType().equals(DeviceConfigChangeActionType.CONFLICT)) {
+                            DeviceConfigConflictMappingImpl conflictMapping = getDeviceConfigConflictMapping(conflictingAction, deviceType);
+                            findOrCreateConflict(conflictingAction, conflictMapping);
+                        } else { // cleaunup if exists
+                            Optional<DeviceConfigConflictMappingImpl> existingDeviceConfigConflictMapping = getExistingDeviceConfigConflictMapping(conflictingAction, deviceType);
+                            existingDeviceConfigConflictMapping.ifPresent(removeExistingConflictIfExists(conflictingAction));
+                        }
+                    });
+            // remove the non-conflicting
+            List<DeviceConfigConflictMapping> solvedConflicts = deviceType.getDeviceConfigConflictMappings()
+                    .stream()
+                    .filter(areConflictsResolved(deviceConfigChangeActions))
+                    .collect(Collectors.toList());
+            ((ServerDeviceType) deviceType).removeDeviceConfigConflictMappings(solvedConflicts);
+        }
     }
 
     private Consumer<DeviceConfigConflictMappingImpl> removeExistingConflictIfExists(DeviceConfigChangeAction conflictingAction) {

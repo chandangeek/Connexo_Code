@@ -215,7 +215,8 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
 
     private LoadProfileType createDefaultLoadProfileType(RegisterType registerType) {
-        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType("LPTName", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1), Arrays.asList(registerType));
+        LoadProfileType loadProfileType = inMemoryPersistence.getMasterDataService()
+                .newLoadProfileType("LPTName", ObisCode.fromString("1.0.99.1.0.255"), TimeDuration.days(1), Arrays.asList(registerType));
         loadProfileType.save();
         this.deviceType.addLoadProfileType(loadProfileType);
         return loadProfileType;
@@ -358,8 +359,8 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.activate();
 
         NumericalRegisterSpec.Builder registerSpecBuilder = deviceConfiguration.createNumericalRegisterSpec(registerType)
-        .overflowValue(overflowValue)
-        .numberOfFractionDigits(0);
+                .overflowValue(overflowValue)
+                .numberOfFractionDigits(0);
         try {
             registerSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {
@@ -496,7 +497,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     public void testSaveDeviceConfigurationWithGateWayType() throws Exception {
         when(deviceProtocol.getDeviceProtocolCapabilities()).thenReturn(Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER));
         deviceType.newConfiguration("first").gatewayType(GatewayType.HOME_AREA_NETWORK).add();
-     }
+    }
 
 
     @Test
@@ -586,9 +587,14 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
 
         DeviceMessageId contactorClose = DeviceMessageId.CONTACTOR_CLOSE;
         DeviceConfiguration reloadedDeviceConfiguration = reloadDeviceConfiguration(deviceConfiguration);
-        Optional<DeviceMessageEnablement> dme = reloadedDeviceConfiguration.getDeviceMessageEnablements().stream().filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(contactorClose)).findAny();
+        Optional<DeviceMessageEnablement> dme = reloadedDeviceConfiguration.getDeviceMessageEnablements()
+                .stream()
+                .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(contactorClose))
+                .findAny();
 
-        List<DeviceMessageEnablementImpl.DeviceMessageUserActionRecord> deviceMessageUserActionRecords = inMemoryPersistence.getDataModel().mapper(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class).find("deviceMessageEnablement", dme.get());
+        List<DeviceMessageEnablementImpl.DeviceMessageUserActionRecord> deviceMessageUserActionRecords = inMemoryPersistence.getDataModel()
+                .mapper(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class)
+                .find("deviceMessageEnablement", dme.get());
         assertThat(deviceMessageUserActionRecords).hasSize(3);
 
         deviceConfiguration.removeDeviceMessageEnablement(contactorClose);
@@ -693,7 +699,9 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceType.removeConfiguration(deviceConfiguration);
 
         List<DeviceMessageEnablementImpl> deviceMessageEnablements = inMemoryPersistence.getDataModel().mapper(DeviceMessageEnablementImpl.class).find();
-        List<DeviceMessageEnablementImpl.DeviceMessageUserActionRecord> deviceMessageUserActionRecords = inMemoryPersistence.getDataModel().mapper(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class).find();
+        List<DeviceMessageEnablementImpl.DeviceMessageUserActionRecord> deviceMessageUserActionRecords = inMemoryPersistence.getDataModel()
+                .mapper(DeviceMessageEnablementImpl.DeviceMessageUserActionRecord.class)
+                .find();
 
         assertThat(deviceMessageEnablements).hasSize(0);
         assertThat(deviceMessageUserActionRecords).hasSize(0);
@@ -714,7 +722,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Transactional
     public void currentUserDoesntHaveCorrectLevelTest() {
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(anyString(),anyString())).thenReturn(false);
+        when(mockedUser.hasPrivilege(anyString(), anyString())).thenReturn(false);
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("currentUserDoesntHaveCorrectLevelTest").add();
 
@@ -725,7 +733,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
     @Transactional
     public void currentUserHasAllPrivilegeButNotConfiguredOnConfigTest() {
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(anyString(),anyString())).thenReturn(true);
+        when(mockedUser.hasPrivilege(anyString(), anyString())).thenReturn(true);
 
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("currentUserHasAllPrivilegeButNotConfiguredOnConfigTest").add();
 
@@ -741,7 +749,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.save();
 
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(anyString(),Matchers.eq(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege()))).thenReturn(true);
+        when(mockedUser.hasPrivilege(anyString(), Matchers.eq(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege()))).thenReturn(true);
 
         assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.CONTACTOR_CLOSE)).isTrue();
     }
@@ -756,7 +764,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.save();
 
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(anyString(),anyString())).thenReturn(false);
+        when(mockedUser.hasPrivilege(anyString(), anyString())).thenReturn(false);
 
         assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.CONTACTOR_CLOSE)).isFalse();
     }
@@ -770,7 +778,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         deviceConfiguration.save();
 
         User mockedUser = inMemoryPersistence.getMockedUser();
-        when(mockedUser.hasPrivilege(anyString(),Matchers.eq(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege()))).thenReturn(true);
+        when(mockedUser.hasPrivilege(anyString(), Matchers.eq(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1.getPrivilege()))).thenReturn(true);
 
         assertThat(deviceConfiguration.isAuthorized(DeviceMessageId.PLC_CONFIGURATION_SET_PAN_ID)).isFalse();
     }
@@ -781,4 +789,22 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
                 .orElseThrow(() -> new RuntimeException("Failed to reload device configuration " + deviceConfiguration.getId()));
     }
 
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DATALOGGER_ENABLEMENTS_AT_LEAST_ONE_DATASOURCE + "}")
+    public void createDataloggerConfigWithoutResourcesTest() {
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("createDataLoggerConfigWithoutResourcesTest").dataloggerEnabled(true).add();
+        deviceConfiguration.activate();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.DATALOGGER_SLAVES_AT_LEAST_ONE_DATASOURCE + "}")
+    public void createDataloggerSlaveConfigWithoutResourcesTest() {
+        DeviceType dataloggerSlaveDeviceType = inMemoryPersistence.getDeviceConfigurationService()
+                .newDataloggerSlaveDeviceTypeBuilder("DataloggerSlave", inMemoryPersistence.getDeviceLifeCycleConfigurationService()
+                        .findDefaultDeviceLifeCycle().get()).create();
+        DeviceConfiguration deviceConfiguration = dataloggerSlaveDeviceType.newConfiguration("createDataloggerSlaveConfigWithoutResourcesTest").add();
+        deviceConfiguration.activate();
+    }
 }

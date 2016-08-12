@@ -788,7 +788,7 @@ public class PartialOutboundConnectionTaskCrudIT {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.UNDER_MINIMUM_RESCHEDULE_DELAY + '}')
+    @ExpectedConstraintViolation(messageId = '{' + MessageSeeds.Keys.RETRY_DELAY_MUST_BE_HIGHER + '}')
     public void testCreateWithTooLowReschedulingRetryDelayTest() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);

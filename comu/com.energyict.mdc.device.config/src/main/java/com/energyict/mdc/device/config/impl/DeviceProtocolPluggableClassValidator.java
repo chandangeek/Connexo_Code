@@ -16,7 +16,7 @@ public class DeviceProtocolPluggableClassValidator implements ConstraintValidato
 
     @Override
     public boolean isValid(DeviceTypeImpl deviceType, ConstraintValidatorContext constraintValidatorContext) {
-        if (!deviceType.isDataloggerSlave() && deviceType.getDeviceProtocolPluggableClass() == null) {
+        if (!deviceType.isDataloggerSlave() && !deviceType.getDeviceProtocolPluggableClass().isPresent()) {
             constraintValidatorContext.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
                     .addPropertyNode(DeviceTypeImpl.Fields.DEVICE_PROTOCOL_PLUGGABLE_CLASS.fieldName())
                     .addConstraintViolation()

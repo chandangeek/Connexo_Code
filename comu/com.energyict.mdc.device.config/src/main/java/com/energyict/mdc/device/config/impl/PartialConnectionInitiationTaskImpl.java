@@ -1,15 +1,14 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 
@@ -51,7 +50,7 @@ public class PartialConnectionInitiationTaskImpl extends PartialOutboundConnecti
     }
 
     @Override
-    protected DeleteEventType deleteEventType() {
+    public DeleteEventType deleteEventType() {
         return DeleteEventType.PARTIAL_CONNECTION_INITIATION_TASK;
     }
 
@@ -63,7 +62,7 @@ public class PartialConnectionInitiationTaskImpl extends PartialOutboundConnecti
     @Override
     public PartialConnectionTask cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
         PartialConnectionInitiationTaskBuilder builder = deviceConfiguration.newPartialConnectionInitiationTask(getName(), getPluggableClass(), getRescheduleDelay());
-        getProperties().stream().forEach(partialConnectionTaskProperty -> builder.addProperty(partialConnectionTaskProperty.getName(), partialConnectionTaskProperty.getValue()));
+        getProperties().forEach(partialConnectionTaskProperty -> builder.addProperty(partialConnectionTaskProperty.getName(), partialConnectionTaskProperty.getValue()));
         builder.comPortPool(getComPortPool());
         return builder.build();
     }

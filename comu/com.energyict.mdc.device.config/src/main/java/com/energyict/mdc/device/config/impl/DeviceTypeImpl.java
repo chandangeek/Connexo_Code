@@ -86,8 +86,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         DEVICETYPEPURPOSE("deviceTypePurpose"),
         DEVICE_LIFE_CYCLE("deviceLifeCycle"),
         FILE_MANAGEMENT_ENABLED("fileManagementEnabled"),
-        DEVICE_MESSAGE_FILES("deviceMessageFiles"),
-        ;
+        DEVICE_MESSAGE_FILES("deviceMessageFiles"),;
 
         private final String javaFieldName;
 
@@ -409,21 +408,21 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public boolean canActAsGateway() {
-        if (getDeviceProtocolPluggableClass() == null || getDeviceProtocolPluggableClass().getDeviceProtocol() == null) {
+        if (!getDeviceProtocolPluggableClass().isPresent() || getDeviceProtocolPluggableClass().get().getDeviceProtocol() == null) {
             return false;
         }
-        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol()
-                .getDeviceProtocolCapabilities();
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass()
+                .get().getDeviceProtocol().getDeviceProtocolCapabilities();
         return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_MASTER);
     }
 
     @Override
     public boolean isDirectlyAddressable() {
-        if (getDeviceProtocolPluggableClass() == null || getDeviceProtocolPluggableClass().getDeviceProtocol() == null) {
+        if (!getDeviceProtocolPluggableClass().isPresent() || getDeviceProtocolPluggableClass().get().getDeviceProtocol() == null) {
             return false;
         }
-        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass().getDeviceProtocol()
-                .getDeviceProtocolCapabilities();
+        List<DeviceProtocolCapabilities> deviceProtocolCapabilities = getDeviceProtocolPluggableClass()
+                .get().getDeviceProtocol().getDeviceProtocolCapabilities();
         return deviceProtocolCapabilities.contains(DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
@@ -459,8 +458,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     @Override
-    public DeviceProtocolPluggableClass getDeviceProtocolPluggableClass() {
-        return getProtocolBehavior().getDeviceProtocolPluggableClass().orElse(null);
+    public Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass() {
+        return getProtocolBehavior().getDeviceProtocolPluggableClass();
     }
 
     @Override
@@ -776,7 +775,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     public boolean supportsMessaging() {
-        return this.getDeviceProtocolPluggableClass() != null;
+        return this.getDeviceProtocolPluggableClass().isPresent();
     }
 
     public boolean isLogicalSlave() {
@@ -821,7 +820,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public void enableFileManagement() {
-        if (!this.fileManagementEnabled && getDeviceProtocolPluggableClass().supportsFileManagement()) {
+        if (!this.fileManagementEnabled && getDeviceProtocolPluggableClass().isPresent() && getDeviceProtocolPluggableClass().get().supportsFileManagement()) {
             this.fileManagementEnabled = true;
             this.update();
         }
@@ -1198,7 +1197,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private class DataloggerSlaveLogBookBehavior implements LogBookBehavior {
         @Override
         public void addLogBookTypes(List<LogBookType> logBookTypes) {
-            throw DataloggerSlaveException.logbookTypesAreNotSupported(getThesaurus(), DeviceTypeImpl.this);
+            if (!logBookTypes.isEmpty()) {
+                throw DataloggerSlaveException.logbookTypesAreNotSupported(getThesaurus(), DeviceTypeImpl.this);
+            }
         }
 
         @Override
@@ -1249,7 +1250,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         @Override
         public DeviceTypeBuilder withLogBookTypes(List<LogBookType> logBookTypes) {
-            underConstruction.addLogBookTypes(logBookTypes);
+            if (!logBookTypes.isEmpty()) {
+                underConstruction.addLogBookTypes(logBookTypes);
+            }
             return this;
         }
 
