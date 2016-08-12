@@ -27,6 +27,7 @@ Ext.define('Mdc.view.setup.device.DeviceMenu', {
                     },
                     {
                         text: Uni.I18n.translate('general.history', 'MDC', 'History'),
+                        privileges: Mdc.privileges.Device.viewDeviceData,
                         itemId: 'device-history-link',
                         href: '#/devices/' + encodeURIComponent(mRID) + '/history'
                     }

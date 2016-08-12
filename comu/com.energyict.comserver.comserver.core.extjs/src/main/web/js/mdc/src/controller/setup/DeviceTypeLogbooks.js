@@ -21,7 +21,7 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
         var me = this;
         me.control({
             'device-type-logbooks grid actioncolumn': {
-                removeLogbook: me.removeLogbook,
+                removeLogbook: me.removeLogbookType,
             },
             'device-type-logbooks grid': {
                 select: me.loadGridItemDetail
@@ -29,12 +29,6 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
 
         });
         me.store = me.getStore('Mdc.store.LogbookTypesOfDeviceType');
-    },
-
-    removeLogbook: function (record) {
-        var me = this;
-        me.removeLogbookType(record);
-
     },
 
     loadGridItemDetail: function (grid, record) {

@@ -162,6 +162,7 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                 items: [
                                     {
                                         xtype: 'timeInfoField',
+                                        store: 'TimeUnitsWithoutMillisecondsAndSeconds',
                                         name: 'rescheduleRetryDelay',
                                         itemId: 'rescheduleRetryDelay',
                                         numberFieldWidth: 70,

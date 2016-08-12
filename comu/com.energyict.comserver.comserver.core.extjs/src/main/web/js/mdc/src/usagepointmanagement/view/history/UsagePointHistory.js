@@ -4,11 +4,13 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistory', {
 
     requires: [
         'Mdc.usagepointmanagement.view.UsagePointSideMenu',
-        'Mdc.usagepointmanagement.view.history.UsagePointHistoryDevices'
+        'Mdc.usagepointmanagement.view.history.UsagePointHistoryDevices',
+        'Mdc.usagepointmanagement.view.history.MetrologyConfigurationHistory'
     ],
 
     router: null,
     mRID: null,
+    usagePoint: null,
 
     initComponent: function () {
         var me = this;
@@ -35,11 +37,15 @@ Ext.define('Mdc.usagepointmanagement.view.history.UsagePointHistory', {
                 {
                     title: Uni.I18n.translate('general.device', 'MDC', 'Device'),
                     itemId: 'usage-point-devices',
-                    padding: '25 0 25 0',
-                    listeners: {
-                        activate: me.controller.showDevicesTab,
-                        scope: me.controller
-                    }
+                    padding: '25 0 25 0'
+                },
+                {
+                    title: Uni.I18n.translate('general.metrologyComfiguration', 'MDC', 'Metrology configuration'),
+                    padding: '8 16 16 0',
+                    itemId: 'usage-point-metrologyconfigurationversion',
+                    xtype: 'metrology-configuration-history-tab',
+                    router: me.router,
+                    usagePoint: me.usagePoint
                 }
             ]
         };

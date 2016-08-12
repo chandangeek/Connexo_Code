@@ -92,14 +92,18 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             showPage = function () {
                 deviceModel.load(mRID, {
                     success: function (record) {
-                        me.getApplication().fireEvent('loadDevice', record);
-                        widget = Ext.widget('deviceLoadProfileChannelsSetup', {
-                            mRID: mRID,
-                            router: router,
-                            device: record
-                        });
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        channelsOfLoadProfilesOfDeviceStore.load();
+                        if (record.get('hasLoadProfiles')) {
+                            me.getApplication().fireEvent('loadDevice', record);
+                            widget = Ext.widget('deviceLoadProfileChannelsSetup', {
+                                mRID: mRID,
+                                router: router,
+                                device: record
+                            });
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                            channelsOfLoadProfilesOfDeviceStore.load();
+                        } else {
+                            window.location.replace(router.getRoute('notfound').buildUrl());
+                        }
                     }
                 });
             };

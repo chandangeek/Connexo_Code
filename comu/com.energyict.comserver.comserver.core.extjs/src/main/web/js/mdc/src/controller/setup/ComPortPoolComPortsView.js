@@ -83,6 +83,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
     removeCommunicationPort: function (record) {
         this.showDeleteConfirmation(record);
     },
+
     showPreviewWithServerName: function (selectionModel, record) {
         this.showPreview(selectionModel, record, true);
     },

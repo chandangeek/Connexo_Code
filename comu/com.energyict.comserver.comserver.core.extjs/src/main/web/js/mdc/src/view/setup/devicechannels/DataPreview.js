@@ -169,7 +169,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         }
     },
 
-    setDataQuality: function (dataQualities) {
+    setDataQuality: function(dataQualities) {
         var me = this,
             deviceQualityField = me.down('#mdc-device-quality'),
             multiSenseQualityField = me.down('#mdc-multiSense-quality'),
@@ -184,7 +184,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
     },
 
-    setDataQualityForChannel: function (channelId, dataQualities) {
+    setDataQualityForChannel: function(channelId, dataQualities) {
         var me = this,
             channelQualityContainer = me.down('#channelQualityContainer' + channelId);
 
@@ -203,7 +203,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         me.setDataQualityFields(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities);
     },
 
-    setDataQualityFields: function (deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
+    setDataQualityFields: function(deviceQualityField, multiSenseQualityField, insightQualityField, thirdPartyQualityField, dataQualities) {
         var me = this,
             showDeviceQuality = false,
             showMultiSenseQuality = false,
@@ -248,7 +248,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
         show3rdPartyQuality ? thirdPartyQualityField.show() : thirdPartyQualityField.hide();
     },
 
-    getTooltip: function (systemName, categoryName, indexName) {
+    getTooltip: function(systemName, categoryName, indexName) {
         var me = this,
             tooltip = '<table><tr><td>';
 

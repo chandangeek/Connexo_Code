@@ -129,17 +129,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeLogbooks', {
                         name: 'details',
                         frame: true,
                         hidden: true,
-                        //tools: [
-                        //    {
-                        //        xtype: 'button',
-                        //        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                        //        iconCls: 'x-uni-action-iconD',
-                        //        privileges: Mdc.privileges.DeviceType.admin,
-                        //        menu: {
-                        //            xtype: 'device-type-logbook-action-menu'
-                        //        }
-                        //    }
-                        //],
                         items: [
                             {
                                 xtype: 'form',

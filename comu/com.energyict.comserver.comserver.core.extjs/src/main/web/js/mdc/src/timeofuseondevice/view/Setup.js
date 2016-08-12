@@ -75,7 +75,7 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
                     ],
                     stepItems: [
                         {
-                            text: Uni.I18n.translate('timeofuse.sendCalendar', 'MDC', 'Send calendar'),
+                            text:Uni.I18n.translate('timeofuse.sendCalendar', 'MDC', 'Send calendar'),
                             privileges: Mdc.privileges.DeviceCommands.executeCommands,
                             itemId: 'empty-comp-send-calendar-tou',
                             dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsSend,
@@ -99,7 +99,7 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
     showEmptyComponent: function() {
         var me = this;
         if(me.down('#tou-device-actions-button')) {
-            if (!Mdc.dynamicprivileges.DeviceState.canVerify() && !Mdc.dynamicprivileges.DeviceState.canSendCalendar()) {
+            if(!Mdc.dynamicprivileges.DeviceState.canVerify() && !Mdc.dynamicprivileges.DeviceState.canSendCalendar()) {
                 me.down('#tou-device-actions-button').hide();
             }
             me.down('device-tou-preview-form').hide();

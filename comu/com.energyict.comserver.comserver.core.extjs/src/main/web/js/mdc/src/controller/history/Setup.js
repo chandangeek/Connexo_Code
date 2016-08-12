@@ -1222,6 +1222,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             route.setTitle(record.get('mRID'));
                             return true;
                         }, {single: true});
+
                         return this;
                     },
                     items: {
@@ -1376,7 +1377,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceAttributesView',
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('deviceAttributes.edit', 'MDC', 'Edit device attributes'),
+                                    title: Uni.I18n.translate('deviceconfiguration.deviceAttributes.edit.general', 'MDC', 'Edit \'General\''),
                                     route: 'edit',
                                     privileges: Mdc.privileges.Device.editDeviceAttributes,
                                     controller: 'Mdc.controller.setup.DeviceAttributes',
@@ -1531,7 +1532,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'loadRegisterConfigurationCustomAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('loadRegisterConfigurationCustomAttributes', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('deviceregisterconfiguration.editCustomAttributes', 'MDC', "Edit '{0}'", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
 
@@ -1758,7 +1759,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     title: Uni.I18n.translate('tou.sendTimeOfUseCalendar', 'MDC', 'Send time of use calendar'),
                                     route: 'send',
                                     controller: 'Mdc.timeofuseondevice.controller.TimeOfUse',
-                                    privileges: Mdc.privileges.DeviceCommands.executeCommands,
+                                    privileges:  Mdc.privileges.DeviceCommands.executeCommands,
                                     dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.supportsSend,
                                     dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     action: 'showSendCalendarView'
@@ -1923,7 +1924,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             action: 'showEditChannelOfLoadProfileCustomAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('channelOfLoadProfileCustomAttributes', function (record) {
-                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    route.setTitle(Uni.I18n.translate('deviceChannelOfLoadProfile.editCustomAttributes', 'MDC', "Edit '{0}'", [record.get('name')]));
                                                     return true;
                                                 }, {single: true});
 
@@ -1953,7 +1954,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                     action: 'editCustomAttributeVersion',
                                                     callback: function (route) {
                                                         this.getApplication().on('loadCustomAttributeSetVersionOnChannel', function (record) {
-                                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('period')]));
+                                                            route.setTitle(Ext.String.htmlDecode(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('period')])));
                                                             return true;
                                                         }, {single: true});
 
@@ -2266,7 +2267,23 @@ Ext.define('Mdc.controller.history.Setup', {
                                 route: 'history/:tab:',
                                 controller: 'Mdc.usagepointmanagement.controller.UsagePointHistory',
                                 action: 'showUsagePointHistory',
-                                privileges: Mdc.privileges.UsagePoint.canView()
+                                privileges: Mdc.privileges.UsagePoint.canView(),
+                                items: {
+                                    addmetrologyconfigurationversion: {
+                                        route: 'metrologyconfigurationversion/add',
+                                        title: Uni.I18n.translate('general.addMcVersion', 'MDC', 'Add metrology configuration version'),
+                                        controller: 'Mdc.usagepointmanagement.controller.UsagePointHistory',
+                                        action: 'showAddVersion',
+                                        privileges: Mdc.privileges.UsagePoint.canAdmin()
+                                    },
+                                    editmetrologyconfigurationversion: {
+                                        route: 'metrologyconfigurationversion/{start}/edit',
+                                        title: Uni.I18n.translate('general.editMcVersion', 'MDC', 'Edit metrology configuration version'),
+                                        controller: 'Mdc.usagepointmanagement.controller.UsagePointHistory',
+                                        action: 'showEditVersion',
+                                        privileges: Mdc.privileges.UsagePoint.canAdmin()
+                                    }
+                                }
                             },
                             channels: {
                                 title: Uni.I18n.translate('general.channels', 'MDC', 'Channels'),
@@ -2274,7 +2291,25 @@ Ext.define('Mdc.controller.history.Setup', {
                                 route: 'channels',
                                 controller: 'Mdc.usagepointmanagement.controller.ViewChannelsList',
                                 action: 'showOverview',
-                                callback: me.checkInsightRedirect
+                                callback: me.checkInsightRedirect,
+                                items: {
+                                    channeldata: {
+                                        title: Uni.I18n.translate('routing.channel', 'MDC', 'Channel'),
+                                        privileges: Mdc.privileges.UsagePoint.canView(),
+                                        route: '{channelId}/data',
+                                        controller: 'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities',
+                                        action: 'showOverview',
+                                        callback: function (route) {
+                                            me.checkInsightRedirect(route);
+                                            this.getApplication().on('usagePointChannelLoaded', function (record) {
+                                                route.setTitle(record.get('readingType').fullAliasName);
+                                                return true;
+                                            }, {single: true});
+
+                                            return this;
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
