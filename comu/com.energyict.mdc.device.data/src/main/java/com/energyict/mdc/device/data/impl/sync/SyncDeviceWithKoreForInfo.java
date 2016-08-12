@@ -53,10 +53,10 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
     }
 
     public void deactivateMeter(Instant when) {
-        if (currentMeterActivation != null) {
-            this.getCurrentMeterActivation().ifPresent(meterActivation -> meterActivation.endAt(when));
-            currentMeterActivation = null;
-        }
+        this.getCurrentMeterActivation().ifPresent(meterActivation -> {
+            meterActivation.endAt(when);
+            this.currentMeterActivation = null;
+        });
     }
 
     @Override
