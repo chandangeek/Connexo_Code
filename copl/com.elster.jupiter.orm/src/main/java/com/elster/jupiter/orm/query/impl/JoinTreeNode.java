@@ -148,7 +148,7 @@ final class JoinTreeNode<T>  {
 	}
 
 	String appendColumns (SqlBuilder builder, String separator) {
-		if (distinct()) {
+		if (skipFetch()) {
 			return separator;
 		} else {
 			return children.stream().reduce(
