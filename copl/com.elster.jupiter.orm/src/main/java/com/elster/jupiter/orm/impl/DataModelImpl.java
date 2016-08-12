@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.orm.query.impl.QueryStreamImpl;
 import com.elster.jupiter.util.streams.Functions;
 
+import com.google.common.collect.RangeSet;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -107,6 +108,10 @@ public class DataModelImpl implements DataModel {
         return table -> table.isInVersion(version);
     }
 
+    private Predicate<TableImpl<?>> overlaps(RangeSet<Version> versions) {
+        return table -> table.overlaps(versions);
+    }
+
     @Override
     public List<TableImpl<?>> getTables(Version version) {
         return tables.stream()
@@ -119,6 +124,14 @@ public class DataModelImpl implements DataModel {
         return tables.stream()
                 .filter(table -> table.getName().equals(tableName))
                 .filter(inVersion(getVersion()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public TableImpl<?> getTable(String tableName, RangeSet<Version> versions) {
+        return tables.stream()
+                .filter(table -> table.getName().equals(tableName))
+                .filter(overlaps(versions))
                 .findFirst()
                 .orElse(null);
     }
@@ -302,6 +315,13 @@ public class DataModelImpl implements DataModel {
             }
         }
         return Optional.empty();
+    }
+
+    Optional<TableImpl<?>> getTable(Class<?> clazz, RangeSet<Version> versions) {
+        return tables.stream()
+                .filter(table -> table.maps(clazz))
+                .filter(overlaps(versions))
+                .findAny();
     }
 
     @Override

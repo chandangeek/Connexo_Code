@@ -1041,6 +1041,14 @@ public class TableImpl<T> implements Table<T> {
         return versions.contains(version);
     }
 
+    boolean overlaps(RangeSet<Version> versions) {
+        return !Ranges.intersection(this.versions, versions).isEmpty();
+    }
+
+    private boolean intersects(RangeSet<Version> versions) {
+        return Ranges.intersection(this.versions, versions).isEmpty();
+    }
+
     public RangeSet<Version> getVersions() {
         return versions;
     }

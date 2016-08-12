@@ -20,6 +20,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Functions;
 
+import com.google.common.collect.RangeSet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -206,12 +207,36 @@ public final class OrmServiceImpl implements OrmService {
         }
     }
 
+    public TableImpl<?> getTable(String componentName, String tableName, RangeSet<Version> versions) {
+        DataModelImpl dataModel = dataModels.get(componentName);
+        if (dataModel == null) {
+            throw new IllegalArgumentException("DataModel " + componentName + " not found");
+        } else {
+            TableImpl<?> result = dataModel.getTable(tableName, versions);
+            if (result == null) {
+                throw new IllegalArgumentException("Table " + tableName + " not found in component " + componentName);
+            } else {
+                return result;
+            }
+        }
+    }
+
     public TableImpl<?> getTable(Class<?> apiClass) {
         return this.dataModels
                 .values()
                 .stream()
                 .flatMap(dataModel -> dataModel.getTables().stream())
                 .filter(table -> table.supportsApi(apiClass))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("No table found that persists the api class " + apiClass.getName()));
+    }
+
+    public TableImpl<?> getTable(Class<?> apiClass, RangeSet<Version> versions) {
+        return this.dataModels
+                .values()
+                .stream()
+                .map(dataModel -> dataModel.getTable(apiClass, versions))
+                .flatMap(Functions.asStream())
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("No table found that persists the api class " + apiClass.getName()));
     }
