@@ -273,4 +273,10 @@ class ChannelsContainerValidationImpl implements ChannelsContainerValidation {
                 .filter(channelValidation -> ranges.containsKey(channelValidation.getChannel()))
                 .forEach(channelValidation -> channelValidation.moveLastCheckedBefore(ranges.get(channelValidation.getChannel()).lowerEndpoint()));
     }
+
+    @Override
+    public void moveLastCheckedBefore(Instant date) {
+        channelValidations.stream()
+                .forEach(channelValidation -> channelValidation.moveLastCheckedBefore(date));
+    }
 }

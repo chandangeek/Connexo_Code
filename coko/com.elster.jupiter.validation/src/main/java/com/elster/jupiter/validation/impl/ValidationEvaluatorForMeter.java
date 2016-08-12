@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.validation.ValidationContextImpl;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -13,6 +14,8 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static java.util.Comparator.naturalOrder;
+import static java.util.Comparator.nullsLast;
 
 /**
  * Created by tgr on 5/09/2014.
@@ -45,6 +49,23 @@ class ValidationEvaluatorForMeter extends AbstractValidationEvaluator {
     @Override
     public boolean isAllDataValidated(ChannelsContainer channelsContainer) {
         return getMapToValidation().get(channelsContainer.getId()).isAllDataValidated();
+    }
+
+    @Override
+    public boolean isAllDataValidated(List<Channel> channels) {
+        Comparator<Instant> comparator = nullsLast(naturalOrder());
+        for (Channel channel : channels) {
+            Optional<ChannelValidationContainer> channelValidation = Optional.ofNullable(getMapToValidation().get(channel.getChannelsContainer().getId()))
+                    .map(validationList -> validationList.channelValidationsFor(channel));
+            Optional<Instant> lastChecked = channelValidation.flatMap(ChannelValidationContainer::getLastChecked);
+            if (!channelValidation.isPresent()
+                    || !channelValidation.get().isValidationActive()
+                    || !lastChecked.isPresent()
+                    || comparator.compare(lastChecked.get(), channel.getLastDateTime()) < 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

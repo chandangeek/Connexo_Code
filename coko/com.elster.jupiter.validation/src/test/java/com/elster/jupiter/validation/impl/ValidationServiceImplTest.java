@@ -43,6 +43,7 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.ValidationContext;
+import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleProperties;
@@ -243,7 +244,9 @@ public class ValidationServiceImplTest {
         when(queueTableSpec.createDestinationSpec(any(String.class), any(Integer.class))).thenReturn(destinationSpec);
         doNothing().when(destinationSpec).save();
         doNothing().when(destinationSpec).activate();
-        when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpec);
+        DestinationSpec.SubscriberSpecBuilder subscriberSpecBuilder = mock(DestinationSpec.SubscriberSpecBuilder.class);
+        when(subscriberSpecBuilder.create()).thenReturn(subscriberSpec);
+        when(destinationSpec.subscribe(any(String.class))).thenReturn(subscriberSpecBuilder);
         doReturn(Optional.of(cimChannel1)).when(channel1).getCimChannel(any());
         doReturn(Optional.of(cimChannel2)).when(channel2).getCimChannel(any());
         doReturn(channel1).when(cimChannel1).getChannel();

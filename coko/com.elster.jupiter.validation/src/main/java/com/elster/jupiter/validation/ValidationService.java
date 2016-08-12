@@ -115,6 +115,8 @@ public interface ValidationService {
      */
     void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType);
 
+    void validate(ValidationContextImpl validationContext, Instant date);
+
     ValidationEvaluator getEvaluator();
 
     ValidationEvaluator getEvaluator(Meter meter, Range<Instant> interval);

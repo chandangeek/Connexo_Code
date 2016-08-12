@@ -47,6 +47,7 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationContext;
+import com.elster.jupiter.validation.ValidationContextImpl;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -415,6 +416,13 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     @Override
     public void validate(Set<QualityCodeSystem> targetQualityCodeSystems, ChannelsContainer channelsContainer, ReadingType readingType) {
         validate(new ValidationContextImpl(targetQualityCodeSystems, channelsContainer).setReadingType(readingType));
+    }
+
+    @Override
+    public void validate(ValidationContextImpl validationContext, Instant date) {
+        ChannelsContainerValidationList container = updatedChannelsContainerValidationsFor(validationContext);
+        container.moveLastCheckedBefore(date);
+        container.validate();
     }
 
     public void validate(ValidationContextImpl validationContext) {

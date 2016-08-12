@@ -57,6 +57,8 @@ public interface ChannelsContainerValidation extends HasId {
      */
     void moveLastCheckedBefore(Map<Channel, Range<Instant>> ranges);
 
+    void moveLastCheckedBefore(Instant date);
+
     boolean isAllDataValidated();
 
     Instant getMinLastChecked();
