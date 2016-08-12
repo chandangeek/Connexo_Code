@@ -11,7 +11,11 @@ Ext.define('Cfg.view.field.ReadingQualities', {
         if (value.isConfirmed) {
             return this.getConfirmed(value.confirmedInApps);
         } else if (!Ext.isEmpty(validationRules)) {
-            return this.getValidationRules(validationRules);
+            var valueToRender = this.getValidationRules(validationRules);
+            if (Ext.isEmpty(valueToRender)) {
+                field.hide();
+            }
+            return valueToRender;
         } else if (value.estimatedByRule) {
             return this.getEstimatedByRule(value.estimatedByRule);
         } else {
@@ -104,9 +108,9 @@ Ext.define('Cfg.view.field.ReadingQualities', {
             }
             if (rule.deleted) {
                 str += '<span style="word-wrap: break-word; display: inline-block; width: 800px">' + rule.name + ' ' + Uni.I18n.translate('device.registerData.removedRule', 'CFG', '(removed rule)') + prop + '</span>' + '&nbsp;' + application  + '<br>';
-            } if (rule.application.id == "MDM" && !me.usedInInsight) {
+            } if (rule.application && rule.application.id == "MDM" && !me.usedInInsight) {
                 str += Uni.I18n.translate('device.suspectInInsight', 'CFG', 'Suspect in Insight');
-            } else {
+            } else if (!Ext.isEmpty(application)) {
                 str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
 
                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
