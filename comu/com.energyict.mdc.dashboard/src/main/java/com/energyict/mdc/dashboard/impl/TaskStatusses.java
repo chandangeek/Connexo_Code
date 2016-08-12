@@ -8,7 +8,7 @@ import java.util.Set;
 
 /**
  * Provides a common definition for subsets of {@link TaskStatus}
- * adn utility methods to count in terms of these subsets.
+ * and utility methods to count in terms of these subsets.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-09-22 (12:05)
