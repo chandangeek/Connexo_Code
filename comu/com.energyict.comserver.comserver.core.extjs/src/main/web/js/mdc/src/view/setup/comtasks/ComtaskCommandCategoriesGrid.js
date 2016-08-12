@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategoriesGrid', {
     store: null,
     requires: [
         'Uni.grid.column.Action',
-        'Uni.view.toolbar.PagingTop'
+        'Uni.view.toolbar.PagingTop',
+        'Uni.grid.column.RemoveAction'
     ],
     router: null,
     forceFit: true,
@@ -24,19 +25,11 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCommandCategoriesGrid', {
                 flex: 1
             },
             {
-                xtype: 'actioncolumn',
-                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                iconCls: 'uni-icon-delete',
-                width: 90,
+                xtype: 'uni-actioncolumn-remove',
                 privileges: Mdc.privileges.Communication.admin,
-                items: [
-                    {
-                        tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                        handler: function (grid, rowIndex, colIndex, item, e, record) {
-                            this.fireEvent('removeCommandCategory', grid, rowIndex, record);
-                        }
-                    }
-                ]
+                handler: function (grid, rowIndex, colIndex, item, e, record) {
+                    this.fireEvent('removeCommandCategory', grid, rowIndex, record);
+                }
             }
         ];
         me.dockedItems = [
