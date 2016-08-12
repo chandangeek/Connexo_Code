@@ -3,12 +3,14 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
 
     views: [
         'Mdc.view.setup.deviceloadprofiles.Setup',
-        'Mdc.view.setup.deviceloadprofiles.EditWindow'
+        'Mdc.view.setup.deviceloadprofiles.EditWindow',
+        'Uni.view.error.NotFound'
     ],
 
     requires: [
         'Mdc.store.TimeUnits',
-        'Mdc.view.setup.deviceloadprofiles.DataValidationContent'
+        'Mdc.view.setup.deviceloadprofiles.DataValidationContent',
+        'Uni.controller.history.Router'
     ],
 
     models: [
@@ -59,6 +61,7 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
 
     showView: function (mRID) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             model = me.getModel('Mdc.model.Device'),
             timeUnitsStore = me.getStore('TimeUnits'),
             viewport = Ext.ComponentQuery.query('viewport')[0],
@@ -69,12 +72,16 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             me.getStore('Mdc.store.LoadProfilesOfDevice').getProxy().setUrl(mRID);
             model.load(mRID, {
                 success: function (record) {
-                    widget = Ext.widget('deviceLoadProfilesSetup', {
-                        device: record,
-                        router: me.getController('Uni.controller.history.Router')
-                    });
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                    me.getApplication().fireEvent('loadDevice', record);
+                    if (record.get('hasLoadProfiles')) {
+                        widget = Ext.widget('deviceLoadProfilesSetup', {
+                            device: record,
+                            router: router
+                        });
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        me.getApplication().fireEvent('loadDevice', record);
+                    } else {
+                        window.location.replace(router.getRoute('notfound').buildUrl());
+                    }
                     viewport.setLoading(false);
                 }
             });

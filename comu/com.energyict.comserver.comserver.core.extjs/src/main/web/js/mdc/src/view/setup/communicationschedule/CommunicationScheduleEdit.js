@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
     requires: [
         'Mdc.widget.ScheduleField',
         'Mdc.widget.DateTimeField',
-        'Uni.util.FormInfoMessage'
+        'Uni.util.FormInfoMessage',
+        'Uni.grid.column.RemoveAction'
     ],
     router: null,
     isEdit: function () {
@@ -123,17 +124,10 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                                 flex: 1
                                             },
                                             {
-                                                xtype: 'actioncolumn',
-                                                iconCls: 'uni-icon-delete',
-                                                width: 55,
-                                                items: [
-                                                    {
-                                                        tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                                        handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                                                            this.fireEvent('deleteComTask', record);
-                                                        }
-                                                    }
-                                                ]
+                                                xtype: 'uni-actioncolumn-remove',
+                                                handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                                                    this.fireEvent('deleteComTask', record);
+                                                }
                                             }
                                         ],
                                         listeners: {
