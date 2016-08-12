@@ -311,6 +311,8 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     void putOnHold();
 
+    void resume();
+
     /**
      * Updates the next execution of this ComTaskExecution
      * so that it will get picked up as soon as possible.

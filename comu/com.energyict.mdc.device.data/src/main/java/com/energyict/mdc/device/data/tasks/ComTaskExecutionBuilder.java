@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
 import aQute.bnd.annotation.ProviderType;
+import com.energyict.mdc.tasks.ComTask;
 
 import java.time.Instant;
 
@@ -36,6 +37,26 @@ public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
 
     // For adhoc comtaskExecutions
     public ComTaskExecutionBuilder<C> runNow();
+
+    /**
+     * Temporarily disables scheduling of the related {@link ComTask},
+     * and will happily be ignored in the following circumstances:
+     * <ul>
+     * <li>the ComTask has been executed against the Device in an ad hoc way (see isAdhoc())</li>
+     * <li>the ComTask is only available for execution but has no actual tasks against the Device (see isAvailable())</li>
+     * </ul>
+     * Note that putting a CommunicationTask that is not scheduled or is already on hold
+     * will not cause any errors and will in fact be ignored.
+     */
+    public void putOnHold ();
+
+    /**
+     * Resumes the execution of this CommunicationTask, which is the reverse
+     * operation of putting it on hold.
+     * Note that resuming a CommunicationTask that has not been put on hold
+     * will not cause any errors and will in fact be ignored.
+     */
+    public void resume ();
 
     /**
      * Creates the actual ComTaskExecution with the objects set in the builder.

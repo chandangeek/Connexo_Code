@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -32,7 +31,7 @@ public enum ServerConnectionTaskStatus {
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
             return !task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                || task.getNextExecutionTimestamp() == null;
+                    || task.getNextExecutionTimestamp() == null;
         }
 
         @Override
@@ -41,8 +40,8 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id ) ");
-            sqlBuilder.append("and ");
+            sqlBuilder.append(".id and comport is not null) ");
+            sqlBuilder.append(" and ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
             sqlBuilder.append("and (   (discriminator =");
@@ -84,8 +83,7 @@ public enum ServerConnectionTaskStatus {
         public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
             if (task.isExecuting()) {
                 return true;
-            }
-            else {
+            } else {
                 for (ComTaskExecution comTaskExecution : task.getDevice().getComTaskExecutions()) {
                     if (comTaskExecution.isExecuting()) {
                         return true;
@@ -105,7 +103,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append(".nextexecutiontimestamp is not null and (exists (select * from ");
             sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id )");
+            sqlBuilder.append(".id and comport is not null)");
             sqlBuilder.append("     or ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is not null)");
@@ -129,26 +127,27 @@ public enum ServerConnectionTaskStatus {
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
             Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
-            return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && !nextExecutionTimestamp.isAfter(now));
+            return nextExecutionTimestamp != null && now.isAfter(nextExecutionTimestamp);
         }
 
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock, String connectionTaskTableName) {
             super.completeFindBySqlBuilder(sqlBuilder, clock, connectionTaskTableName);
-            sqlBuilder.append("and (not exists (select * from ");
+            sqlBuilder.appendWhereOrAnd();
+            sqlBuilder.append(connectionTaskTableName);
+            sqlBuilder.append(".status = 0 ");
+            sqlBuilder.append(" and ((" + connectionTaskTableName + ".discriminator = " + ConnectionTaskImpl.INBOUND_DISCRIMINATOR + ") or ");
+            sqlBuilder.append(" ((not exists (select * from ");
             sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id) and ");
+            sqlBuilder.append(".id and comport is not null) and ");
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".status = 0 ");
-            sqlBuilder.appendWhereOrAnd();
-            sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".nextexecutiontimestamp <=");
             sqlBuilder.addLong(this.asSeconds(clock.instant()));
+            sqlBuilder.append("))");
         }
 
         @Override
@@ -170,10 +169,7 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
-            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
-            return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.isAfter(now))
-                && (task.getLastSuccessfulCommunicationEnd() == null && task.getCurrentRetryCount() == 0);
+            return task.getLastSuccessfulCommunicationEnd() == null && task.getCurrentRetryCount() == 0;
         }
 
         @Override
@@ -182,7 +178,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id )");
+            sqlBuilder.append(".id and comport is not null)");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
@@ -222,10 +218,7 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
-            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
-            return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.isAfter(now))
-                && (this.strictlyBetween(task.getCurrentRetryCount(), 0, task.getMaxNumberOfTries()));
+            return this.strictlyBetween(task.getCurrentRetryCount(), 0, task.getMaxNumberOfTries());
         }
 
         @Override
@@ -234,7 +227,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id )");
+            sqlBuilder.append(".id and comport is not null)");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
@@ -270,12 +263,8 @@ public enum ServerConnectionTaskStatus {
 
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
-            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
-            return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.isAfter(now))
-                && task.lastExecutionFailed()
-                && task.getCurrentRetryCount() == 0
-                && task.getLastSuccessfulCommunicationEnd() != null;
+            return task.lastExecutionFailed()
+                    && task.getCurrentRetryCount() == 0;
         }
 
         @Override
@@ -284,7 +273,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id) ");
+            sqlBuilder.append(".id and comport is not null) ");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
@@ -329,11 +318,7 @@ public enum ServerConnectionTaskStatus {
         @Override
         public boolean appliesTo(ScheduledConnectionTask task, Instant now) {
             Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
-            return task.getStatus().equals(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                && task.getCurrentRetryCount() == 0
-                && !task.lastExecutionFailed()
-                && (nextExecutionTimestamp != null && nextExecutionTimestamp.isAfter(now))
-                && task.getLastSuccessfulCommunicationEnd() != null;
+            return nextExecutionTimestamp != null && nextExecutionTimestamp.isAfter(now);
         }
 
         @Override
@@ -342,7 +327,7 @@ public enum ServerConnectionTaskStatus {
             sqlBuilder.append("and (not exists (select * from ");
             sqlBuilder.append(" busytask where busytask.connectiontask = ");
             sqlBuilder.append(connectionTaskTableName);
-            sqlBuilder.append(".id) ");
+            sqlBuilder.append(".id and busytask.comport is not null) ");
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append(connectionTaskTableName);
             sqlBuilder.append(".comserver is null) ");
@@ -378,6 +363,39 @@ public enum ServerConnectionTaskStatus {
     public static final String BUSY_TASK_ALIAS_NAME = "busytask";
 
     /**
+     * Gets the {@link com.energyict.mdc.device.data.tasks.TaskStatus} that applies to the specified {@link ScheduledConnectionTask}.
+     *
+     * @param task The ServerOutboundConnectionTask
+     * @return The applicable TaskStatus
+     */
+    public static TaskStatus getApplicableStatusFor(ScheduledConnectionTask task, Instant now) {
+        /* Implementation note:
+         * Changing the order of the enum values
+         * will/can have an effect on the outcome. */
+        for (ServerConnectionTaskStatus serverConnectionTaskStatus : values()) {
+            if (serverConnectionTaskStatus.appliesTo(task, now)) {
+                return serverConnectionTaskStatus.getPublicStatus();
+            }
+        }
+        return TaskStatus.initial();
+    }
+
+    /**
+     * Converts the {@link TaskStatus} to the corresponding {@link ServerConnectionTaskStatus}.
+     *
+     * @param taskStatus The TaskStatus
+     * @return The corresponding ServerConnectionTaskStatus
+     */
+    public static ServerConnectionTaskStatus forTaskStatus(TaskStatus taskStatus) {
+        for (ServerConnectionTaskStatus serverComTaskStatus : values()) {
+            if (serverComTaskStatus.getPublicStatus().equals(taskStatus)) {
+                return serverComTaskStatus;
+            }
+        }
+        throw new IllegalArgumentException("unrecognized enum value " + taskStatus);
+    }
+
+    /**
      * Returns the public counterpart of this ServerConnectionTaskStatus.
      *
      * @return The public counterpart
@@ -389,7 +407,7 @@ public enum ServerConnectionTaskStatus {
      * applies to the {@link ScheduledConnectionTask}.
      *
      * @param task The ConnectionTaskExecutionAspects
-     * @param now The current time
+     * @param now  The current time
      * @return <code>true</code> iff this ServerConnectionTaskStatus applies to the ServerOutboundConnectionTask
      */
     public abstract boolean appliesTo(ScheduledConnectionTask task, Instant now);
@@ -422,47 +440,13 @@ public enum ServerConnectionTaskStatus {
     protected long asSeconds(Instant date) {
         if (date == null) {
             return 0;
-        }
-        else {
+        } else {
             return date.getEpochSecond();
         }
     }
 
-    protected boolean strictlyBetween (int aNumber, int lower, int upper) {
+    protected boolean strictlyBetween(int aNumber, int lower, int upper) {
         return lower < aNumber && aNumber < upper;
-    }
-
-    /**
-     * Gets the {@link com.energyict.mdc.device.data.tasks.TaskStatus} that applies to the specified {@link ScheduledConnectionTask}.
-     *
-     * @param task The ServerOutboundConnectionTask
-     * @return The applicable TaskStatus
-     */
-    public static TaskStatus getApplicableStatusFor(ScheduledConnectionTask task, Instant now) {
-        /* Implementation note:
-         * Changing the order of the enum values
-         * will/can have an effect on the outcome. */
-        for (ServerConnectionTaskStatus serverConnectionTaskStatus : values()) {
-            if (serverConnectionTaskStatus.appliesTo(task, now)) {
-                return serverConnectionTaskStatus.getPublicStatus();
-            }
-        }
-        return TaskStatus.initial();
-    }
-
-    /**
-     * Converts the {@link TaskStatus} to the corresponding {@link ServerConnectionTaskStatus}.
-     *
-     * @param taskStatus The TaskStatus
-     * @return The corresponding ServerConnectionTaskStatus
-     */
-    public static ServerConnectionTaskStatus forTaskStatus(TaskStatus taskStatus) {
-        for (ServerConnectionTaskStatus serverComTaskStatus : values()) {
-            if (serverComTaskStatus.getPublicStatus().equals(taskStatus)) {
-                return serverComTaskStatus;
-            }
-        }
-        throw new IllegalArgumentException("unrecognized enum value " + taskStatus);
     }
 
 }

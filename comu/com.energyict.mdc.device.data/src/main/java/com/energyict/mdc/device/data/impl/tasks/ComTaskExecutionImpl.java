@@ -100,6 +100,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     private boolean useDefaultConnectionTask;
     private boolean ignoreNextExecutionSpecsForInbound;
     private List<ComTaskExecutionTrigger> comTaskExecutionTriggers = new ArrayList<>();
+    private boolean onHold;
 
     @Inject
     public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, CommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
@@ -180,11 +181,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public String getStatusDisplayName() {
         return TaskStatusTranslationKeys.translationFor(getStatus(), getThesaurus());
-    }
-
-    @Override
-    public boolean isOnHold() {
-        return this.nextExecutionTimestamp == null;
     }
 
     @Override
@@ -548,8 +544,20 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
+    public boolean isOnHold() {
+        return this.onHold;
+    }
+
+    @Override
     public void putOnHold() {
+        this.onHold = true;
         this.schedule(null);
+    }
+
+    @Override
+    public void resume() {
+        this.onHold = false;
+        this.schedule(getPlannedNextExecutionTimestamp());
     }
 
     @Override
@@ -843,20 +851,36 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
         @Override
         public ComTaskExecutionBuilder<C> scheduleNow() {
-            this.comTaskExecution.scheduleNow();
+            if (!this.comTaskExecution.isOnHold()) {
+                this.comTaskExecution.scheduleNow();
+            }
             return this;
         }
 
         @Override
         public ComTaskExecutionBuilder<C> runNow() {
-            this.comTaskExecution.runNow();
+            if (!this.comTaskExecution.isOnHold()) {
+                this.comTaskExecution.runNow();
+            }
             return this;
         }
 
         @Override
         public ComTaskExecutionBuilder<C> schedule(Instant instant) {
-            this.comTaskExecution.schedule(instant);
+            if (!this.comTaskExecution.isOnHold()) {
+                this.comTaskExecution.schedule(instant);
+            }
             return null;
+        }
+
+        @Override
+        public void putOnHold() {
+            this.comTaskExecution.putOnHold();
+        }
+
+        @Override
+        public void resume() {
+            this.comTaskExecution.resume();
         }
 
         @Override
