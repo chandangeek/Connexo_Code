@@ -1,13 +1,11 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import com.google.common.collect.ImmutableMap;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -36,10 +34,9 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
     // For testing purposes
     @Inject
-    public SearchLocationServiceImpl(OrmService ormService) {
+    public SearchLocationServiceImpl(MeteringDataModelService meteringDataModelService) {
         this();
-        this.setOrmService(ormService);
-        this.activate();
+        this.setMeteringDataModelService(meteringDataModelService);
     }
 
     private Map<String, String> templateMap() {
@@ -60,20 +57,10 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 .build();
     }
 
-    @Activate
-    public void activate() {
-        if (this.dataModel != null) {
-            this.ensureLocationTemplateInitialized();
-        }
-    }
-
     @Reference
-    public void setOrmService(OrmService ormService) {
-        List<DataModel> dataModels = ormService.getDataModels();
-        if (dataModels.size() > 0) {
-            this.dataModel = dataModels.get(0);
-            this.ensureLocationTemplateInitialized();
-        }
+    public void setMeteringDataModelService(MeteringDataModelService meteringDataModelService) {
+        this.dataModel = meteringDataModelService.getDataModel();
+        this.ensureLocationTemplateInitialized();
     }
 
     private void ensureLocationTemplateInitialized() {
