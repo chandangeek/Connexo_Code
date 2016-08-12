@@ -9,19 +9,21 @@ public enum DeviceSearchModelTranslationKeys implements TranslationKey {
     DEVICE_CONFIGURATION_NAME("deviceConfigurationName", "Device configuration"),
     STATE("state", "State"),
     BATCH("batch", "Batch"),
-    HAS_OPEN_DATA_COLLECTION_ISSUES("hasOpenDataCollectionIssues", "Has open data collection issues"),
+    HAS_OPEN_DATA_COLLECTION_ISSUES("hasOpenDataCollectionIssues", "Data collection issues"),
     SERVICE_CATEGORY("serviceCategory", "Service category"),
     USAGE_POINT("usagePoint", "Usage point"),
     YEAR_OF_CERTIFICATION("yearOfCertification", "Year of certification"),
-    ESTIMATION_ACTIVE("estimationActive", "Data estimation is active"),
+    ESTIMATION_ACTIVE("estimationActive", "Data estimation"),
     MASTER_DEVICE_MRID("masterDevicemRID", "Master device"),
     SHIPMENT_DATE("shipmentDate", "Shipment date"),
     INSTALLATION_DATE("installationDate", "Installation date"),
     DEACTIVATION_DATE("deactivationDate", "Deactivation date"),
     DECOMMISSION_DATE("decommissionDate", "Decommissioning date"),
-    VALIDATION_ACTIVE("validationActive", "Validation is active"),
-    HAS_OPEN_DATA_VALIDATION_ISSUES("hasOpenDataValidationIssues", "Has open validation issues"),
+    VALIDATION_ACTIVE("validationActive", "Data validation"),
+    HAS_OPEN_DATA_VALIDATION_ISSUES("hasOpenDataValidationIssues", "Data validation issues"),
     LOCATION("location", "Location"),
+    DEVICE_DATA_STATE_ACTIVE("deviceDataStateActive", "Active"),
+    DEVICE_DATA_STATE_INACTIVE("deviceDataStateInactive", "Inactive")
     ;
 
     private String key;
