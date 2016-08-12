@@ -3,7 +3,8 @@ Ext.define('Est.estimationrules.view.EditForm', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Uni.property.form.Property',
-        'Uni.grid.column.ReadingType'
+        'Uni.grid.column.ReadingType',
+        'Uni.grid.column.RemoveAction'
     ],
     alias: 'widget.estimation-rule-edit-form',
     ui: 'large',
@@ -98,19 +99,13 @@ Ext.define('Est.estimationrules.view.EditForm', {
                                 flex: 1
                             },
                             {
-                                xtype: 'actioncolumn',
-                                align: 'right',
-                                items: [
-                                    {
-                                        iconCls: 'uni-icon-delete',
-                                        handler: function (grid, rowIndex) {
-                                            grid.getStore().removeAt(rowIndex);
-                                            if (grid.getStore().count() === 0) {
-                                                me.updateGrid();
-                                            }
-                                        }
+                                xtype: 'uni-actioncolumn-remove',
+                                handler: function (grid, rowIndex) {
+                                    grid.getStore().removeAt(rowIndex);
+                                    if (grid.getStore().count() === 0) {
+                                        me.updateGrid();
                                     }
-                                ]
+                                }
                             }
                         ],
                         height: 220,
