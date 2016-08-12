@@ -130,29 +130,27 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             xtype: 'displayfield',
             itemId: 'firmware-version-field',
             fieldLabel: Uni.I18n.translate('device.firmware.field.version', 'FWC', 'Firmware version'),
-            name: 'firmwareVersion'
-        },
-        {
-            xtype: 'displayfield',
-            itemId: 'firmware-version-status-field',
-            fieldLabel: Uni.I18n.translate('device.firmware.field.status', 'FWC', 'Firmware version status'),
-            renderer: function (value) {
-                var result = value ? value.localizedValue : '-';
-
-                if (value && value.id === 'deprecated') {
-                    result += '<span class="icon-warning" style="margin-left: 10px; color: #EB5642; font-size:16px" data-qtip="' +
-                        Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Firmware version is deprecated. Consider uploading new firmware version.') +
-                        '"></span>';
+            name: 'firmwareVersion',
+            renderer: function (value, field) {
+                var returnValue = value;
+                if (Ext.isEmpty(value)) {
+                    return '-';
                 }
-
-                return result;
-            },
-            name: 'firmwareVersionStatus'
+                returnValue += ' (';
+                returnValue += field.up().record.getActiveVersion().getFirmwareVersionStatus().get('localizedValue');
+                if(field.up().record.getActiveVersion().getFirmwareVersionStatus().get('id') === 'deprecated') {
+                    returnValue +=  ' ' + '<span class="icon-warning" style="color: #EB5642; font-size:12px" data-qtip="' +
+                                   Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Firmware version is deprecated. Consider uploading new firmware version.') +
+                                   '"></span>';
+                }
+                returnValue += ')';
+                return returnValue;
+            }
         },
         {
             xtype: 'displayfield',
             itemId: 'last-checked-date-field',
-            fieldLabel: Uni.I18n.translate('device.firmware.field.date', 'FWC', 'Last checked date'),
+            fieldLabel: Uni.I18n.translate('device.firmware.field.date', 'FWC', 'Last verified'),
             name: 'lastCheckedDate',
             renderer: function (data) {
                 return data ? Uni.DateTime.formatDateTimeShort(data) : '-';

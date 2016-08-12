@@ -54,7 +54,8 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
             type: 'hasOne',
             model: 'Fwc.model.FirmwareStatus',
             name: 'firmwareVersionStatus',
-            associationKey: 'firmwareVersionStatus'
+            associationKey: 'firmwareVersionStatus',
+            getterName: 'getFirmwareVersionStatus'
         },
         {
             type: 'hasOne',
