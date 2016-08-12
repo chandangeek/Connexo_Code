@@ -16,7 +16,8 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePointHistory', {
 
     stores: [
         'Mdc.usagepointmanagement.store.UsagePointHistoryDevices',
-        'Mdc.usagepointmanagement.store.MetrologyConfigurationVersions'
+        'Mdc.usagepointmanagement.store.MetrologyConfigurationVersions',
+        'Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations'
     ],
 
     refs: [
