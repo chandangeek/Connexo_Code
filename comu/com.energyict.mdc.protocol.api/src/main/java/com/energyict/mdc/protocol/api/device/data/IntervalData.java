@@ -10,7 +10,14 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 
 /**
  * Represents a single interval record.
@@ -111,9 +118,9 @@ public class IntervalData implements Externalizable, Comparable, IntervalStateBi
     }
 
     /**
-     * @param endTime             end of interval in UTC
+     * @param endTime end of interval in UTC
      * @param readingQualityTypes the reading qualities that apply to these interval values
-     * @param protocolStatus      protocol specific interval status
+     * @param protocolStatus protocol specific interval status
      */
     public IntervalData(Date endTime, Set<ReadingQualityType> readingQualityTypes, int protocolStatus) {
         this(endTime, readingQualityTypes);
@@ -121,10 +128,10 @@ public class IntervalData implements Externalizable, Comparable, IntervalStateBi
     }
 
     /**
-     * @param endTime             end of interval in UTC
+     * @param endTime end of interval in UTC
      * @param readingQualityTypes the reading qualities that apply to these interval values
-     * @param protocolStatus      protocol specific interval status
-     * @param tariffCode          tariff code
+     * @param protocolStatus protocol specific interval status
+     * @param tariffCode tariff code
      */
     public IntervalData(Date endTime, Set<ReadingQualityType> readingQualityTypes, int protocolStatus, int tariffCode) {
         this(endTime, readingQualityTypes, protocolStatus);
@@ -132,10 +139,10 @@ public class IntervalData implements Externalizable, Comparable, IntervalStateBi
     }
 
     /**
-     * @param endTime             end of interval in UTC
+     * @param endTime end of interval in UTC
      * @param readingQualityTypes the reading qualities that apply to these interval values
-     * @param protocolStatus      protocol specific interval status
-     * @param tariffCode          tariff code
+     * @param protocolStatus protocol specific interval status
+     * @param tariffCode tariff code
      */
     public IntervalData(Date endTime, Set<ReadingQualityType> readingQualityTypes, int protocolStatus, int tariffCode, List<IntervalValue> intervalValues) {
         this(endTime, readingQualityTypes, protocolStatus, tariffCode);

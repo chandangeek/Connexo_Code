@@ -20,6 +20,7 @@ enum ActivityCalendarType implements TranslationKey {
         this.key = key;
         this.defaultFormat = defaultFormat;
     }
+
     @Override
     public String getKey() {
         return this.key;

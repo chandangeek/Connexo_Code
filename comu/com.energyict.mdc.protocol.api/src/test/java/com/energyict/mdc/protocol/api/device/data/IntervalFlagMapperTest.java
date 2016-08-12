@@ -3,9 +3,10 @@ package com.energyict.mdc.protocol.api.device.data;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.readings.ProtocolReadingQualities;
 import com.energyict.mdc.common.interval.IntervalStateBits;
-import org.junit.Test;
 
 import java.util.List;
+
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
