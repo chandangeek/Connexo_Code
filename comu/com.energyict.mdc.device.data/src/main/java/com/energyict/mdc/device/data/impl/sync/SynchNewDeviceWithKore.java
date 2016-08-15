@@ -41,8 +41,11 @@ public class SynchNewDeviceWithKore extends AbstractSyncDeviceWithKoreMeter {
     }
 
     protected MeterActivation doActivateMeter(Instant generalizedStartDate) {
-        if (getDevice().getUsagePoint().isPresent()) {
-            return getDevice().getMeter().get().activate(device.getUsagePoint().get(), generalizedStartDate);
+        Optional<? extends MeterActivation> meterActivation = getDevice().getCurrentMeterActivation();
+        if (meterActivation.flatMap(MeterActivation::getUsagePoint).isPresent()) {
+            return getDevice().getMeter()
+                    .get()
+                    .activate(meterActivation.flatMap(MeterActivation::getUsagePoint).get(), meterActivation.flatMap(MeterActivation::getMeterRole).get(), generalizedStartDate);
         }
         return getDevice().getMeter().get().activate(generalizedStartDate);
     }

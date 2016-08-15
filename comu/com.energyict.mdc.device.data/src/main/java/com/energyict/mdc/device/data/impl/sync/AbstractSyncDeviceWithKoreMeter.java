@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Channel;
@@ -24,13 +25,13 @@ import java.util.Optional;
 
 /**
  * Base methods that can be used to sync the (Kore) Meter with the configuration of this (MDC) Device
- * <p>
+ * <p/>
  * Additional behaviour related to 'Kore' objects.
- * <p>
+ * <p/>
  * Note: always try to use the {@link #generalizeDatesToMinutes(Instant)} method for start and end dates.
  * This way it is more clear that all start and end dates begin at zero seconds. This should prevent overlap
  * when we have FrontEnd fields that don't contain seconds
- * <p>
+ * <p/>
  * Copyrights EnergyICT
  * Date: 21/04/2016
  * Time: 13:14
@@ -187,32 +188,32 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
      *
      * @param end date of the given MeterActivation, and becomes the start date of the newly created one
      * @param meterActivation MeterActivation to end
-     * @param usagePoint the UsagePoint for the new meterActivation. If not given the meterActivation's UsagePoint is used
+     * @param newUsagePoint the UsagePoint for the new meterActivation. If not given the meterActivation's UsagePoint is used
      * @return the new MeterActivation
      */
-    protected MeterActivation endMeterActivationAndRestart(Instant end, Optional<MeterActivation> meterActivation, Optional<UsagePoint> usagePoint) {
-        Optional<BigDecimal> multiplier = Optional.empty();
-        if (meterActivation.isPresent()) {
-            if (!usagePoint.isPresent()) {
-                usagePoint = meterActivation.get().getUsagePoint();
-            }
-            multiplier = meterActivation.get().getMultiplier(multiplierType);
-            meterActivation.get().endAt(end);
-        }
+    protected MeterActivation endMeterActivationAndRestart(Instant end, Optional<MeterActivation> meterActivation, Optional<UsagePoint> newUsagePoint) {
+        meterActivation.ifPresent(ma -> ma.endAt(end));
         MeterActivation newMeterActivation;
-        if (usagePoint.isPresent()) {
-            newMeterActivation = device.getMeter().get().activate(usagePoint.get(), end);
+
+        if (newUsagePoint.isPresent()) {
+            Optional<MeterRole> meterRole = meterActivation.flatMap(MeterActivation::getMeterRole);
+            if (meterRole.isPresent()) {
+                newMeterActivation = device.getMeter().get().activate(newUsagePoint.get(), meterRole.get(), end);
+            } else {
+                newMeterActivation = device.getMeter().get().activate(newUsagePoint.get(), end);
+            }
+        } else if (meterActivation.flatMap(MeterActivation::getUsagePoint).isPresent()) {
+            newMeterActivation = device.getMeter().get().activate(meterActivation.flatMap(MeterActivation::getUsagePoint).get(), meterActivation.flatMap(MeterActivation::getMeterRole).get(), end);
         } else {
             newMeterActivation = device.getMeter().get().activate(end);
         }
-        multiplier.ifPresent(m -> newMeterActivation.setMultiplier(multiplierType, m));
+        meterActivation.flatMap(ma -> ma.getMultiplier(multiplierType))
+                .ifPresent(multiplier -> newMeterActivation.setMultiplier(multiplierType, multiplier));
         // We need channels on the newMeterActivation;
         this.addKoreChannelsIfNecessary(newMeterActivation);
         device.getKoreHelper().setCurrentMeterActivation(Optional.of(newMeterActivation));
-
         // we need to create new channelReferences if applicable
         this.eventService.postEvent(EventType.RESTARTED_METERACTIVATION.topic(), device);
-
         return newMeterActivation;
     }
 
