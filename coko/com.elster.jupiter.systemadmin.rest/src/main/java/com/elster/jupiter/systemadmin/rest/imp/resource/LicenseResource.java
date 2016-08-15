@@ -105,15 +105,12 @@ public class LicenseResource {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream(); InputStream fis = inputStream) {
             byte[] buffer = new byte[1024];
             int length;
-            int total = 0;
             while ((length = fis.read(buffer)) != -1) {
                 out.write(buffer, 0, length);
                 if (out.size() > MAX_LICENSE_FILE_SIZE) {
                     throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(
                             jsonService.serialize(new ConstraintViolationInfo(thesaurus).from(new InvalidLicenseFileException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED, MAX_LICENSE_FILE_SIZE/1024/1024)))).build());
                 }
-                total += length;
-                System.out.println(total);
             }
             return out.toByteArray();
         } catch (IOException ex) {
