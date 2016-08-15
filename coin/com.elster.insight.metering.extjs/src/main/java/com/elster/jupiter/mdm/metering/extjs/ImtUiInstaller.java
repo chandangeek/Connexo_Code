@@ -38,6 +38,8 @@ public class ImtUiInstaller implements TranslationKeyProvider {
     @Activate
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
+        // EXAMPLE: Below is how to enable local development mode.
+//        HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/Insight2/com.elster.jupiter.mdm.metering.extjs/src/main/web/js/imt", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
