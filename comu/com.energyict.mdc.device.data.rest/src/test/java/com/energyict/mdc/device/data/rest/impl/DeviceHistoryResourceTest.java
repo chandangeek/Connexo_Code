@@ -2,7 +2,6 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.User;
@@ -15,7 +14,6 @@ import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.DefaultLifeCycleTranslationKey;
 
-import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.JsonModel;
 
 import java.math.BigDecimal;
@@ -72,6 +70,7 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceConfiguration.getName()).thenReturn("DeviceConfig");
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getHistory(any(Instant.class))).thenReturn(Optional.of(device));
+        when(device.getMultiplierAt(any(Instant.class))).thenReturn(Optional.of(BigDecimal.TEN));
         when(usagePoint.getId()).thenReturn(1L);
         when(usagePoint.getMRID()).thenReturn("UsagePoint");
         when(meterActivation.getId()).thenReturn(1L);
@@ -80,7 +79,8 @@ public class DeviceHistoryResourceTest extends DeviceDataRestApplicationJerseyTe
         when(meterActivation.isCurrent()).thenReturn(true);
         when(meterActivation.getStart()).thenReturn(start);
         when(meterActivation.getEnd()).thenReturn(Instant.ofEpochMilli(1410774820100L));
-        when(meterActivation.getMultipliers()).thenReturn(ImmutableMap.of(mock(MultiplierType.class), BigDecimal.TEN));
+        when(meterActivation.getCreateDate()).thenReturn(deviceCreationDate);
+        when(meterActivation.getModificationDate()).thenReturn(deviceCreationDate);
     }
 
     @Test
