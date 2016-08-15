@@ -165,7 +165,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
     },
 
     goToAttributesLanding: function(mRID) {
-        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward({mRID: mRID})
+        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward(Ext.isString(mRID) ? {mRID: mRID} : undefined);
     },
 
     goToAttributesLandingFromCas: function () {
