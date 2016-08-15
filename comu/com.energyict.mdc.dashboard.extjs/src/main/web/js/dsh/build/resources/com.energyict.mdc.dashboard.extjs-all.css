@@ -1963,7 +1963,7 @@
 
 .x-bar {
     position: relative;
-    display: inline
+    display: block;
 }
 
 .x-bar .threshold {
