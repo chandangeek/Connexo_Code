@@ -16,6 +16,7 @@ import com.elster.jupiter.systemadmin.rest.imp.response.LicenseInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.LicenseShortInfo;
 import com.elster.jupiter.systemadmin.rest.imp.response.RootEntity;
 import com.elster.jupiter.util.json.JsonService;
+
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -31,6 +32,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.security.SignedObject;
@@ -41,7 +45,8 @@ import java.util.stream.Collectors;
 @Path("/license")
 public class LicenseResource {
 
-    public static int UNPROCESSIBLE_ENTITY = 422;
+    private static final int MAX_LICENSE_FILE_SIZE = 1024 * 1024;
+    private static final int UNPROCESSIBLE_ENTITY = 422;
 
     private final LicenseService licenseService;
     private final LicenseInfoFactory licenseInfoFactory;
@@ -88,22 +93,44 @@ public class LicenseResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
     @RolesAllowed(Privileges.Constants.UPLOAD_LICENSE)
-    public Response uploadLicense(@FormDataParam("uploadField") InputStream fileInputStream,
+    public Response uploadLicense(@FormDataParam("uploadField") InputStream inputStream,
                                   @FormDataParam("uploadField") FormDataContentDisposition contentDispositionHeader) {
-        SignedObject signedObject = readLicense(fileInputStream);
+        byte[] bytes = loadLicenseFile(inputStream);
+        SignedObject signedObject = readLicense(bytes);
         ActionInfo info = addLicense(signedObject);
         return Response.ok().entity(jsonService.serialize(info)).build();
     }
 
-    private SignedObject readLicense(@FormDataParam("uploadField") InputStream fileInputStream) {
+    private byte[] loadLicenseFile(InputStream inputStream) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(); InputStream fis = inputStream) {
+            byte[] buffer = new byte[1024];
+            int length;
+            int total = 0;
+            while ((length = fis.read(buffer)) != -1) {
+                out.write(buffer, 0, length);
+                if (out.size() > MAX_LICENSE_FILE_SIZE) {
+                    throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(
+                            jsonService.serialize(new ConstraintViolationInfo(thesaurus).from(new InvalidLicenseFileException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED, MAX_LICENSE_FILE_SIZE/1024/1024)))).build());
+                }
+                total += length;
+                System.out.println(total);
+            }
+            return out.toByteArray();
+        } catch (IOException ex) {
+            throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(
+                    jsonService.serialize(new ConstraintViolationInfo(thesaurus).from(new InvalidLicenseFileException(MessageSeeds.FILE_IO)))).build());
+        }
+    }
+
+    private SignedObject readLicense(byte[] bytes) {
         SignedObject signedObject;
         try {
-            ObjectInputStream serializedObject = new ObjectInputStream(fileInputStream);
+            ObjectInputStream serializedObject = new ObjectInputStream(new ByteArrayInputStream(bytes));
             signedObject = (SignedObject) serializedObject.readObject();
             serializedObject.close();
         } catch (Exception ex) {
             throw new WebApplicationException(Response.status(UNPROCESSIBLE_ENTITY).entity(
-                    jsonService.serialize(new ConstraintViolationInfo(thesaurus).from(new InvalidLicenseFileException()))).build());
+                    jsonService.serialize(new ConstraintViolationInfo(thesaurus).from(new InvalidLicenseFileException(MessageSeeds.INVALID_LICENSE_FILE)))).build());
         }
         return signedObject;
     }

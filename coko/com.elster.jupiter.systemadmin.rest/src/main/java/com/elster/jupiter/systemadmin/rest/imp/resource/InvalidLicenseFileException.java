@@ -4,8 +4,8 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 
 public class InvalidLicenseFileException extends LocalizedFieldValidationException {
 
-    public InvalidLicenseFileException() {
-        super(MessageSeeds.INVALID_LICENSE_FILE, "licenseFile");
+    public InvalidLicenseFileException(MessageSeeds messageSeed, Object... args) {
+        super(messageSeed, "licenseFile", args);
     }
 
 }

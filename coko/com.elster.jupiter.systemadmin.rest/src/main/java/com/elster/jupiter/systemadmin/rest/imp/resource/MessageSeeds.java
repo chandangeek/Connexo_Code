@@ -9,6 +9,8 @@ public enum  MessageSeeds implements MessageSeed {
 
     PURGE_HISTORY_DOES_NOT_EXIST(1, "PurgeHistoryDoesNotExist", "The purge history record with id = ''{0}'' doesn't exist", Level.WARNING),
     INVALID_LICENSE_FILE(2, "InvalidLicenseFile", "Invalid license file", Level.SEVERE),
+    MAX_FILE_SIZE_EXCEEDED(13, "MaxFileSizeExceeded", "File size should be less than {0} Mb", Level.SEVERE),
+    FILE_IO(4, "FileIO", "Failure while doing IO on file", Level.SEVERE),
     ;
 
     private final int number;
