@@ -2,7 +2,6 @@ package com.elster.jupiter.mdm.usagepoint.data.rest.impl;
 
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
@@ -66,13 +65,6 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_USAGEPOINT, usagePoint.getMRID()));
     }
 
-    public UsagePointMetrologyConfiguration findAndLockUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
-        return metrologyConfigurationService.findAndLockMetrologyConfiguration(id, version)
-                .filter(mc -> mc instanceof UsagePointMetrologyConfiguration)
-                .map(UsagePointMetrologyConfiguration.class::cast)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_METROLOGYCONFIG_FOR_ID, id));
-    }
-
     public UsagePointMetrologyConfiguration findAndLockActiveUsagePointMetrologyConfigurationOrThrowException(long id, long version) {
         return metrologyConfigurationService
                 .findAndLockMetrologyConfiguration(id, version)
@@ -90,11 +82,6 @@ public class ResourceHelper {
 
     }
 
-    public ReadingType findReadingTypeByMrIdOrThrowException(String rt_mrid) {
-        return meteringService.getReadingType(rt_mrid).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_READING_TYPE_FOR_MRID, rt_mrid));
-    }
-
-
     public UsagePoint lockUsagePointOrThrowException(UsagePointInfo info) {
         return lockUsagePointOrThrowException(info.id, info.version, info.mRID);
     }
@@ -108,19 +95,6 @@ public class ResourceHelper {
 
     public ConcurrentModificationException throwUsagePointLinkedException(String mrid) {
         return conflictFactory.conflict().withMessageBody(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION_MSG, mrid).withMessageTitle(MessageSeeds.USAGE_POINT_LINKED_EXCEPTION, mrid).build();
-    }
-
-    public MetrologyContract findAndLockContractOnMetrologyConfiguration(PurposeInfo purposeInfo) {
-        return metrologyConfigurationService.findAndLockMetrologyContract(purposeInfo.id, purposeInfo.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(purposeInfo.name)
-                        .withActualVersion(() -> getCurrentMetrologyContractVersion(purposeInfo.id))
-                        .supplier());
-    }
-
-    public Long getCurrentMetrologyContractVersion(long id) {
-        return metrologyConfigurationService.findMetrologyContract(id)
-                .map(MetrologyContract::getVersion)
-                .orElse(null);
     }
 
     public MetrologyContract findMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, long contractId) {

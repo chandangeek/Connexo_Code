@@ -179,7 +179,6 @@ public class UsagePointResource {
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     public PagedInfoList getUsagePoints(@BeanParam JsonQueryParameters queryParameters,
-                                        @BeanParam JsonQueryFilter filter,
                                         @Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<UsagePoint> list = queryUsagePoints(true, params);
@@ -207,7 +206,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public UsagePointInfo updateUsagePoint(@PathParam("id") String id, UsagePointInfo info) {
+    public UsagePointInfo updateUsagePoint(UsagePointInfo info) {
         UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info);
 
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
@@ -240,7 +239,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT,
             Privileges.Constants.ADMINISTER_OWN_USAGEPOINT, Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
-    public UsagePointInfo getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
+    public UsagePointInfo getUsagePoint(@PathParam("mrid") String mRid) {
         return usagePointInfoFactory.fullInfoFrom(resourceHelper.findUsagePointByMrIdOrThrowException(mRid));
     }
 
@@ -483,7 +482,6 @@ public class UsagePointResource {
         try {
             BigDecimal numericLatitude = new BigDecimal(parts[0].contains(",") ? String.valueOf(parts[0].replace(",", ".")) : parts[0]);
             BigDecimal numericLongitude = new BigDecimal(parts[1].contains(",") ? String.valueOf(parts[1].replace(",", ".")) : parts[1]);
-            BigDecimal numericElevation = new BigDecimal(parts[2]);
             if (numericLatitude.compareTo(BigDecimal.valueOf(-90)) < 0
                     || numericLatitude.compareTo(BigDecimal.valueOf(90)) > 0
                     || numericLongitude.compareTo(BigDecimal.valueOf(-180)) < 0
@@ -510,7 +508,7 @@ public class UsagePointResource {
     @Path("/{id}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ANY_USAGEPOINT, Privileges.Constants.VIEW_OWN_USAGEPOINT})
-    public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
+    public ReadingTypeInfos getReadingTypes(@PathParam("id") long id) {
         UsagePoint usagePoint = resourceHelper.findUsagePointByIdOrThrowException(id);
         return new ReadingTypeInfos(collectReadingTypes(usagePoint));
     }
@@ -560,7 +558,7 @@ public class UsagePointResource {
     @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("{mRID}/runningservicecalls/{id}")
-    public Response cancelServiceCall(@PathParam("mRID") String mrid, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
+    public Response cancelServiceCall(@PathParam("id") long serviceCallId, ServiceCallInfo info) {
         if ("sclc.default.cancelled".equals(info.state.id)) {
             serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
             return Response.status(Response.Status.ACCEPTED).build();

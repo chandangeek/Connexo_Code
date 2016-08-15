@@ -7,7 +7,6 @@ import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -23,8 +22,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.time.Clock;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,15 +33,11 @@ public class DeviceResource {
 
     private final RestQueryService queryService;
     private final MeteringService meteringService;
-    private final TransactionService transactionService;
-    private final Clock clock;
 
     @Inject
-    public DeviceResource(RestQueryService queryService, MeteringService meteringService, TransactionService transactionService, Clock clock) {
+    public DeviceResource(RestQueryService queryService, MeteringService meteringService) {
         this.queryService = queryService;
         this.meteringService = meteringService;
-        this.transactionService = transactionService;
-        this.clock = clock;
     }
 
     @GET
@@ -74,23 +67,13 @@ public class DeviceResource {
         if (!maySeeAny) {
             query.setRestriction(meteringService.hasAccountability());
         }
-        List<Meter> meters = queryService.wrap(query).select(queryParameters);
-        return meters;
-    }
-
-    private List<MeterInfo> convertToMeterInfo(List<Meter> meters) {
-        List<MeterInfo> meterInfos = new ArrayList<MeterInfo>();
-        for (Meter meter : meters) {
-            MeterInfo mi = new MeterInfo(meter);
-            meterInfos.add(mi);
-        }
-        return meterInfos;
+        return queryService.wrap(query).select(queryParameters);
     }
 
     @GET
     @Path("/available")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response getAvailableMeters(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters params) {
+    public Response getAvailableMeters(@BeanParam JsonQueryParameters params) {
         Query<Meter> meterQuery = meteringService.getMeterQuery();
         String searchText = params.getLike();
         Integer start = params.getStart().isPresent() ? params.getStart().get() : 1;

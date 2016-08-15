@@ -15,6 +15,7 @@ public class PurposeInfo {
     public Long version;
     public UsagePointValidationStatusInfo validationInfo;
     public List<DataValidationTaskShortInfo> dataValidationTasks;
+    public List<com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo> readingTypeDeliverables;
 
     public PurposeInfo() {
     }
