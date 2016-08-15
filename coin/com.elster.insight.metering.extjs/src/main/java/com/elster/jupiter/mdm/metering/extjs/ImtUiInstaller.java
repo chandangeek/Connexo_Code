@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -37,8 +38,6 @@ public class ImtUiInstaller implements TranslationKeyProvider {
     @Activate
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
-        // EXAMPLE: Below is how to enable local development mode.
-//        HttpResource resource =  new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/Insight2/com.elster.jupiter.mdm.metering.extjs/src/main/web/js/imt", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 
