@@ -60,7 +60,7 @@ public enum MessageSeeds implements MessageSeed {
         return UsagePointDataService.COMPONENT_NAME;
     }
 
-    public static class Keys {
+    public static final class Keys {
         private Keys(){}
         public static final String LAST_CHECKED_CANNOT_BE_NULL = "lastChecked.null";
         public static final String LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED = "lastChecked.after.currentLastChecked";
