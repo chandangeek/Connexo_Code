@@ -36,7 +36,7 @@ public class DeviceSearchInfo {
     public String location;
 
 
-    public static DeviceSearchInfo from(Device device, BatchRetriever batchService, GatewayRetriever gatewayRetriever,
+    public static DeviceSearchInfo from(Device device, GatewayRetriever gatewayRetriever,
                                         IssueRetriever issueService, Thesaurus thesaurus, DeviceValidationRetriever deviceValidationRetriever) {
         DeviceSearchInfo searchInfo = new DeviceSearchInfo();
         searchInfo.id = device.getId();
@@ -47,7 +47,7 @@ public class DeviceSearchInfo {
         searchInfo.deviceTypeName = device.getDeviceType().getName();
         searchInfo.deviceTypeId = device.getDeviceType().getId();
         searchInfo.state = getStateName(device.getState(), thesaurus);
-        searchInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
+        searchInfo.batch = device.getBatch().map(Batch::getName).orElse(null);
 
         searchInfo.hasOpenDataCollectionIssues = issueService.hasOpenDataCollectionIssues(device);
         device.getUsagePoint().ifPresent(usagePoint -> {

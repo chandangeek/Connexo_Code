@@ -91,18 +91,17 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     @Override
     public DeviceSearchInfo from(Device device) {
-        return DeviceSearchInfo.from(device, new BatchRetriever(batchService), new GatewayRetriever(topologyService), new IssueRetriever(issueService),
+        return DeviceSearchInfo.from(device, new GatewayRetriever(topologyService), new IssueRetriever(issueService),
                 thesaurus, new DeviceValidationRetriever(deviceService));
     }
 
     @Override
     public List<Object> from(List<Device> domainObjects) {
-        BatchRetriever batchService = new BatchRetriever(this.batchService, domainObjects);
         GatewayRetriever topologyService = new GatewayRetriever(this.topologyService, domainObjects);
         IssueRetriever issueRetriever = new IssueRetriever(issueService, domainObjects);
         DeviceValidationRetriever validationRetriever = new DeviceValidationRetriever(deviceService, domainObjects);
         return domainObjects.stream()
-                .map(device -> DeviceSearchInfo.from(device, batchService, topologyService, issueRetriever, thesaurus, validationRetriever))
+                .map(device -> DeviceSearchInfo.from(device, topologyService, issueRetriever, thesaurus, validationRetriever))
                 .collect(Collectors.toList());
     }
 
@@ -118,7 +117,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
         }
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, new IssueRetriever(issueService), thesaurus,
+        return DeviceInfo.from(device, slaveDevices, topologyService, new IssueRetriever(issueService), thesaurus,
                 dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(coord -> coord.toString()).orElse(null), clock);
     }
 

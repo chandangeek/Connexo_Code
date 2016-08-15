@@ -115,7 +115,7 @@ public class DeviceAttributesInfoFactory {
         fillAvailableAndEditable(info.lifeCycleState, DeviceAttribute.LIFE_CYCLE_STATE, state);
 
         info.batch = new DeviceAttributeInfo<>();
-        batchService.findBatch(device).ifPresent(batch -> {
+        device.getBatch().ifPresent(batch -> {
             info.batch.attributeId = batch.getId();
             info.batch.displayValue = batch.getName();
         });
@@ -255,7 +255,7 @@ public class DeviceAttributesInfoFactory {
         }
         if (DeviceAttribute.BATCH.isEditableForState(state) && info.batch != null) {
             if (Checks.is(info.batch.displayValue).emptyOrOnlyWhiteSpace()) {
-                batchService.findBatch(device).ifPresent(batch -> batch.removeDevice(device));
+                device.getBatch().ifPresent(device::removeFromBatch);
             } else {
                 batchService.findOrCreateBatch(info.batch.displayValue).addDevice(device);
             }
