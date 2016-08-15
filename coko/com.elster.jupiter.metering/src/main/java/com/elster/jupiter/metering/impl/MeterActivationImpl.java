@@ -529,4 +529,15 @@ public final class MeterActivationImpl implements IMeterActivation {
     public List<ChannelsContainer> getChannelsContainers() {
         return Collections.singletonList(getChannelsContainer());
     }
+
+
+    @Override
+    public Instant getCreateDate() {
+        return createTime;
+    }
+
+    @Override
+    public Instant getModificationDate() {
+        return modTime;
+    }
 }
