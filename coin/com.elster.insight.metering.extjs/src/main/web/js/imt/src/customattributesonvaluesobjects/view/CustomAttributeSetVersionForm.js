@@ -323,7 +323,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
             overlapContainer = me.down('#overlap-grid-field-container'),
             startDateField = me.down('#custom-attribute-set-version-start-date-field'),
             endDateField = me.down('#custom-attribute-set-version-end-date-field'),
-            startTime = startDateField.getValue(),
+            startTime = startDateField.getValue().getTime(),
             endTime = endDateField.getValue();
 
         if (!startTime || !endTime || startTime < endTime ) {
