@@ -1,7 +1,6 @@
-package com.elster.jupiter.mdm.usagepoint.config.rest;
+package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypeDeliverablesInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ValidationRuleSetInfo;
+import com.elster.jupiter.mdm.usagepoint.config.rest.ReadingTypeDeliverablesInfo;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 

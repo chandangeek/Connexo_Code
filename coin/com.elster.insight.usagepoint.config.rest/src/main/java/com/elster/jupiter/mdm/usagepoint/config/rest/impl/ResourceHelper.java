@@ -3,7 +3,6 @@ package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.rest.CustomPropertySetInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.MetrologyContractInfo;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
