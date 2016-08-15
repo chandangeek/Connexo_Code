@@ -14,6 +14,7 @@ import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -56,7 +57,6 @@ public class MdmAppServiceImpl implements MdmAppService, ApplicationPrivilegesPr
     @Activate
     public final void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APPLICATION_NAME));
-//        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "/home/kurtk/Projects/git/insight/com.elster.jupiter.insight.app/src/main/web/js/insight", new FileResolver(), new DefaultStartPage(APPLICATION_NAME));
         App app = new App(APPLICATION_KEY, APPLICATION_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, this::isAllowed);
 
         registration = context.registerService(App.class, app, null);
