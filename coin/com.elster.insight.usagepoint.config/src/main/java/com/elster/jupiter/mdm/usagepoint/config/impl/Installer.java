@@ -47,6 +47,19 @@ class Installer implements FullInstaller, PrivilegesProvider {
     private final MetrologyConfigurationService metrologyConfigurationService;
     private final MeteringService meteringService;
 
+    private static final String SERVICE_CATEGORY_NOT_FOUND = "Service category not found: ";
+    private static final String PURPOSE_NOT_FOUND = "Billing metrology purpose not found";
+    private static final String SERVICEKIND = "SERVICEKIND";
+    private static final String DETAIL_PHASE_CODE = "detail.phaseCode";
+    private static final String ROLE_NOT_FOUND = "Default meter role not found";
+    private static final String REACTIVE_ENERGY_PLUS = "Reactive energy+";
+    private static final String MONTHLY_A_PLUS_WH = "13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MONTHLY_A_MINUS_WH = "13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String DAILY_A_PLUS_WH = "11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String MIN15_A_PLUS_WH = "0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0";
+    private static final String ACTIVE_ENERGY_TOU1 = "13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0";
+    private static final String ACTIVE_ENERGY_TOU2 = "13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0";
+
     @Inject
     Installer(DataModel dataModel, UserService userService, MetrologyConfigurationService metrologyConfigurationService, MeteringService meteringService) {
         super();
@@ -83,13 +96,13 @@ class Installer implements FullInstaller, PrivilegesProvider {
             return;
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prosumer with 1 meter", serviceCategory)
                 .withDescription("Typical installation for residential prosumers with smart meter").create();
 
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
+        config.addUsagePointRequirement(getUsagePointRequirement(DETAIL_PHASE_CODE, SearchablePropertyOperator.EQUAL,
                 PhaseCode.S1N.name(),
                 PhaseCode.S2N.name(),
                 PhaseCode.S12N.name(),
@@ -100,36 +113,36 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
-                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
         config.addMeterRole(meterRole);
 
-        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-        ReadingType readingTypeMonthlyAminusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_PLUS_WH, "A+"));
+        ReadingType readingTypeMonthlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_A_MINUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
-        ReadingType readingTypeDailyAplusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_MINUS_WH, "A-"));
+        ReadingType readingTypeDailyAplusWh = meteringService.findReadingTypes(Collections.singletonList(DAILY_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+                .orElseGet(() -> meteringService.createReadingType(DAILY_A_PLUS_WH, "A+"));
         ReadingType readingTypeDailyAminusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
                 .stream()
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType("11.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
-        ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+        ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList(MIN15_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+                .orElseGet(() -> meteringService.createReadingType(MIN15_A_PLUS_WH, "A+"));
         ReadingType readingType15minAminusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
                 .stream()
                 .findFirst()
                 .orElseGet(() -> meteringService.createReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
         MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                 .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
 
@@ -158,13 +171,13 @@ class Installer implements FullInstaller, PrivilegesProvider {
             return;
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential prosumer with 2 meters", serviceCategory)
                 .withDescription("Typical installation for residential prosumers with dumb meters").create();
 
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
+        config.addUsagePointRequirement(getUsagePointRequirement(DETAIL_PHASE_CODE, SearchablePropertyOperator.EQUAL,
                 PhaseCode.S1N.name(),
                 PhaseCode.S2N.name(),
                 PhaseCode.S12N.name(),
@@ -181,17 +194,17 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .orElseThrow(() -> new NoSuchElementException("Production meter role not found"));
         config.addMeterRole(meterRoleProduction);
 
-        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-        ReadingType readingTypeMonthlyAminusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_PLUS_WH, "A+"));
+        ReadingType readingTypeMonthlyAminusWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_A_MINUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "A-"));
+                .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_MINUS_WH, "A-"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
 
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
@@ -213,13 +226,13 @@ class Installer implements FullInstaller, PrivilegesProvider {
             return;
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (production)", serviceCategory)
                 .withDescription("Residential producer").create();
 
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
+        config.addUsagePointRequirement(getUsagePointRequirement(DETAIL_PHASE_CODE, SearchablePropertyOperator.EQUAL,
                 PhaseCode.S1N.name(),
                 PhaseCode.S2N.name(),
                 PhaseCode.S12N.name(),
@@ -230,20 +243,20 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
-                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
         config.addMeterRole(meterRole);
 
-        ReadingType readingTypeDailyAplusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+        ReadingType readingTypeDailyAplusWh = meteringService.findReadingTypes(Collections.singletonList(DAILY_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                .orElseGet(() -> meteringService.createReadingType(DAILY_A_PLUS_WH, "A+"));
+        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+                .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_PLUS_WH, "A+"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
         ReadingTypeRequirement requirementAminus = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_MINUS.getNameTranslation()
@@ -260,13 +273,13 @@ class Installer implements FullInstaller, PrivilegesProvider {
             return;
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential net metering (consumption)", serviceCategory)
                 .withDescription("Residential consumer").create();
 
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
+        config.addUsagePointRequirement(getUsagePointRequirement(DETAIL_PHASE_CODE, SearchablePropertyOperator.EQUAL,
                 PhaseCode.S1N.name(),
                 PhaseCode.S2N.name(),
                 PhaseCode.S12N.name(),
@@ -277,24 +290,24 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
-                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
         config.addMeterRole(meterRole);
 
-        ReadingType readingTypeDailyAplusWh = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+        ReadingType readingTypeDailyAplusWh = meteringService.findReadingTypes(Collections.singletonList(DAILY_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                .orElseGet(() -> meteringService.createReadingType(DAILY_A_PLUS_WH, "A+"));
+        ReadingType readingTypeMonthlyAplusWh = meteringService.findReadingTypes(Collections.singletonList(MONTHLY_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
-        ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0"))
+                .orElseGet(() -> meteringService.createReadingType(MONTHLY_A_PLUS_WH, "A+"));
+        ReadingType readingType15minAplusWh = meteringService.findReadingTypes(Collections.singletonList(MIN15_A_PLUS_WH))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "A+"));
+                .orElseGet(() -> meteringService.createReadingType(MIN15_A_PLUS_WH, "A+"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
         MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                 .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
 
@@ -316,20 +329,20 @@ class Installer implements FullInstaller, PrivilegesProvider {
             return;
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("C&I 3-phased consumer with smart meter with 2 ToU", serviceCategory)
                 .withDescription("C&I 3-phased consumer with smart meter 2 ToU").create();
 
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
+        config.addUsagePointRequirement(getUsagePointRequirement(DETAIL_PHASE_CODE, SearchablePropertyOperator.EQUAL,
                 PhaseCode.ABC.name(),
                 PhaseCode.ABCN.name()));
         config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP
                 .name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
-                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
         config.addMeterRole(meterRole);
 
         ReadingType readingTypeDailyActiveEnergyToU1 = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0"))
@@ -343,27 +356,27 @@ class Installer implements FullInstaller, PrivilegesProvider {
         ReadingType readingTypeDailyReactiveEnergyToU1 = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.2.1.12.0.0.0.0.1.0.0.0.3.73.0"))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.2.1.12.0.0.0.0.1.0.0.0.3.73.0", "Reactive energy+"));
+                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.2.1.12.0.0.0.0.1.0.0.0.3.73.0", REACTIVE_ENERGY_PLUS));
         ReadingType readingTypeDailyReactiveEnergyToU2 = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.2.1.12.0.0.0.0.2.0.0.0.3.73.0"))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.2.1.12.0.0.0.0.2.0.0.0.3.73.0", "Reactive energy+"));
-        ReadingType readingTypeMonthlyActiveEnergyToU1 = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0"))
+                .orElseGet(() -> meteringService.createReadingType("11.0.0.4.2.1.12.0.0.0.0.2.0.0.0.3.73.0", REACTIVE_ENERGY_PLUS));
+        ReadingType readingTypeMonthlyActiveEnergyToU1 = meteringService.findReadingTypes(Collections.singletonList(ACTIVE_ENERGY_TOU1))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0", "A+"));
-        ReadingType readingTypeMonthlyActiveEnergyToU2 = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0"))
+                .orElseGet(() -> meteringService.createReadingType(ACTIVE_ENERGY_TOU1, "A+"));
+        ReadingType readingTypeMonthlyActiveEnergyToU2 = meteringService.findReadingTypes(Collections.singletonList(ACTIVE_ENERGY_TOU2))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0", "A+"));
+                .orElseGet(() -> meteringService.createReadingType(ACTIVE_ENERGY_TOU2, "A+"));
         ReadingType readingTypeMonthlyReactiveEnergyToU1 = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.2.1.12.0.0.0.0.1.0.0.0.3.73.0"))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.2.1.12.0.0.0.0.1.0.0.0.3.73.0", "Reactive energy+"));
+                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.2.1.12.0.0.0.0.1.0.0.0.3.73.0", REACTIVE_ENERGY_PLUS));
         ReadingType readingTypeMonthlyReactiveEnergyToU2 = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.2.1.12.0.0.0.0.2.0.0.0.3.73.0"))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.2.1.12.0.0.0.0.2.0.0.0.3.73.0", "Reactive energy+"));
+                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.2.1.12.0.0.0.0.2.0.0.0.3.73.0", REACTIVE_ENERGY_PLUS));
         ReadingType readingTypeAverageVoltagePhaseA = meteringService.findReadingTypes(Collections.singletonList("0.2.7.6.0.1.158.0.0.0.0.0.0.0.128.0.29.0"))
                 .stream()
                 .findFirst()
@@ -378,7 +391,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .orElseGet(() -> meteringService.createReadingType("0.2.7.6.0.1.158.0.0.0.0.0.0.0.32.0.29.0", "Average voltage"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
         MetrologyPurpose purposeVoltageMonitoring = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.VOLTAGE_MONITORING)
                 .orElseThrow(() -> new NoSuchElementException("Voltage monitoring metrology purpose not found"));
 
@@ -430,13 +443,13 @@ class Installer implements FullInstaller, PrivilegesProvider {
             return;
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
-                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.ELECTRICITY));
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.ELECTRICITY));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential consumer with 4 ToU", serviceCategory)
                 .withDescription("Residential consumer with 4 ToU").create();
 
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.ELECTRICITY
                 .name()));
-        config.addUsagePointRequirement(getUsagePointRequirement("detail.phaseCode", SearchablePropertyOperator.EQUAL,
+        config.addUsagePointRequirement(getUsagePointRequirement(DETAIL_PHASE_CODE, SearchablePropertyOperator.EQUAL,
                 PhaseCode.S1N.name(),
                 PhaseCode.S2N.name(),
                 PhaseCode.S12N.name(),
@@ -447,17 +460,17 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
-                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
         config.addMeterRole(meterRole);
 
-        ReadingType readingTypeMonthlyAplusToU1 = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0"))
+        ReadingType readingTypeMonthlyAplusToU1 = meteringService.findReadingTypes(Collections.singletonList(ACTIVE_ENERGY_TOU1))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.1.0.0.0.3.72.0", "A+"));
-        ReadingType readingTypeMonthlyAplusToU2 = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0"))
+                .orElseGet(() -> meteringService.createReadingType(ACTIVE_ENERGY_TOU1, "A+"));
+        ReadingType readingTypeMonthlyAplusToU2 = meteringService.findReadingTypes(Collections.singletonList(ACTIVE_ENERGY_TOU2))
                 .stream()
                 .findFirst()
-                .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.2.0.0.0.3.72.0", "A+"));
+                .orElseGet(() -> meteringService.createReadingType(ACTIVE_ENERGY_TOU2, "A+"));
         ReadingType readingTypeMonthlyAplusToU3 = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.1.12.0.0.0.0.3.0.0.0.3.72.0"))
                 .stream()
                 .findFirst()
@@ -468,7 +481,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
                 .orElseGet(() -> meteringService.createReadingType("13.0.0.4.1.1.12.0.0.0.0.4.0.0.0.3.72.0", "A+"));
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
         ReadingTypeRequirement requirementAplusToU1 = config.newReadingTypeRequirement(DefaultReadingTypeTemplate.A_PLUS
@@ -499,17 +512,17 @@ class Installer implements FullInstaller, PrivilegesProvider {
             return;
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.GAS)
-                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.GAS));
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.GAS));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("Residential gas", serviceCategory)
                 .withDescription("Residential gas installation").create();
 
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.GAS
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.GAS
                 .name()));
         config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP
                 .name()));
 
         MeterRole meterRole = metrologyConfigurationService.findMeterRole(DefaultMeterRole.DEFAULT.getKey())
-                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
         config.addMeterRole(meterRole);
 
         ReadingType readingTypeDailyVolume = meteringService.findReadingTypes(Collections.singletonList("11.0.0.4.1.7.58.0.0.0.0.0.0.0.0.0.42.0"))
@@ -527,7 +540,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
         MetrologyPurpose purposeInformation = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
                 .orElseThrow(() -> new NoSuchElementException("Information metrology purpose not found"));
@@ -548,22 +561,22 @@ class Installer implements FullInstaller, PrivilegesProvider {
             return;
         }
         ServiceCategory serviceCategory = meteringService.getServiceCategory(ServiceKind.WATER)
-                .orElseThrow(() -> new NoSuchElementException("Service category not found: " + ServiceKind.WATER));
+                .orElseThrow(() -> new NoSuchElementException(SERVICE_CATEGORY_NOT_FOUND + ServiceKind.WATER));
         UsagePointMetrologyConfiguration config = metrologyConfigurationService.newUsagePointMetrologyConfiguration("C&I water configuration", serviceCategory)
                 .withDescription("C&I water configuration with 2 meters").create();
 
-        config.addUsagePointRequirement(getUsagePointRequirement("SERVICEKIND", SearchablePropertyOperator.EQUAL, ServiceKind.WATER
+        config.addUsagePointRequirement(getUsagePointRequirement(SERVICEKIND, SearchablePropertyOperator.EQUAL, ServiceKind.WATER
                 .name()));
         config.addUsagePointRequirement(getUsagePointRequirement("type", SearchablePropertyOperator.EQUAL, UsagePointTypeInfo.UsagePointType.MEASURED_SDP
                 .name()));
 
         MeterRole meterRolePeakConsumption = metrologyConfigurationService.findMeterRole(DefaultMeterRole.PEAK_CONSUMPTION
                 .getKey())
-                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
         config.addMeterRole(meterRolePeakConsumption);
         MeterRole meterRoleOffPeakConsumption = metrologyConfigurationService.findMeterRole(DefaultMeterRole.OFF_PEAK_CONSUMPTION
                 .getKey())
-                .orElseThrow(() -> new NoSuchElementException("Default meter role not found"));
+                .orElseThrow(() -> new NoSuchElementException(ROLE_NOT_FOUND));
         config.addMeterRole(meterRoleOffPeakConsumption);
 
         ReadingType readingTypeMonthlyConsumption = meteringService.findReadingTypes(Collections.singletonList("13.0.0.4.1.9.58.0.0.0.0.0.0.0.0.0.42.0"))
@@ -573,7 +586,7 @@ class Installer implements FullInstaller, PrivilegesProvider {
 
 
         MetrologyPurpose purposeBilling = metrologyConfigurationService.findMetrologyPurpose(DefaultMetrologyPurpose.BILLING)
-                .orElseThrow(() -> new NoSuchElementException("Billing metrology purpose not found"));
+                .orElseThrow(() -> new NoSuchElementException(PURPOSE_NOT_FOUND));
         MetrologyContract contractBilling = config.addMandatoryMetrologyContract(purposeBilling);
 
         ReadingTypeRequirement requiremenPeakConsumption = config.newReadingTypeRequirement("Peak consumption", meterRolePeakConsumption)
