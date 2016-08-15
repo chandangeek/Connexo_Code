@@ -135,19 +135,24 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     showDeviceRegisterConfigurationsView: function (mRID) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
         me.mRID = mRID;
         me.fromSpecification = false;
         viewport.setLoading();
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
-            success: function (device) {
-                var widget = Ext.widget('deviceRegisterConfigurationSetup', {
-                    device: device,
-                    router: me.getController('Uni.controller.history.Router')
-                });
-                me.getApplication().fireEvent('loadDevice', device);
-                me.getApplication().fireEvent('changecontentevent', widget);
+            success: function (record) {
+                if (record.get('hasRegisters')) {
+                    var widget = Ext.widget('deviceRegisterConfigurationSetup', {
+                        device: record,
+                        router: router
+                    });
+                    me.getApplication().fireEvent('loadDevice', record);
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                } else {
+                    window.location.replace(router.getRoute('notfound').buildUrl());
+                }
                 viewport.setLoading(false);
             }
         });

@@ -13,7 +13,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.EditCustomAttributeSetForm', {
         'Uni.form.field.CustomAttributeSetSelector',
         'Mdc.store.Intervals',
         'Mdc.store.SelectedRegisterTypesForLoadProfileType',
-        'Mdc.store.CustomAttributeSetsOnLoadProfile'
+        'Mdc.store.CustomAttributeSetsOnLoadProfile',
+        'Uni.grid.column.RemoveAction'
     ],
 
     items: [
@@ -74,13 +75,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.EditCustomAttributeSetForm', {
                                     flex: 1
                                 },
                                 {
-                                    xtype: 'actioncolumn',
-                                    align: 'right',
-                                    items: [
-                                        {
-                                            iconCls: 'uni-icon-delete'
-                                        }
-                                    ]
+                                    xtype: 'uni-actioncolumn-remove'
                                 }
                             ]
                         }

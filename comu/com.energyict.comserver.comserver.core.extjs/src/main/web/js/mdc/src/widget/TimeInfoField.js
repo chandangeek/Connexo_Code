@@ -1,10 +1,14 @@
 Ext.define('Mdc.widget.TimeInfoField', {
     extend: 'Ext.form.FieldContainer',
     requires: [
-        'Mdc.store.TimeUnits'
+        'Mdc.store.TimeUnits',
+        'Mdc.store.TimeUnitsWithoutMillisecondsAndSeconds',
+        'Mdc.store.TimeUnitsWithoutMilliseconds'
     ],
     stores: [
-        'TimeUnits'
+        'TimeUnits',
+        'TimeUnitsWithoutMillisecondsAndSeconds',
+        'TimeUnitsWithoutMilliseconds'
     ],
     mixins: {
         field: 'Ext.form.field.Field'
@@ -16,6 +20,7 @@ Ext.define('Mdc.widget.TimeInfoField', {
     numberFieldWidth: 100,
     unitFieldWidth: 185,
     flex: 1,
+    store: null,
 
     valueCfg: null,
     unitCfg: null,
@@ -39,8 +44,8 @@ Ext.define('Mdc.widget.TimeInfoField', {
 
     //@private
     buildField: function () {
-        var timeUnits = Ext.getStore('TimeUnits');
-        var me = this;
+        var me = this,
+        timeUnits = me.store === null ? Ext.getStore('TimeUnits') : Ext.getStore(me.store);
         me.items = [
             Ext.apply({
                 xtype: 'numberfield',

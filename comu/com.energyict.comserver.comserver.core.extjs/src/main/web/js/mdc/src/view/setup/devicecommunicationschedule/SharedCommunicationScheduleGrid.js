@@ -6,7 +6,8 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedu
 
     requires: [
         'Mdc.util.ScheduleToStringConverter',
-        'Mdc.view.setup.devicecommunicationschedule.SharedCommunicationScheduleActionMenu'
+        'Mdc.view.setup.devicecommunicationschedule.SharedCommunicationScheduleActionMenu',
+        'Uni.grid.column.RemoveAction'
     ],
 
     items: [
@@ -62,17 +63,10 @@ Ext.define('Mdc.view.setup.devicecommunicationschedule.SharedCommunicationSchedu
                     }
                 },
                 {
-                    xtype: 'actioncolumn',
-                    iconCls: 'uni-icon-delete',
-                    width: 55,
-                    items: [
-                        {
-                            tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                            handler: function (grid, rowIndex, colIndex, item, e, record, row) {
-                                this.fireEvent('removeSharedCommunicationSchedule', record);
-                            }
-                        }
-                    ]
+                    xtype: 'uni-actioncolumn-remove',
+                    handler: function (grid, rowIndex, colIndex, item, e, record, row) {
+                        this.fireEvent('removeSharedCommunicationSchedule', record);
+                    }
                 }
             ]
         }
