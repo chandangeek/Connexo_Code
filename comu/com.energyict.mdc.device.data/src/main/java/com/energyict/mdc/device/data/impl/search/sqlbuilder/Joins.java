@@ -29,8 +29,7 @@ enum Joins implements JoinType {
     Batch {
         @Override
         public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" join DDC_DEVICEINBATCH dib on dib.DEVICEID = dev.id ");
-            sqlBuilder.append(" join DDC_BATCH bch on bch.ID = dib.BATCHID ");
+            sqlBuilder.append(" join DDC_BATCH bch on bch.ID = dev.BATCH_ID ");
         }
     },
 

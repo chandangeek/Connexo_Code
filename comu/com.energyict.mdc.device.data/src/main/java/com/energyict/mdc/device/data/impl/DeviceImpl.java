@@ -88,6 +88,7 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -308,6 +309,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
     private final Reference<ServerDeviceEstimation> deviceEstimation = ValueReference.absent();
+    private final Reference<Batch> batch = ValueReference.absent();
 
     private transient AmrSystem amrSystem;
 
@@ -2194,6 +2196,25 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return journalEntries.stream()
                 .map(JournalEntry::get)
                 .findFirst();
+    }
+
+    @Override
+    public void addInBatch(Batch batch) {
+        this.batch.set(batch);
+        save();
+    }
+
+    @Override
+    public void removeFromBatch(Batch batch) {
+        if (this.batch.isPresent() && this.batch.get().getId() == batch.getId()) {
+            this.batch.set(null);
+            save();
+        }
+    }
+
+    @Override
+    public Optional<Batch> getBatch() {
+        return this.batch.getOptional();
     }
 
     private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {
