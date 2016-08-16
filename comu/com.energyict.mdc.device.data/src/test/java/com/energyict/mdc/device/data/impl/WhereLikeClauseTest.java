@@ -32,7 +32,8 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     private Device createSimpleDeviceWithName(String name) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, ""+name.hashCode(), Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, name, "" + name.hashCode(), Instant.now());
         device.save();
         return device;
     }

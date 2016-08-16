@@ -523,7 +523,8 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
         }
         else {
             EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().createEnumeratedEndDeviceGroup().setName("myDevices").create();
-            Device device = oracleIntegrationPersistence.getDeviceService().newDevice(deviceConfiguration, "myDevice", "ZAFO007", Instant.now());
+            Device device = oracleIntegrationPersistence.getDeviceService()
+                    .newDevice(deviceConfiguration, "myDevice", "ZAFO007", Instant.now());
             device.save();
             device.addToGroup(enumeratedEndDeviceGroup, range(Instant.EPOCH, BoundType.CLOSED, Instant.now(), BoundType.OPEN));
             enumeratedEndDeviceGroup.setMRID("static");

@@ -254,7 +254,7 @@ public class MultisenseHeadEndInterfaceTest {
         when(registredCompletionSet.getCustomPropertySet()).thenReturn(completionSet);
         when(completionSet.getId()).thenReturn(CompletionOptionsServiceCallDomainExtension.class.getName());
         when(completionSet.getName()).thenReturn(CompletionOptionsCustomPropertySet.class.getSimpleName());
-        when(customPropertySetService.findActiveCustomPropertySets(any())).thenReturn(Arrays.asList(registredReadSet,registredCompletionSet));
+        when(customPropertySetService.findActiveCustomPropertySets(any())).thenReturn(Arrays.asList(registredReadSet, registredCompletionSet));
 
         ServiceCallType serviceCallType = mock(ServiceCallType.class);
         when(serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION))
@@ -270,7 +270,7 @@ public class MultisenseHeadEndInterfaceTest {
         List<ReadingType> readingTypes = Collections.singletonList(readingType);
 
         // Business method
-        headEndInterface.readMeter(meter,readingTypes);
+        headEndInterface.readMeter(meter, readingTypes);
 
         // Asserts
         verify(serviceCall, times(1)).requestTransition(DefaultState.PENDING);

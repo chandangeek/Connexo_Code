@@ -335,12 +335,15 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
         @Override
         public Optional<Instant> getLastDateTime() {
-            Optional<com.elster.jupiter.metering.Channel> channelWithLastDateTime = LoadProfileImpl.this.getDevice().getMeterActivationsMostRecentFirst().stream()
+            Optional<com.elster.jupiter.metering.Channel> channelWithLastDateTime = LoadProfileImpl.this.getDevice()
+                    .getMeterActivationsMostRecentFirst()
+                    .stream()
                     .flatMap(meterActivation ->
                             meterActivation.getChannelsContainer().getChannels()
                                     .stream()
                                     .filter(channel -> channel.getReadingTypes().contains(this.getReadingType())))
-                    .filter(channel -> channel.getLastDateTime() != null).findAny();
+                    .filter(channel -> channel.getLastDateTime() != null)
+                    .findAny();
             if (channelWithLastDateTime.isPresent()) {
                 return Optional.of(channelWithLastDateTime.get().getLastDateTime());
             } else {

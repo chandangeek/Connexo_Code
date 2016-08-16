@@ -111,7 +111,8 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithName(String name, String mRID) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, name, mRID, Instant.now());
         device.save();
         return device;
     }

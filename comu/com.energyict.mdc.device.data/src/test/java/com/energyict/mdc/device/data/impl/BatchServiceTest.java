@@ -27,7 +27,9 @@ public class BatchServiceTest extends PersistenceIntegrationTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "batch")
     public void testBatchNameTooLong() {
-        inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device1", "Device1", "111111111111111111111111111111111111111111111111111111111111111111111111111111111", Instant.now());
+        inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "Device1", "Device1", "111111111111111111111111111111111111111111111111111111111111111111111111111111111", Instant
+                        .now());
     }
 
     @Test
@@ -86,7 +88,8 @@ public class BatchServiceTest extends PersistenceIntegrationTest {
     @Transactional
     public void testRemoveDeviceFromBatch() {
         Batch batch = inMemoryPersistence.getBatchService().findOrCreateBatch("batch");
-        Device device =  inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device1", "Device1", Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "Device1", "Device1", Instant.now());
         device.save();
 
         batch.addDevice(device);

@@ -13,7 +13,7 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.mdc.device.data.connectiontask.completion.handler",
         service = MessageHandlerFactory.class,
-        property = {"subscriber="+ MeterReadingEventHandlerFactory.SUBSCRIBER_NAME, "destination=" + EventService.JUPITER_EVENTS},
+        property = {"subscriber=" + MeterReadingEventHandlerFactory.SUBSCRIBER_NAME, "destination=" + EventService.JUPITER_EVENTS},
         immediate = true)
 public class MeterReadingEventHandlerFactory implements MessageHandlerFactory {
     public static final String SUBSCRIBER_NAME = "MeterReadingHandler";
