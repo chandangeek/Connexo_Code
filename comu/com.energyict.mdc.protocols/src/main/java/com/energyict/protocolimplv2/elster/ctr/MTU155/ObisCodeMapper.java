@@ -372,7 +372,7 @@ public abstract class ObisCodeMapper {
                 ResultType.NotSupported,
                 this.issueService.newWarning(
                         obisCode,
-                        MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(),
+                        MessageSeeds.REGISTER_NOT_SUPPORTED,
                         obisCode));
         return failedRegister;
     }
@@ -383,7 +383,7 @@ public abstract class ObisCodeMapper {
                 ResultType.InCompatible,
                 this.issueService.newWarning(
                         obisCode,
-                        MessageSeeds.REGISTER_INCOMPATIBLE.getKey(),
+                        MessageSeeds.REGISTER_INCOMPATIBLE,
                         obisCode,
                         message));
         return failedRegister;

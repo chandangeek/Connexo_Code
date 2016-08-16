@@ -413,7 +413,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     private Issue messageFailed(OfflineDeviceMessage pendingMessage, String message) {
         return this.issueService.newWarning(
                 pendingMessage,
-                MessageSeeds.DEVICEMESSAGE_FAILED.getKey(),
+                MessageSeeds.DEVICEMESSAGE_FAILED,
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName(),
@@ -423,7 +423,7 @@ public class IDISGatewayMessages implements DeviceMessageSupport {
     private Issue messageUnsupported(OfflineDeviceMessage pendingMessage) {
         return this.issueService.newWarning(
                 pendingMessage,
-                MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED.getKey(),
+                MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED,
                 pendingMessage.getDeviceMessageId(),
                 pendingMessage.getSpecification().getCategory().getName(),
                 pendingMessage.getSpecification().getName());

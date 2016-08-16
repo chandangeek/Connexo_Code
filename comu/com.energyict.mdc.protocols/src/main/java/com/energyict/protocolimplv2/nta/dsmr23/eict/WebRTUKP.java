@@ -207,7 +207,6 @@ public class WebRTUKP extends AbstractDlmsProtocol {
     protected Issue createCouldNotReadoutFirmwareVersionIssue(OfflineRegister firmwareRegister) {
         return getIssueService().newProblem(
                 firmwareRegister,
-                getThesaurus(),
                 com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_FIRMWARE_VERSION,
                 firmwareRegister.getObisCode());
     }

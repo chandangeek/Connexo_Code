@@ -74,7 +74,7 @@ public abstract class AbstractMTU155Message {
             collectedMessage.setFailureInformation(ResultType.Other,
                     this.issueService.newWarning(
                             message,
-                            MessageSeeds.DEVICEMESSAGE_FAILED.getKey(),
+                            MessageSeeds.DEVICEMESSAGE_FAILED,
                             message.getDeviceMessageId(),
                             message.getSpecification().getCategory().getName(),
                             message.getSpecification().getName(),

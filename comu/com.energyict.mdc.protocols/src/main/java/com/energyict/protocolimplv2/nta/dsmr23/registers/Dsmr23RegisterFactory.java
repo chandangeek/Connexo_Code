@@ -397,7 +397,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                     ResultType.InCompatible,
                     this.issueService.newWarning(
                             register.getObisCode(),
-                            MessageSeeds.REGISTER_ISSUE.getKey(),
+                            MessageSeeds.REGISTER_ISSUE,
                             register.getObisCode(),
                             arguments));
         } else {
@@ -405,7 +405,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                     ResultType.NotSupported,
                     this.issueService.newWarning(
                             register.getObisCode(),
-                            MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(),
+                            MessageSeeds.REGISTER_NOT_SUPPORTED,
                             register.getObisCode(),
                             arguments));
         }

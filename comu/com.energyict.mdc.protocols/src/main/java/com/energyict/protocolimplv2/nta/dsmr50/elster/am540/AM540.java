@@ -431,7 +431,6 @@ public class AM540 extends AbstractDlmsProtocol {
     protected Issue createCouldNotReadoutFirmwareVersionIssue(OfflineRegister firmwareRegister) {
         return getIssueService().newProblem(
                 firmwareRegister,
-                getThesaurus(),
                 com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_FIRMWARE_VERSION,
                 firmwareRegister.getObisCode());
     }
@@ -445,7 +444,6 @@ public class AM540 extends AbstractDlmsProtocol {
         } catch (ProtocolException e) {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
-                    this.getThesaurus(),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
                     DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
         }
@@ -458,7 +456,6 @@ public class AM540 extends AbstractDlmsProtocol {
         } catch (IOException e) {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
-                    this.getThesaurus(),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
                     DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
         }
@@ -467,7 +464,6 @@ public class AM540 extends AbstractDlmsProtocol {
         } catch (IOException e) {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
-                    this.getThesaurus(),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
                     DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
         }

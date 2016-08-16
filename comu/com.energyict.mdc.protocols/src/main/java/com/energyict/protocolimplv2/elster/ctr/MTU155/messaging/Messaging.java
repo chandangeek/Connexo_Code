@@ -98,7 +98,7 @@ public class Messaging implements DeviceMessageSupport {
                         ResultType.NotSupported,
                         this.issueService.newWarning(
                                 pendingMessage,
-                                MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED.getKey(),
+                                MessageSeeds.DEVICEMESSAGE_NOT_SUPPORTED,
                                 pendingMessage.getDeviceMessageId(),
                                 pendingMessage.getSpecification().getCategory().getName(),
                                 pendingMessage.getSpecification().getName()));

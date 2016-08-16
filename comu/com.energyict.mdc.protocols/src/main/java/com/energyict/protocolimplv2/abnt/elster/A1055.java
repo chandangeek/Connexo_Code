@@ -382,7 +382,6 @@ public class A1055 extends AbstractAbntProtocol {
     public CollectedCalendar getCollectedCalendar() {
         this.issueService.newWarning(
                 this.offlineDevice,
-                this.thesaurus,
                 com.energyict.mdc.protocol.api.MessageSeeds.READ_CALENDAR_INFO_NOT_SUPPORTED,
                 DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
 
