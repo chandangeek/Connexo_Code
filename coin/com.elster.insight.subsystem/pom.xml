@@ -9,10 +9,9 @@
         <version>1.2.0</version>
     </parent>
 
-    <groupId>com.elster.jupiter</groupId>
-    <artifactId>mdm.subsystem</artifactId>
+    <artifactId>mdm</artifactId>
     <version>1.1.0${revision}</version>
-    <packaging>pom</packaging>
+    <packaging>bundle</packaging>
     <name>[Insight Subsystem] com.elster.insight.subsystem</name>
     <description>Assembly project for Insight</description>
 
@@ -29,7 +28,12 @@
     </dependencyManagement>
 
     <dependencies>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>mdm.parent</artifactId>
+            <version>1.1.0${revision}</version>
+            <type>pom</type>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.app</artifactId>
@@ -62,37 +66,60 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.bpm.event</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>system</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemadmin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>insight</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>insight</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
 
-                <configuration>
-                    <archiverConfig>
-                        <duplicateBehavior>skip</duplicateBehavior>
-                    </archiverConfig>
+                        <configuration>
+                            <archiverConfig>
+                                <duplicateBehavior>skip</duplicateBehavior>
+                            </archiverConfig>
 
-                    <descriptors>
-                        <descriptor>assembly.xml</descriptor>
-                    </descriptors>
+                            <descriptors>
+                                <descriptor>assembly.xml</descriptor>
+                            </descriptors>
 
-                    <finalName>connexo-insight-v${project.version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+                            <finalName>connexo-insight-v${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
