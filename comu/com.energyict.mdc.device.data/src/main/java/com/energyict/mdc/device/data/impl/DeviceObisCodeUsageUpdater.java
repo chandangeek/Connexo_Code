@@ -13,13 +13,15 @@ import java.util.Optional;
  */
 public class DeviceObisCodeUsageUpdater {
 
-    public void update(DeviceImpl device, ReadingType readingType, ObisCode overruledObisCode){
+    public void update(DeviceImpl device, ReadingType readingType, ObisCode overruledObisCode) {
         Optional<ReadingTypeObisCodeUsage> readingTypeObisCodeUsageOptional = device.getReadingTypeObisCodeUsage(readingType);
         boolean currentlyNoOverruledObisCodeAlthoughRequested = overruledObisCode != null && // obiscode overruling requested...
                 !readingTypeObisCodeUsageOptional.isPresent(), // ...while currently there is none
                 currentOverruledObisCodeIsNotTheCorrectOne = overruledObisCode != null && // obiscode overruling requested and...
                         readingTypeObisCodeUsageOptional.isPresent() && // ...the currently present one...
-                        !readingTypeObisCodeUsageOptional.get().getObisCode().equals(overruledObisCode), // ...is different
+                        !readingTypeObisCodeUsageOptional.get()
+                                .getObisCode()
+                                .equals(overruledObisCode), // ...is different
                 currentOverruledObisCodeIsNotNeeded = overruledObisCode == null && // no obiscode overruling requested...
                         readingTypeObisCodeUsageOptional.isPresent(); // ...however, currently present
 

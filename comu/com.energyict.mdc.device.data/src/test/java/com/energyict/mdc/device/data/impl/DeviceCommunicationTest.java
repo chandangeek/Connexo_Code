@@ -226,7 +226,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     @Transactional
     public void createDeviceWithoutConnectionTasksTest() {
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithoutConnectionTasks", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfigurationWithConnectionType, "DeviceWithoutConnectionTasks", MRID, Instant.now());
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
@@ -243,7 +244,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     public void createDeviceWithScheduledConnectionTaskTest() {
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
         deviceConfigurationWithConnectionType.activate();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID, Instant.now());
         device.save();
         ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add();
 
@@ -262,7 +264,9 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     @Transactional
     public void createScheduledConnectionTaskAfterDeviceCreationTest() {
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "AddConnectionTasksAfterDeviceCreation", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfigurationWithConnectionType, "AddConnectionTasksAfterDeviceCreation", MRID, Instant
+                        .now());
         device.save();
         ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add();
         device.save();
@@ -283,7 +287,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     public void createDeviceWithInboundConnectionTaskTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialInboundConnectionTask();
         deviceConfiguration.activate();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionTasks", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceWithConnectionTasks", MRID, Instant.now());
         device.save();
         InboundConnectionTask inboundConnectionTask = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask).add();
 
@@ -303,7 +308,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     public void createInboundConnectionTaskAfterDeviceCreationTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialInboundConnectionTask();
         deviceConfiguration.activate();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionTasks", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceWithConnectionTasks", MRID, Instant.now());
         device.save();
         InboundConnectionTask inboundConnectionTask = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask).add();
         device.save();
@@ -323,7 +329,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     @Transactional
     public void createDeviceWithConnectionInitiationTaskTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialConnectionInitiationTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "Device", MRID, Instant.now());
         device.save();
         ConnectionInitiationTask connectionInitiationTask = device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask).add();
 
@@ -342,7 +349,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     @Transactional
     public void createConnectionInitiationTaskTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialConnectionInitiationTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "Device", MRID, Instant.now());
         device.save();
         ConnectionInitiationTask connectionInitiationTask = device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask).add();
         device.save();
@@ -363,7 +371,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     public void createDeviceWithMultipleConnectionTasksTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithThreeTypesOfPartialsTask();
         deviceConfiguration.activate();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "Device", MRID, Instant.now());
         device.save();
         final ConnectionInitiationTask connectionInitiationTask = device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask).add();
         final ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add();
@@ -403,7 +412,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     public void deleteDeviceDeletesConnectionTasksTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithThreeTypesOfPartialsTask();
         deviceConfiguration.activate();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "Device", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "Device", MRID, Instant.now());
         device.save();
         final ConnectionInitiationTask connectionInitiationTask = device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask).add();
         final ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add();
@@ -422,7 +432,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     public void deleteAConnectionTaskTest() {
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
         deviceConfigurationWithConnectionType.activate();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID, Instant.now());
 
         ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add();
 
@@ -445,7 +456,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     @Transactional
     public void updateAConnectionTaskThroughHisDeviceTest() {
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID, Instant.now());
         device.save();
 
         TemporalExpression newTemporalExpression = new TemporalExpression(TimeDuration.minutes(5));
@@ -473,7 +485,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         ComWindow communicationWindow = new ComWindow(PartialTime.fromHours(0), PartialTime.fromHours(12));
 
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID, Instant.now());
         device.save();
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
         scheduledConnectionTaskBuilder.setConnectionStrategy(minimizeConnectionStrategy);
@@ -496,7 +509,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     public void scheduledConnectionTaskBuilderWithConnectionInitiatorTest() {
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithThreeTypesOfPartialsTask();
         deviceConfigurationWithConnectionType.activate();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID, Instant.now());
         device.save();
         final ConnectionInitiationTask connectionInitiationTask = device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask).add();
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
@@ -523,7 +537,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         String ipAddress = "10.0.1.12";
         BigDecimal portNumber = new BigDecimal("4059");
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpOutboundConnectionTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
         device.save();
         this.grantAllViewAndEditPrivilegesToPrincipal();
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
@@ -559,7 +574,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         String ipAddress = Strings.repeat("10.0.1.12", StringFactory.MAX_SIZE);
         BigDecimal portNumber = new BigDecimal("4059");
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpOutboundConnectionTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
 
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
         scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
@@ -576,7 +592,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     public void inboundConnectionTaskBuilderTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialInboundConnectionTask();
         deviceConfiguration.activate();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceConfigWithInboundConnection", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceConfigWithInboundConnection", MRID, Instant.now());
         device.save();
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask);
         inboundConnectionTaskBuilder.setComPortPool(otherInboundComPortPool);
@@ -594,7 +611,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     @Transactional
     public void inboundConnectionTaskBuilderPropertyTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpInboundConnectionTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
         device.save();
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask);
         inboundConnectionTaskBuilder.add();
@@ -616,7 +634,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         String ipAddress = Strings.repeat("10.0.1.12", StringFactory.MAX_SIZE);
         BigDecimal portNumber = new BigDecimal("4059");
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpInboundConnectionTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask);
         inboundConnectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
 
@@ -632,7 +651,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     @Transactional
     public void connectionInitiationTaskBuilderTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialConnectionInitiationTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
         device.save();
         Device.ConnectionInitiationTaskBuilder connectionInitiationTaskBuilder = device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask);
         connectionInitiationTaskBuilder.setComPortPool(otherOutboundComPortPool);
@@ -646,7 +666,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     @Transactional
     public void connectionInitiationTaskBuilderPropertyTest() {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialConnectionInitiationTask();
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID, Instant.now());
         device.save();
         Device.ConnectionInitiationTaskBuilder connectionInitiationTaskBuilder = device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask);
         connectionInitiationTaskBuilder.add();

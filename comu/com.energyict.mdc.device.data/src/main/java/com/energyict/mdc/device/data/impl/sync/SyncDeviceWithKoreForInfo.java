@@ -48,7 +48,8 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
     @Override
     MeterActivation doActivateMeter(Instant generalizedStartDate) {
         super.setDevice(device);
-        this.currentMeterActivation = Optional.of(this.endMeterActivationAndRestart(generalizedStartDate, getCurrentMeterActivation(), Optional.empty()));
+        this.currentMeterActivation = Optional.of(this.endMeterActivationAndRestart(generalizedStartDate, getCurrentMeterActivation(), Optional
+                .empty()));
         return currentMeterActivation.get();
     }
 
@@ -66,8 +67,14 @@ public class SyncDeviceWithKoreForInfo extends AbstractSyncDeviceWithKoreMeter {
 
     public Optional<MeterActivation> getCurrentMeterActivation() {
         if (this.currentMeterActivation == null) {
-            if (getDevice().getMeter().isPresent() && getDevice().getMeter().get().getCurrentMeterActivation().isPresent()) {
-                this.currentMeterActivation = Optional.of(getDevice().getMeter().get().getCurrentMeterActivation().get());
+            if (getDevice().getMeter().isPresent() && getDevice().getMeter()
+                    .get()
+                    .getCurrentMeterActivation()
+                    .isPresent()) {
+                this.currentMeterActivation = Optional.of(getDevice().getMeter()
+                        .get()
+                        .getCurrentMeterActivation()
+                        .get());
             } else {
                 this.currentMeterActivation = Optional.empty();
             }

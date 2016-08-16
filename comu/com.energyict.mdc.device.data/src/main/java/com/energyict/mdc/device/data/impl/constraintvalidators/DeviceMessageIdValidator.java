@@ -43,7 +43,8 @@ public class DeviceMessageIdValidator implements ConstraintValidator<ValidDevice
                 .getDeviceConfiguration()
                 .getDeviceMessageEnablements()
                 .stream()
-                .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId().equals(deviceMessage.getDeviceMessageId()))
+                .filter(deviceMessageEnablement -> deviceMessageEnablement.getDeviceMessageId()
+                        .equals(deviceMessage.getDeviceMessageId()))
                 .findAny()
                 .isPresent()) {
             constraintValidatorContext.disableDefaultConstraintViolation();

@@ -2,15 +2,16 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.domain.util.DefaultFinder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,7 +33,8 @@ public class WhereLikeClauseTest extends PersistenceIntegrationTest {
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     private Device createSimpleDeviceWithName(String name) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, ""+name.hashCode(), Instant.now());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, name, "" + name.hashCode(), Instant.now());
         device.save();
         return device;
     }

@@ -18,7 +18,8 @@ public class SynchNewDeviceWithKore extends AbstractSyncDeviceWithKoreMeter {
     private DeviceImpl device;
 
     public SynchNewDeviceWithKore(DeviceImpl device, Optional<Instant> startDate, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, EventService eventService) {
-        super(meteringService, readingTypeUtilService, eventService, device.getCreateTime() == null ? clock.instant() : startDate.isPresent() ? startDate.get() : device.getCreateTime());
+        super(meteringService, readingTypeUtilService, eventService, device.getCreateTime() == null ? clock.instant() : startDate
+                .isPresent() ? startDate.get() : device.getCreateTime());
         this.device = device;
     }
 
@@ -45,7 +46,8 @@ public class SynchNewDeviceWithKore extends AbstractSyncDeviceWithKoreMeter {
         if (meterActivation.flatMap(MeterActivation::getUsagePoint).isPresent()) {
             return getDevice().getMeter()
                     .get()
-                    .activate(meterActivation.flatMap(MeterActivation::getUsagePoint).get(), meterActivation.flatMap(MeterActivation::getMeterRole).get(), generalizedStartDate);
+                    .activate(meterActivation.flatMap(MeterActivation::getUsagePoint)
+                            .get(), meterActivation.flatMap(MeterActivation::getMeterRole).get(), generalizedStartDate);
         }
         return getDevice().getMeter().get().activate(generalizedStartDate);
     }
