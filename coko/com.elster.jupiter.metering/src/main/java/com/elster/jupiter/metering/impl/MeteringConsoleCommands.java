@@ -46,8 +46,6 @@ import org.osgi.service.component.annotations.Reference;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
