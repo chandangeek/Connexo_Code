@@ -65,28 +65,28 @@ enum NetworkConnectivityMessage implements DeviceMessageSpecEnum {
         }
     },
     // will be a semicolon separated string (maybe in the future this will be a StringListAspectEditor ...
-    ADD_PHONENUMBERS_TO_WHITE_LIST(DeviceMessageId.NETWORK_CONNECTIVITY_ADD_PHONENUMBERS_TO_WHITE_LIST, "Add phonenumbers to white list") {
+    ADD_PHONENUMBERS_TO_WHITE_LIST(DeviceMessageId.NETWORK_CONNECTIVITY_ADD_PHONENUMBERS_TO_WHITE_LIST, "Add phone numbers to white list") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(this.stringProperty(DeviceMessageAttributes.whiteListPhoneNumbersAttributeName, propertySpecService, thesaurus));
         }
     },
-    ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST(DeviceMessageId.NETWORK_CONNECTIVITY_ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST, "Add managed phonenumbers to white list") {
+    ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST(DeviceMessageId.NETWORK_CONNECTIVITY_ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST, "Add managed phone numbers to white list") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(this.stringProperty(DeviceMessageAttributes.managedWhiteListPhoneNumbersAttributeName, propertySpecService, thesaurus));
         }
     },
-    CHANGE_SMS_CENTER_NUMBER(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_SMS_CENTER_NUMBER, "Change the SMS center phonenumber") {
+    CHANGE_SMS_CENTER_NUMBER(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_SMS_CENTER_NUMBER, "Change the SMS center phone number") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
             propertySpecs.add(this.stringProperty(DeviceMessageAttributes.smsCenterPhoneNumberAttributeName, propertySpecService, thesaurus));
         }
     },
-    CHANGE_DEVICE_PHONENUMBER(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_DEVICE_PHONENUMBER, "Change the device phonenumber") {
+    CHANGE_DEVICE_PHONENUMBER(DeviceMessageId.NETWORK_CONNECTIVITY_CHANGE_DEVICE_PHONENUMBER, "Change the device phone number") {
         @Override
         protected void addPropertySpecs(List<PropertySpec> propertySpecs, PropertySpecService propertySpecService, Thesaurus thesaurus) {
             super.addPropertySpecs(propertySpecs, propertySpecService, thesaurus);
