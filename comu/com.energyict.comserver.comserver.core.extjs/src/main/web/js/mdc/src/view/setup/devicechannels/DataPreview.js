@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             router = me.router;
 
         me.setLoading();
-        record.getDetailedInformation(router.arguments.mRID, router.arguments.channelId, function(detailRecord){
+        record.refresh(router.arguments.mRID, router.arguments.channelId, function (detailRecord) {
             Ext.suspendLayouts();
             me.down('#general-panel').setTitle(title);
             me.down('#values-panel').setTitle(title);
@@ -55,7 +55,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                         mainValidationInfo = record.get('channelValidationData')[channel.id].mainValidationInfo;
                         bulkValidationInfo = record.get('channelValidationData')[channel.id].bulkValidationInfo;
                         dataQualities = record.get('channelValidationData')[channel.id].readingQualities;
-                        containter.down('#mainValidationInfo' + channel.id).setValue(mainValidationInfo);
+                        //containter.down('#mainValidationInfo' + channel.id).setValue(mainValidationInfo);
                         containter.down('#bulkValidationInfo' + channel.id).setValue(bulkValidationInfo);
 
                         if (me.down('#channelValue' + channel.id)) {
