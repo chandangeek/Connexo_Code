@@ -29,7 +29,7 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.Clock',
         'Uni.view.search.field.TimeOfDay',
         'Uni.view.search.field.Quantity',
-        'Uni.view.search.field.Location',
+        'Uni.view.search.field.Location'
     ],
 
     padding: '16 16 16 16',
@@ -98,7 +98,6 @@ Ext.define('Uni.view.search.Overview', {
                                 xtype: 'uni-search-internal-criteriapanel',
                                 itemId: 'search-criteria-sticky',
                                 layout: 'column',
-                                //hidden: true,
                                 lbar: {
                                     xtype: 'label',
                                     text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria'),
@@ -169,13 +168,7 @@ Ext.define('Uni.view.search.Overview', {
                             margin: '16 0 0 0'
                         }
                     }
-                ]/*,
-                listeners: {
-                    resize: {
-                        fn: me.changeGridMinHeight,
-                        scope: me
-                    }
-                }*/
+                ]
             }
         ];
 
@@ -221,6 +214,7 @@ Ext.define('Uni.view.search.Overview', {
             pageHeight = me.getHeight() - panel.getHeader().getHeight() - 40,
             filterHeight = me.down('#search-main-container').getHeight();
 
+        me.down('#search-preview-container').getEmptyCt().margins = '16 0 0 0';
         if (pageHeight - filterHeight > 450) {
             grid.maxHeight = pageHeight - filterHeight;
         } else {
