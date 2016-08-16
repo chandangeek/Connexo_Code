@@ -36,7 +36,8 @@ public class Installer implements FullInstaller {
             DestinationSpec jupiterEvents = destinationSpec.get();
             if (!jupiterEvents.getSubscribers().stream().anyMatch(s -> s.getName().equals(MeteringMessageHandlerFactory.SUBSCRIBER_NAME))) {
                 messageService.getDestinationSpec(EventService.JUPITER_EVENTS).get()
-                        .subscribe(MeteringMessageHandlerFactory.SUBSCRIBER_NAME, whereCorrelationId().isEqualTo(EventType.METERREADING_CREATED.topic())
+                        .subscribe(MeteringMessageHandlerFactory.SUBSCRIBER_NAME)
+                        .with(whereCorrelationId().isEqualTo(EventType.METERREADING_CREATED.topic())
                                 .or(whereCorrelationId().isEqualTo(EventType.METER_UPDATED.topic()))
                                 .or(whereCorrelationId().isEqualTo(EventType.USAGEPOINT_UPDATED.topic()))
                                 .or(whereCorrelationId().isEqualTo(EventType.METER_ACTIVATED.topic()))
