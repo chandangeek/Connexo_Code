@@ -8,10 +8,8 @@ Ext.define('Dsh.view.widget.PreviewConnection', {
     },
     tools: [
         {
-            xtype: 'button',
+            xtype: 'uni-button-action',
             itemId: 'connectionsPreviewActionBtn',
-            text: Uni.I18n.translate('general.actions', 'DSH', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'connection-action-menu',
                 itemId: 'connectionsActionMenu'
