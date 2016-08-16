@@ -136,14 +136,16 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 if (Ext.isEmpty(value)) {
                     return '-';
                 }
-                returnValue += ' (';
-                returnValue += field.up().record.getActiveVersion().getFirmwareVersionStatus().get('localizedValue');
-                if(field.up().record.getActiveVersion().getFirmwareVersionStatus().get('id') === 'deprecated') {
-                    returnValue +=  ' ' + '<span class="icon-warning" style="color: #EB5642; font-size:12px" data-qtip="' +
-                                   Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Firmware version is deprecated. Consider uploading new firmware version.') +
-                                   '"></span>';
+                if(!Ext.isEmpty(field.up().record.getActiveVersion())) {
+                    returnValue += ' (';
+                    returnValue += field.up().record.getActiveVersion().getFirmwareVersionStatus().get('localizedValue');
+                    if(field.up().record.getActiveVersion().getFirmwareVersionStatus().get('id') === 'deprecated') {
+                        returnValue +=  ' ' + '<span class="icon-warning" style="color: #EB5642; font-size:12px" data-qtip="' +
+                            Uni.I18n.translate('device.firmware.field.status.deprecated.tooltip', 'FWC', 'Firmware version is deprecated. Consider uploading new firmware version.') +
+                            '"></span>';
+                    }
+                    returnValue += ')';
                 }
-                returnValue += ')';
                 return returnValue;
             }
         },
