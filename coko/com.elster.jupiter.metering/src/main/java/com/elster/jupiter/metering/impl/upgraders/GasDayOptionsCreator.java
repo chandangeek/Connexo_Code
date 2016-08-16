@@ -55,7 +55,8 @@ public class GasDayOptionsCreator {
             if (matcher.matches()) {
                 this.meteringService.createGasDayOptions(this.parseDayMonthTime(matcher));
             } else {
-                LOGGER.severe(() -> "Value for configuration property " + GAS_DAY_START_PROPERTY_NAME + " could not be parsed. Expected " + GAS_DAY_START_PROPERTY_PATTERN.pattern() + " but got " + gasDayStartPropertyValue);
+                LOGGER.severe(() -> "Value for configuration property " + GAS_DAY_START_PROPERTY_NAME + " could not be parsed. Expected " + GAS_DAY_START_PROPERTY_PATTERN
+                        .pattern() + " but got " + gasDayStartPropertyValue);
             }
         }
     }

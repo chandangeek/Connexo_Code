@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 /**
  * Generates DataLogger specific reading type<br/>
  */
-class ReadingTypeGeneratorForDataLogger extends AbstractReadingTypeGenerator{
+class ReadingTypeGeneratorForDataLogger extends AbstractReadingTypeGenerator {
 
     ReadingTypeGeneratorForDataLogger() {
         super();
@@ -23,15 +23,17 @@ class ReadingTypeGeneratorForDataLogger extends AbstractReadingTypeGenerator{
 
     @Override
     Stream<ReadingTypeTemplate> getReadingTypeTemplates() {
-        return IntStream.iterate(1,i -> i+1).limit(32).mapToObj((nominator)-> new DataLoggerReadingTypeTemplate(nominator));
+        return IntStream.iterate(1, i -> i + 1)
+                .limit(32)
+                .mapToObj(DataLoggerReadingTypeTemplate::new);
     }
 
-    private class DataLoggerReadingTypeTemplate implements ReadingTypeTemplate{
+    private class DataLoggerReadingTypeTemplate implements ReadingTypeTemplate {
 
         int argumentNominator;
 
-        DataLoggerReadingTypeTemplate(int argumentNominator){
-           this.argumentNominator = argumentNominator;
+        DataLoggerReadingTypeTemplate(int argumentNominator) {
+            this.argumentNominator = argumentNominator;
         }
 
         @Override

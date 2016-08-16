@@ -41,14 +41,6 @@ class MeterActivationSetImpl implements MeterActivationSet {
         this.start = start;
     }
 
-    MeterActivationSetImpl(UsagePointMetrologyConfiguration configuration, MeterActivation singleMeterActivation, int sequenceNumber) {
-        this(configuration, sequenceNumber, singleMeterActivation.getStart());
-        this.add(singleMeterActivation);
-        if (singleMeterActivation.getEnd() != null) {
-            this.endAt(singleMeterActivation.getEnd());
-        }
-    }
-
     void endAt(Instant end) {
         this.end = end;
     }

@@ -50,7 +50,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     private volatile ServerMeteringService meteringService;
     private volatile InstantTruncaterFactory truncaterFactory;
     private SqlBuilderFactory sqlBuilderFactory;
-    private VirtualFactory virtualFactory;
+    private Provider<VirtualFactory> virtualFactoryProvider;
     private CustomPropertySetService customPropertySetService;
     private ReadingTypeDeliverableForMeterActivationFactory readingTypeDeliverableForMeterActivationFactory;
 
@@ -73,7 +73,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     private DataAggregationServiceImpl(Provider<SqlBuilderFactory> sqlBuilderFactoryProvider, Provider<VirtualFactory> virtualFactoryProvider, Provider<ReadingTypeDeliverableForMeterActivationFactory> readingTypeDeliverableForMeterActivationFactoryProvider) {
         super();
         this.sqlBuilderFactory = sqlBuilderFactoryProvider.get();
-        this.virtualFactory = virtualFactoryProvider.get();
+        this.virtualFactoryProvider = virtualFactoryProvider;
         this.readingTypeDeliverableForMeterActivationFactory = readingTypeDeliverableForMeterActivationFactoryProvider.get();
     }
 
@@ -83,8 +83,9 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         this.validateContractAppliesToUsagePoint(effectivities, usagePoint, contract, period);
         Range<Instant> clippedPeriod = this.clipToContractActivePeriod(effectivities, contract, period);
         Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation = new LinkedHashMap<>();
+        VirtualFactory virtualFactory = this.virtualFactoryProvider.get();
         this.getMeterActivationSets(usagePoint, clippedPeriod)
-                .forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, this.virtualFactory, deliverablesPerMeterActivation));
+                .forEach(set -> this.prepare(usagePoint, set, contract, clippedPeriod, virtualFactory, deliverablesPerMeterActivation));
         if (deliverablesPerMeterActivation.isEmpty()) {
             return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, Collections.emptyMap(), this.truncaterFactory);
         } else {
@@ -96,8 +97,8 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
                         this.execute(
                                 this.generateSql(
                                         this.sqlBuilderFactory.newClauseAwareSqlBuilder(),
-                                        deliverablesPerMeterActivation),
-                                deliverablesPerMeterActivation));
+                                        deliverablesPerMeterActivation,
+                                        virtualFactory), deliverablesPerMeterActivation));
             } catch (SQLException e) {
                 throw new UnderlyingSQLFailedException(e);
             }
@@ -232,8 +233,8 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
         return expressionTree.accept(new InferReadingType(VirtualReadingType.from(deliverable.getReadingType())));
     }
 
-    private SqlBuilder generateSql(ClauseAwareSqlBuilder sqlBuilder, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivationSet) {
-        this.appendAllToSqlBuilder(sqlBuilder, this.virtualFactory, deliverablesPerMeterActivationSet);
+    private SqlBuilder generateSql(ClauseAwareSqlBuilder sqlBuilder, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivationSet, VirtualFactory virtualFactory) {
+        this.appendAllToSqlBuilder(sqlBuilder, virtualFactory, deliverablesPerMeterActivationSet);
         SqlBuilder fullSqlBuilder = sqlBuilder.finish();
         fullSqlBuilder.append("\n ORDER BY 3 DESC, 1");
         return fullSqlBuilder;
@@ -244,7 +245,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
          * i.e. one WITH clause can only refer to an already defined with clause.
          * It suffices to append the definition for all requirements first
          * as those are not referring to another requirement. */
-        virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendDefinitionTo(sqlBuilder));
+        virtualFactory.allRequirements().forEach(requirement -> requirement.appendDefinitionTo(sqlBuilder));
         deliverablesPerMeterActivationSet
                 .values()
                 .stream()

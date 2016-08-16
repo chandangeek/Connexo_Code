@@ -294,8 +294,10 @@ public class DataAggregationServiceImplCalculateGasIT {
 
     private void initializeSqlBuilders() {
         when(sqlBuilderFactory.newClauseAwareSqlBuilder()).thenReturn(clauseAwareSqlBuilder);
-        when(clauseAwareSqlBuilder.with(matches("rid" + consumptionRequirementId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.consumptionRequirementWithClauseBuilder);
-        when(clauseAwareSqlBuilder.with(matches("rod" + consumptionDeliverableId + ".*1"), any(Optional.class), anyVararg())).thenReturn(this.consumptionDeliverableWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rid" + consumptionRequirementId + ".*1"), any(Optional.class), anyVararg()))
+                .thenReturn(this.consumptionRequirementWithClauseBuilder);
+        when(clauseAwareSqlBuilder.with(matches("rod" + consumptionDeliverableId + ".*1"), any(Optional.class), anyVararg()))
+                .thenReturn(this.consumptionDeliverableWithClauseBuilder);
         when(clauseAwareSqlBuilder.select()).thenReturn(this.selectClauseBuilder);
         when(clauseAwareSqlBuilder.finish()).thenReturn(this.completeSqlBuilder);
     }
@@ -331,11 +333,13 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.activateMeterWith15min_m3_Channel(defaultMeterRole);
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simple15Mins", GAS).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("simple15Mins", GAS)
+                .create();
         this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("C", defaultMeterRole).withReadingType(fifteenMinutesGasCubicMeter);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("C", defaultMeterRole)
+                .withReadingType(fifteenMinutesGasCubicMeter);
         this.consumptionRequirementId = consumption.getId();
         System.out.println("simple15Mins::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
 
@@ -367,15 +371,15 @@ public class DataAggregationServiceImplCalculateGasIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + consumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + consumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionRequirementWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + consumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + consumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that the consumption requirement is used as source for the timeline
             assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.timestamp,.*");
@@ -415,11 +419,13 @@ public class DataAggregationServiceImplCalculateGasIT {
         this.activateMeterWith15min_kWh_Channel(defaultMeterRole);
 
         // Setup MetrologyConfiguration
-        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyValuesFrom15minValues", GAS).create();
+        this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("monthlyValuesFrom15minValues", GAS)
+                .create();
         this.configuration.addMeterRole(defaultMeterRole);
 
         // Setup configuration requirements
-        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("C", defaultMeterRole).withReadingType(fifteenMinutesGas_kWh);
+        FullySpecifiedReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("C", defaultMeterRole)
+                .withReadingType(fifteenMinutesGas_kWh);
         this.consumptionRequirementId = consumption.getId();
         System.out.println("monthlyValuesFrom15minValues::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
 
@@ -447,15 +453,15 @@ public class DataAggregationServiceImplCalculateGasIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + consumptionRequirementId + ".*" + consumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + consumptionRequirementId + ".*" + consumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(consumptionRequirementWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + consumptionDeliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + consumptionDeliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that the consumption requirement is used as source for the timeline
             assertThat(this.consumptionDeliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + consumptionRequirementId + "_" + consumptionDeliverableId + "_1\\.timestamp,.*");
@@ -486,7 +492,9 @@ public class DataAggregationServiceImplCalculateGasIT {
 
     private void setupUsagePoint(String mRID) {
         ServiceCategory electricity = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2016).withName(DataAggregationServiceImplCalculateGasIT.class.getSimpleName()).create();
+        this.usagePoint = electricity.newUsagePoint(mRID, jan1st2016)
+                .withName(DataAggregationServiceImplCalculateGasIT.class.getSimpleName())
+                .create();
     }
 
     private void activateMeterWith15min_m3_Channel(MeterRole meterRole) {

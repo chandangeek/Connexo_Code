@@ -82,7 +82,8 @@ public class MeterReadingStorer {
         storeEvents(facade.getMeterReading().getEvents());
         readingStorer.execute(system);
         facade.getRange()
-                .ifPresent(range -> eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), range.lowerEndpoint().toEpochMilli(), range.upperEndpoint()
+                .ifPresent(range -> eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter
+                        .getId(), range.lowerEndpoint().toEpochMilli(), range.upperEndpoint()
                         .toEpochMilli())));
     }
 

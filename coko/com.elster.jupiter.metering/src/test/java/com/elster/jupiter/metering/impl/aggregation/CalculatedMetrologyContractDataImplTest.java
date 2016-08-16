@@ -137,7 +137,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range.all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
+                .all(), recordsByReadingType, this.truncaterFactory);
 
         // Asserts
         assertThat(contractData.getUsagePoint()).isEqualTo(this.usagePoint);
@@ -153,7 +154,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range.all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
+                .all(), recordsByReadingType, this.truncaterFactory);
 
         // Asserts
         assertThat(contractData.getMetrologyContract()).isEqualTo(this.contract);
@@ -186,7 +188,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range.all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
+                .all(), recordsByReadingType, this.truncaterFactory);
 
         // Asserts
         assertThat(contractData.getCalculatedDataFor(this.deliverable)).containsSequence(r1, r2);
@@ -204,7 +207,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range.all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
+                .all(), recordsByReadingType, this.truncaterFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -225,7 +229,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r2, r1));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range.all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
+                .all(), recordsByReadingType, this.truncaterFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -246,7 +251,8 @@ public class CalculatedMetrologyContractDataImplTest {
         recordsByReadingType.put(this.monthlyNetConsumption, Arrays.asList(r1, r2));
 
         // Business method
-        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range.all(), recordsByReadingType, this.truncaterFactory);
+        CalculatedMetrologyContractDataImpl contractData = new CalculatedMetrologyContractDataImpl(this.usagePoint, this.contract, Range
+                .all(), recordsByReadingType, this.truncaterFactory);
 
         // Asserts
         List<? extends BaseReadingRecord> readingRecords = contractData.getCalculatedDataFor(this.deliverable);
@@ -320,11 +326,13 @@ public class CalculatedMetrologyContractDataImplTest {
         assertThat(readingRecords).hasSize(3);
         BaseReadingRecord beforeBeforeLastMarchRecord = readingRecords.get(0);
         assertThat(beforeBeforeLastMarchRecord.getTimeStamp()).isEqualTo(march30st2016);
-        assertThat(beforeBeforeLastMarchRecord.getTimePeriod().get()).isEqualTo(Range.openClosed(march29th2016, march30st2016));
+        assertThat(beforeBeforeLastMarchRecord.getTimePeriod()
+                .get()).isEqualTo(Range.openClosed(march29th2016, march30st2016));
         assertThat(beforeBeforeLastMarchRecord.getQuantity(0)).isEqualTo(Quantity.create(BigDecimal.TEN, "m3"));
         BaseReadingRecord beforeLastMarchRecord = readingRecords.get(1);
         assertThat(beforeLastMarchRecord.getTimeStamp()).isEqualTo(march31st2016);
-        assertThat(beforeLastMarchRecord.getTimePeriod().get()).isEqualTo(Range.openClosed(march30st2016, march31st2016));
+        assertThat(beforeLastMarchRecord.getTimePeriod()
+                .get()).isEqualTo(Range.openClosed(march30st2016, march31st2016));
         assertThat(beforeLastMarchRecord.getQuantity(0)).isEqualTo(Quantity.create(BigDecimal.TEN, "m3"));
         BaseReadingRecord lastMarchRecord = readingRecords.get(2);
         assertThat(lastMarchRecord.getTimeStamp()).isEqualTo(april1stMidnight2016);

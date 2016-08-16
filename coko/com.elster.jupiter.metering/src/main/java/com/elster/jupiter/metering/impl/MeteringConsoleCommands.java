@@ -17,7 +17,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.DefaultReadingTypeTemplate;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -658,13 +657,12 @@ public class MeteringConsoleCommands {
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
             ReadingType readingType = meteringService.getReadingType(readingTypeString)
                     .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO)
-                    .parse(formulaString);
-
-            deliverable.setName(name);
-            deliverable.setReadingType(readingType);
-            deliverable.getFormula().updateExpression(node);
-            deliverable.update();
+            deliverable
+                .startUpdate()
+                .setName(name)
+                .setReadingType(readingType)
+                .setFormula(formulaString)
+                .complete();
 
             context.commit();
         }
@@ -682,9 +680,10 @@ public class MeteringConsoleCommands {
                         .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
                 ReadingType readingType = meteringService.getReadingType(readingTypeString)
                         .orElseThrow(() -> new IllegalArgumentException("No such reading type"));
-
-                deliverable.setReadingType(readingType);
-                deliverable.update();
+                deliverable
+                        .startUpdate()
+                        .setReadingType(readingType)
+                        .complete();
                 context.commit();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -702,11 +701,10 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             ReadingTypeDeliverable deliverable = metrologyConfigurationService.findReadingTypeDeliverable(deliverableId)
                     .orElseThrow(() -> new IllegalArgumentException("No such deliverable"));
-            ExpressionNode node = new ExpressionNodeParser(meteringService.getThesaurus(), metrologyConfigurationService, customPropertySetService, deliverable.getMetrologyConfiguration(), Formula.Mode.AUTO)
-                    .parse(formulaString);
-
-            deliverable.getFormula().updateExpression(node);
-            deliverable.update();
+            deliverable
+                    .startUpdate()
+                    .setFormula(formulaString)
+                    .complete();
             context.commit();
         }
     }

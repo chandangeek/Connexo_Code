@@ -164,15 +164,14 @@ public class ReadingTypeDeliverableImplTestIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
-    public void testSetNonUniqueReadingTypeDeliverableName() {
+    public void testUPdateNonUniqueReadingTypeDeliverableName() {
         ReadingTypeDeliverableBuilder builder = metrologyConfiguration.newReadingTypeDeliverable("name", readingType, Formula.Mode.AUTO);
         builder.build(builder.constant(10));
         ReadingTypeDeliverableBuilder otherBuilder = metrologyConfiguration.newReadingTypeDeliverable("otherName", readingType2, Formula.Mode.AUTO);
         ReadingTypeDeliverable deliverable = otherBuilder.build(otherBuilder.constant(10));
-        deliverable.setName("name");
 
         // Business method
-        deliverable.update();
+        deliverable.startUpdate().setName("name").complete();
     }
 
     @Test

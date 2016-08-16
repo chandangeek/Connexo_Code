@@ -130,6 +130,7 @@ final class TruncatedTimelineSqlBuilderFactory {
         };
 
         abstract void appendValueTo(IntervalOperation operation, GasDayOptions gasDayOptions, SqlBuilder sqlBuilder);
+
         void appendUnitTo(SqlBuilder sqlBuilder) {
             sqlBuilder.append(this.name());
         }
@@ -154,7 +155,9 @@ final class TruncatedTimelineSqlBuilderFactory {
 
         @Override
         void logActivity() {
-            Loggers.SQL.debug(() -> "Truncating " + this.sqlName + " to " + this.intervalLength.toOracleTruncFormatModel() + " for gas commodity using gasday start " + this.gasDayOptions.getYearStart().toString());
+            Loggers.SQL.debug(() -> "Truncating " + this.sqlName + " to " + this.intervalLength.toOracleTruncFormatModel() + " for gas commodity using gasday start " + this.gasDayOptions
+                    .getYearStart()
+                    .toString());
         }
 
         @Override

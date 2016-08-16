@@ -50,7 +50,7 @@ class ReadingTypeDeliverableForMeterActivationSet {
         this.expressionNode = expressionNode;
         this.expressionReadingType = expressionReadingType;
         this.requirements = this.expressionNode.accept(new RequirementsFromExpressionNode()).stream()
-                                               .map(VirtualRequirementNode::getRequirement).collect(Collectors.toList());
+                .map(VirtualRequirementNode::getRequirement).collect(Collectors.toList());
         this.targetReadingType = VirtualReadingType.from(deliverable.getReadingType());
     }
 
@@ -283,7 +283,8 @@ class ReadingTypeDeliverableForMeterActivationSet {
 
     private void appendTimelineToSelectClause(SqlBuilder sqlBuilder) {
         if (this.resultValueNeedsTimeBasedAggregation()) {
-            Loggers.SQL.debug(() -> "Truncating timeline for deliverable " + this.deliverable.getName() + " in meter activation set " + this.meterActivationSet.getRange());
+            Loggers.SQL.debug(() -> "Truncating timeline for deliverable " + this.deliverable.getName() + " in meter activation set " + this.meterActivationSet
+                    .getRange());
             this.appendTruncatedTimeline(sqlBuilder, this.sqlName() + "." + SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
             sqlBuilder.append(", ");
             sqlBuilder.append(AggregationFunction.MAX.sqlName());

@@ -143,7 +143,8 @@ public class MeterImplTest {
 
         MeterActivation meterActivation = meter.activate(START.toInstant());
 
-        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant().plus(1, ChronoUnit.DAYS)));
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant()
+                .plus(1, ChronoUnit.DAYS)));
         assertThat(meterActivations).hasSize(1);
         assertThat(meterActivations).containsExactly(meterActivation);
     }
@@ -167,7 +168,8 @@ public class MeterImplTest {
 
         MeterActivation meterActivation = meter.activate(START.toInstant());
 
-        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant().minus(1, ChronoUnit.DAYS)));
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant()
+                .minus(1, ChronoUnit.DAYS)));
         assertThat(meterActivations).hasSize(1);
         assertThat(meterActivations).containsExactly(meterActivation);
     }
@@ -181,7 +183,8 @@ public class MeterImplTest {
         meterActivation1.endAt(START.toInstant());
         MeterActivation meterActivation2 = meter.activate(START.toInstant());
 
-        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant().minus(10, ChronoUnit.DAYS)));
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant()
+                .minus(10, ChronoUnit.DAYS)));
         assertThat(meterActivations).hasSize(2);
         assertThat(meterActivations).containsExactly(meterActivation1, meterActivation2);
     }

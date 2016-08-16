@@ -250,8 +250,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
             this.serviceRegistrations.add(
                     bundleContext.registerService(
                             new String[]{
-                                MeteringService.class.getName(),
-                                ServerMeteringService.class.getName()},
+                                    MeteringService.class.getName(),
+                                    ServerMeteringService.class.getName()},
                             this.meteringService,
                             noServiceProperties()));
         }
@@ -285,11 +285,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         if (bundleContext != null) {
             this.serviceRegistrations.add(
                     bundleContext.registerService(
-                        new String[]{
+                            new String[]{
                             MetrologyConfigurationService.class.getName(),
-                            ServerMetrologyConfigurationService.class.getName()},
-                        this.metrologyConfigurationService,
-                        noServiceProperties()));
+                                    ServerMetrologyConfigurationService.class.getName()},
+                            this.metrologyConfigurationService,
+                            noServiceProperties()));
         }
     }
 

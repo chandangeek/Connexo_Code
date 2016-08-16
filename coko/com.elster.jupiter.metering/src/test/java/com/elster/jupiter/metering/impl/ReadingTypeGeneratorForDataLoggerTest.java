@@ -118,15 +118,17 @@ public class ReadingTypeGeneratorForDataLoggerTest {
         getTransactionService().execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                assertThat(getMeteringService().getAvailableReadingTypes()).hasSize(0).overridingErrorMessage("We should have started with 0 reading types");
+                assertThat(getMeteringService().getAvailableReadingTypes()).hasSize(0)
+                        .overridingErrorMessage("We should have started with 0 reading types");
 
                 ReadingTypeGeneratorForDataLogger readingTypeGeneratorForDataLogger = new ReadingTypeGeneratorForDataLogger();
                 List<Pair<String, String>> readingTypes = readingTypeGeneratorForDataLogger.generateReadingTypes();
                 assertThat(readingTypes).hasSize(32);
                 getMeteringService().createAllReadingTypes(readingTypes);
 
-                assertThat(getMeteringService().getAvailableReadingTypes()).hasSize(readingTypes.size()).overridingErrorMessage("Expected " + readingTypes.size() + " reading types");
-             }
+                assertThat(getMeteringService().getAvailableReadingTypes()).hasSize(readingTypes.size())
+                        .overridingErrorMessage("Expected " + readingTypes.size() + " reading types");
+            }
         });
 
     }
