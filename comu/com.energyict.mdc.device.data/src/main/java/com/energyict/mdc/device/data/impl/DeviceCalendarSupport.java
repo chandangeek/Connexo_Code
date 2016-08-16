@@ -104,6 +104,8 @@ class DeviceCalendarSupport implements Device.CalendarSupport {
                 if (this.device.getId() != 0) {
                     this.dataModel.touch(this.device);
                 }
+            } else {
+                this.getActive().ifPresent(activeCalendar -> activeCalendar.updateLastVerifiedDate(lastVerified));
             }
         } else {
             this.createNewActiveCalendar(allowedCalendar, lastVerified, effectivityInterval);

@@ -10,6 +10,8 @@ import java.time.Instant;
 @ProviderType
 public interface ActiveEffectiveCalendar extends Effectivity {
 
+    void updateLastVerifiedDate(Instant lastVerifiedDate);
+
     Instant getLastVerifiedDate();
 
     AllowedCalendar getAllowedCalendar();
