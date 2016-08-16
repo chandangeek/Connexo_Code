@@ -14,7 +14,7 @@ import java.util.stream.Stream;
  */
 public enum ComSessionSuccessIndicatorTranslationKeys implements TranslationKey {
 
-    SUCCESS(ComSession.SuccessIndicator.Success, "Success"),
+    SUCCESS(ComSession.SuccessIndicator.Success, "Successful"),
     BROKEN(ComSession.SuccessIndicator.Broken, "Broken"),
     SETUP_ERROR(ComSession.SuccessIndicator.SetupError, "Setup error");
 

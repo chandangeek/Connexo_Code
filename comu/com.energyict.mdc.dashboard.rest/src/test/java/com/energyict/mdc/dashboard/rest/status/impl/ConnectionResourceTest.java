@@ -361,7 +361,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].currentState.id")).isEqualTo("OnHold");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].currentState.displayValue")).isEqualTo("Inactive");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].latestResult.id")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.connectionTasks[0].latestResult.displayValue")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].latestResult.displayValue")).isEqualTo("Successful");
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfSuccessfulTasks")).isEqualTo(12);
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfFailedTasks")).isEqualTo(401);
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfIncompleteTasks")).isEqualTo(3);
@@ -659,7 +659,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.communications[0].currentState.id")).isEqualTo("NeverCompleted");
         assertThat(jsonModel.<String>get("$.communications[0].currentState.displayValue")).isEqualTo("Never completed");
         assertThat(jsonModel.<String>get("$.communications[0].result.id")).isEqualTo("Ok");
-        assertThat(jsonModel.<String>get("$.communications[0].result.displayValue")).isEqualTo("Ok");
+        assertThat(jsonModel.<String>get("$.communications[0].result.displayValue")).isEqualTo("Successful");
         assertThat(jsonModel.<Long>get("$.communications[0].startTime")).isEqualTo(lastExecStart.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.communications[0].comTask.id")).isEqualTo(1111);
         assertThat(jsonModel.<String>get("$.communications[0].comTask.name")).isEqualTo("Read all");
