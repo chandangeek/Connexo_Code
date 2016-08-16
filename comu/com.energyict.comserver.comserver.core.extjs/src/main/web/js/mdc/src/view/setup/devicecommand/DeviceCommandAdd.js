@@ -40,7 +40,12 @@ Ext.define('Mdc.view.setup.devicecommand.DeviceCommandAdd', {
                     {
                         itemId: 'device-command-add-property-form',
                         xtype: 'property-form',
-                        margins: '16 0 0 0'
+                        margins: '16 0 0 0',
+                        defaults: {
+                            labelWidth: 250,
+                            resetButtonHidden: false,
+                            width: 336 // To be aligned with the above
+                        }
                     },
                     {
                         xtype: 'fieldcontainer',
