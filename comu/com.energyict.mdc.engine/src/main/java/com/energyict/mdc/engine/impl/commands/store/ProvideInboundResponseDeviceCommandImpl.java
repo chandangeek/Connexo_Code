@@ -57,7 +57,7 @@ public class ProvideInboundResponseDeviceCommandImpl extends DeviceCommandImpl i
     }
 
     private Problem createCouldNotProvideProperResponseIssue() {
-        return ((ServiceProvider) executionContext.getDeviceCommandServiceProvider()).issueService().newProblem(inboundDeviceProtocol, MessageSeeds.INBOUND_DATA_RESPONSE_FAILURE.getKey());
+        return ((ServiceProvider) executionContext.getDeviceCommandServiceProvider()).issueService().newProblem(inboundDeviceProtocol, MessageSeeds.INBOUND_DATA_RESPONSE_FAILURE);
     }
 
     @Override

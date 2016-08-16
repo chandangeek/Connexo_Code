@@ -48,7 +48,7 @@ public class InboundDataProcessMeterDataStoreCommandImpl extends MeterDataStoreC
     }
 
     private Problem createCouldNotStoreDataIssue() {
-        return ((ServiceProvider) executionContext.getDeviceCommandServiceProvider()).issueService().newProblem(this, MessageSeeds.INBOUND_DATA_STORAGE_FAILURE.getKey());
+        return ((ServiceProvider) executionContext.getDeviceCommandServiceProvider()).issueService().newProblem(this, MessageSeeds.INBOUND_DATA_STORAGE_FAILURE);
     }
 
 }

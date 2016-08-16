@@ -85,12 +85,12 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
             } catch (CanNotFindForIdentifier e) {
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), e.getMessageArguments()));
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed(), e.getMessageArguments()));
             }
         } else {
             this.addIssue(
                     CompletionCode.ConfigurationWarning,
-                    getIssueService().newProblem(deviceTopology, MessageSeeds.COLLECTED_DEVICE_TOPOLOGY_FOR_UN_KNOWN_DEVICE.getKey(), deviceTopology.getDeviceIdentifier()));
+                    getIssueService().newProblem(deviceTopology, MessageSeeds.COLLECTED_DEVICE_TOPOLOGY_FOR_UN_KNOWN_DEVICE, deviceTopology.getDeviceIdentifier()));
         }
     }
 
@@ -111,7 +111,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
             } catch (CanNotFindForIdentifier e) {
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), g3TopologyDeviceAddressInformation.getDeviceIdentifier()));
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed(), g3TopologyDeviceAddressInformation.getDeviceIdentifier()));
             }
         }
     }
@@ -142,24 +142,24 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
             String allSerials = getSerialNumbersAsString(this.serialNumbersRemovedFromTopology);
             this.addIssue(
                     CompletionCode.ConfigurationWarning,
-                    getIssueService().newWarning(deviceTopology, MessageSeeds.SERIALS_REMOVED_FROM_TOPOLOGY.getKey(), allSerials));
+                    getIssueService().newWarning(deviceTopology, MessageSeeds.SERIALS_REMOVED_FROM_TOPOLOGY, allSerials));
         }
         if (!this.knownSerialNumbersAddedToTopology.isEmpty()) {
             String allSerials = getSerialNumbersAsString(this.knownSerialNumbersAddedToTopology);
             this.addIssue(
                     CompletionCode.ConfigurationWarning,
-                    getIssueService().newWarning(deviceTopology, MessageSeeds.SERIALS_ADDED_TO_TOPOLOGY.getKey(), allSerials));
+                    getIssueService().newWarning(deviceTopology, MessageSeeds.SERIALS_ADDED_TO_TOPOLOGY, allSerials));
         }
         if (!this.unknownSerialNumbersAddedToTopology.isEmpty()) {
             String allSerials = getSerialNumbersAsString(this.unknownSerialNumbersAddedToTopology);
             if (isVerifyTopologyAction()) {
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newWarning(deviceTopology, MessageSeeds.UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY.getKey(), allSerials));
+                        getIssueService().newWarning(deviceTopology, MessageSeeds.UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY, allSerials));
             } else {
                 this.addIssue(
                         CompletionCode.ConfigurationError,
-                        getIssueService().newProblem(deviceTopology, MessageSeeds.UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY.getKey(), allSerials));
+                        getIssueService().newProblem(deviceTopology, MessageSeeds.UNKNOWN_SERIALS_ADDED_TO_TOPOLOGY, allSerials));
             }
         }
     }
@@ -205,7 +205,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
             } catch (CanNotFindForIdentifier e) {
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), movedSlave));
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed(), movedSlave));
             }
         }
     }
@@ -222,7 +222,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
             } catch (CanNotFindForIdentifier e) {
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), offlineRemovedSlave.getDeviceIdentifier()));
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed(), offlineRemovedSlave.getDeviceIdentifier()));
             }
         }
     }
@@ -237,7 +237,7 @@ public class CollectedDeviceTopologyDeviceCommand extends DeviceCommandImpl<Coll
             } catch (CanNotFindForIdentifier e) {
                 this.addIssue(
                         CompletionCode.ConfigurationWarning,
-                        getIssueService().newProblem(deviceTopology, e.getMessageSeed().getKey(), slaveId));
+                        getIssueService().newProblem(deviceTopology, e.getMessageSeed(), slaveId));
             }
             if (slave.isPresent()) {
                 actualSlavesByDeviceId.put(slave.get().getSerialNumber(), slaveId);

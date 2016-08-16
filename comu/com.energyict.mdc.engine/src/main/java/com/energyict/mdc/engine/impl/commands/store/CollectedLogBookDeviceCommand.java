@@ -47,7 +47,7 @@ public class CollectedLogBookDeviceCommand extends DeviceCommandImpl<CollectedLo
                     CompletionCode.ConfigurationWarning,
                     this.getIssueService().newWarning(
                             this,
-                            MessageSeeds.UNKNOWN_DEVICE_LOG_BOOK.getKey(),
+                            MessageSeeds.UNKNOWN_DEVICE_LOG_BOOK,
                             this.deviceLogBook.getLogBookIdentifier()));
         }
     }

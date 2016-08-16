@@ -53,13 +53,13 @@ public class UpdateDeviceProtocolProperty extends DeviceCommandImpl<UpdateDevice
                 } catch (InvalidValueException | DeviceProtocolPropertyException e) {
                     this.addIssue(
                             CompletionCode.ConfigurationWarning,
-                            this.getIssueService().newWarning(this, MessageSeeds.PROPERTY_VALIDATION_FAILED.getKey(), propertySpec.getName(), propertyValue));
+                            this.getIssueService().newWarning(this, MessageSeeds.PROPERTY_VALIDATION_FAILED, propertySpec.getName(), propertyValue));
                 }
             }
         } catch (CanNotFindForIdentifier e) {
             this.addIssue(
                     CompletionCode.ConfigurationWarning,
-                    this.getIssueService().newWarning(deviceIdentifier, e.getMessageSeed().getKey(), deviceIdentifier));
+                    this.getIssueService().newWarning(deviceIdentifier, e.getMessageSeed(), deviceIdentifier));
         }
     }
 
