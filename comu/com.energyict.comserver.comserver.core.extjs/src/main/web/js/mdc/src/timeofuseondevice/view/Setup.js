@@ -41,10 +41,8 @@ Ext.define('Mdc.timeofuseondevice.view.Setup', {
             },
             tools: [
                 {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    xtype: 'uni-button-action',
                     privileges: Mdc.privileges.Device.viewDevice,
-                    iconCls: 'x-uni-action-iconD',
                     itemId: 'tou-device-actions-button',
                     margin: '0 20 0 0',
                     menu: {

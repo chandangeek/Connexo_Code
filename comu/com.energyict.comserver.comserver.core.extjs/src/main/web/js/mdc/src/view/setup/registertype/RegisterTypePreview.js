@@ -84,10 +84,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypePreview', {
 
             this.tools = [
                 {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                    xtype: 'uni-button-action',
                     privileges: Mdc.privileges.MasterData.admin,
-                    iconCls: 'x-uni-action-iconD',
                     menu: {
                         xtype: 'register-type-action-menu'
                     }

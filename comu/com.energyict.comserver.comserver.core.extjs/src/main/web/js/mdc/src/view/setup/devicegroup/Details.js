@@ -64,10 +64,8 @@ Ext.define('Mdc.view.setup.devicegroup.Details', {
                             text:Uni.I18n.translate('generatereport.generateReportButton', 'MDC', 'Generate report')
                         },
                         {
-                            xtype: 'button',
+                            xtype: 'uni-button-action',
                             itemId: 'deviceGroupDetailsActionMenu',
-                            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                            iconCls: 'x-uni-action-iconD',
                             margin: '20 0 0 0',
                             menu: {
                                 xtype: 'device-group-action-menu'
