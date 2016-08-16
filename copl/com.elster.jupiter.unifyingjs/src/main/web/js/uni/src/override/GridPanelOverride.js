@@ -6,9 +6,10 @@ Ext.define('Uni.override.GridPanelOverride', {
     requires: [
         'Uni.grid.plugin.ShowConditionalToolTip'
     ],
-    plugins: [
-        'showConditionalToolTip'
-    ],
+    plugins: [{
+        ptype: 'showConditionalToolTip',
+        pluginId: 'showConditionalToolTipId'
+    }],
     viewConfig: {
         enableTextSelection: true
     },
