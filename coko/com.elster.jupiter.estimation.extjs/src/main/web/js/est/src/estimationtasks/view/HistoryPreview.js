@@ -11,9 +11,7 @@ Ext.define('Est.estimationtasks.view.HistoryPreview', {
 
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'EST', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             menu: {
                 xtype: 'estimationtasks-history-action-menu'
             }

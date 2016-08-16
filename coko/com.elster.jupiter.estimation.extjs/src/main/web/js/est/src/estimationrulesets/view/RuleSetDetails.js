@@ -41,11 +41,9 @@ Ext.define('Est.estimationrulesets.view.RuleSetDetails', {
                     }
                 ],
                 tools: [{
-                    xtype: 'button',
-                    iconCls: 'x-uni-action-iconD',
+                    xtype: 'uni-button-action',
                     itemId: 'action-button',
                     privileges: Est.privileges.EstimationConfiguration.administrate,
-                    text: Uni.I18n.translate('general.actions', 'EST', 'Actions'),
                     menu: {
                         xtype: 'estimation-rule-sets-action-menu'
                     }
