@@ -79,7 +79,7 @@ public class SmartMeterProtocolRegisterAdapter implements DeviceRegisterSupport 
                                 ResultType.NotSupported,
                                 this.issueService.newWarning(
                                         register.getObisCode(),
-                                        com.energyict.mdc.protocol.api.MessageSeeds.REGISTER_NOT_SUPPORTED.getKey(),
+                                        com.energyict.mdc.protocol.api.MessageSeeds.REGISTER_NOT_SUPPORTED,
                                         register.getObisCode()));
                         collectedRegisters.add(defaultDeviceRegister);
                     }
