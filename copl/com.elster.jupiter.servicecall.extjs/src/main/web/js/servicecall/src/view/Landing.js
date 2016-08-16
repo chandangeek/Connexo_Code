@@ -20,20 +20,18 @@ Ext.define('Scs.view.Landing', {
             itemId: 'usagePointSetupPanel',
             layout: {
                 type: 'vbox',
-                align: 'stretch',
+                align: 'stretch'
             },
             tools: [
                 {
-                    xtype: 'button',
+                    xtype: 'uni-button-action',
                     privileges: Scs.privileges.ServiceCall.admin,
-                    text: Uni.I18n.translate('general.actions', 'SCS', 'Actions'),
-                    iconCls: 'x-uni-action-iconD',
                     disabled: !me.record.get('canCancel'),
                     itemId: 'scAtionButton',
                     margin: '0 20 0 0',
                     menu: {
                         xtype: 'scs-action-menu',
-                        record: me.record,
+                        record: me.record
                     }
                 }
             ],

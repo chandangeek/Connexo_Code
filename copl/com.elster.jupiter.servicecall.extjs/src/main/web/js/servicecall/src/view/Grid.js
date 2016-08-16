@@ -85,10 +85,8 @@ Ext.define('Scs.view.Grid', {
                 usesExactCount: me.usesExactCount,
                 items: [
                     {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.Actions', 'SCS', 'Actions'),
+                        xtype: 'uni-button-action',
                         privileges: Scs.privileges.ServiceCall.admin,
-                        iconCls: 'x-uni-action-iconD',
                         itemId: 'cancelAllServiceCallsButton',
                         menu: {
                             xtype: 'cancel-all-action-menu'
