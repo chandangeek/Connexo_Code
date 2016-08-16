@@ -1,10 +1,13 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.engine.config.ComPortPool;
+
+import com.jayway.jsonpath.JsonModel;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import com.jayway.jsonpath.JsonModel;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
