@@ -5,7 +5,8 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
     padding: '0 16 16 16',
     overflowY: 'auto',
     layout: 'hbox',
-
+    dateTimeSeparator: Uni.I18n.translate('general.lovercase.at', 'IMT', 'at'),
+    hoursMinutesSeparator: ':',
     requires: [
         'Uni.property.form.Property',
         'Imt.customattributesonvaluesobjects.view.form.VersionDateField',
@@ -57,7 +58,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                 title: me.router.getRoute().getTitle(),
                 defaults: {
                     labelWidth: 260,
-                    width: 605
+                    width: 800
                 },
                 width: 650,
                 items: [
@@ -71,10 +72,35 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.start', 'IMT', 'Start'),
-                        groupName: 'startGroup',
-                        xtype: 'custom-attributes-version-date-field',
+                        xtype: 'date-time',
                         itemId: 'custom-attribute-set-version-start-date-field',
-                        privileges: Imt.privileges.UsagePoint.adminTimeSlicedCps
+                        layout: 'hbox',
+                        margin: '30 0 0 0',
+                        dateConfig: {
+                            width: 120
+                        },
+                        hoursConfig: {
+                            width: 60
+                        },
+                        minutesConfig: {
+                            width: 60
+                        },
+                        separatorConfig: {
+                            html: '<span style="color: #686868;">' + this.hoursMinutesSeparator + '</span>'
+                        },
+                        dateTimeSeparatorConfig: {
+                            html: '<span style="color: #686868;">' + this.dateTimeSeparator + '</span>'
+                        },
+                        listeners: {
+                            disable: function (thisField) {
+                                thisField.down('#date-time-separator').getEl().setStyle('opacity', 0.3);
+                                thisField.down('#hours-minutes-separator').getEl().setStyle('opacity', 0.3);
+                            },
+                            enable: function (thisField) {
+                                thisField.down('#date-time-separator').getEl().setStyle('opacity', 1);
+                                thisField.down('#hours-minutes-separator').getEl().setStyle('opacity', 1);
+                            }
+                        }
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.end', 'IMT', 'End'),
@@ -199,7 +225,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
             overlapContainer = me.down('#overlap-grid-field-container'),
             startDateField = me.down('#custom-attribute-set-version-start-date-field'),
             endDateField = me.down('#custom-attribute-set-version-end-date-field'),
-            startDate = startDateField ? startDateField.getValue() : undefined,
+            startDate = startDateField ? startDateField.getValue().getTime() : undefined,
             endDate = endDateField ? endDateField.getValue() : undefined,
             showOverlap;
 
@@ -208,7 +234,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
             me.minWidth = 1650;
             me.up('viewport').updateLayout();
             overlapContainer.show();
-            startDateField.disableWithText();
+            startDateField.disable();
             endDateField.disableWithText();
             scope.isForcedSave = true;
             scope.suspendCheckVersion = false;
@@ -230,7 +256,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
         me.setLoading(true);
         Ext.suspendLayouts();
         if (hasAdminTimeSlicedCpsPrivileges) {
-            startDateField.enableWithText();
+            startDateField.enable();
             endDateField.enableWithText();
             startDateField.clearInvalid();
             endDateField.clearInvalid();
@@ -297,7 +323,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
             overlapContainer = me.down('#overlap-grid-field-container'),
             startDateField = me.down('#custom-attribute-set-version-start-date-field'),
             endDateField = me.down('#custom-attribute-set-version-end-date-field'),
-            startTime = startDateField.getValue(),
+            startTime = startDateField.getValue().getTime(),
             endTime = endDateField.getValue();
 
         if (!startTime || !endTime || startTime < endTime ) {
@@ -313,7 +339,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                         me.up('viewport').updateLayout();
                         overlapContainer.hide();
                         me.down('uni-form-error-message').hide();
-                        startDateField.enableWithText();
+                        startDateField.enable();
                         endDateField.enableWithText();
                         me.isForcedSave = false;
                         me.suspendCheckVersion = true;
