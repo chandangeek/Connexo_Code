@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2016-03-10 (11:12)
  */
 @Component(name = "com.elster.jupiter.time.ExecutionTimerService", service = {ExecutionTimerService.class})
-public class ExecutionTimerServiceImpl implements ExecutionTimerService {
+public class ExecutionTimerServiceImpl implements IExecutionTimerService {
     private BundleContext bundleContext;
     private final Set<ExecutionTimer> timers = ConcurrentHashMap.newKeySet();
 
@@ -43,7 +43,7 @@ public class ExecutionTimerServiceImpl implements ExecutionTimerService {
     @Override
     public ExecutionTimer newTimer(String name, Duration timeout) {
         this.checkUniqueName(name);
-        ExecutionTimerImpl timer = new ExecutionTimerImpl(name, timeout);
+        ExecutionTimerImpl timer = new ExecutionTimerImpl(this, name, timeout);
         timer.activate(this.bundleContext);
         this.timers.add(timer);
         return timer;
@@ -51,8 +51,13 @@ public class ExecutionTimerServiceImpl implements ExecutionTimerService {
 
     private void checkUniqueName(String name) {
         if (this.timers.stream().map(ExecutionTimer::getName).anyMatch(name::equals)) {
-            throw new IllegalArgumentException("ExecutionTimer with name " + name + " already exiqt");
+            throw new IllegalArgumentException("ExecutionTimer with name " + name + " already exist");
         }
+    }
+
+    @Override
+    public void deactivated(ExecutionTimerImpl executionTimer) {
+        timers.remove(executionTimer);
     }
 
 }

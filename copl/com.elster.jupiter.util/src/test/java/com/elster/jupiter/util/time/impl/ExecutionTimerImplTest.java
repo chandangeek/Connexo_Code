@@ -39,6 +39,8 @@ public class ExecutionTimerImplTest {
     private BundleContext bundleContext;
     @Mock
     private ServiceRegistration serviceRegistration;
+    @Mock
+    private IExecutionTimerService executionTimerService;
 
     @Before
     public void initializeMocks() {
@@ -220,7 +222,7 @@ public class ExecutionTimerImplTest {
     }
 
     private ExecutionTimerImpl getTestInstance(String name, long timeOutMillis) {
-        ExecutionTimerImpl timer = new ExecutionTimerImpl(name, Duration.ofMillis(timeOutMillis));
+        ExecutionTimerImpl timer = new ExecutionTimerImpl(executionTimerService, name, Duration.ofMillis(timeOutMillis));
         timer.activate(this.bundleContext);
         return timer;
     }

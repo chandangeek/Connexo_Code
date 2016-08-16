@@ -8,13 +8,18 @@ import java.util.Arrays;
 
 import org.junit.BeforeClass;
 
+import static org.mockito.Mockito.mock;
+
 public class ExecutionTimerImplEqualsTest extends EqualsContractTest {
 
     private static ExecutionTimer INSTANCE_A;
 
+    private static IExecutionTimerService executionTimerService;
+
     @BeforeClass
     public static void setupInstances() {
-        INSTANCE_A = new ExecutionTimerImpl("A", Duration.ofMillis(101L));
+        executionTimerService = mock(IExecutionTimerService.class);
+        INSTANCE_A = new ExecutionTimerImpl(executionTimerService, "A", Duration.ofMillis(101L));
     }
 
     @Override
@@ -24,15 +29,15 @@ public class ExecutionTimerImplEqualsTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new ExecutionTimerImpl("A", Duration.ofMillis(101L));
+        return new ExecutionTimerImpl(executionTimerService, "A", Duration.ofMillis(101L));
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return Arrays.asList(
-                new ExecutionTimerImpl("a", Duration.ofMillis(101L)),
-                new ExecutionTimerImpl("B", Duration.ofMillis(101L)),
-                new ExecutionTimerImpl("B", Duration.ofMillis(1001L))
+                new ExecutionTimerImpl(executionTimerService, "a", Duration.ofMillis(101L)),
+                new ExecutionTimerImpl(executionTimerService, "B", Duration.ofMillis(101L)),
+                new ExecutionTimerImpl(executionTimerService, "B", Duration.ofMillis(1001L))
         );
     }
 

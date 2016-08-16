@@ -21,14 +21,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-10 (12:02)
  */
-public final class ExecutionTimerImpl implements ExecutionTimer {
+final class ExecutionTimerImpl implements ExecutionTimer {
+    private final IExecutionTimerService executionTimerService;
     private final String name;
     private final Duration timeout;
     private final ExecutionStatisticsImpl statistics = new ExecutionStatisticsImpl();
     private final List<ExecutionTimerImpl> listeners = new CopyOnWriteArrayList<>();
     private ServiceRegistration<ExecutionStatisticsImpl> serviceRegistration;
 
-    public ExecutionTimerImpl(String name, Duration timeout) {
+    ExecutionTimerImpl(IExecutionTimerService executionTimerService, String name, Duration timeout) {
+        this.executionTimerService = executionTimerService;
         this.name = name;
         this.timeout = timeout;
     }
@@ -48,6 +50,7 @@ public final class ExecutionTimerImpl implements ExecutionTimer {
     @Override
     public void deactivate() {
         this.serviceRegistration.unregister();
+        executionTimerService.deactivated(this);
     }
 
     @Override
