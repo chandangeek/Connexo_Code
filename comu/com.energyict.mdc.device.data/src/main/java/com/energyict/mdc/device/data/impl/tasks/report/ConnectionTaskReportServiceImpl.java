@@ -263,6 +263,7 @@ public class ConnectionTaskReportServiceImpl implements ConnectionTaskReportServ
         sqlBuilder.append(" ct where ct.nextexecutiontimestamp is not null");
         sqlBuilder.append("      and ct.obsolete_date is null");
         sqlBuilder.append("      and ct.lastsession is not null");
+        this.appendRestrictedStatesClause(sqlBuilder, "ct");
         sqlBuilder.append("    group by ct.lastSessionSuccessIndicator");
         return this.addMissingSuccessIndicatorCounters(this.fetchSuccessIndicatorCounters(sqlBuilder));
     }
