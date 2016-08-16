@@ -42,7 +42,7 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
     public static final String CUSTOM_PROPERTY_SET_NAME = "contactoroperation";
 
     private volatile Thesaurus thesaurus;
-    public volatile PropertySpecService propertySpecService;
+    private volatile PropertySpecService propertySpecService;
 
     public ContactorOperationCustomPropertySet() {
     }
@@ -55,21 +55,25 @@ public class ContactorOperationCustomPropertySet implements CustomPropertySet<Se
     }
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setServiceCallService(ServiceCallService serviceCallService) {
         // PATCH; required for proper startup; do not delete
     }
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
         customPropertySetService.addCustomPropertySet(this);
     }
 
     @Reference
+    @SuppressWarnings("unused") // For OSGi framework
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(PrepaymentApplication.COMPONENT_NAME, Layer.REST);
     }

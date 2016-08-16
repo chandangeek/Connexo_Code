@@ -1,5 +1,6 @@
 package com.elster.jupiter.prepayment.impl.servicecall;
 
+import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -16,7 +17,7 @@ import javax.validation.constraints.Size;
  * @author sva
  * @since 30/03/2016 - 15:39
  */
-public class ContactorOperationDomainExtension implements PersistentDomainExtension<ServiceCall> {
+public class ContactorOperationDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         DOMAIN("serviceCall", "serviceCall"),
         BREAKER_STATUS("status", "status"),
@@ -54,7 +55,7 @@ public class ContactorOperationDomainExtension implements PersistentDomainExtens
     }
 
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
-        return registeredCustomPropertySet.get();
+        return super.getRegisteredCustomPropertySet();
     }
 
     public String getStatus() {
