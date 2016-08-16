@@ -9,6 +9,8 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
@@ -61,6 +63,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.streams.Predicates;
@@ -88,10 +91,12 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
+import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.CIMLifecycleDates;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
 import com.energyict.mdc.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceValidation;
@@ -271,6 +276,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private String timeZoneId;
     private ZoneId zoneId;
     private Integer yearOfCertification;
+    private boolean estimationActive;
+    private List<DeviceEstimationRuleSetActivation> estimationRuleSetActivations = new ArrayList<>();
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -307,7 +314,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     private final Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
-    private final Reference<ServerDeviceEstimation> deviceEstimation = ValueReference.absent();
+    private final Reference<Batch> batch = ValueReference.absent();
 
     private transient AmrSystem amrSystem;
 
@@ -636,7 +643,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         new SyncDeviceWithKoreForRemoval(this, meteringService, readingTypeUtilService, clock, eventService).syncWithKore(this);
         koreHelper.deactivateMeter(clock.instant());
         this.clearPassiveCalendar();
-        this.deleteEstimation();
         this.readingTypeObisCodeUsages.clear();
         this.getDataMapper().remove(this);
     }
@@ -2052,21 +2058,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public DeviceEstimation forEstimation() {
-        return this.ensureEstimationLoaded();
-    }
-
-    private ServerDeviceEstimation ensureEstimationLoaded() {
-        return deviceEstimation.orElseGet(this::loadAndSetDeviceEstimation);
-    }
-
-    private ServerDeviceEstimation loadAndSetDeviceEstimation() {
-        ServerDeviceEstimation deviceEstimation = dataModel.getInstance(DeviceEstimationImpl.class).init(this, false);
-        this.deviceEstimation.set(deviceEstimation);
-        return deviceEstimation;
-    }
-
-    private void deleteEstimation() {
-        this.ensureEstimationLoaded().delete();
+        return this.dataModel.getInstance(DeviceEstimationImpl.class).init(this, this.estimationActive, this.estimationRuleSetActivations);
     }
 
     @Override
@@ -2194,6 +2186,25 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return journalEntries.stream()
                 .map(JournalEntry::get)
                 .findFirst();
+    }
+
+    @Override
+    public void addInBatch(Batch batch) {
+        this.batch.set(batch);
+        save();
+    }
+
+    @Override
+    public void removeFromBatch(Batch batch) {
+        if (this.batch.isPresent() && this.batch.get().getId() == batch.getId()) {
+            this.batch.set(null);
+            save();
+        }
+    }
+
+    @Override
+    public Optional<Batch> getBatch() {
+        return this.batch.getOptional();
     }
 
     private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {
@@ -2889,5 +2900,126 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private List<ReadingType> getDeviceCapabilities(DeviceConfiguration config) {
         return deviceConfigurationService.getReadingTypesRelatedToConfiguration(config);
+    }
+
+    @Override
+    public void touch() {
+        this.dataModel.touch(this);
+    }
+
+    @Override
+    public void activateEstimation() {
+        this.estimationActive = true;
+    }
+
+    @Override
+    public void deactivateEstimation() {
+        this.estimationActive = false;
+    }
+
+    static class DeviceEstimationImpl implements DeviceEstimation {
+        private ServerDevice device;
+        private List<DeviceEstimationRuleSetActivation> estimationRuleSetActivations;
+        private boolean active = false;
+
+        private final DataModel dataModel;
+        private final EstimationService estimationService;
+
+        @Inject
+        DeviceEstimationImpl(DataModel dataModel, EstimationService estimationService) {
+            this.dataModel = dataModel;
+            this.estimationService = estimationService;
+        }
+
+        DeviceEstimation init(ServerDevice device, boolean active, List<DeviceEstimationRuleSetActivation> estimationRuleSetActivations) {
+            this.device = device;
+            this.active = active;
+            this.estimationRuleSetActivations = estimationRuleSetActivations; // do not create a copy of that list, we want the persistent list!
+            return this;
+        }
+
+        @Override
+        public boolean isEstimationActive() {
+            return active;
+        }
+
+        @Override
+        public Device getDevice() {
+            return this.device;
+        }
+
+        @Override
+        public void activateEstimation() {
+            if (!active) {
+                active = true;
+                this.device.activateEstimation();
+                saveDevice();
+            }
+        }
+
+        @Override
+        public void deactivateEstimation() {
+            if (active) {
+                active = false;
+                this.device.deactivateEstimation();
+                saveDevice();
+            }
+        }
+
+        @Override
+        public List<DeviceEstimationRuleSetActivation> getEstimationRuleSetActivations() {
+            List<EstimationRuleSet> ruleSetsOnDeviceConfig = device.getDeviceConfiguration().getEstimationRuleSets();
+
+            List<DeviceEstimationRuleSetActivation> returnList = ruleSetsOnDeviceConfig.stream()
+                    .map(r -> Pair.of(r, findEstimationRuleSetActivation(r)))
+                    .map(p -> p.getLast().orElseGet(
+                            () -> dataModel.getInstance(DeviceEstimationRuleSetActivationImpl.class).init(this.device, p.getFirst(), true))) //not saved intentionally
+                    .collect(toList());
+
+            List<DeviceEstimationRuleSetActivation> removedFromDeviceConfiguration = estimationRuleSetActivations.stream()
+                    .filter(ruleSetActivation -> !ruleSetsOnDeviceConfig.contains(ruleSetActivation.getEstimationRuleSet()))
+                    .collect(toList());
+            estimationRuleSetActivations.removeAll(removedFromDeviceConfiguration);
+            return returnList;
+        }
+
+        @Override
+        public void activateEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
+            applyEstimationRuleSet(estimationRuleSet, true);
+        }
+
+        @Override
+        public void deactivateEstimationRuleSet(EstimationRuleSet estimationRuleSet) {
+            applyEstimationRuleSet(estimationRuleSet, false);
+        }
+
+        public EstimationService getEstimationService() {
+            return estimationService;
+        }
+
+        private void applyEstimationRuleSet(EstimationRuleSet estimationRuleSet, boolean active) {
+            Optional<DeviceEstimationRuleSetActivation> ruleSetActivation = findEstimationRuleSetActivation(estimationRuleSet);
+            if (ruleSetActivation.isPresent()) {
+                if (ruleSetActivation.get().isActive() != active) {
+                    ruleSetActivation.get().setActive(active);
+                    touchDevice();
+                }
+            } else {
+                estimationRuleSetActivations.add(dataModel.getInstance(DeviceEstimationRuleSetActivationImpl.class).init(this.device, estimationRuleSet, active));
+                touchDevice();
+            }
+        }
+
+        private Optional<DeviceEstimationRuleSetActivation> findEstimationRuleSetActivation(EstimationRuleSet estimationRuleSet) {
+            return estimationRuleSetActivations.stream().filter(er -> er.getEstimationRuleSet().getId() == estimationRuleSet.getId()).findAny();
+        }
+
+        private void touchDevice() {
+            this.device.touch();
+        }
+
+        private void saveDevice() {
+            this.device.save();
+        }
     }
 }

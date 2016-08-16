@@ -10,6 +10,7 @@ import com.energyict.mdc.device.data.Device;
 import javax.inject.Inject;
 import java.time.Instant;
 
+@Deprecated // This class was saved just for ORM
 public class DeviceInBatch {
 
     enum Fields {

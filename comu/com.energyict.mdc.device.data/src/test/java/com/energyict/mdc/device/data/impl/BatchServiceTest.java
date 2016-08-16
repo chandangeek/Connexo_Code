@@ -1,16 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-
 import java.time.Instant;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,17 +41,6 @@ public class BatchServiceTest extends PersistenceIntegrationTest {
         assertThat(batch2.getId()).isGreaterThan(0);
         assertThat(batch2.getName()).isEqualTo("batch2");
         assertThat(batch1.getId()).isEqualTo(batch1Copy.getId());
-    }
-
-    @Test
-    @Transactional
-    public void testRemoveBatch() {
-        Batch batch = inMemoryPersistence.getBatchService().findOrCreateBatch("batch");
-
-        batch.delete();
-        Batch newBatch = inMemoryPersistence.getBatchService().findOrCreateBatch("batch");
-
-        assertThat(batch.getId()).isNotEqualTo(newBatch.getId());
     }
 
     @Test
@@ -91,10 +79,10 @@ public class BatchServiceTest extends PersistenceIntegrationTest {
 
         batch.addDevice(device);
         assertThat(batch.isMember(device)).isTrue();
-        assertThat(inMemoryPersistence.getBatchService().findBatch(device).get().getId()).isEqualTo(batch.getId());
+        assertThat(device.getBatch().get().getId()).isEqualTo(batch.getId());
 
         batch.removeDevice(device);
         assertThat(batch.isMember(device)).isFalse();
-        assertThat(inMemoryPersistence.getBatchService().findBatch(device)).isEmpty();
+        assertThat(device.getBatch()).isEmpty();
     }
 }

@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data;
 
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.util.HasId;
+
+import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface Batch extends HasId {
@@ -14,6 +14,4 @@ public interface Batch extends HasId {
     void removeDevice(Device device);
 
     boolean isMember(Device device);
-
-    void delete();
 }

@@ -257,7 +257,7 @@ public class DeviceSearchDomain implements SearchDomain {
             List<SearchableProperty> dynamicProperties = new ArrayList<>();
             Set<Long> uniquePluggableClasses = new HashSet<>();
             for (Object value : connectionMethodConstriction.get().getConstrainingValues()) {
-                if(value instanceof ConnectionMethodSearchableProperty.ConnectionMethodInfo ) {
+                if (value instanceof ConnectionMethodSearchableProperty.ConnectionMethodInfo) {
                     ConnectionTypePluggableClass pluggableClass = ((ConnectionMethodSearchableProperty.ConnectionMethodInfo) value).ctpClass;
                     if (!uniquePluggableClasses.add(pluggableClass.getId())) {
                         continue;

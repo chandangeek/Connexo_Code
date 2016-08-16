@@ -93,6 +93,17 @@ import static com.elster.jupiter.orm.Version.version;
  */
 public enum TableSpecs {
 
+    DDC_BATCH {
+        void addTo(DataModel dataModel) {
+            Table<Batch> table = dataModel.addTable(name(), Batch.class);
+            table.map(BatchImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map(BatchImpl.Fields.BATCH_NAME.fieldName()).add();
+            table.addAuditColumns();
+            table.primaryKey("DDC_PK_BATCH").on(idColumn).add();
+            table.unique("DDC_U_BATCH_NAME").on(nameColumn).add();
+        }
+    },
     DDC_DEVICE {
         @Override
         public void addTo(DataModel dataModel) {
@@ -109,6 +120,8 @@ public enum TableSpecs {
             Column deviceType = table.column("DEVICETYPE").number().notNull().add();
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             Column meterId = table.column("METERID").number().since(version(10, 2)).add();
+            Column batchId = table.column("BATCH_ID").number().since(version(10, 2)).add();
+            table.column("ESTIMATION_ACTIVE").bool().map("estimationActive").since(version(10, 2)).add();
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
                     references(DeviceConfiguration.class).
@@ -123,6 +136,12 @@ public enum TableSpecs {
                     .on(meterId)
                     .references(EndDevice.class)
                     .map(DeviceFields.METER.fieldName())
+                    .since(version(10, 2))
+                    .add();
+            table.foreignKey("FK_DDC_DEVICE_BATCH")
+                    .on(batchId)
+                    .references(Batch.class)
+                    .map(DeviceFields.BATCH.fieldName())
                     .since(version(10, 2))
                     .add();
 
@@ -657,17 +676,17 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel) {
             Table<DeviceEstimation> table = dataModel.addTable(name(), DeviceEstimation.class);
-            table.map(DeviceEstimationImpl.class);
+            table.upTo(version(10, 2));
+            table.map(DeviceImpl.DeviceEstimationImpl.class);
             Column device = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationImpl.Fields.ACTIVE.fieldName()).add();
+            table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).add();
             table.addAuditColumns();
 
             table.primaryKey("PK_DDC_DEVESTACTIVATION").on(device).add();
             table.foreignKey("FK_DDC_DEVESTACTIVATION_DEVICE")
                     .on(device)
                     .references(DDC_DEVICE.name())
-                    .map(DeviceEstimationImpl.Fields.DEVICE.fieldName())
-                    .reverseMap("deviceEstimation")
+                    .map("device")
                     .add();
         }
     },
@@ -678,12 +697,14 @@ public enum TableSpecs {
             Table<DeviceEstimationRuleSetActivation> table = dataModel.addTable(name(), DeviceEstimationRuleSetActivation.class);
             table.map(DeviceEstimationRuleSetActivationImpl.class);
 
-            Column estimationActivationColumn = table.column("ESTIMATIONACTIVATION").number().conversion(NUMBER2LONG).notNull().add();
+            Column deviceColumn = table.column("DEVICE").number().conversion(NUMBER2LONG).notNull().since(version(10, 2)).add();
             Column estimationRuleSetColumn = table.column("ESTIMATIONRULESET").number().conversion(NUMBER2LONG).notNull().add();
+            Column estimationActivationColumn = table.column("ESTIMATIONACTIVATION").number().conversion(NUMBER2LONG).notNull().upTo(version(10, 2)).add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map(DeviceEstimationRuleSetActivationImpl.Fields.ACTIVE.fieldName()).add();
             table.addAuditColumns();
             table.setJournalTableName("DDC_DEVRULESETACTJRNL").since(version(10, 2));
-            table.primaryKey("PK_DDC_DEVESTRULESETACTIV").on(estimationActivationColumn, estimationRuleSetColumn).add();
+            table.primaryKey("PK_EST_RS_ACTIVATION").on(deviceColumn, estimationRuleSetColumn).since(version(10, 2)).add();
+            table.primaryKey("PK_DDC_DEVESTRULESETACTIV").on(estimationActivationColumn, estimationRuleSetColumn).upTo(version(10, 2)).add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_RULESET")
                     .on(estimationRuleSetColumn)
                     .references(EstimationRuleSet.class)
@@ -691,23 +712,18 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_ESTACT")
                     .on(estimationActivationColumn)
+                    .map("estimationActivation")
+                    .upTo(version(10, 2))
                     .references(DDC_DEVICEESTACTIVATION.name())
-                    .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONACTIVATION.fieldName())
-                    .reverseMap(DeviceEstimationImpl.Fields.ESTRULESETACTIVATIONS.fieldName())
-                    .composition()
                     .add();
-        }
-    },
-
-    DDC_BATCH {
-        void addTo(DataModel dataModel) {
-            Table<Batch> table = dataModel.addTable(name(), Batch.class);
-            table.map(BatchImpl.class);
-            Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map(BatchImpl.Fields.BATCH_NAME.fieldName()).add();
-            table.addAuditColumns();
-            table.primaryKey("DDC_PK_BATCH").on(idColumn).add();
-            table.unique("DDC_U_BATCH_NAME").on(nameColumn).add();
+            table.foreignKey("FK_EST_RS_2_DEVICE")
+                    .on(deviceColumn)
+                    .references(Device.class)
+                    .map(DeviceEstimationRuleSetActivationImpl.Fields.DEVICE.fieldName())
+                    .reverseMap("estimationRuleSetActivations")
+                    .composition()
+                    .since(version(10, 2))
+                    .add();
         }
     },
 
@@ -715,6 +731,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<DeviceInBatch> table = dataModel.addTable(name(), DeviceInBatch.class);
             table.map(DeviceInBatch.class);
+            table.upTo(version(10, 2));
             Column deviceColumn = table.column("DEVICEID").number().notNull().add();
             Column batchColumn = table.column("BATCHID").number().notNull().add();
             table.addCreateTimeColumn("CREATETIME", DeviceInBatch.Fields.CREATE_TIME.fieldName());

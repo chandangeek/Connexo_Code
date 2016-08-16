@@ -199,7 +199,7 @@ public class DeviceDeleteTest {
     @Before
     public void setup() {
         when(dataModel.mapper(DeviceImpl.class)).thenReturn(dataMapper);
-        when(this.dataModel.getInstance(DeviceEstimationImpl.class)).thenReturn(new DeviceEstimationImpl(this.dataModel, this.estimationService));
+        when(this.dataModel.getInstance(DeviceImpl.DeviceEstimationImpl.class)).thenReturn(new DeviceImpl.DeviceEstimationImpl(this.dataModel, this.estimationService));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
