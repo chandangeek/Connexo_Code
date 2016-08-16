@@ -34,8 +34,8 @@ public class DeviceSearchInfo {
     public String location;
 
 
-    public static DeviceSearchInfo from(Device device, BatchRetriever batchService, GatewayRetriever gatewayRetriever,
-                                        IssueRetriever issueService, Thesaurus thesaurus, DeviceEstimationRetriever deviceEstimationRetriever, DeviceValidationRetriever deviceValidationRetriever) {
+    public static DeviceSearchInfo from(Device device, GatewayRetriever gatewayRetriever,
+                                        IssueRetriever issueService, Thesaurus thesaurus, DeviceValidationRetriever deviceValidationRetriever) {
         DeviceSearchInfo searchInfo = new DeviceSearchInfo();
         searchInfo.id = device.getId();
         searchInfo.mRID = device.getmRID();
@@ -43,7 +43,7 @@ public class DeviceSearchInfo {
         searchInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
         searchInfo.deviceTypeName = device.getDeviceType().getName();
         searchInfo.state = getStateName(device.getState(), thesaurus);
-        searchInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
+        searchInfo.batch = device.getBatch().map(Batch::getName).orElse(null);
 
         searchInfo.hasOpenDataCollectionIssues = issueService.hasOpenDataCollectionIssues(device);
         device.getUsagePoint().ifPresent(usagePoint -> {
@@ -51,7 +51,7 @@ public class DeviceSearchInfo {
             searchInfo.serviceCategory = usagePoint.getServiceCategory().getName();
         });
         searchInfo.yearOfCertification = device.getYearOfCertification();
-        searchInfo.estimationActive = getStatus(deviceEstimationRetriever.isEstimationActive(device), thesaurus);
+        searchInfo.estimationActive = getStatus(device.forEstimation().isEstimationActive(), thesaurus);
         Optional<Device> physicalGateway = gatewayRetriever.getPhysicalGateway(device);
         if (physicalGateway.isPresent()) {
             searchInfo.masterDevicemRID = physicalGateway.get().getmRID();
