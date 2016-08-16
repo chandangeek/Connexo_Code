@@ -78,9 +78,9 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.connections[0].currentState.id")).isEqualTo("Pending");
         assertThat(jsonModel.<String>get("$.connections[0].currentState.displayValue")).isEqualTo("Pending");
         assertThat(jsonModel.<String>get("$.connections[0].latestStatus.id")).isEqualTo("FAILURE");
-        assertThat(jsonModel.<String>get("$.connections[0].latestStatus.displayValue")).isEqualTo("Failure");
+        assertThat(jsonModel.<String>get("$.connections[0].latestStatus.displayValue")).isEqualTo("Failed");
         assertThat(jsonModel.<String>get("$.connections[0].latestResult.id")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.connections[0].latestResult.displayValue")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.connections[0].latestResult.displayValue")).isEqualTo("Successful");
         assertThat(jsonModel.<Integer>get("$.connections[0].latestResult.retries")).isEqualTo(0);
         assertThat(jsonModel.<Integer>get("$.connections[0].taskCount.numberOfSuccessfulTasks")).isEqualTo(12);
         assertThat(jsonModel.<Integer>get("$.connections[0].taskCount.numberOfFailedTasks")).isEqualTo(401);

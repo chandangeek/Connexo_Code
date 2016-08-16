@@ -35,7 +35,7 @@ public class TimeOfUseInfoFactory {
 
     private TimeOfUseInfo from(Optional<ActiveEffectiveCalendar> activeCalendar, Optional<PassiveCalendar> passiveCalendar, Optional<PassiveCalendar> plannedPassiveCalendar, Device device) {
         TimeOfUseInfo info = new TimeOfUseInfo();
-        if (activeCalendar.isPresent()) {
+        if (activeCalendar.isPresent() && !activeCalendar.get().getAllowedCalendar().isObsolete()) {
             if (activeCalendar.get().getAllowedCalendar().getCalendar().isPresent()) {
                 info.activeCalendar = this.calendarInfoFactory.detailedFromCalendar(activeCalendar.get().getAllowedCalendar().getCalendar().get());
             } else {
