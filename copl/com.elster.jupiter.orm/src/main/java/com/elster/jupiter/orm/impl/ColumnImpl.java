@@ -486,7 +486,7 @@ public class ColumnImpl implements Column {
 
     @Override
     public boolean isInVersion(Version version) {
-        return versions.contains(version);
+        return versions().contains(version);
     }
 
     private RangeSet<Version> intersectWithTable(RangeSet<Version> set) {
@@ -494,7 +494,7 @@ public class ColumnImpl implements Column {
     }
 
     RangeSet<Version> versions() {
-        return ImmutableRangeSet.copyOf(versions);
+        return intersectWithTable(versions);
     }
 
     Optional<ColumnImpl> getPredecessor() {

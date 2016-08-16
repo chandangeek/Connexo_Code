@@ -171,7 +171,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
     }
 
     RangeSet<Version> versions() {
-        return ImmutableRangeSet.copyOf(versions);
+        return intersectWithTable(versions);
     }
 
     void validate() {
@@ -240,7 +240,7 @@ public abstract class TableConstraintImpl<S extends TableConstraint> implements 
 
     @Override
     public boolean isInVersion(Version version) {
-        return versions.contains(version);
+        return versions().contains(version);
     }
 
     private RangeSet<Version> intersectWithTable(RangeSet<Version> set) {
