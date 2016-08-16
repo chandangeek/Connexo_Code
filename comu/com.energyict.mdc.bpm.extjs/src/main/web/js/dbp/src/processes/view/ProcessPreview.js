@@ -8,9 +8,7 @@ Ext.define('Dbp.processes.view.ProcessPreview', {
     ],
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'DBP', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             privileges: Dbp.privileges.DeviceProcesses.administrateProcesses,
             menu: {
                 xtype: 'dbp-process-action-menu'
