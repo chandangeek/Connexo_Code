@@ -342,7 +342,7 @@ public class DataModelImpl implements DataModel {
         System.arraycopy(modules, 0, allModules, 0, modules.length);
         allModules[modules.length] = getModule();
         injector = Guice.createInjector(allModules);
-        for (TableImpl<?> each : tables) {
+        for (TableImpl<?> each : getTables(getVersion())) {
             each.prepare();
         }
         this.ormService.register(this);
