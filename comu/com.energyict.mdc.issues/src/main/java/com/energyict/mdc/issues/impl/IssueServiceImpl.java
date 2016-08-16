@@ -53,23 +53,23 @@ public class IssueServiceImpl implements IssueService {
         this.thesaurus = nlsService.getThesaurus("ISU", Layer.DOMAIN);
     }
 
-    @Override
-    public  Problem newProblem (Object source, String description, Object... arguments) {
-        return new ProblemImpl(thesaurus, this.clock.instant(), source, description, arguments);
-    }
+//    @Override
+//    public  Problem newProblem (Object source, String description, Object... arguments) {
+//        return new ProblemImpl(thesaurus, this.clock.instant(), source, description, arguments);
+//    }
 
     @Override
-    public Problem newProblem(Object source, Thesaurus thesaurus, MessageSeed description, Object... arguments) {
+    public Problem newProblem(Object source, MessageSeed description, Object... arguments) {
         return new ProblemBackedByMessageSeed(source, this.clock.instant(), thesaurus, description, arguments);
     }
 
-    @Override
-    public  Warning newWarning (Object source, String description, Object... arguments) {
-        return new WarningImpl(thesaurus, this.clock.instant(), source, description, arguments);
-    }
+//    @Override
+//    public  Warning newWarning (Object source, String description, Object... arguments) {
+//        return new WarningImpl(thesaurus, this.clock.instant(), source, description, arguments);
+//    }
 
     @Override
-    public Warning newWarning(Object source, Thesaurus thesaurus, MessageSeed description, Object... arguments) {
+    public Warning newWarning(Object source, MessageSeed description, Object... arguments) {
         return new WarningBackedByMessageSeed(source, this.clock.instant(), thesaurus, description, arguments);
     }
 

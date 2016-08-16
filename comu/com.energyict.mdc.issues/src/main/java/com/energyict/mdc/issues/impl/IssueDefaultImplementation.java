@@ -27,6 +27,7 @@ public abstract class IssueDefaultImplementation implements Issue {
         this.timestamp = timestamp;
         this.source = source;
         this.description = MessageFormat.format(convertSingleQuoteArgumentsToDoubleQuoteArguments(thesaurus.getString(description, description)), arguments);
+
     }
 
     /**
