@@ -364,6 +364,7 @@ public class JbpmTaskResourceTest {
         forms.put("processID",template);
 
         when(process.getDeploymentId()).thenReturn("deploymentID");
+        when(runtimeDataService.getProcessesById("processID")).thenReturn(processesList);
         when(runtimeDataService.getProcessById(anyString())).thenReturn(process);
         when(runtimeDataService.getProcessesByDeploymentId(anyString(), any(QueryContext.class))).thenReturn(processesList);
         when(process.getId()).thenReturn("processID");
