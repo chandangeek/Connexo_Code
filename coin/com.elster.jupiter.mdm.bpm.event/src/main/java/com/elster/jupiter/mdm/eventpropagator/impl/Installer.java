@@ -6,7 +6,6 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
-import com.elster.jupiter.util.conditions.Condition;
 
 import com.google.inject.Inject;
 
@@ -40,8 +39,8 @@ public class Installer implements FullInstaller {
                         .with(whereCorrelationId().isEqualTo(EventType.METERREADING_CREATED.topic())
                                 .or(whereCorrelationId().isEqualTo(EventType.METER_UPDATED.topic()))
                                 .or(whereCorrelationId().isEqualTo(EventType.USAGEPOINT_UPDATED.topic()))
-                                .or(whereCorrelationId().isEqualTo(EventType.METER_ACTIVATED.topic()))
-                        );
+                                .or(whereCorrelationId().isEqualTo(EventType.METER_ACTIVATED.topic())))
+                        .create();
             }
         }
     }
