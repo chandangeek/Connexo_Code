@@ -197,7 +197,7 @@ Ext.define('Uni.view.search.ColumnPicker', {
             view = grid.getView(),
             gridPanel = view.up('gridpanel');
 
-        if (gridPanel) {
+        if (gridPanel && grid.getPlugin('showConditionalToolTipId')) {
             gridPanel.columns = gridPanel.columnManager.getColumns();
             grid.getPlugin('showConditionalToolTipId').setTooltip(view);
         }
