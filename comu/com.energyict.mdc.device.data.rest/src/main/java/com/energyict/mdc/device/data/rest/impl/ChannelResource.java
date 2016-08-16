@@ -124,14 +124,14 @@ public class ChannelResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
-        if (!Objects.equals(channelInfo.overruledNbrOfFractionDigits, channelInfo.nbrOfFractionDigits)) {
+        if (!Objects.equals(channel.getNrOfFractionDigits(), channelInfo.overruledNbrOfFractionDigits)) {
             channelUpdater.setNumberOfFractionDigits(channelInfo.overruledNbrOfFractionDigits);
         }
-        if (channelInfo.overruledOverflowValue == null && channel.getOverflow().isPresent() ||
-                !Objects.equals(channelInfo.overruledOverflowValue, channelInfo.overflowValue)) {
+        if (channel.getOverflow().isPresent() && (channelInfo.overruledOverflowValue == null)
+                || !Objects.equals(channelInfo.overruledOverflowValue, channel.getOverflow().get())) {
             channelUpdater.setOverflowValue(channelInfo.overruledOverflowValue);
         }
-        if (!channelInfo.overruledObisCode.equals(channelInfo.obisCode)) {
+        if (!channel.getObisCode().equals(channelInfo.overruledObisCode)) {
             channelUpdater.setObisCode(channelInfo.overruledObisCode);
         }
         channelUpdater.update();
