@@ -23,9 +23,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
         },
         items: [
             {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.actions', 'FWC', 'Actions'),
-                iconCls: 'x-uni-action-iconD',
+                xtype: 'uni-button-action',
                 menu: {
                     xtype: 'device-firmware-action-menu'
                 },

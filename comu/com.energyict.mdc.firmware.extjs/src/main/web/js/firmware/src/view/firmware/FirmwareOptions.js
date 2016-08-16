@@ -21,10 +21,8 @@ Ext.define('Fwc.view.firmware.FirmwareOptions', {
                 layout: 'hbox',
                 tools: [
                     {
-                        xtype: 'button',
+                        xtype: 'uni-button-action',
                         itemId: 'fwc-specifications-actions-btn',
-                        iconCls: 'x-uni-action-iconD',
-                        text: Uni.I18n.translate('general.actions', 'FWC', 'Actions'),
                         menu: {
                             plain: true,
                             border: false,
