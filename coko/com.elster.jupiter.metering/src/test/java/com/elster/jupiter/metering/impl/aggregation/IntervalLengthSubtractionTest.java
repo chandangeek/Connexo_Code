@@ -3,7 +3,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 import java.time.Instant;
 import java.time.ZoneId;
 
-import org.junit.*;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -166,12 +166,39 @@ public class IntervalLengthSubtractionTest {
     }
 
     @Test
+    public void testOneDayOnFirstOfMonth() {
+        // Business method
+        Instant instant = IntervalLength.DAY1.subtractFrom(Instant.ofEpochMilli(1470002400000L), testZoneId());  // In Europe/Brussels: 2016-08-01 00:00:00
+
+        // Asserts
+        assertThat(instant).isEqualTo(Instant.ofEpochMilli(1469916000000L));  // In Europe/Brussels: 2016-07-31 00:00:00
+    }
+
+    @Test
+    public void testOneDayOnFirstOfJanuari() {
+        // Business method
+        Instant instant = IntervalLength.DAY1.subtractFrom(Instant.ofEpochMilli(1451602800000L), testZoneId());  // In Europe/Brussels: 2016-01-01 00:00:00
+
+        // Asserts
+        assertThat(instant).isEqualTo(Instant.ofEpochMilli(1451516400000L));  // In Europe/Brussels: 2015-12-31 00:00:00
+    }
+
+    @Test
     public void testOneWeek() {
         // Business method
         Instant instant = IntervalLength.WEEK1.subtractFrom(Instant.ofEpochMilli(1459807200000L), testZoneId());  // In Europe/Brussels: 2016-04-05 00:00:00
 
         // Asserts
         assertThat(instant).isEqualTo(Instant.ofEpochMilli(1459202400000L));  // In Europe/Brussels: 2016-03-29 00:00:00
+    }
+
+    @Test
+    public void testOneWeekInFirstWeekOfYear() {
+        // Business method
+        Instant instant = IntervalLength.WEEK1.subtractFrom(Instant.ofEpochMilli(1452034800000L), testZoneId());  // In Europe/Brussels: 2016-01-06 00:00:00
+
+        // Asserts
+        assertThat(instant).isEqualTo(Instant.ofEpochMilli(1451430000000L));  // In Europe/Brussels: 2015-12-30 00:00:00
     }
 
     @Test
@@ -184,6 +211,15 @@ public class IntervalLengthSubtractionTest {
     }
 
     @Test
+    public void testOneMonthFromJanuari() {
+        // Business method
+        Instant instant = IntervalLength.MONTH1.subtractFrom(Instant.ofEpochMilli(1451775600000L), testZoneId());  // In Europe/Brussels: 2016-01-00 00:00:00
+
+        // Asserts
+        assertThat(instant).isEqualTo(Instant.ofEpochMilli(1449097200000L));  // In Europe/Brussels: 2015-12-03 00:00:00
+    }
+
+    @Test
     public void testOneYear() {
         // Business method
         Instant instant = IntervalLength.YEAR1.subtractFrom(Instant.ofEpochMilli(1459807200000L), testZoneId());  // In Europe/Brussels: 2016-04-05 00:00:00
@@ -192,7 +228,7 @@ public class IntervalLengthSubtractionTest {
         assertThat(instant).isEqualTo(Instant.ofEpochMilli(1428184800000L));  // In Europe/Brussels: 2015-04-05 00:00:00
     }
 
-    protected ZoneId testZoneId() {
+    private ZoneId testZoneId() {
         return ZoneId.of("Europe/Brussels");
     }
 

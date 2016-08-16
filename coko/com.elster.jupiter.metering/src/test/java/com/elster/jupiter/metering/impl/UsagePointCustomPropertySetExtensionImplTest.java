@@ -7,13 +7,9 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
+
 import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -24,6 +20,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -59,7 +61,7 @@ public class UsagePointCustomPropertySetExtensionImplTest {
         ServiceCategory serviceCategory = mock(ServiceCategory.class);
         when(serviceCategory.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         when(usagePoint.getServiceCategory()).thenReturn(serviceCategory);
-        when(usagePoint.getMetrologyConfiguration()).thenReturn(Optional.empty());
+        when(usagePoint.getCurrentEffectiveMetrologyConfiguration()).thenReturn(Optional.empty());
         Thesaurus thesaurus = mock(Thesaurus.class);
         versionedPropertySet = spy((UsagePointCustomPropertySetExtensionImpl.UsagePointVersionedPropertySetImpl)
                 new UsagePointCustomPropertySetExtensionImpl(clock, customPropertySetService, thesaurus, usagePoint)
@@ -86,11 +88,11 @@ public class UsagePointCustomPropertySetExtensionImplTest {
     public void testGetCurrentIntervalNoVersionsAtAll() {
         mockHasNoActiveVersion();
         mockVersionIntervals(Collections.emptyList());
-
+        when(usagePoint.getCreateDate()).thenReturn(now.toInstant());
         Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         // infinity
-        assertThat(currentInterval.hasLowerBound()).isFalse();
+        assertThat(currentInterval.hasLowerBound()).isTrue();
         assertThat(currentInterval.hasUpperBound()).isFalse();
     }
 
@@ -132,11 +134,11 @@ public class UsagePointCustomPropertySetExtensionImplTest {
         mockHasNoActiveVersion();
         Instant weekAfter = now.plus(1, ChronoUnit.WEEKS).toInstant();
         mockVersionIntervals(Collections.singletonList(Range.atLeast(weekAfter)));
-
+        when(usagePoint.getCreateDate()).thenReturn(now.toInstant());
         Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         // infinity
-        assertThat(currentInterval.hasLowerBound()).isFalse();
+        assertThat(currentInterval.hasLowerBound()).isTrue();
         assertThat(currentInterval.hasUpperBound()).isFalse();
     }
 

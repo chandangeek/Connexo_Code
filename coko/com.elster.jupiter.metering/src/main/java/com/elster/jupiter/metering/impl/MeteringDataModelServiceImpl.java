@@ -26,6 +26,8 @@ import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactory;
 import com.elster.jupiter.metering.impl.aggregation.CalculatedReadingRecordFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.DataAggregationServiceImpl;
+import com.elster.jupiter.metering.impl.aggregation.InstantTruncaterFactory;
+import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ServerMetrologyConfigurationService;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
@@ -107,6 +109,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
     private MeteringServiceImpl meteringService;
+    private InstantTruncaterFactory truncaterFactory;
     private DataAggregationService dataAggregationService;
     private UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private MetrologyConfigurationServiceImpl metrologyConfigurationService;
@@ -120,8 +123,11 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     }
 
     @Inject // Tests only!
-    public MeteringDataModelServiceImpl(@Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes,
-                                        @Named("dataAggregationMock") Provider<DataAggregationService> dataAggregationMockProvider, IdsService idsService, QueryService queryService,
+    public MeteringDataModelServiceImpl(@Named("createReadingTypes") boolean createAllReadingTypes,
+                                        @Named("requiredReadingTypes") String requiredReadingTypes,
+                                        @Named("dataAggregationMock") Provider<DataAggregationService> dataAggregationMockProvider,
+                                        BundleContext bundleContext,
+                                        IdsService idsService, QueryService queryService,
                                         PartyService partyService, Clock clock, UserService userService, EventService eventService, NlsService nlsService,
                                         MessageService messageService, JsonService jsonService, FiniteStateMachineService finiteStateMachineService,
                                         CustomPropertySetService customPropertySetService, SearchService searchService, PropertySpecService propertySpecService,
@@ -148,14 +154,18 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         if (dataAggregationMockProvider.get() != null) {
             this.dataAggregationService = dataAggregationMockProvider.get();
         }
-        activate(null);
+        activate(bundleContext, true);
     }
 
     @Activate
     public final void activate(BundleContext bundleContext) {
-        createServices(bundleContext);
+        this.activate(bundleContext, false);
+    }
+
+    private void activate(BundleContext bundleContext, boolean createDefaultLocationTemplate) {
+        createServices(bundleContext, createDefaultLocationTemplate);
         registerDatabaseTables();
-        registerDataModel();
+        registerDataModel(bundleContext);
         registerUsagePointSearchDoamin();
         installDataModel();
         registerServices(bundleContext);
@@ -167,27 +177,30 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         }
     }
 
-    private void createServices(BundleContext bundleContext) {
+    private void createServices(BundleContext bundleContext, boolean createDefaultLocationTemplate) {
         this.meteringService = new MeteringServiceImpl(this, getDataModel(), getThesaurus(), getClock(), this.idsService,
                 this.eventService, this.queryService, this.messageService, this.jsonService, this.upgradeService);
-        this.meteringService.defineLocationTemplates(bundleContext); // This call has effect on resulting table spec!
+        this.meteringService.defineLocationTemplates(bundleContext, createDefaultLocationTemplate); // This call has effect on resulting table spec!
+        this.truncaterFactory = new InstantTruncaterFactory(this.meteringService);
         if (this.dataAggregationService == null) { // It is possible that service was already set to mocked instance.
-            this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.customPropertySetService);
+            this.dataAggregationService = new DataAggregationServiceImpl(this.meteringService, this.truncaterFactory, this.customPropertySetService);
         }
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.metrologyConfigurationService, this.clock, this.licenseService);
     }
 
-    private void registerDataModel() {
+    private void registerDataModel(BundleContext bundleContext) {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
+                bind(BundleContext.class).toInstance(bundleContext);
                 bind(MeteringDataModelService.class).toInstance(MeteringDataModelServiceImpl.this);
                 bind(MeteringDataModelServiceImpl.class).toInstance(MeteringDataModelServiceImpl.this);
                 bind(ChannelBuilder.class).to(ChannelBuilderImpl.class);
                 bind(MeteringServiceImpl.class).toInstance(meteringService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(ServerMeteringService.class).toInstance(meteringService);
+                bind(InstantTruncaterFactory.class).toInstance(truncaterFactory);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(IdsService.class).toInstance(idsService);
@@ -207,36 +220,60 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(MessageService.class).toInstance(messageService);
                 bind(MetrologyConfigurationServiceImpl.class).toInstance(metrologyConfigurationService);
                 bind(DataAggregationService.class).toInstance(dataAggregationService);
+                bind(ServerDataAggregationService.class).toInstance((ServerDataAggregationService) dataAggregationService);
             }
         });
     }
 
     private void installDataModel() {
-        this.upgradeService.register(identifier("Pulse", MeteringDataModelService.COMPONENT_NAME), dataModel, InstallerImpl.class, ImmutableMap.of(
-                version(10, 2), UpgraderV10_2.class
-        ));
+        this.upgradeService.register(
+                identifier("Pulse", MeteringDataModelService.COMPONENT_NAME),
+                dataModel,
+                InstallerImpl.class,
+                ImmutableMap.of(version(10, 2), UpgraderV10_2.class));
         this.meteringService.readLocationTemplatesFromDatabase();
     }
 
     private void registerServices(BundleContext bundleContext) {
         registerMeteringService(bundleContext);
+        registerTruncationFactory(bundleContext);
         registerDataAggregationService(bundleContext);
-        registerMetrologyConfigurationService(bundleContext); // Search domain must be already registered
+        registerMetrologyConfigurationService(bundleContext); // Search domain must already be registered
+    }
+
+    private Dictionary<String, Object> noServiceProperties() {
+        return new Hashtable<>();
     }
 
     private void registerMeteringService(BundleContext bundleContext) {
         if (bundleContext != null) {
-            Dictionary<String, Object> properties = new Hashtable<>();
-            this.serviceRegistrations.add(bundleContext.registerService(new String[]{
-                    MeteringService.class.getName(), ServerMeteringService.class.getName()
-            }, this.meteringService, properties));
+            this.serviceRegistrations.add(
+                    bundleContext.registerService(
+                            new String[]{
+                                    MeteringService.class.getName(),
+                                    ServerMeteringService.class.getName()},
+                            this.meteringService,
+                            noServiceProperties()));
+        }
+    }
+
+    private void registerTruncationFactory(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            this.serviceRegistrations.add(
+                    bundleContext.registerService(
+                            new String[]{InstantTruncaterFactory.class.getName()},
+                            this.truncaterFactory,
+                            noServiceProperties()));
         }
     }
 
     private void registerDataAggregationService(BundleContext bundleContext) {
         if (bundleContext != null) {
-            Dictionary<String, Object> properties = new Hashtable<>();
-            this.serviceRegistrations.add(bundleContext.registerService(new String[]{DataAggregationService.class.getName()}, this.dataAggregationService, properties));
+            this.serviceRegistrations.add(
+                    bundleContext.registerService(
+                            new String[]{DataAggregationService.class.getName()},
+                            this.dataAggregationService,
+                            noServiceProperties()));
         }
     }
 
@@ -246,14 +283,13 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     private void registerMetrologyConfigurationService(BundleContext bundleContext) {
         if (bundleContext != null) {
-            Dictionary<String, Object> properties = new Hashtable<>();
-            this.serviceRegistrations.add(bundleContext.registerService(
-                    new String[]{
+            this.serviceRegistrations.add(
+                    bundleContext.registerService(
+                            new String[]{
                             MetrologyConfigurationService.class.getName(),
-                            ServerMetrologyConfigurationService.class.getName()
-                    },
-                    this.metrologyConfigurationService,
-                    properties));
+                                    ServerMetrologyConfigurationService.class.getName()},
+                            this.metrologyConfigurationService,
+                            noServiceProperties()));
         }
     }
 
@@ -277,17 +313,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         Arrays.stream(AmiBillingReadyKind.values()).forEach(translationKeys::add);
         Arrays.stream(BypassStatus.values()).forEach(translationKeys::add);
-        Arrays.stream(YesNoAnswer.values()).map(answer -> new TranslationKey() {
-            @Override
-            public String getKey() {
-                return answer.toString();
-            }
-
-            @Override
-            public String getDefaultFormat() {
-                return answer.toString();
-            }
-        }).forEach(translationKeys::add);
+        Arrays.stream(YesNoAnswer.values()).map(YesNoAnswerTranslationKey::new).forEach(translationKeys::add);
         translationKeys.addAll(ReadingTypeTranslationKeys.allKeys());
         translationKeys.addAll(Arrays.asList(DefaultMetrologyPurpose.Translation.values()));
         translationKeys.addAll(Arrays.asList(MetrologyConfigurationStatus.Translation.values()));
@@ -437,7 +463,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     @Override
     public void validateUsagePointMeterActivation(MeterRole meterRole, Meter meter, UsagePoint usagePoint) throws
             CustomUsagePointMeterActivationValidationException {
-        this.customValidators.stream().forEach(validator -> validator.validateActivation(meterRole, meter, usagePoint));
+        this.customValidators.forEach(validator -> validator.validateActivation(meterRole, meter, usagePoint));
     }
 
     @Override
@@ -465,5 +491,23 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     String[] getRequiredReadingTypes() {
         return this.requiredReadingTypes;
+    }
+
+    private static class YesNoAnswerTranslationKey implements TranslationKey {
+        private final YesNoAnswer answer;
+
+        YesNoAnswerTranslationKey(YesNoAnswer answer) {
+            this.answer = answer;
+        }
+
+        @Override
+        public String getKey() {
+            return answer.toString();
+        }
+
+        @Override
+        public String getDefaultFormat() {
+            return answer.toString();
+        }
     }
 }

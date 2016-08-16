@@ -6,12 +6,15 @@ import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetExtension;
 import com.elster.jupiter.metering.UsagePointCustomPropertySetValuesManageException;
+import com.elster.jupiter.metering.UsagePointCustomPropertySetVersionIncorrectStartDateException;
 import com.elster.jupiter.metering.UsagePointPropertySet;
 import com.elster.jupiter.metering.UsagePointVersionedPropertySet;
-import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
+import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.time.RangeInstantComparator;
 
@@ -52,18 +55,20 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
         return this.usagePoint;
     }
 
-    private Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration() {
-        return getUsagePoint().getMetrologyConfiguration();
+    private Optional<MetrologyConfiguration> getMetrologyConfiguration() {
+        return getUsagePoint().getCurrentEffectiveMetrologyConfiguration()
+                .map(EffectiveMetrologyConfigurationOnUsagePoint::getMetrologyConfiguration);
     }
 
     @Override
     public List<UsagePointPropertySet> getPropertySetsOnMetrologyConfiguration() {
-        Optional<UsagePointMetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
+        Optional<MetrologyConfiguration> metrologyConfiguration = getMetrologyConfiguration();
         if (metrologyConfiguration.isPresent()) {
             return metrologyConfiguration.get().getCustomPropertySets()
                     .stream()
                     .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                    .map(rcps -> rcps.getCustomPropertySet().isVersioned() ? new UsagePointVersionedPropertySetImpl(rcps) : new UsagePointPropertySetImpl(rcps))
+                    .map(rcps -> rcps.getCustomPropertySet()
+                            .isVersioned() ? new UsagePointVersionedPropertySetImpl(rcps) : new UsagePointPropertySetImpl(rcps))
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();
@@ -74,7 +79,8 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
         return getUsagePoint().getServiceCategory().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
-                .map(rcps -> rcps.getCustomPropertySet().isVersioned() ? new UsagePointVersionedPropertySetImpl(rcps) : new UsagePointPropertySetImpl(rcps))
+                .map(rcps -> rcps.getCustomPropertySet()
+                        .isVersioned() ? new UsagePointVersionedPropertySetImpl(rcps) : new UsagePointPropertySetImpl(rcps))
                 .collect(Collectors.toList());
     }
 
@@ -238,12 +244,20 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
                 throw UsagePointCustomPropertySetValuesManageException
                         .customPropertySetIsNotEditableByUser(thesaurus, getCustomPropertySet().getName());
             }
+            Range<Instant> valuesRange = values.getEffectiveRange();
+            if (!valuesRange.hasLowerBound()) {
+                valuesRange = valuesRange.hasUpperBound()
+                        ? Range.open(usagePoint.getCreateDate(), valuesRange.upperEndpoint())
+                        : Range.atLeast(usagePoint.getCreateDate());
+            } else if (usagePoint.getCreateDate().isAfter(valuesRange.lowerEndpoint())) {
+                throw new UsagePointCustomPropertySetVersionIncorrectStartDateException(thesaurus, MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE);
+            }
             if (anyTimeInVersionInterval == null) {
                 // create new version
-                customPropertySetService.setValuesVersionFor(getCustomPropertySet(), getUsagePoint(), values, values.getEffectiveRange());
+                customPropertySetService.setValuesVersionFor(getCustomPropertySet(), getUsagePoint(), values, valuesRange);
             } else {
                 // update existing version
-                customPropertySetService.setValuesVersionFor(getCustomPropertySet(), getUsagePoint(), values, values.getEffectiveRange(), anyTimeInVersionInterval);
+                customPropertySetService.setValuesVersionFor(getCustomPropertySet(), getUsagePoint(), values, valuesRange, anyTimeInVersionInterval);
             }
             usagePoint.touch();
         }
@@ -273,7 +287,8 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
                     .filter(versionRange -> versionRange.contains(currentTime))
                     .findFirst()
                     .orElseThrow(IllegalArgumentException::new);
-            return currentVersionRange.hasUpperBound() ? Range.closedOpen(currentTime, currentVersionRange.upperEndpoint()) : Range.atLeast(currentTime);
+            return currentVersionRange.hasUpperBound() ? Range.closedOpen(currentTime, currentVersionRange.upperEndpoint()) : Range
+                    .atLeast(currentTime);
         }
 
         private Range<Instant> getCurrentIntervalNoActiveVersion(List<Range<Instant>> versionIntervals) {
@@ -285,7 +300,8 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
                 }
             }
             // return the default interval
-            return Range.all();
+            return Range.atLeast(usagePoint.getCreateDate());
+//            return Range.all();
         }
 
         /**

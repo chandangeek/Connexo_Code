@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.Formula;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
@@ -19,7 +18,7 @@ import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
-import com.elster.jupiter.metering.config.ReadingTypeRequirementChecker;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementsCollector;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -174,8 +173,10 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
     }
 
     private void checkLinkedUsagePoints() {
-        if (!metrologyConfigurationService.getDataModel().query(UsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
-                .select(Where.where("metrologyConfiguration.metrologyConfiguration").isEqualTo(this), Order.NOORDER, false, null, 1, 1).isEmpty()) {
+        if (!metrologyConfigurationService.getDataModel()
+                .query(EffectiveMetrologyConfigurationOnUsagePoint.class, MetrologyConfiguration.class)
+                .select(Where.where("metrologyConfiguration").isEqualTo(this), Order.NOORDER, false, null, 1, 1)
+                .isEmpty()) {
             throw new CannotDeactivateMetrologyConfiguration(this.metrologyConfigurationService.getThesaurus());
         }
     }
@@ -258,7 +259,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public List<MetrologyContract> getContracts() {
-        return Collections.unmodifiableList(this.metrologyContracts);
+        return Collections.unmodifiableList(new ArrayList<>(this.metrologyContracts));
     }
 
     @Override
@@ -291,6 +292,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void removeMetrologyContract(MetrologyContract metrologyContract) {
+        ((MetrologyContractImpl) metrologyContract).prepareDelete();
         if (this.metrologyContracts.remove(metrologyContract)) {
             touch();
         }
@@ -390,8 +392,8 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public void delete() {
-        deliverables.clear();
-        metrologyContracts.clear();
+        getContracts().forEach(this::removeMetrologyContract);
+        getDeliverables().forEach(this::removeReadingTypeDeliverable);
         readingTypeRequirements.clear();
         customPropertySets.clear();
         this.metrologyConfigurationService.getDataModel().remove(this);
@@ -428,7 +430,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
 
     @Override
     public List<ReadingTypeRequirement> getMandatoryReadingTypeRequirements() {
-        ReadingTypeRequirementChecker requirementChecker = new ReadingTypeRequirementChecker();
+        ReadingTypeRequirementsCollector requirementsCollector = new ReadingTypeRequirementsCollector();
         this.getContracts()
                 .stream()
                 .filter(MetrologyContract::isMandatory)
@@ -436,7 +438,7 @@ public class MetrologyConfigurationImpl implements ServerMetrologyConfiguration,
                 .flatMap(Collection::stream)
                 .map(ReadingTypeDeliverable::getFormula)
                 .map(Formula::getExpressionNode)
-                .forEach(expressionNode -> expressionNode.accept(requirementChecker));
-        return requirementChecker.getReadingTypeRequirements();
+                .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
+        return requirementsCollector.getReadingTypeRequirements();
     }
 }

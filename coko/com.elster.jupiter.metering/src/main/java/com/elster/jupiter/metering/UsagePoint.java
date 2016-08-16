@@ -5,7 +5,6 @@ import com.elster.jupiter.cbo.MarketRoleKind;
 import com.elster.jupiter.metering.ami.CompletionOptions;
 import com.elster.jupiter.metering.config.EffectiveMetrologyConfigurationOnUsagePoint;
 import com.elster.jupiter.metering.config.MeterRole;
-import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
@@ -135,7 +134,7 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      * Applies the specified {@link UsagePointMetrologyConfiguration} to this UsagePoint
      * from this point in time onward.
      *
-     * @param metrologyConfiguration The UsagePointMetrologyConfiguration
+     * @param metrologyConfiguration The MetrologyConfiguration
      * @see #apply(UsagePointMetrologyConfiguration, Instant)
      */
     void apply(UsagePointMetrologyConfiguration metrologyConfiguration);
@@ -152,37 +151,23 @@ public interface UsagePoint extends HasId, IdentifiedObject {
      */
     void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant when);
 
-    /**
-     * Gets the current {@link MetrologyConfiguration}
-     * that has been applied to this UsagePoint.
-     *
-     * @return The current MetrologyConfiguration
-     */
-    Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration();
+    void apply(UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end);
 
-    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration();
+    void updateWithInterval(EffectiveMetrologyConfigurationOnUsagePoint metrologyConfigurationVersion, UsagePointMetrologyConfiguration metrologyConfiguration, Instant start, Instant end);
 
-    /**
-     * Gets the {@link MetrologyConfiguration} that was
-     * applied to this UsagePoint at the specified time.
-     *
-     * @param when The instant in time
-     * @return The MetrologyConfiguration
-     */
-    Optional<UsagePointMetrologyConfiguration> getMetrologyConfiguration(Instant when);
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurationByStart(Instant start);
+
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> getCurrentEffectiveMetrologyConfiguration();
+
+    List<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfigurations();
 
     Optional<EffectiveMetrologyConfigurationOnUsagePoint> getEffectiveMetrologyConfiguration(Instant when);
 
-    /**
-     * Gets the {@link MetrologyConfiguration}s that were
-     * applied to this UsagePoint during the specified period in time.
-     *
-     * @param period The period in time
-     * @return The List of MetrologyConfiguration
-     */
-    List<UsagePointMetrologyConfiguration> getMetrologyConfigurations(Range<Instant> period);
-
     void removeMetrologyConfiguration(Instant when);
+
+    void removeMetrologyConfigurationVersion(EffectiveMetrologyConfigurationOnUsagePoint version);
+
+    Optional<EffectiveMetrologyConfigurationOnUsagePoint> findEffectiveMetrologyConfigurationById(long id);
 
     UsagePointCustomPropertySetExtension forCustomProperties();
 

@@ -74,14 +74,17 @@ public class MeterReadingStorer {
         List<? extends MeterActivation> meterActivations = meter.getMeterActivations();
         if (meterActivations.isEmpty()) {
             createDefaultMeterActivation();
-        }        
+        }
         storeReadings(facade.getMeterReading().getReadings());
         storeIntervalBlocks(facade.getMeterReading().getIntervalBlocks());
         removeOldReadingQualities();
         storeReadingQualities();
         storeEvents(facade.getMeterReading().getEvents());
         readingStorer.execute(system);
-        eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter.getId(), facade.getRange().lowerEndpoint().toEpochMilli(), facade.getRange().upperEndpoint().toEpochMilli()));
+        facade.getRange()
+                .ifPresent(range -> eventService.postEvent(EventType.METERREADING_CREATED.topic(), new EventSource(meter
+                        .getId(), range.lowerEndpoint().toEpochMilli(), range.upperEndpoint()
+                        .toEpochMilli())));
     }
 
     private void getReadingTypes() {
@@ -89,10 +92,10 @@ public class MeterReadingStorer {
     }
 
     private void removeOldReadingQualities() {
-        Range<Instant> range = facade.getRange();
-        if (range != null) {
+        Optional<Range<Instant>> range = facade.getRange();
+        if (range.isPresent()) {
             DataMapper<ReadingQualityRecord> mapper = dataModel.mapper(ReadingQualityRecord.class);
-            List<ReadingQualityRecord> readingQualitiesForRemoval = meter.getReadingQualities(range)
+            List<ReadingQualityRecord> readingQualitiesForRemoval = meter.getReadingQualities(range.get())
                     .stream()
                     .filter(this::isRelevant)
                     .collect(Collectors.<ReadingQualityRecord>toList());
@@ -193,7 +196,7 @@ public class MeterReadingStorer {
     }
 
     private void createDefaultMeterActivation() {
-        meter.activate(facade.getRange().lowerEndpoint());
+        facade.getRange().ifPresent(range -> meter.activate(range.lowerEndpoint()));
     }
 
     private void storeReadings(List<Reading> readings) {
@@ -277,7 +280,7 @@ public class MeterReadingStorer {
         return channelsContainer.createChannel(readingType);
     }
 
-    private Channel findOrCreateChannel(IntervalReading reading, ReadingType readingType) {        
+    private Channel findOrCreateChannel(IntervalReading reading, ReadingType readingType) {
         Channel channel = getChannel(reading, readingType);
         if (channel == null) {
             for (ChannelsContainer channelsContainer : meter.getChannelsContainers()) {

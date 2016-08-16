@@ -46,6 +46,8 @@ import org.osgi.service.component.annotations.Reference;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -297,7 +299,7 @@ public class MeteringConsoleCommands {
     }
 
     public void createUsagePoint() {
-        System.out.println("Usage: createUsagePoint <mRID>");
+        System.out.println("Usage: createUsagePoint <mRID> <installation datetime format 2011-12-03T10:15:30Z>");
     }
 
     public void createUsagePoint(String mrId, String timestamp) {
@@ -305,7 +307,7 @@ public class MeteringConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             meteringService.getServiceCategory(ServiceKind.WATER)
                     .get()
-                    .newUsagePoint(mrId, Instant.parse(timestamp))
+                    .newUsagePoint(mrId, Instant.parse(timestamp + "T00:00:00Z"))
                     .create();
             context.commit();
         } finally {

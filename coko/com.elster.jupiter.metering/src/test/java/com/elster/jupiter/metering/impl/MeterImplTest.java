@@ -20,6 +20,8 @@ import javax.inject.Provider;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -132,6 +134,73 @@ public class MeterImplTest {
 
         assertThat(meter.getName()).isEqualTo("name42");
 
+    }
+
+    @Test
+    public void getMeterActivationsRangeWithSingleMATest() {
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
+        meter.init(amrSystem, "1", "getMeterActivationsRangeWithSingleMATest");
+
+        MeterActivation meterActivation = meter.activate(START.toInstant());
+
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant()
+                .plus(1, ChronoUnit.DAYS)));
+        assertThat(meterActivations).hasSize(1);
+        assertThat(meterActivations).containsExactly(meterActivation);
+    }
+
+    @Test
+    public void getMeterActivationsRangeWithSingleMAOnBoundaryTest() {
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
+        meter.init(amrSystem, "1", "getMeterActivationsRangeWithSingleMAOnBoundaryTest");
+
+        MeterActivation meterActivation = meter.activate(START.toInstant());
+
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant()));
+        assertThat(meterActivations).hasSize(1);
+        assertThat(meterActivations).containsExactly(meterActivation);
+    }
+
+    @Test
+    public void getMeterActivationsRangeWithSingleMAOverLappingTest() {
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
+        meter.init(amrSystem, "1", "getMeterActivationsRangeWithSingleMAOverLappingTest");
+
+        MeterActivation meterActivation = meter.activate(START.toInstant());
+
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant()
+                .minus(1, ChronoUnit.DAYS)));
+        assertThat(meterActivations).hasSize(1);
+        assertThat(meterActivations).containsExactly(meterActivation);
+    }
+
+    @Test
+    public void getMeterActivationsRangeWithTwoMATest() {
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
+        meter.init(amrSystem, "1", "getMeterActivationsRangeWithTwoMATest");
+
+        MeterActivation meterActivation1 = meter.activate(START.toInstant().minus(1, ChronoUnit.DAYS));
+        meterActivation1.endAt(START.toInstant());
+        MeterActivation meterActivation2 = meter.activate(START.toInstant());
+
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant()
+                .minus(10, ChronoUnit.DAYS)));
+        assertThat(meterActivations).hasSize(2);
+        assertThat(meterActivations).containsExactly(meterActivation1, meterActivation2);
+    }
+
+    @Test
+    public void getMeterActivationsRangeWithTwoMAOnBoundaryTest() {
+        MeterImpl meter = new MeterImpl(clock, dataModel, eventService, deviceEventFactory, meteringService, thesaurus, meterActivationFactory, metrologyConfigurationService);
+        meter.init(amrSystem, "1", "getMeterActivationsRangeWithTwoMAOnBoundaryTest");
+
+        MeterActivation meterActivation1 = meter.activate(START.toInstant().minus(1, ChronoUnit.DAYS));
+        meterActivation1.endAt(START.toInstant());
+        MeterActivation meterActivation2 = meter.activate(START.toInstant());
+
+        List<? extends MeterActivation> meterActivations = meter.getMeterActivations(Range.atLeast(START.toInstant()));
+        assertThat(meterActivations).hasSize(1);
+        assertThat(meterActivations).containsExactly(meterActivation2);
     }
 
 

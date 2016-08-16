@@ -101,9 +101,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
 
-    private static final String DAILY_TEMPERATURE_CELCIUS_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0";
-    private static final String DAILY_TEMPERATURE_FAHRENHEIT_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0";
-    private static final String DAILY_TEMPERATURE_KELVIN_MRID = "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0";
+    private static final String DAILY_TEMPERATURE_CELCIUS_MRID = "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0";
+    private static final String DAILY_TEMPERATURE_FAHRENHEIT_MRID = "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0";
+    private static final String DAILY_TEMPERATURE_KELVIN_MRID = "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0";
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static Injector injector;
     private static ReadingType K_15min;
@@ -114,7 +114,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     private static ReadingType F_daily;
     private static ServiceCategory ELECTRICITY;
     private static MetrologyPurpose METROLOGY_PURPOSE;
-    private static MeterRole METER_ROLE;
+    private static MeterRole DEFAULT_METER_ROLE;
     private static Instant jan1st2016 = Instant.ofEpochMilli(1451602800000L);
     private static SqlBuilderFactory sqlBuilderFactory = mock(SqlBuilderFactory.class);
     private static ClauseAwareSqlBuilder clauseAwareSqlBuilder = mock(ClauseAwareSqlBuilder.class);
@@ -156,7 +156,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     public static void setUp() {
         setupServices();
         setupReadingTypes();
-        setupMetrologyPurpose();
+        setupMetrologyPurposeAndRole();
     }
 
     private static void setupServices() {
@@ -168,12 +168,12 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                     new InMemoryMessagingModule(),
                     new IdsModule(),
                     new MeteringModule(
-                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0",    // macro period: daily, averages, Kelvin
-                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0",   // macro period: daily, averages, degrees celcius
-                            "11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0",  // macro period: daily, averages, degrees Fahrenheit
-                            "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0",     // no macro period, 15 min, Kelvin
-                            "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0",    // no macro period, 15 min, degrees Celcius
-                            "0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0"    // no macro period, 15 min, degrees Fahrenheit
+                            "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0",    // macro period: daily, averages, Kelvin
+                            "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0",   // macro period: daily, averages, degrees celcius
+                            "11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0",  // macro period: daily, averages, degrees Fahrenheit
+                            "0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0",     // no macro period, 15 min, Kelvin
+                            "0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0",    // no macro period, 15 min, degrees Celcius
+                            "0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0"    // no macro period, 15 min, degrees Fahrenheit
                     ),
                     new BasicPropertiesModule(),
                     new TimeModule(),
@@ -189,8 +189,7 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
                     new BpmModule(),
                     new FiniteStateMachineModule(),
                     new NlsModule(),
-                    new CustomPropertySetsModule(),
-                    new BasicPropertiesModule()
+                    new CustomPropertySetsModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -211,27 +210,29 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     }
 
     private static DataAggregationService getDataAggregationService() {
+        ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
-                mock(CustomPropertySetService.class),
-                injector.getInstance(ServerMeteringService.class),
+                injector.getInstance(CustomPropertySetService.class),
+                meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithTemperatureConversionIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+                () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 
     private static void setupReadingTypes() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            K_15min = getMeteringService().getReadingType("0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0").get();
-            C_15min = getMeteringService().getReadingType("0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0").get();
-            F_15min = getMeteringService().getReadingType("0.0.2.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0").get();
-            K_daily = getMeteringService().getReadingType("11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.6.0").get();
-            C_daily = getMeteringService().getReadingType("11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.23.0").get();
-            F_daily = getMeteringService().getReadingType("11.2.0.0.0.7.46.0.0.0.0.0.0.0.0.0.279.0").get();
+            K_15min = getMeteringService().getReadingType("0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0").get();
+            C_15min = getMeteringService().getReadingType("0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0").get();
+            F_15min = getMeteringService().getReadingType("0.0.2.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0").get();
+            K_daily = getMeteringService().getReadingType("11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.6.0").get();
+            C_daily = getMeteringService().getReadingType("11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.23.0").get();
+            F_daily = getMeteringService().getReadingType("11.2.0.0.0.4.46.0.0.0.0.0.0.0.0.0.279.0").get();
             ctx.commit();
         }
     }
 
-    private static void setupMetrologyPurpose() {
+    private static void setupMetrologyPurposeAndRole() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             NlsKey name = mock(NlsKey.class);
             when(name.getKey()).thenReturn(DataAggregationServiceImplCalculateWithTemperatureConversionIT.class.getSimpleName());
@@ -244,9 +245,9 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             when(description.getComponent()).thenReturn(MeteringService.COMPONENTNAME);
             when(description.getLayer()).thenReturn(Layer.DOMAIN);
             METROLOGY_PURPOSE = getMetrologyConfigurationService().createMetrologyPurpose(name, description);
+            DEFAULT_METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
             ELECTRICITY = getMeteringService().getServiceCategory(ServiceKind.ELECTRICITY).get();
-            METER_ROLE = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
-            ELECTRICITY.addMeterRole(METER_ROLE);
+            ELECTRICITY.addMeterRole(DEFAULT_METER_ROLE);
             ctx.commit();
         }
     }
@@ -289,14 +290,14 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     /**
      * Tests the unit conversion K -> °C
      * Metrology configuration
-     * requirements:
-     * T ::= any temperature (15m)
-     * deliverables:
-     * averageTemperature (daily °C) ::= T + 10
+     *    requirements:
+     *       T ::= any temperature (15m)
+     *    deliverables:
+     *       averageTemperature (daily °C) ::= T + 10
      * Device:
-     * meter activations:
-     * Jan 1st 2016 -> forever
-     * T -> 15 min K
+     *    meter activations:
+     *       Jan 1st 2016 -> forever
+     *           T -> 15 min K
      * In other words, the requirement is provided by exactly
      * one matching channel from a single meter activation
      * but the temparature channel needs to be converted from
@@ -311,12 +312,12 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.activateMeterWithKelvin();
 
         // Setup MetrologyConfiguration
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("kelvinToCelcius", ELECTRICITY).create();
-        this.configuration.addMeterRole(defaultMeterRole);
+        this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", defaultMeterRole).withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE)
+                .withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -376,14 +377,14 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     /**
      * Tests the unit conversion K -> °C
      * Metrology configuration
-     * requirements:
-     * T ::= any temperature (15m)
-     * deliverables:
-     * averageTemperature (daily °F) ::= T + 10
+     *    requirements:
+     *       T ::= any temperature (15m)
+     *    deliverables:
+     *       averageTemperature (daily °F) ::= T + 10
      * Device:
-     * meter activations:
-     * Jan 1st 2016 -> forever
-     * T -> 15 min K
+     *    meter activations:
+     *       Jan 1st 2016 -> forever
+     *           T -> 15 min K
      * In other words, the requirement is provided by exactly
      * one matching channel from a single meter activation
      * but the temparature channel needs to be converted from
@@ -398,12 +399,12 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.activateMeterWithKelvin();
 
         // Setup MetrologyConfiguration
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("kelvingToFahrenheit", ELECTRICITY).create();
-        this.configuration.addMeterRole(defaultMeterRole);
+        this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", defaultMeterRole).withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE)
+                .withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -464,16 +465,16 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
     /**
      * Tests the unit conversion to K
      * Metrology configuration
-     * requirements:
-     * minT ::= any temperature (15m)
-     * maxT ::= any temperature (15m)
-     * deliverables:
-     * averageTemperature (daily K) ::= (minT + maxT) / 2
+     *    requirements:
+     *       minT ::= any temperature (15m)
+     *       maxT ::= any temperature (15m)
+     *    deliverables:
+     *       averageTemperature (daily K) ::= (minT + maxT) / 2
      * Device:
-     * meter activations:
-     * Jan 1st 2016 -> forever
-     * minT -> 15 min °C
-     * maxT -> 15 min °F
+     *    meter activations:
+     *       Jan 1st 2016 -> forever
+     *           minT -> 15 min °C
+     *           maxT -> 15 min °F
      * In other words, the requirement is provided by exactly
      * one matching channel from a single meter activation
      * but the temparature channel needs to be converted from
@@ -490,14 +491,15 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         Channel maxTChannel = this.meterActivation.getChannelsContainer().createChannel(F_15min);
 
         // Setup MetrologyConfiguration
-        MeterRole defaultMeterRole = getMetrologyConfigurationService().findDefaultMeterRole(DefaultMeterRole.DEFAULT);
         this.configuration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("celciusAndFahrenheitToKelvin", ELECTRICITY).create();
-        this.configuration.addMeterRole(defaultMeterRole);
+        this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement minTemperature = this.configuration.newReadingTypeRequirement("minT", defaultMeterRole).withReadingType(C_15min);
+        ReadingTypeRequirement minTemperature = this.configuration.newReadingTypeRequirement("minT", DEFAULT_METER_ROLE)
+                .withReadingType(C_15min);
         this.temperature1RequirementId = minTemperature.getId();
-        ReadingTypeRequirement maxTemperature = this.configuration.newReadingTypeRequirement("maxT", defaultMeterRole).withReadingType(F_15min);
+        ReadingTypeRequirement maxTemperature = this.configuration.newReadingTypeRequirement("maxT", DEFAULT_METER_ROLE)
+                .withReadingType(F_15min);
         this.temperature2RequirementId = maxTemperature.getId();
 
         // Setup configuration deliverables

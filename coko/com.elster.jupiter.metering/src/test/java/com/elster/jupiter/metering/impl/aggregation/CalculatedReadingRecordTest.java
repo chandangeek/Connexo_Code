@@ -7,10 +7,10 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ProcessStatus;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.impl.IReadingType;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -50,13 +50,13 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class CalculatedReadingRecordTest {
 
-    public static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
-    public static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
-    public static final long MY_FAVOURITE_PRIME_NUMBER = 97L;
+    private static final String FIFTEEN_MINS_NET_CONSUMPTION_MRID = "0.0.2.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final String MONTHLY_NET_CONSUMPTION_MRID = "13.0.0.1.4.2.12.0.0.0.0.0.0.0.0.0.72.0";
+    private static final long MY_FAVOURITE_PRIME_NUMBER = 97L;
     private static Instant JAN_1_2016_UTC = Instant.ofEpochMilli(1451606400000L);
 
     @Mock
-    private MeteringService meteringService;
+    private ServerMeteringService meteringService;
     @Mock
     private IReadingType fifteenMinutesNetConsumption;
     @Mock
@@ -161,7 +161,7 @@ public class CalculatedReadingRecordTest {
         CalculatedReadingRecord r2 = this.newTestInstance("0.0.2.4.4.2.12.0.0.0.0.0.0.0.0.3.72.0");
 
         // Business method
-        CalculatedReadingRecord.merge(r1, r2, Instant.now());
+        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService));
 
         // Asserts: see expected exception rule
     }
@@ -174,7 +174,7 @@ public class CalculatedReadingRecordTest {
         r2.setUsagePoint(mock(UsagePoint.class));
 
         // Business method
-        CalculatedReadingRecord.merge(r1, r2, Instant.now());
+        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService));
 
         // Asserts: see expected exception rule
     }
@@ -188,7 +188,7 @@ public class CalculatedReadingRecordTest {
         r2.setUsagePoint(usagePoint);
 
         // Business method
-        CalculatedReadingRecord.merge(r1, r2, Instant.now());
+        CalculatedReadingRecord.merge(r1, r2, Instant.now(), new InstantTruncaterFactory(this.meteringService));
 
         // Asserts: see expected exception rule
     }
@@ -212,7 +212,7 @@ public class CalculatedReadingRecordTest {
         r2.setUsagePoint(usagePoint);
 
         // Business method
-        CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, moreRecent);
+        CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, moreRecent, new InstantTruncaterFactory(this.meteringService));
 
         // Asserts
         assertThat(merged.getReadingType()).isEqualTo(readingType);
@@ -241,7 +241,7 @@ public class CalculatedReadingRecordTest {
         r2.setUsagePoint(usagePoint);
 
         // Business method
-        CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, recent);
+        CalculatedReadingRecord merged = CalculatedReadingRecord.merge(r1, r2, recent, new InstantTruncaterFactory(this.meteringService));
 
         // Asserts
         assertThat(merged.getReadingType()).isEqualTo(readingType);
@@ -280,7 +280,7 @@ public class CalculatedReadingRecordTest {
     }
 
     private CalculatedReadingRecord newTestInstance() {
-        return new CalculatedReadingRecord();
+        return new CalculatedReadingRecord(new InstantTruncaterFactory(this.meteringService));
     }
 
     private CalculatedReadingRecord newTestInstance(String readingTypeMRID) throws SQLException {
@@ -296,7 +296,7 @@ public class CalculatedReadingRecordTest {
         when(resultSet.getLong(4)).thenReturn(now.toEpochMilli());
         when(resultSet.getLong(5)).thenReturn(readingQuality);
         when(resultSet.getLong(6)).thenReturn(count);
-        return new CalculatedReadingRecord().init(resultSet, deliverablesPerMeterActivation);
+        return newTestInstance().init(resultSet, deliverablesPerMeterActivation);
     }
 
 }

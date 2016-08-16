@@ -783,17 +783,18 @@ public enum TableSpecs {
             table.map(EffectiveMetrologyConfigurationOnUsagePointImpl.class);
             table.since(version(10, 2));
             table.setJournalTableName("MTR_USAGEPOINTMTRCONFIG_JRNL");
+            Column id = table.addAutoIdColumn();
             Column usagePoint = table.column("USAGEPOINT").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            List<Column> intervalColumns = table.addIntervalColumns("interval");
             Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
+            table.addIntervalColumns("interval");
             table.addAuditColumns();
-            table.primaryKey("PK_MTR_UPMTRCONFIG").on(usagePoint, intervalColumns.get(0)).add();
+            table.primaryKey("PK_MTR_UPMTRCONFIG").on(id).add();
             table.foreignKey("FK_MTR_UPMTRCONFIG_UP")
                     .on(usagePoint)
                     .references(UsagePoint.class)
                     .map("usagePoint")
-                    .reverseMap("metrologyConfiguration")
+                    .reverseMap("metrologyConfigurations")
                     .composition()
                     .add();
             table.foreignKey("FK_MTR_UPMTRCONFIG_MC")
@@ -808,6 +809,8 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<MultiplierType> table = dataModel.addTable(name(), MultiplierType.class);
             table.map(MultiplierTypeImpl.class);
+
+            table.cache();
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
             Column nameIsKey = table.column("NAMEISKEY").bool().notNull().map("nameIsKey").installValue("'Y'").since(version(10, 2)).add();
@@ -1623,7 +1626,7 @@ public enum TableSpecs {
 
             table.primaryKey("PK_MTR_EFFECTIVE_CONTRACT").on(idColumn).add();
             table.foreignKey("MTR_EF_CONTRACT_2_EF_CONF")
-                    .on(effectiveConfColumn, intervalColumns.get(0))
+                    .on(effectiveConfColumn)
                     .references(EffectiveMetrologyConfigurationOnUsagePoint.class)
                     .map(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.fieldName())
                     .reverseMap("effectiveContracts")
@@ -1820,14 +1823,37 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("PK_MTR_ENDDEVICECONTROLTYPE").on(mRidColumn).add();
         }
+    },
+
+    MTR_GASDAYOPTIONS {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<GasDayOptions> table = dataModel.addTable(name(), GasDayOptions.class);
+            table.since(version(10, 2));
+            table.map(GasDayOptionsImpl.class);
+            table.cache();
+            Column id = this.addColum("ID", "id", table);
+            this.addColum("MONTH", "month", table);
+            this.addColum("DAY", "day", table);
+            this.addColum("HOUR", "hour", table);
+            table.primaryKey("MTR_PK_GASDAYOPTIONS").on(id).add();
+        }
+
+        private Column addColum(String columnName, String fieldName, Table table) {
+            return table.column(columnName)
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(fieldName)
+                    .add();
+        }
     };
 
     abstract void addTo(DataModel dataModel);
 
     private static class Constants {
-        public static final String JOURNAL_TABLE_SUFFIX = "JRNL";
+        static final String JOURNAL_TABLE_SUFFIX = "JRNL";
     }
-
 
     private static class TableBuilder {
         static void buildLocationMemberTable(Table<?> table, List<TemplateField> templateMembers) {

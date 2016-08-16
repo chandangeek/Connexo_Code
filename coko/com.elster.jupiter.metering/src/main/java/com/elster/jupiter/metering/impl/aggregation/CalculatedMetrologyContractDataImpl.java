@@ -31,15 +31,17 @@ import java.util.stream.Collectors;
  */
 class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContractData {
 
+    private final InstantTruncaterFactory truncaterFactory;
     private final UsagePoint usagePoint;
     private final MetrologyContract contract;
     private final Range<Instant> period;
     private final Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords;
 
-    CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
+    CalculatedMetrologyContractDataImpl(UsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords, InstantTruncaterFactory truncaterFactory) {
         this.usagePoint = usagePoint;
         this.contract = contract;
         this.period = period;
+        this.truncaterFactory = truncaterFactory;
         this.injectUsagePoint(calculatedReadingRecords);
         this.calculatedReadingRecords = this.generateConstantsAsTimeSeries(contract, this.mergeMeterActivations(calculatedReadingRecords));
     }
@@ -70,7 +72,8 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
      */
     private Map<ReadingType, List<CalculatedReadingRecord>> mergeMeterActivations(Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
         Map<ReadingType, List<CalculatedReadingRecord>> merged = new HashMap<>();
-        calculatedReadingRecords.entrySet().stream().forEach(readingTypeAndRecords -> this.mergeMeterActivations(readingTypeAndRecords, merged));
+        calculatedReadingRecords.entrySet()
+                .forEach(readingTypeAndRecords -> this.mergeMeterActivations(readingTypeAndRecords, merged));
         return merged;
     }
 
@@ -81,20 +84,18 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
     private List<CalculatedReadingRecord> merge(ReadingType readingType, List<CalculatedReadingRecord> readingRecords) {
         Map<Instant, CalculatedReadingRecord> merged = new TreeMap<>(); // Keeps the keys sorted
         IntervalLength intervalLength = IntervalLength.from(readingType);
-        readingRecords
-                .stream()
-                .forEach(record -> this.merge(record, intervalLength, merged));
+        readingRecords.forEach(record -> this.merge(record, this.truncaterFactory.truncaterFor(readingType), intervalLength, merged));
         return new ArrayList<>(merged.values());
     }
 
-    private void merge(CalculatedReadingRecord record, IntervalLength intervalLength, Map<Instant, CalculatedReadingRecord> merged) {
+    private void merge(CalculatedReadingRecord record, InstantTruncater truncater, IntervalLength intervalLength, Map<Instant, CalculatedReadingRecord> merged) {
         ZoneId zone = this.getUsagePoint()
                 .getMeterActivation(record.getTimeStamp())
                 .map(MeterActivation::getChannelsContainer)
                 .map(ChannelsContainer::getZoneId)
                 .orElseGet(this.usagePoint::getZoneId);
         final Instant endOfInterval;
-        Instant endOfIntervalCandidate = intervalLength.truncate(record.getTimeStamp(), zone);
+        Instant endOfIntervalCandidate = truncater.truncate(record.getTimeStamp(), intervalLength, zone);
         if (!endOfIntervalCandidate.equals(record.getTimeStamp())) {
             // Timestamp was not aligned with interval
             endOfInterval = intervalLength.addTo(endOfIntervalCandidate, zone);
@@ -103,7 +104,7 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
         }
         merged.compute(
                 endOfInterval,
-                (timestamp, existingRecord) -> existingRecord == null ? record : CalculatedReadingRecord.merge(existingRecord, record, endOfInterval));
+                (timestamp, existingRecord) -> existingRecord == null ? record : CalculatedReadingRecord.merge(existingRecord, record, endOfInterval, this.truncaterFactory));
     }
 
     /**

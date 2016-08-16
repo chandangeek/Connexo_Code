@@ -26,6 +26,10 @@ class MeterActivationSetStreamBuilder {
         this.period = period;
     }
 
+    MeterActivationSetStreamBuilder(UsagePoint usagePoint, Instant when) {
+        this(usagePoint, Range.singleton(when));
+    }
+
     Stream<MeterActivationSet> build() {
         return this.getOverlappingMeterActivations()
                 .flatMap(this::switchTimestamps)
@@ -39,7 +43,7 @@ class MeterActivationSetStreamBuilder {
     }
 
     private Stream<Instant> switchTimestampsFromMeterActivationRange(Range<Instant> meterActivationRange) {
-        Stream.Builder<Instant> builder = Stream.<Instant>builder();
+        Stream.Builder<Instant> builder = Stream.builder();
         builder.add(meterActivationRange.lowerEndpoint());
         if (meterActivationRange.hasUpperBound()) {
             builder.add(meterActivationRange.upperEndpoint());
@@ -66,7 +70,10 @@ class MeterActivationSetStreamBuilder {
         } else {
             sequenceNumber = 1;
         }
-        MeterActivationSetImpl set = new MeterActivationSetImpl(this.usagePoint.getMetrologyConfiguration(this.period.lowerEndpoint()).get(), sequenceNumber, startDate);
+        MeterActivationSetImpl set = new MeterActivationSetImpl(this.usagePoint.getEffectiveMetrologyConfiguration(this.period
+                .lowerEndpoint())
+                .get()
+                .getMetrologyConfiguration(), sequenceNumber, startDate);
         meterActivations.forEach(set::add);
         this.lastBuilt = set;
         return set;

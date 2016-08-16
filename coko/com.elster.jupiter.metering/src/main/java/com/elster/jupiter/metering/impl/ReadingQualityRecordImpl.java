@@ -5,7 +5,6 @@ import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.CimChannel;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
@@ -19,8 +18,9 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-public class ReadingQualityRecordImpl implements ReadingQualityRecord {
+class ReadingQualityRecordImpl implements ReadingQualityRecord {
 
+    @SuppressWarnings("unused")
     private long id;
     private String comment;
     private Instant readingTimestamp;
@@ -32,21 +32,21 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     private Reference<Channel> channel = ValueReference.absent();
     private Reference<IReadingType> readingType = ValueReference.absent();
 
+    @SuppressWarnings("unused")
     private long version;
     @SuppressWarnings("unused")
     private Instant createTime;
+    @SuppressWarnings("unused")
     private Instant modTime;
     @SuppressWarnings("unused")
     private String userName;
 
     private final DataModel dataModel;
-    private final MeteringService meteringService;
     private final EventService eventService;
 
     @Inject
-    ReadingQualityRecordImpl(DataModel dataModel, MeteringService meteringService, EventService eventService) {
+    ReadingQualityRecordImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
-        this.meteringService = meteringService;
         this.eventService = eventService;
         this.actual = true;
     }
@@ -167,7 +167,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         notifyDeleted();
     }
 
-    public void notifyDeleted(){
+    void notifyDeleted() {
         eventService.postEvent(EventType.READING_QUALITY_DELETED.topic(), new LocalEventSource(this));
     }
 
@@ -181,13 +181,13 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
         this.actual = false;
         this.update("actual");
     }
-    
+
     @Override
     public void makeActual() {
         this.actual = true;
         this.update("actual");
     }
-    
+
     @Override
     public boolean isActual() {
         return actual;
@@ -211,7 +211,7 @@ public class ReadingQualityRecordImpl implements ReadingQualityRecord {
     public class LocalEventSource {
         private final ReadingQualityRecordImpl readingQuality;
 
-        public LocalEventSource(ReadingQualityRecordImpl readingQuality) {
+        LocalEventSource(ReadingQualityRecordImpl readingQuality) {
             this.readingQuality = readingQuality;
         }
 
