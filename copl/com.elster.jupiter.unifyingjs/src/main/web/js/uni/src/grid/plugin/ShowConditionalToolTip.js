@@ -26,6 +26,7 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
         var gridPanel = grid.up('gridpanel');
         if (gridPanel.rendered && !grid.isHidden()) {
             Ext.suspendLayouts();
+            var tm = new Ext.util.TextMetrics();
             Ext.Array.each(gridPanel.columns, function (column) {
                 if (!column.isHidden() && column.getEl()) {
                     var header = column.getEl().down('.' + Ext.baseCSSPrefix + 'column-header-inner');
@@ -39,7 +40,11 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                     if (   column.$className === 'Ext.grid.column.Column'
                         || column.$className === 'Ext.grid.column.Date'
                         || column.$className === 'Ext.grid.column.Template'
-                        || column.$className === 'Uni.grid.column.Duration') {
+                        || column.$className === 'Uni.grid.column.Duration'
+                        || column.$className === 'Uni.grid.column.search.DeviceType'
+                        || column.$className === 'Uni.grid.column.Date'
+                        || column.$className === 'Uni.grid.column.search.DeviceConfiguration'
+                        || column.$className === 'Uni.grid.column.search.Boolean') {
 
                         var first = grid.getEl().down(grid.getCellInnerSelector(column));
                         var width = first && first.getWidth(true);
@@ -52,10 +57,10 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                                     var text = Ext.util.Format.stripTags(inner.getHTML()),
                                         tooltip = cell.getAttribute('data-qtip');
 
-                                    if (text && (width < cell.getTextWidth())) {
+                                    if (text && (width < tm.getSize(text).width)) {
                                         cell.set({'data-qtip': tooltip || text});
                                     } else {
-                                        cell.set({'data-qtip': (tooltip !== text ? tooltip : null) || undefined});
+                                        cell.set({'data-qtip': (tooltip !== Ext.String.htmlEncode(text) ? tooltip : null) || undefined});
                                     }
                                 }
                             });

@@ -123,7 +123,7 @@ Ext.define('Uni.form.field.Location', {
                     scope: me
                 }
             },
-            margin: Ext.String.format('0 0 0 {0}', this.labelWidth+15),
+            margin: Ext.String.format('0 0 6 {0}', this.labelWidth + 15),
         };
         propertyFormLocation = {
             xtype: 'property-form',

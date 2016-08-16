@@ -104,42 +104,6 @@ Ext.define('Uni.view.search.Results', {
             destroyable: true
         }));
 
-        serviceListeners.push(service.on('loadingcountfailed', function(){
-            var box = Ext.create('Ext.window.MessageBox', {
-                buttons: [
-                    {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
-                        action: 'close',
-                        name: 'close',
-                        ui: 'remove',
-                        handler: function () {
-                            box.close();
-                        }
-                    }
-                ],
-                listeners: {
-                    beforeclose: {
-                        fn: function(){
-                            me.setLoading(false)
-                        }
-                    }
-                }
-            });
-
-            box.show({
-                title: Uni.I18n.translate('general.timeOut', 'UNI', 'Time out'),
-                msg: Uni.I18n.translate('general.timeOutMessage', 'UNI', 'Counting the search results took too long.'),
-                modal: false,
-                ui: 'message-error',
-                icon: 'icon-warning2',
-                style: 'font-size: 34px;'
-            });
-
-        }, me, {
-            destroyable: true
-        }));
-
         me.callParent(arguments);
         me.on('destroy', function(){
             storeListeners.destroy();
