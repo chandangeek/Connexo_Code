@@ -80,12 +80,9 @@ Ext.define('Imt.metrologyconfiguration.view.CustomAttributeSets', {
                         frame: true,
                         tools: [
                             {
-                                xtype: 'button',
+                                xtype: 'uni-button-action',
                                 privileges: Imt.privileges.MetrologyConfig.admin,
                                 disabled: isActive,
-                                text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
-                                itemId: 'actionButton',
-                                iconCls: 'x-uni-action-iconD',
                                 menu: {
                                     xtype: 'custom-attribute-sets-actions',
                                     record: me.record

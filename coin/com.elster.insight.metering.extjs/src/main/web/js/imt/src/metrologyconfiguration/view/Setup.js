@@ -21,10 +21,7 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
                 title: Uni.I18n.translate('general.overview', 'IMT', 'Overview'),
                 tools: [
                     {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
-                        itemId: 'actionButton',
-                        iconCls: 'x-uni-action-iconD',
+                        xtype: 'uni-button-action',
                         disabled: me.metrologyConfig.get('status').id == 'deprecated',
                         privileges: Imt.privileges.MetrologyConfig.admin,
                         menu: {

@@ -13,10 +13,8 @@ Ext.define('Imt.purpose.view.PurposeDetailsForm', {
     },
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+            xtype: 'uni-button-action',
             itemId: 'purpose-actions-button',
-            iconCls: 'x-uni-action-iconD',
             privileges: Imt.privileges.UsagePoint.canAdministrate,
             menu: {
                 xtype: 'purpose-actions-menu',
