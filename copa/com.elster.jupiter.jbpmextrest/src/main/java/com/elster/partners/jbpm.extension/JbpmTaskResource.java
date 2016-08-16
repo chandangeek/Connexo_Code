@@ -971,11 +971,15 @@ public class JbpmTaskResource {
     }
 
     private void setDueDate(Date dueDate, long taskId){
-        taskService.setExpirationDate(taskId, dueDate);
+        if(taskService.getTaskById(taskId) != null) {
+            taskService.setExpirationDate(taskId, dueDate);
+        }
     }
 
     private void setPriority(int priority, long taskId){
-        ((InternalTaskService) taskService).setPriority(taskId, priority);
+        if(taskService.getTaskById(taskId) != null) {
+            ((InternalTaskService) taskService).setPriority(taskId, priority);
+        }
     }
 
     private List<TaskSummary> getTaskForProceessInstance(long processInstanceId){
