@@ -43,10 +43,8 @@ Ext.define('Apr.view.appservers.AppServerOverview', {
                     }
                 },
                 {
-                    xtype: 'button',
+                    xtype: 'uni-button-action',
                     privileges: Apr.privileges.AppServer.admin,
-                    text: Uni.I18n.translate('general.actions', 'APR', 'Actions'),
-                    iconCls: 'x-uni-action-iconD',
                     margin: '20 0 0 0',
                     menu: {
                         xtype: 'appservers-action-menu'
