@@ -15,6 +15,8 @@ Ext.define('Uni.grid.column.search.DeviceType', {
         result = result.replace('{value}', value);
         result = result.replace('{deviceTypeId}', deviceTypeId);
 
+        metaData.tdAttr = 'data-qtip="' + Ext.String.htmlEncode(Ext.String.htmlEncode(value)) + '"';
+
         return result;
     }
 });

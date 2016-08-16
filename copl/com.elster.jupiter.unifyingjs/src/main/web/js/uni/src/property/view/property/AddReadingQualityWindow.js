@@ -44,9 +44,9 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
                                 xtype: 'radio',
                                 itemId: 'uni-reading-quality-input-radio',
                                 boxLabel: '<span style="display:inline-block; float: left; margin-right:7px;" >' + Uni.I18n.translate('general.specifyReadingQuality', 'UNI', 'Specify reading quality') + '</span>'
-                                            + '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
-                                            + Uni.I18n.translate('general.specifyReadingQuality.tooltip', 'UNI', "The wildcard '*' can be used in the 1st and 3rd part of the reading quality and will match all possible values.")
-                                            + '"></span>',
+                                + '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="'
+                                + Uni.I18n.translate('general.specifyReadingQuality.tooltip', 'UNI', "The wildcard '*' can be used in the 1st and 3rd part of the reading quality and will match all possible values.")
+                                + '"></span>',
                                 name: 'manualInput',
                                 inputValue: true,
                                 margin: '10 0 0 0',
@@ -158,7 +158,7 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
             },
             {
                 xtype: 'button',
-                text: Uni.I18n.translate('general.add','UNI','Add'),
+                text: Uni.I18n.translate('general.add', 'UNI', 'Add'),
                 ui: 'action',
                 itemId: 'uni-reading-quality-add-button',
                 listeners: {
@@ -168,10 +168,10 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
                                 enteredValue = inputRadioBtn.getValue()
                                     ? this.up('#uni-add-reading-quality-window').down('#uni-reading-quality-input-field').getValue()
                                     : this.up('#uni-add-reading-quality-window').down('#uni-system-combo').getValue()
-                                        + '.' +
-                                        this.up('#uni-add-reading-quality-window').down('#uni-category-combo').getValue()
-                                        + '.' +
-                                        this.up('#uni-add-reading-quality-window').down('#uni-index-combo').getValue(),
+                                + '.' +
+                                this.up('#uni-add-reading-quality-window').down('#uni-category-combo').getValue()
+                                + '.' +
+                                this.up('#uni-add-reading-quality-window').down('#uni-index-combo').getValue(),
                                 validationResult = me.readingQualities.isCimCodeInvalid(enteredValue);
 
                             if (validationResult === 0) {
@@ -186,7 +186,7 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
             },
             {
                 xtype: 'button',
-                text: Uni.I18n.translate('general.cancel','UNI','Cancel'),
+                text: Uni.I18n.translate('general.cancel', 'UNI', 'Cancel'),
                 action: 'cancelAddReadingQuality',
                 ui: 'link',
                 listeners: {
@@ -210,7 +210,7 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
         this.callParent(arguments);
     },
 
-    onAfterRender: function() {
+    onAfterRender: function () {
         var me = this,
             radioButton = me.down('#uni-reading-quality-input-radio'),
             systemCombo = me.down('#uni-system-combo'),
@@ -225,12 +225,12 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
         categoryCombo.on("change", me.onCategoryComboChanged, me);
     },
 
-    onRadioBtnChange: function(field, newValue, oldValue) {
+    onRadioBtnChange: function (field, newValue, oldValue) {
         var me = this,
             systemCombo = me.down('#uni-system-combo'),
             categoryCombo = me.down('#uni-category-combo'),
             indexCombo = me.down('#uni-index-combo');
-            fieldToFocus = newValue ? me.down('#uni-reading-quality-input-field') : me.down('#uni-system-combo');
+        fieldToFocus = newValue ? me.down('#uni-reading-quality-input-field') : me.down('#uni-system-combo');
 
         me.down('#uni-reading-quality-form').setDisabled(!newValue);
         systemCombo.setDisabled(newValue);
@@ -240,7 +240,7 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
         me.hideErrorMessage();
     },
 
-    onCategoryComboChanged: function(combo, newValue, oldValue) {
+    onCategoryComboChanged: function (combo, newValue, oldValue) {
         var me = this,
             indexCombo = me.down('#uni-index-combo');
 
@@ -249,7 +249,7 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
         indexCombo.setDisabled(false);
     },
 
-    showErrorMessage: function(enteredValue, validationResult) {
+    showErrorMessage: function (enteredValue, validationResult) {
         this.down('#form-errors').show();
         if (this.down('#uni-reading-quality-input-radio').getValue()) {
             if (Ext.isEmpty(enteredValue)) {
@@ -270,7 +270,7 @@ Ext.define('Uni.property.view.property.AddReadingQualityWindow', {
         }
     },
 
-    hideErrorMessage: function() {
+    hideErrorMessage: function () {
         this.down('#form-errors').hide();
         this.down('#uni-reading-quality-input-field').clearInvalid();
         this.down('#uni-system-combo').clearInvalid();
