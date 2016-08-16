@@ -324,7 +324,6 @@ Ext.define('Uni.service.Search', {
     count: function(){
         var me = this;
         me.fireEvent('loadingcount');
-        Ext.Ajax.suspendEvent('requestexception');
         Ext.Ajax.request({
             url: this.getSearchResultsStore().getProxy().url + '/count',
             timeout: 120000,
@@ -334,11 +333,6 @@ Ext.define('Uni.service.Search', {
             },
             success: function (response) {
                 me.fireEvent('count', JSON.parse(response.responseText));
-                Ext.Ajax.resumeEvent('requestexception');
-            },
-            failure: function (response, request) {
-                me.fireEvent('loadingcountfailed');
-                Ext.Ajax.resumeEvent('requestexception');
             }
         });
     },

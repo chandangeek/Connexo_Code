@@ -104,15 +104,6 @@ Ext.define('Uni.view.search.Results', {
             destroyable: true
         }));
 
-        serviceListeners.push(service.on('loadingcountfailed', function(){
-            var title = Uni.I18n.translate('general.timeOut', 'UNI', 'Time out'),
-                message = Uni.I18n.translate('general.timeOutMessage', 'UNI', 'Counting the search results took too long.');
-            me.getApplication().getController('Uni.controller.Error').showError(title, message);
-
-        }, me, {
-            destroyable: true
-        }));
-
         me.callParent(arguments);
         me.on('destroy', function(){
             storeListeners.destroy();
