@@ -9,9 +9,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Preview', {
 
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'DLC', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             menu: {
                 xtype: 'transitions-action-menu',
                 itemId: 'transitions-action-menu'
