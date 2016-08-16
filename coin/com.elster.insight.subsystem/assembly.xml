@@ -23,6 +23,7 @@
             <outputDirectory>bundles</outputDirectory>
             <includes>
                 <include>com.elster.jupiter:mdm.*</include>
+                <include>com.elster.jupiter.subsystem:mdm</include>
             </includes>
             <scope>provided</scope>
             <unpack>false</unpack>
@@ -31,7 +32,7 @@
             </outputFileNameMapping>
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <useTransitiveFiltering>false</useTransitiveFiltering>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
 
     </dependencySets>
