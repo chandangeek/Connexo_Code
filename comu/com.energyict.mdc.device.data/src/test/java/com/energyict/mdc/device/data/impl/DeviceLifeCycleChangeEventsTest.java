@@ -2,14 +2,18 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterBuilder;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -38,6 +42,8 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.google.common.collect.Range;
 
 import javax.inject.Provider;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
@@ -52,6 +58,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -72,6 +80,10 @@ public class DeviceLifeCycleChangeEventsTest {
     @Mock
     private DataModel dataModel;
     @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
+    @Mock
     private EventService eventService;
     @Mock
     private IssueService issueService;
@@ -91,6 +103,14 @@ public class DeviceLifeCycleChangeEventsTest {
     private ServerCommunicationTaskService communicationTaskService;
     @Mock
     private SecurityPropertyService securityPropertyService;
+    @Mock
+    private DeviceLifeCycle deviceLifeCycle;
+    @Mock
+    private FiniteStateMachine finiteStateMachine;
+    @Mock
+    private MeterBuilder meterBuilder;
+    @Mock
+    private LifecycleDates lifecycleDates;
     @Mock
     private Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider;
     @Mock
@@ -120,6 +140,9 @@ public class DeviceLifeCycleChangeEventsTest {
     @Mock
     private StateTimeline stateTimeline;
     @Mock
+    private MultiplierType multiplierType;
+
+    @Mock
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private UserPreferencesService userPreferencesService;
@@ -128,11 +151,31 @@ public class DeviceLifeCycleChangeEventsTest {
 
     @Before
     public void initializeMocks() {
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
         when(this.deviceConfiguration.getDeviceType()).thenReturn(this.deviceType);
         when(this.meteringService.findAmrSystem(KnownAmrSystem.MDC.getId())).thenReturn(Optional.of(this.mdcAmrSystem));
+        when(meteringService.getMultiplierType("Default")).thenReturn(Optional.of(multiplierType));
+        when(multiplierType.getName()).thenReturn("Default");
         when(this.mdcAmrSystem.findMeter("0")).thenReturn(Optional.of(this.meter));
         when(this.meter.getStateTimeline()).thenReturn(Optional.of(this.stateTimeline));
         when(this.stateTimeline.getSlices()).thenReturn(Collections.<StateTimeSlice>emptyList());
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(finiteStateMachine.getId()).thenReturn(633L);
+        when(mdcAmrSystem.newMeter(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setAmrId(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setMRID(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setName(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setSerialNumber(anyString())).thenReturn(meterBuilder);
+        when(meterBuilder.setStateMachine(any(FiniteStateMachine.class))).thenReturn(meterBuilder);
+        when(meterBuilder.create()).thenReturn(meter);
+        when(meter.getMeterActivations()).thenReturn(Collections.emptyList());
+        when(meter.getMeterActivation(any(Instant.class))).thenReturn(Optional.empty());
+        when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
+        when(meter.getLifecycleDates()).thenReturn(lifecycleDates);
+        when(meter.getConfiguration(any(Instant.class))).thenReturn(Optional.empty());
     }
 
     @Test
@@ -147,7 +190,7 @@ public class DeviceLifeCycleChangeEventsTest {
         DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
         when(initial.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(initial.getUser()).thenReturn(Optional.of(this.user));
-        when(this.deviceType.getDeviceLifeCycleChangeEvents()).thenReturn(Arrays.asList(initial));
+        when(this.deviceType.getDeviceLifeCycleChangeEvents()).thenReturn(Collections.singletonList(initial));
 
         // Mock the state time line of the Kore meter
         StateTimeSlice initialState = mock(StateTimeSlice.class);
@@ -155,7 +198,7 @@ public class DeviceLifeCycleChangeEventsTest {
         State state = mock(State.class);
         when(initialState.getState()).thenReturn(state);
         when(initialState.getUser()).thenReturn(Optional.of(this.user));
-        when(this.stateTimeline.getSlices()).thenReturn(Arrays.<StateTimeSlice>asList(initialState));
+        when(this.stateTimeline.getSlices()).thenReturn(Collections.singletonList(initialState));
 
         DeviceImpl device = this.getTestInstance();
 
@@ -287,7 +330,7 @@ public class DeviceLifeCycleChangeEventsTest {
     }
 
     private DeviceImpl getTestInstance() {
-        return new DeviceImpl(
+        DeviceImpl device = new DeviceImpl(
                 this.dataModel,
                 this.eventService,
                 this.issueService,
@@ -309,7 +352,9 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.threadPrincipalService,
                 this.userPreferencesService,
                 this.deviceConfigurationService)
-            .initialize(this.deviceConfiguration, "Hello world", "mRID");
+                .initialize(this.deviceConfiguration, "Hello world", "mRID", Instant.now());
+        device.save();
+        return device;
     }
 
 }

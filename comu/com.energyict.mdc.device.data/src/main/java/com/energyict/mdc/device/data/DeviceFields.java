@@ -19,6 +19,7 @@ public enum DeviceFields implements ImplField {
     DEVICEGROUP("deviceGroup"),
     CERT_YEAR("certYear"),
     BATCH("batch"),
+    METER("meter"),
     LOCATION("location"),
     READINGTYPEOBISCODEUSAGES("readingTypeObisCodeUsages")
     ;

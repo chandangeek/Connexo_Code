@@ -71,6 +71,7 @@ import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
@@ -113,6 +114,7 @@ import org.osgi.service.log.LogService;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -208,7 +210,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     }
 
     private Device createSimpleDeviceWithName(String name) {
-        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, MRID);
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, MRID, Instant.now());
     }
 
     private Device getReloadedDevice(Device device) {
@@ -380,6 +382,8 @@ public class DeviceImplDoSomethingWithEventsTest {
         private void initializeCustomPropertySets(Injector injector) {
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class)
+                    .addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
         }
 
         private void initializeMocks(String testName) {

@@ -164,9 +164,12 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
     }
 
     private Stream<ProtocolDialect> getProtocolDialectsOnDeviceType(DeviceType deviceType) {
-        DeviceProtocolPluggableClass pluggableClass = deviceType.getDeviceProtocolPluggableClass();
-        return pluggableClass.getDeviceProtocol().getDeviceProtocolDialects().stream()
-                .map(protocolDialect -> new ProtocolDialect(pluggableClass, protocolDialect));
+        return deviceType.getDeviceProtocolPluggableClass()
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol()
+                        .getDeviceProtocolDialects()
+                        .stream()
+                        .map(protocolDialect -> new ProtocolDialect(deviceProtocolPluggableClass, protocolDialect)))
+                .orElse(Stream.empty());
     }
 
     private class ProtocolDialectValueFactory extends SearchHelperValueFactory<ProtocolDialect> {

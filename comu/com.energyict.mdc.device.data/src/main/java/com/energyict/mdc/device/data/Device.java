@@ -114,7 +114,7 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
      *
      * @return the used {@link DeviceProtocolPluggableClass}
      */
-    DeviceProtocolPluggableClass getDeviceProtocolPluggableClass();
+    Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass();
 
     /**
      * Gets the device configuration of a device.
@@ -287,6 +287,14 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     List<MeterActivation> getMeterActivationsMostRecentFirst();
 
     /**
+     * Provides a list of all meteractivations which were effective for the given range.
+     *
+     * @param range the range of meteractivations to request
+     * @return a (potentially empty) list of effective meterActivations based on the given range
+     */
+    List<MeterActivation> getMeterActivations(Range<Instant> range);
+
+    /**
      * Gets the Unique mRID of the device.
      */
     String getmRID();
@@ -389,13 +397,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<UsagePoint> getUsagePoint();
 
-    /**
-     * Activates the device on a usage point now. Use {@link Device#activate(Instant, UsagePoint)} instead if activation time need to be specified
-     *
-     * @param usagePoint target usage point to link device with
-     */
-    void setUsagePoint(UsagePoint usagePoint);
-
     GatewayType getConfigurationGatewayType();
 
     /**
@@ -479,6 +480,8 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
     Register.RegisterUpdater getRegisterUpdaterFor(Register register);
 
     void runStatusInformationTask(Consumer<ComTaskExecution> requestedAction);
+
+    Optional<Device> getHistory(Instant when);
 
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.

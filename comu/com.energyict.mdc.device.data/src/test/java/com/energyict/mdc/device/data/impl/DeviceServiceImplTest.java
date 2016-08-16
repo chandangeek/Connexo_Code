@@ -103,7 +103,8 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithName(String name, String mRID) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, name, mRID, inMemoryPersistence.getClock().instant());
         device.save();
         return device;
     }
@@ -207,7 +208,9 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "findDeviceWithOverruledObisCodeForOtherThanRegisterSpecTest", "findDeviceWithOverruledObisCodeForOtherThanRegisterSpecTest");
+                .newDevice(deviceConfiguration, "findDeviceWithOverruledObisCodeForOtherThanRegisterSpecTest", "findDeviceWithOverruledObisCodeForOtherThanRegisterSpecTest", inMemoryPersistence
+                        .getClock()
+                        .instant());
         device.save();
 
         ((EventServiceImpl) inMemoryPersistence.getEventService()).addTopicHandler(inMemoryPersistence.getRegisterSpecUpdateHandler());
@@ -246,7 +249,9 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "findDeviceWithOverruledObisCodeForOtherThanRegisterSpecTest", "findDeviceWithOverruledObisCodeForOtherThanRegisterSpecTest");
+                .newDevice(deviceConfiguration, "findDeviceWithOverruledObisCodeForOtherThanRegisterSpecTest", "findDeviceWithOverruledObisCodeForOtherThanRegisterSpecTest", inMemoryPersistence
+                        .getClock()
+                        .instant());
         device.save();
 
         ((EventServiceImpl) inMemoryPersistence.getEventService()).addTopicHandler(inMemoryPersistence.getRegisterSpecUpdateHandler());
@@ -306,7 +311,9 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "overruleConfigObisCodeWhileOverruledOnAChannel", "overruleConfigObisCodeWhileOverruledOnAChannel");
+                .newDevice(deviceConfiguration, "overruleConfigObisCodeWhileOverruledOnAChannel", "overruleConfigObisCodeWhileOverruledOnAChannel", inMemoryPersistence
+                        .getClock()
+                        .instant());
         device.save();
 
         ((EventServiceImpl) inMemoryPersistence.getEventService()).addTopicHandler(inMemoryPersistence.getRegisterSpecUpdateHandler());
@@ -370,7 +377,9 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "findDeviceWithOverruledObisCodeForOtherThanChannelSpecTest", "findDeviceWithOverruledObisCodeForOtherThanChannelSpecTest");
+                .newDevice(deviceConfiguration, "findDeviceWithOverruledObisCodeForOtherThanChannelSpecTest", "findDeviceWithOverruledObisCodeForOtherThanChannelSpecTest", inMemoryPersistence
+                        .getClock()
+                        .instant());
         device.save();
 
         ((EventServiceImpl) inMemoryPersistence.getEventService()).addTopicHandler(inMemoryPersistence.getChannelSpecUpdateHandler());
@@ -427,7 +436,9 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "overruleChannelSpecObisCodeWhileOverruledOnDeviceLevelTest", "overruleChannelSpecObisCodeWhileOverruledOnDeviceLevelTest");
+                .newDevice(deviceConfiguration, "overruleChannelSpecObisCodeWhileOverruledOnDeviceLevelTest", "overruleChannelSpecObisCodeWhileOverruledOnDeviceLevelTest", inMemoryPersistence
+                        .getClock()
+                        .instant());
         device.save();
 
         ((EventServiceImpl) inMemoryPersistence.getEventService()).addTopicHandler(inMemoryPersistence.getChannelSpecUpdateHandler());
@@ -488,7 +499,9 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "overruleChannelSpecObisCodeWhileOverruledOnDeviceLevelTest", "overruleChannelSpecObisCodeWhileOverruledOnDeviceLevelTest");
+                .newDevice(deviceConfiguration, "overruleChannelSpecObisCodeWhileOverruledOnDeviceLevelTest", "overruleChannelSpecObisCodeWhileOverruledOnDeviceLevelTest", inMemoryPersistence
+                        .getClock()
+                        .instant());
         device.save();
 
         ((EventServiceImpl) inMemoryPersistence.getEventService()).addTopicHandler(inMemoryPersistence.getChannelSpecUpdateHandler());
@@ -559,7 +572,9 @@ public class DeviceServiceImplTest extends PersistenceIntegrationTest {
         deviceConfiguration.activate();
 
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(deviceConfiguration, "overruleChannelSpecWhileOverruledOnDeviceInOtherLoadProfileIsOkTest", "overruleChannelSpecWhileOverruledOnDeviceInOtherLoadProfileIsOkTest");
+                .newDevice(deviceConfiguration, "overruleChannelSpecWhileOverruledOnDeviceInOtherLoadProfileIsOkTest", "overruleChannelSpecWhileOverruledOnDeviceInOtherLoadProfileIsOkTest", inMemoryPersistence
+                        .getClock()
+                        .instant());
         device.save();
 
         ((EventServiceImpl) inMemoryPersistence.getEventService()).addTopicHandler(inMemoryPersistence.getChannelSpecUpdateHandler());

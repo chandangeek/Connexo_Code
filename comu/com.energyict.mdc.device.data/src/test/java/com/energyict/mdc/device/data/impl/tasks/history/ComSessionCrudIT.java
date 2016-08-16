@@ -60,6 +60,7 @@ import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -280,6 +281,8 @@ public class ComSessionCrudIT {
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class)
+                    .addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
@@ -318,7 +321,8 @@ public class ComSessionCrudIT {
             configDialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
             deviceConfiguration.save();
             deviceConfiguration.activate();
-            device = this.deviceDataModelService.deviceService().newDevice(deviceConfiguration, "SimpleDevice", "mrid");
+            device = this.deviceDataModelService.deviceService()
+                    .newDevice(deviceConfiguration, "SimpleDevice", "mrid", Instant.now());
             device.save();
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
             connectionTypePluggableClass.save();

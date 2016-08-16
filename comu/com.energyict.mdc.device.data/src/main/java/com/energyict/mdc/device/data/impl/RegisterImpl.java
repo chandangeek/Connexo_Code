@@ -247,7 +247,7 @@ public abstract class RegisterImpl<R extends Reading, RS extends RegisterSpec> i
         private void addOrEdit(BaseReading reading) {
             this.register.device
                 .findOrCreateKoreChannel(reading.getTimeStamp(), this.register)
-                .editReadings(handlingSystem, Collections.singletonList(reading));
+                    .editReadings(handlingSystem, Collections.singletonList(reading));
         }
 
         private void confirm(BaseReading reading) {

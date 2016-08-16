@@ -143,7 +143,7 @@ public class EndDeviceCommandImplTest {
         when(deviceProtocol.getSupportedMessages()).thenReturn(Collections.singleton(DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE));
         DeviceProtocolPluggableClass protocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(protocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        when(device.getDeviceProtocolPluggableClass()).thenReturn(protocolPluggableClass);
+        when(device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(protocolPluggableClass));
 
         this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
         DeviceMessageSpec message = mock(DeviceMessageSpec.class);

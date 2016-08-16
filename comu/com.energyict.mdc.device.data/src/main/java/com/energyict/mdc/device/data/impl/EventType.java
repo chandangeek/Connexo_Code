@@ -69,7 +69,8 @@ public enum EventType {
     FIRMWARE_COMTASKEXECUTION_FAILED("firmwarecomtaskexecution/FAILED"),
     ACTIVATED_BREAKER_STATUS_CREATED("activatedbreakerstatus/CREATED"),
     ACTIVATED_BREAKER_STATUS_UPDATED("activatedbreakerstatus/UPDATED"),
-    ACTIVATED_BREAKER_STATUS_DELETED("activatedbreakerstatus/DELETED")
+    ACTIVATED_BREAKER_STATUS_DELETED("activatedbreakerstatus/DELETED"),
+    RESTARTED_METERACTIVATION("meteractivation/RESTARTED")
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";

@@ -14,6 +14,8 @@ import com.energyict.mdc.tasks.ComTask;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 
+import java.time.Instant;
+
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +36,8 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
     @Transactional
     public void createWithoutViolationsTest() {
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithoutViolationsTest", "createWithoutViolationsTest");
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "createWithoutViolationsTest", "createWithoutViolationsTest", Instant.now());
         FirmwareComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecutionWithoutViolation(device);
 
         // Business method
@@ -51,7 +54,8 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
     @Test
     @Transactional
     public void nextExecutionSpecIsEmptyTest() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "nextExecutionSpecIsEmptyTest", "nextExecutionSpecIsEmptyTest");
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "nextExecutionSpecIsEmptyTest", "nextExecutionSpecIsEmptyTest", Instant.now());
         FirmwareComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecutionWithoutViolation(device);
 
         // Business method
@@ -64,7 +68,8 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
     @Test
     @Transactional
     public void removeComTaskTest() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "removeComTaskTest", "removeComTaskTest");
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "removeComTaskTest", "removeComTaskTest", Instant.now());
         FirmwareComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecutionWithoutViolation(device);
 
         device.save();
@@ -83,7 +88,9 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT + "}")
     public void createWithOtherComTaskEnablementTest() {
         ComTaskEnablement basicCheckComTaskEnablement = enableComTask(true);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "createWithOtherComTaskEnablementTest", "createWithOtherComTaskEnablementTest");
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "createWithOtherComTaskEnablementTest", "createWithOtherComTaskEnablementTest", Instant
+                        .now());
         ComTaskExecutionBuilder<FirmwareComTaskExecution> comTaskExecutionBuilder = device.newFirmwareComTaskExecution(basicCheckComTaskEnablement);
         FirmwareComTaskExecution firmwareComTaskExecution = comTaskExecutionBuilder.add();
 
@@ -96,7 +103,8 @@ public class FirmwareComTaskExecutionImplTest extends AbstractComTaskExecutionIm
     public void updateProtocolDialectTest() {
         ComTaskEnablement firmwareComTaskEnablement = enableFirmwareComTask();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "updateProtocolDialectTest", "updateProtocolDialectTest");
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "updateProtocolDialectTest", "updateProtocolDialectTest", Instant.now());
         ComTaskExecutionBuilder<FirmwareComTaskExecution> comTaskExecutionBuilder = device.newFirmwareComTaskExecution(firmwareComTaskEnablement);
         FirmwareComTaskExecution firmwareComTaskExecution = comTaskExecutionBuilder.add();
 

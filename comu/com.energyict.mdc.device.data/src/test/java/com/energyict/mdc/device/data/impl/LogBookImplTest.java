@@ -46,7 +46,8 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithLogBook() {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithLogBooks, "DeviceName", "MyUniqueID");
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfigurationWithLogBooks, "DeviceName", "MyUniqueID", Instant.now());
         device.save();
         return device;
     }
@@ -72,7 +73,8 @@ public class LogBookImplTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void createWithNoLogBooksTest() {
-        Device deviceWithoutLogBooks = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithoutLogBooks", "mRID");
+        Device deviceWithoutLogBooks = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, "DeviceWithoutLogBooks", "mRID", Instant.now());
         deviceWithoutLogBooks.save();
 
         Device reloadedDevice = getReloadedDevice(deviceWithoutLogBooks);
