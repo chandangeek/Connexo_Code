@@ -3649,8 +3649,9 @@ from &#13;
                           , mmac.meterID&#13;
                       FROM Ids_Vault_Mtr_2 idsvm2&#13;
                             left join Mtr_Channel mc on idsvm2.Timeseriesid = mc.Timeseriesid&#13;
-                            left join Mtr_Meteractivation mmac on mc.meteractivationid = mmac.id&#13;
-                    ) ld  on ld.MAINREADINGTYPEMRID = mmt.readingtype and dd.id = meterID&#13;
+                            left join Mtr_Channel_Container mmcc on mc.channel_container = mmcc.id&#13;
+                            left join Mtr_Meteractivation mmac on mmcc.meter_activation = mmac.id&#13;
+                    ) ld  on ld.MAINREADINGTYPEMRID = mmt.readingtype and dd.id = ld.meterID&#13;
           LEFT JOIN MDS_REGISTERTYPEINGROUP mrtg on mrtg.registertypeID = mmt.ID&#13;
           LEFT JOIN MDS_REGISTERGROUP mrg on mrg.ID = mrtg.registergroupID&#13;
                  ) res on devgr.ENDDEVICEID = res.DeviceID</viewSQL>
