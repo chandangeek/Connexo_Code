@@ -294,6 +294,10 @@
             <artifactId>mdc.device.data.validation.extjs</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.usagepoint.data.rest</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>system</artifactId>
         </dependency>
