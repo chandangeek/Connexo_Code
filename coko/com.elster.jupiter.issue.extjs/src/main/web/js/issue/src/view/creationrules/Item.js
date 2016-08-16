@@ -10,10 +10,8 @@ Ext.define('Isu.view.creationrules.Item', {
     frame: true,
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
+            xtype: 'uni-button-action',
             privileges: Isu.privileges.Issue.createRule,
-            iconCls: 'x-uni-action-iconD',
             menu: {
                 xtype: 'creation-rule-action-menu'
             }

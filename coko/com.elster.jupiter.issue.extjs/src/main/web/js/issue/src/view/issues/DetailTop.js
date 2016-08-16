@@ -19,12 +19,10 @@ Ext.define('Isu.view.issues.DetailTop', {
                 flex: 1
             },
             {
-                xtype: 'button',
+                xtype: 'uni-button-action',
                 margin: '5 0 0 0',
                 itemId: 'issue-detail-top-actions-button',
-                text: Uni.I18n.translate('general.actions', 'ISU', 'Actions'),
                 privileges: Ext.Array.merge(Isu.privileges.Issue.adminDevice, Isu.privileges.Device.viewDeviceCommunication),
-                iconCls: 'x-uni-action-iconD',
                 menu: {
                     xtype: 'issues-action-menu',
                     itemId: 'issue-detail-action-menu',
