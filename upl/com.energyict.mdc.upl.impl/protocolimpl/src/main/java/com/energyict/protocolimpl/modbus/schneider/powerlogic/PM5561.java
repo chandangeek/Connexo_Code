@@ -185,8 +185,13 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
         int index = 0;
         returnValue[index++] = 0x03;
         returnValue[index++] = (byte) 0xeb;
-        returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(0, 2), 16);
-        returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(2, 4), 16);
+        if(commandCode.length() == 4) {
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(0, 2), 16);
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(2, 4), 16);
+        }else{
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(0, 2), 16);
+            returnValue[index++] = (byte) Integer.parseInt(commandCode.substring(2, 3), 16);
+        }
         String year = Integer.toString(calendar.get(Calendar.YEAR), 16);
         returnValue[index++] = (byte) Integer.parseInt(year.substring(0,1), 16);
         returnValue[index++] = (byte) Integer.parseInt(year.substring(1,3), 16);
