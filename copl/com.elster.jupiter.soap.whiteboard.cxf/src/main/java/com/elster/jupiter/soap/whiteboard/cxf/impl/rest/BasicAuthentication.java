@@ -46,7 +46,7 @@ public class BasicAuthentication implements HttpContext {
                         .getGroups()
                         .contains(endPointConfiguration.getGroup().get()));
             } else {
-                httpServletResponse.setStatus(Response.Status.UNAUTHORIZED.getStatusCode());
+                httpServletResponse.setStatus(Response.Status.FORBIDDEN.getStatusCode());
                 return false;
             }
         }
