@@ -226,7 +226,7 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response updateMetrologyContractWithValidationRuleSets(@PathParam("id") long id, @PathParam("contractId") long contractId, @QueryParam("action") String action, MetrologyContractInfo metrologyContractInfo) {
-        metrologyContractInfo.id = id;
+        metrologyContractInfo.id = contractId;
         MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
         if (action != null && action.equals("remove")) {
             ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(metrologyContractInfo.validationRuleSets.stream().findFirst().get().id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
