@@ -64,7 +64,7 @@ public class ProcessDeployer {
             httpConnection.setRequestMethod("POST");
             httpConnection.setRequestProperty("Authorization", authString);
 
-            if (payload != null && payload.length() != 0) {
+            if (payload != null && !payload.isEmpty()) {
                 httpConnection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
                 OutputStreamWriter outWriter = new OutputStreamWriter(httpConnection.getOutputStream(), "UTF-8");
                 outWriter.write(payload);
@@ -121,6 +121,7 @@ public class ProcessDeployer {
                 maxSteps--;
                 Thread.sleep(timeout);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
 
