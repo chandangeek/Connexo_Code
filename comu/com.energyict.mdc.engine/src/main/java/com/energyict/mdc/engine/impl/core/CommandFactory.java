@@ -159,7 +159,7 @@ public final class CommandFactory {
      * @param pluggableClass the pluggableClass representing the protocol
      * @return the proper CommandCreator
      */
-    public static CommandCreator commandCreatorForPluggableClass(DeviceProtocolPluggableClass pluggableClass) {
+    static CommandCreator commandCreatorForPluggableClass(DeviceProtocolPluggableClass pluggableClass) {
         DeviceProtocol deviceProtocol = pluggableClass.getDeviceProtocol();
         if (deviceProtocol instanceof MeterProtocolAdapter) {
             return new LegacyMeterProtocolCommandCreator();

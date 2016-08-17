@@ -1,12 +1,12 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.engine.config.InboundComPort;
 import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.EventPublishingLogHandler;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 
 /**
  * Provides an implementation for the log Handler interface
@@ -18,11 +18,11 @@ import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-11-08 (10:33)
  */
-public class ComPortDiscoveryLogHandler extends EventPublishingLogHandler {
+class ComPortDiscoveryLogHandler extends EventPublishingLogHandler {
 
     private final InboundCommunicationHandler inboundCommunicationHandler;
 
-    protected ComPortDiscoveryLogHandler(InboundCommunicationHandler inboundCommunicationHandler, EventPublisher eventPublisher, AbstractComServerEventImpl.ServiceProvider serviceProvider) {
+    ComPortDiscoveryLogHandler(InboundCommunicationHandler inboundCommunicationHandler, EventPublisher eventPublisher, AbstractComServerEventImpl.ServiceProvider serviceProvider) {
         super(eventPublisher, serviceProvider);
         this.inboundCommunicationHandler = inboundCommunicationHandler;
     }

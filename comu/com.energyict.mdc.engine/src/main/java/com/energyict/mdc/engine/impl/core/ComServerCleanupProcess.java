@@ -8,6 +8,5 @@ package com.energyict.mdc.engine.impl.core;
  * @author sva
  * @since 2016-06-29 (17:05)
  */
-public interface ComServerCleanupProcess extends ServerProcess {
-
+interface ComServerCleanupProcess extends ServerProcess {
 }

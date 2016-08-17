@@ -1,7 +1,7 @@
 package com.energyict.mdc.engine.impl.core;
 
-import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.engine.impl.core.inbound.InboundComPortConnector;
 
 /**
  * Provides factory services to create a {@link InboundComPortConnector}
@@ -10,7 +10,7 @@ import com.energyict.mdc.engine.config.InboundComPort;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-05-22 (16:46)
  */
-public interface InboundComPortConnectorFactory {
+interface InboundComPortConnectorFactory {
 
     /**
      * Creates an appropriate {@link InboundComPortConnector}
@@ -19,6 +19,6 @@ public interface InboundComPortConnectorFactory {
      * @param inboundComPort The InboundComPort
      * @return The InboundComPortConnector
      */
-    public InboundComPortConnector connectorFor (InboundComPort inboundComPort);
+    InboundComPortConnector connectorFor(InboundComPort inboundComPort);
 
 }

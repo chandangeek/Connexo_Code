@@ -11,7 +11,7 @@ import java.sql.SQLException;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-01 (16:30)
  */
-public interface CleanupDuringStartup {
+interface CleanupDuringStartup {
 
     /**
      * Cleans up any marker flags on ComTaskExecution
@@ -23,6 +23,6 @@ public interface CleanupDuringStartup {
      *
      * @throws SQLException Indicates an unexpected database problem
      */
-    public void releaseInterruptedTasks () throws SQLException;
+    void releaseInterruptedTasks() throws SQLException;
 
 }

@@ -3,9 +3,9 @@ package com.energyict.mdc.engine.impl.core.inbound;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.engine.config.InboundComPort;
+import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
@@ -40,7 +40,7 @@ public interface InboundDAO {
      *                          by the device as correctly received (and executed)
      * @return The pending RtuMessages that are waiting to be sent
      */
-    public List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount);
+    List<OfflineDeviceMessage> confirmSentMessagesAndGetPending(DeviceIdentifier<Device> deviceIdentifier, int confirmationCount);
 
     /**
      * Gets the {@link SecurityProperty security properties} that have been
@@ -51,7 +51,7 @@ public interface InboundDAO {
      * @param inboundComPort The InboundComPort
      * @return The List of SecurityProperty or null if the Device is not ready for inbound communication
      */
-    public List<SecurityProperty> getDeviceProtocolSecurityProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+    List<SecurityProperty> getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
 
     /**
      * Gets the {@link TypedProperties} that have been
@@ -63,7 +63,7 @@ public interface InboundDAO {
      * @param inboundComPort The InboundComPort
      * @return The TypedProperties or <code>null</code> if the Device is not ready for inbound communication
      */
-    public TypedProperties getDeviceConnectionTypeProperties (DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
+    TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
 
     /**
      * Gets the {@link TypedProperties} of the Device that relate
@@ -73,7 +73,7 @@ public interface InboundDAO {
      * @return The TypedProperties that relate to the Device's protocol
      *         or <code>null</code> if the Device does not exist
      */
-    public TypedProperties getDeviceProtocolProperties (DeviceIdentifier deviceIdentifier);
+    TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier);
 
     /**
      * Finds the {@link com.energyict.mdc.protocol.api.device.BaseDevice} that is uniquely identified
@@ -82,6 +82,6 @@ public interface InboundDAO {
      * @param identifier The DeviceIdentifier
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
-    public Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier);
+    Optional<OfflineDevice> findOfflineDevice(DeviceIdentifier<?> identifier);
 
 }

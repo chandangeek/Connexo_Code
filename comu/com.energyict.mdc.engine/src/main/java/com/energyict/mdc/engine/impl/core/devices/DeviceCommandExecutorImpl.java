@@ -474,7 +474,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
             return this.doCall(false);
         }
 
-        public Boolean runDuringShutdown() {
+        Boolean runDuringShutdown() {
             return this.doCall(true);
         }
 
@@ -491,11 +491,11 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
                     } else {
                         this.command.execute(this.comServerDAO);
                     }
-                    return true;
+                    return Boolean.TRUE;
                 });
             } catch (Exception t) {
                 causeOfFailure = t;
-                return false;
+                return Boolean.FALSE;
             } finally {
                 // in both cases the semaphore is released
                 if (causeOfFailure == null) {

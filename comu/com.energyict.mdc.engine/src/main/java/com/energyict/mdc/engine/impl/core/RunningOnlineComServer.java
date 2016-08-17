@@ -12,16 +12,16 @@ import com.energyict.mdc.engine.impl.web.queryapi.WebSocketQueryApiService;
 public interface RunningOnlineComServer extends RunningComServer {
 
     @Override
-    public OnlineComServer getComServer();
+    OnlineComServer getComServer();
 
-    public void queryApiClientRegistered();
+    void queryApiClientRegistered();
 
-    public void queryApiClientUnregistered();
+    void queryApiClientUnregistered();
 
-    public void queryApiCallCompleted(long executionTimeInMillis);
+    void queryApiCallCompleted(long executionTimeInMillis);
 
-    public void queryApiCallFailed(long executionTimeInMillis);
+    void queryApiCallFailed(long executionTimeInMillis);
 
-    public WebSocketQueryApiService newWebSocketQueryApiService();
+    WebSocketQueryApiService newWebSocketQueryApiService();
 
 }

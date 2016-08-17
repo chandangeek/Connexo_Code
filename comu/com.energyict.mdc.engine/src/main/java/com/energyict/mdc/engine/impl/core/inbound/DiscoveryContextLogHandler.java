@@ -1,6 +1,5 @@
 package com.energyict.mdc.engine.impl.core.inbound;
 
-import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
 
 import java.text.MessageFormat;
@@ -18,12 +17,12 @@ import java.util.logging.LogRecord;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-10-24 (13:39)
  */
-public class DiscoveryContextLogHandler extends Handler {
+class DiscoveryContextLogHandler extends Handler {
 
     private final Clock clock;
     private InboundDiscoveryContextImpl context;
 
-    public DiscoveryContextLogHandler(Clock clock, InboundDiscoveryContextImpl context) {
+    DiscoveryContextLogHandler(Clock clock, InboundDiscoveryContextImpl context) {
         super();
         this.clock = clock;
         this.context = context;

@@ -15,12 +15,12 @@ import java.util.Optional;
 /**
  * Provides functionality to create/update {@link ActivatedBreakerStatus activatedBreakerStatuses}.
  */
-public class BreakerStatusStorage {
+class BreakerStatusStorage {
 
     private final DeviceService deviceDataService;
     private final Clock clock;
 
-    public BreakerStatusStorage(DeviceService deviceDataService, Clock clock) {
+    BreakerStatusStorage(DeviceService deviceDataService, Clock clock) {
         this.deviceDataService = deviceDataService;
         this.clock = clock;
     }
@@ -29,10 +29,8 @@ public class BreakerStatusStorage {
         return this.deviceDataService;
     }
 
-    public void updateBreakerStatus(Optional<BreakerStatus> collectedBreakerStatus, Device device) {
-        collectedBreakerStatus.ifPresent(breakerStatus -> {
-            createOrUpdateActiveVersion(device, collectedBreakerStatus.get());
-        });
+    void updateBreakerStatus(Optional<BreakerStatus> collectedBreakerStatus, Device device) {
+        collectedBreakerStatus.ifPresent(breakerStatus -> createOrUpdateActiveVersion(device, breakerStatus));
     }
 
     private ActivatedBreakerStatus createOrUpdateActiveVersion(Device device, BreakerStatus collectedBreakerStatus) {

@@ -7,8 +7,8 @@ import com.energyict.mdc.engine.impl.core.inbound.ComChannelPlaceHolder;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-
 import com.energyict.mdc.tasks.ProtocolTask;
+
 import java.util.List;
 
 /**
@@ -21,7 +21,7 @@ import java.util.List;
 public interface CommandCreator {
 
     /**
-     * Create proper comCommands for the given {@link CommandRoot root}, in the correct order of execution
+     * Create proper comCommands for the given {@link CommandRoot root}, in the correct order of execution.
      *
      * @param root                           The owner of the newly created comCommands
      * @param protocolDialectProperties      The used ProtocolDialectProperties
@@ -32,15 +32,17 @@ public interface CommandCreator {
 *                                       The securityProperties which should be used for the communication session
      * @param comTaskExecutionConnectionStep the connectionExecutionSteps required to perform the tasks
      * @param comTaskExecution               The ComTaskExecution which requires the ComCommands to be executed
-     * @param issueService
+     * @param issueService The {@link IssueService}
      */
-    public void createCommands(
+    void createCommands(
             CommandRoot root,
             TypedProperties protocolDialectProperties,
             ComChannelPlaceHolder comChannel,
             OfflineDevice offlineDevice,
             List<? extends ProtocolTask> protocolTasks,
             DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet,
-            ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep, ComTaskExecution comTaskExecution, IssueService issueService);
+            ComTaskExecutionConnectionSteps comTaskExecutionConnectionStep,
+            ComTaskExecution comTaskExecution,
+            IssueService issueService);
 
 }
