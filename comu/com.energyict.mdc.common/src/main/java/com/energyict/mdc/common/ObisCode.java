@@ -3,6 +3,7 @@ package com.energyict.mdc.common;
 import com.energyict.mdc.common.impl.ObisCodeAnalyzer;
 
 import java.io.Serializable;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 public class ObisCode implements Serializable {
@@ -42,10 +43,8 @@ public class ObisCode implements Serializable {
     private boolean relativeBillingPeriod;
 
     //needed for Flex synchronization
-
     public ObisCode() {
     }
-
 
     public ObisCode(int a, int b, int c, int d, int e, int f, boolean relativeBillingPeriod) {
         if (a < 0 || a > 255) {
@@ -81,40 +80,32 @@ public class ObisCode implements Serializable {
         this.relativeBillingPeriod = relativeBillingPeriod;
     }
 
-//    public ObisCodeShadow getObisCodeShadow() {
-//       return new ObisCodeShadow(getA(),getB(),getC(),getD(),getE(),getF(),useRelativeBillingPeriod());
-//    }
-
     public ObisCode(int a, int b, int c, int d, int e, int f) {
         this(a, b, c, d, e, f, false);
     }
 
     public ObisCode(ObisCode base, int channelIndex) {
         this(
-                base.getA(),
-                channelIndex,
-                base.getC(),
-                base.getD(),
-                base.getE(),
-                base.getF(),
-                base.useRelativeBillingPeriod());
+            base.getA(),
+            channelIndex,
+            base.getC(),
+            base.getD(),
+            base.getE(),
+            base.getF(),
+            base.useRelativeBillingPeriod());
     }
-
-//    public ObisCodeShadow getShadow() {
-//        return new ObisCodeShadow(a,b,c,d,e,f,relativeBillingPeriod);
-//    }
 
     public ObisCode(ObisCode base, int channelIndex, int billingPeriodIndex) {
         this(
-                base.getA(),
-                channelIndex,
-                base.getC(),
-                base.getD(),
-                base.getE(),
-                base.useRelativeBillingPeriod() ?
-                        ((billingPeriodIndex + base.getF()) % 100) :
-                        base.getF(),
-                false);
+            base.getA(),
+            channelIndex,
+            base.getC(),
+            base.getD(),
+            base.getE(),
+            base.useRelativeBillingPeriod() ?
+                    ((billingPeriodIndex + base.getF()) % 100) :
+                    base.getF(),
+            false);
     }
 
     public boolean useRelativeBillingPeriod() {
@@ -126,7 +117,7 @@ public class ObisCode implements Serializable {
     }
 
     public String toString() {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(a);
         buffer.append(".");
         if (b < 0) {
@@ -254,39 +245,43 @@ public class ObisCode implements Serializable {
     }
 
     public static ObisCode fromString(String codeString) {
-       StringTokenizer tokenizer = new StringTokenizer(codeString, ".");
-        String token = tokenizer.nextToken();
-        int a = Integer.parseInt(token);
-        token = tokenizer.nextToken();
-        int b = "x".equalsIgnoreCase(token) ? -1 : Integer.parseInt(token);
-        token = tokenizer.nextToken();
-        int c = Integer.parseInt(token);
-        token = tokenizer.nextToken();
-        int d = Integer.parseInt(token);
-        token = tokenizer.nextToken();
-        int e = Integer.parseInt(token);
-        token = tokenizer.nextToken();
+        try {
+            StringTokenizer tokenizer = new StringTokenizer(codeString, ".");
+            String aToken = tokenizer.nextToken();
+            int a = Integer.parseInt(aToken);
+            String bToken = tokenizer.nextToken();
+            int b = "x".equalsIgnoreCase(bToken) ? -1 : Integer.parseInt(bToken);
+            String cToken = tokenizer.nextToken();
+            int c = Integer.parseInt(cToken);
+            String dToken = tokenizer.nextToken();
+            int d = Integer.parseInt(dToken);
+            String eToken = tokenizer.nextToken();
+            int e = Integer.parseInt(eToken);
+            String fToken = tokenizer.nextToken();
 
-        if(tokenizer.hasMoreElements()) {
+            if (tokenizer.hasMoreElements()) {
+                throw new IllegalArgumentException("Invalid obis format");
+            }
+
+            boolean hasRelativeBillingPoint = fToken.startsWith("VZ");
+            int f;
+            if (hasRelativeBillingPoint) {
+                if (fToken.trim().length() == 2) {
+                    f = 0;
+                } else {
+                    String billingPointOffset = fToken.substring(2).trim();
+                    if (billingPointOffset.startsWith("+")) {
+                        billingPointOffset = billingPointOffset.substring(1);
+                    }
+                    f = Integer.parseInt(billingPointOffset);
+                }
+            } else {
+                f = Integer.parseInt(fToken);
+            }
+            return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
+        } catch (NumberFormatException | NoSuchElementException e) {
             throw new IllegalArgumentException("Invalid obis format");
         }
-
-        boolean hasRelativeBillingPoint = token.startsWith("VZ");
-        int f;
-        if (hasRelativeBillingPoint) {
-            if (token.trim().length() == 2) {
-                f = 0;
-            } else {
-                String billingPointOffset = token.substring(2).trim();
-                if (billingPointOffset.startsWith("+")) {
-                    billingPointOffset = billingPointOffset.substring(1);
-                }
-                f = Integer.parseInt(billingPointOffset);
-            }
-        } else {
-            f = Integer.parseInt(token);
-        }
-        return new ObisCode(a, b, c, d, e, f, hasRelativeBillingPoint);
     }
 
     // first 20 C field codes, applied to electricity related codes
