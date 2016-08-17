@@ -40,10 +40,8 @@ public class UsagePointTestResource {
             UsagePoint usagePoint = usagePointOptional.get();
             List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
 
-            Connection connection = ormService.getDataModel("MTR").get().getConnection(true);
-
-            long usagePointId = usagePoint.getId();
-            try {
+            try (Connection connection = ormService.getDataModel("MTR").get().getConnection(true)) {
+                long usagePointId = usagePoint.getId();
                 connection.createStatement()
                         .execute(
                                 "DELETE FROM MTR_READINGQUALITY WHERE CHANNELID IN (" +
@@ -107,13 +105,9 @@ public class UsagePointTestResource {
                         .execute(
                                 "DELETE FROM GNR_CPS_USAGEPOINT_GNRL WHERE USAGEPOINT  = " + usagePointId
                         );
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
 
-            if (!meterActivations.isEmpty()) {
-                meterActivations.forEach(meterActivation -> {
-                    try {
+                if (!meterActivations.isEmpty()) {
+                    for (MeterActivation meterActivation : meterActivations) {
                         long meterActivationId = meterActivation.getId();
                         connection.createStatement()
                                 .execute("DELETE FROM MTR_READINGQUALITY WHERE CHANNELID IN" +
@@ -137,10 +131,10 @@ public class UsagePointTestResource {
                                 .execute("DELETE FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " + meterActivationId);
                         connection.createStatement()
                                 .execute("DELETE FROM MTR_METERACTIVATION WHERE ID = " + meterActivationId);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
                     }
-                });
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
 
             usagePoint.delete();

@@ -3,7 +3,6 @@ package com.elster.jupiter.autotests.rest.impl;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationStatus;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.rest.util.Transactional;
 
@@ -51,10 +50,9 @@ public class MetrologyConfigurationTestResource {
         MetrologyConfiguration metrologyConfiguration = metrologyConfigurationService.findMetrologyConfiguration(id)
                 .get();
         if (metrologyConfiguration.getStatus() == MetrologyConfigurationStatus.DEPRECATED) {
-            DataModel dataModel = ormService.getDataModel("MTR").get();
-            Connection connection = dataModel.getConnection(true);
-            connection.createStatement().execute("UPDATE MTR_METROLOGYCONFIG SET STATUS = 0 WHERE ID = " + id);
-
+            try (Connection connection = ormService.getDataModel("MTR").get().getConnection(true)) {
+                connection.createStatement().execute("UPDATE MTR_METROLOGYCONFIG SET STATUS = 0 WHERE ID = " + id);
+            }
             return Response.status(Response.Status.OK).build();
         }
 
