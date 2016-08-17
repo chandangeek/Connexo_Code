@@ -38,7 +38,7 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
     }
 
     @Override
-    protected void doExecute(ComServerDAO comServerDAO) {
+    protected final void doExecute(ComServerDAO comServerDAO) {
         try {
             for (Map.Entry<String, Pair<DeviceIdentifier<Device>, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
                 comServerDAO.storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
@@ -53,8 +53,12 @@ public class MeterDataStoreCommandImpl extends DeviceCommandImpl<MeterDataStorag
             }
         }
         catch (RuntimeException e) {
-            this.getExecutionLogger().logUnexpected(e, this.getComTaskExecution());
+            handleUnexpectedExecutionException(e);
         }
+    }
+
+    void handleUnexpectedExecutionException(RuntimeException e) {
+        this.getExecutionLogger().logUnexpected(e, this.getComTaskExecution());
     }
 
     @Override
