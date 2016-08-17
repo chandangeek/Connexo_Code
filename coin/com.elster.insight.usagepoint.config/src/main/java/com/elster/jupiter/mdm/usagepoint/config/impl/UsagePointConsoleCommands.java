@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
@@ -168,21 +169,16 @@ public class UsagePointConsoleCommands {
         transactionService.builder()
                 .principal(() -> "console")
                 .run(() -> {
-                    AmrSystem amrSystem = meteringService
-                            .findAmrSystem(amrSystemId)
+                    AmrSystem amrSystem = meteringService.findAmrSystem(amrSystemId)
                             .orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-                    Meter meter = amrSystem
-                            .findMeter(mrId)
+                    Meter meter = amrSystem.findMeter(mrId)
                             .orElseThrow(() -> new IllegalArgumentException("Usage Point not created : Meter not found " + mrId));
-                    ServiceCategory category = meteringService
-                            .getServiceCategory(ServiceKind.ELECTRICITY)
+                    ServiceCategory category = meteringService.getServiceCategory(ServiceKind.ELECTRICITY)
                             .orElseThrow(() -> new IllegalArgumentException("Could not get service"));
                     UsagePointBuilder builder = category.newUsagePoint(upId, this.clock.instant());
                     UsagePoint up = builder.withName(name).withIsSdp(true).withIsVirtual(false).create();
-                    up.newElectricityDetailBuilder(Instant.now())
-                            .withGrounded(YesNoAnswer.YES)
-                            .withPhaseCode(PhaseCode.UNKNOWN).create();
-                    meter.activate(up, Instant.parse("2014-01-01T08:00:00Z"));
+                    up.newElectricityDetailBuilder(Instant.now()).withGrounded(YesNoAnswer.YES).withPhaseCode(PhaseCode.UNKNOWN).create();
+                    up.linkMeters().activate(meter, metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT)).complete();
                     meter.update();
                     up.update();
                     System.out.println("Usage point " + up.getId() + " created with name: " + name);
