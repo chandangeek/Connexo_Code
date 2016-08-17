@@ -1,12 +1,15 @@
 package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpecBuilderWizard;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Password;
@@ -27,6 +30,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -36,8 +41,10 @@ import java.util.TimeZone;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-17 (10:59)
  */
-@Component(name = "com.energyict.mdc.dynamic.propertyspecservice", service = PropertySpecService.class)
-public class PropertySpecServiceImpl implements PropertySpecService {
+@Component(name = "com.energyict.mdc.dynamic.propertyspecservice", service = {PropertySpecService.class, MessageSeedProvider.class})
+public class PropertySpecServiceImpl implements PropertySpecService, MessageSeedProvider {
+
+    public static final String COMPONENT = "PSP";
 
     private volatile DataModel dataModel;
     private volatile DataVaultService dataVaultService;
@@ -178,4 +185,13 @@ public class PropertySpecServiceImpl implements PropertySpecService {
         return basicPropertySpecService.referenceSpec(apiClass);
     }
 
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
 }

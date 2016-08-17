@@ -10,7 +10,7 @@ import javax.inject.Inject;
  * Date: 10/08/2016
  * Time: 13:40
  */
-public class EncryptedHexStringFactory extends EncryptedValueFactory<HexString> {
+public class EncryptedHexStringFactory extends AbstractEncryptedValueFactory<HexString> {
 
     @Inject
     public EncryptedHexStringFactory(DataVaultService dataVaultService) {
@@ -48,7 +48,12 @@ public class EncryptedHexStringFactory extends EncryptedValueFactory<HexString> 
     private class HexStringValidator implements PropertyValidator<HexString>{
         @Override
         public boolean validate(HexString value) {
-            return value.isValid();
+            if (!value.isValid()) {
+                setInvalidMessageSeed(MessageSeeds.INVALID_HEX_CHARACTERS);
+                setReferenceValue(value);
+                return false;
+            }
+            return true;
         }
     }
     // HexStrings with an invalid content can not be created: an IllegalArgumentException is thrown

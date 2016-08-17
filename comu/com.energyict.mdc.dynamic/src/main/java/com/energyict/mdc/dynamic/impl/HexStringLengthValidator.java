@@ -12,6 +12,8 @@ public class HexStringLengthValidator implements PropertyValidator<HexString> {
     Integer validLength;
     Integer maxLength;
 
+    AbstractEncryptedValueFactory valueFactory;
+
     public HexStringLengthValidator(){
     }
 
@@ -25,11 +27,28 @@ public class HexStringLengthValidator implements PropertyValidator<HexString> {
         return this;
     }
 
+    void setValuefactory(AbstractEncryptedValueFactory valueFactory){
+        this.valueFactory = valueFactory;
+    }
+
     @Override
     public boolean validate(HexString value) {
         if (validLength == null && maxLength == null){
             throw new IllegalStateException("no length parameters set");
         }
-        return ((validLength != null && value.lenght() == validLength) || (maxLength!= null && value.lenght()<= maxLength));
+        if (!((validLength != null && value.lenght() == validLength) || (maxLength!= null && value.lenght()<= maxLength))){
+            if (valueFactory != null){
+                Integer referenceValue;
+                if (validLength != null && value.lenght() != validLength){
+                    referenceValue = validLength;
+                }else{
+                    referenceValue = maxLength;
+                }
+                valueFactory.setReferenceValue(referenceValue);
+                valueFactory.setInvalidMessageSeed(MessageSeeds.INVALID_HEX_LENGTH);
+            }
+            return false;
+        }
+        return true;
     }
 }

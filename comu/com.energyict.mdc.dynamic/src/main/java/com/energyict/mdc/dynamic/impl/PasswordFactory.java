@@ -12,7 +12,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:12)
  */
-public class PasswordFactory extends EncryptedValueFactory<Password> {
+public class PasswordFactory extends AbstractEncryptedValueFactory<Password> {
 
     public static final int MAX_SIZE = 4000;
 
@@ -46,7 +46,12 @@ public class PasswordFactory extends EncryptedValueFactory<Password> {
     private class PasswordValidator implements PropertyValidator<Password>{
         @Override
         public boolean validate(Password value) {
-            return ((String) valueToDatabase(value)).length() <= MAX_SIZE;
+            if (((String) valueToDatabase(value)).length() > MAX_SIZE){
+                setReferenceValue(MAX_SIZE);
+                setInvalidMessageSeed(MessageSeeds.LENGTH_EXCEEDS_MAXIMUM);
+                return false;
+            }
+            return true;
         }
     }
 

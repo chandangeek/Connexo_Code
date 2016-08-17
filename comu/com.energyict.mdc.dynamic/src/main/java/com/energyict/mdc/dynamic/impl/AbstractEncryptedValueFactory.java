@@ -1,6 +1,8 @@
 package com.energyict.mdc.dynamic.impl;
 
 import com.elster.jupiter.properties.AbstractValueFactory;
+import com.elster.jupiter.properties.HasPropertyValidator;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.sql.PreparedStatement;
@@ -14,17 +16,26 @@ import java.util.List;
  * Date: 10/08/2016
  * Time: 12:56
  */
-public abstract class EncryptedValueFactory<T> extends AbstractValueFactory<T> {
+public abstract class AbstractEncryptedValueFactory<T> extends AbstractValueFactory<T> implements HasPropertyValidator<T> {
 
     PropertyEncryptor encryptor;
     List<PropertyValidator<T>> validators = new ArrayList<>();
+    // MessageSeed used as message for invalid values
+    private MessageSeed invalidMessageSeed;
 
-    EncryptedValueFactory(PropertyEncryptor encryptor){
+    // The referenceValue on which validation failed
+    private Object referenceValue;
+
+    AbstractEncryptedValueFactory(PropertyEncryptor encryptor){
         this.encryptor = encryptor;
     }
 
-    EncryptedValueFactory<T> addValidator(PropertyValidator<T> validator){
-        this.validators.add(validator);
+    AbstractEncryptedValueFactory<T> addValidator(PropertyValidator<T> validator){
+        if (this.validators.add(validator)) {
+            if (validator instanceof HexStringLengthValidator) {
+                ((HexStringLengthValidator) validator).setValuefactory(this);
+            }
+        }
         return this;
     }
 
@@ -56,6 +67,27 @@ public abstract class EncryptedValueFactory<T> extends AbstractValueFactory<T> {
         else {
             builder.addNull(this.getJdbcType());
         }
+    }
+
+    protected void setInvalidMessageSeed(MessageSeed seed){
+        this.invalidMessageSeed = seed;
+    }
+
+    @Override
+    public Object getReferenceValue() {
+        return referenceValue;
+    }
+
+    protected void setReferenceValue(Object referenceValue){
+        this.referenceValue = referenceValue;
+    }
+
+    @Override
+    public MessageSeed invalidMessage() {
+        if (invalidMessageSeed == null){
+            throw new IllegalStateException("Field 'messageSeed' not 'sown'.");
+        }
+        return invalidMessageSeed;
     }
 
     @Override

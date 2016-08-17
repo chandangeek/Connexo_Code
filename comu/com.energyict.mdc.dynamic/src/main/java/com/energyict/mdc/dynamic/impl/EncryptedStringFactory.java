@@ -3,8 +3,6 @@ package com.energyict.mdc.dynamic.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.orm.Table;
 
-import com.energyict.mdc.common.Password;
-
 import javax.inject.Inject;
 
 /**
@@ -13,7 +11,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2013-11-29 (17:57)
  */
-public class EncryptedStringFactory extends EncryptedValueFactory<String> {
+public class EncryptedStringFactory extends AbstractEncryptedValueFactory<String> {
 
     public static final int MAX_SIZE = Table.MAX_STRING_LENGTH;
 
@@ -44,7 +42,12 @@ public class EncryptedStringFactory extends EncryptedValueFactory<String> {
     private class EncryptedStringValidator implements PropertyValidator<String>{
         @Override
         public boolean validate(String value) {
-            return ((String) valueToDatabase(value)).length() <= MAX_SIZE;
+            if (((String) valueToDatabase(value)).length() > MAX_SIZE){
+                setReferenceValue(MAX_SIZE);
+                setInvalidMessageSeed(MessageSeeds.LENGTH_EXCEEDS_MAXIMUM);
+                return false;
+            }
+            return true;
         }
     }
 
