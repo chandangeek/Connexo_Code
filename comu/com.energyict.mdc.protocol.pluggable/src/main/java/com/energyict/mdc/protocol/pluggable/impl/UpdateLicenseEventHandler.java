@@ -51,13 +51,14 @@ public class UpdateLicenseEventHandler implements TopicHandler {
     }
 
     private void registerAllPluggableClasses() {
+        Principal principal = this.threadPrincipalService.getPrincipal();
         try {
             this.threadPrincipalService.set(getPrincipal());
             this.registerInboundDeviceProtocolPluggableClasses();
             this.registerDeviceProtocolPluggableClasses();
             this.registerConnectionTypePluggableClasses();
         } finally {
-            this.threadPrincipalService.clear();
+            this.threadPrincipalService.set(principal);
         }
     }
 
