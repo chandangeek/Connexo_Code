@@ -11,6 +11,7 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
+import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -407,7 +408,8 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(Privileges.values()))
+                Arrays.stream(Privileges.values()),
+                Arrays.stream(Status.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
