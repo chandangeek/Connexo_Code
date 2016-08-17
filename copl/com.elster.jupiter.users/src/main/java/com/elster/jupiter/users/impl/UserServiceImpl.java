@@ -802,18 +802,18 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
             this.threadPrincipalService.set(getPrincipal());
             ipAddr = "0:0:0:0:0:0:0:1".equals(ipAddr) ? "localhost" : ipAddr;
             if (message.equals(SUCCESSFUL_LOGIN)) {
-                String userNameFormatted = domain == null ? userName : domain + "/" + userName;
+                String userNameFormatted = domain == null ? findDefaultUserDirectory().getDomain() + "/" + userName : domain + "/" + userName;
                 userLogin.log(Level.INFO, message + "[" + userNameFormatted + "] ", ipAddr);
-                this.findUserIgnoreStatus(userName).ifPresent(user -> {
+                this.findUserIgnoreStatus(userName, domain).ifPresent(user -> {
                     try (TransactionContext context = transactionService.getContext()) {
                         user.setLastSuccessfulLogin(clock.instant());
                         context.commit();
                     }
                 });
             } else {
-                String userNameFormatted = domain == null ? userName : domain + "/" + userName;
+                String userNameFormatted = domain == null ? findDefaultUserDirectory().getDomain() + "/" + userName : domain + "/" + userName;
                 userLogin.log(Level.WARNING, message + "[" + userNameFormatted + "] ", ipAddr);
-                this.findUserIgnoreStatus(userName).ifPresent(user -> {
+                this.findUserIgnoreStatus(userName, domain).ifPresent(user -> {
                     try (TransactionContext context = transactionService.getContext()) {
                         user.setLastUnSuccessfulLogin(clock.instant());
                         context.commit();
@@ -825,9 +825,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
     }
 
-    private Optional<User> findUserIgnoreStatus(String authenticationName) {
-        Condition condition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
-        List<User> users = dataModel.query(User.class, UserInGroup.class).select(condition);
+    private Optional<User> findUserIgnoreStatus(String authenticationName, String domain) {
+        Condition authenticationNameCondition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
+        Condition userDirectoryCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", domain == null ? this.findDefaultUserDirectory().getDomain() : domain);
+        List<User> users = dataModel.query(User.class, UserDirectory.class).select(authenticationNameCondition.and(userDirectoryCondition));
         if (!users.isEmpty()) {
             return Optional.of(users.get(0));
         }

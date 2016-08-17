@@ -41,7 +41,7 @@ public final class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
 
     @Override
     public Optional<User> authenticate(String name, String password) {
-        Optional<User> found = userService.findUser(name);
+        Optional<User> found = userService.findUser(name, getDomain());
         if(!found.isPresent()){
             return found;
         }
