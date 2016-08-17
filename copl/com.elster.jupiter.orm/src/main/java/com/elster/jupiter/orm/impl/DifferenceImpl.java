@@ -15,7 +15,7 @@ final class DifferenceImpl implements Difference {
 
     private DifferenceImpl(String description, List<String> ddl) {
         this.description = description;
-        this.ddl = ddl;
+        this.ddl = Collections.unmodifiableList(ddl);
     }
 
     @Override
@@ -25,7 +25,7 @@ final class DifferenceImpl implements Difference {
 
     @Override
     public List<String> ddl() {
-        return Collections.unmodifiableList(ddl);
+        return this.ddl;
     }
 
     @Override
