@@ -92,8 +92,8 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     private DlmsSecuritySupport dlmsSecuritySupport;
 
     private final Clock clock;
-    private final Thesaurus thesaurus;
-    private final PropertySpecService propertySpecService;
+    protected final Thesaurus thesaurus;
+    protected final PropertySpecService propertySpecService;
     private final SocketService socketService;
     private final SerialComponentService serialComponentService;
     private final IssueService issueService;
@@ -255,7 +255,7 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
 
     protected LoadProfileBuilder getLoadProfileBuilder() {
         if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, this.issueService, readingTypeUtilService, collectedDataFactory, getDlmsProperties().isBulkRequest());
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.issueService, readingTypeUtilService, collectedDataFactory, getDlmsProperties().isBulkRequest(), getDlmsProperties().isIgnoreDSTStatusCode());
         }
         return loadProfileBuilder;
     }

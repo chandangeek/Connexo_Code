@@ -47,6 +47,7 @@ import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
@@ -114,6 +115,14 @@ public class WebRTUKP extends AbstractDlmsProtocol {
         } else {
             return "!"; // the Kamstrup device requires a '!' sign in the IEC1107 signOn
         }
+    }
+
+    @Override
+    public DlmsProperties getDlmsProperties() {
+        if (dlmsProperties == null) {
+            dlmsProperties = new WebRTUKPProperties(this.propertySpecService, this.thesaurus);
+        }
+        return dlmsProperties;
     }
 
     @Override
