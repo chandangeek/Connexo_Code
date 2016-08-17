@@ -476,7 +476,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     proposeDeviceTypeName: function (combo, newValue) {
-        if (!this.getDeviceTypeEditView().isEdit()) {
+        if (!this.getDeviceTypeEditView().isEdit() && Ext.isEmpty(this.getEditDeviceTypeNameField().getValue())) {
             this.getEditDeviceTypeNameField().setValue(newValue);
         }
     },

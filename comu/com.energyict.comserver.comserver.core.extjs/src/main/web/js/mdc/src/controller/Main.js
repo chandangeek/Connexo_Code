@@ -7,6 +7,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.dynamicprivileges.DeviceState',
         'Mdc.dynamicprivileges.Stores',
         'Uni.property.controller.Registry',
+        'Mdc.property.UsagePoint',
         'Mdc.dynamicprivileges.DeviceTypeCapability'
     ],
 
@@ -113,7 +114,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.filemanagement.controller.FileManagement',
         'Mdc.metrologyconfiguration.controller.ListView',
         'Mdc.metrologyconfiguration.controller.AddView',
-        'Mdc.usagepointmanagement.controller.UsagePointHistory'
+        'Mdc.usagepointmanagement.controller.UsagePointHistory',
+        'Mdc.usagepointmanagement.controller.ViewChannelDataAndReadingQualities'
     ],
 
     stores: [

@@ -4,7 +4,8 @@ Ext.define('Mdc.usagepointmanagement.view.history.AddMetrologyConfigurationVersi
 
     requires: [
         'Uni.util.FormErrorMessage',
-        'Mdc.usagepointmanagement.view.InstallationTimeField'
+        'Mdc.usagepointmanagement.view.InstallationTimeField',
+        'Mdc.usagepointmanagement.store.AvailableMetrologyConfigurations'
     ],
     edit: false,
 
