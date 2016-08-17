@@ -24,6 +24,11 @@ public class ObisCodeParseTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void alphaNumericalsFails() {
+        ObisCode.fromString("0.6.Rudi.02.05.69");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void tooManyDigitsFails() {
         ObisCode.fromString("0.6.128.0.255.02.05.69");
     }
