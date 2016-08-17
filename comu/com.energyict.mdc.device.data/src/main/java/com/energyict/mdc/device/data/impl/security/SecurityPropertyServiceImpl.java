@@ -232,7 +232,8 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService, Ser
     private Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getDeviceProtocolCustomPropertySet(Device device) {
         return device.getDeviceType()
                 .getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getCustomPropertySet())
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol()
+                        .getCustomPropertySet())
                 .orElse(Optional.empty());
     }
 }

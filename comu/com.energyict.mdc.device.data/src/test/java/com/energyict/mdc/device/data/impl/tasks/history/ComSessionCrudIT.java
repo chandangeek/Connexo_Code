@@ -281,7 +281,8 @@ public class ComSessionCrudIT {
             injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
-            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class)
+                    .addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
@@ -320,7 +321,8 @@ public class ComSessionCrudIT {
             configDialectProps = deviceConfiguration.findOrCreateProtocolDialectConfigurationProperties(new ComTaskExecutionDialect());
             deviceConfiguration.save();
             deviceConfiguration.activate();
-            device = this.deviceDataModelService.deviceService().newDevice(deviceConfiguration, "SimpleDevice", "mrid", Instant.now());
+            device = this.deviceDataModelService.deviceService()
+                    .newDevice(deviceConfiguration, "SimpleDevice", "mrid", Instant.now());
             device.save();
             connectionTypePluggableClass = protocolPluggableService.newConnectionTypePluggableClass(NoParamsConnectionType.class.getSimpleName(), NoParamsConnectionType.class.getName());
             connectionTypePluggableClass.save();

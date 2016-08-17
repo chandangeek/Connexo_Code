@@ -75,7 +75,14 @@ public class DeviceProtocolPropertyImpl implements ServerDeviceProtocolPropertyF
 
     private Optional<PropertySpec> getPropertySpecForProperty(String name) {
         if (device.isPresent() && device.get().getDeviceProtocolPluggableClass().isPresent()) {
-            return this.device.get().getDeviceProtocolPluggableClass().get().getDeviceProtocol().getPropertySpecs().stream().filter(spec -> spec.getName().equals(name)).findFirst();
+            return this.device.get()
+                    .getDeviceProtocolPluggableClass()
+                    .get()
+                    .getDeviceProtocol()
+                    .getPropertySpecs()
+                    .stream()
+                    .filter(spec -> spec.getName().equals(name))
+                    .findFirst();
         }
         return Optional.empty();
     }

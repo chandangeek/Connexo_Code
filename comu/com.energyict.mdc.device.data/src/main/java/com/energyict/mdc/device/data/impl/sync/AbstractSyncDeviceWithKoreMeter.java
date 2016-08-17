@@ -8,6 +8,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.MeterRole;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.data.Channel;
@@ -70,7 +71,10 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     }
 
     protected void endCurrentMeterConfigurationIfPresent() {
-        device.getMeter().get().getConfiguration(start).ifPresent(meterConfiguration -> meterConfiguration.endAt(start));
+        device.getMeter()
+                .get()
+                .getConfiguration(start)
+                .ifPresent(meterConfiguration -> meterConfiguration.endAt(start));
     }
 
     protected void endCurrentMeterActivationIfPresent() {
@@ -84,14 +88,18 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
     }
 
     protected Meter.MeterConfigurationBuilder meterconfigurationBuilder(boolean withCalculatedReadingType) {
-        Meter.MeterConfigurationBuilder meterConfigurationBuilder = device.getMeter().get().startingConfigurationOn(start);
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = device.getMeter()
+                .get()
+                .startingConfigurationOn(start);
         createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder, withCalculatedReadingType);
         createMeterConfigurationsForRegisterSpecs(meterConfigurationBuilder, withCalculatedReadingType);
         return meterConfigurationBuilder;
     }
 
     protected Optional<MeterConfiguration> createKoreMeterConfiguration(boolean addCalculatedReadingType) {
-        if (device.getDeviceConfiguration().getChannelSpecs().size() > 0 || device.getDeviceConfiguration().getRegisterSpecs().size() > 0) {
+        if (device.getDeviceConfiguration().getChannelSpecs().size() > 0 || device.getDeviceConfiguration()
+                .getRegisterSpecs()
+                .size() > 0) {
             return Optional.of(meterconfigurationBuilder(addCalculatedReadingType).create());
         }
         return Optional.empty();
@@ -143,7 +151,8 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
                                 registerSpec.getReadingType(),
                                 registerSpec.getNumberOfFractionDigits(),
                                 registerSpec.getOverflowValue(),
-                                (addCalculatedReadingType && registerSpec.isUseMultiplier() ? registerSpec.getCalculatedReadingType().get() : null))
+                                (addCalculatedReadingType && registerSpec.isUseMultiplier() ? registerSpec.getCalculatedReadingType()
+                                        .get() : null))
                 );
     }
 
@@ -187,32 +196,35 @@ public abstract class AbstractSyncDeviceWithKoreMeter implements SyncDeviceWithK
      *
      * @param end date of the given MeterActivation, and becomes the start date of the newly created one
      * @param meterActivation MeterActivation to end
-     * @param usagePoint the UsagePoint for the new meterActivation. If not given the meterActivation's UsagePoint is used
+     * @param newUsagePoint the UsagePoint for the new meterActivation. If not given the meterActivation's UsagePoint is used
      * @return the new MeterActivation
      */
-    protected MeterActivation endMeterActivationAndRestart(Instant end, Optional<MeterActivation> meterActivation, Optional<UsagePoint> usagePoint) {
-        Optional<BigDecimal> multiplier = Optional.empty();
-        if (meterActivation.isPresent()) {
-            if (!usagePoint.isPresent()) {
-                usagePoint = meterActivation.get().getUsagePoint();
-            }
-            multiplier = meterActivation.get().getMultiplier(multiplierType);
-            meterActivation.get().endAt(end);
-        }
+    protected MeterActivation endMeterActivationAndRestart(Instant end, Optional<MeterActivation> meterActivation, Optional<UsagePoint> newUsagePoint) {
+        meterActivation.ifPresent(ma -> ma.endAt(end));
         MeterActivation newMeterActivation;
-        if (usagePoint.isPresent()) {
-            newMeterActivation = device.getMeter().get().activate(usagePoint.get(), end);
+
+        if (newUsagePoint.isPresent()) {
+            Optional<MeterRole> meterRole = meterActivation.flatMap(MeterActivation::getMeterRole);
+            if (meterRole.isPresent()) {
+                newMeterActivation = device.getMeter().get().activate(newUsagePoint.get(), meterRole.get(), end);
+            } else {
+                newMeterActivation = device.getMeter().get().activate(newUsagePoint.get(), end);
+            }
+        } else if (meterActivation.flatMap(MeterActivation::getUsagePoint).isPresent()) {
+            newMeterActivation = device.getMeter()
+                    .get()
+                    .activate(meterActivation.flatMap(MeterActivation::getUsagePoint)
+                            .get(), meterActivation.flatMap(MeterActivation::getMeterRole).get(), end);
         } else {
             newMeterActivation = device.getMeter().get().activate(end);
         }
-        multiplier.ifPresent(m -> newMeterActivation.setMultiplier(multiplierType, m));
+        meterActivation.flatMap(ma -> ma.getMultiplier(multiplierType))
+                .ifPresent(multiplier -> newMeterActivation.setMultiplier(multiplierType, multiplier));
         // We need channels on the newMeterActivation;
         this.addKoreChannelsIfNecessary(newMeterActivation);
         device.getKoreHelper().setCurrentMeterActivation(Optional.of(newMeterActivation));
-
         // we need to create new channelReferences if applicable
         this.eventService.postEvent(EventType.RESTARTED_METERACTIVATION.topic(), device);
-
         return newMeterActivation;
     }
 

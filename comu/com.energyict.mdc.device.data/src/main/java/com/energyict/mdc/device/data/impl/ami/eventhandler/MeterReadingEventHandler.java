@@ -2,9 +2,7 @@ package com.energyict.mdc.device.data.impl.ami.eventhandler;
 
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EventType;
-import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -15,8 +13,6 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
-
-import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -47,7 +43,9 @@ public class MeterReadingEventHandler implements MessageHandler {
         if (messageProperties.get("meterId") != null) {
             findServiceCallsLinkedTo(meteringService.findMeter(Long.valueOf(messageProperties
                     .get("meterId")
-                    .toString())).flatMap(meter -> deviceService.findByUniqueMrid(meter.getMRID())).orElseThrow(IllegalStateException::new))
+                    .toString()))
+                    .flatMap(meter -> deviceService.findByUniqueMrid(meter.getMRID()))
+                    .orElseThrow(IllegalStateException::new))
                     .forEach(serviceCall -> handle(serviceCall, messageProperties));
         } else if (messageProperties.get("deviceIdentifier") != null) {
             findServiceCallsLinkedTo(deviceService.findDeviceById(Long.valueOf(messageProperties.get("deviceIdentifier")
@@ -66,7 +64,7 @@ public class MeterReadingEventHandler implements MessageHandler {
         Instant triggerDate = Instant.ofEpochMilli(extension.getTriggerDate().longValue());
 
         if (Instant.ofEpochMilli(Long.valueOf(messageProperties.get("timestamp").toString())).isAfter(triggerDate)) {
-            if(EventType.METERREADING_CREATED.topic().equals(messageProperties.get("event.topics"))){
+            if (EventType.METERREADING_CREATED.topic().equals(messageProperties.get("event.topics"))) {
                 extension.setSuccessfulTasks(new BigDecimal(++successfulTasks));
             } else {
                 extension.setCompletedTasks(new BigDecimal(++completedTasks));
@@ -76,7 +74,7 @@ public class MeterReadingEventHandler implements MessageHandler {
         }
 
         if (completedTasks >= expectedTasks) {
-            if (successfulTasks >= completedTasks  && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
+            if (successfulTasks >= completedTasks && serviceCall.canTransitionTo(DefaultState.SUCCESSFUL)) {
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else if (serviceCall.canTransitionTo(DefaultState.FAILED)) {
                 serviceCall.requestTransition(DefaultState.FAILED);

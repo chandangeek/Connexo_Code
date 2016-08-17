@@ -106,6 +106,7 @@ public class OnDemandReadServiceCallDomainExtension extends AbstractPersistentDo
 
         private final String javaName;
         private final String databaseName;
+
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
             this.databaseName = databaseName;
