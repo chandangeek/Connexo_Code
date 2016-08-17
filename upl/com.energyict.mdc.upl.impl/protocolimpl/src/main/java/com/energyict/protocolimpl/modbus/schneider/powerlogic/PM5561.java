@@ -166,7 +166,7 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
         ReadHoldingRegistersRequest registersRequest = fcf.getReadHoldingRegistersRequest(getCommandSemaphoreRegister().getReg(), 1);
         int result[] = registersRequest.getRegisters();
         String sResult = Integer.toString(result[0], 16);
-        byte[] rawDate = getBytesFromDate(instTime.getTime(), sResult);
+        byte[] rawDate = getBytesFromDate(instTime.getTime(), sResult, gettimeZone());
         fcf.getWriteMultipleRegisters(getChangeDateTimeRegister().getReg(), 9, rawDate);
         ReadHoldingRegistersRequest commandParameterRequest = fcf.getReadHoldingRegistersRequest(getCommandParameterRegister().getReg(), 1);
         commandParameterRequest.getRegisters();
@@ -178,8 +178,8 @@ public class PM5561 extends PM5560 implements SerialNumberSupport {
     }
 
 
-    public static byte[] getBytesFromDate(Date date, String commandCode) {
-        Calendar calendar = Calendar.getInstance();
+    public static byte[] getBytesFromDate(Date date, String commandCode, TimeZone timezone) {
+        Calendar calendar = Calendar.getInstance(timezone);
         calendar.setTime(date);
         byte[] returnValue = new byte[18];
         int index = 0;
