@@ -85,7 +85,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 click: this.editDeviceTypeFromDetails
             },
             '#deviceTypeEdit #communicationProtocolComboBox': {
-                change: this.proposeDeviceTypeName
+                select: this.proposeDeviceTypeName
             },
             '#deviceTypeEdit #mdc-deviceTypeEdit-typeComboBox': {
                 change: this.onDeviceTypePurposeChange
@@ -476,8 +476,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
     },
 
     proposeDeviceTypeName: function (combo, newValue) {
-        if (!this.getDeviceTypeEditView().isEdit() && Ext.isEmpty(this.getEditDeviceTypeNameField().getValue())) {
-            this.getEditDeviceTypeNameField().setValue(newValue);
+        if (!this.getDeviceTypeEditView().isEdit() && Ext.isEmpty(this.getEditDeviceTypeNameField().getValue()) && !Ext.isEmpty(newValue[0])) {
+            this.getEditDeviceTypeNameField().setValue(newValue[0].get('name'));
         }
     },
 
