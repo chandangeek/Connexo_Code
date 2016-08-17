@@ -46,6 +46,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
+import static com.elster.jupiter.util.streams.Currying.perform;
 import static com.elster.jupiter.util.streams.Currying.use;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 import static com.elster.jupiter.util.streams.Predicates.not;
