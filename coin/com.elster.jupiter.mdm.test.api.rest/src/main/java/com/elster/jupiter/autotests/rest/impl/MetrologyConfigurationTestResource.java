@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 @Path("/metrologyconfigurations")
 public class MetrologyConfigurationTestResource {
@@ -51,7 +52,9 @@ public class MetrologyConfigurationTestResource {
                 .get();
         if (metrologyConfiguration.getStatus() == MetrologyConfigurationStatus.DEPRECATED) {
             try (Connection connection = ormService.getDataModel("MTR").get().getConnection(true)) {
-                connection.createStatement().execute("UPDATE MTR_METROLOGYCONFIG SET STATUS = 0 WHERE ID = " + id);
+                try (Statement statement = connection.createStatement()) {
+                    statement.execute("UPDATE MTR_METROLOGYCONFIG SET STATUS = 0 WHERE ID = " + id);
+                }
             }
             return Response.status(Response.Status.OK).build();
         }

@@ -3,6 +3,7 @@ package com.elster.jupiter.autotests.rest.impl;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.rest.util.Transactional;
 
@@ -15,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,103 +42,83 @@ public class UsagePointTestResource {
             UsagePoint usagePoint = usagePointOptional.get();
             List<MeterActivation> meterActivations = usagePoint.getMeterActivations();
 
-            try (Connection connection = ormService.getDataModel("MTR").get().getConnection(true)) {
-                long usagePointId = usagePoint.getId();
-                connection.createStatement()
-                        .execute(
-                                "DELETE FROM MTR_READINGQUALITY WHERE CHANNELID IN (" +
-                                        "SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
-                                        "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
-                                        "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                        "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
-                                        usagePointId + "))))"
-                        );
-                connection.createStatement()
-                        .execute(
-                                "DELETE FROM VAL_CH_VALIDATION WHERE CHANNELID IN (" +
-                                        "SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
-                                        "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
-                                        "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                        "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
-                                        usagePointId + "))))"
-                        );
-                connection.createStatement()
-                        .execute(
-                                "DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
-                                        "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
-                                        "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                        "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
-                                        usagePointId + ")))"
-                        );
-                connection.createStatement()
-                        .execute(
-                                "DELETE FROM VAL_MA_VALIDATION WHERE CHANNEL_CONTAINER IN (" +
-                                        "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
-                                        "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                        "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
-                                        usagePointId + ")))"
-                        );
-                connection.createStatement()
-                        .execute(
-                                "DELETE FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
-                                        "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                        "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
-                                        usagePointId + "))"
-                        );
-                connection.createStatement()
-                        .execute(
-                                "DELETE FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
-                                        "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
-                                        usagePointId + ")"
-                        );
-                connection.createStatement()
-                        .execute(
-                                "DELETE FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " + usagePointId
-                        );
-                connection.createStatement()
-                        .execute(
-                                "DELETE FROM ANT_CPS_ANTENNA WHERE USAGEPOINT = " + usagePointId
-                        );
-                connection.createStatement()
-                        .execute(
-                                "DELETE FROM CON_CPS_USAGEPOINT_CONTRCT WHERE USAGEPOINT = " + usagePointId
-                        );
-                connection.createStatement()
-                        .execute(
-                                "DELETE FROM GNR_CPS_USAGEPOINT_GNRL WHERE USAGEPOINT  = " + usagePointId
-                        );
+            DataModel dataModel = ormService.getDataModel("MTR").get();
 
-                if (!meterActivations.isEmpty()) {
-                    for (MeterActivation meterActivation : meterActivations) {
-                        long meterActivationId = meterActivation.getId();
-                        connection.createStatement()
-                                .execute("DELETE FROM MTR_READINGQUALITY WHERE CHANNELID IN" +
-                                        " ( SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN" +
-                                        " ( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
-                                        meterActivationId + "))");
-                        connection.createStatement()
-                                .execute("DELETE FROM VAL_CH_VALIDATION WHERE CHANNELID IN" +
-                                        " ( SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN" +
-                                        " ( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
-                                        meterActivationId + "))");
-                        connection.createStatement()
-                                .execute("DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN " +
-                                        "( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
-                                        meterActivationId + ")");
-                        connection.createStatement()
-                                .execute("DELETE FROM VAL_MA_VALIDATION WHERE CHANNEL_CONTAINER IN " +
-                                        "( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
-                                        meterActivationId + ")");
-                        connection.createStatement()
-                                .execute("DELETE FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " + meterActivationId);
-                        connection.createStatement()
-                                .execute("DELETE FROM MTR_METERACTIVATION WHERE ID = " + meterActivationId);
-                    }
+            try (Connection connection = dataModel.getConnection(true); Statement statement = connection.createStatement()) {
+                long usagePointId = usagePoint.getId();
+                statement.addBatch(
+                        "DELETE FROM MTR_READINGQUALITY WHERE CHANNELID IN (" +
+                                "SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
+                                "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
+                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                usagePointId + "))))"
+                );
+                statement.addBatch(
+                        "DELETE FROM VAL_CH_VALIDATION WHERE CHANNELID IN (" +
+                                "SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
+                                "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
+                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                usagePointId + "))))"
+                );
+                statement.addBatch(
+                        "DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN (" +
+                                "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
+                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                usagePointId + ")))"
+                );
+                statement.addBatch(
+                        "DELETE FROM VAL_MA_VALIDATION WHERE CHANNEL_CONTAINER IN (" +
+                                "SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
+                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                usagePointId + ")))"
+                );
+                statement.addBatch(
+                        "DELETE FROM MTR_CHANNEL_CONTAINER WHERE EFFECTIVE_CONTRACT IN (" +
+                                "SELECT ID FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                usagePointId + "))"
+                );
+                statement.addBatch(
+                        "DELETE FROM MTR_EFFECTIVE_CONTRACT WHERE EFFECTIVE_CONF IN (" +
+                                "SELECT ID FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT =" +
+                                usagePointId + ")"
+                );
+                statement.addBatch("DELETE FROM MTR_USAGEPOINTMTRCONFIG WHERE USAGEPOINT = " + usagePointId);
+                statement.addBatch("DELETE FROM ANT_CPS_ANTENNA WHERE USAGEPOINT = " + usagePointId);
+                statement.addBatch("DELETE FROM CON_CPS_USAGEPOINT_CONTRCT WHERE USAGEPOINT = " + usagePointId);
+                statement.addBatch("DELETE FROM GNR_CPS_USAGEPOINT_GNRL WHERE USAGEPOINT  = " + usagePointId);
+
+                for (MeterActivation meterActivation : meterActivations) {
+                    long meterActivationId = meterActivation.getId();
+                    statement.addBatch(
+                            "DELETE FROM MTR_READINGQUALITY WHERE CHANNELID IN" +
+                                    " ( SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN" +
+                                    " ( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
+                                    meterActivationId + "))");
+                    statement.addBatch(
+                            "DELETE FROM VAL_CH_VALIDATION WHERE CHANNELID IN" +
+                                    " ( SELECT ID FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN" +
+                                    " ( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
+                                    meterActivationId + "))");
+                    statement.addBatch(
+                            "DELETE FROM MTR_CHANNEL WHERE CHANNEL_CONTAINER IN " +
+                                    "( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
+                                    meterActivationId + ")");
+                    statement.addBatch(
+                            "DELETE FROM VAL_MA_VALIDATION WHERE CHANNEL_CONTAINER IN " +
+                                    "( SELECT ID FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " +
+                                    meterActivationId + ")");
+                    statement.addBatch("DELETE FROM MTR_CHANNEL_CONTAINER WHERE METER_ACTIVATION = " + meterActivationId);
+                    statement.addBatch("DELETE FROM MTR_METERACTIVATION WHERE ID = " + meterActivationId);
                 }
+                statement.executeBatch();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-
             usagePoint.delete();
             return Response.status(Response.Status.OK).build();
         }
