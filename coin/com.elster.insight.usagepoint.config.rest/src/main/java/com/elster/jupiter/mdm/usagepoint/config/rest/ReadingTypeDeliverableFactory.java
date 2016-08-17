@@ -56,10 +56,9 @@ public class ReadingTypeDeliverableFactory {
     }
 
     private List<ReadingTypeRequirementsInfo> asInfoList(ExpressionNode expressionNode) {
-
         ReadingTypeVisitor readingTypeVisitor = new ReadingTypeVisitor();
         expressionNode.accept(readingTypeVisitor);
-        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(e -> asInfo(e)).collect(Collectors.toList());
+        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(this::asInfo).collect(Collectors.toList());
     }
 
     private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirementNode requirementNode) {

@@ -79,14 +79,14 @@ public class MetrologyConfigurationInfoFactory {
 
     private IdWithNameInfo asInfo(MetrologyContract metrologyContract) {
         IdWithNameInfo info = new IdWithNameInfo();
-        info.id = metrologyContract.getMetrologyPurpose().getId();
+        info.id = metrologyContract.getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
         return info;
     }
 
     private MetrologyContractInfo asDetailedInfo(MetrologyContract metrologyContract) {
         MetrologyContractInfo info = new MetrologyContractInfo();
-        info.id = metrologyContract.getMetrologyPurpose().getId();
+        info.id = metrologyContract.getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
         info.mandatory = metrologyContract.isMandatory();
         info.readingTypeDeliverables = metrologyContract.getDeliverables().stream().map(readingTypeDeliverableFactory::asInfo).collect(Collectors.toList());
