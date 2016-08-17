@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-class TransientSubscriberSpec implements SubscriberSpec {
+class TransientSubscriberSpec implements SubscriberSpec, SubscriberSpec.Receiver {
 
     private final TransientDestinationSpec destinationSpec;
     private final String name;
@@ -24,6 +24,11 @@ class TransientSubscriberSpec implements SubscriberSpec {
     @Override
     public DestinationSpec getDestination() {
         return destinationSpec;
+    }
+
+    @Override
+    public Receiver newReceiver() {
+        return this;
     }
 
     @Override
