@@ -46,7 +46,7 @@ public class UpgradeModule extends AbstractModule {
 
                 @Override
                 public Registration register(DifferencesListener listener) {
-                    return () -> {};
+                    return () -> {/* Nothing to unregister */};
                 }
             }, LOGGER);
             installed.add(installIdentifier);
