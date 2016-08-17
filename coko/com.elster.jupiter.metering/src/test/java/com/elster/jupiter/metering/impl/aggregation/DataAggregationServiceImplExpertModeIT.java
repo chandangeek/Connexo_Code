@@ -323,11 +323,14 @@ public class DataAggregationServiceImplExpertModeIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE).withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE)
+                .withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", DEFAULT_METER_ROLE).withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", DEFAULT_METER_ROLE)
+                .withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", DEFAULT_METER_ROLE).withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", DEFAULT_METER_ROLE)
+                .withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
@@ -433,11 +436,14 @@ public class DataAggregationServiceImplExpertModeIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE).withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE)
+                .withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", DEFAULT_METER_ROLE).withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", DEFAULT_METER_ROLE)
+                .withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", DEFAULT_METER_ROLE).withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", DEFAULT_METER_ROLE)
+                .withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
 
         // Setup configuration deliverables
@@ -554,13 +560,16 @@ public class DataAggregationServiceImplExpertModeIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE).withReadingType(CELCIUS_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE)
+                .withReadingType(CELCIUS_15min);
         this.temperatureRequirementId = temperature.getId();
         System.out.println("temperatureRequirementId = " + this.temperatureRequirementId);
-        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", DEFAULT_METER_ROLE).withReadingType(PRESSURE_15min);
+        ReadingTypeRequirement pressure = this.configuration.newReadingTypeRequirement("P", DEFAULT_METER_ROLE)
+                .withReadingType(PRESSURE_15min);
         this.pressureRequirementId = pressure.getId();
         System.out.println("pressureRequirementId = " + this.pressureRequirementId);
-        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", DEFAULT_METER_ROLE).withReadingType(VOLUME_15min);
+        ReadingTypeRequirement volume = this.configuration.newReadingTypeRequirement("V", DEFAULT_METER_ROLE)
+                .withReadingType(VOLUME_15min);
         this.volumeRequirementId = volume.getId();
         System.out.println("volumeRequirementId = " + this.volumeRequirementId);
 

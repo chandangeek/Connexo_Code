@@ -147,7 +147,7 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
     }
 
     private CustomPropertySetValues getPropertySetValues() {
-        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        CustomPropertySetValues values = CustomPropertySetValues.emptyFrom(getUsagePoint().getCreateDate());
         values.setProperty(CustomPropertySetAttributes.NAME.propertyKey(), "Name");
         values.setProperty(CustomPropertySetAttributes.ENHANCED_SUPPORT.propertyKey(), Boolean.TRUE);
         return values;
@@ -291,6 +291,7 @@ public class UsagePointCustomPropertySetExtensionImplTestIT {
 
         UsagePointVersionedPropertySet versionedPropertySet = (UsagePointVersionedPropertySet) getUsagePoint().forCustomProperties().getAllPropertySets().get(0);
         CustomPropertySetValues oldValues = getPropertySetValues();
+
         versionedPropertySet.setValues(oldValues);
 
         Instant now = inMemoryBootstrapModule.getClock().instant();

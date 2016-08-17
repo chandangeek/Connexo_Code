@@ -540,7 +540,8 @@ class ReadingStorerImpl implements ReadingStorer {
                         getValue(previousReading, null, bulkIndex)
                                 .ifPresent(previous -> getValue(consolidatedEntry, currentReading, bulkIndex)
                                         .ifPresent(current -> {
-                                            IReadingType bulkReadingType = channel.getReadingTypes().get(derivation.index + 1);
+                                            IReadingType bulkReadingType = channel.getReadingTypes()
+                                                    .get(derivation.index + 1);
                                             Instant instant = entry.getKey().getLast();
                                             Function<BigDecimal, BigDecimal> overflowCorrection = getOverflowCorrection(channel, bulkReadingType, instant, previous, current);
 

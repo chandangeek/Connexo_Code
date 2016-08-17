@@ -316,7 +316,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE).withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE)
+                .withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -346,15 +347,15 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp,.*");
@@ -402,7 +403,8 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE).withReadingType(K_15min);
+        ReadingTypeRequirement temperature = this.configuration.newReadingTypeRequirement("T", DEFAULT_METER_ROLE)
+                .withReadingType(K_15min);
         this.temperature1RequirementId = temperature.getId();
 
         // Setup configuration deliverables
@@ -433,15 +435,15 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(temperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp,.*");
@@ -493,9 +495,11 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement minTemperature = this.configuration.newReadingTypeRequirement("minT", DEFAULT_METER_ROLE).withReadingType(C_15min);
+        ReadingTypeRequirement minTemperature = this.configuration.newReadingTypeRequirement("minT", DEFAULT_METER_ROLE)
+                .withReadingType(C_15min);
         this.temperature1RequirementId = minTemperature.getId();
-        ReadingTypeRequirement maxTemperature = this.configuration.newReadingTypeRequirement("maxT", DEFAULT_METER_ROLE).withReadingType(F_15min);
+        ReadingTypeRequirement maxTemperature = this.configuration.newReadingTypeRequirement("maxT", DEFAULT_METER_ROLE)
+                .withReadingType(F_15min);
         this.temperature2RequirementId = maxTemperature.getId();
 
         // Setup configuration deliverables
@@ -531,21 +535,21 @@ public class DataAggregationServiceImplCalculateWithTemperatureConversionIT {
             // Asserts:
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature1RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(minTemperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rid" + temperature2RequirementId + ".*" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rid" + temperature2RequirementId + ".*" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             assertThat(maxTemperatureWithClauseBuilder.getText()).isNotEmpty();
             verify(clauseAwareSqlBuilder)
                     .with(
-                        matches("rod" + deliverableId + ".*1"),
-                        any(Optional.class),
-                        anyVararg());
+                            matches("rod" + deliverableId + ".*1"),
+                            any(Optional.class),
+                            anyVararg());
             // Assert that one of the requirements is used as source for the timeline
             assertThat(this.deliverableWithClauseBuilder.getText())
                     .matches("SELECT -1, rid" + temperature1RequirementId + "_" + deliverableId + "_1\\.timestamp,.*");

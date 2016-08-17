@@ -18,9 +18,10 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface ReadingTypeDeliverable extends HasId, HasName {
 
+    long getVersion();
+
     /**
-     * Returns the {@link MetrologyConfiguration} that defined
-     * this ReadingTypeDeliverable.
+     * Returns the {@link MetrologyConfiguration} that defines this ReadingTypeDeliverable.
      *
      * @return The MetrologyContract
      */
@@ -41,13 +42,14 @@ public interface ReadingTypeDeliverable extends HasId, HasName {
      */
     ReadingType getReadingType();
 
-    void setName(String name);
+    Updater startUpdate();
 
-    void setReadingType(ReadingType readingType);
+    @ProviderType
+    interface Updater {
+        Updater setName(String name);
+        Updater setReadingType(ReadingType readingType);
+        Updater setFormula(String formula);
+        ReadingTypeDeliverable complete();
+    }
 
-    void setFormula(Formula formula);
-
-    void update();
-
-    long getVersion();
 }

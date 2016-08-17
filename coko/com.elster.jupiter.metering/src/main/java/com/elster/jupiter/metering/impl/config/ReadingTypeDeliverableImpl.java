@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -11,6 +12,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableFilter;
 import com.elster.jupiter.metering.config.ReadingTypeDeliverableNode;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
@@ -26,6 +28,7 @@ import java.util.List;
 @ValidDeliverable(groups = { Save.Create.class, Save.Update.class })
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.OBJECT_MUST_HAVE_UNIQUE_NAME + "}")
 public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUniqueName {
+
     public enum Fields {
         ID("id"),
         NAME("name"),
@@ -46,7 +49,9 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final ServerMeteringService meteringService;
     private final ServerMetrologyConfigurationService metrologyConfigurationService;
+    private final CustomPropertySetService customPropertySetService;
 
     // Managed by ORM
     @SuppressWarnings("unused")
@@ -55,12 +60,12 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     @Size(max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_TOO_LONG + "}")
     private String name;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    private Reference<ServerMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private Reference<ReadingType> readingType = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     @ValidExpression
-    private Reference<Formula> formula = ValueReference.absent();
+    private Reference<ServerFormula> formula = ValueReference.absent();
 
     // Managed by ORM
     @SuppressWarnings("unused")
@@ -76,13 +81,15 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
     private String userName;
 
     @Inject
-    public ReadingTypeDeliverableImpl(DataModel dataModel, EventService eventService, ServerMetrologyConfigurationService metrologyConfigurationService) {
+    public ReadingTypeDeliverableImpl(DataModel dataModel, EventService eventService, ServerMeteringService meteringService, ServerMetrologyConfigurationService metrologyConfigurationService, CustomPropertySetService customPropertySetService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
+        this.customPropertySetService = customPropertySetService;
     }
 
-    public ReadingTypeDeliverableImpl init(MetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, Formula formula) {
+    public ReadingTypeDeliverableImpl init(ServerMetrologyConfiguration metrologyConfiguration, String name, ReadingType readingType, ServerFormula formula) {
         this.name = name;
         this.metrologyConfiguration.set(metrologyConfiguration);
         this.readingType.set(readingType);
@@ -100,6 +107,10 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         return this.name;
     }
 
+    private void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public MetrologyConfiguration getMetrologyConfiguration() {
         return this.metrologyConfiguration.orNull();
@@ -115,13 +126,7 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         return this.readingType.orNull();
     }
 
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public void setReadingType(ReadingType readingType) {
+    private void setReadingType(ReadingType readingType) {
         doSetReadingType(readingType);
         ReadingTypeDeliverable deliverableToUpdate =  this.getMetrologyConfiguration().getDeliverables().stream().filter(del -> del.equals(this)).findAny().orElse(null);
         // following code is necessary because to be able check for invalid formulas where this deliverable is used (check is done by the ValidDeliverable class)
@@ -144,20 +149,33 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         this.readingType.set(readingType);
     }
 
+    private void setFormula(String formula) {
+        ServerExpressionNode node = this.getExpressionNodeParser().parse(formula);
+        this.formula.get().updateExpression(node);
+    }
 
-    @Override
-    public void setFormula(Formula formula) {
-        this.formula.set(formula);
+    private ExpressionNodeParser getExpressionNodeParser() {
+        return new ExpressionNodeParser(
+            this.meteringService.getThesaurus(),
+            this.metrologyConfigurationService,
+            this.customPropertySetService,
+            this.getMetrologyConfiguration(),
+            Formula.Mode.AUTO);
     }
 
     @Override
-    public void update() {
+    public Updater startUpdate() {
+        return new UpdaterImpl();
+    }
+
+    private void completeUpdate() {
         Save.action(getId()).save(this.dataModel, this);
+        this.metrologyConfiguration.get().deliverableUpdated(this);
         this.eventService.postEvent(EventType.READING_TYPE_DELIVERABLE_UPDATED.topic(), this);
     }
 
     void prepareDelete() {
-        ServerFormula serverFormula = (ServerFormula) this.formula.get();
+        ServerFormula serverFormula = this.formula.get();
         formula.setNull();
         dataModel.update(this);
         serverFormula.delete();
@@ -193,7 +211,30 @@ public class ReadingTypeDeliverableImpl implements ReadingTypeDeliverable, HasUn
         return Long.hashCode(getId());
     }
 
+    private class UpdaterImpl implements Updater {
+        @Override
+        public Updater setName(String name) {
+            ReadingTypeDeliverableImpl.this.setName(name);
+            return this;
+        }
 
+        @Override
+        public Updater setReadingType(ReadingType readingType) {
+            ReadingTypeDeliverableImpl.this.setReadingType(readingType);
+            return this;
+        }
 
+        @Override
+        public Updater setFormula(String formula) {
+            ReadingTypeDeliverableImpl.this.setFormula(formula);
+            return this;
+        }
+
+        @Override
+        public ReadingTypeDeliverable complete() {
+            ReadingTypeDeliverableImpl.this.completeUpdate();
+            return ReadingTypeDeliverableImpl.this;
+        }
+    }
 
 }

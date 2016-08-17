@@ -375,7 +375,7 @@ public enum TableSpecs {
             table.column("REMOVEDDATE").number().map("removedDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("RETIREDDATE").number().map("retiredDate").conversion(ColumnConversion.NUMBER2INSTANT).add();
             Column obsoleteTime = table.column("OBSOLETETIME").number().map("obsoleteTime").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            Column stateMachine = table.column("FSM").number().add();
+            Column stateMachine = table.column("FSM").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column locationIdColumn = table.column("LOCATIONID").number().conversion(NUMBER2LONGNULLZERO).since(version(10, 2)).add();
             table.column("GEOCOORDINATES").sdoGeometry().conversion(SDOGEOMETRY2SPATIALGEOOBJ).map("spatialCoordinates").since(version(10, 2)).add();
             table.addAuditColumns();
@@ -408,7 +408,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<EndDeviceLifeCycleStatus> table = dataModel.addTable(name(), EndDeviceLifeCycleStatus.class);
             table.map(EndDeviceLifeCycleStatusImpl.class);
-            Column endDevice = table.column("ENDDEVICE").notNull().number().add();
+            Column endDevice = table.column("ENDDEVICE").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
             Column state = table.column("STATE").notNull().number().add();
@@ -687,7 +687,7 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             Table<UsagePointConnectionState> table = dataModel.addTable(name(), UsagePointConnectionState.class);
             table.map(UsagePointConnectionStateImpl.class);
-            Column usagePoint = table.column("USAGEPOINT").notNull().number().add();
+            Column usagePoint = table.column("USAGEPOINT").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
             table.column("CONNECTIONSTATE").varChar(30).conversion(CHAR2ENUM).map("connectionState").since(version(10, 2)).add();
@@ -746,10 +746,12 @@ public enum TableSpecs {
             table.setJournalTableName("MTR_M_CONFIG_CPS_USAGES_JRNL");
             Column metrologyConfig = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.METROLOGY_CONFIG.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column customPropertySet = table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.CUSTOM_PROPERTY_SET.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             table.column(MetrologyConfigurationCustomPropertySetUsageImpl.Fields.POSITION.name())
@@ -782,8 +784,8 @@ public enum TableSpecs {
             table.since(version(10, 2));
             table.setJournalTableName("MTR_USAGEPOINTMTRCONFIG_JRNL");
             Column id = table.addAutoIdColumn();
-            Column usagePoint = table.column("USAGEPOINT").number().notNull().add();
-            Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().notNull().add();
+            Column usagePoint = table.column("USAGEPOINT").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column metrologyConfiguration = table.column("METROLOGYCONFIG").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.addIntervalColumns("interval");
             table.addAuditColumns();
@@ -811,7 +813,7 @@ public enum TableSpecs {
             table.cache();
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();
-            Column nameIsKey = table.column("NAMEISKEY").bool().notNull().map("nameIsKey").add();
+            Column nameIsKey = table.column("NAMEISKEY").bool().notNull().map("nameIsKey").installValue("'Y'").since(version(10, 2)).add();
             table.primaryKey("PK_MTR_MULTIPLIERTYPE").on(id).add();
             table.unique("UK_MTR_MULTTYPE_NAME").on(name, nameIsKey).add();
         }
@@ -823,8 +825,8 @@ public enum TableSpecs {
             table.map(MultiplierValueImpl.class);
             table.setJournalTableName("MTR_MULTIPLIERVALUE_JRNL").since(version(10, 2));
 
-            Column meterActivationIdColumn = table.column("METERACTIVATIONID").number().notNull().add();
-            Column typeColumn = table.column("MULTIPLIERTYPE").number().notNull().add();
+            Column meterActivationIdColumn = table.column("METERACTIVATIONID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
+            Column typeColumn = table.column("MULTIPLIERTYPE").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.column("VALUE").number().map("value").notNull().add();
 
             table.addAuditColumns().forEach(column -> column.since(version(10, 2)));
@@ -874,10 +876,10 @@ public enum TableSpecs {
             table.map(MeterReadingTypeConfigurationImpl.class);
 
             table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
-            Column meterConfig = table.column("METER_CONFIG").number().notNull().add();
+            Column meterConfig = table.column("METER_CONFIG").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column measured = table.column("MEASURED").varChar(NAME_LENGTH).notNull().add();
             Column calculated = table.column("CALCULATED").varChar(NAME_LENGTH).add();
-            Column multiplierType = table.column("MULTIPLIERTYPE").number().add();
+            Column multiplierType = table.column("MULTIPLIERTYPE").number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.addAuditColumns();
             table.column("OVERFLOW").number().map("overflowValue").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INTWRAPPER).map("numberOfFractionDigits").add();
@@ -940,10 +942,10 @@ public enum TableSpecs {
             table.setJournalTableName("MTR_RT_UP_CONFIG_JRNL");
 
             table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
-            Column usagePointConfig = table.column("USAGEPOINT_CONFIG").number().notNull().add();
+            Column usagePointConfig = table.column("USAGEPOINT_CONFIG").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column measured = table.column("MEASURED").varChar(NAME_LENGTH).notNull().add();
             Column calculated = table.column("CALCULATED").varChar(NAME_LENGTH).add();
-            Column multiplierType = table.column("MULTIPLIERTYPE").number().add();
+            Column multiplierType = table.column("MULTIPLIERTYPE").number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.addAuditColumns();
 
             table.primaryKey("PK_MTR_RT_UP_CONFIG").on(usagePointConfig, measured).add();
@@ -984,7 +986,7 @@ public enum TableSpecs {
                     .notNull()
                     .conversion(NUMBER2ENUMPLUSONE)
                     .add();
-            Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
+            Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             table.addAuditColumns();
             table.primaryKey("PK_MTR_CPSSERVICECATUSAGE").on(serviceCategory, customPropertySet).add();
             table.column(ServiceCategoryCustomPropertySetUsage.Fields.POSITION.name())
@@ -1035,14 +1037,14 @@ public enum TableSpecs {
             table.column("CONSTANTVALUE").number().map("constantValue").add();
 
             // ReadingTypeDeliverableNodeImpl readingTypeDeliverable value
-            table.column("READINGTYPE_DELIVERABLE").number().add();
+            table.column("READINGTYPE_DELIVERABLE").number().conversion(ColumnConversion.NUMBER2LONG).add();
 
             // ReadingTypeRequirementNodeImpl readingTypeRequirement value
-            table.column("READINGTYPE_REQUIREMENT").number().add();
+            table.column("READINGTYPE_REQUIREMENT").number().conversion(ColumnConversion.NUMBER2LONG).add();
 
             // CustomPropertyNodeImpl
             table.column("PROPERTY_SPEC_NAME").map("propertySpecName").varChar().add();
-            Column customPropertySet = table.column("CUSTOM_PROPERTY_SET").number().add();
+            Column customPropertySet = table.column("CUSTOM_PROPERTY_SET").number().conversion(ColumnConversion.NUMBER2LONG).add();
 
             table.addAuditColumns();
 
@@ -1114,6 +1116,7 @@ public enum TableSpecs {
 
             Column metrologyConfigColumn = table.column(MetrologyConfigurationMeterRoleUsageImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column meterRoleColumn = table.column(MetrologyConfigurationMeterRoleUsageImpl.Fields.METER_ROLE.name())
@@ -1173,6 +1176,7 @@ public enum TableSpecs {
             Column templateColumn = table
                     .column(ReadingTypeTemplateAttributeImpl.Fields.TEMPLATE.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column nameColumn = table.column(ReadingTypeTemplateAttributeImpl.Fields.NAME.name())
@@ -1210,6 +1214,7 @@ public enum TableSpecs {
             Column attrColumn = table
                     .column(ReadingTypeTemplateAttributeValueImpl.Fields.ATTR.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column valueColumn = table.column(ReadingTypeTemplateAttributeValueImpl.Fields.CODE.name())
@@ -1248,11 +1253,13 @@ public enum TableSpecs {
             Column metrologyConfigColumn = table
                     .column(ReadingTypeRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column templateColumn = table
                     .column(ReadingTypeRequirementImpl.Fields.TEMPLATE.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
             Column readingTypeColumn = table
                     .column(ReadingTypeRequirementImpl.Fields.READING_TYPE.name())
@@ -1292,6 +1299,7 @@ public enum TableSpecs {
             Column requirementColumn = table
                     .column(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.READING_TYPE_REQUIREMENT.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column nameColumn = table.column(PartiallySpecifiedReadingTypeAttributeValueImpl.Fields.ATTRIBUTE_NAME.name())
@@ -1333,10 +1341,12 @@ public enum TableSpecs {
             Column requirementColumn = table
                     .column(ReadingTypeRequirementMeterRoleUsage.Fields.READING_TYPE_REQUIREMENT.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column metrologyConfigColumn = table.column(ReadingTypeRequirementMeterRoleUsage.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add(); // we need this column for a reverse reference map
 
@@ -1406,11 +1416,13 @@ public enum TableSpecs {
             Column metrologyConfigColumn = table
                     .column(MetrologyContractImpl.Fields.METROLOGY_CONFIG.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column metrologyPurposeColumn = table
                     .column(MetrologyContractImpl.Fields.METROLOGY_PURPOSE.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             table.column(MetrologyContractImpl.Fields.MANDATORY.name())
@@ -1453,6 +1465,7 @@ public enum TableSpecs {
             Column metrologyConfigColumn = table
                     .column(ReadingTypeDeliverableImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column readingTypeColumn = table
@@ -1463,6 +1476,7 @@ public enum TableSpecs {
             Column formulaColumn = table
                     .column(ReadingTypeDeliverableImpl.Fields.FORMULA.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .add();
             table.addAuditColumns();
 
@@ -1497,10 +1511,12 @@ public enum TableSpecs {
 
             Column metrologyContractColumn = table.column(MetrologyContractReadingTypeDeliverableUsage.Fields.METROLOGY_CONTRACT.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column deliverableColumn = table.column(MetrologyContractReadingTypeDeliverableUsage.Fields.DELIVERABLE.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             table.addAuditColumns();
@@ -1530,6 +1546,7 @@ public enum TableSpecs {
 
             Column metrologyConfigurationColumn = table.column(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column searchablePropertyColumn = table.column(UsagePointRequirementImpl.Fields.SEARCHABLE_PROPERTY.name())
@@ -1564,6 +1581,7 @@ public enum TableSpecs {
             table.setJournalTableName("MTR_UP_REQUIREMENT_VALUE_JRNL");
             Column metrologyConfigurationColumn = table.column(UsagePointRequirementImpl.Fields.METROLOGY_CONFIGURATION.name())
                     .number()
+                    .conversion(ColumnConversion.NUMBER2LONG)
                     .notNull()
                     .add();
             Column searchablePropertyColumn = table.column(UsagePointRequirementImpl.Fields.SEARCHABLE_PROPERTY.name())
@@ -1603,8 +1621,8 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             List<Column> intervalColumns = table.addIntervalColumns(EffectiveMetrologyContractOnUsagePointImpl.Fields.INTERVAL.fieldName());
-            Column effectiveConfColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name()).number().add();
-            Column metrologyContractColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.name()).number().add();
+            Column effectiveConfColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.EFFECTIVE_CONF.name()).number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column metrologyContractColumn = table.column(EffectiveMetrologyContractOnUsagePointImpl.Fields.METROLOGY_CONTRACT.name()).number().conversion(ColumnConversion.NUMBER2LONG).add();
 
             table.primaryKey("PK_MTR_EFFECTIVE_CONTRACT").on(idColumn).add();
             table.foreignKey("MTR_EF_CONTRACT_2_EF_CONF")
@@ -1634,8 +1652,8 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
             table.addDiscriminatorColumn("CONTAINER_TYPE", "varchar2(80 char)");
-            Column meterActivationColumn = table.column("METER_ACTIVATION").number().add();
-            Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT").number().add();
+            Column meterActivationColumn = table.column("METER_ACTIVATION").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column effectiveMetrologyContractColumn = table.column("EFFECTIVE_CONTRACT").number().conversion(ColumnConversion.NUMBER2LONG).add();
 
             table.addAuditColumns();
 
@@ -1822,7 +1840,12 @@ public enum TableSpecs {
         }
 
         private Column addColum(String columnName, String fieldName, Table table) {
-            return table.column(columnName).number().notNull().conversion(ColumnConversion.NUMBER2INT).map(fieldName).add();
+            return table.column(columnName)
+                    .number()
+                    .notNull()
+                    .conversion(ColumnConversion.NUMBER2INT)
+                    .map(fieldName)
+                    .add();
         }
     };
 

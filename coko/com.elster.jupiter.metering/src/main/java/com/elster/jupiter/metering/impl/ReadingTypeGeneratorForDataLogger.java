@@ -2,20 +2,17 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
 import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
  * Generates DataLogger specific reading type<br/>
  */
-class ReadingTypeGeneratorForDataLogger extends AbstractReadingTypeGenerator{
+class ReadingTypeGeneratorForDataLogger extends AbstractReadingTypeGenerator {
 
     ReadingTypeGeneratorForDataLogger() {
         super();
@@ -23,15 +20,17 @@ class ReadingTypeGeneratorForDataLogger extends AbstractReadingTypeGenerator{
 
     @Override
     Stream<ReadingTypeTemplate> getReadingTypeTemplates() {
-        return IntStream.iterate(1,i -> i+1).limit(32).mapToObj((nominator)-> new DataLoggerReadingTypeTemplate(nominator));
+        return IntStream.iterate(1, i -> i + 1)
+                .limit(32)
+                .mapToObj(DataLoggerReadingTypeTemplate::new);
     }
 
-    private class DataLoggerReadingTypeTemplate implements ReadingTypeTemplate{
+    private class DataLoggerReadingTypeTemplate implements ReadingTypeTemplate {
 
         int argumentNominator;
 
-        DataLoggerReadingTypeTemplate(int argumentNominator){
-           this.argumentNominator = argumentNominator;
+        DataLoggerReadingTypeTemplate(int argumentNominator) {
+            this.argumentNominator = argumentNominator;
         }
 
         @Override

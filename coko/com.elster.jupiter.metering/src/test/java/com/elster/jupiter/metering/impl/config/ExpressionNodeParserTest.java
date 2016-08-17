@@ -15,6 +15,7 @@ import com.elster.jupiter.metering.config.MetrologyConfiguration;
 import com.elster.jupiter.metering.config.OperationNode;
 import com.elster.jupiter.metering.config.Operator;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
+import com.elster.jupiter.metering.config.ReadingTypeRequirementNode;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BigDecimalFactory;
@@ -78,6 +79,21 @@ public class ExpressionNodeParserTest {
         new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
 
         // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void testDivideWithConstant() {
+        String formulaString = "divide(R(10),constant(1000))";
+
+        // Business method
+        ServerExpressionNode node = new ExpressionNodeParser(this.thesaurus, this.metrologyConfigurationService, customPropertySetService, config, Formula.Mode.EXPERT).parse(formulaString);
+
+        // Asserts
+        assertThat(node).isInstanceOf(OperationNode.class);
+        OperationNode operationNode = (OperationNode) node;
+        assertThat(operationNode.getOperator()).isEqualTo(Operator.DIVIDE);
+        assertThat(operationNode.getLeftOperand()).isInstanceOf(ReadingTypeRequirementNode.class);
+        assertThat(operationNode.getRightOperand()).isInstanceOf(ConstantNode.class);
     }
 
     @Test

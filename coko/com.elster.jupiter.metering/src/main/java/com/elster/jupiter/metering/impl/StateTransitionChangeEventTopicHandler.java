@@ -85,7 +85,9 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
             endDeviceQuery.select(condition)
                     .stream()
                     .findFirst()
-                    .filter(endDevice -> Objects.equals(event.getNewState().getFiniteStateMachine().getId(), endDevice.getFiniteStateMachine().get().getId()))
+                    .filter(endDevice -> Objects.equals(event.getNewState()
+                            .getFiniteStateMachine()
+                            .getId(), endDevice.getFiniteStateMachine().get().getId()))
                     .ifPresent(d -> this.handle(event, (ServerEndDevice) d));
         }
         catch (NumberFormatException e) {
