@@ -1,6 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest;
 
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.FormulaInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

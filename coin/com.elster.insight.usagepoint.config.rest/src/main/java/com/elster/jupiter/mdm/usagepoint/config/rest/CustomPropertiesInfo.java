@@ -1,4 +1,4 @@
-package com.elster.jupiter.mdm.usagepoint.config.rest.impl;
+package com.elster.jupiter.mdm.usagepoint.config.rest;
 
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 

@@ -1,10 +1,5 @@
 package com.elster.jupiter.mdm.usagepoint.config.rest;
 
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.CustomPropertiesInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.FormulaInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypePatternAttributeInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypePatternInfo;
-import com.elster.jupiter.mdm.usagepoint.config.rest.impl.ReadingTypeRequirementsInfo;
 import com.elster.jupiter.metering.config.ConstantNode;
 import com.elster.jupiter.metering.config.CustomPropertyNode;
 import com.elster.jupiter.metering.config.ExpressionNode;
