@@ -44,7 +44,7 @@ public class FileImportOccurrenceInfo {
     }
 
     private String getStatusDescription(Status status,Thesaurus thesaurus ){
-        return thesaurus.getStringBeyondComponent(status.toString(), status.toString());
+        return thesaurus.getFormat(status).format();
     }
 
 
