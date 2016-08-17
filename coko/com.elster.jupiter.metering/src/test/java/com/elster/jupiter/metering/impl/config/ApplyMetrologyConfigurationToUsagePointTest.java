@@ -81,7 +81,8 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             up = serviceCategory.newUsagePoint("mrID", Instant.EPOCH).create();
             upId = up.getId();
-            MetrologyConfiguration mc = service.newUsagePointMetrologyConfiguration("Residential", serviceCategory).create();
+            MetrologyConfiguration mc = service.newUsagePointMetrologyConfiguration("Residential", serviceCategory)
+                    .create();
             mcId = mc.getId();
             context.commit();
         }
@@ -89,7 +90,8 @@ public class ApplyMetrologyConfigurationToUsagePointTest {
             MeteringService mtrService = getMeteringService();
             MetrologyConfigurationService service = getMetrologyConfigurationService();
             Optional<UsagePoint> usagePoint = mtrService.findUsagePoint(upId);
-            Optional<UsagePointMetrologyConfiguration> mc = service.findMetrologyConfiguration(mcId).map(UsagePointMetrologyConfiguration.class::cast);
+            Optional<UsagePointMetrologyConfiguration> mc = service.findMetrologyConfiguration(mcId)
+                    .map(UsagePointMetrologyConfiguration.class::cast);
             assertThat(usagePoint).isPresent();
             assertThat(mc).isPresent();
             assertThat(mc.get()).isInstanceOf(UsagePointMetrologyConfiguration.class);

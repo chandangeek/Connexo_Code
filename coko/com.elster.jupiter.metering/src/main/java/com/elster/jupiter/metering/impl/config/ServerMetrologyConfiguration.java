@@ -12,6 +12,8 @@ import com.elster.jupiter.metering.config.ReadingTypeDeliverable;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-03-30 (10:00)
  */
-public interface ServerMetrologyConfiguration extends MetrologyConfiguration {
+interface ServerMetrologyConfiguration extends MetrologyConfiguration {
     ReadingTypeDeliverable addReadingTypeDeliverable(String name, ReadingType readingType, Formula formula);
+    void deliverableUpdated(ReadingTypeDeliverableImpl deliverable);
+    void contractUpdated(MetrologyContractImpl contract);
 }

@@ -90,8 +90,11 @@ public class ChannelDeleteAfterIT {
                     .create();
 
             MultiplierType multiplierType = meteringService.createMultiplierType("Pulse multiplier");
-            meter.startingConfigurationOn(ZONED_DATE_TIME.minusMinutes(15).toInstant()).configureReadingType(meteringService.getReadingType(PULSE_COUNT_REGULAR).get())
-                    .withMultiplierOfType(multiplierType).calculating(meteringService.getReadingType(BULK_REGULAR).get()).create();
+            meter.startingConfigurationOn(ZONED_DATE_TIME.minusMinutes(15).toInstant())
+                    .configureReadingType(meteringService.getReadingType(PULSE_COUNT_REGULAR).get())
+                    .withMultiplierOfType(multiplierType)
+                    .calculating(meteringService.getReadingType(BULK_REGULAR).get())
+                    .create();
 
             MeterActivation activate = meter.activate(ZONED_DATE_TIME.minusMinutes(15).toInstant());
             activate.setMultiplier(multiplierType, BigDecimal.TEN);
@@ -175,8 +178,12 @@ public class ChannelDeleteAfterIT {
         assertThat(meterReading.getReadings().get(0).getTimePeriod()).isEqualTo(Optional.empty());
 
         assertThat(channelUnderTest.getRegisterReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))).hasSize(1);
-        assertThat(channelUnderTest.getRegisterReadings(Range.atLeast(ZONED_DATE_TIME.toInstant())).get(0).getTimeStamp()).isEqualTo(time1);
-        assertThat(channelUnderTest.findReadingQualities().inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant())).collect()).isEmpty();
+        assertThat(channelUnderTest.getRegisterReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))
+                .get(0)
+                .getTimeStamp()).isEqualTo(time1);
+        assertThat(channelUnderTest.findReadingQualities()
+                .inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant()))
+                .collect()).isEmpty();
     }
 
     @Test
@@ -191,7 +198,9 @@ public class ChannelDeleteAfterIT {
         assertThat(meterReading.getReadings().get(0).getTimeStamp()).isEqualTo(register_time2);
         assertThat(meterReading.getReadings().get(0).getValue()).isEqualTo(BigDecimal.valueOf(2));
         assertThat(meterReading.getReadings().get(0).getReadingQualities()).hasSize(0);
-        assertThat(meterReading.getReadings().get(0).getTimePeriod()).isEqualTo(Optional.of(Range.openClosed(time1, register_time2)));
+        assertThat(meterReading.getReadings()
+                .get(0)
+                .getTimePeriod()).isEqualTo(Optional.of(Range.openClosed(time1, register_time2)));
 //        assertThat(meterReading.getReadings().get(0).getReadingQualities()).has(new Condition<>((Predicate<List<? extends ReadingQuality>>) readingQualities -> readingQualities.stream()
 //                .anyMatch(rq -> DEVICE_READING_QUALITY_CODE.equals(rq.getTypeCode())), "wrong qualities"));
 
@@ -202,8 +211,12 @@ public class ChannelDeleteAfterIT {
         assertThat(meterReading.getReadings().get(1).getTimePeriod()).isEqualTo(Optional.empty());
 
         assertThat(channelUnderTest.getRegisterReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))).hasSize(1);
-        assertThat(channelUnderTest.getRegisterReadings(Range.atLeast(ZONED_DATE_TIME.toInstant())).get(0).getTimeStamp()).isEqualTo(time1);
-        assertThat(channelUnderTest.findReadingQualities().inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant())).collect()).isEmpty();
+        assertThat(channelUnderTest.getRegisterReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))
+                .get(0)
+                .getTimeStamp()).isEqualTo(time1);
+        assertThat(channelUnderTest.findReadingQualities()
+                .inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant()))
+                .collect()).isEmpty();
     }
 
     @Test
@@ -215,12 +228,18 @@ public class ChannelDeleteAfterIT {
         assertThat(meterReading.getReadings()).isEmpty();
         assertThat(meterReading.getIntervalBlocks()).hasSize(2);
 
-        assertThat(meterReading.getIntervalBlocks()).has(new Condition<>((Predicate<List<? extends IntervalBlock>>) ibs -> ibs.stream()
+        assertThat(meterReading.getIntervalBlocks()).has(new Condition<>((Predicate<List<? extends IntervalBlock>>) ibs -> ibs
+                .stream()
                 .anyMatch(ib -> BULK_REGULAR.equals(ib.getReadingTypeCode())), "does not contain " + BULK_REGULAR));
-        assertThat(meterReading.getIntervalBlocks()).has(new Condition<>((Predicate<List<? extends IntervalBlock>>) ibs -> ibs.stream()
+        assertThat(meterReading.getIntervalBlocks()).has(new Condition<>((Predicate<List<? extends IntervalBlock>>) ibs -> ibs
+                .stream()
                 .anyMatch(ib -> DELTA_REGULAR.equals(ib.getReadingTypeCode())), "does not contain " + DELTA_REGULAR));
 
-        IntervalBlock block = meterReading.getIntervalBlocks().stream().filter(ib -> BULK_REGULAR.equals(ib.getReadingTypeCode())).findFirst().get();
+        IntervalBlock block = meterReading.getIntervalBlocks()
+                .stream()
+                .filter(ib -> BULK_REGULAR.equals(ib.getReadingTypeCode()))
+                .findFirst()
+                .get();
         assertThat(block.getIntervals()).hasSize(2);
         assertThat(block.getIntervals().get(0).getTimeStamp()).isEqualTo(channel_time2);
         assertThat(block.getIntervals().get(0).getValue()).isEqualTo(BigDecimal.valueOf(2));
@@ -232,12 +251,19 @@ public class ChannelDeleteAfterIT {
         assertThat(block.getIntervals().get(1).getReadingQualities()).isEmpty();
         assertThat(block.getIntervals().get(1).getTimePeriod()).isEqualTo(Optional.empty());
 
-        block = meterReading.getIntervalBlocks().stream().filter(ib -> DELTA_REGULAR.equals(ib.getReadingTypeCode())).findFirst().get();
+        block = meterReading.getIntervalBlocks()
+                .stream()
+                .filter(ib -> DELTA_REGULAR.equals(ib.getReadingTypeCode()))
+                .findFirst()
+                .get();
         assertThat(block.getIntervals()).hasSize(2);
         assertThat(block.getIntervals().get(0).getTimeStamp()).isEqualTo(channel_time2);
         assertThat(block.getIntervals().get(0).getValue()).isEqualTo(BigDecimal.ONE);
         assertThat(block.getIntervals().get(0).getReadingQualities()).hasSize(1);
-        assertThat(block.getIntervals().get(0).getReadingQualities()).has(new Condition<>((Predicate<List<? extends ReadingQuality>>) readingQualities -> readingQualities.stream()
+        assertThat(block.getIntervals()
+                .get(0)
+                .getReadingQualities()).has(new Condition<>((Predicate<List<? extends ReadingQuality>>) readingQualities -> readingQualities
+                .stream()
                 .anyMatch(rq -> DEVICE_READING_QUALITY_CODE.equals(rq.getTypeCode())), "reading qualities do not contain " + DEVICE_READING_QUALITY_CODE));
         assertThat(block.getIntervals().get(0).getTimePeriod()).isEqualTo(Optional.empty());
 
@@ -247,8 +273,12 @@ public class ChannelDeleteAfterIT {
         assertThat(block.getIntervals().get(1).getTimePeriod()).isEqualTo(Optional.empty());
 
         assertThat(channelUnderTest.getIntervalReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))).hasSize(1);
-        assertThat(channelUnderTest.getIntervalReadings(Range.atLeast(ZONED_DATE_TIME.toInstant())).get(0).getTimeStamp()).isEqualTo(time1);
-        assertThat(channelUnderTest.findReadingQualities().inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant())).collect()).isEmpty();
+        assertThat(channelUnderTest.getIntervalReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))
+                .get(0)
+                .getTimeStamp()).isEqualTo(time1);
+        assertThat(channelUnderTest.findReadingQualities()
+                .inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant()))
+                .collect()).isEmpty();
     }
 
     @Test
@@ -260,12 +290,18 @@ public class ChannelDeleteAfterIT {
         assertThat(meterReading.getReadings()).isEmpty();
         assertThat(meterReading.getIntervalBlocks()).hasSize(2);
 
-        assertThat(meterReading.getIntervalBlocks()).has(new Condition<>((Predicate<List<? extends IntervalBlock>>) ibs -> ibs.stream()
+        assertThat(meterReading.getIntervalBlocks()).has(new Condition<>((Predicate<List<? extends IntervalBlock>>) ibs -> ibs
+                .stream()
                 .anyMatch(ib -> PULSE_COUNT_REGULAR.equals(ib.getReadingTypeCode())), "does not contain " + PULSE_COUNT_REGULAR));
-        assertThat(meterReading.getIntervalBlocks()).has(new Condition<>((Predicate<List<? extends IntervalBlock>>) ibs -> ibs.stream()
+        assertThat(meterReading.getIntervalBlocks()).has(new Condition<>((Predicate<List<? extends IntervalBlock>>) ibs -> ibs
+                .stream()
                 .anyMatch(ib -> DELTA_REGULAR.equals(ib.getReadingTypeCode())), "does not contain " + DELTA_REGULAR));
 
-        IntervalBlock block = meterReading.getIntervalBlocks().stream().filter(ib -> PULSE_COUNT_REGULAR.equals(ib.getReadingTypeCode())).findFirst().get();
+        IntervalBlock block = meterReading.getIntervalBlocks()
+                .stream()
+                .filter(ib -> PULSE_COUNT_REGULAR.equals(ib.getReadingTypeCode()))
+                .findFirst()
+                .get();
         assertThat(block.getIntervals()).hasSize(2);
         assertThat(block.getIntervals().get(0).getTimeStamp()).isEqualTo(channel_time2);
         assertThat(block.getIntervals().get(0).getValue()).isEqualTo(BigDecimal.valueOf(2));
@@ -277,12 +313,19 @@ public class ChannelDeleteAfterIT {
         assertThat(block.getIntervals().get(1).getReadingQualities()).isEmpty();
         assertThat(block.getIntervals().get(1).getTimePeriod()).isEqualTo(Optional.empty());
 
-        block = meterReading.getIntervalBlocks().stream().filter(ib -> DELTA_REGULAR.equals(ib.getReadingTypeCode())).findFirst().get();
+        block = meterReading.getIntervalBlocks()
+                .stream()
+                .filter(ib -> DELTA_REGULAR.equals(ib.getReadingTypeCode()))
+                .findFirst()
+                .get();
         assertThat(block.getIntervals()).hasSize(2);
         assertThat(block.getIntervals().get(0).getTimeStamp()).isEqualTo(channel_time2);
         assertThat(block.getIntervals().get(0).getValue()).isEqualTo(BigDecimal.TEN);
         assertThat(block.getIntervals().get(0).getReadingQualities()).hasSize(1);
-        assertThat(block.getIntervals().get(0).getReadingQualities()).has(new Condition<>((Predicate<List<? extends ReadingQuality>>) readingQualities -> readingQualities.stream()
+        assertThat(block.getIntervals()
+                .get(0)
+                .getReadingQualities()).has(new Condition<>((Predicate<List<? extends ReadingQuality>>) readingQualities -> readingQualities
+                .stream()
                 .anyMatch(rq -> DEVICE_READING_QUALITY_CODE.equals(rq.getTypeCode())), "reading qualities do not contain " + DEVICE_READING_QUALITY_CODE));
         assertThat(block.getIntervals().get(0).getTimePeriod()).isEqualTo(Optional.empty());
 
@@ -292,8 +335,12 @@ public class ChannelDeleteAfterIT {
         assertThat(block.getIntervals().get(1).getTimePeriod()).isEqualTo(Optional.empty());
 
         assertThat(channelUnderTest.getIntervalReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))).hasSize(1);
-        assertThat(channelUnderTest.getIntervalReadings(Range.atLeast(ZONED_DATE_TIME.toInstant())).get(0).getTimeStamp()).isEqualTo(time1);
-        assertThat(channelUnderTest.findReadingQualities().inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant())).collect()).isEmpty();
+        assertThat(channelUnderTest.getIntervalReadings(Range.atLeast(ZONED_DATE_TIME.toInstant()))
+                .get(0)
+                .getTimeStamp()).isEqualTo(time1);
+        assertThat(channelUnderTest.findReadingQualities()
+                .inTimeInterval(Range.atLeast(ZONED_DATE_TIME.toInstant()))
+                .collect()).isEmpty();
     }
 
 

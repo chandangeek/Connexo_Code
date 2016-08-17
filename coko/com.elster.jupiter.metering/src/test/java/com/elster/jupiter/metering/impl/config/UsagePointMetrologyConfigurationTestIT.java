@@ -437,24 +437,29 @@ public class UsagePointMetrologyConfigurationTestIT {
 
         metrologyConfiguration.delete();
 
-        assertThat(getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
+        assertThat(getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId())
+                .isPresent()).isFalse();
     }
 
     @Test
     @Transactional
     public void testCanRemoveMetrologyConfigurationWithContracts() {
         ServiceCategory serviceCategory = getServiceCategory();
-        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService().findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION).get();
-        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory).create();
+        MetrologyPurpose metrologyPurpose = getMetrologyConfigurationService().findMetrologyPurpose(DefaultMetrologyPurpose.INFORMATION)
+                .get();
+        UsagePointMetrologyConfiguration metrologyConfiguration = getMetrologyConfigurationService().newUsagePointMetrologyConfiguration("config", serviceCategory)
+                .create();
         MeterRole meterRole = getMetrologyConfigurationService().findMeterRole(DefaultMeterRole.DEFAULT.getKey()).get();
         serviceCategory.addMeterRole(meterRole);
         metrologyConfiguration.addMeterRole(meterRole);
-        ReadingType readingType = inMemoryBootstrapModule.getMeteringService().createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
+        ReadingType readingType = inMemoryBootstrapModule.getMeteringService()
+                .createReadingType("0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0", "Zero reading type");
         FullySpecifiedReadingTypeRequirement requirement = metrologyConfiguration
                 .newReadingTypeRequirement("Reading type requirement", meterRole)
                 .withReadingType(readingType);
         ReadingTypeDeliverableBuilder deliverableBuilder = metrologyConfiguration.newReadingTypeDeliverable("Reading type deliverable", readingType, Formula.Mode.EXPERT);
-        ReadingTypeDeliverable readingTypeDeliverable = deliverableBuilder.build(deliverableBuilder.divide(deliverableBuilder.requirement(requirement), deliverableBuilder.constant(10L)));
+        ReadingTypeDeliverable readingTypeDeliverable = deliverableBuilder.build(deliverableBuilder.divide(deliverableBuilder
+                .requirement(requirement), deliverableBuilder.constant(10L)));
         MetrologyContract metrologyContract = metrologyConfiguration.addMetrologyContract(metrologyPurpose);
         metrologyContract.addDeliverable(readingTypeDeliverable);
 
@@ -462,6 +467,7 @@ public class UsagePointMetrologyConfigurationTestIT {
         metrologyConfiguration.delete();
 
         // Asserts
-        assertThat(getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId()).isPresent()).isFalse();
+        assertThat(getMetrologyConfigurationService().findMetrologyConfiguration(metrologyConfiguration.getId())
+                .isPresent()).isFalse();
     }
 }

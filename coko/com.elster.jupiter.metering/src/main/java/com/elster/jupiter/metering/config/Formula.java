@@ -65,8 +65,6 @@ public interface Formula extends HasId {
      */
     ExpressionNode getExpressionNode();
 
-    void updateExpression(ExpressionNode nodeValue);
-
     /**
      * Update this {@link Formula}
      */

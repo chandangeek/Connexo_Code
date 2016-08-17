@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl.config;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.metering.config.ExpressionNode;
 import com.elster.jupiter.metering.config.ReadingTypeRequirement;
 import com.elster.jupiter.metering.impl.aggregation.IntervalLength;
 import com.elster.jupiter.orm.DataModel;
@@ -16,6 +15,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
+ * Provides an implementation for the {@link ServerFormula} interface.
+ *
  * Created by igh on 11/02/2016.
  */
 public class FormulaImpl implements ServerFormula {
@@ -52,11 +53,7 @@ public class FormulaImpl implements ServerFormula {
     }
 
     @Override
-    public void updateExpression(ExpressionNode nodeValue) {
-        this.updateExpression((ServerExpressionNode) nodeValue);
-    }
-
-    private void updateExpression(ServerExpressionNode nodeValue) {
+    public void updateExpression(ServerExpressionNode nodeValue) {
         ServerExpressionNode oldNode = this.expressionNode.get();
         this.expressionNode = ValueReference.absent();
         this.expressionNode.set(nodeValue);
@@ -75,7 +72,7 @@ public class FormulaImpl implements ServerFormula {
     }
 
     @Override
-    public ExpressionNode getExpressionNode() {
+    public ServerExpressionNode getExpressionNode() {
         return expressionNode.get();
     }
 
@@ -114,7 +111,7 @@ public class FormulaImpl implements ServerFormula {
         doSave();
     }
 
-    void doSave() {
+    private void doSave() {
         if (id == 0) {
             this.expressionNode.get().save(dataModel);
             Save.CREATE.save(dataModel, this);
