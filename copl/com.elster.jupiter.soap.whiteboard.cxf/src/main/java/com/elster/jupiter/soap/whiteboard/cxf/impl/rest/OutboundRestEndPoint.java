@@ -8,8 +8,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.message.DeflateEncoder;
-import org.glassfish.jersey.message.GZipEncoder;
 import org.joda.time.DateTimeConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -32,19 +30,25 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
     private final Provider<AccessLogFeature> accessLogFeatureProvider;
     private final AtomicReference<ServiceRegistration<S>> serviceRegistration = new AtomicReference<>();
-
     private final BundleContext bundleContext;
     private final String logDirectory;
+    private final Provider<GZIPFeature> gzipFeatureProvider;
+    private final Provider<TracingFeature> tracingFeatureProvider;
+
     private OutboundRestEndPointProvider<S> endPointProvider;
     private OutboundEndPointConfiguration endPointConfiguration;
     private Client client;
     private TracingFeature tracingFeature;
 
     @Inject
-    public OutboundRestEndPoint(BundleContext bundleContext, @Named("LogDirectory") String logDirectory, Provider<AccessLogFeature> accessLogFeatureProvider) {
+    public OutboundRestEndPoint(BundleContext bundleContext, @Named("LogDirectory") String logDirectory,
+                                Provider<AccessLogFeature> accessLogFeatureProvider,
+                                Provider<GZIPFeature> gzipFeatureProvider, Provider<TracingFeature> tracingFeatureProvider) {
         this.bundleContext = bundleContext;
         this.logDirectory = logDirectory;
         this.accessLogFeatureProvider = accessLogFeatureProvider;
+        this.gzipFeatureProvider = gzipFeatureProvider;
+        this.tracingFeatureProvider = tracingFeatureProvider;
     }
 
     OutboundRestEndPoint init(OutboundRestEndPointProvider<S> endPointProvider, OutboundEndPointConfiguration endPointConfiguration) {
@@ -67,11 +71,8 @@ public final class OutboundRestEndPoint<S> implements ManagedEndpoint {
             client.register(HttpAuthenticationFeature.basic(endPointConfiguration.getUsername(), endPointConfiguration.getPassword()
                     .getBytes()));
         }
-        if (endPointConfiguration.isHttpCompression()) {
-            client.register(GZipEncoder.class);
-            client.register(DeflateEncoder.class);
-        }
-        tracingFeature = new TracingFeature().init(logDirectory, endPointConfiguration);
+        client.register(gzipFeatureProvider.get().init(endPointConfiguration));
+        tracingFeature = tracingFeatureProvider.get().init(logDirectory, endPointConfiguration);
         client.register(tracingFeature);
         WebTarget target = client.target(endPointConfiguration.getUrl());
 

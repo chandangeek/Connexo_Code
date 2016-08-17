@@ -11,10 +11,7 @@ import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import com.fasterxml.jackson.jaxrs.base.JsonMappingExceptionMapper;
 import org.glassfish.jersey.jackson.JacksonFeature;
-import org.glassfish.jersey.message.DeflateEncoder;
-import org.glassfish.jersey.message.GZipEncoder;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.server.filter.EncodingFilter;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.osgi.service.http.HttpContext;
@@ -39,6 +36,9 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     private final String logDirectory;
     private final TransactionService transactionService;
     private final HttpService httpService;
+    private final Provider<AccessLogFeature> accessLogFeatureProvider;
+    private final Provider<GZIPFeature> gzipFeatureProvider;
+    private final Provider<TracingFeature> tracingFeatureProvider;
 
     private InboundRestEndPointProvider endPointProvider;
     private InboundEndPointConfiguration endPointConfiguration;
@@ -46,16 +46,20 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
     private Application application;
 
     private String alias;
-    private final Provider<AccessLogFeature> accessLogFeatureProvider;
     private TracingFeature tracingFeature;
 
     @Inject
-    public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService, HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider, Provider<AccessLogFeature> accessLogFeatureProvider) {
+    public InboundRestEndPoint(@Named("LogDirectory") String logDirectory, TransactionService transactionService,
+                               HttpService httpService, Provider<BasicAuthentication> basicAuthenticationProvider,
+                               Provider<AccessLogFeature> accessLogFeatureProvider, Provider<GZIPFeature> gzipFeatureProvider,
+                               Provider<TracingFeature> tracingFeatureProvider) {
         this.logDirectory = logDirectory;
         this.transactionService = transactionService;
         this.httpService = httpService;
         this.basicAuthenticationProvider = basicAuthenticationProvider;
         this.accessLogFeatureProvider = accessLogFeatureProvider;
+        this.gzipFeatureProvider = gzipFeatureProvider;
+        this.tracingFeatureProvider = tracingFeatureProvider;
     }
 
     InboundRestEndPoint init(InboundRestEndPointProvider endPointProvider, InboundEndPointConfiguration endPointConfiguration) {
@@ -75,19 +79,15 @@ public final class InboundRestEndPoint implements ManagedEndpoint {
         secureConfig.register(ObjectMapperProvider.class);
         secureConfig.register(JacksonFeature.class);
         secureConfig.register(accessLogFeatureProvider.get().init(endPointConfiguration));
+        secureConfig.register(gzipFeatureProvider.get().init(endPointConfiguration));
         secureConfig.register(RolesAllowedDynamicFeature.class);
         secureConfig.register(JsonMappingExceptionMapper.class);
         secureConfig.register(new TransactionWrapper(transactionService));
-//        secureConfig.register(urlRewriteFilter);
-        tracingFeature = new TracingFeature().init(logDirectory, endPointConfiguration);
+        tracingFeature = tracingFeatureProvider.get().init(logDirectory, endPointConfiguration);
         secureConfig.register(tracingFeature);
 
-        if (endPointConfiguration.isHttpCompression()) {
-            EncodingFilter.enableFor(secureConfig, GZipEncoder.class, DeflateEncoder.class);
-        }
         try (ContextClassLoaderResource ctx = ContextClassLoaderResource.of(application.getClass())) {
             ServletContainer container = new ServletContainer(secureConfig);
-//            HttpServlet wrapper = new EventServletWrapper(new ServletWrapper(container, threadPrincipalService), this);
             HttpContext httpContext = EndPointAuthentication.BASIC_AUTHENTICATION.equals(endPointConfiguration.getAuthenticationMethod())
                     ? basicAuthenticationProvider.get().init(endPointConfiguration)
                     : new NoAuthentication();
