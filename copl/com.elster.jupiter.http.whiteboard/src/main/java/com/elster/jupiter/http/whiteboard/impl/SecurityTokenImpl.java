@@ -89,9 +89,9 @@ public class SecurityTokenImpl {
 
             signedJWT.sign(signer);
             if(count > 0){
-                logMessage(TOKEN_RENEWAL, "["+user.getName()+"]", ipAddr);
+                logMessage(TOKEN_RENEWAL, "["+ user.getDomain() + "/" + user.getName()+"]", ipAddr);
             }else{
-                logMessage(TOKEN_GENERATED, "["+user.getName()+"]", ipAddr);
+                logMessage(TOKEN_GENERATED, "["+ user.getDomain() + "/" + user.getName()+"]", ipAddr);
             }
             return signedJWT.serialize();
 
@@ -158,17 +158,17 @@ public class SecurityTokenImpl {
                             String newToken = createToken(userService.getLoggedInUser(userId).get(), ++count, ipAddr);
                             return new TokenValidation(user.isPresent(), user.orElse(null), newToken);
                         }else {
-                            logMessage(USER_DISABLED, "[" + userService.getUser(userId).get().getName() + "]", ipAddr);
+                            logMessage(USER_DISABLED, "[" + userService.getUser(userId).get().getDomain() + "/" + userService.getUser(userId).get().getName() + "]", ipAddr);
                         }
                     } else {
                         if(user.isPresent()) {
-                            logMessage(USER_NOT_FOUND, "[name: " + user.get().getName() + "]", ipAddr);
+                            logMessage(USER_NOT_FOUND, "[name: " + user.get().getDomain() + "/" + user.get().getName() + "]", ipAddr);
                         } else {
                             logMessage(USER_NOT_FOUND, "[id: " + userId + "]", ipAddr);
                         }
                     }
                 } else {
-                    logMessage(TOKEN_EXPIRED, "[" + user.get().getName() + "]", ipAddr);
+                    logMessage(TOKEN_EXPIRED, "[" + user.get().getDomain() + "/" + user.get().getName() + "]", ipAddr);
                 }
             } else {
                 logMessage(TOKEN_INVALID, "[" + token + "]", ipAddr);
