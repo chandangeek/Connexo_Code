@@ -19,6 +19,8 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.UtilModule;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -27,7 +29,11 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
 
 import javax.validation.MessageInterpolator;
+import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -50,6 +56,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UpgradeServiceImplIT {
+
+    private FileSystem fileSystem;
 
     private static class Installer implements FullInstaller {
         public static int instances = 0;
@@ -128,7 +136,12 @@ public class UpgradeServiceImplIT {
     private OrmService ormService;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        Files.createDirectory(fileSystem.getPath("./logs"));
+        Files.createFile(fileSystem.getPath("./logs/upgrade.log"));
+
+
         clock = new ProgrammableClock(ZoneId.of("UTC"), now);
         when(bundleContext.getProperty("upgrade")).thenReturn("true");
         try {
@@ -160,7 +173,7 @@ public class UpgradeServiceImplIT {
     @Test
     public void testUpgradeOverTime() {
         BootstrapService bootstrapService = injector.getInstance(BootstrapService.class);
-        UpgradeServiceImpl upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext, FileSystems.getDefault());
+        UpgradeServiceImpl upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext, fileSystem);
 
         DataModel dataModel = ormService.newDataModel("TST", "");
         dataModel.register(new AbstractModule() {
@@ -185,7 +198,7 @@ public class UpgradeServiceImplIT {
         // assume a normal system restart (no Installer /Upgrader should be instantiated
 
         when(bundleContext.getProperty("upgrade")).thenReturn(null);
-        upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext, FileSystems.getDefault());
+        upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext, fileSystem);
         upgradeService.register(identifier("Example", "TST"), dataModel, Installer.class, ImmutableMap.of(version(2, 0), UpgraderV2.class));
 
         assertThat(Installer.instances).isEqualTo(1);
@@ -198,7 +211,7 @@ public class UpgradeServiceImplIT {
         // assume an upgrade (only the Upgrader should run)
 
         when(bundleContext.getProperty("upgrade")).thenReturn("true");
-        upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext, FileSystems.getDefault());
+        upgradeService = new UpgradeServiceImpl(bootstrapService, transactionService, ormService, bundleContext, fileSystem);
         upgradeService.register(identifier("Example", "TST"), dataModel, Installer.class, ImmutableMap.of(version(2, 0), UpgraderV2.class, version(3, 0), UpgraderV3.class));
 
         assertThat(Installer.instances).isEqualTo(2);
