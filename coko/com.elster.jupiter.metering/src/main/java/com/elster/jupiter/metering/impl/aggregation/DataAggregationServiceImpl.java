@@ -35,7 +35,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -132,13 +132,13 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     }
 
     @Override
-    public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
-        return new MeterActivationSetStreamBuilder(usagePoint, period).build();
+    public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period) {
+        return new MeterActivationSetStreamBuilder(usagePoint, period).build().collect(Collectors.toList());
     }
 
     @Override
-    public Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
-        return new MeterActivationSetStreamBuilder(usagePoint, when).build();
+    public List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when) {
+        return new MeterActivationSetStreamBuilder(usagePoint, when).build().collect(Collectors.toList());
     }
 
     private void prepare(UsagePoint usagePoint, MeterActivationSet meterActivationSet, MetrologyContract contract, Range<Instant> period, VirtualFactory virtualFactory, Map<MeterActivationSet, List<ReadingTypeDeliverableForMeterActivationSet>> deliverablesPerMeterActivation) {
@@ -244,7 +244,7 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
          * i.e. one WITH clause can only refer to an already defined with clause.
          * It suffices to append the definition for all requirements first
          * as those are not referring to another requirement. */
-        virtualFactory.allRequirements().stream().forEach(requirement -> requirement.appendDefinitionTo(sqlBuilder));
+        virtualFactory.allRequirements().forEach(requirement -> requirement.appendDefinitionTo(sqlBuilder));
         deliverablesPerMeterActivationSet
                 .values()
                 .stream()

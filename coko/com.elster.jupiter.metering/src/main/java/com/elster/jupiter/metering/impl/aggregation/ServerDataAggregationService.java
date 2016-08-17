@@ -6,11 +6,12 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
-import java.util.stream.Stream;
+import java.util.List;
 
 public interface ServerDataAggregationService extends DataAggregationService {
 
-    Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period);
+    List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Range<Instant> period);
 
-    Stream<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when);
+    List<MeterActivationSet> getMeterActivationSets(UsagePoint usagePoint, Instant when);
+
 }

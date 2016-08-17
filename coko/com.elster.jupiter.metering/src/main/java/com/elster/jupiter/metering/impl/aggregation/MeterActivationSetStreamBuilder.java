@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 
 import com.google.common.collect.Range;
 
@@ -45,7 +46,7 @@ class MeterActivationSetStreamBuilder {
     private Stream<Instant> switchTimestampsFromMeterActivationRange(Range<Instant> meterActivationRange) {
         Stream.Builder<Instant> builder = Stream.builder();
         builder.add(meterActivationRange.lowerEndpoint());
-        if (meterActivationRange.hasUpperBound()) {
+        if (meterActivationRange.hasUpperBound() && this.period.contains(meterActivationRange.upperEndpoint())) {
             builder.add(meterActivationRange.upperEndpoint());
         }
         return builder.build();
@@ -70,12 +71,18 @@ class MeterActivationSetStreamBuilder {
         } else {
             sequenceNumber = 1;
         }
-        MeterActivationSetImpl set = new MeterActivationSetImpl(this.usagePoint.getEffectiveMetrologyConfiguration(this.period.lowerEndpoint())
-                .get()
-                .getMetrologyConfiguration(), sequenceNumber, startDate);
+        MeterActivationSetImpl set =
+                new MeterActivationSetImpl(
+                        this.getMetrologyConfiguration(),
+                        sequenceNumber,
+                        startDate);
         meterActivations.forEach(set::add);
         this.lastBuilt = set;
         return set;
+    }
+
+    private UsagePointMetrologyConfiguration getMetrologyConfiguration() {
+        return this.usagePoint.getEffectiveMetrologyConfiguration(this.period.lowerEndpoint()).get().getMetrologyConfiguration();
     }
 
 }

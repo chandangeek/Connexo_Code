@@ -150,7 +150,6 @@ public class UsagePointImpl implements UsagePoint {
     private final Clock clock;
     private final DataModel dataModel;
     private final EventService eventService;
-    private final MeteringService meteringService;
     private final Thesaurus thesaurus;
     private final Provider<MeterActivationImpl> meterActivationFactory;
     private final Provider<UsagePointAccountabilityImpl> accountabilityFactory;
@@ -175,7 +174,6 @@ public class UsagePointImpl implements UsagePoint {
         this.meterActivationFactory = meterActivationFactory;
         this.accountabilityFactory = accountabilityFactory;
         this.customPropertySetService = customPropertySetService;
-        this.meteringService = meteringService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.dataAggregationService = dataAggregationService;
     }
@@ -579,16 +577,19 @@ public class UsagePointImpl implements UsagePoint {
         if (end != null && (end.isBefore(start) || end.equals(start))) {
             throw new UnsatisfiedMerologyConfigurationEndDate(thesaurus);
         }
-        Range range = end == null ? Range.atLeast(start) : Range.closedOpen(start, end);
+        Range<Instant> range;
+        if (end == null) {
+            range = Range.atLeast(start);
+        } else {
+            range = Range.closedOpen(start, end);
+        }
         List<MeterActivation> meterActivations = this.getMeterActivations(range);
         List<Pair<MeterRole, Meter>> pairs = new ArrayList<>();
-        metrologyConfiguration.getMeterRoles().stream().forEach(meterRole -> {
-            meterActivations
-                    .stream()
-                    .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeterRole().get().equals(meterRole))
-                    .findFirst()
-                    .ifPresent(meterActivation -> pairs.add(Pair.of(meterRole, meterActivation.getMeter().get())));
-        });
+        metrologyConfiguration.getMeterRoles().forEach(meterRole -> meterActivations
+                .stream()
+                .filter(meterActivation -> meterActivation.getMeterRole().isPresent() && meterActivation.getMeterRole().get().equals(meterRole))
+                .findFirst()
+                .ifPresent(meterActivation -> pairs.add(Pair.of(meterRole, meterActivation.getMeter().get()))));
         metrologyConfiguration.validateMeterCapabilities(pairs);
     }
 
@@ -746,8 +747,7 @@ public class UsagePointImpl implements UsagePoint {
                 .forEach(expressionNode -> expressionNode.accept(requirementsCollector));
 
         List<ReadingTypeRequirement> readingTypeRequirements = requirementsCollector.getReadingTypeRequirements();
-        List<MeterActivationSet> meterActivationSets = dataAggregationService.getMeterActivationSets(this, when)
-                .collect(Collectors.toList());
+        List<MeterActivationSet> meterActivationSets = dataAggregationService.getMeterActivationSets(this, when);
 
         List<ReadingType> configuredReadingTypes = this.getMeterActivations(when).stream()
                 .filter(meterActivation -> meterActivationSets.stream()
@@ -1092,7 +1092,7 @@ public class UsagePointImpl implements UsagePoint {
     }
 
     private void updateDeviceDefaultLocation() {
-        this.getMeterActivations().stream()
+        this.getMeterActivations()
                 .forEach(meterActivation -> meterActivation.getMeter().ifPresent(meter -> {
                     if (upLocation.isPresent()) {
                         if (location != upLocation.get().getId()) {
