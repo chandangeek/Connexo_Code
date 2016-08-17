@@ -1,9 +1,19 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
-import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -31,16 +41,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageBuilder;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.*;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
@@ -361,7 +361,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.connectionTasks[0].currentState.id")).isEqualTo("OnHold");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].currentState.displayValue")).isEqualTo("Inactive");
         assertThat(jsonModel.<String>get("$.connectionTasks[0].latestResult.id")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.connectionTasks[0].latestResult.displayValue")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.connectionTasks[0].latestResult.displayValue")).isEqualTo("Successful");
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfSuccessfulTasks")).isEqualTo(12);
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfFailedTasks")).isEqualTo(401);
         assertThat(jsonModel.<Integer>get("$.connectionTasks[0].taskCount.numberOfIncompleteTasks")).isEqualTo(3);
@@ -659,7 +659,7 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<String>get("$.communications[0].currentState.id")).isEqualTo("NeverCompleted");
         assertThat(jsonModel.<String>get("$.communications[0].currentState.displayValue")).isEqualTo("Never completed");
         assertThat(jsonModel.<String>get("$.communications[0].result.id")).isEqualTo("Ok");
-        assertThat(jsonModel.<String>get("$.communications[0].result.displayValue")).isEqualTo("Ok");
+        assertThat(jsonModel.<String>get("$.communications[0].result.displayValue")).isEqualTo("Successful");
         assertThat(jsonModel.<Long>get("$.communications[0].startTime")).isEqualTo(lastExecStart.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.communications[0].comTask.id")).isEqualTo(1111);
         assertThat(jsonModel.<String>get("$.communications[0].comTask.name")).isEqualTo("Read all");

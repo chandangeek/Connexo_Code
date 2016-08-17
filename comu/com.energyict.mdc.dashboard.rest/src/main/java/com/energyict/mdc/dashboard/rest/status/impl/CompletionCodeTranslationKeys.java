@@ -1,9 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 
 import java.util.stream.Stream;
 
@@ -15,7 +14,7 @@ import java.util.stream.Stream;
  */
 public enum CompletionCodeTranslationKeys implements TranslationKey {
 
-    OK(CompletionCode.Ok, "Ok"),
+    OK(CompletionCode.Ok, "Successful"),
     RESCHEDULED(CompletionCode.Rescheduled, "Rescheduled"),
     CONFIGURATION_WARNING(CompletionCode.ConfigurationWarning, "Configuration warning"),
     CONFIGURATION_ERROR(CompletionCode.ConfigurationError, "Configuration error"),
