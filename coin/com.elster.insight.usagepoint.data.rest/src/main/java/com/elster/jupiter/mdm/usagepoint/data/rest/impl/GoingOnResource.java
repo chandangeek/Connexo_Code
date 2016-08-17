@@ -45,7 +45,8 @@ public class GoingOnResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
+    public Response getGoingOn(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters,
+                               @HeaderParam("authorization") String auth, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
 
         UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mrid);
 

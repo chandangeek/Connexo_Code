@@ -39,6 +39,7 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -277,7 +278,7 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
     }
 
     @Test
-    public void testGetLinkableMetrologyConfigurations() {
+    public void testGetLinkableMetrologyConfigurations() throws IOException {
         when(usagePointMetrologyConfiguration.getCustomPropertySets()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
         when(usagePointMetrologyConfiguration.getId()).thenReturn(1L);
         when(usagePointMetrologyConfiguration.getName()).thenReturn("TestMC");
@@ -286,10 +287,13 @@ public class UsagePointResourceTest extends UsagePointDataRestApplicationJerseyT
         CustomPropertySetInfo info = new CustomPropertySetInfo();
         info.id = registeredCustomPropertySet.getId();
         when(customPropertySetInfoFactory.getGeneralAndPropertiesInfo(any(RegisteredCustomPropertySet.class))).thenReturn(info);
-        MetrologyConfigurationInfos metrologyConfigs = target("usagepoints/test/metrologyconfiguration/linkable").request().get(MetrologyConfigurationInfos.class);
-        assertThat(metrologyConfigs.total == 1);
-        assertThat(metrologyConfigs.metrologyConfigurations.get(0).id == 1);
-        assertThat(metrologyConfigs.metrologyConfigurations.get(0).customPropertySets.get(0).id == 1);
+        Response response = target("usagepoints/test/metrologyconfiguration/linkable").request().get();
+        assertThat(response.getStatus()).isEqualTo(200);
+        JsonModel model = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(model.<List>get("$.metrologyConfigurations")).hasSize(1);
+        assertThat(model.<Number>get("$.metrologyConfigurations[0].id")).isEqualTo(1);
+        assertThat(model.<Number>get("$.metrologyConfigurations[0].customPropertySets[0].id")).isEqualTo(1);
     }
 
     @Test
