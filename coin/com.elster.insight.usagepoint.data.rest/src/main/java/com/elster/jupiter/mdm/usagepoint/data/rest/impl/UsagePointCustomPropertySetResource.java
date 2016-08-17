@@ -309,7 +309,8 @@ public class UsagePointCustomPropertySetResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_ANY_USAGEPOINT})
     @Transactional
-    public Response updateTimeSlicedCustomAttributeSetVersion(@PathParam("rcpsId") long rcpsId,
+    public Response updateTimeSlicedCustomAttributeSetVersion(@PathParam("mrid") String usagePointMrid,
+                                                              @PathParam("rcpsId") long rcpsId,
                                                               @BeanParam JsonQueryParameters queryParameters,
                                                               @QueryParam("forced") boolean forced,
                                                               @Context SecurityContext securityContext,
