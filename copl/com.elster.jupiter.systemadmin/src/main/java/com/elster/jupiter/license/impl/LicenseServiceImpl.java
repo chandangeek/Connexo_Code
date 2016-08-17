@@ -310,7 +310,7 @@ public final class LicenseServiceImpl implements LicenseService, MessageSeedProv
         private final List<License> licenses;
 
         private AppReloader(List<License> licenses) {
-            this.licenses = licenses;
+            this.licenses = Collections.unmodifiableList(licenses);
         }
 
         @Override
