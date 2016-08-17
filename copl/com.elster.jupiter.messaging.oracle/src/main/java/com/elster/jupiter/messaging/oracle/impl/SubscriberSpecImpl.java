@@ -62,7 +62,6 @@ class SubscriberSpecImpl implements SubscriberSpec {
     private long dequeueRetryDelaySeconds;
 
     private final Reference<DestinationSpec> destination = ValueReference.absent();
-    private volatile boolean running = true;
     private final Collection<OracleConnection> cancellableConnections = Collections.synchronizedSet(new HashSet<OracleConnection>());
 
     private final DataModel dataModel;
@@ -130,55 +129,81 @@ class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     @Override
-    public Message receive() {
-        try {
-            return tryReceive();
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
+    public Receiver newReceiver() {
+        return new ReceiverImpl();
+    }
+
+    private class ReceiverImpl implements Receiver {
+
+        private volatile boolean running = true;
+
+        @Override
+        public Message receive() {
+            try {
+                return tryReceive();
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
         }
+
+        private Message tryReceive() throws SQLException {
+            OracleConnection cancellableConnection = null;
+            ReceiveResult receiveResult = ReceiveResult.initial();
+            while (this.continueReceiving() && receiveResult.nextAttemptAllowed()) {
+                try (Connection connection = acquireAndAddConnection()) {
+                    // Connection can be null if we are cancelling
+                    if (connection != null) {
+                        cancellableConnection = connection.unwrap(OracleConnection.class);
+                        ReceiveAttempt attempt = new ReceiveAttempt();
+                        receiveResult = attempt.tryReceive(cancellableConnection);
+                    }
+                } finally {
+                    if (cancellableConnection != null) {
+                        cancellableConnections.remove(cancellableConnection);
+                    }
+                }
+                sleepIfApplicable(receiveResult);
+            }
+            return receiveResult.message;
+        }
+
+        private boolean continueReceiving() {
+            return this.running && !Thread.currentThread().isInterrupted();
+        }
+
+        private Connection acquireAndAddConnection() throws SQLException {
+            synchronized (cancellableConnections) {
+                if (running) {
+                    Connection connection = getConnection();
+                    OracleConnection cancellableConnection = connection.unwrap(OracleConnection.class);
+                    cancellableConnections.add(cancellableConnection);
+                    return connection;
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        @Override
+        public void cancel() {
+            this.running = false;
+            synchronized (cancellableConnections) {
+                for (OracleConnection cancellableConnection : new ArrayList<>(cancellableConnections)) {
+                    try {
+                        cancellableConnection.cancel();
+                        cancellableConnections.remove(cancellableConnection);
+                    } catch (SQLException e) {
+                        throw new UnderlyingSQLFailedException(e);
+                    }
+                }
+            }
+        }
+
     }
 
     @Override
     public boolean isSystemManaged() {
         return systemManaged;
-    }
-
-    private Message tryReceive() throws SQLException {
-        OracleConnection cancellableConnection = null;
-        ReceiveResult receiveResult = ReceiveResult.initial();
-        while (this.continueReceiving() && receiveResult.nextAttemptAllowed()) {
-            try (Connection connection = acquireAndAddConnection()) {
-                // Connection can be null if we are cancelling
-                if (connection != null) {
-                    cancellableConnection = connection.unwrap(OracleConnection.class);
-                    ReceiveAttempt attempt = new ReceiveAttempt();
-                    receiveResult = attempt.tryReceive(cancellableConnection);
-                }
-            } finally {
-                if (cancellableConnection != null) {
-                    cancellableConnections.remove(cancellableConnection);
-                }
-            }
-            this.sleepIfApplicable(receiveResult);
-        }
-        return receiveResult.message;
-    }
-
-    private boolean continueReceiving() {
-        return this.running && !Thread.currentThread().isInterrupted();
-    }
-
-    private Connection acquireAndAddConnection() throws SQLException {
-        synchronized (cancellableConnections) {
-            if (this.running) {
-                Connection connection = this.getConnection();
-                OracleConnection cancellableConnection = connection.unwrap(OracleConnection.class);
-                cancellableConnections.add(cancellableConnection);
-                return connection;
-            } else {
-                return null;
-            }
-        }
     }
 
     private void sleepIfApplicable(ReceiveResult receiveResult) {
@@ -197,21 +222,6 @@ class SubscriberSpecImpl implements SubscriberSpec {
 
     private Connection getConnection() throws SQLException {
         return dataModel.getConnection(false);
-    }
-
-    @Override
-    public void cancel() {
-        this.running = false;
-        synchronized (cancellableConnections) {
-            for (OracleConnection cancellableConnection : new ArrayList<>(cancellableConnections)) {
-                try {
-                    cancellableConnection.cancel();
-                    cancellableConnections.remove(cancellableConnection);
-                } catch (SQLException e) {
-                    throw new UnderlyingSQLFailedException(e);
-                }
-            }
-        }
     }
 
     @Override
