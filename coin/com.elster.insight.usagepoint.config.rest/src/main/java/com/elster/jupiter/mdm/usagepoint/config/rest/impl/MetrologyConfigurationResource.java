@@ -38,7 +38,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -228,6 +227,7 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public Response updateMetrologyContractWithValidationRuleSets(@PathParam("id") long id, @QueryParam("action") String action, MetrologyContractInfo metrologyContractInfo) {
+        metrologyContractInfo.id = id;
         MetrologyContract metrologyContract = resourceHelper.findAndLockContractOnMetrologyConfiguration(metrologyContractInfo);
         if (action != null && action.equals("remove")) {
             ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(metrologyContractInfo.validationRuleSets.stream().findFirst().get().id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -245,8 +245,7 @@ public class MetrologyConfigurationResource {
     @Path("/{id}/contracts/{contractId}")
     @RolesAllowed({Privileges.Constants.VIEW_METROLOGY_CONFIGURATION, Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("contractId") long contractId,
-                                                                                   @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
+    public MetrologyContractInfo getLinkableValidationRuleSetsForMetrologyContract(@PathParam("contractId") long contractId) {
         MetrologyContract metrologyContract = metrologyConfigurationService.findMetrologyContract(contractId).get();
         List<ValidationRuleSetInfo> linkableValidationRuleSets = validationService.getValidationRuleSets()
                 .stream()
@@ -292,7 +291,7 @@ public class MetrologyConfigurationResource {
         List<?> infos = customPropertySets
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .sorted((a, b) -> a.getCustomPropertySet().getName().compareToIgnoreCase(b.getCustomPropertySet().getName()))
-                .map(rcps -> customPropertySetInfoFactory.getGeneralAndPropertiesInfo(rcps))
+                .map(customPropertySetInfoFactory::getGeneralAndPropertiesInfo)
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("customPropertySets", infos, queryParameters);
     }
@@ -304,7 +303,6 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Transactional
     public MetrologyConfigurationInfo addCustomPropertySetToMetrologyConfiguration(@PathParam("id") long id,
-                                                                                   @BeanParam JsonQueryParameters queryParameters,
                                                                                    MetrologyConfigurationInfo info) {
         info.id = id;
         UsagePointMetrologyConfiguration metrologyConfiguration = resourceHelper.findAndLockMetrologyConfiguration(info);
@@ -325,7 +323,6 @@ public class MetrologyConfigurationResource {
     @Transactional
     public MetrologyConfigurationInfo removeCustomPropertySetFromMetrologyConfiguration(@PathParam("id") long id,
                                                                                         @PathParam("cpsId") String cpsId,
-                                                                                        @BeanParam JsonQueryParameters queryParameters,
                                                                                         CustomPropertySetInfo<MetrologyConfigurationInfo> info) {
         if (info.parent != null) {
             info.parent.id = id;
