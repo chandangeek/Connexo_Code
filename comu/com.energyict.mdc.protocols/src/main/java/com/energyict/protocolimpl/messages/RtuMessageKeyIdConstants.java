@@ -31,7 +31,7 @@ public class RtuMessageKeyIdConstants {
     public static final String FACTORYSETTINGS = "Restore factory settings";
     public static final String ENABLE_DISCOVERY_ON_POWER_UP = "Enable discovery on power up";
     public static final String DISABLE_DISCOVERY_ON_POWER_UP = "Disable discovery on power up";
-    public static final String SETWHITELIST = "Set phonenumbers to whitelist";
+    public static final String SETWHITELIST = "Set phone numbers to whitelist";
     public static final String CHANGEHLSSECRET = "Change the HLS secret";
     public static final String CHANGELLSSECRET = "Change the LLS secret";
     public static final String CHANGEGLOBALKEY = "Change global key";
