@@ -14,15 +14,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Registration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+
 import org.osgi.service.component.ComponentContext;
 
 import java.util.Arrays;
@@ -32,8 +24,26 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageHandlerLauncherServiceTest {
@@ -50,6 +60,8 @@ public class MessageHandlerLauncherServiceTest {
     private IAppService appService;
     @Mock
     private SubscriberSpec subscriberSpec;
+    @Mock
+    private SubscriberSpec.Receiver receiver;
     @Mock
     private SubscriberExecutionSpec subscriberExecutionSpec;
     @Mock
@@ -76,8 +88,9 @@ public class MessageHandlerLauncherServiceTest {
     public void setUp() {
         messageHandlerLauncherService = new MessageHandlerLauncherService();
         when(subscriberExecutionSpec.getSubscriberSpec()).thenReturn(subscriberSpec);
+        when(subscriberSpec.newReceiver()).thenReturn(receiver);
         when(subscriberSpec.getName()).thenReturn(SUBSCRIBER);
-        when(subscriberSpec.receive()).thenReturn(message);
+        when(receiver.receive()).thenReturn(message);
         when(subscriberSpec.getDestination()).thenReturn(destination);
         when(destination.getName()).thenReturn(DESTINATION);
         when(subscriberExecutionSpec.getThreadCount()).thenReturn(1);
@@ -112,7 +125,7 @@ public class MessageHandlerLauncherServiceTest {
 
         messageHandlerLauncherService.addResource(factory, map);
 
-        verify(subscriberSpec, never()).receive();
+        verify(receiver, never()).receive();
     }
 
     @Test(timeout = 5000)
@@ -142,7 +155,7 @@ public class MessageHandlerLauncherServiceTest {
 
             arrivalLatch.await();
 
-            verify(subscriberSpec, atLeastOnce()).receive();
+            verify(receiver, atLeastOnce()).receive();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -170,7 +183,7 @@ public class MessageHandlerLauncherServiceTest {
             assertThat(messageHandlerLauncherService.futureReport()).isEmpty();
             assertThat(messageHandlerLauncherService.threadReport()).isEmpty();
 
-            verify(subscriberSpec, never()).receive();
+            verify(receiver, never()).receive();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -336,7 +349,7 @@ public class MessageHandlerLauncherServiceTest {
 
             arrivalLatch.await();
 
-            verify(subscriberSpec, atLeastOnce()).receive();
+            verify(receiver, atLeastOnce()).receive();
             verify(handler).process(message);
             verify(handler, never()).onMessageDelete(message);
 
@@ -384,7 +397,7 @@ public class MessageHandlerLauncherServiceTest {
 
             waitForCancel.countDown();
 
-            verify(subscriberSpec).cancel();
+            verify(receiver).cancel();
             InOrder inOrder = inOrder(handler);
             inOrder.verify(handler).process(message);
             inOrder.verify(handler).onMessageDelete(message);

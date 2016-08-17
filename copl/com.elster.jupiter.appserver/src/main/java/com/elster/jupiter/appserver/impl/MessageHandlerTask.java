@@ -16,14 +16,14 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
 
     private static final Logger LOGGER = Logger.getLogger(MessageHandlerTask.class.getName());
 
-    private final SubscriberSpec subscriberSpec;
+    private final SubscriberSpec.Receiver receiver;
     private final MessageHandler handler;
     private final Transaction<Message> processTransaction = new ProcessTransaction();
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
 
     MessageHandlerTask(SubscriberSpec subscriberSpec, MessageHandler handler, TransactionService transactionService, Thesaurus thesaurus) {
-        this.subscriberSpec = subscriberSpec;
+        this.receiver = subscriberSpec.newReceiver();
         this.handler = handler;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
@@ -45,7 +45,7 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
     }
 
     public void cancel() {
-        subscriberSpec.cancel();
+        receiver.cancel();
     }
 
     @Override
@@ -62,7 +62,7 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
     private class ProcessTransaction implements Transaction<Message> {
         @Override
         public Message perform() {
-            Message message = subscriberSpec.receive();
+            Message message = receiver.receive();
             if (message == null) { // receive() got cancelled, by a shut down request
                 Thread.currentThread().interrupt();
                 return null;
