@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -55,17 +56,19 @@ public class DeviceResource {
     private final ExceptionFactory exceptionFactory;
     private final TopologyService topologyService;
     private final ResourceHelper resourceHelper;
+    private final Clock clock;
 
 
     @Inject
     public DeviceResource(DeviceService deviceService, DeviceInfoFactory deviceInfoFactory, DeviceConfigurationService deviceConfigurationService,
-                          ExceptionFactory exceptionFactory, TopologyService topologyService, ResourceHelper resourceHelper) {
+                          ExceptionFactory exceptionFactory, TopologyService topologyService, ResourceHelper resourceHelper, Clock clock) {
         this.deviceService = deviceService;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.exceptionFactory = exceptionFactory;
         this.topologyService = topologyService;
         this.resourceHelper = resourceHelper;
+        this.clock = clock;
     }
 
     /**
@@ -132,9 +135,9 @@ public class DeviceResource {
 
         Device newDevice;
         if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch, Instant.now());
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch, Instant.now(clock));
         } else {
-            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, Instant.now());
+            newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, Instant.now(clock));
         }
         newDevice.setSerialNumber(info.serialNumber);
         newDevice.setYearOfCertification(info.yearOfCertification);
