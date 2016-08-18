@@ -54,7 +54,7 @@ public class CollectedRegisterListDeviceCommand extends DeviceCommandImpl<Collec
                 CompletionCode.ConfigurationWarning,
                 this.getIssueService().newWarning(
                         this,
-                        MessageSeeds.UNKNOWN_DEVICE_REGISTER.getKey(),
+                        MessageSeeds.UNKNOWN_DEVICE_REGISTER,
                         registerIdentifier));
     }
 

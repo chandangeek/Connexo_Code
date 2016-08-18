@@ -55,7 +55,6 @@ public class VerifyTimeDifferenceCommandImpl extends SimpleComCommand implements
         if (Math.abs(this.timeDifference.getMilliSeconds()) > this.maximumClockDifference.getMilliSeconds()) {
             addIssue(getIssueService().newProblem(
                     getCommandType(),
-                    getThesaurus(),
                     MessageSeeds.MAXIMUM_TIME_DIFFERENCE_EXCEEDED,
                     this.timeDifference,
                     this.maximumClockDifference),

@@ -48,7 +48,7 @@ public class UpdateDeviceMessage extends DeviceCommandImpl<UpdateDeviceMessageEv
                     CompletionCode.ConfigurationWarning,
                     this.getIssueService().newWarning(
                             this,
-                            MessageSeeds.UNKNOWN_DEVICE_MESSAGE.getKey(),
+                            MessageSeeds.UNKNOWN_DEVICE_MESSAGE,
                             this.messageIdentifier)
             );
         }

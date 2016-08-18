@@ -52,7 +52,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
                     CompletionCode.Ok,
                     this.getIssueService().newWarning(
                             this,
-                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED.getKey(),
+                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED,
                             optionalLoadProfile.get().getObisCode().toString(),
                             optionalLoadProfile.get().getLastReading().map(instant -> instant).orElse(Instant.EPOCH)));
         } else {
@@ -60,7 +60,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
                     CompletionCode.ConfigurationWarning,
                     this.getIssueService().newWarning(
                             this,
-                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE.getKey(),
+                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE,
                             comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier())
                                     .map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString())
                                     .orElse("")));

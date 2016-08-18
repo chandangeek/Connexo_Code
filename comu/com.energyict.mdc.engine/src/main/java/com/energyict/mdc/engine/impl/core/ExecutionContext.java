@@ -37,7 +37,6 @@ import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
 import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.events.ComPortCommunicationLogHandler;
-import com.energyict.mdc.engine.impl.core.events.ComPortOperationsLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.core.logging.CompositeComPortConnectionLogger;
 import com.energyict.mdc.engine.impl.core.logging.CompositeLogger;
