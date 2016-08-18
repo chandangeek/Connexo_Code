@@ -6,16 +6,12 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.issues.Problem;
 
-import java.util.logging.Logger;
-
 /**
  * Stores the processed data in the database.
  * If it fails, we inform the ProvideInboundResponseDeviceCommand
  * so it can provide a proper response to the device.
  */
 public class InboundDataProcessMeterDataStoreCommandImpl extends MeterDataStoreCommandImpl {
-
-    private Logger logger = Logger.getLogger(InboundDataProcessMeterDataStoreCommandImpl.class.getName());
 
     private final ExecutionContext executionContext;
 
