@@ -20,7 +20,6 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.impl.MessageSeeds;
 import com.elster.jupiter.validation.kpi.DataValidationKpi;
@@ -277,9 +276,6 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         if (!deviceGroupDeviceIds.isEmpty() && !deviceGroupDeviceIds.equals(dataValidationKpiMembers)) {
             deviceGroupDeviceIds.removeAll(commonElements);
             deviceGroupDeviceIds.stream().forEach(this::createValidationKpiMember);
-            if (this.dataValidationKpiTask.get().getName().equals("EmptyEndDeviceGroupTask")) {
-                this.recurrentTaskSaveStrategy.save();
-            }
             dataValidationKpiMembers.removeAll(commonElements);
             dataValidationKpiMembers.stream().forEach(id -> {
                         List<Kpi> obsoleteKpiList = childrenKpis.stream().map(DataValidationKpiChild::getChildKpi).map(Kpi::getMembers)
@@ -310,23 +306,11 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
             this.kpiType = kpiType;
         }
 
-        @Override
         public void save() {
             updateFrequency();
             DestinationSpec destination = messageService.getDestinationSpec(DataValidationKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
-            if (this.childrenKpis != null && !this.childrenKpis.isEmpty()) {
-                RecurrentTask recurrentTask = taskService.newBuilder()
-                        .setApplication("MultiSense")
-                        .setName(taskName())
-                        .setScheduleExpression(this.toScheduleExpression())
-                        .setDestination(destination)
-                        .setPayLoad(scheduledExcutionPayload())
-                        .scheduleImmediately(true)
-                        .build();
-                this.setRecurrentTask(recurrentTask);
-            } else {
                 RecurrentTask recurrentTask;
-                Optional<RecurrentTask> defaultTask = taskService.getRecurrentTask("EmptyEndDeviceGroupTask");
+                Optional<RecurrentTask> defaultTask = taskService.getRecurrentTask(taskName());
                 if (defaultTask.isPresent()) {
                     recurrentTask = defaultTask.get();
                     recurrentTask.setScheduleExpression(this.toScheduleExpression());
@@ -334,7 +318,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                 } else {
                     recurrentTask = taskService.newBuilder()
                             .setApplication("MultiSense")
-                            .setName("EmptyEndDeviceGroupTask")
+                            .setName(taskName())
                             .setScheduleExpression(this.toScheduleExpression())
                             .setDestination(destination)
                             .setPayLoad(scheduledExcutionPayload())
@@ -344,7 +328,6 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
                 this.setRecurrentTask(recurrentTask);
 
             }
-        }
 
         protected Optional<RecurrentTask> getRecurrentTask() {
             return this.recurrentTask.getOptional();
