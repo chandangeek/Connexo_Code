@@ -13,24 +13,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class JoinExecutor<T> {
-		
+
 	private final JoinTreeNode<T> root;
 	private SqlBuilder builder;
 	private final int from;
 	private final int to;
 	private final Instant effectiveDate;
-	
+
 	JoinExecutor(JoinTreeNode<T> root, Instant effectiveDate) {
-		this(root,effectiveDate,0,0);		 
+		this(root,effectiveDate,0,0);
 	}
- 	
+
 	JoinExecutor(JoinTreeNode<T> root, Instant effectiveDate, int from , int to) {
 		this.root = root;
 		this.effectiveDate = effectiveDate;
 		this.from = from;
 		this.to = to;
 	}
-	
+
 	SqlBuilder getSqlBuilder(Condition condition , String[] fieldNames) {
 		builder = new SqlBuilder();
 		JoinTreeMarker.on(root).visit(condition);
@@ -52,16 +52,16 @@ final class JoinExecutor<T> {
 		appendOrderByClause(builder, null);
 		return from == 0 ? builder : builder.asPageBuilder(from, to, fieldNames);
 	}
-	
+
 	private void appendSql(Condition condition , Order[] orderBy) {
 		appendSelectClause();
 		appendWhereClause(builder, condition , " where ");
 		appendOrderByClause(builder,orderBy);
 		if (from != 0) {
 			this.builder = builder.asPageBuilder(from,to);
-		}	
+		}
 	}
-	
+
 	private void appendCountSql(Condition condition) {
 		builder.append("select count(distinct ");
 		builder.append(root.alias());
@@ -69,19 +69,19 @@ final class JoinExecutor<T> {
 		builder.append(root.getTable().getDataModel().getSqlDialect().rowId());
 		builder.append(") from ");
 		root.appendFromClause(builder,null,false);
-		appendWhereClause(builder, condition , " where ");		
+		appendWhereClause(builder, condition , " where ");
 	}
-	
+
 	private void appendSelectClause() {
 		builder.append("select ");
-		if (hasSemiJoin()) {
+		if (needsDistinct()) {
 			builder.append("distinct ");
 		}
 		root.appendColumns(builder, "");
 		builder.append(" from ");
-		root.appendFromClause(builder,null,false);		
+		root.appendFromClause(builder,null,false);
 	}
-	
+
 	private void appendSelectClause(List<String> selectColumns) {
 		builder.append("select ");
 		if (selectColumns.isEmpty()) {
@@ -97,14 +97,14 @@ final class JoinExecutor<T> {
 		builder.append(" from ");
 		root.appendFromClause(builder,null,false);
 	}
-	
+
 	private void appendWhereClause(SqlBuilder builder , Condition condition , String separator) {
 		if (condition != null && condition != Condition.TRUE) {
 			builder.append(separator);
 			WhereClauseBuilder.from(root, builder, effectiveDate).visit(condition);
 		}
 	}
-	
+
 	private void appendOrderByClause(SqlBuilder builder, Order[] orderBy) {
 		if (orderBy == null || orderBy.length == 0) {
             return;
@@ -113,9 +113,9 @@ final class JoinExecutor<T> {
 		String separator = "";
 		for (Order each : orderBy) {
 			separator = appendOrder(builder,each,separator);
-		}				
+		}
 	}
-		
+
 	private String appendOrder(SqlBuilder builder, Order order,String separator) {
 		List<ColumnAndAlias> columnAndAliases = root.getColumnAndAliases(order.getName());
 		if (columnAndAliases == null || columnAndAliases.isEmpty()) {
@@ -131,9 +131,9 @@ final class JoinExecutor<T> {
 				builder.space();
 			}
 		}
-		return separator;		
+		return separator;
 	}
-	
+
 	long count(Condition condition) throws SQLException {
 		builder = new SqlBuilder();
 		JoinTreeMarker.on(root).visit(condition);
@@ -141,14 +141,14 @@ final class JoinExecutor<T> {
 		root.clearCache();
 		// remark all nodes with a where clause contribution.
 		JoinTreeMarker.on(root).visit(condition);
-		appendCountSql(condition);		
-		try (Connection connection = root.getTable().getDataModel().getConnection(false)) {				
+		appendCountSql(condition);
+		try (Connection connection = root.getTable().getDataModel().getConnection(false)) {
 			try(PreparedStatement statement = builder.prepare(connection)) {
 				try (ResultSet resultSet = statement.executeQuery()) {
 					resultSet.next();
-					return resultSet.getLong(1);					
-				}				
-			} 
+					return resultSet.getLong(1);
+				}
+			}
 		}
 	}
 
@@ -157,7 +157,7 @@ final class JoinExecutor<T> {
 		boolean initialMarkDone = false;
 		if (eager) {
 			// mark all nodes that have a where clause contribution.
-			// we need to do this first, as markReachable depends on the marked state for temporal relations.	
+			// we need to do this first, as markReachable depends on the marked state for temporal relations.
 			JoinTreeMarker.on(root).visit(condition);
 			initialMarkDone = true;
 			root.markReachable();
@@ -170,7 +170,7 @@ final class JoinExecutor<T> {
 		// and eliminate duplicate row with select distinct
 		if (from > 0) {
 			root.clearChildMappers();
-			// need to remark 
+			// need to remark
 			initialMarkDone = false;
 		}
 		if (!initialMarkDone) {
@@ -181,25 +181,25 @@ final class JoinExecutor<T> {
 		root.clearCache();
 		// remark all nodes with a where clause contribution.
 		JoinTreeMarker.on(root).visit(condition);
-		appendSql(condition, orderBy);		
+		appendSql(condition, orderBy);
 		List<T> result = new ArrayList<>();
-		try (Connection connection = root.getTable().getDataModel().getConnection(false)) {				
-			try(PreparedStatement statement = builder.prepare(connection)) {
+		try (Connection connection = root.getTable().getDataModel().getConnection(false)) {
+			try (PreparedStatement statement = builder.prepare(connection)) {
 				try (ResultSet resultSet = statement.executeQuery()) {
-					while(resultSet.next()) {
-						construct(resultSet,result);			
+					while (resultSet.next()) {
+						construct(resultSet, result);
 					}
-				}				
-			} 
+				}
+			}
 		}
 		root.completeFind(effectiveDate);
 		// complete result with foreign key values obtained from condition
 		ParentSetter.on(root, result).visit(condition);
 		return result;
 	}
-	
+
 	private void construct(ResultSet rs,List<T> results) throws SQLException {
-		root.set(results, rs, 1);					
+		root.set(results, rs, 1);
 	}
 
 	private void mark(String[] exceptions) {
@@ -209,7 +209,7 @@ final class JoinExecutor<T> {
 			}
 		}
 	}
-	
+
 	private void clear(String[] exceptions) {
 		if (exceptions != null) {
 			for (String each : exceptions) {
@@ -217,11 +217,9 @@ final class JoinExecutor<T> {
 			}
 		}
 	}
-	
-	private boolean hasSemiJoin() {
-		return root.hasSemiJoin();
+
+	private boolean needsDistinct() {
+		return root.needsDistinct();
 	}
-	
+
 }
-
-

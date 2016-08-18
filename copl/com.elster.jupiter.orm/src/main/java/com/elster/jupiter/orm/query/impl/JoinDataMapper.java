@@ -209,4 +209,6 @@ abstract class JoinDataMapper<T> {
 
 	abstract boolean skipFetch(boolean marked, boolean anyChildMarked);
 
+	abstract boolean needsDistinct(boolean marked, boolean anyChildMarked);
+
 }

@@ -1,9 +1,5 @@
 package com.elster.jupiter.orm.query.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.DomainMapper;
@@ -11,14 +7,18 @@ import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
 import com.elster.jupiter.orm.impl.KeyValue;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
-public class ParentDataMapper<T> extends JoinDataMapper<T> {
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+class ParentDataMapper<T> extends JoinDataMapper<T> {
 	private ForeignKeyConstraintImpl constraint;
-	
-	public ParentDataMapper(DataMapperImpl<T> dataMapper,ForeignKeyConstraintImpl constraint, String alias) {
-		super(dataMapper, alias);	
+
+	ParentDataMapper(DataMapperImpl<T> dataMapper, ForeignKeyConstraintImpl constraint, String alias) {
+		super(dataMapper, alias);
 		this.constraint = constraint;
 	}
-	
+
 	T set(Object target , ResultSet rs , int index) throws SQLException {
 		T value = null;
 		if (target != null) {
@@ -36,7 +36,7 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 		}
 		return value;
 	}
-	
+
 	@Override
 	boolean appendFromClause(SqlBuilder builder, String parentAlias, boolean marked, boolean forceOuterJoin) {
 		boolean outerJoin = forceOuterJoin || !constraint.isNotNull();
@@ -56,14 +56,14 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 			builder.append(" = ");
 			builder.append(primaryKeyColumns.get(i).getName(getAlias()));
 			separator = " AND ";
-		}	
+		}
 		builder.closeBracketSpace();
 		return outerJoin;
 	}
-	
+
 
 	@Override
-	String getName() {		
+	String getName() {
 		return constraint.getFieldName();
 	}
 
@@ -71,9 +71,14 @@ public class ParentDataMapper<T> extends JoinDataMapper<T> {
 	public boolean isReachable() {
 		return !getTable().isCached();
 	}
-	
+
 	boolean skipFetch(boolean marked, boolean anyChildMarked) {
 		return getTable().isCached();
 	}
-	
+
+	@Override
+	boolean needsDistinct(boolean marked, boolean anyChildMarked) {
+		return false;
+	}
+
 }
