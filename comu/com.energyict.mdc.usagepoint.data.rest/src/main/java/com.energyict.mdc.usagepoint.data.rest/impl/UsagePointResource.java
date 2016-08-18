@@ -135,7 +135,6 @@ public class UsagePointResource {
             Range<Instant> usagePointActivationInterval = getUsagePointActivationInterval(usagePoint);
             if (usagePointActivationInterval.isConnected(requestedInterval)) {
                 Range<Instant> effectiveInterval = usagePointActivationInterval.intersection(requestedInterval);
-                effectiveInterval = Ranges.copy(effectiveInterval).asOpenClosed();
                 TemporalAmount intervalLength = channel.getIntervalLength().get();
                 Map<Instant, IntervalReadingWithValidationStatus> preFilledChannelDataMap = channel.toList(effectiveInterval).stream()
                         .collect(Collectors.toMap(Function.identity(), timeStamp -> new IntervalReadingWithValidationStatus(ZonedDateTime.ofInstant(timeStamp, clock.getZone()), intervalLength)));
