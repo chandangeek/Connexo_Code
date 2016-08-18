@@ -54,6 +54,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -90,13 +91,14 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
     private volatile SqlDialect sqlDialect = SqlDialect.ORACLE_SE;
+    private volatile Clock clock;
 
     // OSGi
     public ServiceCallServiceImpl() {
     }
 
     @Inject
-    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService) {
+    public ServiceCallServiceImpl(FiniteStateMachineService finiteStateMachineService, OrmService ormService, NlsService nlsService, UserService userService, CustomPropertySetService customPropertySetService, MessageService messageService, JsonService jsonService, UpgradeService upgradeService, Clock clock) {
         this();
         sqlDialect = SqlDialect.H2;
         setFiniteStateMachineService(finiteStateMachineService);
@@ -107,6 +109,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         setJsonService(jsonService);
         setCustomPropertySetService(customPropertySetService);
         setUpgradeService(upgradeService);
+        setClock(clock);
         activate();
     }
 
@@ -163,6 +166,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         handlerMap.put(name, serviceCallHandler);
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties) {
         String name = (String) properties.get("name");
@@ -215,6 +223,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 bind(JsonService.class).toInstance(jsonService);
                 bind(MessageService.class).toInstance(messageService);
                 bind(UserService.class).toInstance(userService);
+                bind(Clock.class).toInstance(clock);
             }
         };
     }
@@ -394,7 +403,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         }
         if (filter.receivedDateFrom != null) {
             Range<Instant> interval =
-                    Range.closed(filter.receivedDateFrom, filter.receivedDateTo != null ? filter.receivedDateTo : Instant.now());
+                    Range.closed(filter.receivedDateFrom, filter.receivedDateTo != null ? filter.receivedDateTo : Instant.now(clock));
             condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
         } else if (filter.receivedDateTo != null) {
             Range<Instant> interval =
@@ -403,7 +412,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         }
         if (filter.modificationDateFrom != null) {
             Range<Instant> interval =
-                    Range.closed(filter.modificationDateFrom, filter.modificationDateTo != null ? filter.modificationDateTo : Instant.now());
+                    Range.closed(filter.modificationDateFrom, filter.modificationDateTo != null ? filter.modificationDateTo : Instant.now(clock));
             condition = condition.and(where(ServiceCallImpl.Fields.createTime.fieldName()).in(interval));
         } else if (filter.modificationDateTo != null) {
             Range<Instant> interval =

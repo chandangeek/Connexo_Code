@@ -17,6 +17,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
 import org.osgi.service.device.Device;
 
+import java.time.Clock;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -87,7 +88,8 @@ public class ServiceCallServiceImplTest {
                 customPropertyService,
                 messageService,
                 jsonService,
-                upgradeService
+                upgradeService,
+                Clock.systemDefaultZone()
         );
 
         serviceCallService.cancelServiceCallsFor(device);
