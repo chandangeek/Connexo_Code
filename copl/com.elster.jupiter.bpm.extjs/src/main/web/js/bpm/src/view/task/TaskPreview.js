@@ -8,9 +8,7 @@ Ext.define('Bpm.view.task.TaskPreview', {
     ],
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'BPM', 'Actions'),
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             privileges: Bpm.privileges.BpmManagement.assignOrExecute,
             menu: {
                 xtype: 'bpm-task-action-menu'
