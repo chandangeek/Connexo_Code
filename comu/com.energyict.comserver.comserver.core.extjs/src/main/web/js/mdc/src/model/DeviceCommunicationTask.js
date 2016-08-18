@@ -7,7 +7,7 @@ Ext.define('Mdc.model.DeviceCommunicationTask', {
         {name: 'connectionStrategy', type: 'string'},
         {name: 'connectionStrategyKey', type: 'string'},
         {name: 'nextCommunication', dateFormat: 'time', type: 'date'},
-        {name: 'lastCommunication', dateFormat: 'time', type: 'date'},
+        {name: 'lastCommunicationStart', dateFormat: 'time', type: 'date'},
         {name: 'urgency', type: 'int'},
         {name: 'securitySettings', type: 'string'},
         {name: 'protocolDialect', type: 'string'},
