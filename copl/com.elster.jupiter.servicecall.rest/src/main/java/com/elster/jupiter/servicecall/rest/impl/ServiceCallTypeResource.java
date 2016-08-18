@@ -96,7 +96,7 @@ public class ServiceCallTypeResource {
         ServiceCallTypeBuilder builder = serviceCallService.createServiceCallType(info.name, info.versionName, serviceCallLifeCycle);
         builder.handler(info.handler);
         builder.logLevel(LogLevel.valueOf(info.logLevel.id));
-        info.customPropertySets.stream()
+        info.customPropertySets
                 .forEach(cps -> builder.customPropertySet(customPropertySetService.findActiveCustomPropertySet(cps.name)
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CUSTOM_ATTRIBUTE_SET))));
         return serviceCallTypeInfoFactory.from(builder.create());

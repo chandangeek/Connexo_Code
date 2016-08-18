@@ -8,7 +8,6 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Optional;
 
 /**
  * Created by bvn on 3/2/16.
@@ -28,7 +27,6 @@ public class ServiceCallTypeInfoFactory {
         info.version = serviceCallType.getVersion();
         info.name = serviceCallType.getName();
         info.versionName = serviceCallType.getVersionName();
-        info.handler = Optional.ofNullable(serviceCallType.getServiceCallHandler()).map(sct -> sct.getDisplayName()).orElse(null);
         info.status = new IdWithDisplayValueInfo<>(serviceCallType.getStatus().name(), serviceCallType.getStatus()
                 .getDisplayName(thesaurus));
         info.logLevel = new IdWithDisplayValueInfo<>(serviceCallType.getLogLevel().name(), serviceCallType.getLogLevel()
@@ -37,9 +35,9 @@ public class ServiceCallTypeInfoFactory {
         info.serviceCallLifeCycle = new IdWithNameInfo(serviceCallLifeCycle.getId(), thesaurus.getString(serviceCallLifeCycle
                 .getName(), serviceCallLifeCycle.getName()));
         info.customPropertySets = new ArrayList<>();
-        serviceCallType.getCustomPropertySets().stream()
+        serviceCallType
+                .getCustomPropertySets()
                 .forEach(cps -> info.customPropertySets.add(new ServiceCallTypeCustomPropertySetInfo(cps)));
-        //this.customPropertySets = new ServiceCallTypeCustomPropertySetInfo;
         return info;
     }
 
