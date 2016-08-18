@@ -45,7 +45,11 @@ public class SynchDeviceWithKoreForMultiplierChange extends AbstractSyncDeviceWi
     protected MeterActivation doActivateMeter(Instant generalizedStartDate) {
         Optional<MeterActivation> meterActivation;
         // If the devices current meter activation starts at start, we just have to update this one!
-        if (device.getKoreHelper().getCurrentMeterActivation().isPresent() && device.getKoreHelper().getCurrentMeterActivation().get().getStart().equals(generalizedStartDate)) {
+        if (device.getKoreHelper().getCurrentMeterActivation().isPresent() && device.getKoreHelper()
+                .getCurrentMeterActivation()
+                .get()
+                .getStart()
+                .equals(generalizedStartDate)) {
             meterActivation = device.getKoreHelper().getCurrentMeterActivation();
         } else {
             meterActivation = Optional.of(getDevice().getMeter().get().getMeterActivation(generalizedStartDate).get());

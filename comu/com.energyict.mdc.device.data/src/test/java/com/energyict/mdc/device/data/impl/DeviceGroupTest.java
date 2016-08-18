@@ -49,11 +49,14 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testPersistenceDynamicGroup() {
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME1, ED_MRID1, Instant.now());
+        Device device1 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME1, ED_MRID1, Instant.now());
         device1.save();
-        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME2, ED_MRID2, Instant.now());
+        Device device2 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME2, ED_MRID2, Instant.now());
         device2.save();
-        Device device3 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME3, ED_MRID3, Instant.now());
+        Device device3 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME3, ED_MRID3, Instant.now());
         device3.save();
         EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder builder = inMemoryPersistence.getMeteringGroupsService().createQueryEndDeviceGroup();
 
@@ -79,11 +82,14 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
     @Test
     @Transactional
     public void testPersistenceStaticGroup() {
-        Device device1 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME1, ED_MRID1, Instant.now());
+        Device device1 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME1, ED_MRID1, Instant.now());
         device1.save();
-        Device device2 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME2, ED_MRID2, Instant.now());
+        Device device2 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME2, ED_MRID2, Instant.now());
         device2.save();
-        Device device3 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME3, ED_MRID3, Instant.now());
+        Device device3 = inMemoryPersistence.getDeviceService()
+                .newDevice(deviceConfiguration, DEVICE_NAME3, ED_MRID3, Instant.now());
         device3.save();
         inMemoryPersistence.getMeteringGroupsService().createEnumeratedEndDeviceGroup()
                 .setName(ENUM_EDG_NAME)

@@ -238,7 +238,8 @@ public class DeviceSearchDomain implements SearchDomain {
                 }
                 for (PropertySpec propertySpec : pluggableClass.get().getDeviceProtocol().getPropertySpecs()) {
                     dynamicProperties.add(injector.getInstance(GeneralAttributeDynamicSearchableProperty.class)
-                            .init(this, propertiesGroup, propertySpec, deviceTypeConstriction.get().getConstrainingProperty(), pluggableClass.get()));
+                            .init(this, propertiesGroup, propertySpec, deviceTypeConstriction.get()
+                                    .getConstrainingProperty(), pluggableClass.get()));
                 }
             }
             return dynamicProperties;

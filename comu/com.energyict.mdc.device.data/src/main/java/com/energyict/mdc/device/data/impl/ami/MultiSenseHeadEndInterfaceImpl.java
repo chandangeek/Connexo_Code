@@ -173,7 +173,8 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     public EndDeviceCapabilities getCapabilities(EndDevice endDevice) {
         List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(findDeviceForEndDevice(endDevice).getDeviceConfiguration());
         Set<DeviceMessageId> supportedMessages = findDeviceForEndDevice(endDevice).getDeviceProtocolPluggableClass()
-                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages())
+                .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol()
+                        .getSupportedMessages())
                 .orElse(Collections.emptySet());
         List<EndDeviceControlType> controlTypes = Arrays.asList(EndDeviceControlTypeMapping.values()).stream()
                 .filter(mapping -> mapping.getPossibleDeviceMessageIdGroups().stream().anyMatch(supportedMessages::containsAll))
@@ -188,7 +189,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     @Override
     public CompletionOptions scheduleMeterRead(Meter meter, List<ReadingType> readingTypes, Instant instant) {
-        return scheduleMeterRead(meter, readingTypes,instant,null);
+        return scheduleMeterRead(meter, readingTypes, instant, null);
     }
 
     @Override
@@ -257,17 +258,19 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private Set<ReadingType> getSupportedReadingTypes(Collection<ComTaskExecution> comTaskExecutions, Collection<ReadingType> readingTypes) {
         Set<ReadingType> readingTypesWithExecutions = new HashSet<>();
 
-        if(readingTypes.stream().anyMatch(ReadingType::isRegular) && comTaskExecutions.stream()
+        if (readingTypes.stream().anyMatch(ReadingType::isRegular) && comTaskExecutions.stream()
                 .anyMatch(comTaskExecution -> comTaskExecution.getProtocolTasks()
                         .stream()
-                        .anyMatch(protocolTask -> protocolTask instanceof LoadProfilesTask))){
+                        .anyMatch(protocolTask -> protocolTask instanceof LoadProfilesTask))) {
             readingTypes.stream().filter(ReadingType::isRegular).forEach(readingTypesWithExecutions::add);
         }
         if (readingTypes.stream().anyMatch(readingType -> !readingType.isRegular()) && comTaskExecutions.stream()
                 .anyMatch(comTaskExecution -> comTaskExecution.getProtocolTasks()
                         .stream()
-                        .anyMatch(protocolTask -> protocolTask instanceof RegistersTask))){
-            readingTypes.stream().filter(readingType -> !readingType.isRegular()).forEach(readingTypesWithExecutions::add);
+                        .anyMatch(protocolTask -> protocolTask instanceof RegistersTask))) {
+            readingTypes.stream()
+                    .filter(readingType -> !readingType.isRegular())
+                    .forEach(readingTypesWithExecutions::add);
         }
         return readingTypesWithExecutions;
     }
@@ -275,14 +278,14 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private Set<ComTaskExecution> getComTaskExecutionsForReadingTypes(Collection<ComTaskExecution> comTaskExecutions, Collection<ReadingType> readingTypes) {
         Set<ComTaskExecution> fileredComTaskExecutions = new HashSet<>();
 
-        if(readingTypes.stream().anyMatch(ReadingType::isRegular)){
+        if (readingTypes.stream().anyMatch(ReadingType::isRegular)) {
             comTaskExecutions.stream()
                     .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
                             .stream()
                             .anyMatch(protocolTask -> protocolTask instanceof LoadProfilesTask))
                     .forEach(fileredComTaskExecutions::add);
         }
-        if (readingTypes.stream().anyMatch(readingType -> !readingType.isRegular())){
+        if (readingTypes.stream().anyMatch(readingType -> !readingType.isRegular())) {
             comTaskExecutions.stream()
                     .filter(comTaskExecution -> comTaskExecution.getProtocolTasks()
                             .stream()

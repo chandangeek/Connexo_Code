@@ -9,8 +9,8 @@ import java.util.stream.Stream;
 
 public enum ConnectionTaskSuccessIndicatorTranslationKeys implements TranslationKey {
 
-    SUCCESS(ConnectionTask.SuccessIndicator.SUCCESS, "Success"),
-    FAILURE(ConnectionTask.SuccessIndicator.FAILURE, "Failure"),
+    SUCCESS(ConnectionTask.SuccessIndicator.SUCCESS, "Successful"),
+    FAILURE(ConnectionTask.SuccessIndicator.FAILURE, "Failed"),
     NOT_APPLICABLE(ConnectionTask.SuccessIndicator.NOT_APPLICABLE, "Not applicable");
 
     private ConnectionTask.SuccessIndicator successIndicator;

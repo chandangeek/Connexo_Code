@@ -314,7 +314,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     private final Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
-    private final Reference<Batch> batch = ValueReference.absent();
+    private final Reference<ServerDeviceEstimation> deviceEstimation = ValueReference.absent();
 
     private transient AmrSystem amrSystem;
 
@@ -437,7 +437,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (this.meter.isPresent()) {
             this.meter.get().setMRID(getmRID());
             this.location.ifPresent(location1 -> this.meter.get().setLocation(location1));
-            this.spatialCoordinates.ifPresent(spatialCoordinates1 -> this.meter.get().setSpatialCoordinates(spatialCoordinates1));
+            this.spatialCoordinates.ifPresent(spatialCoordinates1 -> this.meter.get()
+                    .setSpatialCoordinates(spatialCoordinates1));
             this.meter.get().update();
         }
         this.saveDirtySecurityProperties();
@@ -480,7 +481,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     void executeSyncs() {
         // We order the synchronisation actions: first those which create a meter activation, followed
         // by those which reuse the last created meter activation (and just update it).
-        syncsWithKore.stream().sorted(new CanUpdateMeterActivationLast()).forEach((x) -> x.syncWithKore(DeviceImpl.this));
+        syncsWithKore.stream()
+                .sorted(new CanUpdateMeterActivationLast())
+                .forEach((x) -> x.syncWithKore(DeviceImpl.this));
         syncsWithKore.clear();
     }
 
@@ -862,7 +865,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             Instant now = clock.instant();
             Optional<Instant> startDateMultiplier = from == null ? Optional.of(now) : Optional.of(from);
             validateStartDateOfNewMultiplier(now, startDateMultiplier);
-            SynchDeviceWithKoreForMultiplierChange multiplierChange = new SynchDeviceWithKoreForMultiplierChange(this, startDateMultiplier.get(), multiplier, meteringService, readingTypeUtilService, eventService);
+            SynchDeviceWithKoreForMultiplierChange multiplierChange = new SynchDeviceWithKoreForMultiplierChange(this, startDateMultiplier
+                    .get(), multiplier, meteringService, readingTypeUtilService, eventService);
             //All actions to take to sync with Kore once a Device is created
             syncsWithKore.add(multiplierChange);
         }
@@ -892,7 +896,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 throw MultiplierConfigurationException.canNotConfigureMultiplierInPastWhenYouAlreadyHaveData(thesaurus);
             }
             if (this.meter.get().getCurrentMeterActivation().isPresent()) {
-                if (!this.meter.get().getCurrentMeterActivation().get().getRange().contains(startDateMultiplier.get())) {
+                if (!this.meter.get()
+                        .getCurrentMeterActivation()
+                        .get()
+                        .getRange()
+                        .contains(startDateMultiplier.get())) {
                     throw MultiplierConfigurationException.canNotConfigureMultiplierWithStartDateOutOfCurrentMeterActivation(thesaurus);
                 }
             }
@@ -915,7 +923,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<Register> getRegisters() {
-        return new ArrayList<>(getDeviceConfiguration().getRegisterSpecs().stream().map(this::newRegisterFor).collect(Collectors.toList()));
+        return new ArrayList<>(getDeviceConfiguration().getRegisterSpecs()
+                .stream()
+                .map(this::newRegisterFor)
+                .collect(Collectors.toList()));
     }
 
     @Override
@@ -954,7 +965,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<DeviceMessage<Device>> getMessagesByState(DeviceMessageStatus status) {
-        return this.deviceMessages.stream().filter(deviceMessage -> deviceMessage.getStatus().equals(status)).collect(toList());
+        return this.deviceMessages.stream()
+                .filter(deviceMessage -> deviceMessage.getStatus().equals(status))
+                .collect(toList());
     }
 
     @Override
@@ -1033,8 +1046,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private void checkIfAllConflictsAreSolved(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
         originDeviceConfiguration.getDeviceType().getDeviceConfigConflictMappings().stream()
-                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration().getId() == originDeviceConfiguration.getId()
-                        && deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId() == destinationDeviceConfiguration.getId())
+                .filter(deviceConfigConflictMapping -> deviceConfigConflictMapping.getOriginDeviceConfiguration()
+                        .getId() == originDeviceConfiguration.getId()
+                        && deviceConfigConflictMapping.getDestinationDeviceConfiguration()
+                        .getId() == destinationDeviceConfiguration.getId())
                 .filter(Predicates.not(DeviceConfigConflictMapping::isSolved)).findFirst()
                 .ifPresent(deviceConfigConflictMapping1 -> {
                     throw new CannotChangeDeviceConfigStillUnresolvedConflicts(thesaurus, this, destinationDeviceConfiguration);
@@ -1190,7 +1205,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 dataModel.touch(this);
             }
         } else {
-            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().get()
+            throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass()
+                    .get()
                     .getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
     }
@@ -1266,7 +1282,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private Optional<PropertySpec> getPropertySpecForProperty(String name) {
         return this.getDeviceProtocolPluggableClass().map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass
-                .getDeviceProtocol().getPropertySpecs().stream().filter(spec -> spec.getName().equals(name)).findFirst()).orElse(Optional.empty());
+                .getDeviceProtocol()
+                .getPropertySpecs()
+                .stream()
+                .filter(spec -> spec.getName().equals(name))
+                .findFirst()).orElse(Optional.empty());
     }
 
     private void addLocalProperties(TypedProperties properties, List<PropertySpec> propertySpecs) {
@@ -1307,7 +1327,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .setStateMachine(stateMachine)
                 .setSerialNumber(getSerialNumber())
                 .create();
-        newMeter.getLifecycleDates().setReceivedDate(koreHelper.getInitialMeterActivationStartDate().get()); // date should be present
+        newMeter.getLifecycleDates()
+                .setReceivedDate(koreHelper.getInitialMeterActivationStartDate().get()); // date should be present
         newMeter.update();
         return newMeter;
     }
@@ -1946,7 +1967,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
-        return comTaskExecutions.stream().filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate()).collect(Collectors.toList());
+        return comTaskExecutions.stream()
+                .filter(((Predicate<ComTaskExecution>) ComTaskExecution::isObsolete).negate())
+                .collect(Collectors.toList());
     }
 
     private ComTaskExecution add(ComTaskExecutionImpl comTaskExecution) {
@@ -2010,8 +2033,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x -> x.executesComSchedule(comSchedule)).findFirst().
-                orElseThrow(() -> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
+        ComTaskExecution toRemove = getComTaskExecutionImpls().filter(x -> x.executesComSchedule(comSchedule))
+                .findFirst()
+                .
+                        orElseThrow(() -> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
         removeComTaskExecution(toRemove);
     }
 
@@ -2182,7 +2207,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (when.isAfter(this.modTime)) {
             return Optional.of(this);
         }
-        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class).at(when).find(ImmutableMap.of("id", this.getId()));
+        List<JournalEntry<Device>> journalEntries = dataModel.mapper(Device.class)
+                .at(when)
+                .find(ImmutableMap.of("id", this.getId()));
         return journalEntries.stream()
                 .map(JournalEntry::get)
                 .findFirst();
@@ -2333,7 +2360,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         } else {
             // Compare both timestamps and create event from the most recent one
             StateTimeSlice stateTimeSlice = stateTimeSlices.peekFirst();
-            com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent = deviceTypeChangeEvents.peekFirst();
+            com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent deviceLifeCycleChangeEvent = deviceTypeChangeEvents
+                    .peekFirst();
             if (stateTimeSlice.getPeriod().lowerEndpoint().equals(deviceLifeCycleChangeEvent.getTimestamp())) {
                 // Give precedence to the device life cycle change but also consume the state change so the latter is ignored
                 stateTimeSlices.removeFirst();

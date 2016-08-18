@@ -318,9 +318,9 @@ public class DeviceValidationImpl implements DeviceValidation {
 
     private Meter fetchKoreMeter() {
         if (meter == null) {
-            if (device.getMeter().isPresent()){
+            if (device.getMeter().isPresent()) {
                 meter = device.getMeter().get();
-            }else{
+            } else {
                 throw new UnsupportedOperationException("No Kore Meter for device " + device.getId());
             }
         }

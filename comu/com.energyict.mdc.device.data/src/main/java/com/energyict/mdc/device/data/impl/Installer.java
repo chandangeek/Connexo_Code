@@ -131,7 +131,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                         .getKey(), Arrays.asList(Privileges.Constants.IMPORT_INVENTORY_MANAGEMENT, Privileges.Constants.REVOKE_INVENTORY_MANAGEMENT)),
                 this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DATA_COLLECTION_KPI.getKey(), Privileges.RESOURCE_DATA_COLLECTION_KPI_DESCRIPTION
                         .getKey(), Arrays.asList(Privileges.Constants.ADMINISTER_DATA_COLLECTION_KPI, Privileges.Constants.VIEW_DATA_COLLECTION_KPI)),
-                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES.getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Collections
+                this.userService.createModuleResourceWithPrivileges(DeviceDataServices.COMPONENT_NAME, Privileges.RESOURCE_DEVICES
+                        .getKey(), Privileges.RESOURCE_DEVICES_DESCRIPTION.getKey(), Collections
                         .singletonList(Privileges.Constants.ADMINISTER_DEVICE_TIME_SLICED_CPS))
         );
 
@@ -216,10 +217,12 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     }
 
     private void createOnDemandReadServiceCallType() {
-        RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet().getId())
+        RegisteredCustomPropertySet customPropertySet = customPropertySetService.findActiveCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet()
+                .getId())
                 .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", OnDemandReadServiceCallCustomPropertySet.class
                         .getSimpleName())));
-        RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(new CompletionOptionsCustomPropertySet().getId())
+        RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(new CompletionOptionsCustomPropertySet()
+                .getId())
                 .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find custom property set ''{0}''", CompletionOptionsCustomPropertySet.class
                         .getSimpleName())));
 

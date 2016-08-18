@@ -205,7 +205,8 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             injector.getInstance(ServiceCallService.class);
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CommandCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new CompletionOptionsCustomPropertySet());
-            injector.getInstance(CustomPropertySetService.class).addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
+            injector.getInstance(CustomPropertySetService.class)
+                    .addCustomPropertySet(new OnDemandReadServiceCallCustomPropertySet());
             injector.getInstance(CustomPropertySetService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.ormService = injector.getInstance(OrmService.class);

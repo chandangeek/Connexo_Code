@@ -55,7 +55,6 @@ import com.energyict.mdc.tasks.RegistersTask;
 import java.net.URL;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -78,7 +77,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -254,7 +252,7 @@ public class MultisenseHeadEndInterfaceTest {
         when(registredCompletionSet.getCustomPropertySet()).thenReturn(completionSet);
         when(completionSet.getId()).thenReturn(CompletionOptionsServiceCallDomainExtension.class.getName());
         when(completionSet.getName()).thenReturn(CompletionOptionsCustomPropertySet.class.getSimpleName());
-        when(customPropertySetService.findActiveCustomPropertySets(any())).thenReturn(Arrays.asList(registredReadSet,registredCompletionSet));
+        when(customPropertySetService.findActiveCustomPropertySets(any())).thenReturn(Arrays.asList(registredReadSet, registredCompletionSet));
 
         ServiceCallType serviceCallType = mock(ServiceCallType.class);
         when(serviceCallService.findServiceCallType(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME, OnDemandReadServiceCallHandler.VERSION))
@@ -270,7 +268,7 @@ public class MultisenseHeadEndInterfaceTest {
         List<ReadingType> readingTypes = Collections.singletonList(readingType);
 
         // Business method
-        headEndInterface.readMeter(meter,readingTypes);
+        headEndInterface.readMeter(meter, readingTypes);
 
         // Asserts
         verify(serviceCall, times(1)).requestTransition(DefaultState.PENDING);
