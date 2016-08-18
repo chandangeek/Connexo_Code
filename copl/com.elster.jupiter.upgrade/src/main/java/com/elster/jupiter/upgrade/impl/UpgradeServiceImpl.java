@@ -76,6 +76,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
     private Set<InstallIdentifier> checked = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private Queue<StartupFinishedListener> startupFinishedListeners = new ConcurrentLinkedQueue<>();
     private volatile boolean complete;
+    private boolean differences;
 
     public UpgradeServiceImpl() {
         Logger flywayLogger = Logger.getLogger("org.flywaydb");
@@ -101,7 +102,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
         String upgradeProperty = bundleContext.getProperty("upgrade");
         boolean doUpgrade = upgradeProperty != null && Boolean.parseBoolean(upgradeProperty);
         String differencesProperty = bundleContext.getProperty("differences");
-        boolean differences = differencesProperty != null && Boolean.parseBoolean(differencesProperty);
+        this.differences = differencesProperty != null && Boolean.parseBoolean(differencesProperty);
         state = doUpgrade ? new UpgraderState() : new CheckState();
         state.addHandler();
         startupFinishedListeners.add(new ReportingFinishedListener());
@@ -213,13 +214,20 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
         checked.add(installIdentifier);
         checkLists.poll(test(this::matchApplication).with(installIdentifier))
                 .map(upgradeCheckList -> (Runnable) () -> {
-                    if (!expected(upgradeCheckList, installIdentifier)) {
-                        //TODO end startup, but first CXO-2089 needs to be addressed, for now just log a warning
-                        logger.severe("Unexpected component installed : " + installIdentifier);
-                    }
-                }).orElse(() -> {
-            logger.severe("Unexpected component installed : " + installIdentifier);
-        }).run();
+                        if (!expected(upgradeCheckList, installIdentifier)) {
+                            //TODO end startup, but first CXO-2089 needs to be addressed, for now just log a warning
+                            this.unexpectedComponentInstalled(installIdentifier);
+                        }
+                    })
+                .orElse(() -> this.unexpectedComponentInstalled(installIdentifier))
+                .run();
+    }
+
+    private void unexpectedComponentInstalled(InstallIdentifier installIdentifier) {
+        logger.severe("Unexpected component installed : " + installIdentifier);
+        if (this.differences && this.complete) {
+            startupFinishedListeners.add(new StartDiffCheckListener());
+        }
     }
 
     @Override
@@ -232,14 +240,14 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
     }
 
     private void verifyComplete() {
-        complete = checkLists.getServices()
-                .stream()
-                .map(UpgradeCheckList::componentsToInstall)
-                .flatMap(Collection::stream)
-                .allMatch(checked::contains);
+        complete = checkLists
+                        .getServices()
+                        .stream()
+                        .map(UpgradeCheckList::componentsToInstall)
+                        .flatMap(Collection::stream)
+                        .allMatch(checked::contains);
         if (complete) {
-            startupFinishedListeners
-                    .forEach(StartupFinishedListener::onStartupComplete);
+            startupFinishedListeners.forEach(StartupFinishedListener::onStartupComplete);
             startupFinishedListeners.clear();
         }
         String remaining = checkLists.getServices()
@@ -330,7 +338,7 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
         public void addHandler() {
             if (handler == null) {
                 try {
-                    Path path = fileSystem.getPath("./Upgrade.log");
+                    Path path = fileSystem.getPath("./logs/upgrade.log");
                     handler = new FileHandler(path);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -438,4 +446,5 @@ public final class UpgradeServiceImpl implements UpgradeService, EventHandler {
             ormService.getDataModelDifferences(logger).findDifferences();
         }
     }
+
 }
