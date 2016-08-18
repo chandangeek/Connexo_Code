@@ -209,7 +209,7 @@ Ext.define('Wss.view.Add', {
                 required: true,
                 afterBodyEl: [
                     '<div class="x-form-display-field" style="padding-right:10px;color:#686868"><i>',
-                    direction.toUpperCase()==='INBOUND'?Ext.String.htmlEncode(Uni.I18n.translate('endPointAdd.urlPathEmptyText', 'WSS', 'Provide the path e.g. https://applicationserver:port/<path>')):Ext.String.htmlEncode(Uni.I18n.translate('endPointAdd.urlEmptyText', 'WSS', 'Provide the format as https://<host>:<port>/<path>')),
+                    direction.toUpperCase()==='INBOUND'?Ext.String.htmlEncode(Uni.I18n.translate('endPointAdd.inboundURLFormatText', 'WSS', 'Define the path in the URL which has the following format http://host:port/<path>')):Ext.String.htmlEncode(Uni.I18n.translate('endPointAdd.outboundURLFormatText', 'WSS', 'Define the url which has the format http://<host>:<port>/<path>')),
                     '</i></div>'
                 ]
             },
