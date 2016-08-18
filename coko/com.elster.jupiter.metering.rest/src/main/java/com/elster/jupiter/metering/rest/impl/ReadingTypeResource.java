@@ -7,12 +7,14 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.metering.rest.ReadingTypeInfoFactory;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -157,6 +159,18 @@ public class ReadingTypeResource {
             final List<String> existsMrids = meteringService.findReadingTypes(codes).stream().map(ReadingType::getMRID).collect(Collectors.toList());
             mRIDs = codes.stream().filter(e -> !existsMrids.contains(e)).collect(Collectors.toList());
         }
+
+        RestValidationBuilder validationBuilder = new RestValidationBuilder();
+        for (String mRIDvalidation : mRIDs) {
+            String[] mRIDtokens = mRIDvalidation.split("[.]");
+            if (!mRIDtokens[7].equals("0") && mRIDtokens[8].equals("0")) {
+                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.DENOMINATOR_CANNOT_BE_ZERO, "interHarmonicDenominator"));
+            }
+            if (!mRIDtokens[9].equals("0") && mRIDtokens[10].equals("0")) {
+                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.DENOMINATOR_CANNOT_BE_ZERO, "argumentDenominator"));
+            }
+        }
+        validationBuilder.validate();
 
         int createdCount = 0;
         try (TransactionContext context = transactionService.getContext()) {
