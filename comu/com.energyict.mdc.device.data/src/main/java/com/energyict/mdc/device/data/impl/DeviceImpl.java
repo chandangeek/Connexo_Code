@@ -314,7 +314,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private final Provider<ManuallyScheduledComTaskExecutionImpl> manuallyScheduledComTaskExecutionProvider;
     private final Provider<FirmwareComTaskExecutionImpl> firmwareComTaskExecutionProvider;
     private transient DeviceValidationImpl deviceValidation;
-    private final Reference<ServerDeviceEstimation> deviceEstimation = ValueReference.absent();
+    private final Reference<Batch> batch = ValueReference.absent();
 
     private transient AmrSystem amrSystem;
 
