@@ -15,7 +15,6 @@ import com.elster.jupiter.users.User;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -24,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.security.Principal;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,14 +41,16 @@ public class TaskResource {
     private final TransactionService transactionService;
     private final TaskService taskService;
     private final TimeService timeService;
+    private final Clock clock;
 
     @Inject
-    public TaskResource(TaskService taskService, RestQueryService queryService, Thesaurus thesaurus, TransactionService transactionService,TimeService timeService) {
+    public TaskResource(TaskService taskService, RestQueryService queryService, Thesaurus thesaurus, TransactionService transactionService, TimeService timeService, Clock clock) {
         this.queryService = queryService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
         this.taskService = taskService;
         this.timeService = timeService;
+        this.clock = clock;
     }
 
     @GET
@@ -76,7 +78,7 @@ public class TaskResource {
                 locale = user.getLocale().get();
             }
         }
-        TaskInfos infos = new TaskInfos(params.clipToLimit(list), thesaurus, timeService, locale);
+        TaskInfos infos = new TaskInfos(params.clipToLimit(list), thesaurus, timeService, locale, clock);
         infos.total = params.determineTotal(list.size());
         return infos;
     }

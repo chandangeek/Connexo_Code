@@ -5,6 +5,7 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.time.TimeService;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -19,10 +20,10 @@ public class TaskInfos {
     public TaskInfos() {
     }
 
-    public TaskInfos(Iterable<? extends RecurrentTask> allTasks, Thesaurus thesaurus, TimeService timeService, Locale locale) {
+    public TaskInfos(Iterable<? extends RecurrentTask> allTasks, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
         for (RecurrentTask each : allTasks) {
             if (each.getNextExecution() != null)  {
-                tasks.add(new TaskInfo(each, thesaurus, timeService, locale));
+                tasks.add(new TaskInfo(each, thesaurus, timeService, locale, clock));
                 total++;
             }
         }

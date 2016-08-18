@@ -4,7 +4,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
-
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -13,6 +12,7 @@ import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
@@ -39,7 +39,7 @@ public class TaskInfo {
     static String PLANNED = "Planned";
     static String BUSY = "Busy";
 
-    public TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale) {
+    public TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale, Clock clock) {
         name = recurrentTask.getName();
         application = recurrentTask.getApplication();
         queue = recurrentTask.getDestination().getName();
@@ -48,7 +48,7 @@ public class TaskInfo {
         if (lastOccurrence.isPresent()) {
             TaskOccurrence occurrence = lastOccurrence.get();
             if (occurrence.getStatus().equals(TaskStatus.BUSY)) {
-                setBusySince(recurrentTask, occurrence.getStartDate().get().toEpochMilli());
+                setBusySince(recurrentTask, occurrence.getStartDate().get().toEpochMilli(), clock);
             } else if (occurrence.getStatus().equals(TaskStatus.NOT_EXECUTED_YET)) {
                 setPlannedOn(recurrentTask, null);
             } else {
@@ -84,7 +84,7 @@ public class TaskInfo {
         }
     }
 
-    private void setBusySince(RecurrentTask recurrentTask, Long startDate) {
+    private void setBusySince(RecurrentTask recurrentTask, Long startDate, Clock clock) {
         setQueueStatus(BUSY, startDate);
         // Take the previous occurence to check the last run status
         List<TaskOccurrence> occurences = recurrentTask.getTaskOccurrences();
@@ -92,7 +92,7 @@ public class TaskInfo {
             setLastRunStatus(occurences.get(1));
         }
 
-        currentRunDuration = Instant.now().toEpochMilli() - startDate;
+        currentRunDuration = Instant.now(clock).toEpochMilli() - startDate;
     }
 
     private void setQueueStatus(String status, Long date) {

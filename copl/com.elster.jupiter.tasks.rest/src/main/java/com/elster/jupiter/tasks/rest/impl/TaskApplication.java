@@ -11,6 +11,7 @@ package com.elster.jupiter.tasks.rest.impl;
         import org.osgi.service.component.annotations.Reference;
 
         import javax.ws.rs.core.Application;
+        import java.time.Clock;
         import java.util.*;
 
 @Component(name = "com.elster.jupiter.tasks.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/tsk", "app=SYS", "name=" + TaskApplication.COMPONENT_NAME})
@@ -22,6 +23,7 @@ public class TaskApplication extends Application implements TranslationKeyProvid
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile Thesaurus thesaurus;
+    private volatile Clock clock;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(TaskResource.class);
@@ -50,6 +52,11 @@ public class TaskApplication extends Application implements TranslationKeyProvid
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Override
