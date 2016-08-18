@@ -9,7 +9,7 @@ import java.util.Set;
  * Date: 7/03/14
  * Time: 11:22
  */
-class VerboseConstraintViolationException extends ConstraintViolationException {
+public class VerboseConstraintViolationException extends ConstraintViolationException {
 
 	private static final long serialVersionUID = 1L;
 
@@ -35,4 +35,5 @@ class VerboseConstraintViolationException extends ConstraintViolationException {
         }
         return builder.toString();
     }
+
 }
