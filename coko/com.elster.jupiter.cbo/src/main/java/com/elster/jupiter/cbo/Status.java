@@ -11,20 +11,9 @@ public final class Status implements Cloneable {
 	private String remark;
 	private String value;
 	
-	public Status() {	
+	Status() {
 	}
 	
-	public Status(String value , String reason , String remark , Instant dateTime) {
-		this.value = value;
-		this.reason = reason;
-		this.remark = remark;
-		this.dateTime = dateTime;
-	}
-	
-	public Status(String value , String reason , String remark) {
-		this(value,reason,remark, Instant.now());
-	}
-
     public static StatusBuilder builder() {
         return new StatusBuilderImpl();
     }
