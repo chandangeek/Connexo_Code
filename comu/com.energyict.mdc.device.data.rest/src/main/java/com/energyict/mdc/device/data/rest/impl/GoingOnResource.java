@@ -21,7 +21,11 @@ import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -154,7 +158,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "process";
             goingOnInfo.issueType = null;
-            goingOnInfo.id = userTaskInfo.map(info -> Long.parseLong(info.id)).orElse(0L);
+            goingOnInfo.id = Long.parseLong(processInstanceInfo.processId);
             goingOnInfo.reference = null;
             goingOnInfo.description = processInstanceInfo.name;
             goingOnInfo.dueDate = userTaskInfo.flatMap(info -> Optional.ofNullable(info.dueDate)).filter(not(String::isEmpty)).map(Long::parseLong).map(Instant::ofEpochMilli).orElse(null);

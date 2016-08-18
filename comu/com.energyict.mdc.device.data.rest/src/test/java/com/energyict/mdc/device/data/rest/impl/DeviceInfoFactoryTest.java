@@ -269,6 +269,7 @@ public class DeviceInfoFactoryTest {
         when(slave1.getId()).thenReturn(1L);
         when(slave1.getmRID()).thenReturn(SLAVE_MRID_1);
         when(slave1.getVersion()).thenReturn(1L);
+        when(slave1.getBatch()).thenReturn(Optional.empty());
         CIMLifecycleDates lifecycleDatesSlave1 = mock(CIMLifecycleDates.class);
         when(lifecycleDatesSlave1.getReceivedDate()).thenReturn(Optional.of(LocalDateTime.of(2015, 8, 19, 0, 0).toInstant(ZoneOffset.UTC)));
         when(slave1.getLifecycleDates()).thenReturn(lifecycleDatesSlave1);
@@ -281,6 +282,7 @@ public class DeviceInfoFactoryTest {
         when(slave2.getId()).thenReturn(2L);
         when(slave2.getmRID()).thenReturn(SLAVE_MRID_2);
         when(slave2.getVersion()).thenReturn(2L);
+        when(slave2.getBatch()).thenReturn(Optional.empty());
         CIMLifecycleDates lifecycleDatesSlave2 = mock(CIMLifecycleDates.class);
         when(lifecycleDatesSlave2.getReceivedDate()).thenReturn(Optional.of(LocalDateTime.of(2015, 9, 1, 0, 0).toInstant(ZoneOffset.UTC)));
         when(slave2.getLifecycleDates()).thenReturn(lifecycleDatesSlave2);
@@ -299,8 +301,7 @@ public class DeviceInfoFactoryTest {
         when(slaveChn2.getName()).thenReturn(SLAVE_CHANNEL_NAME_2);
         prepareMockedChannel(slaveChn2);
 
-        when(batchService.findBatch(any(Device.class))).thenReturn(Optional.empty());
-        when(batchService.findBatch(dataLogger)).thenReturn(Optional.of(batch));
+        when(dataLogger.getBatch()).thenReturn(Optional.of(batch));
         when(batch.getName()).thenReturn(BATCH_NAME);
 
         when(deviceProtocolPluggableClass.getId()).thenReturn(PROTOCOL_ID);

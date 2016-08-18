@@ -10,7 +10,6 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Batch;
-import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -91,12 +90,12 @@ public class DeviceInfo extends DeviceVersionInfo {
         return deviceInfo;
     }
 
-    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueRetriever issueRetriever, Thesaurus thesaurus, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
+    public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, TopologyService topologyService, IssueRetriever issueRetriever, Thesaurus thesaurus, DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory, String location, String geoCoordinates, Clock clock) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = from(device, location, geoCoordinates);
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().map(HasId::getId).orElse(0L);
         deviceInfo.yearOfCertification = device.getYearOfCertification();
-        deviceInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
+        deviceInfo.batch = device.getBatch().map(Batch::getName).orElse(null);
         Optional<Device> physicalGateway = topologyService.getPhysicalGateway(device);
         if (physicalGateway.isPresent()) {
             deviceInfo.masterDeviceId = physicalGateway.get().getId();

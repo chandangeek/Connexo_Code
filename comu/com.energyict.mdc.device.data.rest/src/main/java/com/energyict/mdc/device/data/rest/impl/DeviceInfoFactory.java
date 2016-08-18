@@ -8,6 +8,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -89,19 +91,18 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     @Override
     public DeviceSearchInfo from(Device device) {
-        return DeviceSearchInfo.from(device, new BatchRetriever(batchService), new GatewayRetriever(topologyService), new IssueRetriever(issueService),
+        return DeviceSearchInfo.from(device, new GatewayRetriever(topologyService), new IssueRetriever(issueService),
                 thesaurus, new DeviceEstimationRetriever(deviceService), new DeviceValidationRetriever(deviceService));
     }
 
     @Override
     public List<Object> from(List<Device> domainObjects) {
-        BatchRetriever batchService = new BatchRetriever(this.batchService, domainObjects);
         GatewayRetriever topologyService = new GatewayRetriever(this.topologyService, domainObjects);
         IssueRetriever issueRetriever = new IssueRetriever(issueService, domainObjects);
         DeviceEstimationRetriever estimationRetrievers = new DeviceEstimationRetriever(deviceService, domainObjects);
         DeviceValidationRetriever validationRetriever = new DeviceValidationRetriever(deviceService, domainObjects);
         return domainObjects.stream()
-                .map(device -> DeviceSearchInfo.from(device, batchService, topologyService, issueRetriever, thesaurus, estimationRetrievers, validationRetriever))
+                .map(device -> DeviceSearchInfo.from(device, topologyService, issueRetriever, thesaurus, estimationRetrievers, validationRetriever))
                 .collect(Collectors.toList());
     }
 
@@ -117,7 +118,7 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
                     .flatMap(List::stream).filter(Objects::nonNull)
                     .collect(Collectors.joining(", "));
         }
-        return DeviceInfo.from(device, slaveDevices, batchService, topologyService, new IssueRetriever(issueService), thesaurus,
+        return DeviceInfo.from(device, slaveDevices, topologyService, new IssueRetriever(issueService), thesaurus,
                 dataLoggerSlaveDeviceInfoFactory, formattedLocation, spatialCoordinates.map(coord -> coord.toString()).orElse(null), clock);
     }
 
@@ -128,29 +129,28 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
 
     @Override
     public List<PropertyDescriptionInfo> modelStructure() {
-        List<PropertyDescriptionInfo> infos = new ArrayList<>(23);
+        List<PropertyDescriptionInfo> infos = new ArrayList<>(21);
         infos.add(createDescription("batch", String.class));
-        infos.add(createDescription("deviceTypeId", Long.class));
-        infos.add(createDescription("deviceConfigurationId", Long.class));
         infos.add(createDescription("hasOpenDataCollectionIssues", Boolean.class));
         infos.add(createDescription("serviceCategory", String.class));
         infos.add(createDescription("usagePoint", String.class));
         infos.add(createDescription("yearOfCertification", Integer.class));
-        infos.add(createDescription("estimationActive", Boolean.class));
+        infos.add(createDescription("estimationActive", String.class));
         infos.add(createDescription("masterDevicemRID", String.class));
         infos.add(createDescription("shipmentDate", Instant.class));
         infos.add(createDescription("installationDate", Instant.class));
         infos.add(createDescription("deactivationDate", Instant.class));
         infos.add(createDescription("decommissionDate", Instant.class));
-        infos.add(createDescription("validationActive", Boolean.class));
+        infos.add(createDescription("validationActive", String.class));
         infos.add(createDescription("hasOpenDataValidationIssues", Boolean.class));
         Collections.sort(infos, Comparator.comparing(pdi -> pdi.propertyName));
 
         // Default columns in proper order
+
         infos.add(0, createDescription("location", String.class));
         infos.add(0, new PropertyDescriptionInfo("state", String.class, thesaurus.getFormat(DeviceSearchModelTranslationKeys.STATE).format()));
-        infos.add(0, createDescription("deviceConfigurationName", String.class));
-        infos.add(0, createDescription("deviceTypeName", String.class));
+        infos.add(0, createDescription("deviceConfigurationName", DeviceConfiguration.class));
+        infos.add(0, createDescription("deviceTypeName", DeviceType.class));
         infos.add(0, createDescription("serialNumber", String.class));
         infos.add(0, createDescription("mRID", String.class));
         return infos;
