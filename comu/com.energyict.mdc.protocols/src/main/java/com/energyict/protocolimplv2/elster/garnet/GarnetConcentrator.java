@@ -189,7 +189,6 @@ public class GarnetConcentrator implements DeviceProtocol {
                     ResultType.NotSupported,
                     this.issueService.newProblem(
                             loadProfileReader.getProfileObisCode(),
-                            this.thesaurus,
                             LOADPROFILE_NOT_SUPPORTED,
                             loadProfileReader.getProfileObisCode()));
             collectedLoadProfileConfigurations.add(configuration);
@@ -380,7 +379,6 @@ public class GarnetConcentrator implements DeviceProtocol {
                     ResultType.InCompatible,
                     this.issueService.newProblem(
                             "FirmwareVersion",
-                            this.thesaurus,
                             COULD_NOT_PARSE_REGISTER_DATA));
         }
         return firmwareVersionsCollectedData;

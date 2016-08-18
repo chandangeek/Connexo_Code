@@ -82,7 +82,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
                                     ResultType.NotSupported,
                                     this.issueService.newWarning(
                                             logBookReader.getLogBookObisCode(),
-                                            MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                            MessageSeeds.LOGBOOK_NOT_SUPPORTED,
                                             logBookReader.getLogBookObisCode()));
                         }
                     }
@@ -95,28 +95,28 @@ public class LogBookFactory implements DeviceLogBookSupport {
                         ResultType.NotSupported,
                         this.issueService.newWarning(
                                 logBookReader.getLogBookObisCode(),
-                                MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                                MessageSeeds.LOGBOOK_NOT_SUPPORTED,
                                 logBookReader.getLogBookObisCode()));
             } else if (e.getErrorStructure().getNotExecutedError().getErrorCode().equals(NotExecutedError.ErrorCode.SLAVE_DOES_NOT_EXIST)) {
                 collectedLogBook.setFailureInformation(
                         ResultType.ConfigurationMisMatch,
                         this.issueService.newWarning(
                                 logBookReader.getDeviceIdentifier(),
-                                MessageSeeds.TOPOLOGY_MISMATCH.getKey(),
+                                MessageSeeds.TOPOLOGY_MISMATCH,
                                 logBookReader.getDeviceIdentifier()));
             } else {
                 collectedLogBook.setFailureInformation(
                         ResultType.InCompatible,
                         this.issueService.newProblem(
                                 logBookReader.getLogBookObisCode(),
-                                MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA.getKey()));
+                                MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA));
             }
         } catch (GarnetException e) {
             collectedLogBook.setFailureInformation(
                     ResultType.InCompatible,
                     this.issueService.newProblem(
                             logBookReader.getLogBookObisCode(),
-                            MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA.getKey()));
+                            MessageSeeds.COULD_NOT_PARSE_LOGBOOK_DATA));
         }
 
         collectedLogBook.setMeterEvents(meterEvents);
@@ -181,7 +181,7 @@ public class LogBookFactory implements DeviceLogBookSupport {
                 ResultType.NotSupported,
                 this.issueService.newWarning(
                         logBookReader,
-                        MessageSeeds.LOGBOOK_NOT_SUPPORTED.getKey(),
+                        MessageSeeds.LOGBOOK_NOT_SUPPORTED,
                         logBookReader.getLogBookObisCode()));
         return failedLogBook;
     }

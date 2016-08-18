@@ -501,7 +501,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         } catch (ProtocolException e) {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
-                    this.getThesaurus(),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
                     DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
         }
@@ -514,7 +513,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         } catch (IOException e) {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
-                    this.getThesaurus(),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
                     DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
         }
@@ -523,7 +521,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
         } catch (IOException e) {
             this.getIssueService().newProblem(
                     this.getCalendarRegister(DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE),
-                    this.getThesaurus(),
                     com.energyict.mdc.protocol.api.MessageSeeds.COULD_NOT_READ_CALENDAR_INFO,
                     DLMSActivityCalendarController.ACTIVITY_CALENDAR_OBISCODE);
         }
