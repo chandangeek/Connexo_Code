@@ -18,7 +18,7 @@ Ext.define('Uni.grid.column.Action', {
 
     // Renderer closure iterates through items creating an <img> element for each and tagging with an identifying
     // class name x-action-col-{n}
-    defaultRenderer: function(v, meta, record, rowIdx, colIdx, store, view){
+    defaultRenderer: function (v, meta, record, rowIdx, colIdx, store, view) {
         var me = this,
             prefix = Ext.baseCSSPrefix,
             scope = me.origScope || me,

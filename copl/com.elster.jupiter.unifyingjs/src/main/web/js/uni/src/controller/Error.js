@@ -179,6 +179,10 @@ Ext.define('Uni.controller.Error', {
                     'Please contact your system administrator.'
                 );
                 break;
+            case 408:
+                title = Uni.I18n.translate('general.timeOut', 'UNI', 'Time out');
+                message = Uni.I18n.translate('general.timeOutMessage', 'UNI', 'Request processing took too long.');
+                break;
             case 409:
                 me.concurrentErrorHandler(options, decoded);
                 break;
