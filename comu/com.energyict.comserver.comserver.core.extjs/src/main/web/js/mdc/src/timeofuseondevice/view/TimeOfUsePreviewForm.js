@@ -92,11 +92,7 @@ Ext.define('Mdc.timeofuseondevice.view.TimeOfUsePreviewForm', {
 
             if (record.get('lastVerified') && record.get('lastVerified') !== 0) {
                 var creationTime = record.get('lastVerified');
-                if (new Date(creationTime).toDateString() === new Date().toDateString()) {
-                    me.down('#lastVerifiedDisplayField').setValue(Uni.DateTime.formatTimeLong(new Date(creationTime)));
-                } else {
-                    me.down('#lastVerifiedDisplayField').setValue(Uni.DateTime.formatDateLong(new Date(creationTime)));
-                }
+                me.down('#lastVerifiedDisplayField').setValue(Uni.DateTime.formatDateTime(new Date(creationTime), Uni.DateTime.LONG, Uni.DateTime.SHORT));
             } else {
                 me.down('#lastVerifiedDisplayField').setValue('-');
             }
