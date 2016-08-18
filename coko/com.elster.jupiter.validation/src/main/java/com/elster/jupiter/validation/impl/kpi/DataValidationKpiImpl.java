@@ -7,6 +7,7 @@ import com.elster.jupiter.kpi.KpiMember;
 import com.elster.jupiter.kpi.KpiService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -30,6 +31,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.Period;
@@ -39,7 +41,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -67,6 +68,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     private final MessageService messageService;
     private final KpiService kpiService;
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
     private long id;
     private String userName;
@@ -84,13 +86,14 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
 
 
     @Inject
-    public DataValidationKpiImpl(DataModel dataModel, TaskService taskService, MessageService messageService, KpiService kpiService, Thesaurus thesaurus) {
+    public DataValidationKpiImpl(DataModel dataModel, TaskService taskService, MessageService messageService, KpiService kpiService, Thesaurus thesaurus, Clock clock) {
         super();
         this.dataModel = dataModel;
         this.taskService = taskService;
         this.messageService = messageService;
         this.kpiService = kpiService;
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
 
@@ -112,7 +115,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     void dataValidationKpiBuilder(EndDeviceGroup endDeviceGroup) {
-        endDeviceGroup.getMembers(Instant.now())
+        endDeviceGroup.getMembers(Instant.now(clock))
                 .stream()
                 .forEach(device -> createValidationKpiMember(device.getId()));
     }
@@ -232,7 +235,7 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
     }
 
     void updateMembers() {
-        List<Long> deviceGroupDeviceIds = getDeviceGroup().getMembers(Instant.now()).stream().map(device -> device.getId()).collect(Collectors.toList());
+        List<Long> deviceGroupDeviceIds = getDeviceGroup().getMembers(Instant.now(clock)).stream().map(EndDevice::getId).collect(Collectors.toList());
         List<Long> dataValidationKpiMembers = new ArrayList<>();
         this.childrenKpis.stream().forEach(child ->
                 child.getChildKpi().getMembers().stream()

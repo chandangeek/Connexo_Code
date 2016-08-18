@@ -157,7 +157,7 @@ public class ValidationServiceImpl implements ValidationService, MessageSeedProv
     @Activate
     public final void activate(BundleContext context) {
         this.dataValidationKpiService = new DataValidationKpiServiceImpl(this);
-        this.dataValidationReportService = new DataValidationReportServiceImpl(this);
+        this.dataValidationReportService = new DataValidationReportServiceImpl(this, clock);
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {

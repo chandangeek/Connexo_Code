@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableList;
 
 import javax.inject.Provider;
 import javax.validation.ValidatorFactory;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
@@ -66,8 +67,9 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Mock
     private QueryExecutor<IValidationRule> queryExecutor;
     private Provider<ReadingTypeInValidationRuleImpl> readingTypeInRuleProvider = () -> new ReadingTypeInValidationRuleImpl(meteringService);
-    private Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, readingTypeInRuleProvider);
-    private Provider<ValidationRuleSetVersionImpl> versionProvider = () -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider);
+    private final Clock clock = Clock.systemDefaultZone();
+    private Provider<ValidationRuleImpl> ruleProvider = () -> new ValidationRuleImpl(dataModel, validatorCreator, thesaurus, meteringService, eventService, readingTypeInRuleProvider, clock);
+    private Provider<ValidationRuleSetVersionImpl> versionProvider = () -> new ValidationRuleSetVersionImpl(dataModel, eventService, ruleProvider, clock);
 
     @Before
     public void setUp() {
@@ -79,7 +81,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
         when(dataModel.query(IValidationRule.class, IValidationRuleSet.class, ValidationRuleProperties.class)).thenReturn(queryExecutor);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(dataModel.getValidatorFactory().getValidator()).thenReturn(validator);
-        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, QualityCodeSystem.MDC, null);
+        validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider, clock).init(NAME, QualityCodeSystem.MDC, null);
     }
     @After
     public void tearDown() {
@@ -88,7 +90,7 @@ public class ValidationRuleSetTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (validationRuleSet == null) {
-            validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, QualityCodeSystem.MDC, null);
+            validationRuleSet = new ValidationRuleSetImpl(dataModel, eventService, versionProvider, clock).init(NAME, QualityCodeSystem.MDC, null);
             setId(validationRuleSet, ID);
         }
         return validationRuleSet;
@@ -100,14 +102,14 @@ public class ValidationRuleSetTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, QualityCodeSystem.MDC, null);
+        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider, clock).init(NAME, QualityCodeSystem.MDC, null);
         setId(set, ID);
         return set;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider).init(NAME, QualityCodeSystem.MDC, null);
+        ValidationRuleSetImpl set = new ValidationRuleSetImpl(dataModel, eventService, versionProvider, clock).init(NAME, QualityCodeSystem.MDC, null);
         setId(set, OTHER_ID);
         return ImmutableList.of(set);
     }

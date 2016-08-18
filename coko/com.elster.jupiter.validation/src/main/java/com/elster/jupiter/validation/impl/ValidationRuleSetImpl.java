@@ -22,6 +22,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -65,13 +66,15 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
     private final EventService eventService;
     private final DataModel dataModel;
     private final Provider<ValidationRuleSetVersionImpl> validationRuleSetVersionProvider;
+    private final Clock clock;
 
     @Inject
-    ValidationRuleSetImpl(DataModel dataModel, EventService eventService, Provider<ValidationRuleSetVersionImpl> validationRuleSetValidationProvider) {
+    ValidationRuleSetImpl(DataModel dataModel, EventService eventService, Provider<ValidationRuleSetVersionImpl> validationRuleSetValidationProvider, Clock clock) {
         // for persistence
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.validationRuleSetVersionProvider = validationRuleSetValidationProvider;
+        this.clock = clock;
     }
 
     ValidationRuleSetImpl init(String name, QualityCodeSystem qualityCodeSystem) {
@@ -193,7 +196,7 @@ public final class ValidationRuleSetImpl implements IValidationRuleSet {
 
     @Override
     public void delete() {
-        this.setObsoleteTime(Instant.now()); // mark obsolete
+        this.setObsoleteTime(Instant.now(clock)); // mark obsolete
         doGetVersions().forEach(ValidationRuleSetVersion::delete);
         validationRuleSetFactory().update(this);
         eventService.postEvent(EventType.VALIDATIONRULESET_DELETED.topic(), this);

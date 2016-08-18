@@ -16,6 +16,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import java.time.Clock;
+
 
 @Component(name = "com.elster.jupiter.validation.impl",
         service = MessageHandlerFactory.class,
@@ -29,12 +31,13 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
     private volatile MetrologyConfigurationService metrologyConfigurationService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UserService userService;
+    private volatile Clock clock;
 
     private User user;
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new DataValidationTaskExecutor((ValidationServiceImpl) validationService, metrologyConfigurationService, transactionService, validationService.getThesaurus(), threadPrincipalService, getUser()));
+        return taskService.createMessageHandler(new DataValidationTaskExecutor((ValidationServiceImpl) validationService, metrologyConfigurationService, transactionService, validationService.getThesaurus(), threadPrincipalService, clock, getUser()));
     }
 
     @Reference
@@ -65,6 +68,11 @@ public class DataValidationMessageHandlerFactory implements MessageHandlerFactor
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Activate
