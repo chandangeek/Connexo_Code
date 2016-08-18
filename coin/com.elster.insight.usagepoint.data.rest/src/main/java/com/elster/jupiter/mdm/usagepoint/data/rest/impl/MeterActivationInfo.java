@@ -24,7 +24,7 @@ public class MeterActivationInfo {
         this.end = meterActivation.getEnd() == null ? null : meterActivation.getEnd().toEpochMilli();
         this.version = meterActivation.getVersion();
         meterActivation.getMeter().ifPresent(m -> {
-            this.meter = includeMeterInfo ? new MeterInfo(meterActivation.getMeter().get()) : new MeterInfo();
+            this.meter = includeMeterInfo ? new MeterInfo(m) : new MeterInfo();
             this.meter.mRID = meterActivation.getMeter().get().getMRID();
         });
         meterActivation.getMeterRole().ifPresent(mr -> this.meterRole = new MeterRoleInfo(mr));
