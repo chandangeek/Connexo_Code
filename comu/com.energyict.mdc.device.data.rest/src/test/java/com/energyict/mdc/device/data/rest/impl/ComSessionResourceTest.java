@@ -82,8 +82,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.comSessions[0].comServer.name")).isEqualTo("communication server alfa");
         assertThat(jsonModel.<String>get("$.comSessions[0].comPort")).isEqualTo("comPort 199812981212");
         assertThat(jsonModel.<String>get("$.comSessions[0].result.id")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.comSessions[0].result.displayValue")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.comSessions[0].status")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.comSessions[0].result.displayValue")).isEqualTo("Successful");
+        assertThat(jsonModel.<String>get("$.comSessions[0].status")).isEqualTo("Successful");
         assertThat(jsonModel.<Integer>get("$.comSessions[0].comTaskCount.numberOfSuccessfulTasks")).isEqualTo(1001);
         assertThat(jsonModel.<Integer>get("$.comSessions[0].comTaskCount.numberOfFailedTasks")).isEqualTo(1002);
         assertThat(jsonModel.<Integer>get("$.comSessions[0].comTaskCount.numberOfIncompleteTasks")).isEqualTo(1003);
@@ -139,8 +139,8 @@ public class ComSessionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.comServer.name")).isEqualTo("communication server alfa");
         assertThat(jsonModel.<String>get("$.comPort")).isEqualTo("comPort 199812981212");
         assertThat(jsonModel.<String>get("$.result.id")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.result.displayValue")).isEqualTo("Success");
-        assertThat(jsonModel.<String>get("$.status")).isEqualTo("Success");
+        assertThat(jsonModel.<String>get("$.result.displayValue")).isEqualTo("Successful");
+        assertThat(jsonModel.<String>get("$.status")).isEqualTo("Successful");
         assertThat(jsonModel.<Integer>get("$.comTaskCount.numberOfSuccessfulTasks")).isEqualTo(1001);
         assertThat(jsonModel.<Integer>get("$.comTaskCount.numberOfFailedTasks")).isEqualTo(1002);
         assertThat(jsonModel.<Integer>get("$.comTaskCount.numberOfIncompleteTasks")).isEqualTo(1003);
