@@ -70,7 +70,8 @@ class MeterActivationSetStreamBuilder {
         } else {
             sequenceNumber = 1;
         }
-        MeterActivationSetImpl set = new MeterActivationSetImpl(this.usagePoint.getEffectiveMetrologyConfiguration(this.period.lowerEndpoint())
+        MeterActivationSetImpl set = new MeterActivationSetImpl(this.usagePoint.getEffectiveMetrologyConfiguration(this.period
+                .lowerEndpoint())
                 .get()
                 .getMetrologyConfiguration(), sequenceNumber, startDate);
         meterActivations.forEach(set::add);

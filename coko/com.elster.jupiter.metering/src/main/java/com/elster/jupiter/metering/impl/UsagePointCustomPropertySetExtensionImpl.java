@@ -134,6 +134,11 @@ class UsagePointCustomPropertySetExtensionImpl implements UsagePointCustomProper
         }
 
         @Override
+        public boolean isActive() {
+            return this.delegate.isActive();
+        }
+
+        @Override
         @SuppressWarnings("uncheked")
         public CustomPropertySet<UsagePoint, ?> getCustomPropertySet() {
             return delegate.getCustomPropertySet();

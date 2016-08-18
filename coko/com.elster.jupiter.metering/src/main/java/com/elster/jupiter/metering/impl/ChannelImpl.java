@@ -693,7 +693,8 @@ public final class ChannelImpl implements ChannelContract {
                     IntervalReadingRecord intervalReadingRecord = (IntervalReadingRecord) baseReadingRecord;
                     intervalBlocks.entrySet().stream().forEach(intervalBlock -> {
                         IntervalReadingRecord filtered = intervalReadingRecord.filter(intervalBlock.getKey());
-                        IntervalReadingImpl intervalReading = IntervalReadingImpl.of(filtered.getTimeStamp(), filtered.getValue(), filtered.getReadingQualities());
+                        IntervalReadingImpl intervalReading = IntervalReadingImpl.of(filtered.getTimeStamp(), filtered.getValue(), filtered
+                                .getReadingQualities());
                         filtered.getTimePeriod().ifPresent(intervalReading::setTimePeriod);
                         addQualityToBaseReading(qualities, intervalBlock.getKey(), intervalReading);
                         intervalBlock.getValue().addIntervalReading(intervalReading);
@@ -716,8 +717,13 @@ public final class ChannelImpl implements ChannelContract {
             }
 
             timeSeries.get().removeEntries(Ranges.copy(instant).withOpenLowerBound());
-            dataModel.mapper(ReadingQualityRecord.class).remove(qualities.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
-            qualities.values().stream().flatMap(Collection::stream).map(ReadingQualityRecordImpl.class::cast).forEach(ReadingQualityRecordImpl::notifyDeleted);
+            dataModel.mapper(ReadingQualityRecord.class)
+                    .remove(qualities.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
+            qualities.values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .map(ReadingQualityRecordImpl.class::cast)
+                    .forEach(ReadingQualityRecordImpl::notifyDeleted);
             eventService.postEvent(EventType.READINGS_DELETED.topic(), new ReadingsDeletedEventImpl(this, readingTimes));
         }
         return meterReading;
@@ -728,7 +734,8 @@ public final class ChannelImpl implements ChannelContract {
             qualities.get(reading.getTimeStamp())
                     .stream()
                     .filter(rqr -> rqr.getReadingType().equals(readingType))
-                    .filter(not(readingQualityRecord -> readingQualityRecord.getReadingTimestamp().equals(reading.getTimeStamp())))
+                    .filter(not(readingQualityRecord -> readingQualityRecord.getReadingTimestamp()
+                            .equals(reading.getTimeStamp())))
                     .forEach(rqr -> reading.addQuality(rqr.getTypeCode(), rqr.getComment()));
         }
     }

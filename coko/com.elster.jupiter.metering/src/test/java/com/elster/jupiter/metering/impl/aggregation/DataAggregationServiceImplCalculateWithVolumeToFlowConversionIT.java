@@ -323,9 +323,11 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
+                .withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE)
+                .withReadingType(fifteenMinuteskWReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -426,9 +428,11 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
+                .withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE)
+                .withReadingType(fifteenMinuteskWReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -539,9 +543,11 @@ public class DataAggregationServiceImplCalculateWithVolumeToFlowConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
+                .withReadingType(fifteenMinuteskWhForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(hourlykWReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE)
+                .withReadingType(hourlykWReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);

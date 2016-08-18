@@ -72,7 +72,8 @@ class CalculatedMetrologyContractDataImpl implements CalculatedMetrologyContract
      */
     private Map<ReadingType, List<CalculatedReadingRecord>> mergeMeterActivations(Map<ReadingType, List<CalculatedReadingRecord>> calculatedReadingRecords) {
         Map<ReadingType, List<CalculatedReadingRecord>> merged = new HashMap<>();
-        calculatedReadingRecords.entrySet().forEach(readingTypeAndRecords -> this.mergeMeterActivations(readingTypeAndRecords, merged));
+        calculatedReadingRecords.entrySet()
+                .forEach(readingTypeAndRecords -> this.mergeMeterActivations(readingTypeAndRecords, merged));
         return merged;
     }
 

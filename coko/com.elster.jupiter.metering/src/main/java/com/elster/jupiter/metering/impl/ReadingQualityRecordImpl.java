@@ -167,7 +167,7 @@ class ReadingQualityRecordImpl implements ReadingQualityRecord {
         notifyDeleted();
     }
 
-    void notifyDeleted(){
+    void notifyDeleted() {
         eventService.postEvent(EventType.READING_QUALITY_DELETED.topic(), new LocalEventSource(this));
     }
 

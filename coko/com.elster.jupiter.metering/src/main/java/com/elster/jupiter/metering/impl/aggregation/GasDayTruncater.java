@@ -33,7 +33,8 @@ class GasDayTruncater implements InstantTruncater {
             case DAY1: {
                 int hours = this.gasDayOptions.getYearStart().getHour();
                 if (hours > 0) {
-                    return intervalLength.truncate(instant.minus(hours, ChronoUnit.HOURS), zoneId).plus(hours, ChronoUnit.HOURS);
+                    return intervalLength.truncate(instant.minus(hours, ChronoUnit.HOURS), zoneId)
+                            .plus(hours, ChronoUnit.HOURS);
                 } else {
                     return intervalLength.truncate(instant, zoneId);
                 }

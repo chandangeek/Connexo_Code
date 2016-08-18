@@ -61,14 +61,16 @@ public class GasDayOptionsImplIT {
 
     @After
     public void after() {
-        inMemoryBootstrapModule.getOrmService().invalidateCache(MeteringService.COMPONENTNAME, TableSpecs.MTR_GASDAYOPTIONS.name());
+        inMemoryBootstrapModule.getOrmService()
+                .invalidateCache(MeteringService.COMPONENTNAME, TableSpecs.MTR_GASDAYOPTIONS.name());
     }
 
     @Test
     @Transactional
     public void createGasDayOptions() {
         // Business method
-        GasDayOptions gasDayOptions = inMemoryBootstrapModule.getMeteringService().createGasDayOptions(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(5, 0)));
+        GasDayOptions gasDayOptions = inMemoryBootstrapModule.getMeteringService()
+                .createGasDayOptions(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(5, 0)));
 
         // Asserts
         assertThat(gasDayOptions).isNotNull();
@@ -82,7 +84,8 @@ public class GasDayOptionsImplIT {
     @Transactional
     public void createGasDayIgnoresMinuteSecondsAndNanos() {
         // Business method
-        GasDayOptions gasDayOptions = inMemoryBootstrapModule.getMeteringService().createGasDayOptions(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(5, 13, 31, 951753)));
+        GasDayOptions gasDayOptions = inMemoryBootstrapModule.getMeteringService()
+                .createGasDayOptions(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(5, 13, 31, 951753)));
 
         // Asserts
         assertThat(gasDayOptions).isNotNull();
@@ -98,10 +101,12 @@ public class GasDayOptionsImplIT {
     @Test(expected = IllegalStateException.class)
     @Transactional
     public void createGasDayOptions2ndTime() {
-        inMemoryBootstrapModule.getMeteringService().createGasDayOptions(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(5, 0)));
+        inMemoryBootstrapModule.getMeteringService()
+                .createGasDayOptions(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(5, 0)));
 
         // Business method
-        inMemoryBootstrapModule.getMeteringService().createGasDayOptions(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(5, 0)));
+        inMemoryBootstrapModule.getMeteringService()
+                .createGasDayOptions(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(5, 0)));
 
         // Asserts: see expected exception rule
     }

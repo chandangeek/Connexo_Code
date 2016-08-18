@@ -37,7 +37,9 @@ public class TruncatedTimelineSqlBuilderTest {
     @Test
     public void test15MinutesEnergyToDayLevel() {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(kWh15Mins()).to(IntervalLength.DAY1).using(sqlBuilder, this.meteringService);
+        TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(kWh15Mins())
+                .to(IntervalLength.DAY1)
+                .using(sqlBuilder, this.meteringService);
 
         // Business method
         builder.append("LOCALDATE");
@@ -52,7 +54,9 @@ public class TruncatedTimelineSqlBuilderTest {
         when(gasDayOptions.getYearStart()).thenReturn(DayMonthTime.from(MonthDay.of(Month.OCTOBER, 1), LocalTime.of(17, 0)));
         when(this.meteringService.getGasDayOptions()).thenReturn(gasDayOptions);
         SqlBuilder sqlBuilder = new SqlBuilder();
-        TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(gaskWh15Mins()).to(IntervalLength.DAY1).using(sqlBuilder, this.meteringService);
+        TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(gaskWh15Mins())
+                .to(IntervalLength.DAY1)
+                .using(sqlBuilder, this.meteringService);
 
         // Business method
         builder.append("LOCALDATE");
@@ -65,7 +69,9 @@ public class TruncatedTimelineSqlBuilderTest {
     public void test15MinutesGasDoesNotNPEWhenGasDayStartNotConfigured() {
         when(this.meteringService.getGasDayOptions()).thenReturn(null);
         SqlBuilder sqlBuilder = new SqlBuilder();
-        TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(gaskWh15Mins()).to(IntervalLength.DAY1).using(sqlBuilder, this.meteringService);
+        TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(gaskWh15Mins())
+                .to(IntervalLength.DAY1)
+                .using(sqlBuilder, this.meteringService);
 
         // Business method
         builder.append("LOCALDATE");
@@ -80,7 +86,9 @@ public class TruncatedTimelineSqlBuilderTest {
         when(gasDayOptions.getYearStart()).thenReturn(DayMonthTime.from(MonthDay.of(Month.MAY, 1), LocalTime.of(17, 0)));
         when(this.meteringService.getGasDayOptions()).thenReturn(gasDayOptions);
         SqlBuilder sqlBuilder = new SqlBuilder();
-        TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(gaskWh15Mins()).to(IntervalLength.YEAR1).using(sqlBuilder, this.meteringService);
+        TruncatedTimelineSqlBuilder builder = TruncatedTimelineSqlBuilderFactory.truncate(gaskWh15Mins())
+                .to(IntervalLength.YEAR1)
+                .using(sqlBuilder, this.meteringService);
 
         // Business method
         builder.append("LOCALDATE");
