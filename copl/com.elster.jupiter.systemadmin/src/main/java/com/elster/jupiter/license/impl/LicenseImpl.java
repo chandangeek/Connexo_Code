@@ -18,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.SignedObject;
 import java.security.spec.InvalidKeySpecException;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -39,11 +40,13 @@ public class LicenseImpl implements License {
     private static final String LICENSE_TYPE_KEY = "license.type";
 
     private final Thesaurus thesaurus;
+    private final Clock clock;
 
     @Inject
-    public LicenseImpl(Thesaurus thesaurus) {
+    public LicenseImpl(Thesaurus thesaurus, Clock clock) {
         super();
         this.thesaurus = thesaurus;
+        this.clock = clock;
     }
 
     @NotNull
@@ -140,7 +143,7 @@ public class LicenseImpl implements License {
 
     @Override
     public Status getStatus() {
-        return getExpiration().isBefore(Instant.now()) ? Status.EXPIRED : Status.ACTIVE;
+        return getExpiration().isBefore(Instant.now(clock)) ? Status.EXPIRED : Status.ACTIVE;
     }
 
     @Override

@@ -33,6 +33,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.SignedObject;
 import java.security.spec.InvalidKeySpecException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -69,6 +70,7 @@ public final class LicenseServiceImpl implements LicenseService, MessageSeedProv
     private volatile UserService userService;
     private volatile EventService eventService;
     private volatile UpgradeService upgradeService;
+    private volatile Clock clock;
     private final Semaphore reloadAppsSemaphore = new Semaphore(1);
 
     private BundleContext context;
@@ -79,13 +81,15 @@ public final class LicenseServiceImpl implements LicenseService, MessageSeedProv
     }
 
     @Inject
-    public LicenseServiceImpl(OrmService ormService, UserService userService, EventService eventService, NlsService nlsService, UpgradeService upgradeService) {
+    public LicenseServiceImpl(OrmService ormService, UserService userService, EventService eventService, NlsService nlsService, UpgradeService upgradeService, Clock clock) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
         setUserService(userService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
+        setClock(clock);
+
         activate(null);
     }
 
@@ -116,6 +120,11 @@ public final class LicenseServiceImpl implements LicenseService, MessageSeedProv
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Activate
