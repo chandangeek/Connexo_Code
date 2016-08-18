@@ -134,7 +134,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
 
         preview.setLoading(true);
         preview.setTitle(readingType.fullAliasName);
-
+        Ext.getStore('Mdc.store.Clipboard').set('latest-device-channels-filter', Uni.util.QueryString.getQueryString());
         if (!record.data.validationInfo.validationActive) {
             !!preview.down('#validateNowChannel') && preview.down('#validateNowChannel').hide();
             !!Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0] && Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].hide();

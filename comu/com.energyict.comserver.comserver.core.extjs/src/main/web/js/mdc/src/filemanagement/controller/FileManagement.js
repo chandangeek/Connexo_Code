@@ -42,7 +42,7 @@ Ext.define('Mdc.filemanagement.controller.FileManagement', {
             'files-devicetype-edit-specs-form #files-save-specs-button': {
                 click: me.saveFileManagementSettings
             },
-            'form filefield': {
+            'device-type-files-setup form filefield': {
                 change: me.uploadFile
             },
             'files-grid actioncolumn': {

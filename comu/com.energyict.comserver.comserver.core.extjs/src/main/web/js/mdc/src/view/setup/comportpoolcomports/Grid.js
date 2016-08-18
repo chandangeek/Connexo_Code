@@ -35,6 +35,7 @@ Ext.define('Mdc.view.setup.comportpoolcomports.Grid', {
             },
             {
                 xtype: 'actioncolumn',
+                header: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
                 privileges: Mdc.privileges.Communication.admin,
                 align: 'center',
                 items: [{
