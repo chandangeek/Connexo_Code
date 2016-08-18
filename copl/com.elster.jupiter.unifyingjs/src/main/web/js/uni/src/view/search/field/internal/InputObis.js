@@ -13,7 +13,7 @@ Ext.define('Uni.view.search.field.internal.InputObis', {
                 var obis = /^(0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]|[x])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.0*([0-9]{1,2}|1[0-9]{2}|2[0-4][0-9]|25[0-5]))$/;
                 return obis.test(val);
             },
-            obisCodeText: Uni.I18n.translate('obis.error', 'UNI', 'OBIS code is wrong')
+            obisCodeText: Uni.I18n.translate('obis.error', 'UNI', 'This field contains an invalid OBIS code.')
         });
 
         me.callParent(arguments);
