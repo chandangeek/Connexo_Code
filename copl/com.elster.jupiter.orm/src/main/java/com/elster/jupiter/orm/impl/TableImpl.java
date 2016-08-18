@@ -230,12 +230,22 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public PrimaryKeyConstraintImpl getPrimaryKeyConstraint() {
-        for (TableConstraintImpl each : constraints) {
-            if (each.isPrimaryKey()) {
-                return (PrimaryKeyConstraintImpl) each;
-            }
-        }
-        return null;
+        return getConstraints()
+                .stream()
+                .filter(TableConstraint::isPrimaryKey)
+                .map(PrimaryKeyConstraintImpl.class::cast)
+                .findAny()
+                .orElse(null);
+    }
+
+    @Override
+    public PrimaryKeyConstraintImpl getPrimaryKeyConstraint(Version version) {
+        return getConstraints(version)
+                .stream()
+                .filter(TableConstraint::isPrimaryKey)
+                .map(PrimaryKeyConstraintImpl.class::cast)
+                .findAny()
+                .orElse(null);
     }
 
     @Override

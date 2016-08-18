@@ -219,7 +219,7 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         sb.append(separator);
         sb.append(TableImpl.JOURNALTIMECOLUMNNAME);
         sb.append(" NUMBER NOT NULL");
-        TableConstraintImpl constraint = table.getPrimaryKeyConstraint();
+        TableConstraintImpl constraint = table.getPrimaryKeyConstraint(version);
         if (constraint != null) {
             sb.append(separator);
             sb.append(getJournalConstraint(constraint));

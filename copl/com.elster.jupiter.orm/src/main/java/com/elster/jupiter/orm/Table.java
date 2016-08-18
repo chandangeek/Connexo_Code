@@ -1,6 +1,7 @@
 package com.elster.jupiter.orm;
 
 import com.elster.jupiter.orm.impl.ForeignKeyConstraintImpl;
+import com.elster.jupiter.orm.impl.PrimaryKeyConstraintImpl;
 import com.elster.jupiter.orm.impl.TableConstraintImpl;
 
 import aQute.bnd.annotation.ProviderType;
@@ -182,6 +183,8 @@ public interface Table<T> {
 
     TableConstraint getPrimaryKeyConstraint();
     List<? extends Column> getPrimaryKeyColumns();
+
+    PrimaryKeyConstraintImpl getPrimaryKeyConstraint(Version version);
 
     List<ForeignKeyConstraintImpl> getForeignKeyConstraints(Version version);
 
