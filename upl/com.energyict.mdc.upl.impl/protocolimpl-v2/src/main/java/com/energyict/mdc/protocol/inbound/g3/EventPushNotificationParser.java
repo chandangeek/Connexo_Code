@@ -124,6 +124,7 @@ public class EventPushNotificationParser {
     }
 
     private void parseGeneralGlobalFrame(ByteBuffer inboundFrame) {
+        initializeDeviceIdentifier(inboundFrame.asReadOnlyBuffer());
         SecurityContext securityContext = getSecurityContext();
 
         byte[] remaining = new byte[inboundFrame.remaining()];
@@ -131,9 +132,21 @@ public class EventPushNotificationParser {
         byte[] generalGlobalResponse = ProtocolTools.concatByteArrays(new byte[]{DLMSCOSEMGlobals.GENERAL_GLOBAL_CIPHERING}, remaining);
 
         ByteBuffer decryptedFrame = ByteBuffer.wrap(SecurityContextV2EncryptionHandler.dataTransportGeneralGloOrDedDecryption(securityContext, generalGlobalResponse));
-        deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(securityContext.getResponseSystemTitle());
 
         parseInboundFrame(decryptedFrame);
+    }
+
+    /**
+     * It will initialize the deviceIdentifier object based on the system title then return the system title
+     * @param inboundFrame
+     * @return the system title
+     */
+    private byte[] initializeDeviceIdentifier(ByteBuffer inboundFrame) {
+        int systemTitleLength = inboundFrame.get() & 0xFF;
+        byte[] systemTitle = new byte[systemTitleLength];
+        inboundFrame.get(systemTitle);
+        deviceIdentifier = getDeviceIdentifierBasedOnSystemTitle(systemTitle);
+        return systemTitle;
     }
 
     private void parseGeneralCipheringFrame(ByteBuffer inboundFrame) {
