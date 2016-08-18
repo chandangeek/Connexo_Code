@@ -3,7 +3,6 @@ package com.energyict.mdc.engine.impl.core;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommand;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.issues.Issue;
-import com.energyict.mdc.issues.Problem;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -22,10 +21,10 @@ public class ComCommandJournalist {
 
     private final JournalEntryFactory journalEntryFactory;
     private final Clock clock;
-    public static final NumberFormat NUMBER_FORMAT = new DecimalFormat("00");
-    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_INSTANT;
+    private static final NumberFormat NUMBER_FORMAT = new DecimalFormat("00");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_INSTANT;
 
-    public ComCommandJournalist(JournalEntryFactory journalEntryFactory, Clock clock) {
+    ComCommandJournalist(JournalEntryFactory journalEntryFactory, Clock clock) {
         super();
         this.journalEntryFactory = journalEntryFactory;
         this.clock = clock;

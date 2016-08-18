@@ -8,14 +8,14 @@ package com.energyict.mdc.engine.impl.core.devices;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-08-22 (10:20)
  */
-public interface DeviceCommandExecutorConfigurationChangeListener {
+interface DeviceCommandExecutorConfigurationChangeListener {
 
     /**
      * Applies the changed capacity of the store task queue.
      *
      * @param newCapacity The new capacity
      */
-    public void changeQueueCapacity (int newCapacity);
+    void changeQueueCapacity(int newCapacity);
 
     /**
      * Applies the changed number of threads that execute
@@ -23,12 +23,12 @@ public interface DeviceCommandExecutorConfigurationChangeListener {
      *
      * @param newNumberOfThreads The new number of threads
      */
-    public void changeNumberOfThreads (int newNumberOfThreads);
+    void changeNumberOfThreads(int newNumberOfThreads);
 
     /**
      * Applies the changed thread priority to all running threads
      * @param newPriority The new priority
      */
-    public void changeThreadPriority (int newPriority);
+    void changeThreadPriority(int newPriority);
 
 }

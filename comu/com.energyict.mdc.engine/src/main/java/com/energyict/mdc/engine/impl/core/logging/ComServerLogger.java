@@ -76,6 +76,15 @@ public interface ComServerLogger {
     public void monitoringChanges (ComServer comServer);
 
     /**
+     * Logs that the specified {@link ComServer}'s attempt to monitor for changes
+     * failed with the specified reason.
+     *
+     * @param comServer The ComServer
+     */
+    @Configuration(format = "Monitoring changes to ComServer {0} failed (see exception below)", logLevel = LogLevel.ERROR)
+    public void monitorChangesFailed (ComServer comServer, Throwable e);
+
+    /**
      * Logs that an OutboundComPort
      * was ignored during the startup process.
      *

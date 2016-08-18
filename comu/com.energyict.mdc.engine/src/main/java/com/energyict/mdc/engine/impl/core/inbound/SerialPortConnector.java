@@ -123,7 +123,7 @@ public class SerialPortConnector implements InboundComPortConnector {
      *
      * @return The ComChannel
      */
-    protected SerialComChannel getNewComChannel() {
+    SerialComChannel getNewComChannel() {
         SerialPortConfiguration serialPortConfiguration = comPort.getSerialPortConfiguration();
         serialPortConfiguration.setComPortName(comPort.getName());
         return newSioSerialConnection(serialPortConfiguration);
@@ -137,7 +137,7 @@ public class SerialPortConnector implements InboundComPortConnector {
      * @return the ComChannel
      * @throws CommunicationException if an exception occurred during the creation or initialization of the ComChannel
      */
-    protected SerialComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) {
+    private SerialComChannel newSioSerialConnection(final SerialPortConfiguration serialPortConfiguration) {
         try {
             ServerSerialPort serialPort = this.serialComponentService.newSerialPort(serialPortConfiguration);
             serialPort.openAndInit();
@@ -149,7 +149,7 @@ public class SerialPortConnector implements InboundComPortConnector {
         }
     }
 
-    public int getCurrentRingCount() {
+    int getCurrentRingCount() {
         return currentRingCount;
     }
 

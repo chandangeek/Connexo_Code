@@ -16,7 +16,7 @@ public interface ScheduledComPort extends ComPortServerProcess {
      *
      * @return The OutboundComPort
      */
-    public OutboundComPort getComPort ();
+    OutboundComPort getComPort();
 
     /**
      * Receives notification from the ComServer that the
@@ -25,7 +25,7 @@ public interface ScheduledComPort extends ComPortServerProcess {
      * @param changesInterpollDelay The new scheduling interpoll delay
      * @see com.energyict.mdc.engine.config.ComServer#getChangesInterPollDelay()
      */
-    public void changesInterpollDelayChanged (TimeDuration changesInterpollDelay);
+    void changesInterpollDelayChanged(TimeDuration changesInterpollDelay);
 
     /**
      * Receives notification from the ComServer that the
@@ -34,6 +34,6 @@ public interface ScheduledComPort extends ComPortServerProcess {
      * @param schedulingInterpollDelay The new scheduling interpoll delay
      * @see com.energyict.mdc.engine.config.ComServer#getSchedulingInterPollDelay()
      */
-    public void schedulingInterpollDelayChanged (TimeDuration schedulingInterpollDelay);
+    void schedulingInterpollDelayChanged(TimeDuration schedulingInterpollDelay);
 
 }

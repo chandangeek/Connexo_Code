@@ -12,7 +12,7 @@ import java.time.Instant;
  */
 public interface RescheduleBehavior {
 
-    public enum RescheduleReason {
+    enum RescheduleReason {
         /**
          * Handle the retry logic for the scenario where the
          * connection could not be correctly set up.
@@ -41,8 +41,8 @@ public interface RescheduleBehavior {
         OUTSIDE_COM_WINDOW
     }
 
-    public void performRescheduling(RescheduleReason reason);
+    void performRescheduling(RescheduleReason reason);
 
-    public void rescheduleOutsideWindow(Instant startingPoint);
+    void rescheduleOutsideWindow(Instant startingPoint);
 
 }

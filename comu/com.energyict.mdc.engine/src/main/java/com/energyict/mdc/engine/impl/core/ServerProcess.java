@@ -13,24 +13,24 @@ public interface ServerProcess {
      *
      * @return The ServerProcessStatus
      */
-    public ServerProcessStatus getStatus ();
+    ServerProcessStatus getStatus();
 
     /**
      * Starts this ServerProcess.
      */
-    public void start ();
+    void start();
 
     /**
      * Shuts down this ServerProcess, possibly waiting
      * for running and/or waiting tasks to complete.
      */
-    public void shutdown ();
+    void shutdown();
 
     /**
      * Shuts down this ServerProcess as soon as possible,
      * possibly interrupting running tasks and/or
      * skipping waiting tasks.
      */
-    public void shutdownImmediate ();
+    void shutdownImmediate();
 
 }

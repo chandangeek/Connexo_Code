@@ -14,6 +14,6 @@ public interface InboundComPortExecutor {
      *
      * @param comChannel the ComChannel the inbound call has set up
      */
-    public void execute(ComPortRelatedComChannel comChannel);
+    void execute(ComPortRelatedComChannel comChannel);
 
 }

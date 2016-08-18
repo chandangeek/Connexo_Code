@@ -462,10 +462,10 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionCompleted(final List<? extends ComTaskExecution> comTaskExecutions) {
-        boolean connectionTaskWasLocked = false;
+        boolean connectionTaskWasNotLocked = true;
         for (ComTaskExecution execution : comTaskExecutions) {
-            if (!connectionTaskWasLocked) {
-                connectionTaskWasLocked = true;
+            if (connectionTaskWasNotLocked) {
+                connectionTaskWasNotLocked = false;
                 execution.getConnectionTask().ifPresent(this::refreshAndLockConnectionTask);
             }
             getCommunicationTaskService().executionCompletedFor(execution);
@@ -480,9 +480,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionFailed(final List<? extends ComTaskExecution> comTaskExecutions) {
-        comTaskExecutions
-                .stream()
-                .forEach(comTaskExecution -> getCommunicationTaskService().executionFailedFor(comTaskExecution));
+        comTaskExecutions.forEach(comTaskExecution -> getCommunicationTaskService().executionFailedFor(comTaskExecution));
     }
 
     @Override
@@ -544,7 +542,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     private List<OfflineDeviceMessage> convertToOfflineDeviceMessages(List<DeviceMessage<Device>> deviceMessages) {
         List<OfflineDeviceMessage> offlineDeviceMessages = new ArrayList<>(deviceMessages.size());
-        deviceMessages.stream().forEach(deviceMessage -> {
+        deviceMessages.forEach(deviceMessage -> {
                     if (deviceMessage.getDevice().getDeviceProtocolPluggableClass().isPresent()) {
                         offlineDeviceMessages.add(new OfflineDeviceMessageImpl(deviceMessage, deviceMessage.getDevice()
                                 .getDeviceProtocolPluggableClass().get()
@@ -724,7 +722,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     public void storePathSegments(DeviceIdentifier sourceDeviceIdentifier, List<TopologyPathSegment> topologyPathSegments) {
         TopologyService.G3CommunicationPathSegmentBuilder g3CommunicationPathSegmentBuilder = serviceProvider.topologyService()
                 .addCommunicationSegments(((Device) sourceDeviceIdentifier.findDevice()));
-        topologyPathSegments.stream().forEach(topologyPathSegment -> {
+        topologyPathSegments.forEach(topologyPathSegment -> {
             Optional<Device> target = getOptionalDeviceByIdentifier(topologyPathSegment.getTarget());
             Optional<Device> intermediateHop = getOptionalDeviceByIdentifier(topologyPathSegment.getIntermediateHop());
             if (target.isPresent() && intermediateHop.isPresent()) {
@@ -742,7 +740,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void storeNeighbours(DeviceIdentifier sourceDeviceIdentifier, List<TopologyNeighbour> topologyNeighbours) {
         TopologyService.G3NeighborhoodBuilder g3NeighborhoodBuilder = serviceProvider.topologyService().buildG3Neighborhood((Device) sourceDeviceIdentifier.findDevice());
-        topologyNeighbours.stream().forEach(topologyNeighbour -> {
+        topologyNeighbours.forEach(topologyNeighbour -> {
             Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(topologyNeighbour.getNeighbour());
             if (optionalDevice.isPresent()) {
                 TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(optionalDevice.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()), Modulation
@@ -865,12 +863,15 @@ public class ComServerDAOImpl implements ComServerDAO {
                     }else{
                         RangeSet<Instant> unlinkedPeriods = TreeRangeSet.create();
                         unlinkedPeriods.add(dataPeriod);
-                        linkedOffLineLoadProfiles.stream().forEach((each)->{
-                            unlinkedPeriods.remove(each.getLast());
-                        });
-                        unlinkedPeriods.asRanges().forEach((unlinkedRange)->{
-                            linkedOffLineLoadProfiles.add(Pair.of(offlineLoadProfile, unlinkedRange));
-                        });
+                        linkedOffLineLoadProfiles
+                                .stream()
+                                .map(Pair::getLast)
+                                .forEach(unlinkedPeriods::remove);
+                        unlinkedPeriods
+                                .asRanges()
+                                .stream()
+                                .map(unlinkedRange -> Pair.of(offlineLoadProfile, unlinkedRange))
+                                .forEach(linkedOffLineLoadProfiles::add);
                     }
                     return linkedOffLineLoadProfiles;
                 }

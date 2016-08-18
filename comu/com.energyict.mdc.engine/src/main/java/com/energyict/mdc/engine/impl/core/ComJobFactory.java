@@ -19,5 +19,6 @@ public interface ComJobFactory {
      *
      * @param comTaskExecutions the fetched ComTaskExecutions
      */
-    public List<ComJob> consume(Iterator<ComTaskExecution> comTaskExecutions);
+    List<ComJob> consume(Iterator<ComTaskExecution> comTaskExecutions);
+
 }

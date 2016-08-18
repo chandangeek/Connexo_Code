@@ -25,7 +25,7 @@ public interface ComJob {
      *
      * @return A flag that indicates if this ComJob contains more than one ScheduledComTask
      */
-    public boolean isGroup();
+    boolean isGroup();
 
     /**
      * Gets the {@link ScheduledConnectionTask} to which all this
@@ -33,13 +33,13 @@ public interface ComJob {
      *
      * @return The ConnectionTask
      */
-    public ScheduledConnectionTask getConnectionTask();
+    ScheduledConnectionTask getConnectionTask();
 
     /**
      * Gets the {@link ComTaskExecution}s that need to be executed as part of this ComJob.
      *
      * @return The OutboundComTaskExecutions
      */
-    public List<ComTaskExecution> getComTaskExecutions();
+    List<ComTaskExecution> getComTaskExecutions();
 
 }

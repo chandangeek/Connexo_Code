@@ -79,7 +79,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         this.cryptographer = cryptographer;
     }
 
-    public InboundDAO getInboundDAO() {
+    private InboundDAO getInboundDAO() {
         return inboundDAO;
     }
 
@@ -155,7 +155,7 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         return allCollectedDataWasProcessed;
     }
 
-    public void addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String description, Throwable t) {
+    void addJournalEntry(Instant timestamp, ComServer.LogLevel logLevel, String description, Throwable t) {
         if (this.sessionBuilder != null) {
             this.sessionBuilder.addJournalEntry(timestamp, logLevel, description, t);
         } else {
