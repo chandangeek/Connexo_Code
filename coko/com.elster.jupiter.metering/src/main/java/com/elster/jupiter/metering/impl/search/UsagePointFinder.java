@@ -86,6 +86,9 @@ public class UsagePointFinder implements Finder<UsagePoint> {
     @Override
     public List<UsagePoint> find() {
         QueryExecutor<UsagePoint> query = meteringService.getDataModel().query(UsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, Location.class, LocationMember.class);
+        if (orders.isEmpty()) {
+            orders.add(Order.ascending("mRID"));
+        }
         return query.select(ListOperator.IN.contains(this.finder.asSubQuery("id"), "id"), orders.toArray(new Order[orders.size()]));
 
     }
