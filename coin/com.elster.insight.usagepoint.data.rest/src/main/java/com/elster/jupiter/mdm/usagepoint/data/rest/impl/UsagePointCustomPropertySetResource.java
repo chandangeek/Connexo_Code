@@ -22,6 +22,7 @@ import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.time.RangeInstantBuilder;
 import com.elster.jupiter.util.time.RangeInstantComparator;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -81,6 +82,14 @@ public class UsagePointCustomPropertySetResource {
                 .check(endTime -> endTime == null || start == null || endTime > start)
                 .field("endTime")
                 .message(MessageSeeds.END_DATE_MUST_BE_AFTER_START_DATE).test().validate();
+    }
+
+    private void validateRangeStart(Long start, UsagePoint usagePoint) {
+        new RestValidationBuilder()
+                .on(start)
+                .check(startTime -> !usagePoint.getInstallationTime().isAfter(Instant.ofEpochMilli(startTime)))
+                .field("startTime")
+                .message(MessageSeeds.START_DATE_MUST_BE_GRATER_THAN_UP_CREATED_DATE).test().validate();
     }
 
     private List<ValuesRangeConflict> getValuesRangeConflicts(UsagePointPropertySet usagePointPropertySet,
@@ -263,14 +272,14 @@ public class UsagePointCustomPropertySetResource {
             return Response.status(Response.Status.FORBIDDEN).build();
         }
         info.isVersioned = true;
-        UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
-                .findUsagePointByMrIdOrThrowException(usagePointMrid)
-                .forCustomProperties()
-                .getVersionedPropertySet(rcpsId);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(usagePointMrid);
+        UsagePointVersionedPropertySet versionedPropertySet = usagePoint.forCustomProperties().getVersionedPropertySet(rcpsId);
+        validateRangeStart(info.startTime, usagePoint);
         validateRangeSourceValues(info.startTime, info.endTime);
         Function<OverlapCalculatorBuilder, List<ValuesRangeConflict>> conflictValuesSupplier =
                 builder -> builder.whenCreating(RangeInstantBuilder.closedOpenRange(info.startTime, info.endTime));
         List<ValuesRangeConflict> valuesRangeConflicts = getValuesRangeConflicts(versionedPropertySet, forced, conflictValuesSupplier);
+
         if (!valuesRangeConflicts.isEmpty()) {
             UsagePointAddVersionFailResponse errorInfo = new UsagePointAddVersionFailResponse(valuesRangeConflicts);
             return Response.status(Response.Status.BAD_REQUEST).entity(errorInfo).build();
@@ -311,11 +320,9 @@ public class UsagePointCustomPropertySetResource {
                                                               @QueryParam("forced") boolean forced,
                                                               @Context SecurityContext securityContext,
                                                               CustomPropertySetInfo<UsagePointInfo> info) {
-        UsagePointVersionedPropertySet versionedPropertySet = resourceHelper
-                .lockUsagePointOrThrowException(info.parent)
-                .forCustomProperties()
-                .getVersionedPropertySet(rcpsId);
-        validateRangeSourceValues(info.startTime, info.endTime);
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(usagePointMrid);
+        UsagePointVersionedPropertySet versionedPropertySet = usagePoint.forCustomProperties().getVersionedPropertySet(rcpsId);
+        validateRangeStart(info.startTime, usagePoint);
         Instant versionStartTime = Instant.ofEpochMilli(info.versionId);
         CustomPropertySetValues values = customPropertySetInfoFactory
                 .getCustomPropertySetValues(info, versionedPropertySet.getCustomPropertySet().getPropertySpecs());
