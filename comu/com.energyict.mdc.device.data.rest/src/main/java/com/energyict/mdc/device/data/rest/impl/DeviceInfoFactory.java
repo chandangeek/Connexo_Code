@@ -92,17 +92,16 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     @Override
     public DeviceSearchInfo from(Device device) {
         return DeviceSearchInfo.from(device, new GatewayRetriever(topologyService), new IssueRetriever(issueService),
-                thesaurus, new DeviceEstimationRetriever(deviceService), new DeviceValidationRetriever(deviceService));
+                thesaurus, new DeviceValidationRetriever(deviceService));
     }
 
     @Override
     public List<Object> from(List<Device> domainObjects) {
         GatewayRetriever topologyService = new GatewayRetriever(this.topologyService, domainObjects);
         IssueRetriever issueRetriever = new IssueRetriever(issueService, domainObjects);
-        DeviceEstimationRetriever estimationRetrievers = new DeviceEstimationRetriever(deviceService, domainObjects);
         DeviceValidationRetriever validationRetriever = new DeviceValidationRetriever(deviceService, domainObjects);
         return domainObjects.stream()
-                .map(device -> DeviceSearchInfo.from(device, topologyService, issueRetriever, thesaurus, estimationRetrievers, validationRetriever))
+                .map(device -> DeviceSearchInfo.from(device, topologyService, issueRetriever, thesaurus, validationRetriever))
                 .collect(Collectors.toList());
     }
 
