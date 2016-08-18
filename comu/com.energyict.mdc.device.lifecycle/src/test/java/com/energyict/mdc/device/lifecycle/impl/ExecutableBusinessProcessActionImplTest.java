@@ -5,6 +5,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 
@@ -34,7 +35,8 @@ public class ExecutableBusinessProcessActionImplTest {
 
     @Test
     public void getDevice() {
-        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service);
+        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service, Clock
+                .systemDefaultZone());
 
         // Business method
         Device device = executableAction.getDevice();
@@ -45,7 +47,8 @@ public class ExecutableBusinessProcessActionImplTest {
 
     @Test
     public void getAction() {
-        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service);
+        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service, Clock
+                .systemDefaultZone());
 
         // Business method
         AuthorizedAction action = executableAction.getAction();
@@ -56,7 +59,8 @@ public class ExecutableBusinessProcessActionImplTest {
 
     @Test
     public void executeDelegatesToService() {
-        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service);
+        ExecutableBusinessProcessActionImpl executableAction = new ExecutableBusinessProcessActionImpl(this.device, this.action, this.service, Clock
+                .systemDefaultZone());
         Instant now = Instant.now();
 
         // Business method

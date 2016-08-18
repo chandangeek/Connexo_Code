@@ -8,6 +8,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 
@@ -22,12 +23,14 @@ public class ExecutableBusinessProcessActionImpl implements ExecutableAction {
     private final Device device;
     private final AuthorizedBusinessProcessAction action;
     private final DeviceLifeCycleService service;
+    private final Clock clock;
 
-    public ExecutableBusinessProcessActionImpl(Device device, AuthorizedBusinessProcessAction action, DeviceLifeCycleService service) {
+    public ExecutableBusinessProcessActionImpl(Device device, AuthorizedBusinessProcessAction action, DeviceLifeCycleService service, Clock clock) {
         super();
         this.device = device;
         this.action = action;
         this.service = service;
+        this.clock = clock;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class ExecutableBusinessProcessActionImpl implements ExecutableAction {
 
     @Override
     public void execute(Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws SecurityException, DeviceLifeCycleActionViolationException {
-        this.service.execute(this.action, this.device, Instant.now());
+        this.service.execute(this.action, this.device, Instant.now(clock));
     }
 
 }

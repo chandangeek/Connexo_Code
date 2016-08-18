@@ -49,6 +49,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.security.Principal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -77,6 +78,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private volatile ServerMicroActionFactory microActionFactory;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile UserService userService;
+    private volatile Clock clock;
     private Thesaurus thesaurus;
 
     // For OSGi purposes
@@ -92,7 +94,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
                                       ServerMicroCheckFactory microCheckFactory,
                                       ServerMicroActionFactory microActionFactory,
                                       DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
-                                      UserService userService) {
+                                      UserService userService,
+                                      Clock clock) {
         this();
         this.setNlsService(nlsService);
         this.setThreadPrincipalService(threadPrincipalService);
@@ -101,6 +104,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.setMicroActionFactory(microActionFactory);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.setUserService(userService);
+        setClock(clock);
     }
 
     @Reference
@@ -136,6 +140,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Override
@@ -184,7 +193,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         }
         else {
             AuthorizedBusinessProcessAction businessProcessAction = (AuthorizedBusinessProcessAction) authorizedAction;
-            return new ExecutableBusinessProcessActionImpl(device, businessProcessAction, this);
+            return new ExecutableBusinessProcessActionImpl(device, businessProcessAction, this, clock);
         }
     }
 
