@@ -3,11 +3,11 @@ package com.elster.jupiter.validation;
 
 
 public enum DataValidationTaskStatus {
-    BUSY("Busy"),
-    SUCCESS("Success"),
+    BUSY("Ongoing"),
+    SUCCESS("Successful"),
     WARNING("Warning"),
     FAILED("Failed"),
-    NOT_PERFORMED("Not performed yet");
+    NOT_PERFORMED("Created");
 
     private String name;
 
