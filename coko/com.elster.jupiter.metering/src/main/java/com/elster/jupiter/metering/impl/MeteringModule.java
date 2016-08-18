@@ -12,8 +12,6 @@ import com.elster.jupiter.metering.aggregation.DataAggregationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
 import com.elster.jupiter.metering.config.MetrologyContract;
 import com.elster.jupiter.metering.impl.aggregation.MeterActivationSet;
-import com.elster.jupiter.metering.impl.aggregation.ReadingTypeDeliverableForMeterActivationFactory;
-import com.elster.jupiter.metering.impl.aggregation.ReadingTypeDeliverableForMeterActivationFactoryImpl;
 import com.elster.jupiter.metering.impl.aggregation.ServerDataAggregationService;
 import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactory;
 import com.elster.jupiter.metering.impl.aggregation.SqlBuilderFactoryImpl;
@@ -108,7 +106,6 @@ public class MeteringModule extends AbstractModule {
         bind(MetrologyConfigurationService.class).toProvider(MetrologyConfigurationServiceProvider.class);
         bind(VirtualFactory.class).to(VirtualFactoryImpl.class).in(Scopes.SINGLETON);
         bind(SqlBuilderFactory.class).to(SqlBuilderFactoryImpl.class).in(Scopes.SINGLETON);
-        bind(ReadingTypeDeliverableForMeterActivationFactory.class).to(ReadingTypeDeliverableForMeterActivationFactoryImpl.class).in(Scopes.SINGLETON);
         bind(DataAggregationService.class).annotatedWith(Names.named("dataAggregationMock")).toProvider(() -> dataAggregationMock);
         bind(DataAggregationService.class).toProvider(DataAggregationServiceProvider.class);
     }

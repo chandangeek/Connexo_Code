@@ -206,12 +206,14 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
     }
 
     private static DataAggregationService getDataAggregationService() {
+        ServerMeteringService meteringService = injector.getInstance(ServerMeteringService.class);
         return new DataAggregationServiceImpl(
                 mock(CustomPropertySetService.class),
-                injector.getInstance(ServerMeteringService.class),
+                meteringService,
+                new InstantTruncaterFactory(meteringService),
                 DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT::getSqlBuilderFactory,
                 VirtualFactoryImpl::new,
-                ReadingTypeDeliverableForMeterActivationFactoryImpl::new);
+                () -> new ReadingTypeDeliverableForMeterActivationFactoryImpl(meteringService));
     }
 
     private static ServerMetrologyConfigurationService getMetrologyConfigurationService() {
@@ -320,9 +322,11 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
+                .withReadingType(fifteenMinuteskWForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE)
+                .withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("simplestNetConsumptionOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("simplestNetConsumptionOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -424,9 +428,11 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
+                .withReadingType(fifteenMinuteskWForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWhReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE)
+                .withReadingType(fifteenMinuteskWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);
@@ -538,9 +544,11 @@ public class DataAggregationServiceImplCalculateWithFlowToVolumeConversionIT {
         this.configuration.addMeterRole(DEFAULT_METER_ROLE);
 
         // Setup configuration requirements
-        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE).withReadingType(fifteenMinuteskWForward);
+        ReadingTypeRequirement consumption = this.configuration.newReadingTypeRequirement("A-", DEFAULT_METER_ROLE)
+                .withReadingType(fifteenMinuteskWForward);
         this.consumptionRequirementId = consumption.getId();
-        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE).withReadingType(hourlykWhReverse);
+        ReadingTypeRequirement production = this.configuration.newReadingTypeRequirement("A+", DEFAULT_METER_ROLE)
+                .withReadingType(hourlykWhReverse);
         this.productionRequirementId = production.getId();
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::CONSUMPTION_REQUIREMENT_ID = " + consumptionRequirementId);
         System.out.println("monthlyNetConsumptionBasedOn15And60MinValuesOfProsumer::PRODUCTION_REQUIREMENT_ID = " + productionRequirementId);

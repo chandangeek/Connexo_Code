@@ -88,11 +88,11 @@ public class UsagePointCustomPropertySetExtensionImplTest {
     public void testGetCurrentIntervalNoVersionsAtAll() {
         mockHasNoActiveVersion();
         mockVersionIntervals(Collections.emptyList());
-
+        when(usagePoint.getCreateDate()).thenReturn(now.toInstant());
         Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         // infinity
-        assertThat(currentInterval.hasLowerBound()).isFalse();
+        assertThat(currentInterval.hasLowerBound()).isTrue();
         assertThat(currentInterval.hasUpperBound()).isFalse();
     }
 
@@ -134,11 +134,11 @@ public class UsagePointCustomPropertySetExtensionImplTest {
         mockHasNoActiveVersion();
         Instant weekAfter = now.plus(1, ChronoUnit.WEEKS).toInstant();
         mockVersionIntervals(Collections.singletonList(Range.atLeast(weekAfter)));
-
+        when(usagePoint.getCreateDate()).thenReturn(now.toInstant());
         Range<Instant> currentInterval = versionedPropertySet.getNewVersionInterval();
 
         // infinity
-        assertThat(currentInterval.hasLowerBound()).isFalse();
+        assertThat(currentInterval.hasLowerBound()).isTrue();
         assertThat(currentInterval.hasUpperBound()).isFalse();
     }
 

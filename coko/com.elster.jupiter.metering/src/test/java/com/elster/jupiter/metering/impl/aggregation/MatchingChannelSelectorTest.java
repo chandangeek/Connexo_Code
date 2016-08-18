@@ -38,7 +38,7 @@ public class MatchingChannelSelectorTest {
         when(meterActivationSet.getMatchingChannelsFor(requirement)).thenReturn(Collections.emptyList());
 
         // Business method
-        new MatchingChannelSelector(requirement, meterActivationSet);
+        new MatchingChannelSelector(requirement, meterActivationSet, Formula.Mode.AUTO);
 
         // Asserts
         verify(meterActivationSet).getMatchingChannelsFor(requirement);

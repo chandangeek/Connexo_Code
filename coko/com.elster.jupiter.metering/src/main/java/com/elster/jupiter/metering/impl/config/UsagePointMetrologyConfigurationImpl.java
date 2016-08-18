@@ -105,16 +105,21 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
 
     @Override
     public Optional<MeterRole> getMeterRoleFor(ReadingTypeRequirement readingTypeRequirement) {
+        return getRequirementRoleUsage(readingTypeRequirement)
+                .map(ReadingTypeRequirementMeterRoleUsage::getMeterRole);
+    }
+
+    private Optional<ReadingTypeRequirementMeterRoleUsage> getRequirementRoleUsage(ReadingTypeRequirement readingTypeRequirement) {
         return this.requirementToRoleUsages
                 .stream()
                 .filter(usage -> usage.getReadingTypeRequirement().equals(readingTypeRequirement))
-                .findAny()
-                .map(ReadingTypeRequirementMeterRoleUsage::getMeterRole);
+                .findAny();
     }
 
     void addReadingTypeRequirementMeterRoleUsage(ReadingTypeRequirementMeterRoleUsage usage) {
         Save.CREATE.validate(getMetrologyConfigurationService().getDataModel(), usage);
         this.requirementToRoleUsages.add(usage);
+        this.touch();
     }
 
     @Override
@@ -171,7 +176,8 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
     public void validateMeterCapabilities(List<Pair<MeterRole, Meter>> meters) {
         List<ReadingTypeRequirement> mandatoryReadingTypeRequirements = getMandatoryReadingTypeRequirements();
         boolean hasUnsatisfiedReadingTypeRequirements = false;
-        UnsatisfiedReadingTypeRequirements ex = new UnsatisfiedReadingTypeRequirements(getMetrologyConfigurationService().getThesaurus(), this);
+        UnsatisfiedReadingTypeRequirements ex = new UnsatisfiedReadingTypeRequirements(getMetrologyConfigurationService()
+                .getThesaurus(), this);
         for (Pair<MeterRole, Meter> pair : meters) {
             List<ReadingTypeRequirement> unmatchedRequirements = getUnmatchedMeterReadingTypeRequirements(this, mandatoryReadingTypeRequirements, pair);
             if (!unmatchedRequirements.isEmpty()) {
@@ -182,9 +188,7 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
         if (hasUnsatisfiedReadingTypeRequirements) {
             throw ex;
         }
-
     }
-
 
     private List<ReadingTypeRequirement> getUnmatchedMeterReadingTypeRequirements(UsagePointMetrologyConfiguration metrologyConfiguration, List<ReadingTypeRequirement> mandatoryReadingTypeRequirements, Pair<MeterRole, Meter> pair) {
         List<ReadingType> readingTypesOnMeter = new ArrayList<>();
@@ -196,5 +200,11 @@ class UsagePointMetrologyConfigurationImpl extends MetrologyConfigurationImpl im
                 .filter(mandatoryReadingTypeRequirements::contains)
                 .filter(requirement -> !readingTypesOnMeter.stream().anyMatch(requirement::matches))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void removeReadingTypeRequirement(ReadingTypeRequirement readingTypeRequirement) {
+        getRequirementRoleUsage(readingTypeRequirement).ifPresent(requirementToRoleUsages::remove);
+        super.removeReadingTypeRequirement(readingTypeRequirement);
     }
 }

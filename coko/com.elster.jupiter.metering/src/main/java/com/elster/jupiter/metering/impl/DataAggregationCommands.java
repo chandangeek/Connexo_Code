@@ -108,6 +108,10 @@ public class DataAggregationCommands {
         }
     }
 
+    public void showData() {
+        System.out.println("Usage: showData <usage point MRID> <contract purpose> <deliverable name> <start date>");
+    }
+
     public void showData(String usagePointMRID, String contractPurpose, String deliverableName, String startDate) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
@@ -143,9 +147,11 @@ public class DataAggregationCommands {
 
         List<? extends ReadingQualityRecord> qualities = readingRecord.getReadingQualities();
         if (qualities.isEmpty()) {
-            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " : " + readingRecord.getValue());
+            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " in " + readingRecord.getTimePeriod()
+                    .get() + " : " + readingRecord.getValue());
         } else {
-            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " : " + readingRecord.getValue() + " , "
+            System.out.println(formatter.format(readingRecord.getTimeStamp()) + " in " + readingRecord.getTimePeriod()
+                    .get() + " : " + readingRecord.getValue() + " , "
                     + ReadingQuality.getReadingQuality(qualities.get(0).getType().getCode()).toString());
         }
     }

@@ -24,8 +24,8 @@ import com.elster.jupiter.metering.config.DefaultMetrologyPurpose;
 import com.elster.jupiter.metering.config.MeterRole;
 import com.elster.jupiter.metering.impl.config.MetrologyConfigurationServiceImpl;
 import com.elster.jupiter.metering.impl.config.ReadingTypeTemplateInstaller;
+import com.elster.jupiter.metering.impl.upgraders.GasDayOptionsCreator;
 import com.elster.jupiter.metering.security.Privileges;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.SqlDialect;
@@ -37,6 +37,8 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.streams.BufferedReaderIterable;
+
+import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
 import java.io.BufferedReader;
@@ -50,6 +52,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,28 +68,28 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     private static final String IMPORT_CONTROL_TYPES = "enddevicecontroltypes.csv";
     private static final String NOT_APPLICABLE = "n/a";
 
-    private final MeteringServiceImpl meteringService;
+    private final ServerMeteringService meteringService;
     private final IdsService idsService;
     private final PartyService partyService;
     private final UserService userService;
     private final EventService eventService;
-    private final Thesaurus thesaurus;
     private final MessageService messageService;
     private final boolean createAllReadingTypes;
     private final String[] requiredReadingTypes;
     private final Clock clock;
     private final DataModel dataModel;
     private final MetrologyConfigurationServiceImpl metrologyConfigurationService;
+    private final BundleContext bundleContext;
 
     @Inject
-    public InstallerImpl(DataModel dataModel, MeteringServiceImpl meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, Thesaurus thesaurus, MessageService messageService, Clock clock, MetrologyConfigurationServiceImpl metrologyConfigurationService, MeteringDataModelServiceImpl meteringDataModelService) {
+    public InstallerImpl(BundleContext bundleContext, DataModel dataModel, ServerMeteringService meteringService, IdsService idsService, PartyService partyService, UserService userService, EventService eventService, MessageService messageService, Clock clock, MetrologyConfigurationServiceImpl metrologyConfigurationService, MeteringDataModelServiceImpl meteringDataModelService) {
+        this.bundleContext = bundleContext;
         this.dataModel = dataModel;
         this.meteringService = meteringService;
         this.idsService = idsService;
         this.partyService = partyService;
         this.userService = userService;
         this.eventService = eventService;
-        this.thesaurus = thesaurus;
         this.messageService = messageService;
         this.metrologyConfigurationService = metrologyConfigurationService;
         this.createAllReadingTypes = meteringDataModelService.isCreateAllReadingTypes();
@@ -189,6 +192,11 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
                 meteringService::createLocationTemplate,
                 logger
         );
+        doTry(
+                "Create Gas Day Options",
+                () -> new GasDayOptionsCreator(this.meteringService).createIfMissing(this.bundleContext),
+                logger
+        );
         userService.addModulePrivileges(this);
     }
 
@@ -220,7 +228,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
                         getModuleName(),
                         DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY.getKey(),
                         DefaultTranslationKey.RESOURCE_SERVICE_CATEGORY_DESCRIPTION.getKey(),
-                        Arrays.asList(Privileges.Constants.VIEW_SERVICECATEGORY)));
+                        Collections.singletonList(Privileges.Constants.VIEW_SERVICECATEGORY)));
 
         resources.add(
                 userService.createModuleResourceWithPrivileges(
@@ -273,9 +281,15 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     }
 
     private Iterable<EndDeviceEventOrAction> eventOrActions(String field) {
-        return "*".equals(field) ? Arrays.asList(EndDeviceEventOrAction.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays
-                .asList(EndDeviceEventOrAction.NA) : Arrays.asList(EndDeviceEventOrAction
-                .valueOf(sanitized(field)));
+        if ("*".equals(field)) {
+            return Arrays.asList(EndDeviceEventOrAction.values());
+        } else {
+            if (NOT_APPLICABLE.equalsIgnoreCase(field)) {
+                return Collections.singletonList(EndDeviceEventOrAction.NA);
+            } else {
+                return Collections.singletonList(EndDeviceEventOrAction.valueOf(sanitized(field)));
+            }
+        }
     }
 
     private String sanitized(String field) {
@@ -283,19 +297,39 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
     }
 
     private Iterable<EndDeviceSubDomain> subDomains(String field) {
-        Iterable<EndDeviceSubDomain> result = NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays.asList(EndDeviceSubDomain.NA) : Arrays
-                .asList(EndDeviceSubDomain.valueOf(sanitized(field)));
-        return "*".equals(field) ? Arrays.asList(EndDeviceSubDomain.values()) : result;
+        if ("*".equals(field)) {
+            return Arrays.asList(EndDeviceSubDomain.values());
+        } else {
+            if (NOT_APPLICABLE.equalsIgnoreCase(field)) {
+                return Collections.singletonList(EndDeviceSubDomain.NA);
+            } else {
+                return Collections.singletonList(EndDeviceSubDomain.valueOf(sanitized(field)));
+            }
+        }
     }
 
     private Iterable<EndDeviceDomain> domains(String field) {
-        return "*".equals(field) ? Arrays.asList(EndDeviceDomain.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays
-                .asList(EndDeviceDomain.NA) : Arrays.asList(EndDeviceDomain.valueOf(sanitized(field)));
+        if ("*".equals(field)) {
+            return Arrays.asList(EndDeviceDomain.values());
+        } else {
+            if (NOT_APPLICABLE.equalsIgnoreCase(field)) {
+                return Collections.singletonList(EndDeviceDomain.NA);
+            } else {
+                return Collections.singletonList(EndDeviceDomain.valueOf(sanitized(field)));
+            }
+        }
     }
 
     private Iterable<EndDeviceType> endDeviceTypes(String field) {
-        return "*".equals(field) ? Arrays.asList(EndDeviceType.values()) : NOT_APPLICABLE.equalsIgnoreCase(field) ? Arrays
-                .asList(EndDeviceType.NA) : Arrays.asList(EndDeviceType.valueOf(sanitized(field)));
+        if ("*".equals(field)) {
+            return Arrays.asList(EndDeviceType.values());
+        } else {
+            if (NOT_APPLICABLE.equalsIgnoreCase(field)) {
+                return Collections.singletonList(EndDeviceType.NA);
+            } else {
+                return Collections.singletonList(EndDeviceType.valueOf(sanitized(field)));
+            }
+        }
     }
 
     private void createAmrSystems() {
@@ -325,7 +359,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
 
     private List<ServiceCategoryImpl> createServiceCategories() {
         List<ServiceCategoryImpl> list = new ArrayList<>();
-        ServiceCategoryImpl serviceCategory = null;
+        ServiceCategoryImpl serviceCategory;
         for (ServiceKind kind : ServiceKind.values()) {
             switch (kind) {
                 case ELECTRICITY:
@@ -373,7 +407,7 @@ public class InstallerImpl implements FullInstaller, PrivilegesProvider {
         QueueTableSpec defaultQueueTableSpec = this.messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(queueDestination, DEFAULT_RETRY_DELAY_IN_SECONDS);
         destinationSpec.activate();
-        destinationSpec.subscribe(queueSubscriber);
+        destinationSpec.subscribe(queueSubscriber).create();
     }
 
     private void createSqlAggregationComponents() {

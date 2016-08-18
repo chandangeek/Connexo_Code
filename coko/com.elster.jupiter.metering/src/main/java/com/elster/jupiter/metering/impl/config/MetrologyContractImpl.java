@@ -50,7 +50,7 @@ public class MetrologyContractImpl implements MetrologyContract {
     @SuppressWarnings("unused")
     private long id;
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
-    private final Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    private final Reference<ServerMetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     @IsPresent(message = "{" + MessageSeeds.Constants.REQUIRED + "}")
     private final Reference<MetrologyPurpose> metrologyPurpose = ValueReference.absent();
     private boolean mandatory;
@@ -65,7 +65,7 @@ public class MetrologyContractImpl implements MetrologyContract {
         this.metrologyConfigurationService = metrologyConfigurationService;
     }
 
-    public MetrologyContractImpl init(MetrologyConfiguration meterConfiguration, MetrologyPurpose metrologyPurpose) {
+    public MetrologyContractImpl init(ServerMetrologyConfiguration meterConfiguration, MetrologyPurpose metrologyPurpose) {
         this.metrologyConfiguration.set(meterConfiguration);
         this.metrologyPurpose.set(metrologyPurpose);
         return this;
@@ -93,6 +93,7 @@ public class MetrologyContractImpl implements MetrologyContract {
         Save.CREATE.validate(this.metrologyConfigurationService.getDataModel(), deliverableMapping);
         this.deliverables.add(deliverableMapping);
         touch();
+        this.metrologyConfiguration.getOptional().ifPresent(configuration -> configuration.contractUpdated(this));
         return this;
     }
 
@@ -194,6 +195,10 @@ public class MetrologyContractImpl implements MetrologyContract {
             return allMeterRolesHasMeters ? MetrologyContractStatusKey.COMPLETE : MetrologyContractStatusKey.INCOMPLETE;
         }
         return MetrologyContractStatusKey.UNKNOWN;
+    }
+
+    void prepareDelete() {
+        this.deliverables.clear();
     }
 
     private static class StatusImpl implements Status {

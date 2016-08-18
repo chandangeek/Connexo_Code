@@ -477,13 +477,13 @@ public enum IntervalLength {
         @Override
         Instant subtractFrom(Instant instant, ZoneId zone) {
             ZonedDateTime zonedDateTime = instant.atZone(zone);
-            return zonedDateTime.withMonth(zonedDateTime.getMonthValue() - 1).toInstant();
+            return zonedDateTime.minus(1, ChronoUnit.MONTHS).toInstant();
         }
 
         @Override
         Instant addTo(Instant instant, ZoneId zone) {
             ZonedDateTime zonedDateTime = instant.atZone(zone);
-            return zonedDateTime.withMonth(zonedDateTime.getMonthValue() + 1).toInstant();
+            return zonedDateTime.plus(1, ChronoUnit.MONTHS).toInstant();
         }
     },
     YEAR1(Period.ofYears(1)) {
@@ -678,7 +678,7 @@ public enum IntervalLength {
         if (!period.hasUpperBound()) {
             throw new IllegalArgumentException("Cannot generate timeseries when end is not known");
         }
-        Stream.Builder<Instant> builder = Stream.<Instant>builder();
+        Stream.Builder<Instant> builder = Stream.builder();
         Instant current = period.lowerEndpoint();
         if (period.lowerBoundType().equals(BoundType.OPEN)) {
             current = this.addTo(current, zoneId);
