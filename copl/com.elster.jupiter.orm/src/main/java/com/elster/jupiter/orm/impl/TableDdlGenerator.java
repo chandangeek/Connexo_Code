@@ -2,6 +2,7 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Difference;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.SqlDialect;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.util.streams.Functions;
@@ -361,29 +362,31 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         for (TableConstraintImpl constraint : table.getConstraints(version)) {
             unmatched.add(constraint);
         }
+        List<Difference> addOrChangeConstraintDiffs = new ArrayList<>();
         for (TableConstraintImpl toConstraint : toTable.getConstraints()) {
 
             TableConstraintImpl fromConstraint = table.getConstraint(toConstraint.getName());
             if (fromConstraint == null) {
                 fromConstraint = table.findMatchingConstraint(toConstraint);
                 if (fromConstraint == null) {
-                    result.add(getAddConstraintDifference(toConstraint));
+                    addOrChangeConstraintDiffs.add(getAddConstraintDifference(toConstraint));
 
                 } else {
                     unmatched.remove(fromConstraint);
                     Difference difference = dialect.allowsConstraintRename()
                             ? getRenameConstraintDifference(fromConstraint, toConstraint)
                             : getDropRecreateConstraintDifference(fromConstraint, toConstraint);
-                    result.add(difference);
+                    addOrChangeConstraintDiffs.add(difference);
                 }
             } else {
                 unmatched.remove(fromConstraint);
-                getUpgradeDifference(fromConstraint, toConstraint).ifPresent(result::add);
+                getUpgradeDifference(fromConstraint, toConstraint).ifPresent(addOrChangeConstraintDiffs::add);
             }
         }
         for (TableConstraintImpl each : unmatched) {
             result.add(getDropConstraintDifference(each));
         }
+        result.addAll(addOrChangeConstraintDiffs);
 
         if (toTable.hasJournal(version) && !table.hasJournal()) {
             result.add(getJournalTableDifference(toTable));
@@ -531,13 +534,19 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         return difference.build().get();
     }
 
-    private List<String> getDropConstraintDdls(TableConstraintImpl constraint) {
+    private List<String> getDropConstraintDdls(TableConstraintImpl<?> constraint) {
         List<String> result = new ArrayList<>();
         result.add("alter table " + constraint.getTable().getName() + " drop constraint " + constraint.getName());
-        if (constraint.needsIndex()) {
+        if (hasIndex(constraint)) {
             result.add(getDropConstraintIndexDdl(constraint));
         }
         return result;
+    }
+
+    private boolean hasIndex(TableConstraintImpl<?> constraint) {
+        return constraint instanceof ForeignKeyConstraint && constraint.getTable()
+                .getIndex(constraint.getName())
+                .isPresent();
     }
 
     private Optional<Difference> getUpgradeDifference(TableConstraintImpl<?> fromConstraint, TableConstraintImpl<?> toConstraint) {

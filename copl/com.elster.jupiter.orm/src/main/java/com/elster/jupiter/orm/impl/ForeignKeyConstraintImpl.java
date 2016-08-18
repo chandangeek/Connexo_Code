@@ -380,7 +380,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
 
         @Override
         public Builder references(String name) {
-            TableImpl<?> referencedTable = constraint.getTable().getDataModel().getTable(name);
+            TableImpl<?> referencedTable = constraint.getTable().getDataModel().getTable(name, constraint.versions());
             if (referencedTable == null && constraint.getTable().getName().equals(name)) {
                 referencedTable = constraint.getTable();
             }
@@ -400,7 +400,7 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl<ForeignKeyCons
 
         @Override
         public Builder references(Class apiClass) {
-            TableImpl<?> table = constraint.getTable().getDataModel().getTable(apiClass)
+            TableImpl<?> table = constraint.getTable().getDataModel().getTable(apiClass, constraint.versions())
                 .orElseGet(() -> constraint.getTable().getDataModel().getOrmService().getTable(apiClass));
             constraint.setReferencedTable(table);
             return this;
