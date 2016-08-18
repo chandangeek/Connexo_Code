@@ -19,6 +19,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -87,7 +88,8 @@ public class DefaultImportScheduleBuilderTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.<ConstraintViolation<Object>>emptySet());
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(
-                new ImportScheduleImpl(dataModel, fileImportService, messageService, eventService, scheduleExpressionParser, nameResolver, fileUtils, thesaurus, testFileSystem));
+                new ImportScheduleImpl(dataModel, fileImportService, messageService, eventService, scheduleExpressionParser, nameResolver, fileUtils, thesaurus, testFileSystem, Clock
+                        .systemDefaultZone()));
     }
 
     @Test

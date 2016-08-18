@@ -87,6 +87,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
     private final FileSystem fileSystem;
     private final Thesaurus thesaurus;
     private final FileImportService fileImportService;
+    private final Clock clock;
     private boolean propertiesDirty;
 
     private List<FileImporterProperty> properties = new ArrayList<>();
@@ -110,7 +111,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
 
     @SuppressWarnings("unused")
     @Inject
-    ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, EventService eventService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileUtils fileUtils, Thesaurus thesaurus, FileSystem fileSystem) {
+    ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, EventService eventService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileUtils fileUtils, Thesaurus thesaurus, FileSystem fileSystem, Clock clock) {
         this.messageService = messageService;
         this.dataModel = dataModel;
         this.eventService = eventService;
@@ -120,6 +121,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
         this.thesaurus = thesaurus;
         this.fileImportService = fileImportService;
         this.fileSystem = fileSystem;
+        this.clock = clock;
     }
 
     static ImportScheduleImpl from(DataModel dataModel, String name, boolean active, ScheduleExpression scheduleExpression, String applicationName, String importerName, String destination,
@@ -269,7 +271,7 @@ final class ImportScheduleImpl implements ServerImportSchedule {
         if (id == 0) {
             return;
         }
-        setObsoleteTime(Instant.now()); // mark obsolete
+        setObsoleteTime(Instant.now(clock)); // mark obsolete
         doUpdate();
     }
 

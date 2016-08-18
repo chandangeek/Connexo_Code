@@ -240,6 +240,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(FileImportService.class).toInstance(FileImportServiceImpl.this);
                 bind(UserService.class).toInstance(userService);
+                bind(Clock.class).toInstance(clock);
             }
         });
 

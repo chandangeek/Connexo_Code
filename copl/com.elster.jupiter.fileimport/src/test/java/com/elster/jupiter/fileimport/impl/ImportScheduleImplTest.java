@@ -122,7 +122,7 @@ public class ImportScheduleImplTest extends EqualsContractTest {
             when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
             when(fileImporterFactory.getApplicationName()).thenReturn("SYS");
             when(dataModel.getInstance(ImportScheduleImpl.class)).thenAnswer(invocation -> new ImportScheduleImpl(dataModel, fileImportService,
-                    messageService, eventService, cronParser, nameResolver, fileSystem, thesaurus, testFileSystem));
+                    messageService, eventService, cronParser, nameResolver, fileSystem, thesaurus, testFileSystem, clock));
             when(fileImportService.getImportFactory("importerName")).thenReturn(Optional.empty());
             importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "SYS", "importerName",
                     DESTINATION_NAME, sourceDirectory, ".", inProcessDirectory, failureDirectory, successDirectory);
