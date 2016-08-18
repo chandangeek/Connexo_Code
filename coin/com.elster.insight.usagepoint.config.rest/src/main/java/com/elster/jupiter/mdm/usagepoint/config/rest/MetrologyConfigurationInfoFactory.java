@@ -117,39 +117,44 @@ public class MetrologyConfigurationInfoFactory {
         info.id = metrologyContract.getId();
         info.name = metrologyContract.getMetrologyPurpose().getName();
         info.mandatory = metrologyContract.isMandatory();
-        info.readingTypeDeliverables = metrologyContract.getDeliverables().stream().map(this::asInfo).collect(Collectors.toList());
+        info.readingTypeDeliverables = metrologyContract.getDeliverables().stream().map(deliverable -> asInfo(deliverable, metrologyContract.getMetrologyConfiguration())).collect(Collectors.toList());
         return info;
     }
 
     public ReadingTypeDeliverablesInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable) {
+        return asInfo(readingTypeDeliverable, readingTypeDeliverable.getMetrologyConfiguration());
+    }
+
+    private ReadingTypeDeliverablesInfo asInfo(ReadingTypeDeliverable readingTypeDeliverable, MetrologyConfiguration metrologyConfiguration) {
         ReadingTypeDeliverablesInfo info = new ReadingTypeDeliverablesInfo();
         info.id = readingTypeDeliverable.getId();
         info.name = readingTypeDeliverable.getName();
         info.readingType = readingTypeDeliverable.getReadingType() != null ? new ReadingTypeInfo(readingTypeDeliverable.getReadingType()) : null;
-        info.formula = readingTypeDeliverable.getFormula() != null ? asInfo(readingTypeDeliverable.getFormula()) : null;
+        info.formula = readingTypeDeliverable.getFormula() != null ? asInfo(readingTypeDeliverable.getFormula(), metrologyConfiguration) : null;
         return info;
     }
 
-    private FormulaInfo asInfo(Formula formula) {
+    private FormulaInfo asInfo(Formula formula, MetrologyConfiguration metrologyConfiguration) {
         FormulaInfo info = new FormulaInfo();
         info.description = formula.getDescription();
-        info.readingTypeRequirements = asInfoList(formula.getExpressionNode());
+        info.readingTypeRequirements = asInfoList(formula.getExpressionNode(), metrologyConfiguration);
         FormulaVisitor visitor = new FormulaVisitor();
         formula.getExpressionNode().accept(visitor);
         info.customProperties = visitor.getCustomPropertiesInfos();
         return info;
     }
 
-    private List<ReadingTypeRequirementsInfo> asInfoList(ExpressionNode expressionNode) {
+
+    private List<ReadingTypeRequirementsInfo> asInfoList(ExpressionNode expressionNode, MetrologyConfiguration metrologyConfiguration) {
         ReadingTypeVisitor readingTypeVisitor = new ReadingTypeVisitor();
         expressionNode.accept(readingTypeVisitor);
-        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(this::asInfo).collect(Collectors.toList());
+        return readingTypeVisitor.readingTypeRequirementNodes.stream().map(e -> asInfo(e, metrologyConfiguration)).collect(Collectors.toList());
     }
 
-    private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirementNode requirementNode) {
+    private ReadingTypeRequirementsInfo asInfo(ReadingTypeRequirementNode requirementNode, MetrologyConfiguration metrologyConfiguration) {
         ReadingTypeRequirement requirement = requirementNode.getReadingTypeRequirement();
         ReadingTypeRequirementsInfo info = new ReadingTypeRequirementsInfo();
-        info.meterRole = ((UsagePointMetrologyConfiguration) requirement.getMetrologyConfiguration())
+        info.meterRole = ((UsagePointMetrologyConfiguration) metrologyConfiguration)
                 .getMeterRoleFor(requirement)
                 .map(this::asInfo)
                 .orElse(null);
