@@ -57,10 +57,8 @@ Ext.define('Cfg.view.validation.RuleSetOverview', {
                     ]
                 },
                 {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'CFG', 'Actions'),
+                    xtype: 'uni-button-action',
                     privileges: Cfg.privileges.Validation.admin,
-                    iconCls: 'x-uni-action-iconD',
                     margin: '20 0 0 0',
                     menu: {
                         xtype: 'ruleset-action-menu'
