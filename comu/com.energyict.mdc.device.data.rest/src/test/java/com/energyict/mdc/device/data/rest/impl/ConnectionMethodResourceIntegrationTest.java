@@ -673,7 +673,7 @@ public class ConnectionMethodResourceIntegrationTest extends JerseyTest {
         ConnectionTask connectionTask = agent.get().getConnectionTasks().get(0);
         assertThat(connectionTask.getStatus()).isEqualTo(ConnectionTaskLifecycleStatus.ACTIVE);
         assertThat(connectionTask.getProperty("port")).isNull();
-        assertThat(connectionTask.getProperty("ipAddress")).isNull();
+        assertThat(connectionTask.getProperty("ipAddress").getValue()).isNull();
     }
 
     @Test
