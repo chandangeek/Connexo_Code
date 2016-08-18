@@ -193,6 +193,8 @@ public class DataValidationKpiImpl implements DataValidationKpi, PersistenceAwar
         this.dataModel.remove(this);
         Optional<RecurrentTask> validationtask = this.dataValidationKpiTask.getOptional();
         if (validationtask.isPresent()) {
+            validationtask.get().setNextExecution(null);
+            validationtask.get().save();
             validationtask.get().delete();
         }
         this.childrenKpis.stream().forEach(DataValidationKpiChild::remove);
