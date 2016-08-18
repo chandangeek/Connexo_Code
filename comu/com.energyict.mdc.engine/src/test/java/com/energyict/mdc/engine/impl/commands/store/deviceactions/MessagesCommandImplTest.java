@@ -115,7 +115,7 @@ public class MessagesCommandImplTest {
         when(offlineDevice.getAllSentDeviceMessages()).thenReturn(Collections.emptyList());
         when(deviceProtocol.updateSentMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
         when(deviceProtocol.executePendingMessages(anyList())).thenReturn(mock(CollectedMessageList.class));
-        when(this.issueService.newProblem(any(), any(Thesaurus.class), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
+        when(this.issueService.newProblem(any(), any(), any(MessageSeed.class), anyVararg())).thenReturn(mock(Problem.class));
         MessagesCommandImpl messagesCommand = new MessagesCommandImpl(messageTask, offlineDevice, commandRoot, comTaskExecution, this.issueService, this.thesaurus);
 
         // Business method
@@ -123,7 +123,7 @@ public class MessagesCommandImplTest {
 
         // Asserts
         verify(this.offlineDevice).getAllInvalidPendingDeviceMessages();
-        verify(this.issueService).newProblem(this.offlineDevice, this.thesaurus, MessageSeeds.MESSAGE_NO_LONGER_VALID);
+        verify(this.issueService).newProblem(this.offlineDevice, MessageSeeds.MESSAGE_NO_LONGER_VALID);
     }
 
     private OfflineDeviceMessage getNewOfflineDeviceMessage(Instant releaseDate) {
