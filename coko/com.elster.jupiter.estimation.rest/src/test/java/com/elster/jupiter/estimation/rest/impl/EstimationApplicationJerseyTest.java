@@ -10,6 +10,8 @@ import com.elster.jupiter.transaction.Transaction;
 
 import javax.ws.rs.core.Application;
 
+import java.time.Clock;
+
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
@@ -37,6 +39,7 @@ public class EstimationApplicationJerseyTest extends FelixRestApplicationJerseyT
         estimationApplication.setNlsService(nlsService);
         estimationApplication.setTimeService(timeService);
         estimationApplication.setMeteringGroupsService(meteringGroupsService);
+        estimationApplication.setClock(Clock.systemDefaultZone());
         return estimationApplication;
     }
 

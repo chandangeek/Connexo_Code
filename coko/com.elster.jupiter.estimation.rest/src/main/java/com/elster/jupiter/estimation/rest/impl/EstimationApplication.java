@@ -18,6 +18,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
+    private volatile Clock clock;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
@@ -78,6 +80,11 @@ public class EstimationApplication extends Application implements MessageSeedPro
         this.timeService = timeService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -108,6 +115,7 @@ public class EstimationApplication extends Application implements MessageSeedPro
             bind(meteringGroupsService).to(MeteringGroupsService.class);
             bind(timeService).to(TimeService.class);
             bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(clock).to(Clock.class);
         }
     }
 }

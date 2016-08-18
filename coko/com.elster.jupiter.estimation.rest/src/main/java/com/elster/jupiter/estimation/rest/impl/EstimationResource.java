@@ -60,6 +60,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -82,9 +83,10 @@ public class EstimationResource {
     private final MeteringGroupsService meteringGroupsService;
     private final PropertyUtils propertyUtils;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final Clock clock;
 
     @Inject
-    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService, MeteringGroupsService meteringGroupsService, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory) {
+    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService, MeteringGroupsService meteringGroupsService, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory, Clock clock) {
         this.queryService = queryService;
         this.estimationService = estimationService;
         this.transactionService = transactionService;
@@ -93,6 +95,7 @@ public class EstimationResource {
         this.meteringGroupsService = meteringGroupsService;
         this.propertyUtils = propertyUtils;
         this.conflictFactory = conflictFactory;
+        this.clock = clock;
     }
 
     private QualityCodeSystem getQualityCodeSystemFromApplicationName(@HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
@@ -465,13 +468,13 @@ public class EstimationResource {
         EstimationTaskOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
 
         if (filter.hasProperty("startedOnFrom")) {
-            occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
+            occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"), filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now(clock)));
         } else if (filter.hasProperty("startedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
         }
 
         if (filter.hasProperty("finishedOnFrom")) {
-            occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now()));
+            occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"), filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now(clock)));
         } else if (filter.hasProperty("finishedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }
