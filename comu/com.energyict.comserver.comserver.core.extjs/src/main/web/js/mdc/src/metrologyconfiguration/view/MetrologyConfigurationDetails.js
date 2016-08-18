@@ -17,10 +17,8 @@ Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationDetails', {
 
         me.tools = [
             {
-                xtype: 'button',
+                xtype: 'uni-button-action',
                 itemId: 'metrology-configuration-actions-button',
-                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                iconCls: 'x-uni-action-iconD',
                 privileges: Mdc.privileges.MetrologyConfiguration.canAdmin(),
                 menu: {
                     xtype: 'metrology-configuration-actions-menu',

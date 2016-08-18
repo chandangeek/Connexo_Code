@@ -37,10 +37,8 @@ Ext.define('Mdc.view.setup.devicegeneralattributes.Setup', {
                 },
                 tools: [
                     {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        xtype: 'uni-button-action',
                         itemId: 'mdc-general-attributes-actions-button',
-                        iconCls: 'x-uni-action-iconD',
                         menu: {
                             itemId: 'editBtnContainer',
                             items: [

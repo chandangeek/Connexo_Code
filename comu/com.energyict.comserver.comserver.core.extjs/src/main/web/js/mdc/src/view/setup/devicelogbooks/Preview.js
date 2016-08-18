@@ -19,10 +19,7 @@ Ext.define('Mdc.view.setup.devicelogbooks.Preview', {
         if (Mdc.privileges.Device.canAdministrateDeviceData()) {
             me.tools = [
                 {
-                    xtype: 'button',
-                    text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-                    itemId: 'actionButton',
-                    iconCls: 'x-uni-action-iconD',
+                    xtype: 'uni-button-action',
                     menu: {
                         xtype: 'deviceLogbooksActionMenu'
                     }

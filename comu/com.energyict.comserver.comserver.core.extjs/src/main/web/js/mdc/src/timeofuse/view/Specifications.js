@@ -12,11 +12,9 @@ Ext.define('Mdc.timeofuse.view.Specifications', {
         var me = this;
         me.tools = [
             {
-                xtype: 'button',
-                text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                xtype: 'uni-button-action',
                 privileges: Mdc.privileges.DeviceType.admin,
                 disabled: !me.timeOfUseSupported,
-                iconCls: 'x-uni-action-iconD',
                 itemId: 'touSpecificationsButton',
                 menu: {
                     xtype: 'tou-spec-action-menu'

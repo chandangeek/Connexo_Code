@@ -11,10 +11,7 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolPreview', {
     frame: true,
     tools: [
         {
-            xtype: 'button',
-            text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
-            itemId: 'actionButton',
-            iconCls: 'x-uni-action-iconD',
+            xtype: 'uni-button-action',
             privileges: Mdc.privileges.Communication.admin,
             menu: {
                 xtype: 'comportpool-actionmenu',
