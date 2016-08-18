@@ -11,9 +11,7 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {
 
@@ -130,13 +127,7 @@ class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {
 
     @Override
     public Condition toCondition(Condition specification) {
-        Condition specialCases = ListOperator.IN.contains(new Subquery() {
-            @Override
-            public SqlFragment toFragment() {
-                return getBuilderFor(specification);
-            }
-        }, new String[]{"location"});
-        return specialCases;
+        return ListOperator.IN.contains(() -> getBuilderFor(specification), "location");
     }
 
     private SqlBuilder getBuilderFor(Condition specification) {
@@ -144,7 +135,6 @@ class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {
 
         String searchCondition = ((Comparison) specification).getValues()[0].toString();
         if (isJSONArrayValid(searchCondition)) {
-
             try {
                 JSONArray arrayConditions = getJSONArrayData(searchCondition);
                 List<String> whereClauses = new ArrayList<>();
@@ -161,6 +151,7 @@ class LocationSearchableProperty extends AbstractSearchableUsagePointProperty {
                 builder.append(whereClauses.stream().map(Object::toString).collect(Collectors.joining(" AND ")));
 
             } catch (JSONException ex) {
+                // IsJSONArrayValid catches JSONException and returns false so not expecting any JSONException any longer
             }
         } else {
             builder.append(" select locOut.LOCATIONID from mtr_locationmember locOut right join ");

@@ -46,7 +46,7 @@ class MeterActivationSetStreamBuilder {
     private Stream<Instant> timestampsFromMeterActivationRange(Range<Instant> meterActivationRange) {
         Stream.Builder<Instant> builder = Stream.builder();
         builder.add(meterActivationRange.lowerEndpoint());
-        if (meterActivationRange.hasUpperBound()) {
+        if (meterActivationRange.hasUpperBound() && this.period.contains(meterActivationRange.upperEndpoint())) {
             builder.add(meterActivationRange.upperEndpoint());
         }
         return builder.build();
@@ -71,7 +71,11 @@ class MeterActivationSetStreamBuilder {
         } else {
             sequenceNumber = 1;
         }
-        MeterActivationSetImpl set = new MeterActivationSetImpl(getMetrologyConfiguration(), sequenceNumber, startDate);
+        MeterActivationSetImpl set =
+                new MeterActivationSetImpl(
+                        this.getMetrologyConfiguration(),
+                        sequenceNumber,
+                        startDate);
         meterActivations.forEach(set::add);
         this.lastBuilt = set;
         return set;
