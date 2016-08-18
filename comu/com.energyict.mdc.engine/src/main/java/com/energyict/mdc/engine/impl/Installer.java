@@ -12,6 +12,7 @@ import com.elster.jupiter.users.UserService;
 import javax.inject.Inject;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * Installs the components of the mdc engine bundle.
@@ -46,6 +47,11 @@ class Installer implements FullInstaller {
                 this::createComServerUser,
                 logger
         );
+        doTry(
+                "Publish events",
+                this::publishEvents,
+                logger
+        );
     }
 
     private void createComServerUser() {
@@ -58,6 +64,17 @@ class Installer implements FullInstaller {
         for (EventType eventType : EventType.values()) {
             eventType.createIfNotExists(this.eventService);
         }
+    }
+
+    private void publishEvents() {
+        Stream.of(EventType.DEVICE_CONNECTION_COMPLETION.topic(), EventType.DEVICE_CONNECTION_FAILURE.topic())
+                .map(eventService::getEventType)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .forEach(eventType -> {
+                    eventType.setPublish(true);
+                    eventType.update();
+                });
     }
 
 }
