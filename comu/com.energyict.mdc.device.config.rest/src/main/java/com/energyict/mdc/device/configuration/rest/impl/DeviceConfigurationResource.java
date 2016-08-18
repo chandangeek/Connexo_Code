@@ -29,6 +29,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -46,6 +47,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DeviceConfigurationResource {
+
+    private static final String APPLICATION_HEADER_PARAM = "X-CONNEXO-APPLICATION-NAME";
 
     private final ResourceHelper resourceHelper;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -424,17 +427,18 @@ public class DeviceConfigurationResource {
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getLinkableValidationsRuleSets(
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @BeanParam JsonQueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters,
+            @HeaderParam(APPLICATION_HEADER_PARAM) String applicationName) {
         ValidationRuleSetInfos validationRuleSetInfos = new ValidationRuleSetInfos();
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<ValidationRuleSet> linkedRuleSets = deviceConfiguration.getValidationRuleSets();
         List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration);
         List<ValidationRuleSet> validationRuleSets = validationService.getValidationRuleSets();
-        for (ValidationRuleSet validationRuleSet : validationRuleSets) {
-            if (!validationRuleSet.getRules(readingTypes).isEmpty() && !linkedRuleSets.contains(validationRuleSet)) {
-                validationRuleSetInfos.add(validationRuleSet);
-            }
-        }
+        validationRuleSets.stream()
+                .filter(validationRuleSet -> validationRuleSet.getQualityCodeSystem().name().equals(applicationName)
+                        && !validationRuleSet.getRules(readingTypes).isEmpty()
+                        && !linkedRuleSets.contains(validationRuleSet))
+                .forEach(validationRuleSetInfos::add);
         List<ValidationRuleSetInfo> infolist = validationRuleSetInfos.ruleSets;
         infolist = ListPager.of(infolist).from(queryParameters).find();
         return Response.ok(PagedInfoList.fromPagedList("validationRuleSets", infolist, queryParameters)).build();
