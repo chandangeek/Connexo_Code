@@ -12,9 +12,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -34,14 +36,16 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     private final DataModel dataModel;
     private final TaskService taskService;
     private final TransactionService transactionService;
+    private final Clock clock;
 
     private transient Range<Instant> exportedDataRange;
 
     @Inject
-    DataExportOccurrenceImpl(DataModel dataModel, TaskService taskService, TransactionService transactionService) {
+    DataExportOccurrenceImpl(DataModel dataModel, TaskService taskService, TransactionService transactionService, Clock clock) {
         this.dataModel = dataModel;
         this.taskService = taskService;
         this.transactionService = transactionService;
+        this.clock = clock;
     }
 
     static DataExportOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, IExportTask task) {
@@ -178,7 +182,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     public int nthSince(Instant since) {
         Instant triggerTime = getTriggerTime();
         if (triggerTime.isBefore(since)) {
-            triggerTime = Instant.now();
+            triggerTime = Instant.now(clock);
         }
         List<TaskOccurrence> occurrences = taskService.getOccurrences(taskOccurrence.get().getRecurrentTask(), Range.closedOpen(since, triggerTime));
         return occurrences.size() + 1;

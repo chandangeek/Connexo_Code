@@ -190,7 +190,7 @@ public class DataExportServiceImplTest {
         when(taskOccurrence.getRecurrentTask()).thenReturn(recurrentTask);
         when(iReadingTypeDataExportTaskFactory.getUnique("recurrentTask", recurrentTask)).thenReturn(Optional.of(iExportTask));
 
-        DataExportOccurrenceImpl dataExportOccurrence1 = new DataExportOccurrenceImpl(dataModel, taskService, transactionService);
+        DataExportOccurrenceImpl dataExportOccurrence1 = new DataExportOccurrenceImpl(dataModel, taskService, transactionService, clock);
         when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence1);
         when(taskOccurrence.getTriggerTime()).thenReturn(NOW);
         when(standardDataSelector.getExportPeriod()).thenReturn(relativePeriod);
