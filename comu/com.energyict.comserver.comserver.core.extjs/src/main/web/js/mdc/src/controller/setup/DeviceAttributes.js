@@ -41,7 +41,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 click: this.saveAttributes
             },
             '#device-attributes-edit #deviceAttributesCancelBtn': {
-                click: this.goToAttributesLanding
+                click: this.cancelClick
             },
             '#device-custom-attributes-edit-id #device-custom-attributes-cancel-btn': {
                 click: this.goToAttributesLandingFromCas
@@ -160,12 +160,14 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         }
     },
 
-    goToAttributesLanding: function () {
-        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward({mRID:this.getDeviceAttributesEditPage().device.get('mRID')});
+    cancelClick: function (cancelBtn) {
+        this.goToAttributesLanding(cancelBtn.up('#device-attributes-edit').device.get('mRID'));
     },
 
     goToAttributesLanding: function(mRID) {
-        this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward({mRID: mRID})
+        var router = this.getController('Uni.controller.history.Router'),
+            route = router.previousRoute ? router.previousRoute : 'devices/device/attributes';
+        router.getRoute(route).forward({mRID: mRID});
     },
 
     goToAttributesLandingFromCas: function () {

@@ -25,10 +25,10 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
             requestCount = channelsIds.length,
             reading = me.get('interval').end,
             channelValidationData = me.get('channelValidationData'),
-            doCallback = function () {
+            doCallback = function (record) {
                 requestCount--;
                 if (!requestCount && Ext.isFunction(callback)) {
-                    callback();
+                    callback(record);
                 }
             };
 
@@ -46,8 +46,7 @@ Ext.define('Mdc.model.LoadProfilesOfDeviceData', {
                         record.beginEdit();
                         record.set('validationActive', record.get('validationActive') || channelValidationData[channelId].validationActive);
                         record.endEdit();
-
-                        doCallback();
+                        doCallback(record);
                     }
                 })
             });
