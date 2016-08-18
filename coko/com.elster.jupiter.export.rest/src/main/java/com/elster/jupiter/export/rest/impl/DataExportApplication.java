@@ -13,12 +13,14 @@ import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -43,6 +45,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile TimeService timeService;
+    private volatile Clock clock;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
@@ -96,6 +99,10 @@ public class DataExportApplication extends Application implements MessageSeedPro
         this.appService = appService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
 
     @Override
     public Set<Object> getSingletons() {
@@ -115,6 +122,7 @@ public class DataExportApplication extends Application implements MessageSeedPro
                 bind(meteringService).to(MeteringService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(appService).to(AppService.class);
+                bind(clock).to(Clock.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);

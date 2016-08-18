@@ -1,7 +1,15 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportOccurrenceFinder;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.EndDeviceEventTypeFilter;
+import com.elster.jupiter.export.EventDataSelector;
+import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -28,6 +36,7 @@ import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -47,10 +56,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -66,9 +75,10 @@ public class DataExportTaskResource {
     private final TransactionService transactionService;
     private final PropertyUtils propertyUtils;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final Clock clock;
 
     @Inject
-    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory) {
+    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory, Clock clock) {
         this.queryService = queryService;
         this.dataExportService = dataExportService;
         this.timeService = timeService;
@@ -77,6 +87,7 @@ public class DataExportTaskResource {
         this.transactionService = transactionService;
         this.propertyUtils = propertyUtils;
         this.conflictFactory = conflictFactory;
+        this.clock = clock;
     }
 
     @GET
@@ -309,13 +320,13 @@ public class DataExportTaskResource {
 
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
-                    filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now()));
+                    filter.hasProperty("startedOnTo") ? filter.getInstant("startedOnTo") : Instant.now(clock)));
         } else if (filter.hasProperty("startedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("startedOnTo")));
         }
         if (filter.hasProperty("finishedOnFrom")) {
             occurrencesFinder.withEndDateIn(Range.closed(filter.getInstant("finishedOnFrom"),
-                    filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now()));
+                    filter.hasProperty("finishedOnTo") ? filter.getInstant("finishedOnTo") : Instant.now(clock)));
         } else if (filter.hasProperty("finishedOnTo")) {
             occurrencesFinder.withStartDateIn(Range.closed(Instant.EPOCH, filter.getInstant("finishedOnTo")));
         }

@@ -22,17 +22,19 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.time.Never;
-import org.junit.Before;
-import org.mockito.Answers;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import org.junit.Before;
+import org.mockito.Answers;
+import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
@@ -104,6 +106,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         application.setMeteringGroupsService(meteringGroupsService);
         application.setTimeService(timeService);
         application.setAppService(appService);
+        application.setClock(Clock.systemDefaultZone());
 
         return application;
     }
