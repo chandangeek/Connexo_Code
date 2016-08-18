@@ -253,7 +253,7 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
         return dataModel;
     }
 
-    private void addTableToExistingModel(DataModelImpl currentDataModel, MetaData metaData, String tableName, String journalTableName, Set<String> processedTables, List<? extends Table<?>> toBeProcessed) {
+    private void addTableToExistingModel(DataModelImpl currentDataModel, MetaData metaData, String tableName, String journalTableName, Set<String> processedTables, List<? extends TableImpl<?>> toBeProcessed) {
         if (processedTables.add(tableName)) {
             metaData.getTable(tableName)
                     .ifPresent(userTable -> {
@@ -265,8 +265,12 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
                                 .filter(referencedTableName -> !tableName.equalsIgnoreCase(referencedTableName) && currentDataModel
                                         .getTable(referencedTableName) == null)
                                 .forEach(referencedTableName -> {
-                                    TableImpl<?> referencedTable = currentDataModel.getTable(referencedTableName);
-                                    String refJournalTableName = null; //getExistingJournalTableName(metaData, referencedTable);
+                                    String refJournalTableName = toBeProcessed.stream()
+                                            .filter(table -> table.getName().equals(referencedTableName))
+                                            .map(referencedTable -> getExistingJournalTableName(metaData, referencedTable))
+                                            .filter(Objects::nonNull)
+                                            .findAny()
+                                            .orElse(null);
                                     addTableToExistingModel(currentDataModel, metaData, referencedTableName, refJournalTableName, processedTables, toBeProcessed);
                                 });
                         userTable.addConstraintsTo(currentDataModel);
