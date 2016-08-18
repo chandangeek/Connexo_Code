@@ -88,11 +88,23 @@ Ext.define('Bpm.controller.OpenTask', {
             'bpm-task-perform-task #btn-save': {
                 click: this.chooseAction
             },
+            '#btn-task-cancel-link': {
+                click: this.returnToPreviousPage
+            },
             'bpm-task-perform-task #btn-complete': {
                 click: this.chooseAction
             }
         });
 
+    },
+
+    returnToPreviousPage: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            tasksRoute;
+
+        tasksRoute = router.getRoute('workspace/tasks');
+        tasksRoute.forward();
     },
 
     showEditTask: function (taskId) {
