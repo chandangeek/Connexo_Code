@@ -158,13 +158,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     public void removePropertiesFor(ConnectionProvider connectionProvider) {
         this.newInstance()
                 .getCustomPropertySet()
-                .ifPresent(propertySet -> {
-                    Instant currentTime = Instant.now();
-                    CustomPropertySetValues currentValues = this.customPropertySetService.getUniqueValuesFor(propertySet, connectionProvider, currentTime);
-                    if (!currentValues.isEmpty()) {
-                        setPropertiesFor(connectionProvider, CustomPropertySetValues.emptyFrom(currentTime), currentTime);
-                    }
-                });
+                .ifPresent(propertySet -> this.customPropertySetService.removeValuesFor(propertySet, connectionProvider));
     }
 
 }
