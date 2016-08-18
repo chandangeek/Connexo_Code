@@ -44,6 +44,12 @@ import java.util.stream.Collectors;
 @Path("/readingtypes")
 public class ReadingTypeResource {
 
+    private static final int MRID_FIELD_COUNT = 18;
+    private static final int INTER_HARMONIC_NUMERATOR_INDEX = 7;
+    private static final int INTER_HARMONIC_DENOMINATOR_INDEX = 8;
+    private static final int ARGUMENT_NUMERATOR_INDEX = 9;
+    private static final int ARGUMENT_DENOMINATOR_INDEX = 10;
+
     private final MeteringService meteringService;
     private final ExceptionFactory exceptionFactory;
     private final TransactionService transactionService;
@@ -163,11 +169,13 @@ public class ReadingTypeResource {
         RestValidationBuilder validationBuilder = new RestValidationBuilder();
         for (String mRIDvalidation : mRIDs) {
             String[] mRIDtokens = mRIDvalidation.split("[.]");
-            if (!mRIDtokens[7].equals("0") && mRIDtokens[8].equals("0")) {
-                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.DENOMINATOR_CANNOT_BE_ZERO, "interHarmonicDenominator"));
-            }
-            if (!mRIDtokens[9].equals("0") && mRIDtokens[10].equals("0")) {
-                validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.DENOMINATOR_CANNOT_BE_ZERO, "argumentDenominator"));
+            if (mRIDtokens.length == MRID_FIELD_COUNT) {
+                if (!mRIDtokens[INTER_HARMONIC_NUMERATOR_INDEX].equals("0") && mRIDtokens[INTER_HARMONIC_DENOMINATOR_INDEX].equals("0")) {
+                    validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.DENOMINATOR_CANNOT_BE_ZERO, "interHarmonicDenominator"));
+                }
+                if (!mRIDtokens[ARGUMENT_NUMERATOR_INDEX].equals("0") && mRIDtokens[ARGUMENT_DENOMINATOR_INDEX].equals("0")) {
+                    validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.DENOMINATOR_CANNOT_BE_ZERO, "argumentDenominator"));
+                }
             }
         }
         validationBuilder.validate();
