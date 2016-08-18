@@ -197,6 +197,7 @@ final class GroupImpl implements Group {
     }
 
     private void deletePrivileges() {
+        privilegeInGroups.forEach(PrivilegeInGroup::delete);
         this.privilegeInGroups.clear();
         this.dataModel
                 .mapper(PrivilegeInGroup.class)

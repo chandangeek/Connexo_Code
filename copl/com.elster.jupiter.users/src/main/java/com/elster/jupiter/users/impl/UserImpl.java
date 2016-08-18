@@ -234,7 +234,10 @@ public final class UserImpl implements User {
     }
 
     private void deleteMemberships() {
-        this.memberships.clear();
+        memberships = null;
+        getMemberships()
+                .stream()
+                .forEach(UserInGroup::delete);
     }
 
     @Override
