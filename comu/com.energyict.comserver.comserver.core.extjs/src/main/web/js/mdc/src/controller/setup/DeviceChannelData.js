@@ -1,6 +1,10 @@
 Ext.define('Mdc.controller.setup.DeviceChannelData', {
     extend: 'Ext.app.Controller',
 
+    requires: [
+        'Uni.util.Common'
+    ],
+
     views: [
         'Mdc.view.setup.devicechannels.TabbedDeviceChannelsView',
         'Mdc.view.setup.devicechannels.Overview',
@@ -267,9 +271,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     makeLinkToChannels: function (router) {
         var link = '<a href="{0}">' + Uni.I18n.translate('general.channels', 'MDC', 'Channels').toLowerCase() + '</a>',
-            filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter'),
-            queryParams = filter ? {filter: filter} : null;
-        return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl(null, queryParams));
+            filter = this.getStore('Mdc.store.Clipboard').get('latest-device-channels-filter')
+        return Ext.String.format(link, router.getRoute('devices/device/channels').buildUrl()+ '?'+ filter);
     },
 
     makeLinkToIssue: function (router, issueId) {
@@ -383,7 +386,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         viewport.setLoading();
         if (!Ext.isEmpty(changedData)) {
             Ext.Ajax.request({
-                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', encodeURIComponent(router.arguments.mRID), router.arguments.channelId),
+                url: Ext.String.format('/api/ddr/devices/{0}/channels/{1}/data', Uni.util.Common.encodeURIComponent(router.arguments.mRID), router.arguments.channelId),
                 method: 'PUT',
                 jsonData: Ext.encode(changedData),
                 timeout: 300000,

@@ -428,11 +428,43 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                             }
                         });
                     }
+                },
+                failure: function (record, operation) {
+                    if (operation && operation.response && operation.response.status === 400) {
+                        me.formMarkInvalid(Ext.decode(operation.response.responseText));
+                    }
                 }
             });
         } else {
             addCommandPnl.down('#form-errors').show();
         }
+    },
+
+    formMarkInvalid: function (response) {
+        var me = this;
+
+        Ext.each(response.errors, function (error) {
+            var failedField = me.getEditField(error.id);
+
+            if (failedField) {
+                failedField.markInvalid(error.msg);
+            }
+        });
+    },
+
+    getEditField: function (key) {
+        var editForm = this.getAddPropertyForm();
+
+        if (editForm) {
+            if (key.indexOf('deviceMessageAttributes.')==0)
+            {
+                key = key.replace('deviceMessageAttributes.', '');
+                return editForm.down('component[itemId='+key+']');
+            }
+        } else {
+            return null
+        }
     }
+
 })
 ;

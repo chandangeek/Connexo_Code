@@ -58,6 +58,7 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
 
     showDeviceDataValidationMainView: function (mRID) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
         me.mRID = mRID;
@@ -65,19 +66,26 @@ Ext.define('Mdc.controller.setup.DeviceDataValidation', {
         viewport.setLoading();
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
-            success: function (device) {
-                me.getApplication().fireEvent('loadDevice', device);
-                Ext.Ajax.request({
-                    url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
-                    method: 'GET',
-                    timeout: 60000,
-                    success: function () {
-                        var widget = Ext.widget('deviceDataValidationRulesSetMainView', { device: device });
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        me.updateDataValidationStatusSection(mRID, widget);
-                        viewport.setLoading(false);
-                    }
-                });
+            success: function (record) {
+                if (record.get('hasLogBooks')
+                    || record.get('hasLoadProfiles')
+                    || record.get('hasRegisters')) {
+                    me.getApplication().fireEvent('loadDevice', record);
+                    Ext.Ajax.request({
+                        url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/validationrulesets/validationstatus',
+                        method: 'GET',
+                        timeout: 60000,
+                        success: function () {
+                            var widget = Ext.widget('deviceDataValidationRulesSetMainView', {device: record});
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                            me.updateDataValidationStatusSection(mRID, widget);
+                            viewport.setLoading(false);
+                        }
+                    });
+                } else {
+                    window.location.replace(router.getRoute('notfound').buildUrl());
+                    viewport.setLoading(false);
+                }
             }
         });
     },

@@ -273,8 +273,14 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
                             }
                         } else {
                             form.hide();
+                            var showValuesForm = widget.down('#deviceSecuritySettingEditShowValuesForm');
+                            showValuesForm.hide();
+                            var buttonForm = widget.down('#deviceSecuritySettingEditButtonsForm');
+                            buttonForm.hide();
                             me.getDeviceSecuritySettingDetailTitle().setVisible(false);
                         }
+
+
                         widget.setLoading(false);
                     }
                 });

@@ -898,8 +898,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                 if (response.status == 400) {
                     var json = Ext.decode(response.responseText, true);
                     if (json && json.changeDeviceConfigConflict)  {
-                            var title = (canSolveConflictingMappings ? Uni.I18n.translate('general.failed', 'MDC', 'Failed') : Uni.I18n.translate('general.unable', 'MDC', 'Unable')) +
-                                Uni.I18n.translate('device.changeDeviceConfiguration.changeFailedTitle', 'MDC', ' to change device configuration');
+                            var title = (canSolveConflictingMappings ? Uni.I18n.translate('device.changeDeviceConfiguration.failedToChangeDeviceConfiguration', 'MDC', 'Failed to change device configuration')
+                                : Uni.I18n.translate('device.changeDeviceConfiguration.unableToChangeDeviceConfiguration', 'MDC', 'Unable to change device configuration'));
 
                             var errorWindow = Ext.create('Ext.window.MessageBox', {
                                 buttonAlign: canSolveConflictingMappings ? 'right' : 'left',

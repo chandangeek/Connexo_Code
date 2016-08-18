@@ -64,23 +64,27 @@ Ext.define('Mdc.controller.setup.DeviceEvents', {
 
         me.getModel('Mdc.model.Device').load(mRID, {
             success: function (record) {
-                me.getApplication().fireEvent('loadDevice', record);
-                widget = Ext.widget('deviceLogbookData', {
-                    router: me.getController('Uni.controller.history.Router'),
-                    device: record,
-                    title: title,
-                    toggleId: toggleId,
-                    eventsView: true
-                });
-                me.getApplication().fireEvent('changecontentevent', widget);
+                if (record.get('hasLogBooks')) {
+                    me.getApplication().fireEvent('loadDevice', record);
+                    widget = Ext.widget('deviceLogbookData', {
+                        router: router,
+                        device: record,
+                        title: title,
+                        toggleId: toggleId,
+                        eventsView: true
+                    });
+                    me.getApplication().fireEvent('changecontentevent', widget);
 
-                Uni.util.Common.loadNecessaryStores([
-                    'Mdc.store.Domains',
-                    'Mdc.store.Subdomains',
-                    'Mdc.store.EventsOrActions'
-                ], function () {
-                    // Do nothing as callback.
-                });
+                    Uni.util.Common.loadNecessaryStores([
+                        'Mdc.store.Domains',
+                        'Mdc.store.Subdomains',
+                        'Mdc.store.EventsOrActions'
+                    ], function () {
+                        // Do nothing as callback.
+                    });
+                } else {
+                    window.location.replace(router.getRoute('notfound').buildUrl());
+                }
             }
         });
     },

@@ -92,14 +92,18 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             showPage = function () {
                 deviceModel.load(mRID, {
                     success: function (record) {
-                        me.getApplication().fireEvent('loadDevice', record);
-                        widget = Ext.widget('deviceLoadProfileChannelsSetup', {
-                            mRID: mRID,
-                            router: router,
-                            device: record
-                        });
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                        channelsOfLoadProfilesOfDeviceStore.load();
+                        if (record.get('hasLoadProfiles')) {
+                            me.getApplication().fireEvent('loadDevice', record);
+                            widget = Ext.widget('deviceLoadProfileChannelsSetup', {
+                                mRID: mRID,
+                                router: router,
+                                device: record
+                            });
+                            me.getApplication().fireEvent('changecontentevent', widget);
+                            channelsOfLoadProfilesOfDeviceStore.load();
+                        } else {
+                            window.location.replace(router.getRoute('notfound').buildUrl());
+                        }
                     }
                 });
             };
@@ -130,7 +134,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
 
         preview.setLoading(true);
         preview.setTitle(readingType.fullAliasName);
-
+        Ext.getStore('Mdc.store.Clipboard').set('latest-device-channels-filter', Uni.util.QueryString.getQueryString());
         if (!record.data.validationInfo.validationActive) {
             !!preview.down('#validateNowChannel') && preview.down('#validateNowChannel').hide();
             !!Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0] && Ext.ComponentQuery.query('#channelActionMenu #validateNowChannel')[0].hide();

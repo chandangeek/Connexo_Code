@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
     extend: 'Ext.form.Panel',
     requires: [
         'Uni.form.field.Obis',
-        'Uni.grid.column.ReadingType'
+        'Uni.grid.column.ReadingType',
+        'Uni.grid.column.RemoveAction'
     ],
     alias: 'widget.load-profile-type-edit-form',
     ui: 'large',
@@ -93,18 +94,11 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
                                     flex: 1
                                 },
                                 {
-                                    xtype: 'actioncolumn',
-                                    iconCls: 'uni-icon-delete',
-                                    width: 55,
-                                    items: [
-                                        {
-                                            tooltip: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
-                                            handler: function (grid, rowIndex) {
-                                                grid.getStore().removeAt(rowIndex);
-                                                this.up('load-profile-type-edit-form').showGridOrMessage();
-                                            }
-                                        }
-                                    ]
+                                    xtype: 'uni-actioncolumn-remove',
+                                    handler: function (grid, rowIndex) {
+                                        grid.getStore().removeAt(rowIndex);
+                                        this.up('load-profile-type-edit-form').showGridOrMessage();
+                                    }
                                 }
                             ],
                             listeners: {

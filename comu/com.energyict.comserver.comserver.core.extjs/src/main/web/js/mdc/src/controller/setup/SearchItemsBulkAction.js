@@ -476,12 +476,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     changeDeviceConfigAvailable: function (filters) {
-        var result = false;
+        var me = this,
+            result = false;
         Ext.each(filters, function (item) {
             if (item.id === 'deviceConfiguration') {
                 if (item.value[0].criteria.length == 1) {
                     result = true;
                 }
+                me.deviceConfigId = item.value[0].criteria[0] - 0;
+            } else if(item.id === 'deviceType'){
+                me.deviceType = item.value[0].criteria[0] - 0;
             }
         });
         return result;
@@ -528,10 +532,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         changeDeviceConfigForm.getForm().clearInvalid();
 
                         var device = me.getDevicesGrid().getStore().getAt(0);
-
-                        me.deviceType = device.get('deviceTypeId');
-                        me.deviceConfigId = device.get('deviceConfigurationId');
-
                         configStore.getProxy().setUrl({deviceType: me.deviceType});
 
                         wizard.setLoading(true);
