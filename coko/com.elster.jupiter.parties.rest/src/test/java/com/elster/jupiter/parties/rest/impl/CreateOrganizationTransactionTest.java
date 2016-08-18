@@ -12,6 +12,8 @@ import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.OrganizationBuilder;
 import com.elster.jupiter.parties.PartyService;
 
+import java.time.Instant;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +23,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -81,7 +82,13 @@ public class CreateOrganizationTransactionTest {
         info.phone2 = PHONE2;
         info.version = 18;
         info.postalAddress = new PostalAddress("code", "poBox", new StreetDetail("street", "nr"), new TownDetail("tcd", "town", "section", "province", "country"));
-        info.streetAddress = new StreetAddress(new StreetDetail("street", "nr"), new TownDetail("tcd", "town", "section", "province", "country"), new Status("active", "noreason", "noremark", DATE));
+        info.streetAddress = new StreetAddress(new StreetDetail("street", "nr"), new TownDetail("tcd", "town", "section", "province", "country"), Status.builder()
+                .value("active")
+                .reason("noreason")
+                .remark("noremark")
+                .at(DATE)
+                .build()
+        );
         return info;
     }
 }
