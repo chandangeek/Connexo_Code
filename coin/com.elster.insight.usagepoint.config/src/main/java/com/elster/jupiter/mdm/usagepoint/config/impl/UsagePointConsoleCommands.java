@@ -177,7 +177,7 @@ public class UsagePointConsoleCommands {
                             .orElseThrow(() -> new IllegalArgumentException("Could not get service"));
                     UsagePointBuilder builder = category.newUsagePoint(upId, this.clock.instant());
                     UsagePoint up = builder.withName(name).withIsSdp(true).withIsVirtual(false).create();
-                    up.newElectricityDetailBuilder(Instant.now()).withGrounded(YesNoAnswer.YES).withPhaseCode(PhaseCode.UNKNOWN).create();
+                    up.newElectricityDetailBuilder(Instant.now(clock)).withGrounded(YesNoAnswer.YES).withPhaseCode(PhaseCode.UNKNOWN).create();
                     up.linkMeters().activate(meter, metrologyConfigurationService.findDefaultMeterRole(DefaultMeterRole.DEFAULT)).complete();
                     meter.update();
                     up.update();
