@@ -4,6 +4,7 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
     itemId: 'custom-attribute-set-versions-overlap-grid-id',
     requires: [
         'Imt.customattributesonvaluesobjects.view.form.OverlapGridActionMenu',
+        'Uni.grid.column.Action',
         'Uni.form.field.DateTime'
     ],
 
@@ -116,17 +117,20 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                         return value;
                     }
                 },
+
                 {
-                    header: Uni.I18n.translate('general.actions', 'IMT', 'Actions'),
+                    xtype: 'uni-actioncolumn',
                     itemId: 'custom-attribute-set-versions-grid-action-column',
-                    dataIndex: 'editable',
-                    renderer: function (value, meta, record, index) {
-                        if (value) {
-                            me.recordToEdit = record;
-                            me.metaData = meta;
-                            me.recordIndex = index;
-                            return '<span class="uni-actioncolumn-gear" style="cursor: pointer; display: inline-block; width: 20px; height: 20px; float: none; font-size: 20px"></span>';
-                        }
+                    privileges: Imt.privileges.MetrologyConfig.admin,
+                    menu: {
+                        xtype: 'versions-overlap-grid-action-menu',
+                        store: me.getStore()
+                    },
+                    isDisabled: function(view, rowIndex, callIndex, item, record) {
+                        item.menu.record = record;
+                        //todo: code like this should be generalized in common component
+                        var hasItems = item.menu.items.items.map(function(i){return i.isVisible()}).filter(function(i){return !!i}).length;
+                        return !record.get('editable') || !hasItems;
                     }
                 }
             ]
@@ -177,15 +181,6 @@ Ext.define('Imt.customattributesonvaluesobjects.view.form.OverlapGrid', {
                     me.getEl().down('#edit-column-icon-1').on('click', function () {
                         me.plugins[0].startEdit(me.recordToEdit, 1);
                         me.down('date-time[dataIndex=endTime]').down('#date-time-field-minutes').focus();
-                    });
-                }
-                if (me.getEl().down('.uni-actioncolumn-gear')) {
-                    me.getEl().down('.uni-actioncolumn-gear').on('click', function () {
-                        var menu = Ext.widget('versions-overlap-grid-action-menu', {
-                            metaData: me.metaData,
-                            recordIndex: me.recordIndex
-                        });
-                        menu.showBy(this);
                     });
                 }
             }
