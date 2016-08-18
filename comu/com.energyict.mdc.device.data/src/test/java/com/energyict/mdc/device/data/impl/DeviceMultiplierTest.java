@@ -274,7 +274,7 @@ public class DeviceMultiplierTest {
         MeterActivation newMeterActivation = mock(MeterActivation.class);
         when(newMeterActivation.getStart()).thenReturn(from);
         when(meter.activate(from)).thenReturn(newMeterActivation);
-        doReturn(Arrays.asList(newMeterActivation,meterActivation)).when(meter).getMeterActivations();
+        doReturn(Arrays.asList(newMeterActivation, meterActivation)).when(meter).getMeterActivations();
         doReturn(Optional.of(meterActivation)).when(meter).getMeterActivation(from);
         when(meter.getConfiguration(from)).thenReturn(Optional.empty());
 

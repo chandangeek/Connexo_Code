@@ -15,9 +15,11 @@ import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class ValidationStatusSearchableProperty extends AbstractSearchableDeviceProperty {
 
@@ -42,12 +44,13 @@ public class ValidationStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     protected boolean valueCompatibleForDisplay(Object value) {
-        return false;
+        return value instanceof DeviceDataStatusSearchWrapper;
     }
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return null;
+        return getThesaurus().getFormat(((DeviceDataStatusSearchWrapper) value).getDeviceDataStatusContainer()
+                .getTranslation()).format();
     }
 
     @Override
@@ -62,7 +65,11 @@ public class ValidationStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
-        statement.setString(bindPosition, (Boolean) value ? "Y" : "N");
+        Boolean result = ((DeviceDataStatusSearchWrapper) value).getDeviceDataStatusContainer()
+                .getTranslation()
+                .getDefaultFormat()
+                .equals(DeviceDataStatusContainer.ACTIVE.getTranslation().getDefaultFormat());
+        statement.setString(bindPosition, result ? "Y" : "N");
     }
 
     @Override
@@ -87,10 +94,14 @@ public class ValidationStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public PropertySpec getSpecification() {
+        Stream<DeviceDataStatusSearchWrapper> validations =
+                Arrays.stream(DeviceDataStatusContainer.values()).map(DeviceDataStatusSearchWrapper::new);
         return this.propertySpecService
-                .booleanSpec()
+                .specForValuesOf(new DeviceDataStatusValueFactory())
                 .named(this.getNameTranslationKey())
                 .fromThesaurus(this.getThesaurus())
+                .addValues(validations.toArray(DeviceDataStatusSearchWrapper[]::new))
+                .markExhaustive()
                 .finish();
     }
 
@@ -113,5 +124,4 @@ public class ValidationStatusSearchableProperty extends AbstractSearchableDevice
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         //nothing to refresh
     }
-
 }

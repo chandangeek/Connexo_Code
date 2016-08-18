@@ -76,7 +76,9 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
     }
 
     private Meter.MeterConfigurationBuilder meterconfigurationBuilderForRegisters() {
-        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter().get().startingConfigurationOn(getStart());
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter()
+                .get()
+                .startingConfigurationOn(getStart());
         createMeterConfigurationsForChannelSpecs(meterConfigurationBuilder, true);
         getDevice().getDeviceConfiguration().getRegisterSpecs().stream()
                 .filter(registerSpec -> registerSpec.getReadingType() != this.readingType)
@@ -93,7 +95,9 @@ public class KoreMeterConfigurationUpdater extends AbstractSyncDeviceWithKoreMet
     }
 
     private Meter.MeterConfigurationBuilder meterconfigurationBuilderForChannels() {
-        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter().get().startingConfigurationOn(getStart());
+        Meter.MeterConfigurationBuilder meterConfigurationBuilder = getDevice().getMeter()
+                .get()
+                .startingConfigurationOn(getStart());
         getDevice().getDeviceConfiguration().getChannelSpecs().stream()
                 .filter(channelSpec -> channelSpec.getReadingType() != this.readingType)
                 .forEach(channelSpec ->

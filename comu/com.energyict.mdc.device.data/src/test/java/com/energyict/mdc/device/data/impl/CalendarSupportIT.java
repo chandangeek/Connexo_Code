@@ -39,7 +39,10 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
     public void setActiveGhostCalendarOnVirginDevice() {
         Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(june1st2016);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(this.deviceConfiguration, "DeviceName", "setActiveGhostCalendarOnVirginDevice", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(this.deviceConfiguration, "DeviceName", "setActiveGhostCalendarOnVirginDevice", inMemoryPersistence
+                        .getClock()
+                        .instant());
         CollectedCalendarInformation collectedCalendarInformation = mock(CollectedCalendarInformation.class);
         when(collectedCalendarInformation.isEmpty()).thenReturn(false);
         String expectedCalendarName = "Casper";
@@ -64,7 +67,10 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
     public void setPassiveGhostCalendarOnVirginDevice() {
         Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(june1st2016);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(this.deviceConfiguration, "DeviceName", "setPassiveGhostCalendarOnVirginDevice", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(this.deviceConfiguration, "DeviceName", "setPassiveGhostCalendarOnVirginDevice", inMemoryPersistence
+                        .getClock()
+                        .instant());
         CollectedCalendarInformation collectedCalendarInformation = mock(CollectedCalendarInformation.class);
         when(collectedCalendarInformation.isEmpty()).thenReturn(false);
         String expectedCalendarName = "Casper";
@@ -89,7 +95,9 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(june1st2016);
         Device device = inMemoryPersistence.getDeviceService()
-                .newDevice(this.deviceConfiguration, "DeviceName", "setActiveAndPassiveGhostCalendarsOnVirginDevice", inMemoryPersistence.getClock().instant());
+                .newDevice(this.deviceConfiguration, "DeviceName", "setActiveAndPassiveGhostCalendarsOnVirginDevice", inMemoryPersistence
+                        .getClock()
+                        .instant());
         CollectedCalendarInformation collectedCalendarInformation = mock(CollectedCalendarInformation.class);
         when(collectedCalendarInformation.isEmpty()).thenReturn(false);
         String expectedActiveCalendarName = "Casper 1";
@@ -119,7 +127,10 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
     public void setActiveCalendarOnVirginDevice() {
         Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(june1st2016);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(this.deviceConfiguration, "DeviceName", "setActiveCalendarOnVirginDevice", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(this.deviceConfiguration, "DeviceName", "setActiveCalendarOnVirginDevice", inMemoryPersistence
+                        .getClock()
+                        .instant());
         Calendar calendar = this.addCalendarToDeviceType(device);
 
         CollectedCalendarInformation collectedCalendarInformation = mock(CollectedCalendarInformation.class);
@@ -145,7 +156,10 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
     public void setPassiveCalendarOnVirginDevice() {
         Instant june1st2016 = Instant.ofEpochMilli(1464732000000L);
         when(inMemoryPersistence.getClock().instant()).thenReturn(june1st2016);
-        Device device = inMemoryPersistence.getDeviceService().newDevice(this.deviceConfiguration, "DeviceName", "setPassiveCalendarOnVirginDevice", inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(this.deviceConfiguration, "DeviceName", "setPassiveCalendarOnVirginDevice", inMemoryPersistence
+                        .getClock()
+                        .instant());
         Calendar calendar = this.addCalendarToDeviceType(device);
 
         CollectedCalendarInformation collectedCalendarInformation = mock(CollectedCalendarInformation.class);
@@ -299,7 +313,7 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
         assertThat(device.calendars().getActive()).isPresent();
         ActiveEffectiveCalendar activeEffectiveCalendar = device.calendars().getActive().get();
         assertThat(activeEffectiveCalendar.getRange()).isEqualTo(Range.atLeast(may1st2016));
-        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(may1st2016);
+        assertThat(activeEffectiveCalendar.getLastVerifiedDate()).isEqualTo(june1st2016);
         assertThat(activeEffectiveCalendar.getAllowedCalendar().isGhost()).isTrue();
         assertThat(activeEffectiveCalendar.getAllowedCalendar().getName()).isEqualTo("Casper1");
         assertThat(device.calendars().getPassive()).isPresent();
@@ -320,7 +334,8 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithOneActiveCalendar(String name, String mRID) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(this.deviceConfiguration, name, mRID, inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(this.deviceConfiguration, name, mRID, inMemoryPersistence.getClock().instant());
         Calendar calendar = this.addCalendarToDeviceType(device);
         CollectedCalendarInformation collected = mock(CollectedCalendarInformation.class);
         when(collected.isEmpty()).thenReturn(false);
@@ -331,7 +346,8 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithOnePassiveCalendar(String name, String mRID) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(this.deviceConfiguration, name, mRID, inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(this.deviceConfiguration, name, mRID, inMemoryPersistence.getClock().instant());
         Calendar calendar = this.addCalendarToDeviceType(device);
         CollectedCalendarInformation collected = mock(CollectedCalendarInformation.class);
         when(collected.isEmpty()).thenReturn(false);
@@ -342,7 +358,8 @@ public class CalendarSupportIT extends PersistenceIntegrationTest {
     }
 
     private Device createSimpleDeviceWithActiveAndPassiveGhostCalendar(String name, String mRID) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(this.deviceConfiguration, name, mRID, inMemoryPersistence.getClock().instant());
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(this.deviceConfiguration, name, mRID, inMemoryPersistence.getClock().instant());
         CollectedCalendarInformation collected = mock(CollectedCalendarInformation.class);
         when(collected.isEmpty()).thenReturn(false);
         when(collected.getActiveCalendar()).thenReturn(Optional.of("Casper1"));

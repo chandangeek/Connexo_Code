@@ -39,7 +39,10 @@ public class SynchDeviceWithKoreForUsagePointChange extends AbstractSyncDeviceWi
     private final ThreadPrincipalService threadPrincipalService;
 
     public SynchDeviceWithKoreForUsagePointChange(ServerDevice device, Instant start, UsagePoint usagePoint, MeteringService meteringService, MdcReadingTypeUtilService readingTypeUtilService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, UserPreferencesService userPreferencesService, ThreadPrincipalService threadPrincipalService, EventService eventService) {
-        super(meteringService, readingTypeUtilService, eventService, (start == null ? device.getKoreHelper().getCurrentMeterActivation().get().getStart() : start));
+        super(meteringService, readingTypeUtilService, eventService, (start == null ? device.getKoreHelper()
+                .getCurrentMeterActivation()
+                .get()
+                .getStart() : start));
         this.device = device;
         this.usagePoint = usagePoint;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -66,19 +69,27 @@ public class SynchDeviceWithKoreForUsagePointChange extends AbstractSyncDeviceWi
         Optional<MeterActivation> meterActivation;
         // If the devices current meter activation starts at start, we just have to update this one!
         Optional<MeterActivation> currentMeterActivation = device.getKoreHelper().getCurrentMeterActivation();
-        if (currentMeterActivation.isPresent() && generalizedStartDate.isBefore(currentMeterActivation.get().getStart())) {
-            throw new MeterActivationTimestampNotAfterLastActivationException(thesaurus, getLongDateFormatForCurrentUser(), generalizedStartDate, currentMeterActivation.get().getStart());
+        if (currentMeterActivation.isPresent() && generalizedStartDate.isBefore(currentMeterActivation.get()
+                .getStart())) {
+            throw new MeterActivationTimestampNotAfterLastActivationException(thesaurus, getLongDateFormatForCurrentUser(), generalizedStartDate, currentMeterActivation
+                    .get()
+                    .getStart());
         }
         //validate business constraints
         validateUsagePointIsNotLinkedAlready(usagePoint, generalizedStartDate);
         validateReadingTypeRequirements(usagePoint, generalizedStartDate);
 
-        if (currentMeterActivation.isPresent() && currentMeterActivation.get().getStart().equals(generalizedStartDate)) {
+        if (currentMeterActivation.isPresent() && currentMeterActivation.get()
+                .getStart()
+                .equals(generalizedStartDate)) {
             meterActivation = currentMeterActivation;
         } else {
             meterActivation = Optional.of(getDevice().getMeter().get().getMeterActivation(generalizedStartDate).get());
         }
-        if (meterActivation.isPresent() && (!meterActivation.get().getUsagePoint().isPresent() || meterActivation.get().getUsagePoint().get().getId() != this.usagePoint.getId())) {
+        if (meterActivation.isPresent() && (!meterActivation.get().getUsagePoint().isPresent() || meterActivation.get()
+                .getUsagePoint()
+                .get()
+                .getId() != this.usagePoint.getId())) {
             meterActivation = Optional.of(endMeterActivationAndRestart(generalizedStartDate, meterActivation, Optional.of(usagePoint)));
         }
         device.getKoreHelper().setCurrentMeterActivation(meterActivation);
@@ -94,13 +105,15 @@ public class SynchDeviceWithKoreForUsagePointChange extends AbstractSyncDeviceWi
             Meter currentMeter = device.getMeter().get();
             Optional<Meter> meterLinkedToUsagePoint = usagePointMeterActivation.get().getMeter();
             if (meterLinkedToUsagePoint.isPresent() && !meterLinkedToUsagePoint.get().equals(currentMeter)) {
-                throw new UsagePointAlreadyLinkedToAnotherDeviceException(thesaurus, getLongDateFormatForCurrentUser(), usagePointMeterActivation.get());
+                throw new UsagePointAlreadyLinkedToAnotherDeviceException(thesaurus, getLongDateFormatForCurrentUser(), usagePointMeterActivation
+                        .get());
             }
         }
     }
 
     private void validateReadingTypeRequirements(UsagePoint usagePoint, Instant from) {
-        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = device.getUnsatisfiedRequirements(usagePoint, from, getDevice().getDeviceConfiguration());
+        Map<MetrologyConfiguration, List<ReadingTypeRequirement>> unsatisfiedRequirements = device.getUnsatisfiedRequirements(usagePoint, from, getDevice()
+                .getDeviceConfiguration());
         if (!unsatisfiedRequirements.isEmpty()) {
             throw new UnsatisfiedReadingTypeRequirementsOfUsagePointException(thesaurus, unsatisfiedRequirements);
         }

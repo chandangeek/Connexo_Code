@@ -238,7 +238,8 @@ public class DeviceSearchDomain implements SearchDomain {
                 }
                 for (PropertySpec propertySpec : pluggableClass.get().getDeviceProtocol().getPropertySpecs()) {
                     dynamicProperties.add(injector.getInstance(GeneralAttributeDynamicSearchableProperty.class)
-                            .init(this, propertiesGroup, propertySpec, deviceTypeConstriction.get().getConstrainingProperty(), pluggableClass.get()));
+                            .init(this, propertiesGroup, propertySpec, deviceTypeConstriction.get()
+                                    .getConstrainingProperty(), pluggableClass.get()));
                 }
             }
             return dynamicProperties;
@@ -257,13 +258,16 @@ public class DeviceSearchDomain implements SearchDomain {
             List<SearchableProperty> dynamicProperties = new ArrayList<>();
             Set<Long> uniquePluggableClasses = new HashSet<>();
             for (Object value : connectionMethodConstriction.get().getConstrainingValues()) {
-                ConnectionTypePluggableClass pluggableClass = (ConnectionTypePluggableClass) value;
-                if (!uniquePluggableClasses.add(pluggableClass.getId())) {
-                    continue;
-                }
-                for (PropertySpec propertySpec : pluggableClass.getPropertySpecs()) {
-                    dynamicProperties.add(injector.getInstance(ConnectionDynamicSearchableProperty.class)
-                            .init(this, propertiesGroup, propertySpec, connectionMethodConstriction.get().getConstrainingProperty(), pluggableClass));
+                if (value instanceof ConnectionMethodSearchableProperty.ConnectionMethodInfo) {
+                    ConnectionTypePluggableClass pluggableClass = ((ConnectionMethodSearchableProperty.ConnectionMethodInfo) value).ctpClass;
+                    if (!uniquePluggableClasses.add(pluggableClass.getId())) {
+                        continue;
+                    }
+                    for (PropertySpec propertySpec : pluggableClass.getPropertySpecs()) {
+                        dynamicProperties.add(injector.getInstance(ConnectionDynamicSearchableProperty.class)
+                                .init(this, propertiesGroup, propertySpec, connectionMethodConstriction.get()
+                                        .getConstrainingProperty(), pluggableClass));
+                    }
                 }
             }
             return dynamicProperties;

@@ -116,7 +116,8 @@ public class ActiveEffectiveCalendarImplTest extends PersistenceIntegrationTest 
     }
 
     private Device createSimpleDeviceWithOneCalendar(Instant effective) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(this.deviceConfiguration, "DeviceName", "MyUniqueID", effective);
+        Device device = inMemoryPersistence.getDeviceService()
+                .newDevice(this.deviceConfiguration, "DeviceName", "MyUniqueID", effective);
         Calendar calendar = createCalendar();
         DeviceType deviceType = device.getDeviceConfiguration().getDeviceType();
         deviceType.addCalendar(calendar);

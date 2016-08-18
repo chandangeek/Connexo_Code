@@ -46,7 +46,7 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
 
     @Override
     public Channel.ChannelUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits) {
-        this.overruledNbrOfFractionDigits  = overruledNbrOfFractionDigits;
+        this.overruledNbrOfFractionDigits = overruledNbrOfFractionDigits;
         return this;
     }
 
@@ -70,17 +70,18 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
         return this;
     }
 
-     @Override
-     public void update() {
-         DeviceImpl device = (DeviceImpl) channel.getDevice();
-         if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null){
-             device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock, eventService).withChannelUpdater(this));
-             device.executeSyncs();
-         }
-         if (this.overruledObisCode != null){
-           new DeviceObisCodeUsageUpdater().update(device, getReadingType(), overruledObisCode);
-         }
-         device.validateForUpdate();
-         device.postSave();
-     }
+    @Override
+    public void update() {
+        DeviceImpl device = (DeviceImpl) channel.getDevice();
+        if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null) {
+            device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock, eventService)
+                    .withChannelUpdater(this));
+            device.executeSyncs();
+        }
+        if (this.overruledObisCode != null) {
+            new DeviceObisCodeUsageUpdater().update(device, getReadingType(), overruledObisCode);
+        }
+        device.validateForUpdate();
+        device.postSave();
+    }
 }

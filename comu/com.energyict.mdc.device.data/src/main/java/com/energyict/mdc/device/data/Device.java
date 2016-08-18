@@ -397,13 +397,6 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<UsagePoint> getUsagePoint();
 
-    /**
-     * Activates the device on a usage point now. Use {@link Device#activate(Instant, UsagePoint)} instead if activation time need to be specified
-     *
-     * @param usagePoint target usage point to link device with
-     */
-    void setUsagePoint(UsagePoint usagePoint);
-
     GatewayType getConfigurationGatewayType();
 
     /**
@@ -490,6 +483,11 @@ public interface Device extends BaseDevice<Channel, LoadProfile, Register>, HasI
 
     Optional<Device> getHistory(Instant when);
 
+    void addInBatch(Batch batch);
+
+    void removeFromBatch(Batch batch);
+
+    Optional<Batch> getBatch();
     /**
      * Builder that support basic value setters for a ScheduledConnectionTask.
      */

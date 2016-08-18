@@ -71,5 +71,5 @@ public interface ServerDeviceForConfigChange extends Device {
      *
      * @param updateTimeStamp the timeStamp of the update
      */
-  //  void updateMeterConfiguration(Instant updateTimeStamp);
+    //  void updateMeterConfiguration(Instant updateTimeStamp);
 }

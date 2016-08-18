@@ -47,7 +47,7 @@ public class RegisterUpdaterImpl implements Register.RegisterUpdater {
 
     @Override
     public Register.RegisterUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits) {
-        this.overruledNbrOfFractionDigits  = overruledNbrOfFractionDigits;
+        this.overruledNbrOfFractionDigits = overruledNbrOfFractionDigits;
         return this;
     }
 
@@ -75,13 +75,14 @@ public class RegisterUpdaterImpl implements Register.RegisterUpdater {
     public void update() {
         DeviceImpl device = (DeviceImpl) register.getDevice();
         if (register.getRegisterSpec() instanceof NumericalRegisterSpec) { //textRegisters don't have fraction digits and overflow values
-            if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null){
-                device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock, eventService).withRegisterUpdater(this));
-               device.executeSyncs();
+            if (this.overruledNbrOfFractionDigits != null || this.overruledOverflowValue != null) {
+                device.syncWithKore(new KoreMeterConfigurationUpdater(this.meteringService, this.readingTypeUtilService, this.clock, eventService)
+                        .withRegisterUpdater(this));
+                device.executeSyncs();
             }
         }
-        if (this.overruledObisCode != null){
-          new DeviceObisCodeUsageUpdater().update(device, getReadingType(), overruledObisCode);
+        if (this.overruledObisCode != null) {
+            new DeviceObisCodeUsageUpdater().update(device, getReadingType(), overruledObisCode);
         }
         device.validateForUpdate();
         device.postSave();

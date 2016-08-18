@@ -88,7 +88,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
         List<DeviceEstimationRuleSetActivation> ruleSetActivations = null;
         Device device = createSimpleDeviceWithName("device", "device");
         ruleSetActivations = device.forEstimation().getEstimationRuleSetActivations();
-        
+
         assertThat(device.getVersion()).isEqualTo(2l);
         assertThat(device.forEstimation().isEstimationActive()).isFalse();
         assertThat(ruleSetActivations.stream().map(rs -> rs.getEstimationRuleSet()).collect(Collectors.toList())).containsExactly(rs1, rs2, rs3);
@@ -97,7 +97,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
         device.forEstimation().deactivateEstimationRuleSet(rs2);
         device = inMemoryPersistence.getDeviceService().findByUniqueMrid("device").get();
         ruleSetActivations = device.forEstimation().getEstimationRuleSetActivations();
-        
+
         assertThat(device.getVersion()).isEqualTo(3l);
         assertThat(device.forEstimation().isEstimationActive()).isFalse();
         assertThat(ruleSetActivations.stream().map(rs -> rs.getEstimationRuleSet()).collect(Collectors.toList())).containsExactly(rs1, rs2, rs3);
@@ -108,7 +108,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
         device.forEstimation().activateEstimation();
         device = inMemoryPersistence.getDeviceService().findByUniqueMrid("device").get();
         ruleSetActivations = device.forEstimation().getEstimationRuleSetActivations();
-        
+
         assertThat(device.getVersion()).isEqualTo(6l);
         assertThat(device.forEstimation().isEstimationActive()).isTrue();
         assertThat(ruleSetActivations.stream().map(rs -> rs.getEstimationRuleSet()).collect(Collectors.toList())).containsExactly(rs1, rs2, rs3);
