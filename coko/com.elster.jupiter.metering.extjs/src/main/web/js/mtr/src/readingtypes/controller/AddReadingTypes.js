@@ -134,16 +134,31 @@ Ext.define('Mtr.readingtypes.controller.AddReadingTypes', {
 
     addReadingTypesRequest: function(record){
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            form = me.getAddReadingTypeForm().getForm(),
+            errorMsg = me.getAddReadingTypeFormErrorMessage();
+
         record.getProxy().setUrl('');
         record.phantom = true;
+        Ext.suspendLayouts();
+        form.clearInvalid();
+        errorMsg.hide();
+        Ext.resumeLayouts(true);
         record.save({
-            callback: function (record, operation, success) {
-                if (success) {
-                    var response = Ext.JSON.decode(operation.response.responseText),
-                        addedCount = response.countCreatedReadingTypes;
-                    router.getRoute('administration/readingtypes').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge', addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
+            success: function (record, operation) {
+                var response = Ext.JSON.decode(operation.response.responseText),
+                    addedCount = response.countCreatedReadingTypes;
+                router.getRoute('administration/readingtypes').forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translatePlural('readingtypesmanagment.addReadingType.readingTypesAddedAcknowledge', addedCount, 'MTR', '{0} reading types added', '{0} reading type added', '{0} reading types added'));
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+
+                if (json && !Ext.isEmpty(json.errors)) {
+                    Ext.suspendLayouts();
+                    errorMsg.show();
+                    form.markInvalid(json.errors);
+                    Ext.resumeLayouts(true);
                 }
             }
         });
