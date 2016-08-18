@@ -734,8 +734,7 @@ public final class ChannelImpl implements ChannelContract {
             qualities.get(reading.getTimeStamp())
                     .stream()
                     .filter(rqr -> rqr.getReadingType().equals(readingType))
-                    .filter(not(readingQualityRecord -> readingQualityRecord.getReadingTimestamp()
-                            .equals(reading.getTimeStamp())))
+                    .filter(not(readingQualityRecord -> reading.getReadingQualities().stream().anyMatch(rqr -> rqr.getType().equals(readingQualityRecord.getType()))))
                     .forEach(rqr -> reading.addQuality(rqr.getTypeCode(), rqr.getComment()));
         }
     }

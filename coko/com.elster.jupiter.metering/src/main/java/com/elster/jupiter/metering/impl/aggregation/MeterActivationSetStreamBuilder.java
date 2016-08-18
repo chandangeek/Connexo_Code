@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.aggregation;
 
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 
 import com.google.common.collect.Range;
 
@@ -32,17 +33,17 @@ class MeterActivationSetStreamBuilder {
 
     Stream<MeterActivationSet> build() {
         return this.getOverlappingMeterActivations()
-                .flatMap(this::switchTimestamps)
+                .flatMap(this::timestamps)
                 .distinct()
                 .sorted()
                 .map(this::createMeterActivationSet);
     }
 
-    private Stream<Instant> switchTimestamps(MeterActivation meterActivation) {
-        return this.switchTimestampsFromMeterActivationRange(meterActivation.getRange());
+    private Stream<Instant> timestamps(MeterActivation meterActivation) {
+        return this.timestampsFromMeterActivationRange(meterActivation.getRange());
     }
 
-    private Stream<Instant> switchTimestampsFromMeterActivationRange(Range<Instant> meterActivationRange) {
+    private Stream<Instant> timestampsFromMeterActivationRange(Range<Instant> meterActivationRange) {
         Stream.Builder<Instant> builder = Stream.builder();
         builder.add(meterActivationRange.lowerEndpoint());
         if (meterActivationRange.hasUpperBound()) {
@@ -70,13 +71,14 @@ class MeterActivationSetStreamBuilder {
         } else {
             sequenceNumber = 1;
         }
-        MeterActivationSetImpl set = new MeterActivationSetImpl(this.usagePoint.getEffectiveMetrologyConfiguration(this.period
-                .lowerEndpoint())
-                .get()
-                .getMetrologyConfiguration(), sequenceNumber, startDate);
+        MeterActivationSetImpl set = new MeterActivationSetImpl(getMetrologyConfiguration(), sequenceNumber, startDate);
         meterActivations.forEach(set::add);
         this.lastBuilt = set;
         return set;
+    }
+
+    private UsagePointMetrologyConfiguration getMetrologyConfiguration() {
+        return this.usagePoint.getEffectiveMetrologyConfiguration(this.period.lowerEndpoint()).get().getMetrologyConfiguration();
     }
 
 }
